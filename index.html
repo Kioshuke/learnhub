@@ -1019,55 +1019,26 @@ body.dark-mode .card{
   margin: 15px 0;
 }
   /* --- STYLE RUY BĂNG TÙY BIẾN --- */
-.ribbon-wrapper {
-  position: absolute;
-  top: 15px;
-  right: -10px;
-  z-index: 100;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+/* Chỉ cần dán đoạn này một lần duy nhất vào CSS */
+.ribbon {
+    position: absolute; top: 15px; right: -10px; z-index: 10;
+    padding: 5px 15px 5px 25px; color: #fff; font: bold 11px sans-serif; text-transform: uppercase;
+    background: var(--bg, #27ae60); /* Mặc định là xanh */
+    clip-path: polygon(15% 0, 100% 0, 100% 100%, 15% 100%, 0 50%);
+    filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));
 }
 
-.ribbon-main {
-  position: relative;
-  height: 32px;
-  padding: 0 12px 0 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  color: #fff;
-  clip-path: polygon(15% 0%, 100% 0%, 100% 100%, 15% 100%, 0% 50%);
-  background-image: 
-    repeating-linear-gradient(90deg, rgba(0,0,0,0.06) 0px, rgba(0,0,0,0.06) 1px, transparent 1px, transparent 3px),
-    linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(0,0,0,0.2) 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.3);
+/* Tạo nếp gấp cuộn ra sau */
+.ribbon::after {
+    content: ''; position: absolute; top: 100%; right: 10px;
+    border-left: 10px solid transparent; border-top: 8px solid var(--fold, #196f3d);
 }
 
-.ribbon-main span {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
+/* Các biến màu sắc */
+.updating { --bg: #e74c3c; --fold: #962d22; }
+.done { --bg: #27ae60; --fold: #196f3d; }
 
-.ribbon-fold {
-  position: absolute;
-  top: 100%;
-  right: 10px;
-  width: 10px;
-  height: 8px;
-  clip-path: polygon(0 0, 100% 0, 0 100%);
-}
-
-/* Màu đỏ - Updating */
-.rb-red .ribbon-main { background-color: #e74c3c; }
-.rb-red .ribbon-fold { background-color: #962d22; }
-
-/* Màu xanh - Done */
-.rb-green .ribbon-main { background-color: #27ae60; }
-.rb-green .ribbon-fold { background-color: #196f3d; }
-
-/* Quan trọng: Cho phép ruy băng lòi ra ngoài Card */
+/* Bắt buộc cho card */
 .card { overflow: visible !important; position: relative; }
 </style>
 
@@ -1907,7 +1878,7 @@ Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
 <div class="grid">
 
 <div class="card">
-  <div class="ribbon-wrapper rb-green">
+<div class="ribbon done">Done</div>
 <h3>Trắc nghiệm P1</h3>
 <p>Bài ôn tập trắc nghiệm môn Hoá Học.</p>
 <a class="btn" href="cauhoi/filetest.html?de=../hoahoc/tracnghiem1.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../hoahoc/tracnghiem1.json'); return false;">Làm bài</a>
