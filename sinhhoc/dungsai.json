@@ -1,0 +1,136 @@
+[
+  {
+    "sectionTitle": "PHẦN II. TRẮC NGHIỆM ĐÚNG SAI",
+    "sectionDesc": "Lệnh: Chọn Đúng hoặc Sai cho các mệnh đề:",
+    "questions": [
+      {
+        "type": "true_false",
+        "question": "Hình bên dưới mô tả tóm tắt các yếu tố ảnh hưởng kích thước quần thể.",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2025/12/blobid4-1766589563.png",
+        "subQuestions": [
+          { "text": "a) Sự tăng trưởng của quần thể phụ thuộc vào mức sinh sản, mức tử vong, mức nhập cư và mức xuất cư.", "correct": 1 },
+          { "text": "b) Hiệu số giữa mức sinh sản và mức tử vong có tác động rõ rệt đến mức tăng trưởng của quần thể.", "correct": 1 },
+          { "text": "c) Môi trường thuận lợi làm tăng sinh sản, giảm tử vong, giảm xuất cư và tăng nhập cư, làm tăng kích thước quần thể.", "correct": 1 },
+          { "text": "d) Môi trường bất lợi làm giảm sinh sản, tăng tử vong, tăng xuất cư, làm giảm kích thước quần thể.", "correct": 1 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Khi đánh bắt cá tại một quần thể ở ba thời điểm, xét các nhận định:",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2020/09/dv4-1599705980.PNG",
+        "subQuestions": [
+          { "text": "a) Tại thời điểm I, quần thể đang ở trạng thái phát triển.", "correct": 1 },
+          { "text": "b) Tại thời điểm II, có thể tiếp tục đánh bắt với mức độ vừa phải.", "correct": 1 },
+          { "text": "c) Tại thời điểm I, có thể tiếp tục đánh bắt.", "correct": 0 },
+          { "text": "d) Tại thời điểm III, quần thể đang bị đánh bắt quá mức nên cần được bảo vệ.", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Xét 4 quần thể A, B, C, D (diện tích không đổi, không di cư):",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2022/06/5-1654737661.png",
+        "subQuestions": [
+          { "text": "a) Quần thể D có kích thước nhỏ nhất.", "correct": 1 },
+          { "text": "b) Kích thước quần thể A lớn hơn quần thể C.", "correct": 1 },
+          { "text": "c) Nếu B tăng 5%/năm thì sau 1 năm mật độ là 26,25 cá thể/ha.", "correct": 1 },
+          { "text": "d) Nếu C tăng 5%/năm thì sau 1 năm tăng thêm 152 cá thể.", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Ốc lác và ốc bươu vàng – xét các nhận định:",
+        "subQuestions": [
+          { "text": "a) Quan hệ cạnh tranh khác loài.", "correct": 1 },
+          { "text": "b) Ốc bươu vàng là loài ngoại lai xâm nhập.", "correct": 1 },
+          { "text": "c) Ốc lác sẽ phát triển mạnh hơn.", "correct": 0 },
+          { "text": "d) Cần kiểm soát ốc bươu vàng.", "correct": 1 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Mô hình tương tác các quần thể trong hệ sinh thái:",
+        "image": "dungsaicau5.jpg",
+        "subQuestions": [
+          { "text": "a) Gà gô đỏ và virus là quan hệ kí sinh.", "correct": 1 },
+          { "text": "b) Thỏ rừng giảm thì hươu đỏ cũng giảm.", "correct": 0 },
+          { "text": "c) Virus có thể ảnh hưởng toàn hệ sinh thái.", "correct": 1 },
+          { "text": "d) Hươu đỏ tăng thì gà gô đỏ giảm nhiễm virus.", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Yến mạch dại trong nông nghiệp:",
+        "subQuestions": [
+          { "text": "a) Cao hơn giúp phát tán hạt xa hơn.", "correct": 0 },
+          { "text": "b) Có thể làm giảm năng suất nông nghiệp.", "correct": 1 },
+          { "text": "c) Lúa mì cần chu kì sống dài hơn.", "correct": 0 },
+          { "text": "d) Cây trồng thấp làm giảm lợi thế cạnh tranh.", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Mối quan hệ các thành phần hệ sinh thái:",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2025/12/blobid0-1764903503.png",
+        "subQuestions": [
+          { "text": "a) (1) là yếu tố sinh cảnh.", "correct": 1 },
+          { "text": "b) (2) là quần xã sinh vật.", "correct": 1 },
+          { "text": "c) Không có phân giải vẫn có CO₂ nhờ hô hấp.", "correct": 1 },
+          { "text": "d) Sinh vật sản xuất đưa vật chất vào hệ.", "correct": 1 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Biến đổi khí hậu do chặt rừng và đốt nhiên liệu:",
+        "subQuestions": [
+          { "text": "a) Giảm hấp thụ CO₂ → tăng nhiệt → biến đổi khí hậu.", "correct": 1 },
+          { "text": "b) Đốt nhiên liệu làm tăng CO₂.", "correct": 1 },
+          { "text": "c) Do tăng nitơ gây lũ lụt.", "correct": 0 },
+          { "text": "d) Chặt rừng làm giảm nhiệt độ.", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Ảnh hưởng phá rừng đến chu trình nitơ:",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2025/12/blobid3-1766758984.png",
+        "subQuestions": [
+          { "text": "a) Cây giúp tăng nitơ đất.", "correct": 1 },
+          { "text": "b) Nitrat cao gây mất cân bằng hệ sinh thái.", "correct": 1 },
+          { "text": "c) Vi sinh vật giữ nitrat.", "correct": 1 },
+          { "text": "d) Phá rừng ảnh hưởng chu trình nitơ.", "correct": 1 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Diễn thế sinh thái:",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2024/07/blobid1-1722262035.png",
+        "subQuestions": [
+          { "text": "a) Quần xã 1 bắt đầu từ môi trường trống.", "correct": 1 },
+          { "text": "b) Tại C, quần xã 2 đa dạng hơn.", "correct": 0 },
+          { "text": "c) Quần xã 2 bị tác động tiêu cực.", "correct": 1 },
+          { "text": "d) Quần xã 1 ổn định hơn.", "correct": 1 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Diễn thế sau núi lửa:",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2025/12/blobid21-1766759463.png",
+        "subQuestions": [
+          { "text": "a) Sau 1 năm độ che phủ >5%.", "correct": 0 },
+          { "text": "b) Sau 1993 số loài ổn định.", "correct": 1 },
+          { "text": "c) Diễn thế thứ sinh rất nhanh.", "correct": 0 },
+          { "text": "d) Đạt đỉnh cực.", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Phục hồi hệ sinh thái hồ bị phú dưỡng:",
+        "subQuestions": [
+          { "text": "a) Nguyên nhân là phú dưỡng.", "correct": 1 },
+          { "text": "b) Phục hồi bằng đa dạng sinh học.", "correct": 1 },
+          { "text": "c) Năm 1989 thất bại do cá phục hồi.", "correct": 1 },
+          { "text": "d) Thêm cá ăn thịt giúp cân bằng hệ.", "correct": 1 }
+        ]
+      }
+    ]
+  }
+]
