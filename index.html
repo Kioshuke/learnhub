@@ -2593,15 +2593,7 @@ if (typeof db !== 'undefined') {
     });
 }
 </script>
-<div id="chatOverlay" style="
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100vw;
-  height:100vh;
-  z-index:9998;
-"></div>
+<div id="chatOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9998; background: rgba(0,0,0,0.1);"></div>
 
 <div id="chatButton" style="
   position:fixed;
@@ -2609,34 +2601,30 @@ if (typeof db !== 'undefined') {
   height:65px;
   border-radius:50%;
   overflow:hidden;
-  cursor:pointer;
+  cursor: grab;
   z-index:9999;
   box-shadow:0 6px 18px rgba(0,0,0,0.25);
-  left:0;
-  top:0;
+  /* Khởi tạo ở góc trái dưới */
+  left: 20px;
+  bottom: 20px;
+  touch-action: none; 
+  will-change: transform;
 ">
-  <img src="chatboiavt.png" style="
-    width:100%;
-    height:100%;
-    object-fit:cover;
-  ">
+  <img src="chatboiavt.png" style="width:100%; height:100%; object-fit:cover; pointer-events: none;">
 </div>
 
-<iframe id="chatbotFrame"
-  src="chatbot.html"
-  style="
-    display:none;
-    position:fixed;
-    bottom:90px;
-    right:20px;
-    width:350px;
-    height:500px;
-    border:none;
-    border-radius:12px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.2);
+<iframe id="chatbotFrame" src="chatbot.html" style="
+    display:none; 
+    position:fixed; 
+    bottom:95px; 
+    left:20px; /* Chỉnh frame xuất hiện bên trái */
+    width:350px; 
+    height:500px; 
+    border:none; 
+    border-radius:12px; 
+    box-shadow:0 8px 25px rgba(0,0,0,0.2); 
     z-index:9999;
-  ">
-</iframe>
+"></iframe>
 
 <script>
 const chatBtn = document.getElementById("chatButton");
@@ -2644,115 +2632,105 @@ const frame = document.getElementById("chatbotFrame");
 const overlay = document.getElementById("chatOverlay");
 
 let isDragging = false;
-let offsetX = 0;
-let offsetY = 0;
+let startX, startY;
+let currentX = 0;
+let currentY = 0;
+let xOffset = 0;
+let yOffset = 0;
 let hasMoved = false;
 
-let currentX = window.innerWidth 10;
-let currentY = window.innerHeight - 85;
+// Tối ưu hóa bằng requestAnimationFrame
+let rafId = null;
 
-updatePosition();
+chatBtn.addEventListener("pointerdown", dragStart);
+document.addEventListener("pointermove", drag);
+document.addEventListener("pointerup", dragEnd);
 
-// 👉 set cursor ban đầu
-chatBtn.style.cursor = "grab";
-
-function updatePosition(){
-  chatBtn.style.left = currentX + "px";
-  chatBtn.style.top = currentY + "px";
-}
-
-// 👉 POINTER DOWN (chỉ chuột trái)
-chatBtn.addEventListener("pointerdown", (e) => {
-  if (e.button !== 0) return; // chỉ drag chuột trái
-
+function dragStart(e) {
+  if (e.button !== 0) return;
+  
   isDragging = true;
   hasMoved = false;
-
-  offsetX = e.clientX - currentX;
-  offsetY = e.clientY - currentY;
-
-  chatBtn.setPointerCapture(e.pointerId);
-
-  // đổi cursor khi đang giữ
+  chatBtn.style.transition = "none";
   chatBtn.style.cursor = "grabbing";
-});
 
-// 👉 POINTER MOVE (gắn trên document cho mượt)
-document.addEventListener("pointermove", (e) => {
+  startX = e.clientX - xOffset;
+  startY = e.clientY - yOffset;
+  
+  chatBtn.setPointerCapture(e.pointerId);
+}
+
+function drag(e) {
   if (!isDragging) return;
+  e.preventDefault();
 
-  const x = e.clientX;
-  const y = e.clientY;
+  currentX = e.clientX - startX;
+  currentY = e.clientY - startY;
 
-  if (Math.abs(x - (currentX + offsetX)) > 3 || Math.abs(y - (currentY + offsetY)) > 3) {
+  // Kiểm tra nếu thực sự có di chuyển
+  if (Math.abs(currentX - xOffset) > 2 || Math.abs(currentY - yOffset) > 2) {
     hasMoved = true;
   }
 
-  currentX = x - offsetX;
-  currentY = y - offsetY;
+  xOffset = currentX;
+  yOffset = currentY;
 
-  currentX = Math.max(0, Math.min(window.innerWidth - 65, currentX));
-  currentY = Math.max(0, Math.min(window.innerHeight - 65, currentY));
+  if (!rafId) {
+    rafId = requestAnimationFrame(updatePosition);
+  }
+}
 
-  updatePosition();
-});
+function updatePosition() {
+  // Sử dụng translate3d để cực kỳ mượt mà
+  chatBtn.style.transform = `translate3d(${xOffset}px, ${yOffset}px, 0)`;
+  rafId = null;
+}
 
-// 👉 POINTER UP
-document.addEventListener("pointerup", () => {
+function dragEnd() {
   if (!isDragging) return;
-
+  
   isDragging = false;
-
-  chatBtn.style.cursor = "grab"; // trả lại cursor
-
+  chatBtn.style.cursor = "grab";
+  
+  // Hiệu ứng "hít" vào cạnh gần nhất (trái hoặc phải)
+  chatBtn.style.transition = "transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28)";
+  
+  const rect = chatBtn.getBoundingClientRect();
   const middle = window.innerWidth / 2;
-
-  if (currentX > middle) {
-    currentX = window.innerWidth - 75;
+  
+  if (rect.left + rect.width / 2 > middle) {
+    // Hít lề phải
+    xOffset = window.innerWidth - rect.width - 40; 
   } else {
-    currentX = 10;
+    // Hít lề trái
+    xOffset = 0; 
   }
-
-  chatBtn.style.transition = "left 0.25s ease, top 0.25s ease";
+  
   updatePosition();
+}
 
-  setTimeout(() => {
-    chatBtn.style.transition = "none";
-  }, 250);
-});
-
-// 👉 CLICK (chỉ khi không drag)
 chatBtn.addEventListener("click", () => {
-  if (hasMoved) {
-    hasMoved = false;
-    return;
-  }
+  if (hasMoved) return;
 
-  if (frame.style.display === "none") {
-    frame.style.display = "block";
-    overlay.style.display = "block";
+  const isHidden = frame.style.display === "none";
+  frame.style.display = isHidden ? "block" : "none";
+  overlay.style.display = isHidden ? "block" : "none";
 
+  if (isHidden) {
+    // Gửi thông tin user (giữ nguyên logic của bạn)
     const nameEl = document.getElementById("userName");
     const avatarEl = document.getElementById("userAvatar");
-
     let name = nameEl ? nameEl.innerText : "Bạn học";
     const avatar = avatarEl ? avatarEl.src : "https://i.imgur.com/6VBx3io.png";
-
-    if (!name || name === "undefined") name = "Bạn học";
 
     frame.contentWindow.postMessage({
       type: "USER_INFO",
       name: name,
       avatar: avatar
     }, "*");
-
-  } else {
-    frame.style.display = "none";
-    overlay.style.display = "none";
   }
 });
 
-// 👉 click ngoài để đóng
 overlay.addEventListener("click", () => {
   frame.style.display = "none";
   overlay.style.display = "none";
