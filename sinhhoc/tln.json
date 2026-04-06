@@ -1,0 +1,92 @@
+[
+  {
+    "sectionTitle": "PHẦN III. CÂU HỎI TRẢ LỜI NGẮN",
+    "sectionDesc": "Lệnh: Nhập đáp án chính xác vào ô trống:",
+    "questions": [
+      {
+        "type": "short_answer",
+        "question": "Trong các nhân tố sinh thái: nhiệt độ, cây phong lan, đất, ánh sáng, chim làm tổ trên cây, gió, nước. Có bao nhiêu nhân tố vô sinh?",
+        "correctAnswer": "5"
+      },
+      {
+        "type": "short_answer",
+        "question": "Trong các yếu tố sau: nước, không khí, độ ẩm, thực vật ưa sáng, vi sinh vật, các bệnh truyền nhiễm, ánh sáng, xác động vật chết. Có bao nhiêu yếu tố tác động đến sinh vật mà ảnh hưởng của chúng không phụ thuộc mật độ?",
+        "correctAnswer": "5"
+      },
+      {
+        "type": "short_answer",
+        "question": "Cho biết ở Việt Nam, cá chép phát triển mạnh ở khoảng nhiệt độ 25°C - 35°C; khi nhiệt độ xuống dưới 2°C và cao hơn 44°C cá bị chết. Giới hạn dưới của cá chép là bao nhiêu độ C?",
+        "correctAnswer": "2"
+      },
+      {
+        "type": "short_answer",
+        "question": "Nếu lấy tiêu chí tuổi liên quan đến quá trình sinh sản thì quần thể được chia thành bao nhiêu nhóm tuổi?",
+        "correctAnswer": "3"
+      },
+      {
+        "type": "short_answer",
+        "question": "Cho các ví dụ sau: <br>(1) Một số cây thông nhựa sống gần nhau có hiện tượng liền rễ giúp chúng sinh trưởng và chịu hạn tốt hơn các cây sống riêng lẻ. <br>(2) Cá mập con mới nở sử dụng các trứng chưa nở làm thức ăn. <br>(3) Lúa và cỏ dại cạnh tranh giành nước và muối khoáng. <br>(4) Các con sư tử đực đánh nhau để bảo vệ lãnh thổ. <br>Có bao nhiêu ví dụ thể hiện mối quan hệ cạnh tranh cùng loài?",
+        "correctAnswer": "2"
+      },
+      {
+        "type": "short_answer",
+        "question": "Ba sơ đồ mô tả sự biến động kích thước quần thể theo thời gian. Biết rằng ở mỗi đơn vị thời gian có một lượng cá thể sinh ra và chết đi, một lượng cá thể nhập cư và xuất cư. Dựa vào thông tin trên, sơ đồ nào mô tả quần thể có 200 cá thể sinh ra và 110 cá thể chết, không có di – nhập cư?",
+        "image": "https://images.tuyensinh247.com/picture/exam_room/ts247/images/2025-03-19-205707.png",
+        "correctAnswer": "1"
+      },
+      {
+        "type": "short_answer",
+        "question": "Nghiên cứu ổ sinh thái về nguồn thức ăn trong môi trường của 4 loài sinh vật, ta có các đồ thị trong hình sau. Phân tích đồ thị và cho biết có bao nhiêu nhận định dưới đây đúng? <br>(1) Kích thước thức ăn tăng dần từ loài 1 đến loài 4. <br>(2) Mức độ cạnh tranh gay gắt nhất thuộc về loài 3 với loài 4. <br>(3) Loài 3 là loài có sự cạnh tranh với nhiều loài nhất trên sơ đồ. <br>(4) Nếu các loài trên cùng nguồn thì loài này đã tiến hóa phân li.",
+        "image": "https://images.tuyensinh247.com/picture/images_question/1681264091-xhsr.jpg",
+        "correctAnswer": "3"
+      },
+      {
+        "type": "short_answer",
+        "question": "Bảng dưới đây mô tả sự biểu hiện các mối quan hệ sinh thái giữa 2 loài sinh vật A và B: Kí hiệu: (+): có lợi. (-): có hại. (0): không ảnh hưởng gì. Theo lí thuyết, phát biểu trường hợp thứ mấy sau đây đúng? <br>Ở trường hợp (1): nếu A là một loài động vật ăn thịt thì B sẽ là loài thuộc nhóm con mồi. <br>Ở trường hợp (2): nếu A là loài mối thì B có thể là loài trùng roi sống trong ruột mối. <br>Ở trường hợp (3): nếu A là một loài cá lớn thì B có thể sẽ là loài cá ép sống bám trên cá lớn. <br>Ở trường hợp (4): nếu A là loài thuộc nhóm cây trồng thì B có thể các loài cỏ dại.",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2020/03/31-1584052996.PNG",
+        "correctAnswer": "2"
+      },
+      {
+        "type": "short_answer",
+        "question": "Giả sử số lượng loài chim trong một khu vực phụ thuộc chủ yếu vào mức độ phân tầng của môi trường. Trong các khu hệ sinh vật sau đây, khu vực nào có khả năng có số lượng loài chim phong phú nhất? <br>Khu 1: Rừng mưa nhiệt đới <br>Khu 2: Savana <br>Khu 3: Sa mạc <br>Khu 4: Rừng lá rộng ôn đới",
+        "correctAnswer": "1"
+      },
+      {
+        "type": "short_answer",
+        "question": "Cho các hệ sinh thái sau đây: Rừng lá rộng ôn đới,  rừng nguyên sinh, hệ sinh thái đồng ruộng, hệ sinh thái biển, hệ sinh thái rừng trồng, hồ nước, rừng mưa nhiệt đới. Có bao nhiêu hệ sinh thái được cung cấp thêm một phần vật chất và có số lượng loài hạn chế? ",
+        "correctAnswer": "3"
+      },
+      {
+        "type": "short_answer",
+        "question": "Cho các hệ sinh thái sau đây: Rừng lá rộng ôn đới, rừng nguyên sinh, hệ sinh thái đồng ruộng, hệ sinh thái biển, hệ sinh thái rừng trồng, hồ nước, rừng mưa nhiệt đới. Có bao nhiêu hệ sinh thái không được cung cấp thêm một phần vật chất và có số lượng loài không hạn chế? ",
+        "correctAnswer": "4"
+      },
+      {
+        "type": "short_answer",
+        "question": "Trong lưới thức ăn hình bên. Có tối đa  bao nhiêu chuỗi thức ăn? <br>1. Cỏ, châu chấu, chuột, diều hâu. <br>2. Cỏ, châu chấu, chuột, rắn, diều hâu. <br>3. Cỏ, kiến, chuột, diều hâu. <br>4. Cỏ, kiến, chuột, rắn, diều hâu. <br>5. Cỏ, kiến, ếch, rắn, diều hâu.",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2020/03/300-1584288945.JPG",
+        "correctAnswer": "5"
+      },
+      {
+        "type": "short_answer",
+        "question": "Cho các sinh vật sau: lúa, chuột, châu chấu, rắn, diều hâu. Có thể thiết lập tối đa bao nhiêu chuỗi thức ăn có từ 3 bậc dinh dưỡng trở lên? ",
+        "correctAnswer": "4"
+      },
+      {
+        "type": "short_answer",
+        "question": "Sau khi một khu rừng nguyên sinh đạng bị người dân khai thác gỗ cũng như săn bắt động vật hoang dã quá mức, làm cho rừng có nguy cơ bị  phá hủy và một số động vật có nguy cơ tuyệt chủng. Chúng ta cần làm gì để khôi phục lại hệ sinh thái nơi đây? Có bao nhiêu đề xuất sau là phù hợp? <br>1. Ban hành chính sách trồng và bảo vệ rừng cũng như bảo vệ đa dạng sinh học nơi đây. <br>2. Giáo dục ý thức cho người dân về tầm quan trọng của rừng. <br>3. Giáo dục  ý thức cho người dân về ý nghĩa của việc bảo vệ đa dạng sinh học. <br>4. Mỗi người dân là 1 tuyên truyền viên tích cực cho công tác bảo tồn hệ sinh thái tại địa phương.",
+        "correctAnswer": "4"
+      },
+      {
+        "type": "short_answer",
+        "question": "Khi nói về vai trò của giáo dục bảo vệ môi trường đối với phát triển bền vững đất nước. Có bao nhiêu phát biểu sau đây đúng? <br>1. Giáo dục môi trường có vai trò cung cấp kiến thức về vấn đề môi trường. <br>2. Thấy được mối quan hệ chặt chẽ giữa môi trường và phát triển giữa môi trường địa phương với môi trường khu vực và toàn cầu. <br>3. Con người có thái độ, quan niệm, cách ứng xử đúng đắn trước các vấn đề môi trường. <br>4. Giáo dục môi trường còn cung cấp kỹ năng, phương pháp hành động để sử dụng một cách hợp lý các nguồn tài nguyên thiên nhiên.",
+        "correctAnswer": "4"
+      },
+      {
+        "type": "short_answer",
+        "question": "Trong lĩnh vực sử dụng năng lượng dùng trong sản xuất, sinh hoạt hàng ngày, em hãy cho biết có bao nhiêu đề xuất sau đây cho hoạt động  của bản thân nhằm góp phần phát triển bền vững? <br>(1) Tăng cường dùng nhiên liệu hóa thạch. <br>(2) Sử dụng năng lượng sạch. <br>(3) Trồng và bảo vệ rừng. <br>(4) Hạn chế sử dụng nhựa. Có bao nhiêu đề xuất đúng cho phát triển bền vững?",
+        "correctAnswer": "1"
+      }
+    ]
+  }
+]
