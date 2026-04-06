@@ -8,127 +8,127 @@
         "question": "Hình bên dưới mô tả tóm tắt các yếu tố ảnh hưởng kích thước quần thể.",
         "image": "https://video.vietjack.com/upload2/quiz_source1/2025/12/blobid4-1766589563.png",
         "subQuestions": [
-          { "text": "a) Sự tăng trưởng của quần thể phụ thuộc vào mức sinh sản, mức tử vong, mức nhập cư và mức xuất cư.", "correct": 1 },
-          { "text": "b) Hiệu số giữa mức sinh sản và mức tử vong có tác động rõ rệt đến mức tăng trưởng của quần thể.", "correct": 1 },
-          { "text": "c) Môi trường thuận lợi làm tăng sinh sản, giảm tử vong, giảm xuất cư và tăng nhập cư, làm tăng kích thước quần thể.", "correct": 1 },
-          { "text": "d) Môi trường bất lợi làm giảm sinh sản, tăng tử vong, tăng xuất cư, làm giảm kích thước quần thể.", "correct": 1 }
+          { "text": "Sự tăng trưởng của quần thể phụ thuộc vào mức sinh sản, mức tử vong, mức nhập cư và mức xuất cư.", "correct": 1 },
+          { "text": "Hiệu số giữa mức sinh sản và mức tử vong có tác động rõ rệt đến mức tăng trưởng của quần thể.", "correct": 1 },
+          { "text": "Môi trường thuận lợi làm tăng sinh sản, giảm tử vong, giảm xuất cư và tăng nhập cư, làm tăng kích thước quần thể.", "correct": 1 },
+          { "text": "Môi trường bất lợi làm giảm sinh sản, tăng tử vong, tăng xuất cư, làm giảm kích thước quần thể.", "correct": 1 }
         ]
       },
       {
         "type": "true_false",
-        "question": "Khi đánh bắt cá tại một quần thể ở ba thời điểm, xét các nhận định:",
+        "question": "Khi đánh bắt cá tại một quần thể ở ba thời điểm, thu được tỉ lệ như sau: Dựa vào thông tin bảng trên, hãy cho biết các nhận xét dưới đây là đúng hay sai?",
         "image": "https://video.vietjack.com/upload2/quiz_source1/2020/09/dv4-1599705980.PNG",
         "subQuestions": [
-          { "text": "a) Tại thời điểm I, quần thể đang ở trạng thái phát triển.", "correct": 1 },
-          { "text": "b) Tại thời điểm II, có thể tiếp tục đánh bắt với mức độ vừa phải.", "correct": 1 },
-          { "text": "c) Tại thời điểm I, có thể tiếp tục đánh bắt.", "correct": 0 },
-          { "text": "d) Tại thời điểm III, quần thể đang bị đánh bắt quá mức nên cần được bảo vệ.", "correct": 0 }
+          { "text": "Tại thời điểm I, quần thể đang ở trạng thái phát triển.", "correct": 1 },
+          { "text": "Tại thời điểm II, có thể tiếp tục đánh bắt với mức độ vừa phải.", "correct": 1 },
+          { "text": "Tại thời điểm I, có thể tiếp tục đánh bắt.", "correct": 0 },
+          { "text": "Tại thời điểm III, quần thể đang bị đánh bắt quá mức nên cần được bảo vệ.", "correct": 0 }
         ]
       },
       {
         "type": "true_false",
-        "question": "Xét 4 quần thể A, B, C, D (diện tích không đổi, không di cư):",
+        "question": "Giả sử 4 quần thể của một loài thú được kí hiệu là A, B, C, D có diện tích khu phân bố và mật độ cá thể như sau: Cho biết diện tích khu phân bố của 4 quần thể không thay đổi, không có hiện tượng xuất cư và nhập cư. Mỗi nhận định sau đây về 4 quần thể trên là đúng hay sai?",
         "image": "https://video.vietjack.com/upload2/quiz_source1/2022/06/5-1654737661.png",
         "subQuestions": [
-          { "text": "a) Quần thể D có kích thước nhỏ nhất.", "correct": 1 },
-          { "text": "b) Kích thước quần thể A lớn hơn quần thể C.", "correct": 1 },
-          { "text": "c) Nếu B tăng 5%/năm thì sau 1 năm mật độ là 26,25 cá thể/ha.", "correct": 1 },
-          { "text": "d) Nếu C tăng 5%/năm thì sau 1 năm tăng thêm 152 cá thể.", "correct": 0 }
+          { "text": "Quần thể D có kích thước nhỏ nhất.", "correct": 1 },
+          { "text": "Kích thước quần thể A lớn hơn quần thể C.", "correct": 1 },
+          { "text": "Nếu kích thước quần thể B tăng 5%/năm thì sau 1 năm mật độ cá thể của quần thể này là 26,25 cá thể/ha.", "correct": 1 },
+          { "text": "Nếu kích thước quần thể C tăng 5%/năm thì sau 1 năm quần thể này tăng thêm 152 cá thể.", "correct": 0 }
         ]
       },
       {
         "type": "true_false",
-        "question": "Ốc lác và ốc bươu vàng – xét các nhận định:",
+        "question": "Ốc lác (Pila conica) sống phổ biến ở khắp Miền Tây Nam Bộ (Việt Nam). Ốc bươu vàng (Pomacea canaliculata) có nguồn gốc Trung và Nam Mĩ được du nhập vào Việt Nam trong những năm 1985 – 1988. Ốc bươu vàng thích ứng với môi trường sống mới dễ dàng và phát triển mạnh, giành lấy thức ăn và những nơi ở tốt, làm cho nơi ở của Ốc lác phải thu hẹp lại. Mặt khác, Ốc bươu vàng đã trở thành một trong những sinh vật gây hại nghiêm trọng nhất cho nền nông nghiệp Việt Nam. Khi nói về mối quan hệ sinh thái giữa hai loài ốc trên, những phát biểu sau đây đúng hay sai?",
         "subQuestions": [
-          { "text": "a) Quan hệ cạnh tranh khác loài.", "correct": 1 },
-          { "text": "b) Ốc bươu vàng là loài ngoại lai xâm nhập.", "correct": 1 },
-          { "text": "c) Ốc lác sẽ phát triển mạnh hơn.", "correct": 0 },
-          { "text": "d) Cần kiểm soát ốc bươu vàng.", "correct": 1 }
+          { "text": "Quan hệ giữa Ốc lác và Ốc bươu vàng trong trường hợp này là mối quan hệ cạnh tranh khác loài.", "correct": 1 },
+          { "text": "Ốc bươu vàng giành lấy thức ăn, lấn chiếm nơi sinh sống của Ốc lác nên Ốc bươu vàng là loài ngoại lai xâm nhập.", "correct": 1 },
+          { "text": "Khi có Ốc bươu vàng và Ốc lác ở nước ta sẽ được thúc đẩy trong quá trình tiến hóa, Ốc lác nước ta ngày càng phát triển mạnh. ", "correct": 0 },
+          { "text": "Loại bỏ hoặc kìm hãm sự phát triển của loài ốc bươu vàng là một trong những biện pháp bảo vệ nền nông nghiệp ở Việt Nam.", "correct": 1 }
         ]
       },
       {
         "type": "true_false",
-        "question": "Mô hình tương tác các quần thể trong hệ sinh thái:",
+        "question": "Sơ đồ dưới đây thể hiện mô hình tương tác giữa các quần thể của một hệ sinh thái. Các chữ in hoa kí hiệu cho các quần thể. Mũi tên hai đầu cho biết có sự tương tác trực tiếp giữa hai quần thể. Các tương tác có thể có lợi (+), có hại (-) hoặc không lợi, không hại (0) đối với mỗi quần thể, được chỉ ra ở cuối các mũi tên. Mỗi nhận định sau đây là đúng hay sai về mối quan hệ các loài trong hệ sinh thái?",
         "image": "../sinhhoc/dungsaicau5.jpg",
         "subQuestions": [
-          { "text": "a) Gà gô đỏ và virus là quan hệ kí sinh.", "correct": 1 },
-          { "text": "b) Thỏ rừng giảm thì hươu đỏ cũng giảm.", "correct": 0 },
-          { "text": "c) Virus có thể ảnh hưởng toàn hệ sinh thái.", "correct": 1 },
-          { "text": "d) Hươu đỏ tăng thì gà gô đỏ giảm nhiễm virus.", "correct": 0 }
+          { "text": "Mối quan hệ của gà gô đỏ và virus là mối quan hệ kí sinh.", "correct": 1 },
+          { "text": "Khi kích thước quần thể thỏ rừng bị suy giảm thì kích thước quần thể của hươu đỏ cũng giảm.", "correct": 0 },
+          { "text": "Khi tốc độ lây nhiễm virus tăng lên có thể ảnh hưởng tới tất cả các loài sinh vật trong hệ sinh thái.", "correct": 1 },
+          { "text": "Khi số lượng cá thể trong quần thể hươu đỏ tăng thì khả năng nhiễm virus trong quần thể gà gô đỏ sẽ giảm.", "correct": 0 }
         ]
       },
       {
         "type": "true_false",
-        "question": "Yến mạch dại trong nông nghiệp:",
+        "question": "Cỏ dại là loài thực vật mọc ở những nơi mà chúng ta không mong muốn như trên cánh đồng, bãi cỏ hay bồn hoa. Một số loài cỏ dại đặc biệt thích ứng với đất trồng trọt. Yến mạch dại là loài cỏ gây nhiều vấn đề cho các cánh đồng trồng ngũ cốc như lúa mì hay yến mạch. Loài cây này có tên như vậy vì chúng trông giống cây yến mạch thường (hai loài này có cùng nguồn gốc). Khi lớn lên, chúng cao hơn so với yến mạch thường và không thể dùng làm thức ăn cho người. Khó có thể nhận ra yến mạch dại trên một cánh đồng rộng lớn. Đây là loài thực vật hằng năm, phát tán nòi giống bằng hạt nhờ gió. Trong các nhận định sau, nhận định nào là đúng hay sai?",
         "subQuestions": [
-          { "text": "a) Cao hơn giúp phát tán hạt xa hơn.", "correct": 0 },
-          { "text": "b) Có thể làm giảm năng suất nông nghiệp.", "correct": 1 },
-          { "text": "c) Lúa mì cần chu kì sống dài hơn.", "correct": 0 },
-          { "text": "d) Cây trồng thấp làm giảm lợi thế cạnh tranh.", "correct": 0 }
+          { "text": "Yến mạch dại cao hơn là lợi thế cạnh tranh vì giúp phát tán hạt giống nhờ gió xa hơn.", "correct": 0 },
+          { "text": "Nếu không có biện pháp quản lí thì yến mạch dại có thể làm giảm năng suất nông nghiệp.", "correct": 1 },
+          { "text": "Để thành công sinh sản trên đồng ruộng thì lúa mì cần có chu kì sống dài hơn yến mạch dại.", "correct": 0 },
+          { "text": "Việc cải tiến giống cây trồng thấp hơn là một trong những nguyên nhân làm giảm lợi thế cạnh tranh của các loài ngũ cốc.", "correct": 0 }
         ]
       },
       {
         "type": "true_false",
-        "question": "Mối quan hệ các thành phần hệ sinh thái:",
+        "question": "Hình bên mô tả các mối quan hệ giữa các thành phần cấu trúc của hệ sinh thái. Mỗi nhận định sau đây đúng hay sai? ",
         "image": "https://video.vietjack.com/upload2/quiz_source1/2025/12/blobid0-1764903503.png",
         "subQuestions": [
-          { "text": "a) (1) là yếu tố sinh cảnh.", "correct": 1 },
-          { "text": "b) (2) là quần xã sinh vật.", "correct": 1 },
-          { "text": "c) Không có phân giải vẫn có CO₂ nhờ hô hấp.", "correct": 1 },
-          { "text": "d) Sinh vật sản xuất đưa vật chất vào hệ.", "correct": 1 }
+          { "text": "(1) là các yếu tố của sinh cảnh.", "correct": 1 },
+          { "text": "(2) là quần xã sinh vật.", "correct": 1 },
+          { "text": "Nếu không có nhóm (e) thì CO₂ vẫn được trả lại môi trường nhờ hoạt động hô hấp của các nhóm sinh vật.", "correct": 1 },
+          { "text": "Nhóm (a) đóng vai trò quan trọng để đưa năng lượng, nitrogen,... từ môi trường vào cho quần xã (2).", "correct": 1 }
         ]
       },
       {
         "type": "true_false",
-        "question": "Biến đổi khí hậu do chặt rừng và đốt nhiên liệu:",
+        "question": "Chặt phá rừng và đốt cháy nhiên liệu hóa thạch là một phần nguyên nhân của hiện tượng Trái Đất ấm lên, dẫn tới xuất hiện các hiện tượng bất thường như lũ lụt, hạn hán. Dựa vào chu trình carbon và chu trình nước, hãy cho biết trong các giải thích sau, giải thích nào đúng, giải thích nào sai?",
         "subQuestions": [
-          { "text": "a) Giảm hấp thụ CO₂ → tăng nhiệt → biến đổi khí hậu.", "correct": 1 },
-          { "text": "b) Đốt nhiên liệu làm tăng CO₂.", "correct": 1 },
-          { "text": "c) Do tăng nitơ gây lũ lụt.", "correct": 0 },
-          { "text": "d) Chặt rừng làm giảm nhiệt độ.", "correct": 0 }
+          { "text": "Chặt phá rừng làm giảm khả năng hấp thụ carbon từ khí quyển, do đó lượng carbon trong khí quyển gia tăng làm Trái Đất ấm lên nên hơi nước bốc hơi nhiều hơn, dẫn tới mưa lũ và hạn hán bất thường ở các khu vực khác nhau trên Trái Đất.", "correct": 1 },
+          { "text": "Đốt cháy nhiên liệu làm tăng phát thải khí CO₂ vào khí quyển, do đó lượng carbon trong khí quyển gia tăng làm Trái Đất ấm lên nên hơi nước bốc hơi nhiều hơn, dẫn tới mưa lũ và hạn hán bất thường ở các khu vực khác nhau trên Trái Đất.", "correct": 1 },
+          { "text": "Chặt phá rừng và đốt cháy nhiên liệu hóa thạch làm tăng khí nitơ trong khí quyển nên dẫn đến lũ lụt.", "correct": 0 },
+          { "text": "Chặt phá rừng làm nhiệt độ giảm, hơi nước bốc hơi ít hơn, làm thay đổi hoàn lưu khí quyển, dẫn tới mưa lũ và hạn hán bất thường ở các khu vực khác nhau trên Trái Đất.", "correct": 0 }
         ]
       },
       {
         "type": "true_false",
-        "question": "Ảnh hưởng phá rừng đến chu trình nitơ:",
+        "question": "Một công trình nghiên cứu đã khảo sát về hàm lượng khoáng trong nước suối của hai vùng bị chặt rừng và không bị chặt rừng trong cùng một khu vực từ năm 1965 đến 1968. Hình ảnh dưới đây mô tả sự thay đổi về nồng độ muối khoáng của hai khu vực này sau khi xảy ra hiện tượng phá rừng. Nhận định nào sau đây đúng hay sai?",
         "image": "https://video.vietjack.com/upload2/quiz_source1/2025/12/blobid3-1766758984.png",
         "subQuestions": [
-          { "text": "a) Cây giúp tăng nitơ đất.", "correct": 1 },
-          { "text": "b) Nitrat cao gây mất cân bằng hệ sinh thái.", "correct": 1 },
-          { "text": "c) Vi sinh vật giữ nitrat.", "correct": 1 },
-          { "text": "d) Phá rừng ảnh hưởng chu trình nitơ.", "correct": 1 }
+          { "text": "Sự hiện diện của cây cối trong rừng có thể làm tăng hàm lượng nitơ trong đất.", "correct": 1 },
+          { "text": "Dòng nước trong rừng có hàm lượng nitrat cao có thể gây mất cân bằng hệ sinh thái tại địa phương trong dài hạn.", "correct": 1 },
+          { "text": "Các loài thực vật và vi khuẩn cộng sinh ở rễ có thể ngăn chặn việc rửa trôi nitrat trong đất.", "correct": 1 },
+          { "text": "Việc chặt phá rừng làm ảnh hưởng tới chu trình nitơ trong đất của các loài sinh vật.", "correct": 1 }
         ]
       },
       {
         "type": "true_false",
-        "question": "Diễn thế sinh thái:",
+        "question": "Cho đồ thị thể hiện biến thiên sinh khối của hai quần xã trong diễn thế. Từ đồ thị, nhận định nào sau đây đúng hay sai?",
         "image": "https://video.vietjack.com/upload2/quiz_source1/2024/07/blobid1-1722262035.png",
         "subQuestions": [
-          { "text": "a) Quần xã 1 bắt đầu từ môi trường trống.", "correct": 1 },
-          { "text": "b) Tại C, quần xã 2 đa dạng hơn.", "correct": 0 },
-          { "text": "c) Quần xã 2 bị tác động tiêu cực.", "correct": 1 },
-          { "text": "d) Quần xã 1 ổn định hơn.", "correct": 1 }
+          { "text": "Quần xã 1 khởi đầu diễn thế từ môi trường trống trơn.", "correct": 1 },
+          { "text": "Tại thời điểm C, quần xã 2 có độ đa dạng loài cao hơn quần xã 1.", "correct": 0 },
+          { "text": "Quần xã 2 có thể đã chịu tác động tiêu cực từ con người.", "correct": 1 },
+          { "text": "Quần xã 1 có xu hướng ổn định hơn quần xã 2.", "correct": 1 }
         ]
       },
       {
         "type": "true_false",
-        "question": "Diễn thế sau núi lửa:",
+        "question": "Hình vẽ dưới đây mô tả kết quả theo dõi sự thay đổi số lượng loài và mức độ che phủ của thảm thực vật sau khi núi lửa phun trào tại St. Helens (phía Tây Nam Washington, Mỹ) vào năm 1980. Nhận định nào sau đây đúng hay sai?",
         "image": "https://video.vietjack.com/upload2/quiz_source1/2025/12/blobid21-1766759463.png",
         "subQuestions": [
-          { "text": "a) Sau 1 năm độ che phủ >5%.", "correct": 0 },
-          { "text": "b) Sau 1993 số loài ổn định.", "correct": 1 },
-          { "text": "c) Diễn thế thứ sinh rất nhanh.", "correct": 0 },
-          { "text": "d) Đạt đỉnh cực.", "correct": 0 }
+          { "text": "Sau một năm núi lửa phun trào, tại vùng núi St. Helens đã có độ che phủ đạt trên 5%.", "correct": 0 },
+          { "text": "Từ năm 1993, số lượng loài ổn định và không tiếp tục tăng.", "correct": 1 },
+          { "text": "Diễn thế sinh thái thứ sinh xảy ra rất nhanh sau khi núi lửa phun trào.", "correct": 0 },
+          { "text": "Quần xã thực vật ổn định khoảng 20 loài tại khu vực nghiên cứu, chứng tỏ quần xã đã đạt giai đoạn đỉnh cực trong diễn thế sinh thái.", "correct": 0 }
         ]
       },
       {
         "type": "true_false",
-        "question": "Phục hồi hệ sinh thái hồ bị phú dưỡng:",
+        "question": "Do nước thải của thành phố và khu công nghiệp nên một hồ nước ngọt bị nhiễm nặng dẫn tới tảo và vi khuẩn lam bùng nổ. Cá Rutilus (thuộc họ Cá chép) có nguồn thức ăn chính là động vật phù du cũng gia tăng. Chỉ số đa dạng Shannon của hồ trong giai đoạn này thấp (0,5). Năm 1989, để khắc phục tình trạng ô nhiễm, các nhà khoa học đã loại bỏ khoảng 20% số lượng cá Rutilus ra khỏi hỏ, nhưng chỉ số đa dạng Shannon vẫn không thay đổi. Năm 1993, đồng thời với việc loại bỏ 20% số lượng cá Rutilus ra khỏi hồ, các nhà khoa học thả thêm cá chó – loài ăn thịt cá Rutilus vào hồ, chỉ số đa dạng sinh học Shannon tăng lên là 1,36. Các phát biểu sau đây về quá trình sinh học diễn ra tại hồ này là Đúng hay Sai?",
         "subQuestions": [
-          { "text": "a) Nguyên nhân là phú dưỡng.", "correct": 1 },
-          { "text": "b) Phục hồi bằng đa dạng sinh học.", "correct": 1 },
-          { "text": "c) Năm 1989 thất bại do cá phục hồi.", "correct": 1 },
-          { "text": "d) Thêm cá ăn thịt giúp cân bằng hệ.", "correct": 1 }
+          { "text": "Nguyên nhân suy giảm đa dạng sinh học trong hồ là do hiện tượng phú dưỡng (phì dưỡng).", "correct": 1 },
+          { "text": "Phương pháp phục hồi hệ sinh thái này là phục hồi đa dạng sinh học.", "correct": 1 },
+          { "text": "Phương pháp phục hồi hệ sinh thái năm 1989 không thành công vì sau đó cá Rutilus lại phục hồi trở lại.", "correct": 1 },
+          { "text": "Phương pháp phục hồi bằng cách bổ sung thêm cá chó sẽ kiểm soát được số lượng cá Rutilus, tạo điều kiện cho động vật phù du phát triển nên giảm lượng thực vật phù du hiệu quả.", "correct": 1 }
         ]
       }
     ]
