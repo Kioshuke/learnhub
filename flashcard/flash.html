@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcard App</title>
+
+<style>
+/* ===== GLOBAL - Tối ưu font và nền ===== */
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  /* Nền Gradient nhẹ nhàng, nhìn lâu không mỏi mắt */
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  color: #1e293b;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== MENU - Glassmorphism xịn hơn ===== */
+#menu {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(15px); /* Hiệu ứng kính mờ */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+#menu button {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 16px;
+  background: transparent;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#menu button:hover {
+  background: #4f46e5;
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* ===== MODE - Giữ nguyên cấu trúc ẩn/hiện ===== */
+.mode {
+  display: none;
+  padding: 10px 20px;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.active {
+  display: flex !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== PROGRESS ===== */
+#progressContainer {
+  width: 90%;
+  max-width: 500px;
+  margin: 10px auto;
+  background: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+#progressText {
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: #4f46e5;
+  letter-spacing: 1px;
+}
+#progressOuter {
+  width: 100%;
+  height: 10px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  overflow: hidden;
+}
+#progressInner {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #6366f1, #a855f7);
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+/* ===== FLASHCARD (FIX CHUẨN 3D & SHADOW) ===== */
+.flashcard {
+  width: 400px;
+  height: 260px;
+  perspective: 1000px;
+  margin: 40px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flash-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  cursor: pointer;
+}
+
+.flash-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.flash-front, .flash-back {
+  position: absolute;
+  inset: 0;
+  border-radius: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+  text-align: center;
+  background: white;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.07);
+  border: 1px solid rgba(0,0,0,0.03);
+  font-size: 22px;
+  font-weight: 600;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flash-back {
+  transform: rotateY(180deg);
+  background: #f8fafc;
+  color: #4f46e5;
+}
+
+/* ===== BUTTON ĐIỀU HƯỚNG ===== */
+button {
+  margin: 10px;
+  padding: 12px 24px;
+  border-radius: 14px;
+  border: none;
+  background: #4f46e5;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+
+button:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3);
+}
+
+/* ===== MATCH (GIỮ NGUYÊN GRID 5 CỘT) ===== */
+#matchGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.match-card {
+  height: 95px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 20px;
+  background: white;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: 0.3s;
+}
+
+.match-card:hover {
+  transform: translateY(-3px);
+  border-color: #e2e8f0;
+}
+
+.match-card.selected {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+
+.match-card.correct {
+  background: #22c55e !important;
+  color: white !important;
+  border-color: #22c55e !important;
+}
+
+.match-card.wrong {
+  background: #ef4444 !important;
+  color: white !important;
+  border-color: #ef4444 !important;
+  animation: shake 0.3s;
+}
+
+.hidden {
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+  transition: 0.3s;
+}
+
+/* ===== BLAST (QUIZ) - FIX HIỆU ỨNG ===== */
+.blast-box {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.question {
+  font-size: 28px;
+  margin-bottom: 25px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.options button {
+  width: 100%;
+  margin: 10px 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: white;
+  color: #475569;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  border: 1px solid #e2e8f0;
+  transition: 0.2s;
+}
+
+.options button:hover {
+  background: #f8fafc;
+  border-color: #4f46e5;
+  color: #4f46e5;
+}
+
+/* Ép màu khi đúng/sai ở Blast */
+.options button.correct {
+  background: #22c55e !important;
+  color: white !important;
+}
+
+.options button.wrong {
+  background: #ef4444 !important;
+  color: white !important;
+  animation: shake 0.3s;
+}
+
+/* ===== POPUP - LUÔN Ở GIỮA ===== */
+.popup {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.popup.show {
+  display: flex;
+}
+
+.popup-box {
+  background: white;
+  border: 4px solid #f1f5f9;
+  padding: 50px;
+  border-radius: 28px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.popup-box h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+@keyframes pop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+.slide-out-left { transform: translateX(-100px); opacity: 0; }
+.slide-in-right { transform: translateX(100px); opacity: 0; }
+.slide-active {
+  transform: translateX(0);
+  opacity: 1;
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Lớp này sẽ được thêm vào nút bằng JavaScript khi bấm */
+#menu button.active-nav {
+  background: #ffffff !important;
+  color: #4f46e5 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+#menu button:hover:not(.active-nav) {
+  background: rgba(255, 255, 255, 0.5);
+  color: #1e293b;
+}
+/* Khung bao quanh card và 2 nút mũi tên */
+.flash-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  width: 100%;
+  max-width: 800px;
+}
+
+/* Style cho nút mũi tên 2 bên */
+.nav-arrow {
+  background: white;
+  color: #4f46e5;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  font-size: 24px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.nav-arrow:hover {
+  background: #4f46e5;
+  color: white;
+  transform: scale(1.15) rotate(5deg);
+}
+
+/* Đảm bảo Card không có margin lung tung gây lệch */
+.flashcard {
+  margin: 0 !important; 
+}
+</style>
+</head>
+
+<body>
+
+<!-- MENU -->
+<div id="menu">
+  <button onclick="switchMode('flashcard')">Học</button>
+  <button onclick="switchMode('match')">Ghép thẻ</button>
+  <button onclick="switchMode('blast')">Blast</button>
+</div>
+
+<!-- PROGRESS -->
+<div id="progressContainer">
+  <div id="progressText">0 / 0</div>
+  <div id="progressOuter">
+    <div id="progressInner"></div>
+  </div>
+</div>
+
+<!-- FLASHCARD -->
+<div id="flashcard" class="mode active">
+  <div class="flash-wrapper">
+    <button class="nav-arrow" onclick="prevCard()">←</button>
+
+    <div class="flashcard" onclick="flipCard()">
+      <div class="flash-inner">
+        <div class="flash-front" id="front">Loading...</div>
+        <div class="flash-back" id="back">...</div>
+      </div>
+    </div>
+
+    <button class="nav-arrow" onclick="nextCard()">→</button>
+  </div>
+
+  <p style="text-align:center; opacity:0.6; font-size:14px; margin-top: 20px;">
+    Bấm vào thẻ để lật • Dùng mũi tên để chuyển
+  </p>
+</div>
+<!-- MATCH -->
+<div id="match" class="mode">
+  <div id="matchGrid"></div>
+</div>
+
+<!-- BLAST -->
+<div id="blast" class="mode">
+  <div class="blast-box">
+    <div class="question" id="question">Question</div>
+    <div class="options" id="options"></div>
+    <div id="score">Score: 0</div>
+  </div>
+</div>
+
+<!-- POPUP -->
+<div id="popup" class="popup">
+  <div class="popup-box">
+    <h2>🎉 Hoàn thành!</h2>
+    <p>Bạn đã học xong tất cả từ của chủ đề này 🎯</p>
+    <button onclick="restartGame()">Học lại</button>
+  </div>
+</div>
+
+<!-- SCRIPT -->
+<script src="data.js"></script>
+<script src="game.js"></script>
+
+</body>
+</html>
