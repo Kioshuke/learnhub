@@ -2,10 +2,18 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Flashcard App</title>
-
 <style>
+* {
+  box-sizing: border-box; /* Quan trọng nhất: Padding không làm nở khung */
+}
+
+html, body {
+  width: 100%;
+  overflow-x: hidden; /* Tuyệt chiêu cuối: Cấm kéo ngang */
+  position: relative;
+}
 /* ===== GLOBAL - Tối ưu font và nền ===== */
 body {
   margin: 0;
@@ -20,34 +28,63 @@ body {
 
 /* ===== MENU - Glassmorphism xịn hơn ===== */
 #menu {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(15px); /* Hiệu ứng kính mờ */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    width: fit-content;
+    margin: 20px auto;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04), 0 20px 40px rgba(79, 70, 229, 0.1);
+    position: sticky;
+    top: 15px;
+    z-index: 1000;
 }
-
 #menu button {
-  padding: 12px 28px;
-  border: none;
-  border-radius: 16px;
-  background: transparent;
-  color: #64748b;
-  font-weight: 600;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 10px 18px;
+    border: none;
+    border-radius: 14px;
+    background: transparent;
+    color: #475569;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease-out;
 }
 
-#menu button:hover {
-  background: #4f46e5;
-  color: white;
-  transform: translateY(-1px);
+/* Hiệu ứng khi lướt chuột qua (LearnHub style chỉ đổi nền nhẹ) */
+#menu button:hover:not(.active-nav) {
+    background: rgba(99, 102, 241, 0.05); /* Tím LearnHub rất nhạt */
+    color: #4f46e5;
+    transform: translateY(-2px);
+}
+
+#menu button.active-nav {
+    background: linear-gradient(135deg, #a855f7 0%, #d946ef 100%) !important;
+    color: white !important;
+    box-shadow: 0 8px 20px rgba(168, 85, 247, 0.35);
+    transform: scale(1.02) translateY(-2px);
+}
+
+
+/* NÚT HOÀN TOÀN KHÔNG CÓ CÁI DẤU CHẤM DƯỚI GẦM (CHÁN) */
+#menu button.active-nav::after {
+    content: none !important; /* Xóa bỏ indicator chấm tròn cũ */
+}
+
+#menu button:active {
+    transform: scale(0.97); /* Bấm xuống nhẹ */
+}
+/* Hiệu ứng nhịp tim nhẹ cho nút đang chọn */
+@keyframes pulse-active {
+  0% { box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4); }
+  50% { box-shadow: 0 10px 35px rgba(79, 70, 229, 0.6); }
+  100% { box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4); }
 }
 
 /* ===== MODE - Giữ nguyên cấu trúc ẩn/hiện ===== */
@@ -103,11 +140,11 @@ body {
 
 /* ===== FLASHCARD (FIX CHUẨN 3D & SHADOW) ===== */
 .flashcard {
-  width: 400px;
-  height: 260px;
+  width: 450px !important;
+  height: 280px !important;
   perspective: 1000px;
-  margin: 40px auto;
-  display: flex;
+  margin: 0 !important;
+  display: block;
   align-items: center;
   justify-content: center;
 }
@@ -118,7 +155,6 @@ body {
   position: relative;
   transform-style: preserve-3d;
   transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-  cursor: pointer;
 }
 
 .flash-inner.flipped {
@@ -127,6 +163,8 @@ body {
 
 .flash-front, .flash-back {
   position: absolute;
+  width: 100% !important;
+  height: 100% !important;
   inset: 0;
   border-radius: 32px;
   display: flex;
@@ -135,12 +173,13 @@ body {
   padding: 25px;
   text-align: center;
   background: white;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.07);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
   border: 1px solid rgba(0,0,0,0.03);
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 35px; /* Tăng size chữ cho xứng tầm card bự */
+  font-weight: 800;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  box-sizing: border-box;
 }
 
 .flash-back {
@@ -186,17 +225,20 @@ button:hover {
   text-align: center;
   border-radius: 20px;
   background: white;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 600;
   box-shadow: 0 4px 10px rgba(0,0,0,0.04);
   cursor: pointer;
   border: 2px solid transparent;
-  transition: 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .match-card:hover {
-  transform: translateY(-3px);
-  border-color: #e2e8f0;
+  transform: translateY(-5px) scale(1.02); /* Nhấc thẻ lên cao hơn và phóng to nhẹ */
+  border-color: #4f46e5; /* Đổi viền sang màu tím đậm */
+  background: #ffffff;
+  box-shadow: 0 12px 20px rgba(79, 70, 229, 0.15); /* Thêm đổ bóng màu tím nhạt cho ảo diệu */
+  color: #4f46e5; /* Đổi màu chữ sang tím luôn cho đồng bộ */
 }
 
 .match-card.selected {
@@ -235,7 +277,7 @@ button:hover {
 }
 
 .question {
-  font-size: 28px;
+  font-size: 35px;
   margin-bottom: 25px;
   font-weight: 800;
   color: #1e293b;
@@ -251,6 +293,7 @@ button:hover {
   box-shadow: 0 4px 6px rgba(0,0,0,0.02);
   border: 1px solid #e2e8f0;
   transition: 0.2s;
+  font-size: 18px;
 }
 
 .options button:hover {
@@ -276,12 +319,14 @@ button:hover {
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
   display: none;
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  perspective: 1000px;
+  transition: opacity 0.3s ease;
 }
 
 .popup.show {
@@ -290,25 +335,87 @@ button:hover {
 
 .popup-box {
   background: white;
-  border: 4px solid #f1f5f9;
-  padding: 50px;
-  border-radius: 28px;
+  border: none;
+  padding: 60px 50px;
+  border-radius: 32px;
   text-align: center;
-  max-width: 400px;
+  max-width: 450px;
   width: 90%;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.03), 0 25px 40px rgba(79, 70, 229, 0.1), inset 0 2px 0 rgba(255, 255, 255, 0.5);
+  position: relative;
+  animation: popupPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+@keyframes popupPop {
+  0% { transform: scale(0.8) translateY(20px) rotateX(-10deg); opacity: 0; }
+  100% { transform: scale(1) translateY(0) rotateX(0deg); opacity: 1; }
+}
+.celebrate-icon {
+ font-size: 80px;
+ margin-bottom: 30px;
+ display: inline-block;
+ animation: partyShake 1s ease-in-out infinite alternate;
+}
+
+@keyframes partyShake {
+ 0% { transform: rotate(-5deg) scale(1.1); }
+ 100% { transform: rotate(5deg) scale(1); }
+}
+
 .popup-box h2 {
-  font-size: 32px;
-  margin-bottom: 10px;
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 15px;
+    color: #4f46e5; 
+    text-align: center;
 }
 
-@keyframes pop {
-  from { transform: scale(0.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+.popup-box p {
+  font-size: 18px;
+ color: #475569;
+ margin-bottom: 40px;
+ line-height: 1.6;
 }
 
+/* Nút Học lại xịn hơn */
+.popup-box button {
+ background: linear-gradient(135deg, #6366f1, #a855f7);
+ color: white;
+ padding: 18px 40px;
+ font-size: 20px;
+ font-weight: 700;
+ border-radius: 20px;
+ box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+ border: none;
+ cursor: pointer;
+}
+
+.popup-box button:hover {
+ transform: translateY(-4px);
+ box-shadow: 0 15px 25px rgba(99, 102, 241, 0.4);
+}
+
+/* ===== PHÁO GIẤY CONFETTI (DÙNG CHUNG) ===== */
+.confetti-container {
+ position: fixed;
+ top: 0; left: 0;
+ width: 100%; height: 100%;
+ pointer-events: none;
+ z-index: 10001; /* Nổi lên trên popup-box */
+ overflow: hidden;
+}
+
+.confetti {
+ position: absolute;
+ top: -20px;
+ border-radius: 5px;
+ animation: confettiFall ease-out infinite;
+}
+
+@keyframes confettiFall {
+ 0% { transform: translateY(-20px) rotate(0deg) translateX(0); opacity: 1; }
+ 100% { transform: translateY(110vh) rotate(720deg) translateX(calc(100vw * 0.2)); opacity: 0; }
+}
 /* ===== ANIMATIONS ===== */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
@@ -316,23 +423,25 @@ button:hover {
   75% { transform: translateX(6px); }
 }
 
-.slide-out-left { transform: translateX(-100px); opacity: 0; }
-.slide-in-right { transform: translateX(100px); opacity: 0; }
+/* Trạng thái khi thẻ bay ra ngoài */
+.slide-out-left { 
+  transform: translateX(-150px) rotate(-15deg) scale(0.8) !important; 
+  opacity: 0; 
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Trạng thái chuẩn bị của thẻ mới (ở bên phải) */
+.slide-in-right { 
+  transform: translateX(150px) rotate(15deg) scale(0.8) !important; 
+  opacity: 0; 
+}
+
+/* Trạng thái khi thẻ mới bay vào vị trí chính giữa */
 .slide-active {
-  transform: translateX(0);
+  transform: translateX(0) rotate(0deg) scale(1) !important;
   opacity: 1;
-  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-/* Lớp này sẽ được thêm vào nút bằng JavaScript khi bấm */
-#menu button.active-nav {
-  background: #ffffff !important;
-  color: #4f46e5 !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
-#menu button:hover:not(.active-nav) {
-  background: rgba(255, 255, 255, 0.5);
-  color: #1e293b;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 20px 40px rgba(79, 70, 229, 0.15) !important;
 }
 /* Khung bao quanh card và 2 nút mũi tên */
 .flash-wrapper {
@@ -361,18 +470,220 @@ button:hover {
 .nav-arrow:hover {
   background: #4f46e5;
   color: white;
-  transform: scale(1.15) rotate(5deg);
+  transform: scale(1.1) translateY(-3px); /* Nhấc nhẹ lên */
+  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
 }
 
 /* Đảm bảo Card không có margin lung tung gây lệch */
-.flashcard {
-  margin: 0 !important; 
+.speaker-icon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 24px;
+  background: #eef2ff;
+  color: #4f46e5;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+  z-index: 100;
+  cursor: pointer;
+}
+
+.speaker-icon:hover {
+  background: #4f46e5;
+  color: white;
+}
+@media (max-width: 768px) {
+  /* Khung bao Flashcard */
+  .flashcard {
+    width: 90vw !important; /* Chiếm 90% chiều rộng màn hình điện thoại */
+    max-width: 350px; /* Không cho nó to quá trên điện thoại màn hình lớn */
+    height: 50vh !important; /* Cao khoảng nửa màn hình */
+    margin: 20px auto !important;
+  }
+
+  /* Ẩn nút mũi tên */
+  .nav-arrow {
+    display: none !important;
+  }
+
+  /* Ghép thẻ: Chuyển sang 2 cột cho đỡ chật */
+  #matchGrid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    padding: 10px;
+    gap: 10px;
+    width: 100% !important;
+  }
+
+  .match-card {
+    width: 100%;
+    height: 90px;
+    font-size: 14px;
+  }
+
+  /* Progress bar thu gọn */
+  #progressContainer {
+    width: 95%;
+  }
+  #menu {
+        width: 92%;
+        gap: 6px;
+        padding: 8px;
+        border-radius: 25px;
+        top: 10px;
+    }
+    #menu button {
+        padding: 10px 12px;
+        font-size: 13px;
+        flex: 1;
+        justify-content: center;
+    }
+}
+#music-control {
+    position: fixed;
+    bottom: 20px; /* Cho xuống góc dưới cho đỡ vướng menu */
+    right: 20px;
+    background: white;
+    width: 50px;
+    height: 50px;
+    display: none; /* Mặc định ẩn */
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    z-index: 2000;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+#music-control:hover { transform: scale(1.1); }
+/* Style cho dòng Score/Streak */
+#score {
+    font-size: 22px;
+    font-weight: 800;
+    color: #475569;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Huy hiệu số Streak */
+.streak-badge {
+    background: #f1f5f9;
+    color: #64748b;
+    padding: 4px 15px;
+    border-radius: 12px;
+    min-width: 40px;
+    display: inline-block;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Khi đang có chuỗi thắng (màu tím xanh giống Menu) */
+.streak-badge.active {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: white;
+    transform: scale(1.2);
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+}
+
+/* Khi bị hụt (màu đỏ) */
+.streak-badge.dead {
+    background: #fee2e2;
+    color: #ef4444;
+    transform: scale(0.9);
+}
+@keyframes streakJump {
+    0% { transform: scale(1.2); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1.2); }
+}
+
+.streak-badge.active {
+    animation: streakJump 0.3s ease-out;
+}
+/* Streak từ 10 trở lên: Màu Vàng Gold */
+.streak-badge.super-streak {
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(253, 160, 133, 0.4);
+}
+
+/* Streak từ 20 trở lên: Màu Xanh Cyan (Sét) */
+.streak-badge.mega-streak {
+    background: linear-gradient(135deg, #2af598 0%, #009efd 100%);
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0, 158, 253, 0.4);
+}
+
+/* Streak từ 50 trở lên: Màu Tối Vũ Trụ (Neon) */
+.streak-badge.ultra-streak {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border: 2px solid #fff;
+    box-shadow: 0 0 25px rgba(118, 75, 162, 0.6);
+}
+/* Hiệu ứng 3D Warp Drive */
+.mode {
+    display: none;
+    opacity: 0;
+    /* Giữ overflow visible để bóng đổ của nội dung con không bị cắt */
+    overflow: visible; 
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+}
+
+.mode.active {
+    display: flex !important;
+    /* Hiệu ứng trồi lên cho cả cái tab */
+    animation: slideUpLarge 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+@keyframes slideUpLarge {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+        filter: blur(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+/* Hiệu ứng các phần tử bên trong trồi lên lần lượt (Stagger) */
+.mode.active > * {
+    opacity: 0;
+    animation: slideUpSmall 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+/* Thằng nào nằm trên hiện trước, nằm dưới hiện sau */
+.mode.active > *:nth-child(1) { animation-delay: 0.1s; }
+.mode.active > *:nth-child(2) { animation-delay: 0.2s; }
+.mode.active > *:nth-child(3) { animation-delay: 0.3s; }
+.mode.active > *:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes slideUpSmall {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 </style>
 </head>
 
 <body>
-
 <!-- MENU -->
 <div id="menu">
   <button onclick="switchMode('flashcard')">Học</button>
@@ -395,21 +706,26 @@ button:hover {
 
     <div class="flashcard" onclick="flipCard()">
       <div class="flash-inner">
-        <div class="flash-front" id="front">Loading...</div>
+        <div class="flash-front">
+           <span id="front">Loading...</span>
+           <div class="speaker-icon" onclick="event.stopPropagation(); speak(document.getElementById('front').innerText)">🔊</div>
+        </div>
+        
         <div class="flash-back" id="back">...</div>
       </div>
     </div>
 
     <button class="nav-arrow" onclick="nextCard()">→</button>
   </div>
-
-  <p style="text-align:center; opacity:0.6; font-size:14px; margin-top: 20px;">
-    Bấm vào thẻ để lật • Dùng mũi tên để chuyển
-  </p>
 </div>
 <!-- MATCH -->
 <div id="match" class="mode">
-  <div id="matchGrid"></div>
+    <div id="match-start-screen" style="text-align: center; margin-top: 50px;">
+        <h2>Sẵn sàng chưa?</h2>
+        <button onclick="startMatchGame()" style="padding: 15px 30px; font-size: 20px; cursor: pointer;">Bắt đầu</button>
+    </div>
+
+    <div id="matchGrid" class="match-grid" style="display: none;"></div>
 </div>
 
 <!-- BLAST -->
@@ -424,10 +740,12 @@ button:hover {
 <!-- POPUP -->
 <div id="popup" class="popup">
   <div class="popup-box">
-    <h2>🎉 Hoàn thành!</h2>
-    <p>Bạn đã học xong tất cả từ của chủ đề này 🎯</p>
-    <button onclick="restartGame()">Học lại</button>
-  </div>
+   <div class="celebrate-icon">🎉</div>
+   <h2>Hoàn thành!</h2>
+   <p>Bạn đã bùng nổ, chinh phục tất cả từ của chủ đề này! 🎯</p>
+   <button onclick="restartGame()">Học lại nha!</button>
+</div>
+  <div class="confetti-container" id="confettiContainer"></div>
 </div>
 
 <!-- SCRIPT -->
