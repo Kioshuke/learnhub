@@ -498,49 +498,100 @@ button:hover {
   color: white;
 }
 @media (max-width: 768px) {
-  /* Khung bao Flashcard */
-  .flashcard {
-    width: 90vw !important; /* Chiếm 90% chiều rộng màn hình điện thoại */
-    max-width: 350px; /* Không cho nó to quá trên điện thoại màn hình lớn */
-    height: 50vh !important; /* Cao khoảng nửa màn hình */
-    margin: 20px auto !important;
-  }
+    /* 1. HIỆU ỨNG CHUYỂN TAB TỐI ƯU (GIẢM LAG) */
+    .mode {
+        transform: translate3d(0, 10px, 0);
+        filter: none !important;
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        will-change: transform, opacity;
+    }
 
-  /* Ẩn nút mũi tên */
-  .nav-arrow {
-    display: none !important;
-  }
+    .mode.active {
+        transform: translate3d(0, 0, 0);
+    }
 
-  /* Ghép thẻ: Chuyển sang 2 cột cho đỡ chật */
-  #matchGrid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    padding: 10px;
-    gap: 10px;
-    width: 100% !important;
-  }
+    /* 2. KHUNG BAO FLASHCARD */
+    .flashcard {
+        width: 90vw !important;
+        max-width: 350px;
+        height: 50vh !important;
+        margin: 20px auto !important;
+        will-change: transform, opacity;
+        transition: transform 0.3s ease-out !important;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1) !important;
+    }
 
-  .match-card {
-    width: 100%;
-    height: 90px;
-    font-size: 14px;
-  }
+    /* Hiệu ứng trượt ngang mượt mà cho Flashcard */
+    .slide-out-left {
+        transform: translate3d(-100%, 0, 0) !important;
+        opacity: 0;
+    }
 
-  /* Progress bar thu gọn */
-  #progressContainer {
-    width: 95%;
-  }
-  #menu {
+    .slide-in-right {
+        transform: translate3d(100%, 0, 0) !important;
+        opacity: 0;
+    }
+
+    .slide-active {
+        transform: translate3d(0, 0, 0) !important;
+        opacity: 1;
+    }
+
+    .flash-inner {
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* 3. MENU ĐIỀU HƯỚNG */
+    #menu {
         width: 92%;
         gap: 6px;
         padding: 8px;
         border-radius: 25px;
         top: 10px;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
     }
+
     #menu button {
         padding: 10px 12px;
         font-size: 13px;
         flex: 1;
         justify-content: center;
+        border-radius: 18px;
+    }
+
+    /* 4. GHÉP THẺ (MATCH GAME) */
+    #matchGrid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        padding: 10px;
+        gap: 10px;
+        width: 100% !important;
+    }
+
+    .match-card {
+        width: 100%;
+        height: 90px;
+        font-size: 14px;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+
+    /* 5. CÁC THÀNH PHẦN KHÁC */
+    .nav-arrow {
+        display: none !important;
+    }
+
+    #progressContainer {
+        width: 95%;
+        margin: 10px auto;
+    }
+
+    /* Tối ưu hiệu ứng Stagger nội dung con */
+    .mode.active > *:nth-child(n) {
+        animation-duration: 0.4s !important;
+        animation-delay: 0.05s !important;
+        filter: none !important;
     }
 }
 #music-control {
@@ -680,6 +731,40 @@ button:hover {
         transform: translateY(0);
     }
 }
+/* Animation mượt cho điện thoại */
+@keyframes slideInSmooth {
+    from { 
+        opacity: 0; 
+        transform: translate3d(0, 15px, 0); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translate3d(0, 0, 0); 
+    }
+}
+
+@keyframes slideOutSmooth {
+    from { 
+        opacity: 1; 
+        transform: translate3d(0, 0, 0); 
+    }
+    to { 
+        opacity: 0; 
+        transform: translate3d(0, -15px, 0); 
+    }
+}
+
+@keyframes shakeLow {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    20%, 60% { transform: translate3d(-4px, 0, 0); }
+    40%, 80% { transform: translate3d(4px, 0, 0); }
+}
+
+/* Tối ưu render */
+#question, #options button {
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+}
 </style>
 </head>
 
@@ -749,7 +834,25 @@ button:hover {
 </div>
 
 <!-- SCRIPT -->
-<script src="data.js"></script>
+<script>
+function loadDataScript() {
+    const params = new URLSearchParams(window.location.search);
+    const dataFile = params.get("data") || "data.js"; // mặc định
+
+    const script = document.createElement("script");
+    script.src = dataFile;
+    script.onload = () => {
+        // Sau khi load data xong thì mới load game
+        const gameScript = document.createElement("script");
+        gameScript.src = "game.js";
+        document.body.appendChild(gameScript);
+    };
+
+    document.body.appendChild(script);
+}
+
+loadDataScript();
+</script>
 <script src="game.js"></script>
 
 </body>
