@@ -226,9 +226,8 @@ function selectMatch(card, el) {
         selected = [];
     }
 }
-
 ////////////////////////////////////////////////////////////////////////////////
-// 🔴 BLAST - PHIÊN BẢN STREAK SIÊU CẤP
+// 🔴 BLAST - PHIÊN BẢN SMOOTH & ANTI-LAG (DÀNH CHO ĐIỆN THOẠI)
 ////////////////////////////////////////////////////////////////////////////////
 let blastPool = [], blastIndex = 0, streak = 0, currentQuestion = null;
 
@@ -237,11 +236,19 @@ function initBlast() {
     updateProgress();
     streak = 0;
     const scoreEl = document.getElementById("score");
-    // Khởi tạo giao diện streak có badge
     if(scoreEl) scoreEl.innerHTML = `Streak: <span class="streak-badge">0</span> 🔥`;
     
-    blastPool = shuffle([...cards]); 
+    // Ưu tiên lấy từ activeCards, không có thì lấy từ cards
+    const dataSource = (typeof activeCards !== 'undefined' && activeCards.length > 0) ? activeCards : cards;
+    blastPool = shuffle([...dataSource]); 
     blastIndex = 0;
+    
+    // Reset style ban đầu để tránh khựng
+    const qEl = document.getElementById("question");
+    const optDiv = document.getElementById("options");
+    if(qEl) qEl.style.opacity = "1";
+    if(optDiv) optDiv.style.opacity = "1";
+
     nextQuestion();
 }
 
@@ -251,19 +258,26 @@ function nextQuestion() {
         return;
     }
 
+    const dataSource = (typeof activeCards !== 'undefined' && activeCards.length > 0) ? activeCards : cards;
     const correct = blastPool[blastIndex];
     blastIndex++;
 
     let options = [correct.back];
     while (options.length < 4) {
-        const rand = random(cards).back;
+        const rand = random(dataSource).back;
         if (!options.includes(rand)) options.push(rand);
     }
     options = shuffle(options);
 
     currentQuestion = { question: correct.front, answer: correct.back };
-    document.getElementById("question").innerText = currentQuestion.question;
+    
+    const qEl = document.getElementById("question");
     const optDiv = document.getElementById("options");
+
+    if(!qEl || !optDiv) return;
+
+    // Thay đổi nội dung
+    qEl.innerText = currentQuestion.question;
     optDiv.innerHTML = "";
     
     options.forEach(opt => {
@@ -272,6 +286,17 @@ function nextQuestion() {
         btn.onclick = () => answerBlast(opt, btn);
         optDiv.appendChild(btn);
     });
+
+    // Kích hoạt animation "Bay vào" cực mượt
+    requestAnimationFrame(() => {
+        qEl.style.animation = "none";
+        optDiv.style.animation = "none";
+        void qEl.offsetWidth; // Force reflow
+        
+        qEl.style.animation = "slideInSmooth 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards";
+        optDiv.style.animation = "slideInSmooth 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.03s forwards";
+    });
+
     speak(correct.front);
 }
 
@@ -285,15 +310,19 @@ function answerBlast(choice, btn) {
         soundWrong.play().catch(() => {});
         btn.classList.add("wrong");
         
-        // Reset streak về 0 - Hiện icon hụt hẫng
+        // Rung nhẹ kiểu feedback điện thoại
+        btn.style.animation = "shakeLow 0.3s ease";
         streak = 0;
         if(scoreEl) scoreEl.innerHTML = `Streak: <span class="streak-badge dead">0</span> 💀`;
         
-        setTimeout(() => btn.classList.remove("wrong"), 400);
+        setTimeout(() => {
+            btn.classList.remove("wrong");
+            btn.style.animation = "";
+        }, 300);
         return;
     }
 
-    // Nếu trả lời đúng
+    // Trả lời đúng
     soundCorrect.currentTime = 0;
     soundCorrect.play().catch(() => {});
     progress = Math.min(progress + 1, total);
@@ -304,41 +333,28 @@ function answerBlast(choice, btn) {
     btn.classList.add("correct");
     buttons.forEach(b => b.disabled = true);
 
-    // HỆ THỐNG ICON TIẾN HÓA THEO STREAK
     if(scoreEl) {
-        let icon = "🔥"; // Mặc định dưới 10
+        let icon = "🔥";
         let levelClass = "active";
-
-        if (streak >= 50) {
-            icon = "🚀🌌"; // Trên 50: Bay vào vũ trụ
-            levelClass = "ultra-streak";
-        } else if (streak >= 20) {
-            icon = "⚡⚡"; // Trên 20: Sét đánh ngang tai
-            levelClass = "mega-streak";
-        } else if (streak >= 10) {
-            icon = "🌟"; // Trên 10: Tỏa sáng
-            levelClass = "super-streak";
-        }
-
+        if (streak >= 50) { icon = "🚀🌌"; levelClass = "ultra-streak"; }
+        else if (streak >= 20) { icon = "⚡⚡"; levelClass = "mega-streak"; }
+        else if (streak >= 10) { icon = "🌟"; levelClass = "super-streak"; }
         scoreEl.innerHTML = `Streak: <span class="streak-badge ${levelClass}">${streak}</span> ${icon}`;
     }
 
-    setTimeout(() => { nextQuestionSmooth(); }, 400);
-}
-
-function nextQuestionSmooth() {
-    const q = document.getElementById("question");
-    const opt = document.getElementById("options");
-    if(q) q.style.opacity = "0";
-    if(opt) opt.style.opacity = "0";
-    
+    // Hiệu ứng "Bay đi" - Nhanh và gọn hơn
     setTimeout(() => {
-        nextQuestion();
-        if(q) q.style.opacity = "1";
-        if(opt) opt.style.opacity = "1";
-    }, 300);
-}
+        const qEl = document.getElementById("question");
+        const optDiv = document.getElementById("options");
 
+        qEl.style.animation = "slideOutSmooth 0.3s ease-in forwards";
+        optDiv.style.animation = "slideOutSmooth 0.3s ease-in forwards";
+
+        setTimeout(() => {
+            nextQuestion();
+        }, 300);
+    }, 500); // 0.5s là đủ để người dùng biết mình đúng
+}
 function speak(text) {
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
