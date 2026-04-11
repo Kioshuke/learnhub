@@ -1,0 +1,520 @@
+[
+  {
+    "sectionTitle": "PHẦN I. CÂU HỎI TRẮC NGHIỆM",
+    "sectionDesc": "Lệnh: Chọn <b>một</b> đáp án chính xác nhất trong các phương án trả lời sau:",
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "Môi trường là gì?",
+        "answers": [
+          "Môi trường là nơi sinh sống của sinh vật,bao gồm tất cả các nhân tố hữu sinh xung quanh sinh vật.",
+          "Môi trường là nơi sinh sống của sinh vật,bao gồm tất cả các nhân tố vô sinh và hữu sinh xung quanh sinh vật,trừ nhân tố con người.",
+          "Môi trường là nơi sinh sống của sinh vật,bao gồm tất cả các nhân tố vô sinh xung quanh sinh vật.",
+          "Môi trường gồm tất cả các nhân tố xung quanh sinh vật,có tác động trực tiếp hoặc gián tiếp tới sinh vật,làm ảnh hưởng đến sự tồn tại,sinh trưởng,phát triển và các hoạt động khác của sinh vật."
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Nhịp sinh học là",
+        "answers": [
+          "Khả năng phản ứng của sinh vật trước sự thay đổi nhất thời của môi trường.",
+          "Khả năng phản ứng của sinh vật trước sự thay đổi mang tính chu kì của môi trường.",
+          "Khả năng phản ứng của sinh vật một cách nhịp nhàng trước sự thay đổi theo chu kì của môi trường.",
+          "Sự thay đổi theo chu kì của sinh vật trước môi trường."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Các nhân tố sinh thái được chia thành những nhóm nào sau đây?",
+        "answers": [
+          "Nhóm nhân tố vô sinh và nhân tố con người.",
+          "Nhóm nhân tố sinh thái vô sinh và nhóm nhân tố sinh thái hữu sinh.",
+          "Nhóm nhân tố vật lí,hóa học và khí hậu.",
+          "Nhóm nhân tố con người và nhóm các sinh vật khác."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Cá chép có giới hạn chịu đựng về nhiệt độ từ 2°C đến 44°C,điểm cực thuận là 28°C. Cá rô phi có giới hạn chịu đựng về nhiệt độ từ 5°C đến 42°C,điểm cực thuận là 30°C. Nhận định nào sau đây là đúng?",
+        "answers": [
+          "Vùng phân bố của cá chép hẹp hơn cá rô phi vì có điểm cực thuận thấp hơn.",
+          "Vùng phân bố của cá rô phi rộng hơn cá chép vì có giới hạn dưới cao hơn.",
+          "Cá chép có vùng phân bố rộng hơn cá rô phi vì có giới hạn chịu nhiệt rộng hơn.",
+          "Cá chép có vùng phân bố rộng hơn cá rô phi vì có giới hạn dưới thấp hơn."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Hình dưới đây minh họa tốc độ sinh trưởng giả định của ba loài cây ngập mặn thân gỗ lâu năm, kí hiệu là loài (I), (II) và (III), tương ứng với các điều kiện độ mặn khác nhau. Số liệu trong bảng cho biết độ mặn cao nhất tại ba bãi lầy ven biển A, B và C của địa phương H. Các điều kiện sinh thái khác của ba bãi lầy này là tương đồng nhau,không ảnh hưởng đến sức sống của các loài cây này và sự sai khác về độ mặn giữa các vị trí trong mỗi bãi lầy là không đáng kể. Các cây con của ba loài này khi trồng không thể sống được ở các dải độ mặn có tốc độ sinh trưởng bằng 0.<br>Địa phương H có kế hoạch trồng các loài cây (I), (II) và (III) để phục hồi rừng ngập mặn ở ba bãi lầy A, B và C. Dựa vào thông tin trong hình và bảng,có bao nhiêu nhận định sau đây đúng giúp địa phương H lựa chọn các loài cây này cho phù hợp?<br>(1) Loài(I)có khả năng chịu độ mặn cao nhất trong ba loài.<br>(2) Tốc độ sinh trưởng của loài(II)tỉ lệ nghịch với độ mặn của cả ba bãi lầy.<br>(3) Bãi lầy B và C trồng xen được hai loài(I)và(II),bãi lầy A trồng xen được cả ba loài.<br>(4) Loài(III)có tốc độ sinh trưởng lớn hơn loài(I)và loài(II)ở độ mặn từ 22,5% đến 35%.",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2024/07/blobid12-1721815626.png",
+        "answers": ["3.", "4.", "2.", "1."],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Đồ thị mô tả ảnh hưởng của nhân tố sinh thái đến sinh lí ấu trùng giai đoạn 4 của một loài A như sau:Có bao nhiêu phát biểu đúng?<br>(1) Từ 15°C đến 36°C chính là giới hạn sinh thái của A.<br>(2) Khoảng 16°C-36°C là khoảng thuận lợi.<br>(3) Nhiệt độ 36°C là điểm cực thuận.<br>(4) Trong khoảng này,ở nhiệt độ 36°C,khả năng sinh trưởng của A là tốt nhất.",
+        "answers": ["3.", "4.", "2.", "1."],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Đồ thị sau mô tả ảnh hưởng của nhiệt độ và độ ẩm đối với một loài sinh vật. Phát biểu nào sau đây đúng?<br>",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2024/07/blobid9-1720084830.png",
+        "answers": [
+          "Khi điều kiện độ ẩm nằm ở dưới vùng I thì mức độ tử vong là 50%.",
+          "Khi nhiệt độ ở vùng II,độ ẩm lớn hơn vùng III thì tỉ lệ sống sót bằng 25%.",
+          "Vùng chống chịu của sinh vật đối với độ ẩm là vùng II.",
+          "Khi điều kiện sống nằm ở vùng II của cả nhiệt độ và độ ẩm thì tỉ lệ sống sót cao nhất."
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Rùa khổng lồ đảo Hood (Chelonoidis hoodensis) chỉ được tìm thấy trên một trong các quần đảo Galapagos. Hai con rùa khổng lồ đảo Hood đang tranh giành lãnh thổ.Đó là biểu hiện của mối quan hệ nào sau đây?",
+        "answers": [
+          "Cạnh tranh cùng loài.",
+          "Hỗ trợ cùng loài.",
+          "Cạnh tranh khác loài.",
+          "Kí sinh cùng loài."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Hiện tượng tự tỉa thưa các cây lúa trong ruộng là kết quả của mối quan hệ nào sau đây?",
+        "answers": [
+          "Cạnh tranh cùng loài.",
+          "Cạnh tranh khác loài.",
+          "Thiếu chất dinh dưỡng.",
+          "Sâu bệnh phá hoại."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Có 1200 cá thể chim. Để 1200 cá thể chim này trở thành một quần thể thì cần bao nhiêu điều kiện trong những điều kiện dưới đây?<br>(1) Cùng sống với nhau trong một khoảng thời gian dài.<br>(2) Các cá thể chim này phải cùng một loài.<br>(3) Cùng sống trong một môi trường vào một khoảng thời điểm xác định.<br>(4) Có khả năng giao phối với nhau để sinh con hữu thụ.<br>Số điều kiện cần là",
+        "answers": ["1.", "2.", "3.", "4."],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Để xác định kích thước của một quần thể thực vật rừng,phương pháp nào sau đây thường được sử dụng phổ biến nhất?",
+        "answers": [
+          "Phương pháp đánh dấu-bắt lại.",
+          "Phương pháp ô tiêu chuẩn(ô mẫu).",
+          "Phương pháp đếm trực tiếp tất cả các cá thể.",
+          "Phương pháp quan sát từ vệ tinh."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Để việc xác định kích thước quần thể hay mật độ cá thể của quần thể sinh vật được thuận lợi thì không nên chọn đối tượng sinh vật nào sau đây?",
+        "answers": [
+          "Quần thể thực vật.",
+          "Quần thể động vật ít di chuyển.",
+          "Quần thể động vật di chuyển nhanh.",
+          "Quần thể sinh vật không di chuyển."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Với khu vực nghiên cứu có diện tích lớn thì mỗi ô tiêu chuẩn thường có diện tích là",
+        "answers": ["10m x 10m.", "15m x 15m.", "1m x 1m.", "5m x 5m."],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Mối quan hệ nào sau đây thuộc nhóm quan hệ đối kháng trong quần xã?",
+        "answers": ["Kí sinh.", "Cộng sinh.", "Hợp tác.", "Hội sinh."],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Nguyên nhân chính dẫn đến sự suy giảm đa dạng sinh học là",
+        "answers": [
+          "Do sự khai thác không hợp lí và quá mức của con người.",
+          "Do công nghệ gen phát triển.",
+          "Do đột biến gen.",
+          "Do sự du nhập các loài ngoại lai còn ít."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Điểm giống nhau giữa quần xã sinh vật và quần thể sinh vật là",
+        "answers": [
+          "Tập hợp nhiều quần thể sinh vật.",
+          "Tập hợp nhiều cá thể sinh vật.",
+          "Gồm các sinh vật trong cùng một loài.",
+          "Gồm các sinh vật khác loài."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Kiến đen là loài động vật thường sống trong các vườn cây. Kiến giúp rệp di chuyển từ các lá già lên các lá non và chồi ngọn. Kiến sử dụng đường do rệp bài tiết làm thức ăn. Mối quan hệ giữa kiến và rệp là gì?",
+        "answers": [
+          "Hợp tác.",
+          "Hội sinh.",
+          "Cạnh tranh.",
+          "Ức chế-cảm nhiễm."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Khi nói đến loài ngoại lai,có bao nhiêu phát biểu sau đây đúng?<br>(1) Tất cả các loài ngoại lai làm suy giảm đa dạng sinh học trong quần xã.<br>(2) Loài ngoại lai có thể lấn chiếm nơi sinh sống hoặc gây hại đối với các loài sinh vật bản địa.<br>(3) Loài ngoại lai có thể làm mất cân bằng sinh thái tại nơi chúng xuất hiện và phát triển.<br>(4) Hiện nay ở Việt Nam có những loài ngoại lai xâm hại như: rùa tai đỏ, cá dọn bể, ốc bươu vàng, cây mai dương, cây ngũ sắc và bèo tây.",
+        "answers": ["1.", "2.", "3.", "4."],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Trong trường hợp loài voọc Cát Bà (Trachypithecus poliocephalus) thuộc danh mục loài cực kì nguy cấp bị săn bắt, suy giảm số lượng. Biện pháp bảo tồn nào sau đây là KHÔNG đúng?",
+        "answers": [
+          "Xây dựng khu bảo tồn, cấm săn bắt.",
+          "Thường xuyên tuần tra,giám sát và bảo vệ voọc.",
+          "Nghiên cứu phương pháp gây đột biến để tạo ra biến thể mới sinh sản nhanh hơn.",
+          "Nâng cao ý thức của người dân về bảo tồn."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Trong trường hợp hệ sinh thái rừng bị chặt phá thì biện pháp bảo tồn nào sau đây là sai?",
+        "answers": [
+          "Ban hành quy định quản lí rừng, cấm chặt cây, đốt rừng.",
+          "Thành lập tổ tuần tra bảo vệ rừng.",
+          "Nâng cao ý thức của người dân để không tự ý chặt cây gỗ, đốt rừng.",
+          "Tiến hành khai thác hết những loài ưu thế cũ, tiến hành bổ sung loài ưu thế mới."
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Một học sinh khi thực hành quan sát trong vườn cam và đã mô tả như sau: loài kiến hôi chuyên đưa những con rệp cây lên chồi non,nhờ vậy rệp lấy được nhiều nhựa cây và thải ra nhiều đường cho kiến hôi ăn. Những con kiến đỏ trong vườn có thể đuổi được loài kiến hôi,đồng thời nó cũng tiêu diệt sâu và rệp cây. Từ những mô tả trên,hãy cho biết nhận định nào sau đây là đúng?",
+        "answers": [
+          "Kiến đỏ là loài chủ chốt trong quần xã trên.",
+          "Quần xã sinh vật được mô tả trên có 4 loài.",
+          "Quần xã trên có đầy đủ 3 nhóm sinh vật:sản xuất,tiêu thụ và phân giải.",
+          "Trong quần xã trên thì kiến đỏ ăn được kiến hôi,sâu và rệp cây."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Một kết quả quan sát cho thấy:voi không những ăn cỏ mà còn ăn các loài cây nhỏ trên đồng cỏ, việc ăn các cây nhỏ giúp cỏ tiếp xúc được với nhiều ánh sáng hơn để phát triển;nếu loại bỏ voi, trảng cỏ có thể trở thành khu rừng rậm rạp hoặc thảm cây bụi. Từ kết quả quan sát trên, hãy cho biết nhận định nào sau đây chưa đúng?",
+        "answers": [
+          "Cỏ, cây nhỏ là các sinh vật sản xuất.",
+          "Mối quan hệ giữa cỏ và cây nhỏ là quan hệ cạnh tranh.",
+          "Nếu loại bỏ voi thì quần xã trên sẽ diễn ra diễn thế thứ sinh.",
+          "Voi là loài ưu thế trong quần xã."
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Một học sinh khi thực hành quan sát trong vườn cam và đã mô tả như sau: loài kiến hôi chuyên đưa những con rệp cây lên chồi non, nhờ vậy rệp lấy được nhiều nhựa cây và thải ra nhiều đường cho kiến hôi ăn. Những con kiến đỏ trong vườn có thể đuổi được loài kiến hôi, đồng thời nó cũng tiêu diệt sâu và rệp cây. Từ mô tả trên, hãy cho biết nhận định nào sau đây là đúng khi nói về mối quan hệ giữa các loài trên?",
+        "answers": [
+          "Quan hệ rệp cây và kiến hôi là quan hệ cộng sinh; kiến đỏ và kiến hôi là quan hệ cạnh tranh; kiến đỏ và rệp cây là quan hệ động vật ăn con mồi.",
+          "Quan hệ rệp cây và kiến hôi là quan hệ hợp tác; kiến đỏ và kiến hôi là quan hệ cạnh tranh; kiến đỏ và rệp cây là quan hệ động vật ăn con mồi.",
+          "Quan hệ rệp cây và kiến hôi là quan hệ cộng sinh; kiến đỏ và kiến hôi là quan hệ hội sinh; kiến đỏ và rệp cây là quan hệ động vật ăn con mồi.",
+          "Quan hệ rệp cây và kiến hôi là quan hệ hội sinh; kiến đỏ và kiến hôi là quan hệ ức chế; kiến đỏ và rệp cây là quan hệ động vật ăn con mồi."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Hệ sinh thái là một hệ thống sinh học hoàn chỉnh, tương đối ổn định, bao gồm hai yếu tố nào thường xuyên tác động với nhau?",
+        "answers": [
+          "Quần xã sinh vật và sinh cảnh.",
+          "Quần xã sinh vật và nơi ở.",
+          "Quần thể sinh vật và nơi ở.",
+          "Quần thể sinh vật và sinh cảnh."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Tổ chức sống nào sau đây bao gồm cả nhân tố vô sinh và nhân tố hữu sinh?",
+        "answers": [
+          "Quần thể.",
+          "Quần xã.",
+          "Hệ sinh thái.",
+          "Cá thể."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Trong hệ sinh thái đồng ruộng, sinh vật nào sau đây không phải là sinh vật sản xuất?",
+        "answers": [
+          "Cây rau mác.",
+          "Cây lúa.",
+          "Sâu đục thân.",
+          "Cỏ lồng vực."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Giả sử năng lượng đồng hóa của các sinh vật dị dưỡng trong một chuỗi thức ăn như sau: sinh vật tiêu thụ bậc 1: 1 500 000 kcal; sinh vật tiêu thụ bậc 2: 180 000 kcal; sinh vật tiêu thụ bậc 3: 18 000 kcal; sinh vật tiêu thụ bậc 4: 1 620 kcal. Hiệu suất sinh thái giữa bậc dinh dưỡng cấp 3 với bậc dinh dưỡng cấp 2 và giữa bậc dinh dưỡng cấp 4 với bậc dinh dưỡng cấp 3 trong chuỗi thức ăn trên lần lượt là",
+        "answers": [
+          "10% và 9%.",
+          "12% và 10%.",
+          "9% và 10%.",
+          "10% và 12%."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Sơ đồ dưới biểu diễn chu trình carbon của một hệ sinh thái có 4 thành phần chính là khí quyển, sinh vật tiêu thụ, sinh vật phân giải và sinh vật sản xuất. Mũi tên chỉ dòng vật chất (carbon) trong sơ đồ. Các thành phần A, B, C và D trong sơ đồ lần lượt là>",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2020/04/21-1586101738.PNG",
+        "answers": [
+          "Sinh vật tiêu thụ, sinh vật phân giải, sinh vật sản xuất, khí quyển.",
+          "Sinh vật phân giải, khí quyển, sinh vật tiêu thụ, sinh vật sản xuất.",
+          "Sinh vật sản xuất, sinh vật tiêu thụ, khí quyển, sinh vật phân giải.",
+          "Sinh vật tiêu thụ, khí quyển, sinh vật phân giải, sinh vật sản xuất."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Cho một lưới thức ăn có sâu ăn hạt ngô, châu chấu ăn lá ngô, chim chích và ếch xanh đều ăn châu chấu và sâu, rắn hổ mang ăn ếch xanh. Trong lưới thức ăn trên, sinh vật tiêu thụ bậc 2 là",
+        "answers": [
+          "Châu chấu và sâu.",
+          "Rắn hổ mang và chim chích.",
+          "Rắn hổ mang.",
+          "Chim chích và ếch xanh."
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Trong một hệ sinh thái, sinh khối của mỗi bậc dinh dưỡng được kí hiệu bằng các chữ cái từ A đến E, trong đó: A = 400 kg; B = 500 kg; C = 4000 kg; D = 40 kg; E = 4 kg. Chuỗi thức ăn nào sau đây là bền vững nhất?",
+        "answers": [
+          "C -> A -> D -> E.",
+          "E -> D -> C -> B.",
+          "E -> D -> A -> C.",
+          "A -> B -> C -> D."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Năng lượng đồng hóa cho các bậc dinh dưỡng trong một chuỗi thức ăn là: Bậc dinh dưỡng cấp I: 1 500 000 kcal; Bậc dinh dưỡng cấp II: 180 000 kcal; Bậc dinh dưỡng cấp III: 18 000 kcal. Hiệu suất năng lượng của bậc dinh dưỡng cấp II là",
+        "answers": [
+          "1,2%.",
+          "0,18%.",
+          "12%.",
+          "10%."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Bể cá cảnh là một ví dụ về hệ sinh thái nào?",
+        "answers": [
+          "Hệ sinh thái tự nhiên.",
+          "Hệ sinh thái nhân tạo.",
+          "Hệ sinh thái biển.",
+          "Hệ sinh thái trên cạn."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Bể cá cảnh là",
+        "answers": [
+          "Hệ sinh thái không khép kín và có khả năng tự phục hồi.",
+          "Hệ sinh thái khép kín và có khả năng tự phục hồi.",
+          "Hệ sinh thái không khép kín và không có khả năng tự phục hồi.",
+          "Hệ sinh thái khép kín và không có khả năng tự phục hồi."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Thành phần hữu sinh của hệ sinh thái bể nuôi cá cảnh gồm",
+        "answers": [
+          "Cá cảnh, nước sạch, cây rong đuôi chồn, cây xương cá.",
+          "Cá cảnh, nước sạch, đất, cây sen đá, cây lưỡi hổ.",
+          "Cá cảnh, đất, cây rong đuôi chồn, cây lưỡi hổ.",
+          "Cá cảnh, cây rong đuôi chồn, cây xương cá, cây sen đá."
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Khi thiết kế một hệ sinh thái mô hình trong bình thủy tinh kín (bio-dome), thành phần nào sau đây đóng vai trò quyết định trong việc cung cấp nguồn năng lượng sơ cấp cho toàn bộ hệ thống?",
+        "answers": [
+          "Các loài động vật ăn cỏ để tạo ra chất hữu cơ.",
+          "Các vi sinh vật phân giải dưới lớp đất nền.",
+          "Nhóm sinh vật sản xuất (cây xanh, rêu, tảo).",
+          "Nguồn nước sạch và các khoáng chất hòa tan."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Trong quá trình vận hành hệ sinh thái thực hành, nếu người thiết kế cho quá nhiều động vật tiêu thụ vào một không gian hẹp nhưng lại ít cây xanh, hiện tượng nào sau đây có khả năng cao nhất sẽ xảy ra?",
+        "answers": [
+          "Hệ sinh thái trở nên đa dạng và bền vững hơn do có nhiều động vật.",
+          "Hàm lượng O₂ giảm nhanh và tích tụ nhiều CO₂ dẫn đến các sinh vật bị chết.",
+          "Chu trình carbon sẽ diễn ra nhanh hơn và làm tăng sinh khối của cây xanh.",
+          "Các vi sinh vật phân giải sẽ hoạt động mạnh hơn để tạo thêm thức ăn cho động vật."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Tại sao khi thiết kế hệ sinh thái thực hành dạng kín (như bình Terrarium), chúng ta thường được khuyên nên đặt bình ở nơi có ánh sáng khuếch tán thay vì ánh sáng mặt trời trực tiếp chiếu vào?",
+        "answers": [
+          "Để ngăn chặn hoàn toàn quá trình quang hợp, tránh cây phát triển quá nhanh.",
+          "Để giảm thiểu sự thoát hơi nước của cây, giúp tiết kiệm nước cho bình.",
+          "Để tránh hiệu ứng nhà kính làm nhiệt độ bên trong bình tăng quá cao gây chết sinh vật.",
+          "Để kích thích các loài vi khuẩn lam phát triển mạnh hơn trong điều kiện thiếu sáng."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Sinh thái học phục hồi là gì?",
+        "answers": [
+          "Lĩnh vực khoa học áp dụng các nguyên lí sinh thái học để đưa hệ sinh thái bị suy thoái hoặc bị phá hủy về gần nhất với trạng thái tự nhiên.",
+          "Lĩnh vực khoa học áp dụng các nguyên lí khoa học để đưa hệ sinh thái bị suy thoái hoặc bị phá hủy về gần nhất với trạng thái tự nhiên.",
+          "Lĩnh vực khoa học áp dụng các nguyên lí gìn giữ để đưa hệ sinh thái bị suy thoái hoặc bị phá hủy về gần nhất với trạng thái tự nhiên.",
+          "Lĩnh vực khoa học áp dụng các nguyên lí bảo tồn để đưa hệ sinh thái bị suy thoái hoặc bị phá hủy về gần nhất với trạng thái tự nhiên."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Sinh thái học bảo tồn là gì?",
+        "answers": [
+          "Lĩnh vực khoa học về khoa học tự nhiên và các lĩnh vực khoa học xã hội để duy trì, bảo vệ đa dạng sinh học.",
+          "Lĩnh vực khoa học môi trường và các lĩnh vực khoa học liên quan để duy trì, bảo vệ đa dạng sinh học.",
+          "Lĩnh vực khoa học về di truyền học và các lĩnh vực khoa học liên quan để duy trì, bảo vệ đa dạng sinh học.",
+          "Lĩnh vực khoa học về sinh thái học và các lĩnh vực khoa học liên quan để duy trì, bảo vệ đa dạng sinh học ở mọi cấp độ."
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Trong tự nhiên, sự phục hồi hệ sinh thái bị suy thoái diễn ra như thế nào?",
+        "answers": [
+          "Nhanh hoặc dễ xảy ra do tác động tích cực của con người.",
+          "Chậm nhưng dễ xảy ra do tác động của con người.",
+          "Chậm hoặc khó xảy ra do tác động tiêu cực của con người.",
+          "Nhanh nhưng khó xảy ra do tác động tiêu cực của con người."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Hoạt động nào sau đây không làm suy giảm đa dạng sinh học?",
+        "answers": [
+          "Làm mất nơi ở (môi trường sống).",
+          "Xuất hiện các loài du nhập.",
+          "Khai thác quá mức tài nguyên sinh vật.",
+          "Bảo tồn đa dạng sinh học."
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Khi nói đến phương pháp phục hồi hệ sinh thái, phát biểu nào sau đây sai?",
+        "answers": [
+          "Loại trừ các loài ngoại lai xâm nhập, các loài có tính chất hoạt động mạnh.",
+          "Đưa bổ sung vào hệ sinh thái các loài sinh vật hoặc các thành phần cần thiết (nước, chất dinh dưỡng,...).",
+          "Trồng rừng, cải tạo đất hoang.",
+          "Loại bỏ khỏi hệ sinh thái các yếu tố gây hại (như kim loại nặng, chất thải,...)."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Khi nói đến phương pháp phục hồi hệ sinh thái, phát biểu nào sau đây đúng?",
+        "answers": [
+          "Giữ nguyên hiện trạng của thiên tai, cháy rừng, ô nhiễm môi trường, biến đổi khí hậu.",
+          "Đưa bổ sung vào hệ sinh thái các loài sinh vật đối địch, có tính chất hoạt động mạnh.",
+          "Lồng ghép các nội dung về bảo vệ môi trường và đa dạng sinh học vào chương trình học trong nhà trường.",
+          "Không nên tuyên truyền bảo tồn, bảo vệ, phục hồi các hệ sinh thái."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Phát triển bền vững là tập trung vào các lĩnh vực",
+        "answers": [
+          "Bền vững xã hội, kinh tế, môi trường.",
+          "Bền vững môi trường, xã hội, dân cư.",
+          "Bền vững xã hội, kinh tế, tài nguyên.",
+          "Bền vững kinh tế, môi trường, văn hóa."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Nông nghiệp bền vững là một hệ thống nông nghiệp có sự cân bằng giữa",
+        "answers": [
+          "Tính ổn định của môi trường, tính phù hợp kinh tế và tính khả thi về giáo dục.",
+          "Tính ổn định của giáo dục, tính phù hợp môi trường và tính khả thi về xã hội.",
+          "Tính ổn định của môi trường, tính phù hợp giáo dục và tính khả thi về kinh tế.",
+          "Tính ổn định của môi trường, tính phù hợp xã hội và tính khả thi về kinh tế."
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Diện tích rừng trên thế giới bị thu hẹp nghiêm trọng chủ yếu do",
+        "answers": [
+          "Xây dựng nhiều thủy điện.",
+          "Đẩy mạnh khai khoáng.",
+          "Sự tàn phá của chiến tranh.",
+          "Việc khai thác quá mức."
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Những nguyên nhân nào sau đây không gây ô nhiễm môi trường?",
+        "answers": [
+          "Hoạt động của núi lửa, phân giải xác sinh vật.",
+          "Sử dụng các loại phân bón hóa học.",
+          "Sử dụng các biện pháp khống chế sinh học.",
+          "Sử dụng các nguyên liệu hóa thạch."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Vai trò nào sau đây là vai trò của nông nghiệp bền vững đối với xã hội?",
+        "answers": [
+          "Bảo vệ môi trường sống của con người và sinh vật.",
+          "Đảm bảo sự công bằng trong phát triển, nâng cao thu nhập cho nông dân.",
+          "Đảm bảo an ninh lương thực.",
+          "Nâng cao giá trị của nông sản và hàng hóa xuất khẩu."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Để khắc phục tình trạng ô nhiễm môi trường, cần tập trung vào các biện pháp nào sau đây?<br>(1) Xây dựng các nhà máy xử lí và tái chế rác thải.<br>(2) Quản lí chặt chẽ các chất gây nguy hiểm.<br>(3) Khai thác triệt để rừng đầu nguồn và rừng nguyên sinh.<br>(4) Giáo dục để nâng cao nhận thức của con người về ô nhiễm môi trường.<br>(5) Tăng cường khai thác nguồn tài nguyên khoáng sản.",
+        "answers": [
+          "2, 3, 5.",
+          "3, 4, 5.",
+          "1, 2, 4.",
+          "1, 3, 5."
+        ],
+        "correct": 2
+      }
+    ]
+  }
+]
