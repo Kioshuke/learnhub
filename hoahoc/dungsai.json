@@ -1,0 +1,69 @@
+[
+  {
+    "sectionTitle": "PHẦN II. TRẮC NGHIỆM ĐÚNG SAI",
+    "sectionDesc": "Lệnh: Đọc đoạn tư liệu sau đây, chọn <b>Đúng</b> hoặc <b>Sai</b> cho các mệnh đề a), b), c), d):",
+    "questions": [
+      {
+        "type": "true_false",
+        "question": "Hãy cùng bước vào thế giới của Chromium, Cobalt và các nguyên tố chuyển tiếp khác để khám phá những tính chất hóa học và vật lý thú vị, từ màu sắc của ion đến vai trò xúc tác trong các phản ứng phức tạp.",
+        "subQuestions": [
+          { "text": "Ion Copper(II) (Cu²⁺) trong dung dịch nước thường có màu xanh lam.", "correct": 1 },
+          { "text": "Chromium (Cr) được ứng dụng rộng rãi trong việc mạ lên bề mặt các chi tiết ô tô và đồ dùng trang trí nhờ độ cứng cao và khả năng chống ăn mòn tốt.", "correct": 1 },
+          { "text": "Khả năng thể hiện nhiều trạng thái oxi hóa của các kim loại chuyển tiếp là cơ sở quan trọng giúp chúng hoạt động hiệu quả như các chất xúc tác trong nhiều phản ứng hóa học công nghiệp và sinh học.", "correct": 1 },
+          { "text": "Để kiểm tra sự có mặt của ion Co²⁺ trong dung dịch, có thể cho dung dịch Ammonia (NH₃) vào, nếu thấy xuất hiện phức màu vàng đậm thì kết luận có ion này.", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Câu 2. Từ những cấu trúc hình học đa dạng đến vai trò thiết yếu trong đời sống, các phức chất luôn là một lĩnh vực hấp dẫn của hóa học. Hãy kiểm tra kiến thức của bạn về những hợp chất này, đặc biệt là các hợp chất chứa kim loại chuyển tiếp như Nickel và Cobalt.",
+        "subQuestions": [
+          { "text": "Trong một phức chất, các phối tử có thể là các anion hoặc các phân tử trung hòa, miễn là chúng có cặp electron tự do để cho nguyên tử trung tâm.", "correct": 1 },
+          { "text": "Sự đổi màu của dung dịch khi cho các phối tử khác nhau vào dung dịch chứa ion kim loại chuyển tiếp là một dấu hiệu phổ biến của phản ứng tạo phức chất.", "correct": 1 },
+          { "text": "Các ion Cobalt(II) (Co²⁺) trong dung dịch nước thường có màu hồng nhạt, nhưng khi phản ứng với ion Clorua (Cl⁻) có thể tạo phức chất màu xanh lam.", "correct": 1 },
+          { "text": "Phức chất của Nickel (Ni), ví dụ [Ni(CO)₄], thường có dạng hình học tứ diện.", "correct": 1 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Sodium (Na) dễ dàng phản ứng với nước, magnesium (Mg) cháy sáng trong không khí, các kim loại nhóm IA và IIA thể hiện những tính chất hóa học đặc trưng. Chúng ta hãy cùng tìm hiểu về những đặc tính này qua các phát biểu sau:",
+        "subQuestions": [
+          { "text": "Các kim loại nhóm IA có cấu hình electron lớp ngoài cùng là ns¹.", "correct": 1 },
+          { "text": "Tính khử của các kim loại nhóm IA tăng dần từ Lithium (Li) đến Cesium (Cs) do năng lượng ion hóa giảm dần.", "correct": 1 },
+          { "text": "Beryllium (Be) có tính chất lưỡng tính, có thể tan trong cả dung dịch acid và dung dịch base.", "correct": 1 },
+          { "text": "Khi điện phân dung dịch sodium chloride (NaCl), ta thu được chlorine (Cl₂) ở cathode và hydrogen (H₂) ở anode.", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Từ những nguyên tố nhóm IA như Lithium (Li) đến những kim loại chuyển tiếp đa dạng như Copper (Cu), thế giới kim loại luôn ẩn chứa những điều kỳ diệu. Hãy cùng tìm hiểu sâu hơn về tính chất và ứng dụng của chúng.",
+        "subQuestions": [
+          { "text": "Các kim loại kiềm (nhóm IA) có xu hướng nhường electron để tạo ion dương có số oxi hóa +1.", "correct": 1 },
+          { "text": "Tính khử của các kim loại nhóm IA tăng dần từ trên xuống dưới (từ Li đến Cs) do năng lượng ion hóa thứ nhất giảm dần.", "correct": 1 },
+          { "text": "Khi điện phân nóng chảy muối Magnesium chloride (MgCl₂), ở anode sẽ thu được kim loại Magnesium (Mg).", "correct": 0 },
+          { "text": "Khi thêm dung dịch Ammonia (NH₃) vào dung dịch chứa ion Copper(II) (Cu²⁺), ban đầu có kết tủa xanh, sau đó kết tủa tan tạo dung dịch màu xanh lam đậm.", "correct": 1 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Ở điều kiện thường, tinh thể K và tinh thể Cr đều có cấu trúc lập phương tâm khối. Biết một số thông số của kim loại K và Cr được cho ở bảng sau,"
+        "image":"https://vietjack.com/sbt-hoa-hoc-12-kn/images/cau-27-45-trang-104-sbt-hoa-hoc-12.PNG"
+        "subQuestions": [
+          { "text": "Tinh thể Cr có liên kết kim loại mạnh hơn tinh thể K.", "correct": 1 },
+          { "text": "Trong cùng một đơn vị thể tích thì khối lượng kim loại trong tinh thể Cr và K bằng nhau.", "correct": 0 },
+          { "text": "Nguyên tử Cr có bán kính nhỏ hơn nguyên tử K vì nguyên tử Cr có số lớp electron ít hơn.", "correct": 0 },
+          { "text": "K là kim loại nhẹ và Cr là kim loại nặng.", "correct": 1 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Khi cho copper(II) hydroxide vào dung dịch NH₃ dư thì hình thành phức vuông phẳng với các phối tử là NH₃.",
+        "subQuestions": [
+          { "text": "Công thức của phức trên là [Cu(NH₃)₄](OH)₂.", "correct": 1 },
+          { "text": "Trong phức trên NH₃ là phối tử còn Cu²⁺ là nguyên tử trung tâm.", "correct": 1 },
+          { "text": "Khi hình thành liên kết các phân tử NH₃ đã nhận cặp electron tự do của Cu²⁺.", "correct": 0 },
+          { "text": "[Cu(NH₃)₄](OH)₂ là chất kết tủa màu xanh thẫm.", "correct": 0 }
+        ]
+      }
+    ]
+  }
+]
