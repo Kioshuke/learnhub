@@ -3232,26 +3232,54 @@ function comingSoon(){
   },2000);
 }
 
-
 /* =========================
-   TAB SWITCH
+   TAB SWITCH (Sửa lỗi hiển thị)
 ========================= */
-function switchTab(type){
-  const login = document.getElementById("loginForm");
-  const register = document.getElementById("registerForm");
+function switchTab(type) {
+  const loginForm = document.getElementById("loginForm");
+  const registerForm = document.getElementById("registerForm");
+  const welcomeText = document.querySelector(".welcome-text");
   const tabs = document.querySelectorAll(".tab");
 
   tabs.forEach(t => t.classList.remove("active"));
-
-  if(type === "login"){
-    login.style.display = "block";
-    register.style.display = "none";
+  
+  if (type === 'login') {
+    loginForm.style.display = "block";
+    registerForm.style.display = "none";
+    welcomeText.textContent = "Chào mừng trở lại!";
     tabs[0].classList.add("active");
-  }else{
-    login.style.display = "none";
-    register.style.display = "block";
+  } else {
+    loginForm.style.display = "none";
+    registerForm.style.display = "block";
+    welcomeText.textContent = "Tạo tài khoản mới";
     tabs[1].classList.add("active");
   }
+}
+
+/* =========================
+   HÀM LOGIN GOOGLE (Thêm mới)
+========================= */
+function googleLogin() {
+  // Nếu bạn dùng Firebase, hãy thêm logic auth tại đây
+  console.log("Đang kết nối Google...");
+  // Tạm thời cho phép vào thẳng để bạn test giao diện:
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("mainContent").style.display = "block";
+  document.getElementById("mainContent").classList.add("show");
+}
+
+/* =========================
+   POPUP THÔNG BÁO (Sửa lỗi ID)
+========================= */
+function comingSoon() {
+  // Đảm bảo bạn đã đổi ID popup ở phần HTML thành 'featurePopup'
+  const popup = document.getElementById("featurePopup"); 
+  if(!popup) return alert("Tính năng đang phát triển!");
+
+  popup.style.display = "flex";
+  setTimeout(() => {
+    popup.style.display = "none";
+  }, 2000);
 }
 </script>
 </body>
