@@ -270,7 +270,7 @@ gap:25px;
   opacity:0;
   transform:translateY(30px);
   animation:cardFade 0.6s ease forwards;
-
+  padding-bottom: 60px !important;
   overflow:hidden;
 }
 .card::before{
@@ -1018,6 +1018,47 @@ body.dark-mode .card{
   );
   margin: 15px 0;
 }
+/* Container chứa chấm và chữ */
+.status {
+    position: absolute;
+    bottom: 22px; /* Căn xuống dưới */
+    left: 20px;   /* Căn sang trái */
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+/* Tạo dấu chấm */
+.status::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 6px currentColor;
+    animation: st_blink 1.5s infinite;
+}
+
+@keyframes st_blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* Nội dung chữ và màu */
+.status.done { color: #27ae60; }
+.status.done::after { content: 'Hoàn thành'; }
+
+.status.up { color: #e74c3c; }
+.status.up::after { content: 'Đang cập nhật'; }
+
+/* Đẩy nút Làm bài sang phải để không đè lên status */
+.card .btn {
+    position: absolute;
+    bottom: 15px;
+    right: 20px;
+    margin: 0 !important;
+    width: auto !important;
+}
 </style>
 
 </head>
@@ -1051,7 +1092,8 @@ body.dark-mode .card{
 <div class="popup-box">
 <span class="close">&times;</span>
 <h3>📢 Thông báo</h3>
-<p style="text-align:left; padding-left:20px; line-height:1.7;"> Tính năng mới: LearnHub Forum, bạn có thể trao đổi với các thành viên khác tại đây. Để truy cập hãy bấm vào ô Forum trên thanh Menu!</p>
+<p style="text-align:left;"> <b>Tính năng mới:</b><br>
+- LearnHub Forum, bạn có thể trao đổi với các thành viên khác tại đây. Để truy cập hãy bấm vào ô Forum trên thanh Menu!<br>- Hubie-AI của bạn, hỗ trợ giải đáp bài, trao đổi, trò chuyện,.....<br>- Cải tiến giao diện: Những bài đã được up sẽ có dấu chấm xanh (hoàn thành). Ngược lại, những bài chưa up sẽ có dấu chấm đỏ (Đang cập nhật)</p>
 </div>
 </div>
 <div id="loginBox" style="
@@ -1095,6 +1137,7 @@ body.dark-mode .card{
 <button data-subject="tin" onclick="show('tin')">Tin Học</button>
 <button data-subject="su" onclick="show('su')">Lịch Sử</button>
 <button data-subject="hoa" onclick="show('hoa')">Hoá Học</button>
+<button data-subject="hoa" onclick="show('flashcard')">Flashcard</button>
 </div>
 <div class="ticker-container">
 <div class="ticker-text">
@@ -1653,23 +1696,27 @@ Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
 <div class="exam-schedule">
 
 <div class="exam-day" data-date="2026-04-20">
-<h3>Thứ 2 | 20/04 Updating</h3>
-<p>Unknown</p>
+<h3>Thứ 2 | 20/04 📝Ngữ Văn + 🧲Vật Lý</h3>
+<p>⏰️Ngữ Văn - 7:00</p>
+<p>⏰️Vật Lý - 9:15</p>
 </div>
 
 <div class="exam-day" data-date="2026-04-21">
-<h3>Thứ 3 | 21/04 Updating</h3>
-<p>Unknown</p>
+<h3>Thứ 3 | 21/04 🧮Toán Học + 💻Tin Học</h3>
+<p>⏰️Toán Học - 7:00</p>
+<p>⏰️Tin Học - 8:40</p>
 </div>
 
 <div class="exam-day" data-date="2026-04-22">
-<h3>Thứ 4 | 22/04 Updating</h3>
-<p>Unknown</p>
+<h3>Thứ 4 | 22/04 🏛️Lịch Sử + ⚗️Hóa Học</h3>
+<p>⏰️Lịch Sử - 7:00</p>
+<p>⏰️Hóa Học - 7:55</p>
 </div>
 
 <div class="exam-day" data-date="2026-04-23">
-<h3>Thứ 5 | 23/04 Updating</h3>
-<p>Unknown</p>
+<h3>Thứ 5 | 23/04 🔤Tiếng Anh + 🧬Sinh Học</h3>
+<p>⏰️Tiếng Anh - 7:00</p>
+<p>⏰️Sinh Học - 8:10</p>
 </div>
 
 <!-- COUNTDOWN -->
@@ -1706,19 +1753,19 @@ Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
 <div class="grid">
 
 <div class="card">
-<h3>Trắc nghiệm</h3>
+<h3>Trắc nghiệm</h3><div class="status up"></div>
 <p>Bài ôn tập trắc nghiệm môn Vật Lý.</p>
 <a class="btn" href="https://youngtest.vn/quiz/yv8Lfr" onclick="loadQuiz(this,'https://youngtest.vn/quiz/yv8Lfr'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Đúng / Sai</h3>
+<h3>Đúng / Sai</h3><div class="status up"></div>
 <p>Bài ôn tập dạng đúng sai.</p>
 <a class="btn" href="https://youngtest.vn/quiz/5yBsZW" onclick="loadQuiz(this,'https://youngtest.vn/quiz/5yBsZW'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Trả lời ngắn</h3>
+<h3>Trả lời ngắn</h3><div class="status up"></div>
 <p>Bài ôn tập trả lời ngắn.</p>
 <a class="btn" href="https://youngtest.vn/quiz/xbBQiH" onclick="loadQuiz(this,'https://youngtest.vn/quiz/xbBQiH'); return false;">Làm bài</a>
 </div>
@@ -1730,21 +1777,21 @@ Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
 <div class="grid">
 
 <div class="card">
-<h3>Trắc nghiệm</h3>
+<h3>Trắc nghiệm</h3><div class="status done"></div>
 <p>Bài ôn tập trắc nghiệm môn Sinh Học.</p>
-<a class="btn" href="https://youngtest.vn/quiz/GH3QtL" onclick="loadQuiz(this,'https://youngtest.vn/quiz/GH3QtL'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../sinhhoc/tracnghiem.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../sinhhoc/tracnghiem.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Đúng / Sai</h3>
+<h3>Đúng / Sai</h3><div class="status done"></div>
 <p>Bài ôn tập dạng đúng sai môn Sinh.</p>
-<a class="btn" href="https://youngtest.vn/quiz/tghqMr" onclick="loadQuiz(this,'https://youngtest.vn/quiz/tghqMr'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../sinhhoc/dungsai.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../sinhhoc/dungsai.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
 <h3>Trả lời ngắn</h3>
-<p>Bài ôn tập trả lời ngắn môn Sinh.</p>
-<a class="btn" href="https://youngtest.vn/quiz/hpU2TG" onclick="loadQuiz(this,'https://youngtest.vn/quiz/hpU2TG'); return false;">Làm bài</a>
+<p>Bài ôn tập trả lời ngắn môn Sinh.</p><div class="status done"></div>
+<a class="btn" href="cauhoi/filetest.html?de=../sinhhoc/tln.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../sinhhoc/tln.json'); return false;">Làm bài</a>
 </div>
 
 </div>
@@ -1754,39 +1801,39 @@ Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
 <div class="grid">
 
 <div class="card">
-<h3>Trắc nghiệm</h3>
+<h3>Trắc nghiệm</h3><div class="status done"></div>
 <p>Bài 17-18</p>
-<a class="btn" href="tinhoc/tntin1718.html" onclick="loadQuiz(this,'tinhoc/tntin1718.html'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../tinhoc/cauhoitin1718.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../tinhoc/cauhoitin1718.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Trắc nghiệm</h3>
+<h3>Trắc nghiệm</h3><div class="status done"></div>
 <p>Bài 19-22</p>
-<a class="btn" href="tinhoc/tntin1922.html" onclick="loadQuiz(this,'tinhoc/tntin1922.html'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../tinhoc/cauhoitin1922.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../tinhoc/cauhoitin1922.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Đúng / Sai</h3>
+<h3>Đúng / Sai</h3><div class="status done"></div>
 <p>Từ bài 17-22</p>
-<a class="btn" href="tinhoc/cauhoitinds.html" onclick="loadQuiz(this,'tinhoc/cauhoitinds.html'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../tinhoc/cauhoitinds.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../tinhoc/cauhoitinds.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Trắc Nghiệm</h3>
+<h3>Trắc Nghiệm</h3><div class="status done"></div>
 <p>Bài 23-25</p>
-<a class="btn" href="tinhoc/tntin2325.html" onclick="loadQuiz(this,'tinhoc/tntin2325.html'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../tinhoc/cauhoitin2325.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../tinhoc/cauhoitin2325.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Trắc Nghiệm</h3>
+<h3>Trắc Nghiệm</h3><div class="status done"></div>
 <p>Bài 26-28</p>
-<a class="btn" href="tinhoc/tntin2628.html" onclick="loadQuiz(this,'tinhoc/tntin2628.html'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../tinhoc/cauhoitin2628.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../tinhoc/cauhoitin2628.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Đúng / Sai</h3>
+<h3>Đúng / Sai</h3><div class="status done"></div>
 <p>Từ bài 23-28</p>
-<a class="btn" href="tinhoc/cauhoitindsck2.html" onclick="loadQuiz(this,'tinhoc/cauhoitindsck2.html'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../tinhoc/cauhoitindsck2.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../tinhoc/cauhoitindsck2.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
@@ -1808,39 +1855,39 @@ Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
 <div class="grid">
 
 <div class="card">
-<h3>Trắc nghiệm</h3>
+<h3>Trắc nghiệm</h3><div class="status done"></div>
 <p>Chủ đề 7: CÔNG CUỘC ĐỔI MỚI Ở VIỆT NAM TỪ NĂM 1986 ĐẾN NAY</p>
-<a class="btn" href="lichsu/tracnghiemcd7.html" onclick="loadQuiz(this,'lichsu/tracnghiemcd7.html'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../lichsu/tracnghiemsucd7.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../lichsu/tracnghiemsucd7.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Trắc nghiệm</h3>
+<h3>Trắc nghiệm</h3><div class="status done"></div>
 <p>Chủ đề 8. LỊCH SỬ ĐỐI NGOẠI CỦA VIỆT NAM THỜI CẬN – HIỆN ĐẠI</p>
-<a class="btn" href="lichsu/tracnghiemcd8.html" onclick="loadQuiz(this,'lichsu/tracnghiemcd8.html'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../lichsu/tracnghiemsucd8.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../lichsu/tracnghiemsucd8.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Trắc nghiệm</h3>
+<h3>Trắc nghiệm</h3><div class="status done"></div>
 <p>Chủ đề 9. HỒ CHÍ MINH TRONG LỊCH SỬ VIỆT NAM</p>
-<a class="btn" href="lichsu/tracnghiemcd9.html" onclick="loadQuiz(this,'lichsu/tracnghiemcd9.html'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../lichsu/tracnghiemsucd9.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../lichsu/tracnghiemsucd9.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Đúng Sai</h3>
+<h3>Đúng Sai</h3><div class="status done"></div>
 <p>Chủ đề 7: CÔNG CUỘC ĐỔI MỚI Ở VIỆT NAM TỪ NĂM 1986 ĐẾN NAY</p>
-<a class="btn" href="lichsu/dungsaicd7.html" onclick="loadQuiz(this,'lichsu/dungsaicd7.html'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../lichsu/dscd7.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../lichsu/dscd7.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Đúng Sai</h3>
+<h3>Đúng Sai</h3><div class="status done"></div>
 <p>Chủ đề 8. LỊCH SỬ ĐỐI NGOẠI CỦA VIỆT NAM THỜI CẬN – HIỆN ĐẠI</p>
-<a class="btn" href="lichsu/dungsaicd8.html" onclick="loadQuiz(this,'lichsu/dungsaicd8.html'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../lichsu/dscd8.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../lichsu/dscd8.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Đúng Sai</h3>
+<h3>Đúng Sai</h3><div class="status done"></div>
 <p>Chủ đề 9. HỒ CHÍ MINH TRONG LỊCH SỬ VIỆT NAM</p>
-<a class="btn" href="lichsu/dungsaicd9.html" onclick="loadQuiz(this,'lichsu/dungsaicd9.html'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../lichsu/dscd9.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../lichsu/dscd9.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
@@ -1856,25 +1903,25 @@ Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
 <div class="grid">
 
 <div class="card">
-<h3>Trắc nghiệm P1</h3>
+<h3>Trắc nghiệm P1</h3><span class="status done"></span>
 <p>Bài ôn tập trắc nghiệm môn Hoá Học.</p>
-<a class="btn" href="https://youngtest.vn/quiz/gbJ8On" onclick="loadQuiz(this,'https://youngtest.vn/quiz/gbJ8On'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../hoahoc/tracnghiem1.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../hoahoc/tracnghiem1.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Trắc nghiệm P2</h3>
+<h3>Trắc nghiệm P2</h3><span class="status done"></span>
 <p>Bài ôn tập trắc nghiệm môn Hoá Học.</p>
-<a class="btn" href="https://youngtest.vn/quiz/RRYYOg" onclick="loadQuiz(this,'https://youngtest.vn/quiz/RRYYOg'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../hoahoc/tracnghiem2.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../hoahoc/tracnghiem2.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Đúng / Sai</h3>
+<h3>Đúng / Sai</h3><div class="status up"></div>
 <p>Bài ôn tập dạng đúng sai môn Hoá.</p>
 <a class="btn" href="https://youngtest.vn/quiz/sytrvV" onclick="loadQuiz(this,'https://youngtest.vn/quiz/sytrvV'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
-<h3>Trả lời ngắn</h3>
+<h3>Trả lời ngắn</h3><div class="status up"></div>
 <p>Bài ôn tập trả lời ngắn môn Hoá.</p>
 <a class="btn" href="https://youngtest.vn/quiz/kHiYlq" onclick="loadQuiz(this,'https://youngtest.vn/quiz/kHiYlq'); return false;">Làm bài</a>
 </div>
@@ -1886,6 +1933,15 @@ Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
     <iframe 
       id="forumFrame" 
       src="forum.html" 
+      style="width:100%; height:600px; border:none; border-radius:12px;">
+    </iframe>
+  </div>
+</div>
+<div id="flashcard" style="display:none">
+  <div class="grid">
+    <iframe 
+      id="flashcardFrame" 
+      src="flashcard/flash.html" 
       style="width:100%; height:600px; border:none; border-radius:12px;">
     </iframe>
   </div>
@@ -2593,15 +2649,7 @@ if (typeof db !== 'undefined') {
     });
 }
 </script>
-<div id="chatOverlay" style="
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100vw;
-  height:100vh;
-  z-index:9998;
-"></div>
+<div id="chatOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9998; background: rgba(0,0,0,0.1);"></div>
 
 <div id="chatButton" style="
   position:fixed;
@@ -2609,34 +2657,30 @@ if (typeof db !== 'undefined') {
   height:65px;
   border-radius:50%;
   overflow:hidden;
-  cursor:pointer;
+  cursor: grab;
   z-index:9999;
   box-shadow:0 6px 18px rgba(0,0,0,0.25);
-  left:0;
-  top:0;
+  /* Khởi tạo ở góc trái dưới */
+  left: 20px;
+  bottom: 20px;
+  touch-action: none; 
+  will-change: transform;
 ">
-  <img src="chatboiavt.png" style="
-    width:100%;
-    height:100%;
-    object-fit:cover;
-  ">
+  <img src="chatboiavt.png" style="width:100%; height:100%; object-fit:cover; pointer-events: none;">
 </div>
 
-<iframe id="chatbotFrame"
-  src="chatbot.html"
-  style="
-    display:none;
-    position:fixed;
-    bottom:90px;
-    right:20px;
-    width:350px;
-    height:500px;
-    border:none;
-    border-radius:12px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.2);
+<iframe id="chatbotFrame" src="chatbot.html" style="
+    display:none; 
+    position:fixed; 
+    bottom:95px; 
+    left:20px; /* Chỉnh frame xuất hiện bên trái */
+    width:350px; 
+    height:500px; 
+    border:none; 
+    border-radius:12px; 
+    box-shadow:0 8px 25px rgba(0,0,0,0.2); 
     z-index:9999;
-  ">
-</iframe>
+"></iframe>
 
 <script>
 const chatBtn = document.getElementById("chatButton");
@@ -2644,115 +2688,105 @@ const frame = document.getElementById("chatbotFrame");
 const overlay = document.getElementById("chatOverlay");
 
 let isDragging = false;
-let offsetX = 0;
-let offsetY = 0;
+let startX, startY;
+let currentX = 0;
+let currentY = 0;
+let xOffset = 0;
+let yOffset = 0;
 let hasMoved = false;
 
-let currentX = window.innerWidth - 85;
-let currentY = window.innerHeight - 85;
+// Tối ưu hóa bằng requestAnimationFrame
+let rafId = null;
 
-updatePosition();
+chatBtn.addEventListener("pointerdown", dragStart);
+document.addEventListener("pointermove", drag);
+document.addEventListener("pointerup", dragEnd);
 
-// 👉 set cursor ban đầu
-chatBtn.style.cursor = "grab";
-
-function updatePosition(){
-  chatBtn.style.left = currentX + "px";
-  chatBtn.style.top = currentY + "px";
-}
-
-// 👉 POINTER DOWN (chỉ chuột trái)
-chatBtn.addEventListener("pointerdown", (e) => {
-  if (e.button !== 0) return; // chỉ drag chuột trái
-
+function dragStart(e) {
+  if (e.button !== 0) return;
+  
   isDragging = true;
   hasMoved = false;
-
-  offsetX = e.clientX - currentX;
-  offsetY = e.clientY - currentY;
-
-  chatBtn.setPointerCapture(e.pointerId);
-
-  // đổi cursor khi đang giữ
+  chatBtn.style.transition = "none";
   chatBtn.style.cursor = "grabbing";
-});
 
-// 👉 POINTER MOVE (gắn trên document cho mượt)
-document.addEventListener("pointermove", (e) => {
+  startX = e.clientX - xOffset;
+  startY = e.clientY - yOffset;
+  
+  chatBtn.setPointerCapture(e.pointerId);
+}
+
+function drag(e) {
   if (!isDragging) return;
+  e.preventDefault();
 
-  const x = e.clientX;
-  const y = e.clientY;
+  currentX = e.clientX - startX;
+  currentY = e.clientY - startY;
 
-  if (Math.abs(x - (currentX + offsetX)) > 3 || Math.abs(y - (currentY + offsetY)) > 3) {
+  // Kiểm tra nếu thực sự có di chuyển
+  if (Math.abs(currentX - xOffset) > 2 || Math.abs(currentY - yOffset) > 2) {
     hasMoved = true;
   }
 
-  currentX = x - offsetX;
-  currentY = y - offsetY;
+  xOffset = currentX;
+  yOffset = currentY;
 
-  currentX = Math.max(0, Math.min(window.innerWidth - 65, currentX));
-  currentY = Math.max(0, Math.min(window.innerHeight - 65, currentY));
+  if (!rafId) {
+    rafId = requestAnimationFrame(updatePosition);
+  }
+}
 
-  updatePosition();
-});
+function updatePosition() {
+  // Sử dụng translate3d để cực kỳ mượt mà
+  chatBtn.style.transform = `translate3d(${xOffset}px, ${yOffset}px, 0)`;
+  rafId = null;
+}
 
-// 👉 POINTER UP
-document.addEventListener("pointerup", () => {
+function dragEnd() {
   if (!isDragging) return;
-
+  
   isDragging = false;
-
-  chatBtn.style.cursor = "grab"; // trả lại cursor
-
+  chatBtn.style.cursor = "grab";
+  
+  // Hiệu ứng "hít" vào cạnh gần nhất (trái hoặc phải)
+  chatBtn.style.transition = "transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28)";
+  
+  const rect = chatBtn.getBoundingClientRect();
   const middle = window.innerWidth / 2;
-
-  if (currentX > middle) {
-    currentX = window.innerWidth - 75;
+  
+  if (rect.left + rect.width / 2 > middle) {
+    // Hít lề phải
+    xOffset = window.innerWidth - rect.width - 40; 
   } else {
-    currentX = 10;
+    // Hít lề trái
+    xOffset = 0; 
   }
-
-  chatBtn.style.transition = "left 0.25s ease, top 0.25s ease";
+  
   updatePosition();
+}
 
-  setTimeout(() => {
-    chatBtn.style.transition = "none";
-  }, 250);
-});
-
-// 👉 CLICK (chỉ khi không drag)
 chatBtn.addEventListener("click", () => {
-  if (hasMoved) {
-    hasMoved = false;
-    return;
-  }
+  if (hasMoved) return;
 
-  if (frame.style.display === "none") {
-    frame.style.display = "block";
-    overlay.style.display = "block";
+  const isHidden = frame.style.display === "none";
+  frame.style.display = isHidden ? "block" : "none";
+  overlay.style.display = isHidden ? "block" : "none";
 
+  if (isHidden) {
+    // Gửi thông tin user (giữ nguyên logic của bạn)
     const nameEl = document.getElementById("userName");
     const avatarEl = document.getElementById("userAvatar");
-
     let name = nameEl ? nameEl.innerText : "Bạn học";
     const avatar = avatarEl ? avatarEl.src : "https://i.imgur.com/6VBx3io.png";
-
-    if (!name || name === "undefined") name = "Bạn học";
 
     frame.contentWindow.postMessage({
       type: "USER_INFO",
       name: name,
       avatar: avatar
     }, "*");
-
-  } else {
-    frame.style.display = "none";
-    overlay.style.display = "none";
   }
 });
 
-// 👉 click ngoài để đóng
 overlay.addEventListener("click", () => {
   frame.style.display = "none";
   overlay.style.display = "none";
