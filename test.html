@@ -1137,7 +1137,6 @@ body.dark-mode .card{
 <button data-subject="tin" onclick="show('tin')">Tin Học</button>
 <button data-subject="su" onclick="show('su')">Lịch Sử</button>
 <button data-subject="hoa" onclick="show('hoa')">Hoá Học</button>
-<button data-subject="flashcard" onclick="show('flashcard')">Flashcard</button>
 </div>
 <div class="ticker-container">
 <div class="ticker-text">
@@ -1915,15 +1914,15 @@ Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
 </div>
 
 <div class="card">
-<h3>Đúng / Sai</h3><div class="status up"></div>
+<h3>Đúng / Sai</h3><div class="status done"></div>
 <p>Bài ôn tập dạng đúng sai môn Hoá.</p>
-<a class="btn" href="https://youngtest.vn/quiz/sytrvV" onclick="loadQuiz(this,'https://youngtest.vn/quiz/sytrvV'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=../hoahoc/dungsai.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../hoahoc/dungsai.json'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
 <h3>Trả lời ngắn</h3><div class="status up"></div>
 <p>Bài ôn tập trả lời ngắn môn Hoá.</p>
-<a class="btn" href="https://youngtest.vn/quiz/kHiYlq" onclick="loadQuiz(this,'https://youngtest.vn/quiz/kHiYlq'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html?de=.." onclick="loadQuiz(this,'cauhoi/filetest.html?de=..'); return false;">Làm bài</a>
 </div>
 
 </div>
@@ -1933,15 +1932,6 @@ Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
     <iframe 
       id="forumFrame" 
       src="forum.html" 
-      style="width:100%; height:600px; border:none; border-radius:12px;">
-    </iframe>
-  </div>
-</div>
-<div id="flashcard" style="display:none">
-  <div class="grid">
-    <iframe 
-      id="flashcardFrame" 
-      src="flashcard/flash.html" 
       style="width:100%; height:600px; border:none; border-radius:12px;">
     </iframe>
   </div>
@@ -2078,7 +2068,7 @@ function show(id){
 document.getElementById("quiz").innerHTML = "";
 window.scrollTo({ top:0, behavior:"smooth" });
 
-const tabs = ["lich","ly","hoa","sinh","tin","su","bxh","flashcard"];
+const tabs = ["lich","ly","hoa","sinh","tin","su","bxh"];
 
 tabs.forEach(t=>{
 let el = document.getElementById(t);
@@ -2224,7 +2214,6 @@ const allowList = [
 "nguyenthimynhan202011@gmail.com",
 "kienquoc2021dt@gmail.com",
 "pnpthuy.2811@gmail.com",
-"bangbang4951@gmail.com",
 "xmai9839@gmail.com",
 ];
 let activeInterval = null;
