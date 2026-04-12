@@ -941,7 +941,9 @@ to{
   #loginBox .auth-left{
     width:100%;
     max-width:100vw;
-    padding:34px 24px;
+    padding:28px 22px 30px;
+    justify-content:flex-start;
+    overflow-y:auto;
   }
 
   #loginBox .auth-right{
@@ -951,50 +953,75 @@ to{
 
 @media (max-width: 600px){
   #loginBox .auth-left{
-    padding:24px 16px;
+    padding:18px 14px 24px;
   }
 
   #loginBox .auth-brand{
     gap:10px;
-    margin-bottom:24px;
+    margin-bottom:16px;
+    padding:0 2px;
   }
 
   #loginBox .auth-brand img{
-    width:40px;
-    height:40px;
+    width:36px;
+    height:36px;
   }
 
   #loginBox .auth-brand span{
-    font-size:16px;
-    line-height:1.3;
+    font-size:14px;
+    line-height:1.25;
   }
 
   #loginBox .auth-tabs{
     gap:8px;
-    margin-bottom:18px;
+    margin-bottom:14px;
   }
 
   #loginBox .auth-tab{
-    padding:10px 8px;
-    font-size:15px;
+    padding:11px 8px;
+    font-size:14px;
+    border-radius:14px;
   }
 
   #loginBox .auth-title{
-    font-size:24px;
+    font-size:22px;
+    margin-bottom:12px;
   }
 
   #loginBox .auth-login-btn,
   #loginBox .auth-submit{
-    font-size:15px;
+    font-size:14px;
   }
 
   #loginBox .auth-login-btn{
-    padding:14px 12px;
+    padding:13px 12px;
     gap:10px;
+    border-radius:15px;
+  }
+
+  #loginBox .auth-divider{
+    margin:16px 0;
+    font-size:13px;
+  }
+
+  #loginBox .auth-input-group{
+    margin-bottom:12px;
+  }
+
+  #loginBox .auth-input-group input{
+    padding:14px 12px;
+    border-radius:14px;
+    font-size:14px;
+  }
+
+  #loginBox .auth-input-group label{
+    left:11px;
+    font-size:13px;
   }
 
   #loginBox .auth-footer{
-    font-size:13px;
+    font-size:12px;
+    margin-top:18px;
   }
 
   #authNotice{
@@ -1003,6 +1030,95 @@ to{
     max-width:calc(100vw - 20px);
     padding:14px;
     border-radius:16px;
+  }
+}
+
+#loginBox .auth-mobile-showcase{
+display:none;
+position:relative;
+margin:0 0 16px;
+width:100%;
+height:178px;
+border-radius:22px;
+overflow:hidden;
+border:1px solid rgba(255,255,255,0.5);
+box-shadow:0 18px 40px rgba(37,99,235,0.12);
+background:linear-gradient(135deg,#dbeafe,#eef4ff);
+}
+
+#loginBox .auth-mobile-showcase::after{
+content:"";
+position:absolute;
+inset:0;
+background:linear-gradient(180deg, rgba(15,23,42,0.02), rgba(15,23,42,0.16));
+pointer-events:none;
+z-index:2;
+}
+
+#loginBox .auth-mobile-slide{
+position:absolute;
+inset:0;
+opacity:0;
+transform:scale(1.04);
+transition:opacity .7s ease, transform 2s ease;
+}
+
+#loginBox .auth-mobile-slide.active{
+opacity:1;
+transform:scale(1);
+}
+
+#loginBox .auth-mobile-blur,
+#loginBox .auth-mobile-main{
+position:absolute;
+inset:0;
+background-position:center;
+background-repeat:no-repeat;
+}
+
+#loginBox .auth-mobile-blur{
+background-size:cover;
+filter:blur(14px);
+transform:scale(1.08);
+opacity:.8;
+}
+
+#loginBox .auth-mobile-main{
+background-size:cover;
+z-index:1;
+}
+
+#loginBox .auth-mobile-caption{
+position:absolute;
+left:12px;
+right:12px;
+bottom:12px;
+z-index:3;
+padding:11px 12px;
+border-radius:16px;
+background:rgba(255,255,255,0.72);
+backdrop-filter:blur(10px);
+box-shadow:0 10px 24px rgba(15,23,42,0.10);
+}
+
+#loginBox .auth-mobile-caption strong{
+display:block;
+font-size:13px;
+line-height:1.25;
+color:#1e3a8a;
+margin-bottom:2px;
+}
+
+#loginBox .auth-mobile-caption span{
+display:block;
+font-size:11px;
+line-height:1.4;
+color:#475569;
+}
+
+@media (max-width: 900px){
+  #loginBox .auth-mobile-showcase{
+    display:block;
   }
 }
 
@@ -1562,6 +1678,24 @@ body.dark-mode .card{
     </div>
 
     <div class="auth-title">Chào mừng trở lại!</div>
+    <div class="auth-mobile-showcase">
+      <div class="auth-mobile-slide">
+        <div class="auth-mobile-blur" style="background-image:url('loading1.jpg')"></div>
+        <div class="auth-mobile-main" style="background-image:url('loading1.jpg')"></div>
+      </div>
+      <div class="auth-mobile-slide">
+        <div class="auth-mobile-blur" style="background-image:url('loading2.jpg')"></div>
+        <div class="auth-mobile-main" style="background-image:url('loading2.jpg')"></div>
+      </div>
+      <div class="auth-mobile-slide">
+        <div class="auth-mobile-blur" style="background-image:url('loading3.jpg')"></div>
+        <div class="auth-mobile-main" style="background-image:url('loading3.jpg')"></div>
+      </div>
+      <div class="auth-mobile-caption">
+        <strong id="authMobileTitle">LearnHub trên di động</strong>
+        <span id="authMobileDesc">Ôn thi nhanh, gọn và dễ dùng ngay trên điện thoại</span>
+      </div>
+    </div>
     <div id="authLoginPanel" class="auth-panel">
       <button class="auth-login-btn" onclick="googleLogin()">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
@@ -2754,32 +2888,65 @@ function switchAuthTab(type){
 function updateAuthSlideText(index){
   const titleEl = document.getElementById("authSlideTitle");
   const descEl = document.getElementById("authSlideDesc");
+  const mobileTitleEl = document.getElementById("authMobileTitle");
+  const mobileDescEl = document.getElementById("authMobileDesc");
   if(!titleEl || !descEl) return;
 
   titleEl.style.opacity = "0";
   descEl.style.opacity = "0";
+  if(mobileTitleEl) mobileTitleEl.style.opacity = "0";
+  if(mobileDescEl) mobileDescEl.style.opacity = "0";
 
   setTimeout(() => {
     titleEl.textContent = authSlideData[index].title;
     descEl.textContent = authSlideData[index].desc;
     titleEl.style.opacity = "1";
     descEl.style.opacity = "1";
+    if(mobileTitleEl){
+      mobileTitleEl.textContent = authSlideData[index].title;
+      mobileTitleEl.style.opacity = "1";
+    }
+    if(mobileDescEl){
+      mobileDescEl.textContent = authSlideData[index].desc;
+      mobileDescEl.style.opacity = "1";
+    }
   }, 180);
 }
 
 function initAuthSlides(){
-  const slides = document.querySelectorAll("#loginBox .auth-slide");
-  if(!slides.length) return;
+  const desktopSlides = document.querySelectorAll("#loginBox .auth-right .auth-slide");
+  const mobileSlides = document.querySelectorAll("#loginBox .auth-mobile-slide");
+  if(!desktopSlides.length && !mobileSlides.length) return;
 
-  slides[0].classList.add("active");
+  if(desktopSlides.length){
+    desktopSlides[0].classList.add("active");
+  }
+  if(mobileSlides.length){
+    mobileSlides[0].classList.add("active");
+  }
   updateAuthSlideText(0);
 
   if(authSlideTimer) clearInterval(authSlideTimer);
 
   authSlideTimer = setInterval(() => {
-    slides[authSlideIndex].classList.remove("active");
-    authSlideIndex = (authSlideIndex + 1) % slides.length;
-    slides[authSlideIndex].classList.add("active");
+    const totalSlides = desktopSlides.length || mobileSlides.length;
+    if(!totalSlides) return;
+
+    if(desktopSlides.length){
+      desktopSlides[authSlideIndex].classList.remove("active");
+    }
+    if(mobileSlides.length){
+      mobileSlides[authSlideIndex].classList.remove("active");
+    }
+
+    authSlideIndex = (authSlideIndex + 1) % totalSlides;
+
+    if(desktopSlides.length){
+      desktopSlides[authSlideIndex].classList.add("active");
+    }
+    if(mobileSlides.length){
+      mobileSlides[authSlideIndex].classList.add("active");
+    }
     updateAuthSlideText(authSlideIndex);
   }, 4000);
 }
