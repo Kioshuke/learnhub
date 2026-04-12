@@ -80,7 +80,7 @@ max-width:100%;
 overflow-x:hidden;
 overscroll-behavior-x:none;
 }
-body.auth-locked > *:not(#loginBox):not(#loadingOverlay){
+body.auth-locked > *:not(#loginBox):not(#loadingOverlay):not(#authNotice){
 display:none !important;
 }
 @keyframes fadeIn{
@@ -267,8 +267,8 @@ gap:25px;
   background: var(--card-bg);
   padding:22px;
   border-radius:14px;
-
-  border:1px solid color-mix(in srgb, var(--card-color) 40%, transparent);
+  border:1px solid transparent;
+  border-bottom-color: transparent !important;
 
   box-shadow:
     0 6px 18px rgba(80,120,255,0.12),
@@ -299,11 +299,17 @@ gap:25px;
 
   opacity:0.9;
 }
+.card::before{
+  box-shadow:
+    inset 5px 0 0 0 var(--card-color),
+    inset -5px 0 0 0 var(--card-color);
+  background:linear-gradient(120deg, #3b82f622, #6366f122);
+}
 .card:hover::before{
-  background:
-    linear-gradient(var(--card-color), var(--card-color)) left / 6px 100% no-repeat,
-    linear-gradient(var(--card-color), var(--card-color)) right / 6px 100% no-repeat,
-    linear-gradient(120deg, #3b82f633, #6366f133);
+  box-shadow:
+    inset 6px 0 0 0 var(--card-color),
+    inset -6px 0 0 0 var(--card-color);
+  background:linear-gradient(120deg, #3b82f633, #6366f133);
 }
 .card::after{
   content:"";
@@ -329,8 +335,7 @@ gap:25px;
   box-shadow:
     0 18px 40px color-mix(in srgb, var(--card-color) 35%, transparent),
     0 6px 20px rgba(0,0,0,0.12);
-
-  border:1.5px solid var(--card-color); /* 🔥 cùng màu luôn */
+  border:1px solid transparent;
 
   z-index: 5;
 }
@@ -340,17 +345,16 @@ gap:25px;
   box-shadow:
     0 18px 40px color-mix(in srgb, var(--card-color) 35%, transparent),
     0 6px 20px rgba(0,0,0,0.12);
-
-  border:1.5px solid var(--card-color);
+  border:1px solid transparent;
 
   z-index: 5;
 }
 
 .card.active-card::before{
-  background:
-    linear-gradient(var(--card-color), var(--card-color)) left / 6px 100% no-repeat,
-    linear-gradient(var(--card-color), var(--card-color)) right / 6px 100% no-repeat,
-    linear-gradient(120deg, #3b82f633, #6366f133);
+  box-shadow:
+    inset 6px 0 0 0 var(--card-color),
+    inset -6px 0 0 0 var(--card-color);
+  background:linear-gradient(120deg, #3b82f633, #6366f133);
 }
 .card:hover::before{
   opacity:1;
@@ -793,6 +797,111 @@ color:rgba(255,255,255,0.88);
 transition:opacity .4s ease;
 }
 
+#authNotice{
+position:fixed;
+top:24px;
+left:50%;
+transform:translateX(-50%) translateY(-18px);
+min-width:min(420px, calc(100vw - 32px));
+max-width:min(520px, calc(100vw - 32px));
+padding:16px 18px;
+border-radius:18px;
+display:none;
+align-items:flex-start;
+gap:12px;
+background:rgba(255,255,255,0.96);
+border:1px solid rgba(255,255,255,0.75);
+box-shadow:0 22px 60px rgba(15,23,42,0.18);
+backdrop-filter:blur(12px);
+z-index:1000002;
+opacity:0;
+pointer-events:none;
+}
+
+#authNotice.show{
+display:flex;
+animation:authNoticeIn .28s ease forwards;
+}
+
+#authNotice.hide{
+display:flex;
+animation:authNoticeOut .22s ease forwards;
+}
+
+#authNotice.notice-error{
+background:linear-gradient(180deg, rgba(255,255,255,0.97), rgba(255,240,240,0.98));
+border-color:rgba(239,68,68,0.18);
+}
+
+#authNotice.notice-info{
+background:linear-gradient(180deg, rgba(255,255,255,0.97), rgba(239,246,255,0.98));
+border-color:rgba(37,99,235,0.18);
+}
+
+#authNotice .notice-icon{
+width:38px;
+height:38px;
+flex:0 0 38px;
+border-radius:12px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:18px;
+font-weight:700;
+}
+
+#authNotice.notice-error .notice-icon{
+background:rgba(239,68,68,0.12);
+color:#dc2626;
+}
+
+#authNotice.notice-info .notice-icon{
+background:rgba(37,99,235,0.12);
+color:#2563eb;
+}
+
+#authNotice .notice-content{
+min-width:0;
+}
+
+#authNotice .notice-title{
+font-size:15px;
+font-weight:800;
+line-height:1.25;
+color:#0f172a;
+margin:0 0 3px;
+}
+
+#authNotice .notice-message{
+font-size:14px;
+line-height:1.55;
+color:#475569;
+margin:0;
+word-break:break-word;
+}
+
+@keyframes authNoticeIn{
+from{
+  opacity:0;
+  transform:translateX(-50%) translateY(-18px) scale(0.96);
+}
+to{
+  opacity:1;
+  transform:translateX(-50%) translateY(0) scale(1);
+}
+}
+
+@keyframes authNoticeOut{
+from{
+  opacity:1;
+  transform:translateX(-50%) translateY(0) scale(1);
+}
+to{
+  opacity:0;
+  transform:translateX(-50%) translateY(-12px) scale(0.98);
+}
+}
+
 @media (max-width: 900px){
   #loginBox .auth-shell{
     min-height:100vh;
@@ -856,6 +965,14 @@ transition:opacity .4s ease;
 
   #loginBox .auth-footer{
     font-size:13px;
+  }
+
+  #authNotice{
+    top:14px;
+    min-width:calc(100vw - 20px);
+    max-width:calc(100vw - 20px);
+    padding:14px;
+    border-radius:16px;
   }
 }
 
@@ -1488,8 +1605,16 @@ body.dark-mode .card{
       <h1 id="authSlideTitle">LearnHub - Nang cap cach ban hoc</h1>
       <p id="authSlideDesc">On thi nhanh • Giao dien hien dai • Toi uu trai nghiem</p>
     </div>
-  </div>
 </div>
+</div>
+</div>
+
+<div id="authNotice" class="notice-info" role="status" aria-live="polite">
+  <div class="notice-icon" id="authNoticeIcon">i</div>
+  <div class="notice-content">
+    <p class="notice-title" id="authNoticeTitle">Thong bao</p>
+    <p class="notice-message" id="authNoticeMessage"></p>
+  </div>
 </div>
 
 <div class="menu">
@@ -2545,6 +2670,7 @@ const authSlideData = [
 
 let authSlideIndex = 0;
 let authSlideTimer = null;
+let authNoticeTimer = null;
 
 function switchAuthTab(type){
   const login = document.getElementById("authLoginPanel");
@@ -2598,12 +2724,53 @@ function initAuthSlides(){
   }, 4000);
 }
 
+function showAuthNotice(message, type = "info", title = ""){
+  const notice = document.getElementById("authNotice");
+  const noticeTitle = document.getElementById("authNoticeTitle");
+  const noticeMessage = document.getElementById("authNoticeMessage");
+  const noticeIcon = document.getElementById("authNoticeIcon");
+
+  if(!notice || !noticeTitle || !noticeMessage || !noticeIcon) return;
+
+  if(authNoticeTimer){
+    clearTimeout(authNoticeTimer);
+    authNoticeTimer = null;
+  }
+
+  notice.classList.remove("hide", "show", "notice-error", "notice-info");
+  notice.classList.add(type === "error" ? "notice-error" : "notice-info");
+
+  noticeTitle.textContent =
+    title || (type === "error" ? "Không thể tiếp tục" : "Thông báo");
+  noticeMessage.textContent = message;
+  noticeIcon.textContent = type === "error" ? "!" : "i";
+
+  notice.style.display = "flex";
+  void notice.offsetWidth;
+  notice.classList.add("show");
+
+  authNoticeTimer = setTimeout(() => {
+    notice.classList.remove("show");
+    notice.classList.add("hide");
+
+    setTimeout(() => {
+      notice.classList.remove("hide");
+      notice.style.display = "none";
+    }, 220);
+  }, 2600);
+}
+
 function authComingSoon(){
-  alert("Tinh nang nay dang phat trien. Hien tai ban van dang nhap bang Google nhu cu.");
+  showAuthNotice(
+    "Tính năng này đang phát triển. Hiện tại bạn vẫn đăng nhập bằng Google như cũ.",
+    "info",
+    "Tính năng sắp ra mắt"
+  );
 }
 
 window.switchAuthTab = switchAuthTab;
 window.authComingSoon = authComingSoon;
+window.showAuthNotice = showAuthNotice;
 initAuthSlides();
 
 // kiểm tra ngày hôm nay
@@ -2815,7 +2982,11 @@ window.googleLogin = function() {
 
         // 1. Kiểm tra quyền truy cập (AllowList)
         if (!allowList.includes(user.email)) {
-            alert("❌ Tài khoản không được cấp quyền!");
+            showAuthNotice(
+              "Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin nếu bạn nghĩ đây là nhầm lẫn.",
+              "error",
+              "Không có quyền truy cập"
+            );
             await signOut(auth);
             return;
         }
@@ -2856,9 +3027,17 @@ window.googleLogin = function() {
     .catch((error) => {
         console.error("Lỗi Google Login:", error);
         if (error.code === 'auth/popup-blocked') {
-            alert("⚠️ Vui lòng cho phép hiện Popup để đăng nhập!");
+            showAuthNotice(
+              "Vui lòng cho phép cửa sổ popup của trình duyệt để tiếp tục đăng nhập Google.",
+              "error",
+              "Popup đang bị chặn"
+            );
         } else {
-            alert("❌ Lỗi: " + error.message);
+            showAuthNotice(
+              "Đăng nhập chưa thành công: " + error.message,
+              "error",
+              "Đã xảy ra lỗi"
+            );
         }
     });
 };
