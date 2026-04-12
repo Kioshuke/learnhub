@@ -1059,11 +1059,304 @@ body.dark-mode .card{
     margin: 0 !important;
     width: auto !important;
 }
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:'Inter', 'Segoe UI', sans-serif;
+}
+
+body{
+  height:100vh;
+  display:flex;
+  background:#f9fafb;
+}
+
+/* LEFT */
+.login-left{
+  width:42%;
+  background:#ffffff;
+  padding:60px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+/* LOGO */
+.logo{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:40px;
+}
+
+.logo img{
+  width:42px;
+}
+
+.logo span{
+  font-size:20px;
+  font-weight:700;
+  color:#2563eb;
+}
+
+/* TABS */
+.tabs{
+  display:flex;
+  gap:10px;
+  margin-bottom:25px;
+}
+
+.tab{
+  flex:1;
+  padding:10px;
+  text-align:center;
+  border-radius:10px;
+  background:#f3f4f6;
+  cursor:pointer;
+  font-weight:500;
+  transition:.2s;
+}
+
+.tab.active{
+  background:#2563eb;
+  color:white;
+}
+
+/* TITLE */
+.login-left h2{
+  font-size:32px;
+  margin-bottom:20px;
+}
+
+/* BUTTON */
+.login-btn{
+  width:100%;
+  padding:14px;
+  margin-bottom:15px;
+  border-radius:14px;
+  border:1px solid #e5e7eb;
+  background:#fff;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  font-size:15px;
+  transition:all .25s;
+  box-shadow:0 4px 10px rgba(0,0,0,0.04);
+}
+
+.login-btn:hover{
+  transform:translateY(-3px) scale(1.01);
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+.input-group{
+  position:relative;
+  margin-bottom:18px;
+}
+
+.input-group input{
+  width:100%;
+  padding:14px 12px;
+  border-radius:12px;
+  border:1px solid #d1d5db;
+  outline:none;
+  font-size:14px;
+  background:white;
+}
+
+.input-group label{
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  background:white;
+  padding:0 5px;
+  color:#9ca3af;
+  font-size:14px;
+  transition:.2s;
+  pointer-events:none;
+}
+
+.input-group input:focus{
+  border-color:#2563eb;
+  box-shadow:0 0 0 3px rgba(37,99,235,0.15);
+}
+
+.input-group input:focus + label,
+.input-group input:valid + label{
+  top:-8px;
+  font-size:12px;
+  color:#2563eb;
+}
+/* INPUT */
+.input{
+  width:100%;
+  padding:13px;
+  border-radius:10px;
+  border:1px solid #d1d5db;
+  margin-bottom:15px;
+}
+
+.input:focus{
+  border-color:#2563eb;
+  box-shadow:0 0 0 3px rgba(37,99,235,0.15);
+  outline:none;
+}
+
+/* SUBMIT */
+.login-submit{
+  width:100%;
+  padding:13px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+}
+
+/* DIVIDER */
+.login-divider{
+  text-align:center;
+  margin:20px 0;
+  color:#9ca3af;
+}
+
+/* FOOTER */
+.login-footer{
+  margin-top:20px;
+  font-size:13px;
+  text-align:center;
+  color:#6b7280;
+}
+
+/* RIGHT */
+.login-right{
+  width:58%;
+  position:relative;
+  overflow:hidden;
+}
+
+/* SLIDE */
+.slide{
+  position:absolute;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  opacity:0;
+  transform:scale(1.05); /* 👈 zoom sẵn */
+  transition:opacity 1s ease, transform 3s ease;
+}
+
+.slide.active{
+  opacity:1;
+  transform:scale(1); /* 👈 zoom về bình thường */
+}
+/* nền blur */
+.bg-blur{
+  position:absolute;
+  width:100%;
+  height:100%;
+  background-size:cover;
+  background-position:center;
+  filter:blur(25px);
+  transform:scale(1.15);
+  opacity:0.8;
+}
+.bg-blur::after{
+  content:"";
+  position:absolute;
+  width:100%;
+  height:100%;
+  background:linear-gradient(
+    to top,
+    rgba(0,0,0,0.5),
+    rgba(0,0,0,0.2),
+    transparent
+  );
+}
+/* ảnh chính */
+.bg-main{
+  position:absolute;
+  width:100%;
+  height:100%;
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-position:center;
+  z-index:2;
+}
+/* OVERLAY */
+.overlay{
+  position:absolute;
+  bottom:60px;
+  left:60px;
+  color:white;
+  z-index:2;
+}
+
+/* DARK */
+.login-right::after{
+  content:"";
+  position:absolute;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.4);
+}
+
+/* POPUP */
+.popup{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.4);
+  backdrop-filter:blur(6px);
+  z-index:999;
+}
+
+.popup-box{
+  background:rgba(255,255,255,0.9);
+  padding:20px 30px;
+  border-radius:16px;
+  font-weight:600;
+  box-shadow:0 20px 40px rgba(0,0,0,0.2);
+}
+
+@keyframes pop{
+  from{transform:scale(0.8);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .login-right{display:none;}
+  .login-left{width:100%;}
+}
+.welcome-text{
+  font-size:26px;
+  font-weight:700;
+  margin-bottom:20px;
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.overlay h1, .overlay p{
+  transition: all 0.4s ease;
+}
+#mainContent{
+  display:none;
+}
 </style>
 
 </head>
 <body>
-<div id="loadingOverlay">
+<div id="loadingOverlay" style="display:none;">
 <audio id="clickSound" src="sound/mocor-os-keypad-sound.mp3" preload="auto"></audio>
 <audio id="dotest" src="sound/windows-xp-startup.mp3" preload="auto"></audio>
 <audio id="offtest" src="sound/preview_4.mp3" preload="auto"></audio>
@@ -1096,32 +1389,113 @@ body.dark-mode .card{
 - LearnHub Forum, bạn có thể trao đổi với các thành viên khác tại đây. Để truy cập hãy bấm vào ô Forum trên thanh Menu!<br>- Hubie-AI của bạn, hỗ trợ giải đáp bài, trao đổi, trò chuyện,.....<br>- Cải tiến giao diện: Những bài đã được up sẽ có dấu chấm xanh (hoàn thành). Ngược lại, những bài chưa up sẽ có dấu chấm đỏ (Đang cập nhật)</p>
 </div>
 </div>
-<div id="loginBox" style="
- position: fixed;
- top:0;
- left:0;
- width:100%;
- height:100%;
+<div id="loginScreen" style="display:none;">
 
- display:flex;
- justify-content:center;
- align-items:center;
+<div class="login-left">
 
- background: rgba(0,0,0,0.35);   /* làm tối nền */
- backdrop-filter: blur(6px);     /* làm mờ nền */
- z-index:9999;
- ">
+  <!-- LOGO -->
+  <div class="logo">
+    <img src="newlogo.png">
+    <span>LearnHub Platform - With Hubie AI</span>
+  </div>
 
-<div class="login-card">
+  <!-- TAB -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('login')">Đăng nhập</div>
+    <div class="tab" onclick="switchTab('register')">Đăng ký</div>
+  </div>
+  <div class="welcome-text">Chào mừng trở lại!</div>
 
-<h3>Đăng nhập</h3>
+  <!-- LOGIN -->
+  <div id="loginForm">
 
-<button class="google-btn" onclick="googleLogin()">
-<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
-<span>Đăng nhập bằng Google</span>
-</button> <br>
-<div>Nếu đã đăng nhập và không thể vào vui lòng liên hệ admin để được hỗ trợ</div>
+    <button class="login-btn" onclick="googleLogin()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
+      Tiếp tục với Google
+    </button>
 
+    <button class="login-btn" onclick="comingSoon()">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" width="20">
+      Tiếp tục với GitHub
+    </button>
+
+    <button class="login-btn" onclick="comingSoon()">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" width="20">
+      Tiếp tục với Microsoft
+    </button>
+
+    <div class="login-divider">hoặc</div>
+
+    <div class="input-group">
+      <input required>
+      <label>Email</label>
+    </div>
+
+    <div class="input-group">
+      <input type="password" required>
+      <label>Mật khẩu</label>
+    </div>
+
+    <button class="login-submit" onclick="comingSoon()">Đăng nhập</button>
+
+  </div>
+
+  <!-- REGISTER -->
+  <div id="registerForm" style="display:none;">
+
+    <div class="input-group">
+      <input required>
+      <label>Email</label>
+    </div>
+
+    <div class="input-group">
+      <input type="password" required>
+      <label>Mật khẩu</label>
+    </div>
+
+    <div class="input-group">
+      <input type="password" required>
+      <label>Nhập lại mật khẩu</label>
+    </div>
+
+    <button class="login-submit" onclick="comingSoon()">Đăng ký</button>
+
+  </div>
+
+  <div class="login-footer">
+    © LearnHub – THPT Tân Hồng
+  </div>
+
+</div>
+
+<!-- RIGHT -->
+<div class="login-right">
+
+<div class="slide">
+  <div class="bg-blur" style="background-image:url('loading1.jpg')"></div>
+  <div class="bg-main" style="background-image:url('loading1.jpg')"></div>
+</div>
+
+<div class="slide">
+  <div class="bg-blur" style="background-image:url('loading2.jpg')"></div>
+  <div class="bg-main" style="background-image:url('loading2.jpg')"></div>
+</div>
+
+<div class="slide">
+  <div class="bg-blur" style="background-image:url('loading3.jpg')"></div>
+  <div class="bg-main" style="background-image:url('loading3.jpg')"></div>
+</div>
+
+<div class="overlay">
+  <h1 id="slideTitle">LearnHub – Nâng cấp cách bạn học</h1>
+  <p id="slideDesc">Ôn thi nhanh • Giao diện hiện đại • Tối ưu trải nghiệm</p>
+</div>
+
+</div>
+
+<!-- POPUP -->
+<div id="popup" class="popup">
+  <div class="popup-box">🚧 Tính năng đang phát triển</div>
 </div>
 </div>
 
@@ -1940,6 +2314,7 @@ Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
 </div>
 
 <script>
+function startLoading(){
 let fill = document.getElementById("progressFill");
 let textEl = document.getElementById("progressText");
 let loadingStatus = document.getElementById("loadingText");
@@ -1959,34 +2334,23 @@ let progress = setInterval(() => {
     fill.style.width = width + "%";
     textEl.innerText = width + "%";
 
-    // Cứ mỗi 15-20% thì đổi chữ và làm nó "nảy" lên
     if (width % 20 === 0 && width < 100) {
         let randomMsg = messages[Math.floor(Math.random() * messages.length)];
-        
-        // 1. Gán nội dung mới
         loadingStatus.innerText = randomMsg;
-        
-        // 2. Xóa và thêm lại class để kích hoạt hiệu ứng nảy
-        loadingStatus.classList.remove("text-bounce");
-        void loadingStatus.offsetWidth; // Mẹo để reset animation
-        loadingStatus.classList.add("text-bounce");
     }
 
     if (width >= 100) {
         clearInterval(progress);
         fill.classList.add("complete");
         loadingStatus.innerText = "✅ Đã sẵn sàng!";
-        loadingStatus.classList.add("text-bounce");
 
         setTimeout(() => {
-            const overlay = document.getElementById("loadingOverlay");
-            overlay.classList.add("hide");
-            overlay.addEventListener("transitionend", () => {
-                document.getElementById("mainContent").classList.add("show");
-            }, { once: true });
+            document.getElementById("loadingOverlay").classList.add("hide");
+            document.getElementById("mainContent").classList.add("show");
         }, 800);
     }
 }, 20);
+}
 function loadQuiz(btn, link){
 
   // ❌ xoá active cũ
@@ -2217,112 +2581,119 @@ const allowList = [
 "xmai9839@gmail.com",
 ];
 let activeInterval = null;
-onAuthStateChanged(auth, (user)=>{
-if(user){
+onAuthStateChanged(auth, (user) => {
 
-  // ✅ GỬI USER SANG FORUM IFRAME
-  function sendUserToForum(user){
-    const forumIframe = document.getElementById("forumFrame");
-    if(!forumIframe) return;
+  if (user) {
 
-    const send = () => {
-      forumIframe.contentWindow.postMessage({
-        type: "USER_INFO",
-        user: {
-          uid: user.uid,
-          name: user.displayName || user.email
-        }
-      }, "*");
-    };
+    // 🔥 1. ẨN LOGIN UI
+    const loginScreen = document.getElementById("loginScreen");
+    if (loginScreen) loginScreen.style.display = "none";
 
-    if(forumIframe.contentWindow){
-      send();
+    // 🔥 2. HIỆN LOADING (chỉ chạy 1 lần)
+    if (!sessionStorage.getItem("loaded")) {
+      const overlay = document.getElementById("loadingOverlay");
+      if (overlay) overlay.style.display = "flex";
+
+      startLoading();
+      sessionStorage.setItem("loaded", "true");
+    } else {
+      // nếu reload thì bỏ qua loading
+      document.getElementById("mainContent").classList.add("show");
     }
 
-    forumIframe.onload = send;
-  }
+    // ✅ GỬI USER SANG FORUM IFRAME
+    function sendUserToForum(user) {
+      const forumIframe = document.getElementById("forumFrame");
+      if (!forumIframe) return;
 
-  // ✅ GỌI HÀM
-  sendUserToForum(user);
+      const send = () => {
+        forumIframe.contentWindow.postMessage({
+          type: "USER_INFO",
+          user: {
+            uid: user.uid,
+            name: user.displayName || user.email
+          }
+        }, "*");
+      };
 
-  // ✅ UPDATE ONLINE STATUS
-  if(!activeInterval){
-    activeInterval = setInterval(()=>{
-      const u = auth.currentUser;
-      if(u){
-        setDoc(doc(db,"users",u.uid),{
-          lastActive: Date.now(),
-          online: true
-        },{ merge:true });
+      if (forumIframe.contentWindow) {
+        send();
       }
-    }, 5000);
+
+      forumIframe.onload = send;
+    }
+
+    sendUserToForum(user);
+
+    // ✅ UPDATE ONLINE STATUS (tránh tạo nhiều interval)
+    if (!activeInterval) {
+      activeInterval = setInterval(() => {
+        const u = auth.currentUser;
+        if (u) {
+          setDoc(doc(db, "users", u.uid), {
+            lastActive: Date.now(),
+            online: true
+          }, { merge: true });
+        }
+      }, 5000);
+    }
+
+    // ✅ START LISTENER
+    startListening();
+
+    // ================= UI USER =================
+
+    const hour = new Date().getHours();
+    let greeting = "";
+    let quote = "";
+
+    if (hour >= 5 && hour < 11) {
+      greeting = "☀️ Chào buổi sáng,";
+      quote = "Chúc bạn một ngày học tập năng suất!";
+    } else if (hour >= 11 && hour < 14) {
+      greeting = "🌤️ Nghỉ trưa thôi,";
+      quote = "Nạp năng lượng để chiến đấu tiếp nhé!";
+    } else if (hour >= 14 && hour < 18) {
+      greeting = "☕ Chào buổi chiều,";
+      quote = "Sắp hết ngày rồi, cố gắng lên nào!";
+    } else {
+      greeting = "🌙 Chào buổi tối,";
+      quote = "Đừng thức quá khuya, giữ sức khỏe nhé!";
+    }
+
+    document.getElementById("welcomeText").innerText = "Chúc bạn ôn thi thật tốt,";
+    document.getElementById("userName").innerText = user.displayName;
+
+    const userAvatar = document.getElementById("userAvatar");
+    userAvatar.src = user.photoURL || "https://i.imgur.com/6VBx3io.png";
+
+    const popupAvatar = document.getElementById("popupAvatar");
+    if (popupAvatar) popupAvatar.src = user.photoURL || "https://i.imgur.com/6VBx3io.png";
+
+    const greetingEl = document.getElementById("greetingText");
+    if (greetingEl) greetingEl.innerText = greeting;
+
+    const nameEl = document.getElementById("popupName");
+    if (nameEl) nameEl.innerText = user.displayName || "Bạn";
+
+    const emailEl = document.getElementById("popupEmail");
+    if (emailEl) emailEl.innerText = user.email;
+
+    const quoteEl = document.getElementById("popupQuote");
+    if (quoteEl) quoteEl.innerText = quote;
+
+  } else {
+
+    // 🔥 CHƯA LOGIN → HIỆN LOGIN UI
+    const loginScreen = document.getElementById("loginScreen");
+    if (loginScreen) loginScreen.style.display = "flex";
+
+    // 🔥 ẨN loading nếu có
+    const overlay = document.getElementById("loadingOverlay");
+    if (overlay) overlay.style.display = "none";
   }
 
-  // ✅ START LISTENER
-  startListening();
-
-// vì bên trong đã có:
-
-// greeting logic
-const hour = new Date().getHours();
-let greeting = "";
-let quote = "";
-
-if (hour >= 5 && hour < 11) {
-greeting = "☀️ Chào buổi sáng,";
-quote = "Chúc bạn một ngày học tập năng suất!";
-} else if (hour >= 11 && hour < 14) {
-greeting = "🌤️ Nghỉ trưa thôi,";
-quote = "Nạp năng lượng để chiến đấu tiếp nhé!";
-} else if (hour >= 14 && hour < 18) {
-greeting = "☕ Chào buổi chiều,";
-quote = "Sắp hết ngày rồi, cố gắng lên nào!";
-} else {
-greeting = "🌙 Chào buổi tối,";
-quote = "Đừng thức quá khuya, giữ sức khỏe nhé!";
-}
-
-// set UI
-const greetingEl = document.getElementById("greetingText");
-if(greetingEl){
-greetingEl.innerText = greeting;
-}
-const nameEl = document.getElementById("popupName");
-if(nameEl) nameEl.innerText = user.displayName || "Bạn";
-
-const emailEl = document.getElementById("popupEmail");
-if(emailEl) emailEl.innerText = user.email;
-
-const quoteEl = document.getElementById("popupQuote");
-if(quoteEl) quoteEl.innerText = quote;
-document.getElementById("loginBox").style.display="none";
-
-document.getElementById("welcomeText").innerText =
-"Chúc bạn ôn thi thật tốt,";
-
-document.getElementById("userName").innerText = user.displayName;
-
-// Avatar chính
-const userAvatar = document.getElementById("userAvatar");
-userAvatar.src = user.photoURL || "https://i.imgur.com/6VBx3io.png";
-userAvatar.alt = user.displayName 
-  ? `Ảnh đại diện của ${user.displayName}` 
-  : "Ảnh đại diện người dùng";
-
-// Avatar popup
-const popupAvatar = document.getElementById("popupAvatar");
-if (popupAvatar) {
-  popupAvatar.src = user.photoURL || "https://i.imgur.com/6VBx3io.png";
-  popupAvatar.alt = user.displayName 
-    ? `Ảnh đại diện của ${user.displayName}` 
-    : "Ảnh đại diện người dùng";
-}
-
-} else {
-  document.getElementById("loginBox").style.display = "flex";
-}
 });
-// chỉ giữ login trong tab hiện tại
 
 
 window.googleLogin = function() {
@@ -2780,6 +3151,108 @@ overlay.addEventListener("click", () => {
   frame.style.display = "none";
   overlay.style.display = "none";
 });
+/* =========================
+   DATA TEXT SLIDE
+========================= */
+const slideData = [
+  {
+    title: "LearnHub – Nâng cấp cách bạn học",
+    desc: "Ôn thi nhanh • Giao diện hiện đại • Tối ưu trải nghiệm"
+  },
+  {
+    title: "Giao diện chính - Hubie AI",
+    desc: "Trợ lý AI thông minh hỗ trợ học tập"
+  },
+  {
+    title: "LearnHub Forum",
+    desc: "Trao đổi • Hỏi đáp • Kết nối học sinh"
+  }
+];
+
+
+/* =========================
+   SLIDESHOW
+========================= */
+const slides = document.querySelectorAll(".slide");
+const title = document.getElementById("slideTitle");
+const desc = document.getElementById("slideDesc");
+
+let current = 0;
+
+/* load slide đầu có animation */
+setTimeout(() => {
+  slides[0].classList.add("active");
+  updateText(0);
+}, 100);
+
+/* auto chuyển slide */
+setInterval(() => {
+  slides[current].classList.remove("active");
+
+  current = (current + 1) % slides.length;
+
+  slides[current].classList.add("active");
+  updateText(current);
+
+}, 4000);
+
+
+/* =========================
+   UPDATE TEXT
+========================= */
+function updateText(index){
+  title.style.opacity = 0;
+  desc.style.opacity = 0;
+
+  setTimeout(() => {
+    title.textContent = slideData[index].title;
+    desc.textContent = slideData[index].desc;
+
+    title.style.opacity = 1;
+    desc.style.opacity = 1;
+  }, 200);
+}
+
+
+/* =========================
+   POPUP
+========================= */
+function comingSoon(){
+  const popup = document.getElementById("popup");
+  const box = popup.querySelector(".popup-box");
+
+  popup.style.display = "flex";
+  box.style.animation = "popupShow 0.35s ease";
+
+  setTimeout(()=>{
+    box.style.animation = "popupHide 0.35s ease";
+    setTimeout(()=>{
+      popup.style.display = "none";
+    },300);
+  },2000);
+}
+
+
+/* =========================
+   TAB SWITCH
+========================= */
+function switchTab(type){
+  const login = document.getElementById("loginForm");
+  const register = document.getElementById("registerForm");
+  const tabs = document.querySelectorAll(".tab");
+
+  tabs.forEach(t => t.classList.remove("active"));
+
+  if(type === "login"){
+    login.style.display = "block";
+    register.style.display = "none";
+    tabs[0].classList.add("active");
+  }else{
+    login.style.display = "none";
+    register.style.display = "block";
+    tabs[1].classList.add("active");
+  }
+}
 </script>
 </body>
 </html>
