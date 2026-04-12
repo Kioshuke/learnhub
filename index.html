@@ -74,6 +74,15 @@ background-size:28px 28px;
 overflow-x:hidden;
 animation:fadeIn 0.6s ease;
 }
+html, body{
+width:100%;
+max-width:100%;
+overflow-x:hidden;
+overscroll-behavior-x:none;
+}
+body.auth-locked > *:not(#loginBox):not(#loadingOverlay){
+display:none !important;
+}
 @keyframes fadeIn{
 from{opacity:0;}
 to{opacity:1;}
@@ -509,48 +518,345 @@ opacity:0;
 }
 }
 
-#loginBox .login-card{
-background:white;
-padding:30px 40px;
-border-radius:14px;
-box-shadow:0 10px 40px rgba(0,0,0,0.2);
-text-align:center;
+#loginBox{
+position:fixed;
+inset:0;
+display:none;
+align-items:stretch;
+justify-content:stretch;
+background:#f9fafb;
+z-index:1000001;
+padding:0;
+overflow:hidden;
 }
-.google-btn{
+
+#loginBox .auth-shell{
+width:100%;
+height:100vh;
+min-height:100vh;
+max-width:100vw;
+display:flex;
+overflow:hidden;
+border-radius:0;
+background:#ffffff;
+box-shadow:none;
+border:none;
+}
+
+#loginBox .auth-left{
+width:42%;
+min-width:0;
+background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%);
+padding:60px;
+display:flex;
+flex-direction:column;
+justify-content:center;
+}
+
+#loginBox .auth-brand{
 display:flex;
 align-items:center;
-justify-content:center; /* căn giữa */
-
-gap:12px;
-
-width:100%;
-padding:12px 22px;
-
-font-size:16px;
-font-weight:500;
-
-background:white;
-border:none;
-border-radius:12px;
-
-box-shadow:0 4px 14px rgba(0,0,0,0.12);
-cursor:pointer;
-
-transition:all .25s ease;
+gap:14px;
+margin-bottom:36px;
 }
 
-.google-btn img{
+#loginBox .auth-brand img{
+width:48px;
+height:48px;
+object-fit:cover;
+border-radius:14px;
+box-shadow:0 10px 24px rgba(37,99,235,0.18);
+}
+
+#loginBox .auth-brand span{
+font-size:21px;
+font-weight:800;
+line-height:1.25;
+color:#2563eb;
+min-width:0;
+word-break:break-word;
+}
+
+#loginBox .auth-tabs{
+display:flex;
+gap:10px;
+margin-bottom:22px;
+}
+
+#loginBox .auth-tab{
+flex:1;
+padding:11px 14px;
+text-align:center;
+border-radius:12px;
+background:#eef2ff;
+color:#475569;
+font-weight:600;
+cursor:pointer;
+transition:all .2s ease;
+}
+
+#loginBox .auth-tab.active{
+background:linear-gradient(135deg,#2563eb,#1d4ed8);
+color:#fff;
+box-shadow:0 10px 24px rgba(37,99,235,0.22);
+}
+
+#loginBox .auth-title{
+font-size:30px;
+font-weight:800;
+line-height:1.2;
+margin-bottom:10px;
+background:linear-gradient(135deg,#2563eb,#1d4ed8);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+
+#loginBox .auth-panel{
+display:block;
+}
+
+#loginBox .auth-login-btn,
+#loginBox .auth-submit{
+width:100%;
+border:none;
+cursor:pointer;
+border-radius:16px;
+transition:transform .22s ease, box-shadow .22s ease, background .22s ease;
+}
+
+#loginBox .auth-login-btn{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:12px;
+padding:15px 18px;
+font-size:16px;
+font-weight:600;
+background:#fff;
+border:1px solid #e2e8f0;
+box-shadow:0 10px 24px rgba(15,23,42,0.08);
+min-width:0;
+}
+
+#loginBox .auth-login-btn img{
 width:22px;
 height:22px;
 }
 
-.google-btn:hover{
+#loginBox .auth-login-btn:hover,
+#loginBox .auth-submit:hover{
 transform:translateY(-2px);
-box-shadow:0 6px 20px rgba(0,0,0,0.18);
+box-shadow:0 16px 32px rgba(15,23,42,0.12);
 }
 
-.google-btn:active{
-transform:scale(0.97);
+#loginBox .auth-divider{
+text-align:center;
+margin:20px 0;
+color:#94a3b8;
+font-size:14px;
+}
+
+#loginBox .auth-input-group{
+position:relative;
+margin-bottom:16px;
+}
+
+#loginBox .auth-input-group input{
+width:100%;
+padding:15px 14px;
+border-radius:14px;
+border:1px solid #dbe4f0;
+outline:none;
+font-size:14px;
+background:#fff;
+transition:border-color .2s ease, box-shadow .2s ease;
+}
+
+#loginBox .auth-input-group label{
+position:absolute;
+left:13px;
+top:50%;
+transform:translateY(-50%);
+padding:0 6px;
+font-size:14px;
+color:#94a3b8;
+background:#fff;
+pointer-events:none;
+transition:all .2s ease;
+}
+
+#loginBox .auth-input-group input:focus{
+border-color:#2563eb;
+box-shadow:0 0 0 4px rgba(37,99,235,0.12);
+}
+
+#loginBox .auth-input-group input:focus + label,
+#loginBox .auth-input-group input:valid + label{
+top:-7px;
+font-size:12px;
+color:#2563eb;
+}
+
+#loginBox .auth-submit{
+padding:14px 18px;
+font-size:15px;
+font-weight:700;
+color:#fff;
+background:linear-gradient(135deg,#2563eb,#1d4ed8);
+}
+
+
+#loginBox .auth-footer{
+margin-top:24px;
+font-size:13px;
+text-align:center;
+color:#94a3b8;
+}
+
+#loginBox .auth-right{
+width:58%;
+position:relative;
+overflow:hidden;
+background:#0f172a;
+}
+
+#loginBox .auth-slide{
+position:absolute;
+inset:0;
+overflow:hidden;
+opacity:0;
+transform:scale(1.05);
+transition:opacity 1s ease, transform 3s ease;
+}
+
+#loginBox .auth-slide.active{
+opacity:1;
+transform:scale(1);
+}
+
+#loginBox .auth-bg-blur{
+position:absolute;
+inset:0;
+background-size:cover;
+background-position:center;
+filter:blur(24px);
+transform:scale(1.15);
+opacity:0.78;
+}
+
+#loginBox .auth-bg-blur::after{
+content:"";
+position:absolute;
+inset:0;
+background:linear-gradient(to top, rgba(2,6,23,0.55), rgba(2,6,23,0.18), transparent);
+}
+
+#loginBox .auth-bg-main{
+position:absolute;
+inset:0;
+background-size:contain;
+background-repeat:no-repeat;
+background-position:center;
+z-index:2;
+}
+
+#loginBox .auth-right::after{
+content:"";
+position:absolute;
+inset:0;
+background:rgba(2,6,23,0.34);
+z-index:2;
+}
+
+#loginBox .auth-overlay{
+position:absolute;
+left:56px;
+right:56px;
+bottom:56px;
+color:#fff;
+z-index:3;
+}
+
+#loginBox .auth-overlay h1{
+font-size:34px;
+font-weight:800;
+line-height:1.15;
+margin:0 0 10px;
+}
+
+#loginBox .auth-overlay p{
+font-size:16px;
+line-height:1.6;
+margin:0;
+color:rgba(255,255,255,0.88);
+transition:opacity .4s ease;
+}
+
+@media (max-width: 900px){
+  #loginBox .auth-shell{
+    min-height:100vh;
+    border-radius:0;
+  }
+
+  #loginBox .auth-left{
+    width:100%;
+    max-width:100vw;
+    padding:34px 24px;
+  }
+
+  #loginBox .auth-right{
+    display:none;
+  }
+}
+
+@media (max-width: 600px){
+  #loginBox .auth-left{
+    padding:24px 16px;
+  }
+
+  #loginBox .auth-brand{
+    gap:10px;
+    margin-bottom:24px;
+  }
+
+  #loginBox .auth-brand img{
+    width:40px;
+    height:40px;
+  }
+
+  #loginBox .auth-brand span{
+    font-size:16px;
+    line-height:1.3;
+  }
+
+  #loginBox .auth-tabs{
+    gap:8px;
+    margin-bottom:18px;
+  }
+
+  #loginBox .auth-tab{
+    padding:10px 8px;
+    font-size:15px;
+  }
+
+  #loginBox .auth-title{
+    font-size:24px;
+  }
+
+  #loginBox .auth-login-btn,
+  #loginBox .auth-submit{
+    font-size:15px;
+  }
+
+  #loginBox .auth-login-btn{
+    padding:14px 12px;
+    gap:10px;
+  }
+
+  #loginBox .auth-footer{
+    font-size:13px;
+  }
 }
 
 #loadingOverlay{
@@ -560,8 +866,7 @@ left:0;
 width:100%;
 height:100%;
 transition: opacity 0.6s ease, visibility 0.6s ease;
-
-display:flex;
+display:none;
 flex-direction:column;
 justify-content:center;
 align-items:center;
@@ -1062,7 +1367,7 @@ body.dark-mode .card{
 </style>
 
 </head>
-<body>
+<body class="auth-locked">
 <div id="loadingOverlay">
 <audio id="clickSound" src="sound/mocor-os-keypad-sound.mp3" preload="auto"></audio>
 <audio id="dotest" src="sound/windows-xp-startup.mp3" preload="auto"></audio>
@@ -1096,32 +1401,94 @@ body.dark-mode .card{
 - LearnHub Forum, bạn có thể trao đổi với các thành viên khác tại đây. Để truy cập hãy bấm vào ô Forum trên thanh Menu!<br>- Hubie-AI của bạn, hỗ trợ giải đáp bài, trao đổi, trò chuyện,.....<br>- Cải tiến giao diện: Những bài đã được up sẽ có dấu chấm xanh (hoàn thành). Ngược lại, những bài chưa up sẽ có dấu chấm đỏ (Đang cập nhật)</p>
 </div>
 </div>
-<div id="loginBox" style="
- position: fixed;
- top:0;
- left:0;
- width:100%;
- height:100%;
+<div id="loginBox">
+<div class="auth-shell">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <img src="newlogo.png" alt="Logo LearnHub">
+      <span>LearnHub Platform - With Hubie AI</span>
+    </div>
 
- display:flex;
- justify-content:center;
- align-items:center;
+    <div class="auth-tabs">
+      <div class="auth-tab active" data-auth-tab="login" onclick="switchAuthTab('login')">Đăng nhập</div>
+      <div class="auth-tab" data-auth-tab="register" onclick="switchAuthTab('register')">Đăng ký</div>
+    </div>
 
- background: rgba(0,0,0,0.35);   /* làm tối nền */
- backdrop-filter: blur(6px);     /* làm mờ nền */
- z-index:9999;
- ">
+    <div class="auth-title">Chào mừng trở lại!</div>
+    <div id="authLoginPanel" class="auth-panel">
+      <button class="auth-login-btn" onclick="googleLogin()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+        <span>Tiếp tục với Google</span>
+      </button>
 
-<div class="login-card">
+      <button class="auth-login-btn" onclick="authComingSoon()" style="margin-top:14px;">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub">
+        <span>Tiếp tục với GitHub</span>
+      </button>
 
-<h3>Đăng nhập</h3>
+      <button class="auth-login-btn" onclick="authComingSoon()" style="margin-top:14px;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft">
+        <span>Tiếp tục với Microsoft</span>
+      </button>
 
-<button class="google-btn" onclick="googleLogin()">
-<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="">
-<span>Đăng nhập bằng Google</span>
-</button> <br>
-<div>Nếu đã đăng nhập và không thể vào vui lòng liên hệ admin để được hỗ trợ</div>
+      <div class="auth-divider">hoặc</div>
 
+      <div class="auth-input-group">
+        <input required>
+        <label>Email</label>
+      </div>
+
+      <div class="auth-input-group">
+        <input type="password" required>
+        <label>Mật khẩu</label>
+      </div>
+
+      <button class="auth-submit" onclick="authComingSoon()">Đăng nhập</button>
+    </div>
+
+    <div id="authRegisterPanel" class="auth-panel" style="display:none;">
+      <div class="auth-input-group">
+        <input required>
+        <label>Email</label>
+      </div>
+
+      <div class="auth-input-group">
+        <input type="password" required>
+        <label>Mật khẩu</label>
+      </div>
+
+      <div class="auth-input-group">
+        <input type="password" required>
+        <label>Nhập lại mật khẩu</label>
+      </div>
+
+      <button class="auth-submit" onclick="authComingSoon()">Đăng ký</button>
+    </div>
+
+    <div class="auth-footer">© 2026 LearnHub - THPT Tân Hồng</div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-slide">
+      <div class="auth-bg-blur" style="background-image:url('loading1.jpg')"></div>
+      <div class="auth-bg-main" style="background-image:url('loading1.jpg')"></div>
+    </div>
+
+    <div class="auth-slide">
+      <div class="auth-bg-blur" style="background-image:url('loading2.jpg')"></div>
+      <div class="auth-bg-main" style="background-image:url('loading2.jpg')"></div>
+    </div>
+
+    <div class="auth-slide">
+      <div class="auth-bg-blur" style="background-image:url('loading3.jpg')"></div>
+      <div class="auth-bg-main" style="background-image:url('loading3.jpg')"></div>
+    </div>
+
+    <div class="auth-overlay">
+      <h1 id="authSlideTitle">LearnHub - Nang cap cach ban hoc</h1>
+      <p id="authSlideDesc">On thi nhanh • Giao dien hien dai • Toi uu trai nghiem</p>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -1944,6 +2311,8 @@ let fill = document.getElementById("progressFill");
 let textEl = document.getElementById("progressText");
 let loadingStatus = document.getElementById("loadingText");
 let width = 0;
+let progress = null;
+let loadingStarted = false;
 
 const messages = [
     "📚 Đang tải tài liệu ...",
@@ -1954,39 +2323,73 @@ const messages = [
     "🌈 Khởi tạo không gian học!"
 ];
 
-let progress = setInterval(() => {
-    width++;
-    fill.style.width = width + "%";
-    textEl.innerText = width + "%";
+function startLoading(){
+    const overlay = document.getElementById("loadingOverlay");
+    if (!overlay || loadingStarted) return;
 
-    // Cứ mỗi 15-20% thì đổi chữ và làm nó "nảy" lên
-    if (width % 20 === 0 && width < 100) {
-        let randomMsg = messages[Math.floor(Math.random() * messages.length)];
-        
-        // 1. Gán nội dung mới
-        loadingStatus.innerText = randomMsg;
-        
-        // 2. Xóa và thêm lại class để kích hoạt hiệu ứng nảy
-        loadingStatus.classList.remove("text-bounce");
-        void loadingStatus.offsetWidth; // Mẹo để reset animation
-        loadingStatus.classList.add("text-bounce");
-    }
+    document.body.classList.add("auth-locked");
+    loadingStarted = true;
+    width = 0;
+    overlay.style.display = "flex";
+    overlay.classList.remove("hide");
+    fill.style.width = "0%";
+    fill.classList.remove("complete");
+    textEl.innerText = "0%";
+    loadingStatus.innerText = "🧠 Đang chuẩn bị kiến thức...";
+    document.getElementById("mainContent").classList.remove("show");
 
-    if (width >= 100) {
+    progress = setInterval(() => {
+        width++;
+        fill.style.width = width + "%";
+        textEl.innerText = width + "%";
+
+        if (width % 20 === 0 && width < 100) {
+            let randomMsg = messages[Math.floor(Math.random() * messages.length)];
+            loadingStatus.innerText = randomMsg;
+            loadingStatus.classList.remove("text-bounce");
+            void loadingStatus.offsetWidth;
+            loadingStatus.classList.add("text-bounce");
+        }
+
+        if (width >= 100) {
+            clearInterval(progress);
+            progress = null;
+            fill.classList.add("complete");
+            loadingStatus.innerText = "✅ Đã sẵn sàng!";
+            loadingStatus.classList.add("text-bounce");
+
+            setTimeout(() => {
+                overlay.classList.add("hide");
+                overlay.addEventListener("transitionend", () => {
+                    overlay.style.display = "none";
+                    document.body.classList.remove("auth-locked");
+                    document.getElementById("mainContent").classList.add("show");
+                }, { once: true });
+            }, 800);
+        }
+    }, 20);
+}
+
+function resetLoadingState(){
+    const overlay = document.getElementById("loadingOverlay");
+    if (!overlay) return;
+
+    document.body.classList.add("auth-locked");
+    if (progress) {
         clearInterval(progress);
-        fill.classList.add("complete");
-        loadingStatus.innerText = "✅ Đã sẵn sàng!";
-        loadingStatus.classList.add("text-bounce");
-
-        setTimeout(() => {
-            const overlay = document.getElementById("loadingOverlay");
-            overlay.classList.add("hide");
-            overlay.addEventListener("transitionend", () => {
-                document.getElementById("mainContent").classList.add("show");
-            }, { once: true });
-        }, 800);
+        progress = null;
     }
-}, 20);
+
+    loadingStarted = false;
+    width = 0;
+    overlay.classList.remove("hide");
+    overlay.style.display = "none";
+    fill.style.width = "0%";
+    fill.classList.remove("complete");
+    textEl.innerText = "0%";
+    loadingStatus.innerText = "🧠 Đang chuẩn bị kiến thức...";
+    document.getElementById("mainContent").classList.remove("show");
+}
 function loadQuiz(btn, link){
 
   // ❌ xoá active cũ
@@ -2125,6 +2528,84 @@ const popup = document.getElementById("popup");
 const box = document.querySelector(".popup-box");
 const closeBtn = document.querySelector(".close");
 
+const authSlideData = [
+  {
+    title: "LearnHub – Nâng cấp cách bạn học",
+    desc: "Ôn thi nhanh • Giao diện hiện đại • Tối ưu trải nghiệm"
+  },
+  {
+    title: "Giao diện chính - Hubie AI",
+    desc: "Trợ lý AI thông minh hỗ trợ học tập"
+  },
+  {
+    title: "LearnHub Forum",
+    desc: "Trao đổi • Hỏi đáp • Kết nối học sinh"
+  }
+];
+
+let authSlideIndex = 0;
+let authSlideTimer = null;
+
+function switchAuthTab(type){
+  const login = document.getElementById("authLoginPanel");
+  const register = document.getElementById("authRegisterPanel");
+  const tabs = document.querySelectorAll("#loginBox .auth-tab");
+
+  tabs.forEach((tab) => tab.classList.remove("active"));
+
+  if(type === "login"){
+    if(login) login.style.display = "block";
+    if(register) register.style.display = "none";
+  }else{
+    if(login) login.style.display = "none";
+    if(register) register.style.display = "block";
+  }
+
+  const activeTab = document.querySelector(`#loginBox .auth-tab[data-auth-tab="${type}"]`);
+  if(activeTab) activeTab.classList.add("active");
+}
+
+function updateAuthSlideText(index){
+  const titleEl = document.getElementById("authSlideTitle");
+  const descEl = document.getElementById("authSlideDesc");
+  if(!titleEl || !descEl) return;
+
+  titleEl.style.opacity = "0";
+  descEl.style.opacity = "0";
+
+  setTimeout(() => {
+    titleEl.textContent = authSlideData[index].title;
+    descEl.textContent = authSlideData[index].desc;
+    titleEl.style.opacity = "1";
+    descEl.style.opacity = "1";
+  }, 180);
+}
+
+function initAuthSlides(){
+  const slides = document.querySelectorAll("#loginBox .auth-slide");
+  if(!slides.length) return;
+
+  slides[0].classList.add("active");
+  updateAuthSlideText(0);
+
+  if(authSlideTimer) clearInterval(authSlideTimer);
+
+  authSlideTimer = setInterval(() => {
+    slides[authSlideIndex].classList.remove("active");
+    authSlideIndex = (authSlideIndex + 1) % slides.length;
+    slides[authSlideIndex].classList.add("active");
+    updateAuthSlideText(authSlideIndex);
+  }, 4000);
+}
+
+function authComingSoon(){
+  alert("Tinh nang nay dang phat trien. Hien tai ban van dang nhap bang Google nhu cu.");
+}
+
+window.switchAuthTab = switchAuthTab;
+window.authComingSoon = authComingSoon;
+initAuthSlides();
+
 // kiểm tra ngày hôm nay
 closeBtn.onclick = function(){
 
@@ -2219,6 +2700,8 @@ const allowList = [
 let activeInterval = null;
 onAuthStateChanged(auth, (user)=>{
 if(user){
+  document.getElementById("loginBox").style.display = "none";
+  startLoading();
 
   // ✅ GỬI USER SANG FORUM IFRAME
   function sendUserToForum(user){
@@ -2295,7 +2778,6 @@ if(emailEl) emailEl.innerText = user.email;
 
 const quoteEl = document.getElementById("popupQuote");
 if(quoteEl) quoteEl.innerText = quote;
-document.getElementById("loginBox").style.display="none";
 
 document.getElementById("welcomeText").innerText =
 "Chúc bạn ôn thi thật tốt,";
@@ -2319,6 +2801,7 @@ if (popupAvatar) {
 }
 
 } else {
+  resetLoadingState();
   document.getElementById("loginBox").style.display = "flex";
 }
 });
