@@ -63,6 +63,109 @@
           { "text": "Khi hình thành liên kết các phân tử NH₃ đã nhận cặp electron tự do của Cu²⁺.", "correct": 0 },
           { "text": "[Cu(NH₃)₄](OH)₂ là chất kết tủa màu xanh thẫm.", "correct": 0 }
         ]
+      },
+      {
+        "type": "true_false",
+        "question": "Magnesium (Mg) là kim loại được ứng dụng để tạo các hợp kim nhẹ, bền, đặc biệt là cho ngành công nghiệp sản xuất ô tô và hàng không vũ trụ. Magnesium được sản xuất trong công nghiệp theo quá trình Pidgeon với nguyên liệu ban đầu là quảng dolomite. Quá trình được thực hiện qua các giai đoạn sau: <br>Giai đoạn 1. Nung quặng dolomite: MgCO₃·CaCO₃ (rắn) ⟶ MgO (rắn) + CaO (rắn) + 2CO₂ (khí) <br>Giai đoạn 2. Dùng Si trong ferrosilicon (Fe, Si) làm chất khử trong điều kiện chân không: 2MgO (rắn) + 2CaO (rắn) + Si (rắn) ⟶ 2Mg (khí) + Ca₂SiO₄ (rắn) <br>Phản ứng chung của quá trình Pidgeon là: 2MgCO₃·CaCO₃ (rắn) + Si (rắn) ⟶ 2Mg (khí) + Ca₂SiO₄ (rắn) + 2CO₂ (khí) ΔH°₂₉₈ = −183 kJ",
+        "subQuestions": [
+          { "text": "Quá trình Pidgeon là quá trình thu nhiệt.", "correct": 1 },
+          { "text": "Phản ứng ở giai đoạn (2) thuộc phương pháp nhiệt luyện.", "correct": 1 },
+          { "text": "Phản ứng ở giai đoạn (2) chứng tỏ MgO dễ bị oxi hóa bởi Si hơn hơn CaO. ", "correct": 0 },
+          { "text": "Nếu hiệu suất của quá trình là 90% thì cứ 2,3 tấn quặng dolomite (chứa 80% MgCO₃·CaCO₃ về khối lượng) sẽ điều chế được 220 kg magnesium.", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Câu 8. Để xác định hàm lượng Fe²⁺ trong một lọ muối Mohr (có công thức (NH₄)₂SO₄.FeSO₄.6H₂O) người ta tiến hành thí nghiệm như sau: <br>Cân 5,00 gam muối rồi hoà tan vào nước, thêm tiếp 5 mL dung dịch H₂SO₄ 20% rồi cho nước cất vào để được 100 mL dung dịch (kí hiệu là dung dịch X). Lấy 10 mL dung dịch X đem chuẩn độ bằng dung dịch chuẩn KMnO₄ 0,02 M thì thấy hết 10 mL.",
+        "image": "https://vietjack.com/hoa-hoc-11-ct/images/cau-hoi-thao-luan-16-trang-18-hoa-hoc-11.PNG",
+        "subQuestions": [
+          { "text": "Phương trình phản ứng chuẩn độ là: 6FeSO₄ + 2KMnO₄ + 4H₂SO₄ → 3Fe₂(SO₄)₃ + K₂SO₄ + 2MnO₂ + 4H₂O.", "correct": 0 },
+          { "text": "Thời điểm kết thúc chuẩn độ là lúc dung dịch xuất hiện màu hồng và tồn tại khoảng 20 giây.", "correct": 1 },
+          { "text": "Khi để trong không khí lâu ngày thì hàm lượng FeSO₄ trong muối Mohr sẽ không thay đổi.", "correct": 0 },
+          { "text": "Hàm lượng Fe²⁺ trong mẫu muối Mohr đem phân tích ở trên là 11,2%.", "correct": 1 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Theo IUPAC, nguyên tố chuyển tiếp là những nguyên tố có phân lớp d chưa được xếp (hoặc điền) đầy electron ở trạng thái nguyên tử hoặc ở trạng thái ion.",
+        "subQuestions": [
+          { "text": "Calcium không phải là nguyên tố chuyển tiếp do không có phân lớp d trong cấu hình electron của nguyên tử.", "correct": 1 },
+          { "text": "Nguyên tố có cấu hình electron lớp ngoài cùng dạng (n-1)d¹⁻¹⁰ns¹⁻² là nguyên tố chuyển tiếp.", "correct": 1 },
+          { "text": "Nguyên tố có phân lớp (n-1)d¹⁰ không bao giờ được coi là nguyên tố chuyển tiếp.", "correct": 0 },
+          { "text": "Nguyên tố chuyển tiếp có tính kim loại nên còn được gọi là nguyên tố kim loại chuyển tiếp.", "correct": 1 }
+        ]
+      },
+            {
+        "type": "true_false",
+        "question": "Cho sơ đồ chuyển hoá :",
+        "image": "hoadscau10.jpg",
+        "subQuestions": [
+          { "text": "Các phức chất trên sơ đồ đều có nguyên tử trung tâm là đồng (copper).", "correct": 1 },
+          { "text": "Phức chất [Cu(OH₂)₆]²⁺ có dạng hình học là tứ diện.", "correct": 1 },
+          { "text": "Trong các phức chất trong sơ đồ, [Cu(OH)₂(OH₂)₂]²⁺ bền nhất.", "correct": 0 },
+          { "text": "Màu của các phức chất trong sơ đồ phụ thuộc vào nguyên tử trung tâm. ", "correct": 1 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Giáo viên giao cho nhóm học sinh một lượng nước có tính cứng vĩnh cửu và yêu cầu họ thực hiện quá trình nghiên cứu để chứng minh tính chất này. Nhóm học sinh nêu giả thuyết như sau: Nếu mẫu nước có tính cứng vĩnh cửu thì khi được đun sôi, để nguội sẽ xuất hiện kết tủa màu trắng.<br>Nhóm học sinh thực hiện thí nghiệm như sau: Cho 4 – 5 mL mẫu nước vào ống nghiệm, đun nóng chậm trên ngọn lửa đèn cồn cho đến khi nước sôi được khoảng 10 giây thì dừng. Để yên ống nghiệm cho đến nguội hẳn.",
+        "subQuestions": [
+          { "text": "Giả thuyết do nhóm học sinh đưa ra không phù hợp với tính cứng của mẫu nước.", "correct": 0 },
+          { "text": "Trong quãng thời gian nước nóng đến sôi, có diễn ra quá trình kết tinh muối.", "correct": 0 },
+          { "text": "Sau khi ống nghiệm nguội hẳn, thấy xuất hiện kết tủa màu trắng, là muối của calcium hoặc magnesium, hoặc là hỗn hợp muối của cả calcium và magnesium.", "correct": 0 },
+          { "text": "Học sinh không chứng minh được giả thuyết của họ.", "correct": 1 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Chuẩn độ V₁ mL dung dịch chứa muối Fe²⁺, nồng độ C₁ (M) và dung dịch H₂SO₄ loãng, đựng trong bình tam giác bằng dung dịch KMnO₄ nồng độ C₂ (M) để ở burette và để ở vạch 0. Khi vạch thể tích dung dịch KMnO₄ trên burete là V₂ mL thì trong bình tam giác xuất hiện màu hồng trong khoảng 20 giây (hình 19.2).",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2025/06/blobid3-1749782152.png",
+        "subQuestions": [
+          { "text": "Phản ứng ion chuẩn độ là: MnO₄⁻(aq) + 5Fe²⁺(aq) + 8H⁺(aq) → Mn²⁺(aq) + 5Fe³⁺(aq) + 4H₂O(l).", "correct": 1 },
+          { "text": "Khi kết thúc chuẩn độ, dung dịch trong bình tam giác có màu hồng tồn tại bền trong khoảng 20 giây là của lượng rất nhỏ KMnO₄ dư.", "correct": 1 },
+          { "text": "Mối quan hệ giữa V₁, C₁, V₂ và C₂ được biểu diến qua công thức 5V₁C₁ = V₂C₂.", "correct": 1 },
+          { "text": "Có thể thực hiện phép chuẩn độ trên bằng cách đựng dung dịch KMnO₄ ở bình tam giác và dung dịch Fe²⁺ trong môi trường acid ở burette cho kết quả chuẩn độ tương tự.", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Trong ngành chế tạo trang sức và linh kiện điện tử, vàng thường được pha thêm đồng (Copper) để tăng độ cứng. Xét về đặc điểm của các nguyên tố chuyển tiếp như đồng:",
+        "subQuestions": [
+          { "text": "Nguyên tử đồng (Z=29) có cấu hình electron lớp ngoài cùng và phân lớp sát ngoài cùng ở trạng thái cơ bản là 3d⁹4s².", "correct": 0 },
+          { "text": "Đồng có nhiệt độ nóng chảy và độ cứng cao hơn so với các kim loại họ s cùng chu kỳ (như Potassium) do có sự tham gia của electron d vào liên kết kim loại.", "correct": 1 },
+          { "text": "Ứng dụng làm dây dẫn điện của đồng dựa trên tính chất vật lý là có độ dẫn điện rất cao, chỉ đứng sau bạc.", "correct": 1 },
+          { "text": "Để nhận biết sự có mặt của ion Cu²⁺ trong nước thải công nghiệp, ta có thể dùng dung dịch NaOH để tạo kết tủa xanh lơ, sau đó kết tủa này tan trong dung dịch NH₃ dư tạo phức xanh lam đậm.", "correct": 1 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Cisplatin là một phức chất của bạch kim (Platinum) có hình học vuông phẳng, được dùng làm thuốc điều trị ung thư. Xét các khía cạnh liên quan:",
+        "subQuestions": [
+          { "text": "Phức chất Cisplatin có công thức là [Pt(NH₃)₂Cl₂], trong đó Platinum liên kết với các phối tử bằng liên kết cộng hóa trị không cực.", "correct": 0 },
+          { "text": "Dấu hiệu quan trọng của phản ứng tạo phức trong dung dịch nước thường là sự thay đổi màu sắc rõ rệt hoặc sự hòa tan của một kết tủa ít tan.", "correct": 1 },
+          { "text": "Khi thực hiện thí nghiệm thay thế phối tử trong phức [Cu(H₂O)₆]²⁺ bằng NH₃, nếu ta thêm tiếp một lượng dư acid mạnh (như HCl) vào dung dịch phức màu xanh đậm, màu xanh đậm sẽ biến mất.", "correct": 1 },
+          { "text": "Phản ứng tạo phức giữa Cu²⁺ và OH⁻ ở nồng độ cao luôn tạo ra phức chất tan có màu đỏ gạch.", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Đá vôi (thành phần chính là CaCO₃) là nguồn nguyên liệu quan trọng trong sản xuất xi măng và vật liệu xây dựng. Xét các tính chất của các nguyên tố nhóm IIA:",
+        "subQuestions": [
+          { "text": "Trong tự nhiên, các kim loại nhóm IIA (từ Be đến Ba) chỉ tồn tại dưới dạng hợp chất, không tồn tại ở dạng đơn chất.", "correct": 1 },
+          { "text": "Tính kim loại của các nguyên tố nhóm IIA tăng dần từ Be đến Ba do bán kính nguyên tử tăng dần, làm giảm khả năng giữ electron lớp ngoài cùng.", "correct": 1 },
+          { "text": "Khi đốt nóng các hợp chất của Calcium trên ngọn lửa đèn khí, ngọn lửa sẽ chuyển sang màu xanh lục đặc trưng.", "correct": 0 },
+          { "text": "Để loại bỏ cặn đá vôi bám trong ấm đun nước lâu ngày, người ta thường dùng dung dịch giấm ăn (acid acetic loãng) vì xảy ra phản ứng giải phóng khí CO₂.", "correct": 1 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Vàng (Gold) được dùng làm đồ trang sức quý giá và các linh kiện điện tử cao cấp. Xét đặc điểm của vàng và các kim loại nói chung:",
+        "subQuestions": [
+          { "text": "Đặc điểm chung của liên kết kim loại là sự dùng chung các electron hóa trị tự do cho toàn bộ các nguyên tử trong khối kim loại.", "correct": 1 },
+          { "text": "Vàng có tính dẫn điện, dẫn nhiệt tốt nhưng độ dẻo kém hơn so với các kim loại nhóm IA.", "correct": 0 },
+          { "text": "Vàng là kim loại rất trơ về mặt hóa học, không phản ứng với oxygen ngay cả khi đun nóng ở nhiệt độ cao.", "correct": 1 },
+          { "text": "Vì E⁰Au³⁺/Au = +1,50V, vàng dễ dàng bị hòa tan trong dung dịch H₂SO₄ đặc, nóng để giải phóng khí SO₂.", "correct": 0 }
+        ]
       }
     ]
   }
