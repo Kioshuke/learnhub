@@ -1137,7 +1137,7 @@ body.dark-mode .card{
 <button data-subject="tin" onclick="show('tin')">Tin Học</button>
 <button data-subject="su" onclick="show('su')">Lịch Sử</button>
 <button data-subject="hoa" onclick="show('hoa')">Hoá Học</button>
-<button data-subject="hoa" onclick="show('flashcard')">Flashcard</button>
+<button data-subject="flashcard" onclick="show('flashcard')">Flashcard</button>
 </div>
 <div class="ticker-container">
 <div class="ticker-text">
@@ -2078,7 +2078,7 @@ function show(id){
 document.getElementById("quiz").innerHTML = "";
 window.scrollTo({ top:0, behavior:"smooth" });
 
-const tabs = ["lich","ly","hoa","sinh","tin","su","bxh"];
+const tabs = ["lich","ly","hoa","sinh","tin","su","bxh","flashcard"];
 
 tabs.forEach(t=>{
 let el = document.getElementById(t);
