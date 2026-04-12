@@ -223,6 +223,8 @@ box-shadow: 0 4px 12px color-mix(in srgb, var(--btn-color) 40%, transparent);
     gap: 5px;
     overflow-x: auto; /* Hỗ trợ cuộn ngang trên điện thoại */
     padding-left: 15px;
+    flex: 1;
+    min-width: 0;
 }
 .menu-buttons::-webkit-scrollbar {
     display: none;
@@ -264,22 +266,24 @@ gap:25px;
 .card{
   position: relative;
   will-change: transform;
-  background: var(--card-bg);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, white 86%, var(--card-color) 14%),
+    color-mix(in srgb, #f8fbff 76%, var(--card-color) 24%)
+  );
   background-clip: padding-box;
   padding:22px;
   border-radius:14px;
-  border:1px solid transparent;
-  border-bottom-color: transparent !important;
-
-  box-shadow:
-    0 10px 26px rgba(80,120,255,0.10),
-    0 2px 5px rgba(15,23,42,0.03);
-
-  transition: all 0.28s ease;
-
+  border:2px solid color-mix(in srgb, var(--card-color) 46%, #dbe4ff);
+  border-left-width:7px;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
   opacity:0;
-  transform:translateY(30px);
-  animation:cardFade 0.6s ease forwards;
+  transform:translateY(14px);
+  animation:cardFadeUp 0.45s ease forwards;
   padding-bottom: 60px !important;
   overflow:hidden;
 }
@@ -287,92 +291,65 @@ gap:25px;
   content:"";
   position:absolute;
   inset:0;
-  border-radius:14px;
-
+  border-radius:inherit;
   pointer-events:none;
-  transition:0.3s;
-
-  /* 🔥 3 layer: trái - phải - overlay */
-  background:
-    linear-gradient(var(--card-color), var(--card-color)) left / 5px 100% no-repeat,
-    linear-gradient(var(--card-color), var(--card-color)) right / 5px 100% no-repeat,
-    linear-gradient(120deg, #3b82f622, #6366f122);
-
+  background:linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--card-color) 14%, transparent),
+    transparent 38%
+  );
   opacity:0.9;
 }
-.card::before{
-  box-shadow:
-    inset 5px 0 0 0 var(--card-color),
-    inset -5px 0 0 0 var(--card-color);
-  background:linear-gradient(120deg, #3b82f622, #6366f122);
-}
 .card:hover::before{
-  box-shadow:
-    inset 6px 0 0 0 var(--card-color),
-    inset -6px 0 0 0 var(--card-color);
-  background:linear-gradient(120deg, #3b82f633, #6366f133);
+  opacity:1;
 }
 .card::after{
-  content:"";
-  position:absolute;
-  top:0;
-  left:-120%;
-  width:100%;
-  height:100%;
-
-  background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(255,255,255,0.6),
-    transparent
-  );
-
-  transition:0.6s;
-  pointer-events:none;
+  content:none;
 }
 .card:hover{
-  transform: translateY(-14px) scale(1.03);
-  outline: 2px solid color-mix(in srgb, var(--card-color) 30%, transparent);
-  box-shadow:
-    0 18px 36px color-mix(in srgb, var(--card-color) 24%, transparent),
-    0 4px 10px rgba(15,23,42,0.05);
-  border:1px solid transparent;
-
-  z-index: 5;
+  transform:translateY(-3px);
+  border-color:color-mix(in srgb, var(--card-color) 70%, #cbd5e1);
+  background:linear-gradient(
+    135deg,
+    color-mix(in srgb, white 82%, var(--card-color) 18%),
+    color-mix(in srgb, #f8fbff 68%, var(--card-color) 32%)
+  );
+  box-shadow:0 10px 24px color-mix(in srgb, var(--card-color) 18%, transparent);
+  z-index:1;
 }
 .card.active-card{
-  transform: translateY(-14px) scale(1.03);
-
+  transform:translateY(-3px);
+  border-color:color-mix(in srgb, var(--card-color) 72%, #cbd5e1);
+  background:linear-gradient(
+    135deg,
+    color-mix(in srgb, white 80%, var(--card-color) 20%),
+    color-mix(in srgb, #f8fbff 64%, var(--card-color) 36%)
+  );
   box-shadow:
-    0 18px 36px color-mix(in srgb, var(--card-color) 24%, transparent),
-    0 4px 10px rgba(15,23,42,0.05);
-  border:1px solid transparent;
-
-  z-index: 5;
+    0 14px 30px color-mix(in srgb, var(--card-color) 24%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--card-color) 22%, white);
+  z-index:1;
 }
 
 .card.active-card::before{
-  box-shadow:
-    inset 6px 0 0 0 var(--card-color),
-    inset -6px 0 0 0 var(--card-color);
-  background:linear-gradient(120deg, #3b82f633, #6366f133);
+  opacity:1;
 }
 .card:hover::before{
   opacity:1;
 }
 
 .card:hover::after{
-  left:120%;
+  content:none;
 }
 
 /* text polish */
 .card h3{
   margin-top:0;
-  color: var(--card-text);
-  font-weight:600;
+  color: color-mix(in srgb, #0f172a 72%, var(--card-color) 28%);
+  font-weight:700;
 }
 .card p{
-  color: var(--card-sub);
+  color: color-mix(in srgb, #475569 78%, var(--card-color) 22%);
   font-size:14px;
 }
 #ly .card{
@@ -394,31 +371,76 @@ gap:25px;
 #hoa .card{
   --card-color: #8b5cf6;
 }
-@keyframes cardFade{
+body.dark-mode .card{
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, #0f172a 78%, var(--card-color) 22%),
+    color-mix(in srgb, #1e293b 62%, var(--card-color) 38%)
+  );
+  border-color: color-mix(in srgb, var(--card-color) 58%, #334155);
+}
+body.dark-mode .card::before{
+  background:linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--card-color) 20%, transparent),
+    transparent 42%
+  );
+}
+body.dark-mode .card h3{
+  color: color-mix(in srgb, #f8fafc 76%, var(--card-color) 24%);
+}
+body.dark-mode .card p{
+  color: color-mix(in srgb, #cbd5e1 82%, var(--card-color) 18%);
+}
+body.dark-mode .card:hover{
+  border-color: color-mix(in srgb, var(--card-color) 78%, #475569);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, #111827 72%, var(--card-color) 28%),
+    color-mix(in srgb, #1e293b 50%, var(--card-color) 50%)
+  );
+  box-shadow:0 12px 28px color-mix(in srgb, var(--card-color) 24%, transparent);
+}
+body.dark-mode .card.active-card{
+  border-color: color-mix(in srgb, var(--card-color) 88%, #64748b);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, #111827 66%, var(--card-color) 34%),
+    color-mix(in srgb, #1e293b 42%, var(--card-color) 58%)
+  );
+  box-shadow:
+    0 16px 34px color-mix(in srgb, var(--card-color) 26%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--card-color) 30%, #0f172a);
+}
+@keyframes cardFadeUp{
 from{
-opacity:0;
-transform:translateY(30px);
+  opacity:0;
+  transform:translateY(14px);
 }
 to{
-opacity:1;
-transform:translateY(0);
+  opacity:1;
+  transform:translateY(0);
 }
 }
-.card:nth-child(1){ animation-delay:0.1s; }
-.card:nth-child(2){ animation-delay:0.3s; }
-.card:nth-child(3){ animation-delay:0.5s; }
-.card:nth-child(4){ animation-delay:0.7s; }
-.card:nth-child(5){ animation-delay:0.9s; }
-.card:nth-child(6){ animation-delay:1.1s; }
-.card:nth-child(7){ animation-delay:1.3s; }
-.card:nth-child(8){ animation-delay:1.5s; }
+.card:nth-child(1){ animation-delay:0.05s; }
+.card:nth-child(2){ animation-delay:0.12s; }
+.card:nth-child(3){ animation-delay:0.19s; }
+.card:nth-child(4){ animation-delay:0.26s; }
+.card:nth-child(5){ animation-delay:0.33s; }
+.card:nth-child(6){ animation-delay:0.40s; }
+.card:nth-child(7){ animation-delay:0.47s; }
+.card:nth-child(8){ animation-delay:0.54s; }
 /* BUTTON */
 
 .btn{
 display:inline-block;
 margin-top:10px;
 padding:10px 20px;
-background:linear-gradient(135deg,#1a73e8,#4f8cff);
+background:linear-gradient(
+  135deg,
+  color-mix(in srgb, var(--card-color) 88%, white 12%),
+  color-mix(in srgb, var(--card-color) 70%, #2563eb 30%)
+);
 color:white;
 text-decoration:none;
 border-radius:8px;
@@ -426,11 +448,18 @@ cursor:pointer;
 font-size:14px;
 font-weight:500;
 transition:all 0.25s ease;
+box-shadow:0 8px 18px color-mix(in srgb, var(--card-color) 26%, transparent);
 }
 
 .btn:hover{
 transform:translateY(-2px) scale(1.05);
-box-shadow:0 8px 20px rgba(0,0,0,0.25);
+box-shadow:0 10px 24px color-mix(in srgb, var(--card-color) 34%, transparent);
+}
+body.dark-mode .btn{
+box-shadow:0 10px 22px color-mix(in srgb, var(--card-color) 22%, transparent);
+}
+body.dark-mode .btn:hover{
+box-shadow:0 12px 28px color-mix(in srgb, var(--card-color) 30%, transparent);
 }
 
 /* QUIZ */
@@ -1623,13 +1652,15 @@ body.dark-mode .card{
   <img src="logoweb.webp" width="60" height="60" alt="Logo LearnHub">
   <span>LearnHub – Nâng cấp cách bạn học</span>
 </div>
-<button data-subject="lich" class="active" onclick="show('lich')">Lịch Thi</button>
-<button data-subject="bxh" onclick="show('bxh')">Forum</button>
-<button data-subject="ly" onclick="show('ly')">Vật Lý</button>
-<button data-subject="sinh" onclick="show('sinh')">Sinh Học</button>
-<button data-subject="tin" onclick="show('tin')">Tin Học</button>
-<button data-subject="su" onclick="show('su')">Lịch Sử</button>
-<button data-subject="hoa" onclick="show('hoa')">Hoá Học</button>
+<div class="menu-buttons">
+  <button data-subject="lich" class="active" onclick="show('lich')">Lịch Thi</button>
+  <button data-subject="bxh" onclick="show('bxh')">Forum</button>
+  <button data-subject="ly" onclick="show('ly')">Vật Lý</button>
+  <button data-subject="sinh" onclick="show('sinh')">Sinh Học</button>
+  <button data-subject="tin" onclick="show('tin')">Tin Học</button>
+  <button data-subject="su" onclick="show('su')">Lịch Sử</button>
+  <button data-subject="hoa" onclick="show('hoa')">Hoá Học</button>
+</div>
 </div>
 <div class="ticker-container">
 <div class="ticker-text">
@@ -1926,18 +1957,46 @@ font-size:22px;
 padding:16px;
 }
 .menu{
-flex-wrap:nowrap;              /* ❌ không cho xuống dòng */
-overflow-x:auto;               /* 👉 kéo ngang */
+display:flex;
+align-items:center;
 justify-content:flex-start;
-padding:10px;
+overflow:hidden;
+padding:10px 12px;
 gap:10px;
-scroll-snap-type: x mandatory; /* 🔥 thêm dòng này */
+}
+
+.menu-brand{
+flex:0 0 auto;
+min-width:auto;
+gap:8px;
+}
+
+.menu-brand img{
+width:30px;
+height:30px;
+}
+
+.menu-brand span{
+display:none;
+}
+
+.menu-buttons{
+flex:1 1 auto;
+display:flex;
+gap:8px;
+overflow-x:auto;
+overflow-y:hidden;
+padding-left:0;
+scroll-snap-type:x mandatory;
+scroll-behavior:smooth;
 }
 
 .menu button{
-flex-shrink:0;                 /* ❌ không bị co */
-white-space:nowrap;            /* không xuống dòng chữ */
-scroll-snap-align: start; /* 🔥 thêm dòng này */
+flex-shrink:0;
+white-space:nowrap;
+scroll-snap-align:start;
+padding:10px 16px;
+font-size:14px;
 }
 
 /* ===== TỐI ƯU HIỆU NĂNG ===== */
@@ -1947,18 +2006,24 @@ scroll-snap-align: start; /* 🔥 thêm dòng này */
 backdrop-filter:none !important;
 }
 .card.active-card{
-    transform: none !important; /* 🔥 mobile không cần zoom */
+    transform: translateY(-1px) !important;
+    border-color: color-mix(in srgb, var(--card-color) 60%, #dbe4ff);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--card-color) 18%, white);
   }
 .card{
-box-shadow:0 8px 20px rgba(80,120,255,0.08), 0 2px 5px rgba(15,23,42,0.03);
 animation:none;
 opacity:1;
 transform:none;
 }
 
 .card:hover{
-transform:none;
-box-shadow:0 10px 24px rgba(80,120,255,0.10), 0 3px 8px rgba(15,23,42,0.04);
+transform:translateY(-1px);
+border-color: color-mix(in srgb, var(--card-color) 54%, #dbe4ff);
+box-shadow:none;
+}
+body.dark-mode .card.active-card{
+    border-color: color-mix(in srgb, var(--card-color) 76%, #64748b);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--card-color) 28%, #0f172a);
 }
 
 body{
@@ -1967,18 +2032,12 @@ overscroll-behavior:none;
 
 /* ===== MENU SCROLL NGANG ===== */
 .menu{
-flex-wrap:nowrap;
-overflow-x:auto;
-justify-content:flex-start;
-padding:10px;
-gap:10px;
-scroll-snap-type:x mandatory;
+overflow:hidden;
 }
 
-.menu button{
-flex-shrink:0;
-white-space:nowrap;
-scroll-snap-align:start;
+.menu-buttons{
+overflow-x:auto;
+scroll-snap-type:x mandatory;
 }
 
 /* ===== USER BOX (FIX CHÍNH) ===== */
@@ -2866,7 +2925,94 @@ const allowList = [
 "xmai9839@gmail.com",
 ];
 let activeInterval = null;
+const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
+
+function applyUserToUI(user){
+const hour = new Date().getHours();
+let greeting = "";
+let quote = "";
+
+if (hour >= 5 && hour < 11) {
+greeting = "☀️ Chào buổi sáng,";
+quote = "Chúc bạn một ngày học tập năng suất!";
+} else if (hour >= 11 && hour < 14) {
+greeting = "🌤️ Nghỉ trưa thôi,";
+quote = "Nạp năng lượng để chiến đấu tiếp nhé!";
+} else if (hour >= 14 && hour < 18) {
+greeting = "☕ Chào buổi chiều,";
+quote = "Sắp hết ngày rồi, cố gắng lên nào!";
+} else {
+greeting = "🌙 Chào buổi tối,";
+quote = "Đừng thức quá khuya, giữ sức khỏe nhé!";
+}
+
+const greetingEl = document.getElementById("greetingText");
+if(greetingEl){
+greetingEl.innerText = greeting;
+}
+
+const nameEl = document.getElementById("popupName");
+if(nameEl) nameEl.innerText = user.displayName || "Bạn";
+
+const emailEl = document.getElementById("popupEmail");
+if(emailEl) emailEl.innerText = user.email || "preview@local.test";
+
+const quoteEl = document.getElementById("popupQuote");
+if(quoteEl) quoteEl.innerText = quote;
+
+document.getElementById("welcomeText").innerText = "Chúc bạn ôn thi thật tốt,";
+document.getElementById("userName").innerText = user.displayName || "Preview User";
+
+const avatar = user.photoURL || "https://i.imgur.com/6VBx3io.png";
+
+const userAvatar = document.getElementById("userAvatar");
+if(userAvatar){
+userAvatar.src = avatar;
+userAvatar.alt = user.displayName
+  ? `Ảnh đại diện của ${user.displayName}`
+  : "Ảnh đại diện người dùng";
+}
+
+const popupAvatar = document.getElementById("popupAvatar");
+if (popupAvatar) {
+  popupAvatar.src = avatar;
+  popupAvatar.alt = user.displayName
+    ? `Ảnh đại diện của ${user.displayName}`
+    : "Ảnh đại diện người dùng";
+}
+}
+
+function enterPreviewMode(){
+  const previewUser = {
+    uid: "preview-user",
+    displayName: "Preview User",
+    email: "preview@local.test",
+    photoURL: "https://i.imgur.com/6VBx3io.png"
+  };
+
+  document.getElementById("loginBox").style.display = "none";
+  applyUserToUI(previewUser);
+
+  const forumIframe = document.getElementById("forumFrame");
+  if (forumIframe && forumIframe.contentWindow) {
+    forumIframe.contentWindow.postMessage({
+      type: "USER_INFO",
+      user: {
+        uid: previewUser.uid,
+        name: previewUser.displayName
+      }
+    }, "*");
+  }
+
+  startLoading();
+}
+
 onAuthStateChanged(auth, (user)=>{
+if(previewMode){
+  enterPreviewMode();
+  return;
+}
+
 if(user){
   document.getElementById("loginBox").style.display = "none";
   startLoading();
@@ -2914,59 +3060,7 @@ if(user){
 
 // vì bên trong đã có:
 
-// greeting logic
-const hour = new Date().getHours();
-let greeting = "";
-let quote = "";
-
-if (hour >= 5 && hour < 11) {
-greeting = "☀️ Chào buổi sáng,";
-quote = "Chúc bạn một ngày học tập năng suất!";
-} else if (hour >= 11 && hour < 14) {
-greeting = "🌤️ Nghỉ trưa thôi,";
-quote = "Nạp năng lượng để chiến đấu tiếp nhé!";
-} else if (hour >= 14 && hour < 18) {
-greeting = "☕ Chào buổi chiều,";
-quote = "Sắp hết ngày rồi, cố gắng lên nào!";
-} else {
-greeting = "🌙 Chào buổi tối,";
-quote = "Đừng thức quá khuya, giữ sức khỏe nhé!";
-}
-
-// set UI
-const greetingEl = document.getElementById("greetingText");
-if(greetingEl){
-greetingEl.innerText = greeting;
-}
-const nameEl = document.getElementById("popupName");
-if(nameEl) nameEl.innerText = user.displayName || "Bạn";
-
-const emailEl = document.getElementById("popupEmail");
-if(emailEl) emailEl.innerText = user.email;
-
-const quoteEl = document.getElementById("popupQuote");
-if(quoteEl) quoteEl.innerText = quote;
-
-document.getElementById("welcomeText").innerText =
-"Chúc bạn ôn thi thật tốt,";
-
-document.getElementById("userName").innerText = user.displayName;
-
-// Avatar chính
-const userAvatar = document.getElementById("userAvatar");
-userAvatar.src = user.photoURL || "https://i.imgur.com/6VBx3io.png";
-userAvatar.alt = user.displayName 
-  ? `Ảnh đại diện của ${user.displayName}` 
-  : "Ảnh đại diện người dùng";
-
-// Avatar popup
-const popupAvatar = document.getElementById("popupAvatar");
-if (popupAvatar) {
-  popupAvatar.src = user.photoURL || "https://i.imgur.com/6VBx3io.png";
-  popupAvatar.alt = user.displayName 
-    ? `Ảnh đại diện của ${user.displayName}` 
-    : "Ảnh đại diện người dùng";
-}
+applyUserToUI(user);
 
 } else {
   resetLoadingState();
