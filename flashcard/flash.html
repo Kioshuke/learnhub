@@ -17,6 +17,7 @@ html, body {
 /* ===== GLOBAL - Tối ưu font và nền ===== */
 body {
   margin: 0;
+  padding: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   /* Nền Gradient nhẹ nhàng, nhìn lâu không mỏi mắt */
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -24,6 +25,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 /* ===== MENU - Glassmorphism xịn hơn ===== */
@@ -765,17 +767,394 @@ button:hover {
     backface-visibility: hidden;
     -webkit-font-smoothing: antialiased;
 }
+
+/* TỐI ƯU KHUNG GAME CHUẨN MOBILE */
+#battle-container {
+    width: 100%;
+    max-width: none;
+    height: 75vh; /* Chiều cao vừa đủ để thấy cả menu và nút */
+    margin: 0;
+    background: #0f172a;
+    border: 2px solid #334155;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+    display: block; /* Tắt flex để các con tự nhảy theo vị trí tuyệt đối */
+}   
+
+/* THANH TIẾN ĐỘ TRÊN CÙNG */
+.defender-header {
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(10px);
+
+    border-radius: 20px;
+    margin: 10px;
+    box-shadow: 0 8px 20px rgba(79,70,229,0.1);
+}
+#hp-text-top {
+    font-size: 1.4rem;
+    filter: drop-shadow(0 0 5px #ff0055);
+    letter-spacing: 5px;
+}
+
+/* THANH MÁU ❤️❤️❤️ */
+#hp-text-top {
+    font-size: 1.2rem;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px rgba(255,0,0,0.5);
+}
+
+/* KHU VỰC QUÁI RƠI */
+#enemy-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 75%; 
+    display: flex;
+    justify-content: center;
+}
+
+/* ===== AMMO SHELF - FINAL CLEAN VERSION ===== */
+#ammo-shelf {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 90px;
+    display: flex;
+    justify-content: stretch; /* Ép các nút dãn ra */
+    align-items: center;
+    padding: 0 5px; /* Giảm padding để sát lề hơn */
+    background: rgba(15, 23, 42, 0.95);
+    border-top: 1px solid #334155;
+}
+
+/* ===== BUTTON ===== */
+#ammo-shelf button {
+    flex: 1;
+    margin: 3px; 
+    height: 60px; 
+    font-size: 15px; 
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    color: #fff;
+    border: 1px solid #475569;
+    border-radius: 10px;
+}
+
+/* Hover */
+#ammo-shelf button:hover {
+    border-color: #4f46e5;
+    color: #4f46e5;
+    transform: translateY(-2px);
+}
+
+/* Click */
+#ammo-shelf button:active {
+    transform: scale(0.95);
+    background: #4f46e5;
+    color: white;
+}
+/* ============================================================ */
+/* 👿 QUÁI VẬT (Nghĩa tiếng Việt) */
+/* ============================================================ */
+.monster-wrapper {
+    animation: float 2s ease-in-out infinite;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    width: 100%;
+
+}
+/* Hình quái vật (Dùng Emoji hoặc có thể thay bằng ảnh pixel) */
+.monster-icon {
+    font-size: 50px;
+    filter: drop-shadow(0 0 10px #ff0000); /* Hào quang đỏ */
+    margin-bottom: -10px; /* Kéo chữ lên gần quái */
+    animation: monsterWobble 1s ease-in-out infinite alternate;
+}
+
+.monster-text-box {
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: rgba(0, 0, 0, 0.85) !important;
+}
+.def-progress-container {
+    height: 22px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1.5px solid #00d2ff; /* Viền xanh neon */
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.4); /* Phát sáng nhẹ */
+    border-radius: 50px;
+    position: relative;
+    overflow: hidden;
+}
+
+#def-progress-inner {
+    height: 100%;
+    background: linear-gradient(90deg, #00d2ff, #9d50bb); /* Màu xanh tím galaxy */
+    box-shadow: 0 0 15px #00d2ff;
+    transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+/* ============================================================ */
+/* 🚀 PHI THUYỀN PLAYER */
+/* ============================================================ */
+#player-zone {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 50px;
+    z-index: 10;
+}
+
+#cannon-container {
+    position: relative;
+    margin-bottom: 15px;
+    animation: playerFloat 2s ease-in-out infinite;
+}
+
+#cannon {
+    font-size: 50px;
+    filter: drop-shadow(0 5px 10px rgba(79,70,229,0.3));
+}
+
+/* Lửa đuôi xanh */
+.engine-flame {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 30px;
+    background: #00f2ff;
+    border-radius: 50% 50% 10px 10px;
+    filter: blur(4px);
+    opacity: 0.8;
+    animation: engineBurn 0.1s infinite alternate;
+}
+/* ============================================================ */
+/* 🎮 HUD & BĂNG ĐẠN (Dữ liệu tiếng Anh) */
+/* ============================================================ */
+#battle-hud {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 110px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    border-top: 2px solid rgba(0, 242, 255, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    z-index: 20;
+}
+
+/* Máu */
+#hp-bar {
+    font-size: 18px;
+    color: #ff0055;
+    text-shadow: 0 0 5px #ff0055;
+    margin-bottom: 5px;
+}
+
+/* ============================================================ */
+/* ✨ ANIMATIONS (Rung, Bắn, Bay) */
+/* ============================================================ */
+/* Đạn bay lên */
+.bullet-trace {
+    position: absolute;
+    width: 6px; /* Cho đạn mập hơn xíu nhìn cho rõ */
+    height: 40px;
+    background: linear-gradient(to top, #00f2ff, transparent); /* Hiệu ứng vệt mờ */
+    border-radius: 100px;
+    box-shadow: 0 0 20px #00f2ff, 0 0 40px #00f2ff;
+    z-index: 15;
+    pointer-events: none;
+    animation: bulletFly 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; /* Bay mượt hơn */
+}
+.emergency-flash {
+    animation: emergencyRed 0.5s ease-in-out;
+}
+@keyframes bulletFly {
+    from { transform: translate(-50%, 0); bottom: 180px; opacity: 1; }
+    to { transform: translate(-50%, -500px); bottom: 180px; opacity: 0; }
+}
+/* Lớp phủ báo động đỏ toàn màn hình */
+.emergency-flash::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(255, 0, 0, 0.6);
+    z-index: 999;
+    pointer-events: none;
+    animation: alertPulse 0.5s ease-out forwards;
+}
+
+@keyframes alertPulse {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+@keyframes emergencyRed {
+    0% { box-shadow: 0 0 0px red inset; background: #000; }
+    20% { box-shadow: 0 0 100px red inset; background: rgba(255, 0, 0, 0.4); }
+    40% { box-shadow: 0 0 20px red inset; background: #000; }
+    60% { box-shadow: 0 0 80px red inset; background: rgba(255, 0, 0, 0.3); }
+    100% { box-shadow: 0 0 0px red inset; background: #000; }
+}
+@keyframes monsterWobble {
+    from { transform: rotate(-3deg); }
+    to { transform: rotate(3deg); }
+}
+
+@keyframes playerFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes engineBurn {
+    from { opacity: 0.6; transform: translateX(-50%) scaleY(1); }
+    to { opacity: 0.9; transform: translateX(-50%) scaleY(1.3); }
+}
+/* Trang trí hành tinh */
+.planet {
+    position: absolute;
+    opacity: 0.4;
+    filter: blur(1px);
+    z-index: 1;
+    animation: floatSlow 10s linear infinite;
+}
+.p1 { top: 10%; right: 10%; font-size: 50px; }
+.p2 { top: 40%; left: 5%; font-size: 30px; animation-duration: 15s; }
+.p3 { bottom: 20%; right: 5%; font-size: 40px; animation-delay: -5s; }
+/* Hiệu ứng Trái tim vỡ bay lên */
+.floating-broken-heart {
+    position: absolute;
+    bottom: 180px; /* Xuất phát gần họng súng */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 80px; /* To mờ mờ */
+    opacity: 0.6; /* Mờ mờ ban đầu */
+    filter: drop-shadow(0 0 10px #ff0055); /* Hào quang đỏ máu */
+    z-index: 50; /* Đè lên phi thuyền và quái vật */
+    pointer-events: none;
+    will-change: transform, opacity;
+    animation: heartbreakFloat 1s ease-out forwards;
+}
+
+/* Nếu mă dùng ảnh cho tim vỡ thì thêm CSS này: */
+/* .floating-broken-heart img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+} */
+
+@keyframes heartbreakFloat {
+    0% { transform: translateX(-50%) translateY(0) scale(1); opacity: 0.6; }
+    50% { transform: translateX(-50%) translateY(-50px) scale(1.2); opacity: 0.4; }
+    100% { transform: translateX(-50%) translateY(-100px) scale(1); opacity: 0; }
+}
+@keyframes floatSlow {
+    from { transform: translateY(0) rotate(0deg); }
+    to { transform: translateY(-20px) rotate(360deg); }
+}
+@keyframes float {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-5px) rotate(5deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+}
+
+/* Popup Game Over */
+.game-over-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: none; /* Hiện khi thua */
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.game-over-box {
+    text-align: center;
+    border: 3px solid #ff0055;
+    padding: 30px;
+    background: #000;
+    border-radius: 20px;
+    box-shadow: 0 0 30px #ff0055;
+}
+
+.broken-ship {
+    font-size: 80px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 10px #ff0055);
+}
+
+.game-over-box h2 {
+    color: #ff0055;
+    font-size: 35px;
+    margin: 10px 0;
+    text-shadow: 0 0 10px #ff0055;
+}
+
+.game-over-box p { color: #fff; margin-bottom: 20px; }
+@keyframes shakeError {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+  100% { transform: translateX(0); }
+}
+
+.shake {
+  animation: shakeError 0.25s ease !important;
+}
+#intro-screen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: 0.5s;
+}
+
+#intro-screen button {
+    padding: 12px 24px;
+    font-size: 18px;
+    border-radius: 12px;
+    border: none;
+    background: white;
+    color: #6366f1;
+    cursor: pointer;
+}
 </style>
 </head>
 
 <body>
+<div id="intro-screen">
+    <h1>LearnHub Test</h1>
+    <button onclick="enterApp()">Tham gia</button>
+</div>
 <!-- MENU -->
 <div id="menu">
   <button onclick="switchMode('flashcard')">Học</button>
   <button onclick="switchMode('match')">Ghép thẻ</button>
   <button onclick="switchMode('blast')">Blast</button>
+  <button onclick="switchMode('defender')">Chiến thần</button>
 </div>
-
 <!-- PROGRESS -->
 <div id="progressContainer">
   <div id="progressText">0 / 0</div>
@@ -822,6 +1201,42 @@ button:hover {
   </div>
 </div>
 
+<!-- TRO4 -->
+<div id="defender" class="mode">
+    <div id="battle-container">
+        <div class="defender-header">
+            <div class="def-progress-container">
+                <div id="def-progress-inner"></div>
+                <span id="def-progress-text">Sóng dữ: 0/0</span>
+            </div>
+            <div id="hp-text-top">❤️❤️❤️</div>
+        </div>
+
+        <div id="enemy-area"></div>
+        
+        <div id="player-zone">
+            <div id="cannon">🚀</div>
+        </div>
+
+        <div id="ammo-shelf"></div>
+
+        <div id="pause-overlay" class="game-overlay" style="display:none;">
+            <div class="pause-box">
+                <h2>TẠM DỪNG</h2>
+                <button onclick="resumeGame()">Tiếp tục chiến!</button>
+            </div>
+        </div>
+
+        <div id="game-over-popup" class="game-over-overlay" style="display:none;">
+            <div class="game-over-box">
+                <div class="broken-ship">💥🚀🔥</div>
+                <h2>GAME OVER</h2>
+                <p>Căn cứ đã thất thủ! Thử lại nha mă!</p>
+                <button onclick="restartDefenderGame()">Học lại phục thù!</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- POPUP -->
 <div id="popup" class="popup">
   <div class="popup-box">
@@ -835,17 +1250,41 @@ button:hover {
 
 <!-- SCRIPT -->
 <script>
+function enterApp() {
+    const intro = document.getElementById("intro-screen");
+
+    // fade mờ
+    intro.style.opacity = "0";
+    intro.style.pointerEvents = "none";
+
+    // sau khi fade xong thì ẩn luôn
+    setTimeout(() => {
+        intro.style.display = "none";
+    }, 500);
+}
 function loadDataScript() {
     const params = new URLSearchParams(window.location.search);
-    const dataFile = params.get("data") || "data.js"; // mặc định
+    const dataFile = params.get("data") || "data.js"; 
 
     const script = document.createElement("script");
     script.src = dataFile;
+
     script.onload = () => {
-        // Sau khi load data xong thì mới load game
         const gameScript = document.createElement("script");
         gameScript.src = "game.js";
+
+        gameScript.onload = () => {
+            // 👉 CHÍNH CHỖ NÀY
+            if (typeof setTotal === 'function') {
+                setTotal();
+            }
+        };
+
         document.body.appendChild(gameScript);
+    };
+
+    script.onerror = () => {
+        alert("Không tải được dữ liệu: " + dataFile);
     };
 
     document.body.appendChild(script);
