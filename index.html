@@ -178,31 +178,38 @@ box-shadow: 0 4px 12px color-mix(in srgb, var(--btn-color) 40%, transparent);
 }
 /* màu theo môn */
 .menu button[data-subject="ly"]{
-  --btn-color:#3b82f6;
+  --btn-color:#3b82f6; /* 🔵 Blue - tech, logic */
 }
+
 .menu button[data-subject="sinh"]{
-  --btn-color:#22c55e;
+  --btn-color:#16a34a; /* 🟢 Green - nature, life */
 }
+
 .menu button[data-subject="tin"]{
-  --btn-color:#f59e0b;
+  --btn-color:#f59e0b; /* 🟡 Amber - digital, energy */
 }
+
 .menu button[data-subject="su"]{
-  --btn-color:#ef4444;
+  --btn-color:#dc2626; /* 🔴 Red - history, strong */
 }
+
 .menu button[data-subject="hoa"]{
-  --btn-color:#8b5cf6;
+  --btn-color:#9333ea; /* 🟣 Violet - chemical vibe */
 }
+
 .menu button[data-subject="bxh"]{
-  --btn-color:#068682;
+  --btn-color:#0ea5e9; /* 🌊 Cyan - forum, social */
 }
+
 .menu button[data-subject="anh"]{
-  --btn-color:#5c47ff;
+  --btn-color:#ec4899; /* 💖 Pink - language, soft */
+}
+
+.menu button[data-subject="lich"]{
+  --btn-color:#f97316; /* 🟠 Orange - schedule, time */
 }
 .menu button[data-subject]:not(.active):hover{
   background: color-mix(in srgb, var(--btn-color) 25%, transparent);
-}
-.menu button[data-subject="lich"]{
-  --btn-color:#d4068f;
 }
 .menu-brand {
     display: flex;
@@ -359,26 +366,35 @@ gap:25px;
   font-size:14px;
 }
 #ly .card{
-  --card-color: #3b82f6;
+  --card-color: #3b82f6; /* 🔵 Lý */
 }
 
 #sinh .card{
-  --card-color: #22c55e;
+  --card-color: #16a34a; /* 🟢 Sinh */
 }
 
 #tin .card{
-  --card-color: #f59e0b;
+  --card-color: #f59e0b; /* 🟡 Tin */
 }
 
 #su .card{
-  --card-color: #ef4444;
+  --card-color: #dc2626; /* 🔴 Sử */
 }
 
 #hoa .card{
-  --card-color: #8b5cf6;
+  --card-color: #9333ea; /* 🟣 Hoá */
 }
+
 #anh .card{
-  --card-color: #5c47ff;
+  --card-color: #ec4899; /* 💖 Anh */
+}
+
+#bxh .card{
+  --card-color: #0ea5e9; /* 🌊 Forum */
+}
+
+#lich .card{
+  --card-color: #f97316; /* 🟠 Lịch */
 }
 body.dark-mode .card{
   background: linear-gradient(
@@ -1832,7 +1848,7 @@ body.dark-mode .card{
   <button data-subject="tin" onclick="show('tin')">Tin Học</button>
   <button data-subject="su" onclick="show('su')">Lịch Sử</button>
   <button data-subject="hoa" onclick="show('hoa')">Hoá Học</button>
-  <button data-subject="anh" onclick="show('anh')">Anh Văn</button>
+  <button data-subject="anh" onclick="show('anh')">Tiếng Anh</button>
 </div>
 </div>
 <div class="ticker-container">
@@ -2689,7 +2705,7 @@ Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
 </div>
 
 <div class="card">
-<h3>Phần 4</h3><div class="status up"></div>
+<h3>Phần 4</h3><div class="status done"></div>
 <p>Bài đọc điền lỗ dài</p>
 <a class="btn" href="cauhoi/questionenglish.html?de=../cauhoi/dienlo2.json" onclick="loadQuiz(this,'cauhoi/questionenglish.html?de=../cauhoi/dienlo2.json'); return false;">Làm bài</a>
 </div>
