@@ -195,6 +195,9 @@ box-shadow: 0 4px 12px color-mix(in srgb, var(--btn-color) 40%, transparent);
 .menu button[data-subject="bxh"]{
   --btn-color:#068682;
 }
+.menu button[data-subject="anh"]{
+  --btn-color:#5c47ff;
+}
 .menu button[data-subject]:not(.active):hover{
   background: color-mix(in srgb, var(--btn-color) 25%, transparent);
 }
@@ -373,6 +376,9 @@ gap:25px;
 
 #hoa .card{
   --card-color: #8b5cf6;
+}
+#anh .card{
+  --card-color: #5c47ff;
 }
 body.dark-mode .card{
   background: linear-gradient(
@@ -1826,6 +1832,7 @@ body.dark-mode .card{
   <button data-subject="tin" onclick="show('tin')">Tin Học</button>
   <button data-subject="su" onclick="show('su')">Lịch Sử</button>
   <button data-subject="hoa" onclick="show('hoa')">Hoá Học</button>
+  <button data-subject="anh" onclick="show('anh')">Tiếng Anh</button>
 </div>
 </div>
 <div class="ticker-container">
@@ -2659,6 +2666,37 @@ Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
 
 </div>
 </div>
+
+<div id="anh" style="display:none">
+<div class="grid">
+
+<div class="card">
+<h3>Phần 1</h3><span class="status done"></span>
+<p>Điền lỗ ngắn + Sắp xếp hội thoại</p>
+<a class="btn" href="cauhoi/questionenglish.html?de=../cauhoi/english.json" onclick="loadQuiz(this,'cauhoi/questionenglish.html?de=../cauhoi/english.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Phần 2</h3><span class="status done"></span>
+<p>Bài đọc 8 câu</p>
+<a class="btn" href="cauhoi/questionenglish.html?de=../cauhoi/8cau.json" onclick="loadQuiz(this,'cauhoi/questionenglish.html?de=../cauhoi/8cau.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Phần 3</h3><div class="status done"></div>
+<p>Bài đọc 10 câu</p>
+<a class="btn" href="cauhoi/questionenglish.html?de=../cauhoi/10cau.json" onclick="loadQuiz(this,'cauhoi/questionenglish.html?de=../cauhoi/10cau.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Phần 4</h3><div class="status up"></div>
+<p>Bài đọc điền lỗ dài</p>
+<a class="btn" href="cauhoi/questionenglish.html?de=../cauhoi/dienlo2.json" onclick="loadQuiz(this,'cauhoi/questionenglish.html?de=../cauhoi/dienlo2.json'); return false;">Làm bài</a>
+</div>
+
+</div>
+</div>
+
 <div id="bxh" style="display:none">
   <div class="grid">
     <iframe 
@@ -2839,7 +2877,7 @@ function show(id){
 document.getElementById("quiz").innerHTML = "";
 window.scrollTo({ top:0, behavior:"smooth" });
 
-const tabs = ["lich","ly","hoa","sinh","tin","su","bxh"];
+const tabs = ["lich","ly","hoa","sinh","tin","su","bxh","anh"];
 
 tabs.forEach(t=>{
 let el = document.getElementById(t);
