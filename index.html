@@ -3001,7 +3001,11 @@ function initMenuScroller(){
   menuButtons.addEventListener("scroll", updateMenuNavState);
   window.addEventListener("resize", updateMenuNavState);
 
-  updateMenuNavState();
+  // Tính lại nhiều nhịp để tránh sai lệch khi font/layout chưa render xong
+  requestAnimationFrame(updateMenuNavState);
+  setTimeout(updateMenuNavState, 120);
+  setTimeout(updateMenuNavState, 420);
+  window.addEventListener("load", updateMenuNavState, { once: true });
 }
 initMenuScroller();
 const now = new Date();
