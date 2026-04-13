@@ -98,7 +98,7 @@
             {
         "type": "true_false",
         "question": "Cho sơ đồ chuyển hoá :",
-        "image": "hoadscau10.jpg",
+        "image": "../hoahoc/hoadscau10.jpg",
         "subQuestions": [
           { "text": "Các phức chất trên sơ đồ đều có nguyên tử trung tâm là đồng (copper).", "correct": 1 },
           { "text": "Phức chất [Cu(OH₂)₆]²⁺ có dạng hình học là tứ diện.", "correct": 1 },
