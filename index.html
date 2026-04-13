@@ -158,41 +158,6 @@ box-shadow:
     top: 0;
     z-index: 1000;
 } 
-.menu-buttons-wrap{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    flex:1;
-    min-width:0;
-}
-.menu-nav{
-    width:38px;
-    height:38px;
-    border:1px solid rgba(37,99,235,0.25);
-    border-radius:999px;
-    background:linear-gradient(180deg,#ffffff,#eef4ff);
-    color:#1d4ed8;
-    font-size:20px;
-    font-weight:700;
-    line-height:1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    box-shadow:0 8px 20px rgba(37,99,235,0.22);
-    transition:all .2s ease;
-}
-.menu-nav:hover{
-    transform:translateY(-1px) scale(1.03);
-    background:linear-gradient(180deg,#ffffff,#e6efff);
-    box-shadow:0 10px 22px rgba(37,99,235,0.30);
-}
-.menu-nav:disabled{
-    opacity:.5;
-    cursor:default;
-    transform:none;
-    pointer-events:none;
-}
 
 .menu button{
 padding:12px 22px;
@@ -270,9 +235,10 @@ box-shadow: 0 4px 12px color-mix(in srgb, var(--btn-color) 40%, transparent);
 }
 .menu-buttons {
     display: flex;
-    gap: 5px;
-    overflow-x: auto; /* Hỗ trợ cuộn ngang trên điện thoại */
-    padding-left: 15px;
+    justify-content: space-between;
+    gap: 8px;
+    overflow-x: visible;
+    padding-left: 10px;
     flex: 1;
     min-width: 0;
 }
@@ -1877,19 +1843,15 @@ body.dark-mode .card{
   <img src="logoweb.webp" width="60" height="60" alt="Logo LearnHub">
   <span>LearnHub – Nâng cấp cách bạn học</span>
 </div>
-<div class="menu-buttons-wrap">
-  <button class="menu-nav" id="menuPrev" type="button" aria-label="Cuộn menu sang trái">‹</button>
-  <div class="menu-buttons" id="menuButtons">
-    <button data-subject="lich" class="active" onclick="show('lich')">Lịch Thi</button>
-    <button data-subject="bxh" onclick="show('bxh')">Forum</button>
-    <button data-subject="ly" onclick="show('ly')">Vật Lý</button>
-    <button data-subject="sinh" onclick="show('sinh')">Sinh Học</button>
-    <button data-subject="tin" onclick="show('tin')">Tin Học</button>
-    <button data-subject="su" onclick="show('su')">Lịch Sử</button>
-    <button data-subject="hoa" onclick="show('hoa')">Hoá Học</button>
-    <button data-subject="anh" onclick="show('anh')">Anh Văn</button>
-  </div>
-  <button class="menu-nav" id="menuNext" type="button" aria-label="Cuộn menu sang phải">›</button>
+<div class="menu-buttons" id="menuButtons">
+  <button data-subject="lich" class="active" onclick="show('lich')">Lịch Thi</button>
+  <button data-subject="bxh" onclick="show('bxh')">Forum</button>
+  <button data-subject="ly" onclick="show('ly')">Vật Lý</button>
+  <button data-subject="sinh" onclick="show('sinh')">Sinh Học</button>
+  <button data-subject="tin" onclick="show('tin')">Tin Học</button>
+  <button data-subject="su" onclick="show('su')">Lịch Sử</button>
+  <button data-subject="hoa" onclick="show('hoa')">Hoá Học</button>
+  <button data-subject="anh" onclick="show('anh')">Anh Văn</button>
 </div>
 </div>
 <div class="ticker-container">
@@ -2197,13 +2159,6 @@ justify-content:flex-start;
 overflow:hidden;
 padding:10px 12px;
 gap:10px;
-}
-.menu-buttons-wrap{
-flex:1 1 auto;
-gap:6px;
-}
-.menu-nav{
-display:none;
 }
 
 .menu-brand{
@@ -2972,42 +2927,6 @@ buttons.forEach(b => b.classList.remove("active"));
 btn.classList.add("active");
 });
 });
-function initMenuScroller(){
-  const menuButtons = document.getElementById("menuButtons");
-  const prevBtn = document.getElementById("menuPrev");
-  const nextBtn = document.getElementById("menuNext");
-
-  if(!menuButtons || !prevBtn || !nextBtn) return;
-
-  const updateMenuNavState = () => {
-    const maxScroll = menuButtons.scrollWidth - menuButtons.clientWidth;
-    if(maxScroll <= 4){
-      prevBtn.disabled = true;
-      nextBtn.disabled = true;
-      return;
-    }
-    prevBtn.disabled = menuButtons.scrollLeft <= 2;
-    nextBtn.disabled = menuButtons.scrollLeft >= maxScroll - 2;
-  };
-
-  prevBtn.addEventListener("click", () => {
-    menuButtons.scrollBy({ left: -220, behavior: "smooth" });
-  });
-
-  nextBtn.addEventListener("click", () => {
-    menuButtons.scrollBy({ left: 220, behavior: "smooth" });
-  });
-
-  menuButtons.addEventListener("scroll", updateMenuNavState);
-  window.addEventListener("resize", updateMenuNavState);
-
-  // Tính lại nhiều nhịp để tránh sai lệch khi font/layout chưa render xong
-  requestAnimationFrame(updateMenuNavState);
-  setTimeout(updateMenuNavState, 120);
-  setTimeout(updateMenuNavState, 420);
-  window.addEventListener("load", updateMenuNavState, { once: true });
-}
-initMenuScroller();
 const now = new Date();
 
 document.querySelectorAll(".exam-day").forEach(day=>{
