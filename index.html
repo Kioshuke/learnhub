@@ -3012,22 +3012,7 @@ function updateTabScrollTopBtn(){
   const btn = document.getElementById("tabScrollTopBtn");
   if(!btn) return;
   const canShowOnTab = currentTab === "flash" || currentTab === "bxh";
-  let scrolledDown = window.scrollY > 220;
-
-  // Nếu đang ở tab iframe, ưu tiên lấy mức cuộn bên trong iframe.
-  if (canShowOnTab) {
-    const frameId = currentTab === "flash" ? "flashHubFrame" : "forumFrame";
-    const frame = document.getElementById(frameId);
-    if (frame && frame.contentWindow) {
-      try {
-        scrolledDown = frame.contentWindow.scrollY > 120 || window.scrollY > 220;
-      } catch (e) {
-        // Fallback khi không đọc được iframe scroll (cross-origin)
-        scrolledDown = window.scrollY > 220;
-      }
-    }
-  }
-  btn.style.display = (canShowOnTab && scrolledDown) ? "flex" : "none";
+  btn.style.display = canShowOnTab ? "flex" : "none";
 }
 
 window.addEventListener("scroll", updateTabScrollTopBtn, { passive: true });
