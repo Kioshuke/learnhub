@@ -775,7 +775,48 @@ function closeModal(id) {
 
 // ===== START =====
 loadQuestions();
+function closeIntroPopup() {
+    document.getElementById("introPopup").style.display = "none";
+}
 </script>
 <div id="confetti-container"></div>
+<div id="introPopup" style="
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    background:rgba(0,0,0,0.6);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+">
+    <div style="
+        background:white;
+        padding:25px;
+        border-radius:16px;
+        max-width:400px;
+        width:90%;
+        text-align:center;
+        box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    ">
+        <h3 style="margin-bottom:10px;">📢 Thông báo</h3>
+        <p style="line-height:1.5;">
+            Đây là trang <b>làm bài luyện tập</b>.<br>
+            Nếu bạn thấy khó khăn trong quá trình làm bài hãy sử dụng đề cương để xem nội dung và chọn đáp án ở đây!
+        </p>
+        <button onclick="closeIntroPopup()" style="
+            margin-top:15px;
+            background:#1a73e8;
+            color:white;
+            border:none;
+            padding:10px 20px;
+            border-radius:10px;
+            font-weight:600;
+            cursor:pointer;
+        ">
+            OK
+        </button>
+    </div>
+</div>
 </body>
 </html>
