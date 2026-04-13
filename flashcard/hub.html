@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LearnHub Flashcard</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --glass: rgba(255, 255, 255, 0.82);
+      --line: rgba(148, 163, 184, 0.35);
+      --text-main: #0f172a;
+      --text-sub: #475569;
+      --chip: rgba(37, 99, 235, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      background: transparent;
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 18px 40px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 46px);
+      letter-spacing: 0.3px;
+      color: var(--primary);
+    }
+
+    .hero p {
+      margin: 0 auto;
+      max-width: 760px;
+      color: var(--text-sub);
+      line-height: 1.6;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      margin-top: 18px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+
+    .filter {
+      width: min(360px, 100%);
+      position: relative;
+    }
+
+    .filter-btn {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      background: rgba(255, 255, 255, 0.98);
+      color: #0f172a;
+      border-radius: 14px;
+      padding: 11px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .filter-caret {
+      font-size: 14px;
+      color: #2563eb;
+      transition: transform 0.2s ease;
+    }
+
+    .filter.open .filter-caret {
+      transform: rotate(180deg);
+    }
+
+    .filter-menu {
+      list-style: none;
+      margin: 8px 0 0;
+      padding: 8px;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      border-radius: 14px;
+      border: 1px solid #dbe4f0;
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.16);
+      display: none;
+      z-index: 20;
+      transform-origin: top center;
+      animation: dropdownIn 0.2s ease;
+    }
+
+    .filter.open .filter-menu {
+      display: block;
+    }
+
+    .filter-item {
+      width: 100%;
+      border: none;
+      background: transparent;
+      text-align: left;
+      border-radius: 10px;
+      padding: 10px 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+    }
+
+    .filter-item:hover,
+    .filter-item.active {
+      background: rgba(37, 99, 235, 0.1);
+      color: #1d4ed8;
+    }
+
+    .section-block {
+      margin-top: 28px;
+      animation: sectionFadeIn 0.45s ease both;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: clamp(20px, 2.8vw, 28px);
+      color: var(--primary);
+    }
+
+    .section-note {
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    .topic-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 22px;
+      background: var(--glass);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 14px 26px rgba(15, 23, 42, 0.14);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      min-height: 210px;
+      animation: cardFloatIn 0.35s ease both;
+    }
+
+    .topic-card::before {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      right: -60px;
+      top: -80px;
+      background: radial-gradient(circle, rgba(167, 139, 250, 0.35), transparent 70%);
+      pointer-events: none;
+    }
+
+    .topic-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 32px rgba(15, 23, 42, 0.2);
+      border-color: rgba(37, 99, 235, 0.55);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .emoji {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .chip {
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--chip);
+      border: 1px solid rgba(37, 99, 235, 0.35);
+      color: #1d4ed8;
+      white-space: nowrap;
+    }
+
+    .topic-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .topic-desc {
+      margin: 0;
+      color: var(--text-sub);
+      line-height: 1.55;
+      font-size: 14px;
+      min-height: 44px;
+    }
+
+    .meta {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .count {
+      color: #1d4ed8;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .open-btn {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      color: white;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      font-weight: 700;
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.35);
+      transition: transform 0.15s ease;
+    }
+
+    .open-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .popup-overlay.show {
+      display: flex;
+      animation: overlayFade 0.2s ease;
+    }
+
+    .popup-box {
+      width: min(420px, 100%);
+      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid #dbeafe;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+      padding: 22px 18px 16px;
+      text-align: center;
+      animation: popupIn 0.25s ease;
+    }
+
+    .popup-box h3 {
+      margin: 0 0 8px;
+      color: #1d4ed8;
+      font-size: 22px;
+    }
+
+    .popup-box p {
+      margin: 0 0 14px;
+      color: #475569;
+      line-height: 1.5;
+      font-weight: 500;
+    }
+
+    .popup-close {
+      border: none;
+      border-radius: 10px;
+      padding: 8px 14px;
+      color: #fff;
+      background: #2563eb;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    @keyframes dropdownIn {
+      from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes sectionFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes cardFloatIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes overlayFade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes popupIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1>LearnHub Flashcard</h1>
+      <p>Chọn nhóm nội dung phù hợp để học từ vựng nhanh hơn. Mỗi bộ được thiết kế để luyện ghi nhớ, phản xạ và dùng từ tự nhiên trong ngữ cảnh.</p>
+    </header>
+
+    <div class="toolbar">
+      <div id="categoryFilter" class="filter">
+        <button id="filterBtn" class="filter-btn" type="button">
+          <span id="filterLabel">Hiện tất cả nhóm</span>
+          <span class="filter-caret">▼</span>
+        </button>
+        <ul id="filterMenu" class="filter-menu">
+          <li><button type="button" class="filter-item active" data-value="all">Hiện tất cả nhóm</button></li>
+          <li><button type="button" class="filter-item" data-value="topic">Từ vựng theo chủ đề</button></li>
+          <li><button type="button" class="filter-item" data-value="phrasal">Phrasal Verbs</button></li>
+          <li><button type="button" class="filter-item" data-value="collocation">Collocations</button></li>
+          <li><button type="button" class="filter-item" data-value="idiom">Idioms</button></li>
+        </ul>
+      </div>
+    </div>
+
+    <main id="hubSections"></main>
+  </div>
+
+  <div id="popup" class="popup-overlay">
+    <div class="popup-box">
+      <h3>Thông báo</h3>
+      <p id="popupMessage"></p>
+      <button id="popupClose" class="popup-close" type="button">Đã hiểu</button>
+    </div>
+  </div>
+
+  <script>
+    // Chỉ cần sửa/chèn item trong mảng sections này.
+    const sections = [
+      {
+        key: "topic",
+        title: "Từ Vựng Theo Chủ Đề",
+        note: "Demo 3 bộ",
+        items: [
+          { name: "Environment", description: "Khí hậu, môi trường và phát triển bền vững.", words: 100, level: "Trung bình", icon: "🌍", href: "#" },
+          { name: "Food & Drink", description: "Từ vựng món ăn, nấu nướng, nhà hàng.", words: 90, level: "Dễ", icon: "🍜", href: "#" },
+          { name: "Technology", description: "Thiết bị số, internet, ứng dụng và AI.", words: 120, level: "Nâng cao", icon: "💻", href: "#" }
+        ]
+      },
+      {
+        key: "phrasal",
+        title: "Phrasal Verbs",
+        note: "Demo 3 bộ",
+        items: [
+          { name: "Work & Office", description: "Các cụm động từ hay dùng trong công việc.", words: 80, level: "Trung bình", icon: "📁", href: "#" },
+          { name: "Daily Conversation", description: "Phrasal verbs dùng trong giao tiếp hằng ngày.", words: 75, level: "Dễ", icon: "💬", href: "#" },
+          { name: "Advanced Usage", description: "Cụm động từ nâng cao trong ngữ cảnh học thuật.", words: 95, level: "Nâng cao", icon: "🧠", href: "#" }
+        ]
+      },
+      {
+        key: "collocation",
+        title: "Collocations",
+        note: "Demo 3 bộ",
+        items: [
+          { name: "Business English", description: "Cụm từ kết hợp thường gặp trong môi trường doanh nghiệp.", words: 85, level: "Trung bình", icon: "📈", href: "#" },
+          { name: "Academic Writing", description: "Collocations giúp viết luận tự nhiên hơn.", words: 100, level: "Nâng cao", icon: "📝", href: "#" },
+          { name: "Common Verbs", description: "Các collocation cơ bản với make, do, take, have...", words: 70, level: "Dễ", icon: "🧩", href: "#" }
+        ]
+      },
+      {
+        key: "idiom",
+        title: "Idioms",
+        note: "Demo 3 bộ",
+        items: [
+          { name: "Life Idioms", description: "Thành ngữ quen thuộc về cuộc sống thường ngày.", words: 60, level: "Dễ", icon: "🌟", href: "#" },
+          { name: "Workplace Idioms", description: "Idioms dùng trong tình huống công việc.", words: 65, level: "Trung bình", icon: "🏢", href: "#" },
+          { name: "Native-like Expressions", description: "Thành ngữ giúp nói tự nhiên như người bản xứ.", words: 75, level: "Nâng cao", icon: "🎯", href: "#" }
+        ]
+      }
+    ];
+
+    const hubSections = document.getElementById("hubSections");
+    const filterRoot = document.getElementById("categoryFilter");
+    const filterBtn = document.getElementById("filterBtn");
+    const filterMenu = document.getElementById("filterMenu");
+    const filterLabel = document.getElementById("filterLabel");
+    const popup = document.getElementById("popup");
+    const popupMessage = document.getElementById("popupMessage");
+    const popupClose = document.getElementById("popupClose");
+
+    function showPopup(message) {
+      popupMessage.textContent = message;
+      popup.classList.add("show");
+    }
+
+    popupClose.addEventListener("click", () => popup.classList.remove("show"));
+    popup.addEventListener("click", (e) => {
+      if (e.target === popup) popup.classList.remove("show");
+    });
+
+    function renderHub(filterValue = "all") {
+      hubSections.innerHTML = "";
+
+      sections
+        .filter((section) => filterValue === "all" || section.key === filterValue)
+        .forEach((section) => {
+          const block = document.createElement("section");
+          block.className = "section-block";
+
+          const header = document.createElement("div");
+          header.className = "section-header";
+          header.innerHTML = `
+            <h2 class="section-title">${section.title}</h2>
+            <span class="section-note">${section.note}</span>
+          `;
+          block.appendChild(header);
+
+          const grid = document.createElement("div");
+          grid.className = "topic-grid";
+
+          section.items.forEach((topic) => {
+            const card = document.createElement("article");
+            card.className = "topic-card";
+            card.innerHTML = `
+              <div class="card-top">
+                <span class="emoji">${topic.icon || "📘"}</span>
+                <span class="chip">${topic.level || "Cơ bản"}</span>
+              </div>
+              <h3 class="topic-title">${topic.name}</h3>
+              <p class="topic-desc">${topic.description || ""}</p>
+              <div class="meta">
+                <span class="count">${topic.words || 0} mục</span>
+                <button class="open-btn" type="button">Vào học</button>
+              </div>
+            `;
+
+            card.querySelector(".open-btn").addEventListener("click", () => {
+              if (topic.href && topic.href !== "#") {
+                window.location.href = topic.href;
+              } else {
+                showPopup("Bạn chưa gắn link cho card này. Vào mảng sections để cập nhật trường href nhé.");
+              }
+            });
+
+            grid.appendChild(card);
+          });
+
+          block.appendChild(grid);
+          hubSections.appendChild(block);
+        });
+    }
+
+    filterBtn.addEventListener("click", () => {
+      filterRoot.classList.toggle("open");
+    });
+
+    filterMenu.querySelectorAll(".filter-item").forEach((item) => {
+      item.addEventListener("click", () => {
+        const value = item.dataset.value;
+        filterLabel.textContent = item.textContent;
+        filterMenu.querySelectorAll(".filter-item").forEach((btn) => btn.classList.remove("active"));
+        item.classList.add("active");
+        filterRoot.classList.remove("open");
+        renderHub(value);
+      });
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!filterRoot.contains(e.target)) {
+        filterRoot.classList.remove("open");
+      }
+    });
+
+    renderHub();
+  </script>
+</body>
+</html>

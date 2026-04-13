@@ -92,6 +92,12 @@ function playSound(sound) {
     sound.currentTime = 0;
     sound.play().catch(()=>{});
 }
+function setGlobalProgressVisible(show) {
+    const progressContainer = document.getElementById("progressContainer");
+    if (progressContainer) {
+        progressContainer.style.display = show ? "block" : "none";
+    }
+}
 function setTotal() {
     const check = setInterval(() => {
         if (typeof cards !== "undefined" && cards.length > 0) {
@@ -208,6 +214,11 @@ function switchMode(mode) {
     const targetMode = document.getElementById(mode);
     if (targetMode) targetMode.classList.add("active");
 
+    // Mặc định: chỉ hiện progress ngay cho Flashcard.
+    // Match/Blast sẽ hiện khi bấm "Bắt đầu", Defender ẩn hẳn vì có progress riêng.
+    if (mode === "flashcard") setGlobalProgressVisible(true);
+    else setGlobalProgressVisible(false);
+
     // 👉 QUAN TRỌNG: delay 1 tick cho chắc chắn audio ready
     setTimeout(() => {
         if (mode === 'flashcard') initFlashcard();
@@ -308,21 +319,23 @@ let matchPool = [], matchIndex = 0, selected = [], isChecking = false;
 
 function initMatch() {
     stopAllSounds(); // 👈 đảm bảo không còn nhạc từ mode khác
+    setGlobalProgressVisible(false);
 
     const startScreen = document.getElementById("match-start-screen");
-    const grid = document.getElementById("matchGrid");
+    const content = document.getElementById("match-content");
 
-    if (startScreen && grid) {
+    if (startScreen && content) {
         startScreen.style.display = "block";  // hiện màn hình start
-        grid.style.display = "none";          // ẩn game
+        content.style.display = "none";       // ẩn game
     }
 }
 function startMatchGame() {
     playBGM("match");
+    setGlobalProgressVisible(true);
 
 
     document.getElementById("match-start-screen").style.display = "none";
-    document.getElementById("matchGrid").style.display = "grid";
+    document.getElementById("match-content").style.display = "block";
     
     matchPool = shuffle([...cards]);
     matchIndex = 0; 
@@ -426,7 +439,24 @@ function selectMatch(card, el) {
 let blastPool = [], blastIndex = 0, streak = 0, currentQuestion = null;
 
 function initBlast() {
+    stopAllSounds();
+    setGlobalProgressVisible(false);
+    const startScreen = document.getElementById("blast-start-screen");
+    const content = document.getElementById("blast-content");
+    if (startScreen && content) {
+        startScreen.style.display = "flex";
+        content.style.display = "none";
+    }
+}
+
+function startBlastGame() {
     playBGM("blast");
+    setGlobalProgressVisible(true);
+    const startScreen = document.getElementById("blast-start-screen");
+    const content = document.getElementById("blast-content");
+    if (startScreen) startScreen.style.display = "none";
+    if (content) content.style.display = "block";
+
     progress = 0;
     updateProgress();
     streak = 0;
@@ -617,7 +647,21 @@ function startConfetti() {
 /* ============================================================ */
 
 function initDefender() {
+    stopAllSounds();
+    setGlobalProgressVisible(false);
+    const startScreen = document.getElementById("defender-start-screen");
+    const battle = document.getElementById("battle-container");
+    if (startScreen) startScreen.style.display = "flex";
+    if (battle) battle.style.display = "none";
+}
+
+function startDefenderGame() {
     if (enemyFallInterval) clearInterval(enemyFallInterval);
+    setGlobalProgressVisible(false);
+    const startScreen = document.getElementById("defender-start-screen");
+    const battle = document.getElementById("battle-container");
+    if (startScreen) startScreen.style.display = "none";
+    if (battle) battle.style.display = "block";
     
     // Tắt nhạc các trò khác, bật nhạc Defender
     Object.values(bgm).forEach(s => { s.pause(); s.currentTime = 0; });
@@ -795,5 +839,5 @@ function resumeGame() {
 }
 
 function restartDefenderGame() {
-    initDefender();
+    startDefenderGame();
 }
