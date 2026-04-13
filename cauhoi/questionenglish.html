@@ -642,21 +642,20 @@ function renderQuiz() {
         section.questions.forEach(q => {
 
             html += `
-            <div class="question-card" id="card-${globalIdx}">
-                <div class="q-header">
-                    <span class="q-badge">Câu ${globalIdx + 1}</span>
-                    ${q.question}
-                </div>
+                <div class="question-card" id="card-${globalIdx}">
+                    <div class="q-header">
+                        ${q.question}
+                    </div>
 
-                <div class="answers-grid">
-                    ${q.answers.map((ans, i) => `
-                        <label class="ans-label" onclick="selectAnswer(this, ${globalIdx})">
-                            <input type="radio" name="q-${globalIdx}" value="${i}">
-                            <span><b>${String.fromCharCode(65 + i)}.</b> ${ans}</span>
-                        </label>
-                    `).join("")}
+                    <div class="answers-grid">
+                        ${q.answers.map((ans, i) => `
+                            <label class="ans-label" onclick="selectAnswer(this, ${globalIdx})">
+                                <input type="radio" name="q-${globalIdx}" value="${i}">
+                                <span><b>${String.fromCharCode(65 + i)}.</b> ${ans}</span>
+                            </label>
+                        `).join("")}
+                    </div>
                 </div>
-            </div>
             `;
 
             navHtml += `<div class="nav-item" id="nav-${globalIdx}" onclick="scrollToQuestion(${globalIdx})">${globalIdx + 1}</div>`;
