@@ -1,89 +1,50 @@
 [
   {
     "sectionTitle": "TEST 1",
-    "passage": "Are you ready to step into the professional world? Success in today’s international market requires more than just a degree; it demands adaptability and the right mindset.\n\nThe Evolving Landscape\nModern career paths are becoming (1) ______ than they were a decade ago. While previous generations often stayed in one company, today’s professionals are expected to be mobile and versatile. To keep up, you must focus on continuous learning.\n\nBuilding Your Foundation\nTo succeed, you should (2) ______ use of the latest digital tools to enhance your productivity. Those who stay updated find it easier to manage complex projects. Furthermore, if you want to streamline your workflow, you can have experts (3) ______ a professional (4) ______. This strategy ensures that tasks (5) ______ by experienced mentors reach a higher standard of quality.\n\nTake Action Today!\nYour career is a journey of constant (6) ______. Start building your network now and stay curious about global trends.",
+    "passage": "Are you ready to step into the professional world? Success in today’s international market requires more than just a degree; it demands adaptability and the right mindset. <b><br>The Evolving Landscape</b> <br>Modern career paths are becoming (1) ______ than they were a decade ago. While previous generations often stayed in one company, today’s professionals are expected to be mobile and versatile. To keep up, you must focus on continuous learning. <b><br>Building Your Foundation</b> <br>To succeed, you should (2) ______ use of the latest digital tools to enhance your productivity. Those who stay updated find it easier to manage complex projects. Furthermore, if you want to streamline your workflow, you can have experts (3) ______ a professional (4) ______. This strategy ensures that tasks (5) ______ by experienced mentors reach a higher standard of quality. <b><br>Take Action Today!,/b> <br>Your career is a journey of constant (6) ______. Start building your network now and stay curious about global trends.",
     "questions": [
-      {
-        "question": "1. ______",
-        "answers": ["more complex", "complexer", "most complex", "as complex"],
-        "correct": 0
-      },
-      {
-        "question": "2. ______",
-        "answers": ["make", "take", "keep", "pay"],
-        "correct": 0
-      },
-      {
-        "question": "3. ______",
-        "answers": ["provide", "provides", "to provide", "provided"],
-        "correct": 0
-      },
-      {
-        "question": "4. ______",
-        "answers": [
-          "software management systems",
-          "management software systems",
-          "systems management software",
-          "software systems management"
-        ],
-        "correct": 0
-      },
-      {
-        "question": "5. ______",
-        "answers": ["supervised", "supervising", "supervise", "are supervised"],
-        "correct": 0
-      },
-      {
-        "question": "6. ______",
-        "answers": ["evolution", "evolve", "evolutionary", "evolvingly"],
-        "correct": 0
-      }
+      { "question": "1.", "answers": ["more complex", "complexer", "most complex", "as complex"], "correct": 0 },
+      { "question": "2.", "answers": ["make", "take", "keep", "pay"], "correct": 0 },
+      { "question": "3.", "answers": ["provide", "provides", "to provide", "provided"], "correct": 0 },
+      { "question": "4.", "answers": ["software management systems", "management software systems", "systems management software", "software systems management"], "correct": 0 },
+      { "question": "5.", "answers": ["supervised", "supervising", "supervise", "are supervised"], "correct": 0 },
+      { "question": "6.", "answers": ["evolution", "evolve", "evolutionary", "evolvingly"], "correct": 0 }
     ]
   },
   {
     "sectionTitle": "TEST 2",
-    "passage": "THE EVOLUTION OF MASS MEDIA\n\nIn our digital age, the landscape of information is shifting faster than ever. Understanding how we consume content is essential for staying informed and responsible.\n\nThe Digital Shift\nMass media has moved far beyond traditional newspapers. Today, (7) ______ technologies have transformed how we engage with the world. We no longer wait for the morning paper; news travels at the speed of light through social platforms and digital broadcasts.\n\nThe Power of Choice\nThere are (8) ______ platforms available for users to express their opinions. From podcasts to citizen journalism, the gatekeepers of information have changed. However, this freedom comes with a catch. If we (9) ______ critical thinking skills, we would have been easily misled by fake news in this vast sea of data.\n\nStaying Connected\nTo remain relevant in the modern workplace, one must (10) ______ the latest trends. While some people prefer traditional outlets, (11) ______ choose to get their updates exclusively through AI-curated feeds. This variety ensures that there is a medium for every voice. (12) ______, it remains crucial to verify sources to ensure the \"truth\" isn't lost in the noise.",
+    "passage": "<br><b>THE EVOLUTION OF MASS MEDIA</b> <br>In our digital age, the landscape of information is shifting faster than ever. Understanding how we consume content is essential for staying informed and responsible. <br><b>The Digital Shift</b> <br>Mass media has moved far beyond traditional newspapers. Today, (7) ______ technologies have transformed how we engage with the world. We no longer wait for the morning paper; news travels at the speed of light through social platforms and digital broadcasts. <br><b>The Power of Choice</b> <br>There are (8) ______ platforms available for users to express their opinions. From podcasts to citizen journalism, the gatekeepers of information have changed. However, this freedom comes with a catch.If  we (9) ______ critical thinking skills, we would have been easily misled by fake news in this vast sea of data. <br><b>Staying Connected </b> <br>To remain relevant in the modern workplace, one must (10) ______ the latest trends. While some people prefer traditional outlets, (11) ______ choose to get their updates exclusively through AI-curated feeds. This variety ensures that there is a medium for every voice. (12) ______, it remains crucial to verify sources to ensure the "truth" isn't lost in the noise.",
     "questions": [
-      {
-        "question": "7. ______",
-        "answers": ["primitive", "advanced", "ancient", "basic"],
-        "correct": 0
-      },
-      {
-        "question": "8. ______",
-        "answers": ["a number of", "amount of", "much", "little"],
-        "correct": 0
-      },
-      {
-        "question": "9. ______",
-        "answers": [
-          "had not developed",
-          "did not developed",
-          "will not developed",
-          "have not developed"
-        ],
-        "correct": 0
-      },
-      {
-        "question": "10. ______",
-        "answers": [
-          "keep up with",
-          "look down on",
-          "live up to",
-          "cut down on"
-        ],
-        "correct": 0
-      },
-      {
-        "question": "11. ______",
-        "answers": ["another", "every", "each", "others"],
-        "correct": 0
-      },
-      {
-        "question": "12. ______",
-        "answers": ["However", "Because", "Therefore", "Although"],
-        "correct": 0
-      }
+      { "question": "7.", "answers": ["primitive", "advanced", "ancient", "basic"], "correct": 0 },
+      { "question": "8.", "answers": ["a number of", "amount of", "much", "little"], "correct": 0 },
+      { "question": "9.", "answers": ["had not developed", "did not developed", "will not developed", "have not developed"], "correct": 0 },
+      { "question": "10.", "answers": ["keep up with", "look down on", "live up to", "cut down on"], "correct": 0 },
+      { "question": "11.", "answers": ["another", "every", "each", "others"], "correct": 0 },
+      { "question": "12.", "answers": ["However", "Because", "Therefore", "Although"], "correct": 0 }
+    ]
+  },
+  {
+    "sectionTitle": "TEST 3",
+    "passage": "Choosing the right career is one of the most important decisions in a student’s life. Nowadays, career education is becoming (13) ________ than it was in the past because it helps students understand their strengths and interests before entering the workforce. <br> The Benefits Career guidance activities, especially those (14) ________ by professional experts, are the best way to prepare students for future jobs. They allow learners to explore different job opportunities. To help students gain more experience, many schools have career advisors (15) ________ them through the process of building a professional profile. This early (16) ________ is essential for long-term success. <br> <br><b>How to Apply It </b> •	<br>Schools should encourage students to participate in (17) ________ to learn more about different professions. •	<br>Students need to be proactive and (18) ________ an effort to research useful career information from different sources regularly.",
+    "questions": [
+      { "question": "13.", "answers": ["important", "more important", "most important", "as important"], "correct": 0 },
+      { "question": "14.", "answers": ["organize", "organizing", "organized", "to organize"], "correct": 0 },
+      { "question": "15.", "answers": ["guide", "guiding", "to guide", "guided"], "correct": 0 },
+      { "question": "16.", "answers": ["prepare", "prepared", "preparatory", "preparation"], "correct": 0 },
+      { "question": "17.", "answers": ["career useful programmes", "useful career programmes", "useful programmes career", "programmes useful career"], "correct": 0 },
+      { "question": "18.", "answers": ["do", "make", "take", "give"], "correct": 0 }
+    ]
+  },
+  {
+    "sectionTitle": "TEST 4",
+    "passage": "Many people nowadays are making a great effort to adopt a greener lifestyle to reduce their carbon footprint. This transition is considered a (1) ________ move towards protecting our planet. Although changing old habits is difficult, it is necessary for the survival of future generations. <br> Modern Challenges In the digital age, we face the problem of electronic waste. (2) ________ electronic devices are discarded every year without being properly recycled. This leads to severe soil and water contamination. If people (3) ________ more aware of the long-term consequences of their consumption habits years ago, the environment would be much cleaner now. <br> <b>What We Can Do</b><br> •	Self-Improvement: We need to (4) ________ our environmental knowledge and skills to understand how to live sustainably. <br> •	Responsible Choices: In the past, people often ignored the origins of products. (5) ________, the growing concern about climate change has led many consumers to prefer organic products which are safer for health. <br> •	Global Effort: Some individuals choose to cycle to work, while (6) ________ prefer using public transportation to minimize air pollution.",
+    "questions": [
+      { "question": "19.", "answers": ["destructive", "beneficial", "temporary", "unnecessary"], "correct": 0 },
+      { "question": "20.", "answers": ["A number of", "Much of", "A wide range of", "Each of"], "correct": 0 },
+      { "question": "21.", "answers": ["are", "were", "had been", "would be"], "correct": 0 },
+      { "question": "22.", "answers": ["put up with", "keep up with", "walk away from", "get on with"], "correct": 0 },
+      { "question": "23.", "answers": ["Because of", "However", "Instead of", "In spite of"], "correct": 0 },
+      { "question": "24.", "answers": ["another", "other", "others", "the other"], "correct": 0 }
     ]
   }
 ]
