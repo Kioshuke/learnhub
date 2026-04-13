@@ -1,0 +1,89 @@
+[
+  {
+    "sectionTitle": "TEST 1",
+    "passage": "Are you ready to step into the professional world? Success in today’s international market requires more than just a degree; it demands adaptability and the right mindset.\n\nThe Evolving Landscape\nModern career paths are becoming (1) ______ than they were a decade ago. While previous generations often stayed in one company, today’s professionals are expected to be mobile and versatile. To keep up, you must focus on continuous learning.\n\nBuilding Your Foundation\nTo succeed, you should (2) ______ use of the latest digital tools to enhance your productivity. Those who stay updated find it easier to manage complex projects. Furthermore, if you want to streamline your workflow, you can have experts (3) ______ a professional (4) ______. This strategy ensures that tasks (5) ______ by experienced mentors reach a higher standard of quality.\n\nTake Action Today!\nYour career is a journey of constant (6) ______. Start building your network now and stay curious about global trends.",
+    "questions": [
+      {
+        "question": "1. ______",
+        "answers": ["more complex", "complexer", "most complex", "as complex"],
+        "correct": 0
+      },
+      {
+        "question": "2. ______",
+        "answers": ["make", "take", "keep", "pay"],
+        "correct": 0
+      },
+      {
+        "question": "3. ______",
+        "answers": ["provide", "provides", "to provide", "provided"],
+        "correct": 0
+      },
+      {
+        "question": "4. ______",
+        "answers": [
+          "software management systems",
+          "management software systems",
+          "systems management software",
+          "software systems management"
+        ],
+        "correct": 0
+      },
+      {
+        "question": "5. ______",
+        "answers": ["supervised", "supervising", "supervise", "are supervised"],
+        "correct": 0
+      },
+      {
+        "question": "6. ______",
+        "answers": ["evolution", "evolve", "evolutionary", "evolvingly"],
+        "correct": 0
+      }
+    ]
+  },
+  {
+    "sectionTitle": "TEST 2",
+    "passage": "THE EVOLUTION OF MASS MEDIA\n\nIn our digital age, the landscape of information is shifting faster than ever. Understanding how we consume content is essential for staying informed and responsible.\n\nThe Digital Shift\nMass media has moved far beyond traditional newspapers. Today, (7) ______ technologies have transformed how we engage with the world. We no longer wait for the morning paper; news travels at the speed of light through social platforms and digital broadcasts.\n\nThe Power of Choice\nThere are (8) ______ platforms available for users to express their opinions. From podcasts to citizen journalism, the gatekeepers of information have changed. However, this freedom comes with a catch. If we (9) ______ critical thinking skills, we would have been easily misled by fake news in this vast sea of data.\n\nStaying Connected\nTo remain relevant in the modern workplace, one must (10) ______ the latest trends. While some people prefer traditional outlets, (11) ______ choose to get their updates exclusively through AI-curated feeds. This variety ensures that there is a medium for every voice. (12) ______, it remains crucial to verify sources to ensure the \"truth\" isn't lost in the noise.",
+    "questions": [
+      {
+        "question": "7. ______",
+        "answers": ["primitive", "advanced", "ancient", "basic"],
+        "correct": 0
+      },
+      {
+        "question": "8. ______",
+        "answers": ["a number of", "amount of", "much", "little"],
+        "correct": 0
+      },
+      {
+        "question": "9. ______",
+        "answers": [
+          "had not developed",
+          "did not developed",
+          "will not developed",
+          "have not developed"
+        ],
+        "correct": 0
+      },
+      {
+        "question": "10. ______",
+        "answers": [
+          "keep up with",
+          "look down on",
+          "live up to",
+          "cut down on"
+        ],
+        "correct": 0
+      },
+      {
+        "question": "11. ______",
+        "answers": ["another", "every", "each", "others"],
+        "correct": 0
+      },
+      {
+        "question": "12. ______",
+        "answers": ["However", "Because", "Therefore", "Although"],
+        "correct": 0
+      }
+    ]
+  }
+]
