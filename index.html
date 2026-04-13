@@ -2160,8 +2160,12 @@ body.dark-mode .card.active-card{
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--card-color) 28%, #0f172a);
 }
 
+html,
 body{
-overscroll-behavior:none;
+overscroll-behavior-y:auto;
+overflow-y:auto;
+-webkit-overflow-scrolling:touch;
+touch-action:auto;
 }
 
 /* ===== MENU SCROLL NGANG ===== */
