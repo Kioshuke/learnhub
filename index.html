@@ -235,12 +235,14 @@ box-shadow: 0 4px 12px color-mix(in srgb, var(--btn-color) 40%, transparent);
 }
 .menu-buttons {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 8px;
-    overflow-x: visible;
+    overflow-x: auto;
+    overflow-y: hidden;
     padding: 0 18px 0 4px;
     flex: 1;
     min-width: 0;
+    scroll-behavior: smooth;
 }
 .menu-buttons::-webkit-scrollbar {
     display: none;
