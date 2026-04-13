@@ -40,6 +40,9 @@
 :root{
   --bg-main: #f6f8ff;
   --bg-pattern: #d6dcff;
+  --app-reveal-distance: 16px;
+  --app-reveal-duration: 0.55s;
+  --app-reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   --text-main: #111827;
   --text-sub: #6b7280;
@@ -1264,6 +1267,35 @@ min-height: 24px; /* Giữ khung không bị giật khi đổi chữ */
   transform: translateY(0);
 }
 
+body.app-ready .menu,
+body.app-ready .ticker-container,
+body.app-ready #userBox,
+body.app-ready #mainContent.show > div,
+body.app-ready #chatButton{
+  opacity:0;
+  transform:translateY(var(--app-reveal-distance)) scale(0.985);
+  animation:appObjectReveal var(--app-reveal-duration) var(--app-reveal-ease) forwards;
+}
+
+body.app-ready .menu{ animation-delay: 0.02s; }
+body.app-ready .ticker-container{ animation-delay: 0.10s; }
+body.app-ready #userBox{ animation-delay: 0.18s; }
+body.app-ready #mainContent.show > div{ animation-delay: 0.28s; }
+body.app-ready #chatButton{ animation-delay: 0.38s; }
+
+@keyframes appObjectReveal{
+from{
+  opacity:0;
+  transform:translateY(var(--app-reveal-distance)) scale(0.985);
+  filter:blur(8px);
+}
+to{
+  opacity:1;
+  transform:translateY(0) scale(1);
+  filter:blur(0);
+}
+}
+
 /* Số % nằm bên phải */
 .progress-percent {
     font-size: 20px;
@@ -2063,6 +2095,10 @@ box-shadow:0 2px 8px rgba(0,0,0,0.15);
 }
 
 @media (max-width:768px){
+body{
+--app-reveal-distance: 9px;
+--app-reveal-duration: 0.36s;
+}
 .exam-schedule{
 grid-template-columns: 1fr;
 }
@@ -2158,6 +2194,12 @@ box-shadow:none;
 body.dark-mode .card.active-card{
     border-color: color-mix(in srgb, var(--card-color) 76%, #64748b);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--card-color) 28%, #0f172a);
+}
+
+body.app-ready #chatButton{
+animation:none;
+opacity:1;
+transform:none;
 }
 
 html,
@@ -2651,6 +2693,7 @@ function startLoading(){
     if (!overlay || loadingStarted) return;
 
     document.body.classList.add("auth-locked");
+    document.body.classList.remove("app-ready");
     loadingStarted = true;
     width = 0;
     overlay.style.display = "flex";
@@ -2686,6 +2729,7 @@ function startLoading(){
                 overlay.addEventListener("transitionend", () => {
                     overlay.style.display = "none";
                     document.body.classList.remove("auth-locked");
+                    document.body.classList.add("app-ready");
                     document.getElementById("mainContent").classList.add("show");
                 }, { once: true });
             }, 800);
@@ -2698,6 +2742,7 @@ function resetLoadingState(){
     if (!overlay) return;
 
     document.body.classList.add("auth-locked");
+    document.body.classList.remove("app-ready");
     if (progress) {
         clearInterval(progress);
         progress = null;
