@@ -3012,7 +3012,24 @@ function updateTabScrollTopBtn(){
   const btn = document.getElementById("tabScrollTopBtn");
   if(!btn) return;
   const canShowOnTab = currentTab === "flash" || currentTab === "bxh";
-  btn.style.display = canShowOnTab ? "flex" : "none";
+  if(!canShowOnTab){
+    btn.style.display = "none";
+    return;
+  }
+
+  const frameId = currentTab === "flash" ? "flashHubFrame" : "forumFrame";
+  const frame = document.getElementById(frameId);
+  let scrolled = window.scrollY > 20;
+
+  if(frame && frame.contentWindow){
+    try {
+      scrolled = frame.contentWindow.scrollY > 20 || window.scrollY > 20;
+    } catch (e) {
+      scrolled = window.scrollY > 20;
+    }
+  }
+
+  btn.style.display = scrolled ? "flex" : "none";
 }
 
 window.addEventListener("scroll", updateTabScrollTopBtn, { passive: true });
