@@ -2931,7 +2931,9 @@ function show(id){
 
 // 🔥 XÓA bài + scroll
 document.getElementById("quiz").innerHTML = "";
+if(id !== "flash"){
 window.scrollTo({ top:0, behavior:"smooth" });
+}
 
 const tabs = ["lich","flash","ly","hoa","sinh","tin","su","bxh","anh"];
 
@@ -2953,6 +2955,19 @@ setTimeout(()=>{
 active.classList.remove("fade-out");
 active.classList.add("fade-in");
 },10);
+
+if(id === "flash"){
+  const flashSection = document.getElementById("flash");
+  const flashFrame = document.getElementById("flashHubFrame");
+  if(flashSection){
+    flashSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  if(flashFrame){
+    setTimeout(() => {
+      try { flashFrame.focus(); } catch (e) {}
+    }, 450);
+  }
+}
 
 },200);
 }
