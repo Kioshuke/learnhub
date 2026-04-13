@@ -539,6 +539,31 @@ iframe {
   background:transparent;
 }
 
+#tabScrollTopBtn{
+  position:fixed;
+  right:20px;
+  bottom:22px;
+  width:48px;
+  height:48px;
+  border:none;
+  border-radius:50%;
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  color:#fff;
+  font-size:20px;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:0 10px 24px rgba(37,99,235,0.35);
+  z-index:9999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  transition:transform .2s ease, opacity .2s ease;
+}
+
+#tabScrollTopBtn:hover{
+  transform:translateY(-2px) scale(1.05);
+}
+
 /* POPUP */
 
 #popup{
@@ -2762,6 +2787,7 @@ Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
     </iframe>
   </div>
 </div>
+<button id="tabScrollTopBtn" type="button" aria-label="Cuộn lên đầu">↑</button>
 <div id="quiz"></div>
 </div>
 
@@ -2772,6 +2798,7 @@ let loadingStatus = document.getElementById("loadingText");
 let width = 0;
 let progress = null;
 let loadingStarted = false;
+let currentTab = "lich";
 
 const messages = [
     "📚 Đang tải tài liệu ...",
@@ -2928,6 +2955,7 @@ function closeQuiz(){
   }, 100); // delay nhẹ cho mượt
 }
 function show(id){
+currentTab = id;
 
 // 🔥 XÓA bài + scroll
 document.getElementById("quiz").innerHTML = "";
@@ -2970,6 +2998,7 @@ if(id === "flash"){
 }
 
 },200);
+updateTabScrollTopBtn();
 }
 const buttons = document.querySelectorAll(".menu-buttons button[data-subject]");
 
@@ -2978,6 +3007,23 @@ btn.addEventListener("click", () => {
 buttons.forEach(b => b.classList.remove("active"));
 btn.classList.add("active");
 });
+
+function updateTabScrollTopBtn(){
+  const btn = document.getElementById("tabScrollTopBtn");
+  if(!btn) return;
+  const canShowOnTab = currentTab === "flash" || currentTab === "bxh";
+  const scrolledDown = window.scrollY > 220;
+  btn.style.display = (canShowOnTab && scrolledDown) ? "flex" : "none";
+}
+
+window.addEventListener("scroll", updateTabScrollTopBtn, { passive: true });
+
+const tabScrollTopBtn = document.getElementById("tabScrollTopBtn");
+if(tabScrollTopBtn){
+  tabScrollTopBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+}
 });
 const now = new Date();
 
