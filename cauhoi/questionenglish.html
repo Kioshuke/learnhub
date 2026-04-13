@@ -168,7 +168,7 @@
         }
         .q-header { display: block; gap: 12px; margin-bottom: 20px; font-weight: 600; font-size: 1.05rem; align-items: flex-start; line-height: 1.6; }
         .q-badge { 
-            display: inline-block; /* Quan trọng để chữ có thể chảy bao quanh nó */
+            display: none; /* Quan trọng để chữ có thể chảy bao quanh nó */
             background: var(--primary-light); 
             color: var(--primary); 
             padding: 2px 10px; 
@@ -471,6 +471,15 @@
         transform: translate(var(--fallX), 300px) rotate(720deg);
         opacity: 0;
     }
+}
+.sub-questions {
+  margin: 10px 0;
+  padding-left: 10px;
+}
+
+.sub-q {
+  margin: 4px 0;
+  font-size: 14px;
 }
 </style>
 </head>
