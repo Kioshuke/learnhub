@@ -3012,7 +3012,21 @@ function updateTabScrollTopBtn(){
   const btn = document.getElementById("tabScrollTopBtn");
   if(!btn) return;
   const canShowOnTab = currentTab === "flash" || currentTab === "bxh";
-  const scrolledDown = window.scrollY > 220;
+  let scrolledDown = window.scrollY > 220;
+
+  // Nếu đang ở tab iframe, ưu tiên lấy mức cuộn bên trong iframe.
+  if (canShowOnTab) {
+    const frameId = currentTab === "flash" ? "flashHubFrame" : "forumFrame";
+    const frame = document.getElementById(frameId);
+    if (frame && frame.contentWindow) {
+      try {
+        scrolledDown = frame.contentWindow.scrollY > 120 || window.scrollY > 220;
+      } catch (e) {
+        // Fallback khi không đọc được iframe scroll (cross-origin)
+        scrolledDown = window.scrollY > 220;
+      }
+    }
+  }
   btn.style.display = (canShowOnTab && scrolledDown) ? "flex" : "none";
 }
 
@@ -3021,9 +3035,41 @@ window.addEventListener("scroll", updateTabScrollTopBtn, { passive: true });
 const tabScrollTopBtn = document.getElementById("tabScrollTopBtn");
 if(tabScrollTopBtn){
   tabScrollTopBtn.addEventListener("click", () => {
+    const frameId = currentTab === "flash" ? "flashHubFrame" : (currentTab === "bxh" ? "forumFrame" : "");
+    const frame = frameId ? document.getElementById(frameId) : null;
+
+    if (frame && frame.contentWindow) {
+      try {
+        frame.contentWindow.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (e) {
+        // Ignore và cuộn trang ngoài nếu không truy cập được
+      }
+    }
+
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 }
+
+function bindFrameScrollWatcher(frameId){
+  const frame = document.getElementById(frameId);
+  if(!frame) return;
+
+  const attach = () => {
+    try {
+      if (frame.contentWindow) {
+        frame.contentWindow.addEventListener("scroll", updateTabScrollTopBtn, { passive: true });
+      }
+    } catch (e) {
+      // Cross-origin thì bỏ qua, vẫn còn scroll listener của window
+    }
+  };
+
+  frame.addEventListener("load", attach);
+  attach();
+}
+
+bindFrameScrollWatcher("flashHubFrame");
+bindFrameScrollWatcher("forumFrame");
 });
 const now = new Date();
 
