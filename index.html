@@ -158,6 +158,39 @@ box-shadow:
     top: 0;
     z-index: 1000;
 } 
+.menu-buttons-wrap{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex:1;
+    min-width:0;
+}
+.menu-nav{
+    width:34px;
+    height:34px;
+    border:none;
+    border-radius:999px;
+    background:rgba(255,255,255,0.85);
+    color:#1f2937;
+    font-size:18px;
+    font-weight:700;
+    line-height:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12);
+    transition:all .2s ease;
+}
+.menu-nav:hover{
+    transform:translateY(-1px);
+    background:#ffffff;
+}
+.menu-nav:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+    transform:none;
+}
 
 .menu button{
 padding:12px 22px;
@@ -1842,15 +1875,19 @@ body.dark-mode .card{
   <img src="logoweb.webp" width="60" height="60" alt="Logo LearnHub">
   <span>LearnHub – Nâng cấp cách bạn học</span>
 </div>
-<div class="menu-buttons">
-  <button data-subject="lich" class="active" onclick="show('lich')">Lịch Thi</button>
-  <button data-subject="bxh" onclick="show('bxh')">Forum</button>
-  <button data-subject="ly" onclick="show('ly')">Vật Lý</button>
-  <button data-subject="sinh" onclick="show('sinh')">Sinh Học</button>
-  <button data-subject="tin" onclick="show('tin')">Tin Học</button>
-  <button data-subject="su" onclick="show('su')">Lịch Sử</button>
-  <button data-subject="hoa" onclick="show('hoa')">Hoá Học</button>
-  <button data-subject="anh" onclick="show('anh')">Anh Văn</button>
+<div class="menu-buttons-wrap">
+  <button class="menu-nav" id="menuPrev" type="button" aria-label="Cuộn menu sang trái">‹</button>
+  <div class="menu-buttons" id="menuButtons">
+    <button data-subject="lich" class="active" onclick="show('lich')">Lịch Thi</button>
+    <button data-subject="bxh" onclick="show('bxh')">Forum</button>
+    <button data-subject="ly" onclick="show('ly')">Vật Lý</button>
+    <button data-subject="sinh" onclick="show('sinh')">Sinh Học</button>
+    <button data-subject="tin" onclick="show('tin')">Tin Học</button>
+    <button data-subject="su" onclick="show('su')">Lịch Sử</button>
+    <button data-subject="hoa" onclick="show('hoa')">Hoá Học</button>
+    <button data-subject="anh" onclick="show('anh')">Anh Văn</button>
+  </div>
+  <button class="menu-nav" id="menuNext" type="button" aria-label="Cuộn menu sang phải">›</button>
 </div>
 </div>
 <div class="ticker-container">
@@ -2158,6 +2195,13 @@ justify-content:flex-start;
 overflow:hidden;
 padding:10px 12px;
 gap:10px;
+}
+.menu-buttons-wrap{
+flex:1 1 auto;
+gap:6px;
+}
+.menu-nav{
+display:none;
 }
 
 .menu-brand{
@@ -2926,6 +2970,33 @@ buttons.forEach(b => b.classList.remove("active"));
 btn.classList.add("active");
 });
 });
+function initMenuScroller(){
+  const menuButtons = document.getElementById("menuButtons");
+  const prevBtn = document.getElementById("menuPrev");
+  const nextBtn = document.getElementById("menuNext");
+
+  if(!menuButtons || !prevBtn || !nextBtn) return;
+
+  const updateMenuNavState = () => {
+    const maxScroll = menuButtons.scrollWidth - menuButtons.clientWidth;
+    prevBtn.disabled = menuButtons.scrollLeft <= 2;
+    nextBtn.disabled = menuButtons.scrollLeft >= maxScroll - 2;
+  };
+
+  prevBtn.addEventListener("click", () => {
+    menuButtons.scrollBy({ left: -220, behavior: "smooth" });
+  });
+
+  nextBtn.addEventListener("click", () => {
+    menuButtons.scrollBy({ left: 220, behavior: "smooth" });
+  });
+
+  menuButtons.addEventListener("scroll", updateMenuNavState);
+  window.addEventListener("resize", updateMenuNavState);
+
+  updateMenuNavState();
+}
+initMenuScroller();
 const now = new Date();
 
 document.querySelectorAll(".exam-day").forEach(day=>{
