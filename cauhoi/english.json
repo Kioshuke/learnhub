@@ -37,7 +37,7 @@
   },
   {
     "sectionTitle": "TEST 4",
-    "passage": "Many people nowadays are making a great effort to adopt a greener lifestyle to reduce their carbon footprint. This transition is considered a (1) ________ move towards protecting our planet. Although changing old habits is difficult, it is necessary for the survival of future generations. <br> Modern Challenges In the digital age, we face the problem of electronic waste. (2) ________ electronic devices are discarded every year without being properly recycled. This leads to severe soil and water contamination. If people (3) ________ more aware of the long-term consequences of their consumption habits years ago, the environment would be much cleaner now. <br> <b>What We Can Do</b><br> Self-Improvement: We need to (4) ________ our environmental knowledge and skills to understand how to live sustainably. <br> Responsible Choices: In the past, people often ignored the origins of products. (5) ________, the growing concern about climate change has led many consumers to prefer organic products which are safer for health. <br> Global Effort: Some individuals choose to cycle to work, while (6) ________ prefer using public transportation to minimize air pollution.",
+    "passage": "Many people nowadays are making a great effort to adopt a greener lifestyle to reduce their carbon footprint. This transition is considered a (19) ________ move towards protecting our planet. Although changing old habits is difficult, it is necessary for the survival of future generations. <br> Modern Challenges In the digital age, we face the problem of electronic waste. (20) ________ electronic devices are discarded every year without being properly recycled. This leads to severe soil and water contamination. If people (21) ________ more aware of the long-term consequences of their consumption habits years ago, the environment would be much cleaner now. <br> <b>What We Can Do</b><br> Self-Improvement: We need to (22) ________ our environmental knowledge and skills to understand how to live sustainably. <br> Responsible Choices: In the past, people often ignored the origins of products. (23) ________, the growing concern about climate change has led many consumers to prefer organic products which are safer for health. <br> Global Effort: Some individuals choose to cycle to work, while (24) ________ prefer using public transportation to minimize air pollution.",
     "questions": [
       { "question": "19.", "answers": ["destructive", "beneficial", "temporary", "unnecessary"], "correct": 0 },
       { "question": "20.", "answers": ["A number of", "Much of", "A wide range of", "Each of"], "correct": 0 },
@@ -45,6 +45,177 @@
       { "question": "22.", "answers": ["put up with", "keep up with", "walk away from", "get on with"], "correct": 0 },
       { "question": "23.", "answers": ["Because of", "However", "Instead of", "In spite of"], "correct": 0 },
       { "question": "24.", "answers": ["another", "other", "others", "the other"], "correct": 0 }
+    ]
+  },
+  {
+    "sectionTitle": "SENTENCE ORDERING",
+    "questions": [
+      {
+        "question": "13.",
+        "answers": [
+          "b – a – c",
+          "b – c – a",
+          "c – b – a",
+          "c – a – b"
+        ],
+        "correct": 0,
+        "subQuestions": [
+          "a. Mai: That’s a great idea! It’s important to preserve our history while enjoying the view.",
+          "b. Mai: I’m planning to visit the Central Sector of the Imperial Citadel of Thang Long this weekend.",
+          "c. Nam: Really? I’ve heard they offer a night tour now with beautiful lighting."
+        ]
+      },
+      {
+        "question": "14.",
+        "answers": [
+          "b – c – a – e – d",
+          "b – a – c – d – e",
+          "a – d – b – c – e",
+          "c – d – e – a – b"
+        ],
+        "correct": 0,
+        "subQuestions": [
+          "a. Peter: Definitely. It can help us translate documents or even write code in seconds.",
+          "b. Peter: Have you ever used an AI chatbot to help with your homework?",
+          "c. Mary: Yes, it’s quite helpful, but we shouldn't rely on it too much for everything.",
+          "d. Mary: I agree. We should use it as a tool to improve our own skills instead of letting it think for us.",
+          "e. Peter: I think so too. AI is just a supporter, not a replacement for human intelligence."
+        ]
+      },
+      {
+        "question": "15.",
+        "answers": [
+          "a – b – d – c – e",
+          "c – a – b – d – e",
+          "a – b – c – d – e",
+          "b – c – a – d – e"
+        ],
+        "correct": 0,
+        "subQuestions": [
+          "a. Lately, I’ve been thinking a lot about what career path to follow after graduation.",
+          "b. My parents want me to become a doctor, but I’m more interested in graphic design.",
+          "c. I’ve always loved drawing and creating digital art since I was a child.",
+          "d. However, I’m worried about the job stability in the creative industry.",
+          "e. What do you think I should do? I really need some advice from a friend."
+        ]
+      },
+      {
+        "question": "16.",
+        "answers": [
+          "b – a – d – e – c",
+          "b – a – c – d – e",
+          "a – b – c – d – e",
+          "b – c – a – d – e"
+        ],
+        "correct": 0,
+        "subQuestions": [
+          "a. This loss of habitat is mainly caused by illegal logging and land clearance for farming.",
+          "b. Many endangered species are currently on the verge of extinction due to habitat loss.",
+          "c. If we don’t take immediate action, these animals will disappear forever.",
+          "d. Therefore, governments should establish more national parks to protect their natural homes.",
+          "e. In addition, local people need to be educated about the importance of biodiversity."
+        ]
+      },
+      {
+        "question": "17.",
+        "answers": [
+          "b – c – a – d – e",
+          "b – a – c – d – e",
+          "a – b – c – e – d",
+          "b – a – e – c – d"
+        ],
+        "correct": 0,
+        "subQuestions": [
+          "a. This is because AI can personalize learning materials to suit each student’s pace.",
+          "b. The integration of Artificial Intelligence in classrooms has significantly increased recently.",
+          "c. As a result, students can improve their academic performance more effectively.",
+          "d. Despite these benefits, teachers still play a vital role in guiding students' moral values.",
+          "e. In conclusion, technology and teachers should work together for the best educational results."
+        ]
+      },
+      {
+        "question": "18.",
+        "answers": [
+          "b – c – a",
+          "b – a – c",
+          "a – b – c",
+          "c – b – a"
+        ],
+        "correct": 0,
+        "subQuestions": [
+          "a. Lan: That’s a worrying trend. We should definitely do something to protect them before it's too late.",
+          "b. Nam: I’ve just read an article saying that many animal species are facing a high risk of extinction due to human activities.",
+          "c. Nam: I agree. For instance, we can start by refusing to buy products made from endangered wild animals."
+        ]
+      },
+      {
+        "question": "19.",
+        "answers": [
+          "b – d – a – c – e",
+          "b – a – d – e – c",
+          "b – c – e – a – d",
+          "e – c – b – a – d"
+        ],
+        "correct": 0,
+        "subQuestions": [
+          "a. Ms. Hoa: I agree. We should also use social media to promote these sites to international tourists.",
+          "b. Mr. Tung: I think we need to raise more funds for the restoration of our ancient temples.",
+          "c. Ms. Hoa: That’s true. Many of them are being badly damaged by weather and time.",
+          "d. Mr. Tung: Good point! Combining traditional preservation with digital marketing is a smart move.",
+          "e. Mr. Tung: If we don’t act now, future generations might only see our heritage through books."
+        ]
+      },
+      {
+        "question": "20.",
+        "answers": [
+          "a – c – b – d – e",
+          "a – b – c – d – e",
+          "b – c – a – d – e",
+          "a – d – b – c – e"
+        ],
+        "correct": 0,
+        "subQuestions": [
+          "a. I am writing to express my interest in the Digital Marketing Intern position at your company.",
+          "b. During my time at university, I have gained practical experience through various freelance projects.",
+          "c. I have also developed strong communication skills while working in a multicultural team.",
+          "d. These skills and experiences make me a suitable candidate for this role.",
+          "e. Please find my attached CV for more details about my qualifications."
+        ]
+      },
+      {
+        "question": "21.",
+        "answers": [
+          "b – a – c – d – e",
+          "d – b – e – a – c",
+          "b – d – e – a – c",
+          "b – e – d – a – c"
+        ],
+        "correct": 0,
+        "subQuestions": [
+          "a. Visitors can also take part in traditional workshops to learn about local crafts.",
+          "b. The ancient town of Hoi An is famous for its well-preserved architecture and culture.",
+          "c. These interactive activities help people appreciate the heritage even more.",
+          "d. It was recognized as a World Heritage Site by UNESCO in 1999.",
+          "e. As a result, the town attracts millions of tourists from all over the world every year."
+        ]
+      },
+      {
+        "question": "22.",
+        "answers": [
+          "e – d – a – b – c",
+          "e – b – d – a – c",
+          "d – e – a – b – c",
+          "e – d – b – a – c"
+        ],
+        "correct": 0,
+        "subQuestions": [
+          "a. For example, a student interested in medicine can shadow a doctor for a week.",
+          "b. This hands-on experience helps them understand the daily tasks of the profession.",
+          "c. Consequently, they can make a more informed decision about their future career.",
+          "d. Therefore, high school students should consider doing an internship to solve this problem.",
+          "e. Many students feel confused about choosing a major because they lack real-world experience."
+        ]
+      }
     ]
   }
 ]
