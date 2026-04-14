@@ -1,0 +1,88 @@
+[
+  {
+    "sectionTitle": "PHẦN II. CÂU TRẮC NGHIỆM ĐÚNG SAI",
+    "sectionDesc": "Lệnh: Đọc đoạn tư liệu sau đây, chọn <b>Đúng</b> hoặc <b>Sai</b> cho các mệnh đề a), b), c), d):",
+    "questions": [
+      {
+        "type": "true_false",
+        "question": "Khi nói về thí nghiệm tán xạ alpha và phát hiện cấu trúc hạt nhân, hãy chỉ ra phát biểu đúng hoặc sai:",
+        "subQuestions": [
+          { "text": "Tất cả các hạt alpha đều bị lệch hướng về phía sau khi gặp lá vàng", "correct": 0 },
+          { "text": "Thí nghiệm tán xạ alpha dẫn đến mô hình hạt nhân nguyên tử hiện đại", "correct": 1 },
+          { "text": "Hạt nhân nguyên tử có kích thước lớn, chiếm toàn bộ thể tích của nguyên tử", "correct": 0 },
+          { "text": "Hạt alpha sử dụng trong thí nghiệm là dòng hạt nhân He²⁺", "correct": 1 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Câu 2: Trong phản ứng hạt nhân, hãy chọn “Đúng” hoặc “Sai” cho các nhận xét sau:",
+        "subQuestions": [
+          { "text": "Phản ứng phân hạch là phản ứng hạt nhân trong đó một hạt nhân nặng vỡ thành hai mảnh nhẹ hơn", "correct": 1 },
+          { "text": "Phản ứng hạt nhân ²₁H + ²₁H → ³₂He + ¹₀n là phản ứng phân hạch", "correct": 0 },
+          { "text": "Phản ứng hạt nhân ¹₀n + ²³⁵₉₂U → ¹⁴¹₅₆Ba + ⁹²₃₆Kr + 3.¹₀n là phản ứng phân hạch", "correct": 1 },
+          { "text": "Nguồn gốc năng lượng của Mặt Trời là do các phản ứng nhiệt hạch xảy ra trong lòng nó", "correct": 1 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Ban đầu có 1 kg chất phóng xạ cobalt (⁶⁰₂₇Co) với chu kì bán rã T = 5,33 năm. Chọn phát biểu đúng, phát biểu sai:",
+        "subQuestions": [
+          { "text": "Quá trình phóng xạ của cobalt là một quá trình ngẫu nhiên", "correct": 1 },
+          { "text": "Hằng số phóng xạ của cobalt là 5,3.10⁻⁸ s⁻¹", "correct": 0 },
+          { "text": "Sau 35,4 năm, khối lượng của chất phóng xạ cobalt còn lại xấp xỉ bằng 10,02 g", "correct": 1 },
+          { "text": "Sau 35,4 năm, độ phóng xạ của cobalt là 4,14.10¹⁴ Ci", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Khi nói về ảnh hưởng và nguyên tắc an toàn của phóng xạ, chọn phát biểu đúng, phát biểu sai:",
+        "subQuestions": [
+          { "text": "Biển báo tam giác vàng có hình cảnh báo phóng xạ dùng để chỉ nơi có phóng xạ", "correct": 1 },
+          { "text": "Khi làm việc với nguồn phóng xạ, cần đeo đồ bảo hộ đầy đủ như găng tay, khẩu trang, áo chì", "correct": 0 },
+          { "text": "Việc ăn uống, hút thuốc trong khu vực có phóng xạ là hoàn toàn cho phép nếu đã đeo đồ bảo hộ", "correct": 1 },
+          { "text": "Nếu phát hiện vật liệu phóng xạ nghi ngờ, cần báo ngay cho cơ quan chức năng có thẩm quyền", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Cho hai hạt nhân sau: ¹²₆C và ¹⁴₆C",
+        "subQuestions": [
+          { "text": "¹²₆C và ¹⁴₆C là hai hạt nhân đồng vị", "correct": 1 },
+          { "text": "¹²₆C và ¹⁴₆C có cùng số nuclôn", "correct": 0 },
+          { "text": "¹⁴₆C có số nơtron nhiều hơn ¹²₆C là 2 hạt", "correct": 1 },
+          { "text": "Điện tích của hạt nhân ¹²₆C nhỏ hơn điện tích của hạt nhân ¹⁴₆C", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Khi nói về phản ứng phân hạch hạt nhân, hãy chọn kết luận “Đúng” hoặc “Sai”:",
+        "subQuestions": [
+          { "text": "Hạt nhân ¹²₆C không thể phân hạch", "correct": 1 },
+          { "text": "Trong một phản ứng phân hạch, gọi tổng khối lượng nghỉ của các hạt trước phản ứng là m₁ và tổng khối lượng nghỉ của các hạt sau phản ứng là m₂ thì m₁ > m₂", "correct": 0 },
+          { "text": "Phần lớn năng lượng giải phóng trong phân hạch là động năng của các mảnh", "correct": 1 },
+          { "text": "Sự phân hạch của hạt nhân ²³⁵₉₂U khi hấp thụ một nơtron chậm có thể xảy ra theo nhiều cách. Một trong các cách đó: ²³⁵₉₂U + ¹₀n → ¹⁴⁰₅₄Xe + ⁹⁴₃₈Sr + k.¹₀n. Số nơtron tạo ra trong phản ứng này là k = 3", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Đồng vị phóng xạ β⁻ xenon ¹³³₅₄Xe được sử dụng trong phương pháp nguyên tử đánh dấu của y học hạt nhân khi kiểm tra chức năng và chẩn đoán các bệnh về phổi. Chu kì bán rã của ¹³³₅₄Xe là 5,24 ngày. Một mẫu khí chứa ¹³³₅₄Xe khi được sản xuất tại nhà máy có độ phóng xạ 4,25.10⁹ Bq. Mẫu đó được vận chuyển về bệnh viện và sử dụng sau 3,00 ngày.",
+        "subQuestions": [
+          { "text": "Sản phẩm phân rã của xenon là ¹³³₅₅Cs", "correct": 1 },
+          { "text": "Hằng số phóng xạ của xenon là 0,132 s⁻¹", "correct": 0 },
+          { "text": "Số nguyên tử ¹³³₅₄Xe trong mẫu mới sản xuất là 2,78.10¹⁵ nguyên tử", "correct": 1 },
+          { "text": "Khi bệnh nhân sử dụng, độ phóng xạ của mẫu khí là 1,86.10⁹ Bq", "correct": 0 }
+        ]
+      },
+      {
+        "type": "true_false",
+        "question": "Khi nói về ảnh hưởng và nguyên tắc an toàn của phóng xạ, hãy chọn phát biểu đúng hoặc sai:",
+        "subQuestions": [
+          { "text": "Biển báo tam giác vàng với ký hiệu phóng xạ dùng để chỉ nơi có phóng xạ", "correct": 1 },
+          { "text": "Khi làm việc với nguồn phóng xạ, cần đeo đồ bảo hộ đầy đủ như găng tay, khẩu trang, áo chì", "correct": 1 },
+          { "text": "Việc ăn uống, hút thuốc trong khu vực có phóng xạ là hoàn toàn cho phép nếu đã đeo đồ bảo hộ", "correct": 0 },
+          { "text": "Nếu phát hiện vật liệu phóng xạ nghi ngờ, cần báo ngay cho cơ quan chức năng có thẩm quyền", "correct": 0 }
+        ]
+      }
+    ]
+  }
+]
