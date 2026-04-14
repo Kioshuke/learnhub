@@ -2031,16 +2031,16 @@ body.dark-mode .card{
       <div class="auth-divider">hoặc</div>
 
       <div class="auth-input-group">
-        <input required>
+        <input type="email" id="email" required autocomplete="email">
         <label>Email</label>
       </div>
 
       <div class="auth-input-group">
-        <input type="password" required>
+        <input type="password" id="password" required autocomplete="current-password">
         <label>Mật khẩu</label>
       </div>
 
-      <button class="auth-submit" onclick="authComingSoon()">Đăng nhập</button>
+      <button type="button" onclick="loginEmail()">Đăng nhập</button>
     </div>
 
     <div id="authRegisterPanel" class="auth-panel" style="display:none;">
@@ -3634,24 +3634,59 @@ show("lich");
 
 <script type="module"> import { initializeApp }
  
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js"; 
-import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, setPersistence, browserLocalPersistence } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js"; 
-import { getFirestore, doc, setDoc } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js"; 
-const firebaseConfig = { 
-  apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c", 
-  authDomain: "onthi12-thpttanhong.firebaseapp.com", 
-  projectId: "onthi12-thpttanhong", 
-  storageBucket: "onthi12-thpttanhong.firebasestorage.app", 
-  messagingSenderId: "922115936320", 
-  appId: "1:922115936320:web:67b86c06af9149ff584fa5" 
-}; 
-const app = initializeApp(firebaseConfig); 
-const auth = getAuth(app); await setPersistence(auth, browserLocalPersistence); 
-const db = getFirestore(app); 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  setPersistence,
+  browserLocalPersistence,
+  signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+import {
+  getFirestore,
+  doc,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c",
+  authDomain: "onthi12-thpttanhong.firebaseapp.com",
+  projectId: "onthi12-thpttanhong",
+  storageBucket: "onthi12-thpttanhong.firebasestorage.app",
+  messagingSenderId: "922115936320",
+  appId: "1:922115936320:web:67b86c06af9149ff584fa5"
+};
+
+// Init
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
+// giữ đăng nhập
+await setPersistence(auth, browserLocalPersistence);
+
+// ===== LOGIN EMAIL/PASSWORD =====
+function loginEmail(email, password) {
+  signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      console.log("Đăng nhập thành công:", userCredential.user);
+    })
+    .catch((error) => {
+      console.error("Lỗi login:", error.message);
+    });
+}
+window.login = function () {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  loginEmail(email, password);
+};
 const allowList = [
 "quanhao678@gmail.com",
 "huunhan170908@gmail.com",
