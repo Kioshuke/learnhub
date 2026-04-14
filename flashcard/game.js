@@ -5,8 +5,8 @@ const soundlazer = new Audio("https://www.myinstants.com/media/sounds/weapon_1.m
 const soundwaring = new Audio("https://www.myinstants.com/media/sounds/family-fortunes-wrong-buzzer.mp3");
 const soundclick = new Audio("https://www.myinstants.com/media/sounds/clicksoundeffect.mp3");
 
-const soundGame2 = new Audio("sound/bgm_match.mp3");     // Match
-const soundGame3 = new Audio("sound/bgm_blast.mp3");     // Blast
+const soundGame2 = new Audio("../sound/bgm_match.mp3");     // Match
+const soundGame3 = new Audio("../sound/bgm_blast.mp3");     // Blast
 const soundGame4 = new Audio("../sound/bgm_defender.mp3");  // Defender
 const soundGame1 = new Audio("bgm_flashcard.mp3"); // Flashcard
 let SFX_VOLUME = 0.5;
