@@ -1489,45 +1489,87 @@ transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   visibility:hidden;
 }
 
-/* main content transition */
+/* ===== MAIN CONTENT TRANSITION - PERFORMANCE OPTIMIZED ===== */
 #mainContent{
   opacity:0;
-  transform: translateY(20px);
-  transition: all 0.6s ease;
+  transform:translateY(8px);
+  transition:opacity 0.4s ease-out, transform 0.4s ease-out;
 }
 
 #mainContent.show{
   opacity:1;
-  transform: translateY(0);
+  transform:translateY(0);
 }
 
+/* ===== ENTRANCE ANIMATIONS - ULTRA LIGHTWEIGHT ===== */
+/* Only animate essential elements for smooth performance */
 body.app-ready .menu,
-body.app-ready .ticker-container,
 body.app-ready #userBox,
-body.app-ready #mainContent.show > div,
 body.app-ready #chatButton{
   opacity:0;
-  transform:translateY(var(--app-reveal-distance)) scale(0.985);
-  animation:appObjectReveal var(--app-reveal-duration) var(--app-reveal-ease) forwards;
+  transform:translateY(6px);
+  will-change:opacity, transform;
+  animation:appReveal 0.35s ease-out forwards;
 }
 
-body.app-ready .menu{ animation-delay: 0.02s; }
-body.app-ready .ticker-container{ animation-delay: 0.10s; }
-body.app-ready #userBox{ animation-delay: 0.18s; }
-body.app-ready #mainContent.show > div{ animation-delay: 0.28s; }
-body.app-ready #chatButton{ animation-delay: 0.38s; }
+/* Stagger delays - minimal for snappy feel */
+body.app-ready .menu{ animation-delay:0.05s; }
+body.app-ready #userBox{ animation-delay:0.12s; }
+body.app-ready #chatButton{ animation-delay:0.20s; }
 
-@keyframes appObjectReveal{
+/* Ticker and main content use simpler transition */
+body.app-ready .ticker-container{
+  opacity:0;
+  transform:translateY(4px);
+  will-change:opacity;
+  animation:appReveal 0.3s ease-out forwards;
+  animation-delay:0.08s;
+}
+
+body.app-ready #mainContent.show{
+  opacity:1;
+  transform:translateY(0);
+  transition:opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+@keyframes appReveal{
 from{
   opacity:0;
-  transform:translateY(var(--app-reveal-distance)) scale(0.985);
-  filter:blur(8px);
+  transform:translateY(6px);
 }
 to{
   opacity:1;
-  transform:translateY(0) scale(1);
-  filter:blur(0);
+  transform:translateY(0);
 }
+}
+
+/* ===== MOBILE - MINIMAL ANIMATIONS ===== */
+@media (max-width:768px){
+  /* Only animate menu and user box on mobile */
+  body.app-ready .menu,
+  body.app-ready #userBox{
+    opacity:0;
+    transform:translateY(4px);
+    animation:appReveal 0.2s ease-out forwards;
+  }
+  
+  body.app-ready .menu{ animation-delay:0.02s; }
+  body.app-ready #userBox{ animation-delay:0.06s; }
+  
+  /* No animation for ticker and chat button on mobile */
+  body.app-ready .ticker-container,
+  body.app-ready #chatButton{
+    opacity:1;
+    transform:none;
+    animation:none;
+  }
+  
+  /* Main content instant on mobile */
+  body.app-ready #mainContent.show{
+    opacity:1;
+    transform:translateY(0);
+    transition:opacity 0.15s ease-out;
+  }
 }
 
 
