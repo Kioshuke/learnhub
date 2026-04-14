@@ -2373,6 +2373,54 @@ height:50px;
 font-size:22px;
 }
 
+/* ===== MOBILE PERFORMANCE GUARD ===== */
+.header{
+animation:none;
+background-size:100% 100%;
+}
+
+.ticker-text{
+animation:scrollText 24s linear infinite;
+}
+
+#loadingOverlay{
+animation:none;
+backdrop-filter:none;
+}
+
+.loading-brand img,
+.progress-bar::before,
+.progress-fill,
+#loadingText,
+.online-pulse,
+.status::before,
+.exam-day.tomorrow{
+animation:none !important;
+}
+
+.progress-fill{
+background-size:100% 100%;
+}
+
+.card,
+.btn,
+.menu button{
+transition-duration:0.12s;
+}
+
+#chatButton{
+width:56px;
+height:56px;
+box-shadow:0 4px 12px rgba(0,0,0,0.2);
+}
+
+#chatbotFrame{
+left:4vw !important;
+width:min(92vw, 360px) !important;
+height:min(62vh, 500px) !important;
+bottom:84px !important;
+}
+
 }
 /* Hiệu ứng nhấp nháy cho chấm Online */
 @keyframes pulse-green {
