@@ -7,7 +7,7 @@ const soundclick = new Audio("https://www.myinstants.com/media/sounds/clicksound
 
 const soundGame2 = new Audio("sound/bgm_match.mp3");     // Match
 const soundGame3 = new Audio("sound/bgm_blast.mp3");     // Blast
-const soundGame4 = new Audio("sound/bgm_defender.mp3");  // Defender
+const soundGame4 = new Audio("../sound/bgm_defender.mp3");  // Defender
 const soundGame1 = new Audio("bgm_flashcard.mp3"); // Flashcard
 let SFX_VOLUME = 0.5;
 let BGM_VOLUME = 1.0;
