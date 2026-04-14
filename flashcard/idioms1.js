@@ -1,5 +1,5 @@
 // ===== DÁN DATA Ở ĐÂY =====
-window.TOPIC_NAME = "50 Idioms";
+window.TOPIC_NAME = "40 Idioms";
 
 const rawData = `
 Burn the midnight oil - Thức khuya làm việc, học bài
