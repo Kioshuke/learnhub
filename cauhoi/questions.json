@@ -27,52 +27,5 @@
         "correct": 2
       }
     ]
-  },
-  {
-    "sectionTitle": "PHẦN II. TRẮC NGHIỆM ĐÚNG SAI",
-    "sectionDesc": "Lệnh: Đọc đoạn tư liệu sau đây, chọn <b>Đúng</b> hoặc <b>Sai</b> cho các mệnh đề a), b), c), d):",
-    "questions": [
-      {
-        "type": "true_false",
-        "question": "Xét các phát biểu về <b>hệ mặt trời</b> và vật lý:",
-        "subQuestions": [
-          { "text": "a) Trái Đất là hành tinh <i>thứ ba</i> tính từ Mặt Trời.", "correct": 1 },
-          { "text": "b) Nước sôi ở nhiệt độ <u>50°C</u> trong điều kiện áp suất chuẩn.", "correct": 0 },
-          { "text": "c) <b>Mặt Trăng</b> là vệ tinh tự nhiên duy nhất của Trái Đất.", "correct": 1 },
-          { "text": "d) Vận tốc ánh sáng chậm hơn <i>vận tốc âm thanh</i>.", "correct": 0 }
-        ]
-      },
-      {
-        "type": "true_false",
-        "question": "Về lịch sử và địa lý <b>Việt Nam</b>:",
-        "subQuestions": [
-          { "text": "a) Việt Nam thuộc khu vực <u>Đông Nam Á</u>.", "correct": 1 },
-          { "text": "b) Chiến dịch <b>Điện Biên Phủ</b> kết thúc vào năm 1945.", "correct": 0 },
-          { "text": "c) Sông Cửu Long chảy qua miền <i>Nam</i> Việt Nam.", "correct": 1 },
-          { "text": "d) <u>Phan Thiết</u> là thủ đô của Việt Nam.", "correct": 0 }
-        ]
-      }
-    ]
-  },
-  {
-    "sectionTitle": "PHẦN III. CÂU HỎI TRẢ LỜI NGẮN",
-    "sectionDesc": "Lệnh: Hãy <u>nhập đáp án</u> chính xác vào ô trống bên dưới (Lưu ý: Viết hoa chữ cái đầu nếu là tên riêng):",
-    "questions": [
-      {
-        "type": "short_answer",
-        "question": "Ngôn ngữ lập trình nào thường được dùng để phát triển ứng dụng <b>Android</b> bản địa (native)?",
-        "correctAnswer": "Kotlin"
-      },
-      {
-        "type": "short_answer",
-        "question": "Đỉnh núi nào được mệnh danh là <i>nóc nhà của thế giới</i>?",
-        "correctAnswer": "Everest"
-      },
-      {
-        "type": "short_answer",
-        "question": "Giá trị của biểu thức <b>15 / 3 + 2</b> là bao nhiêu?",
-        "correctAnswer": "7"
-      }
-    ]
   }
 ]
