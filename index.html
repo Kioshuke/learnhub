@@ -1300,7 +1300,7 @@ padding:0 20px;
 /* Animated dots container */
 .loading-dots{
 display:flex;
-gap:28px;
+gap:15px;
 justify-content:center;
 align-items:center;
 height:80px;
@@ -1308,13 +1308,14 @@ will-change: opacity, transform;
 }
 
 .loading-dot{
-width:56px;
-height:56px;
+width:30px;
+height:30px;
 border-radius:50%;
 background: linear-gradient(135deg, #3b82f6, #06b6d4);
 will-change: transform, opacity;
 /* Sử dụng transform và opacity để tối ưu performance */
 box-shadow: 0 8px 24px rgba(59,130,246,0.3);
+animation: dotWave 2s ease-in-out infinite;
 }
 
 .loading-dot:nth-child(1){ animation: dotWave 1.5s ease-in-out infinite 0s; }
@@ -1334,10 +1335,53 @@ box-shadow: 0 8px 24px rgba(59,130,246,0.3);
 }
 }
 
+
 /* Fast animation when done - smoother transition */
 .loading-dots.speed-up .loading-dot{
 animation-duration: 0.25s;
 animation-timing-function: ease-out;
+}
+
+/* Dừng animation khi hoàn thành */
+.loading-dots.fade-out{
+opacity: 0;
+transform: scale(0.9);
+transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+pointer-events: none;
+}
+
+/* Hiệu ứng chuyển màu xanh lá khi hoàn thành */
+.loading-dots.done .loading-dot{
+background: linear-gradient(135deg, #22c55e, #16a34a);
+box-shadow: 0 8px 24px rgba(34,197,94,0.4);
+transition: background 0.5s ease, box-shadow 0.5s ease;
+}
+
+/* Hiệu ứng dạt ra hai bên giống mở cổng */
+.loading-dots.slide-apart{
+justify-content: center;
+gap: 120px;
+transition: gap 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.loading-dots.slide-apart .loading-dot:nth-child(1){
+transform: translateX(-80px) translateY(-20px);
+transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.loading-dots.slide-apart .loading-dot:nth-child(2){
+transform: translateX(-40px) translateY(-40px);
+transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.loading-dots.slide-apart .loading-dot:nth-child(3){
+transform: translateX(40px) translateY(-40px);
+transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.loading-dots.slide-apart .loading-dot:nth-child(4){
+transform: translateX(80px) translateY(-20px);
+transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Fade out with smooth transform */
@@ -3126,22 +3170,28 @@ function startLoading(){
             loadingStatus.innerText = "✅ Done!";
             loadingState = "done";
             
-            // Speed up dots animation briefly
+            // Dừng animation và chuẩn bị chuyển tiếp
             if (dotsContainer) {
-                dotsContainer.classList.add("speed-up");
+                dotsContainer.classList.add("stop-animation");
             }
         } else if (msgIndex === messages.length + 1) {
-            // Fade out dots and fade in logo
+            // Chuyển màu xanh lá và dạt sang hai bên
             if (dotsContainer) {
-                dotsContainer.classList.add("fade-out");
+                dotsContainer.classList.add("done", "slide-apart");
             }
-            // Fade in and emphasize logo
+            loadingState = "transitioning";
+        } else if (msgIndex === messages.length + 2) {
+            // Fade in logo sau khi dots đã dạt ra hai bên
             if (brandContainer) {
                 brandContainer.classList.remove("initially-hidden");
                 brandContainer.classList.add("emphasize");
             }
-            loadingState = "transitioning";
         } else if (msgIndex === messages.length + 3) {
+            // Fade out dots
+            if (dotsContainer) {
+                dotsContainer.classList.add("fade-out");
+            }
+        } else if (msgIndex === messages.length + 4) {
             // Hide loading overlay and show main content
             clearInterval(loadingTimer);
             loadingTimer = null;
@@ -3179,7 +3229,7 @@ function resetLoadingState(){
     const dotsContainer = document.querySelector(".loading-dots");
     const brandContainer = document.querySelector(".loading-brand");
     if (dotsContainer) {
-        dotsContainer.classList.remove("speed-up", "fade-out");
+        dotsContainer.classList.remove("fade-out", "done", "slide-apart", "stop-animation");
     }
     if (brandContainer) {
         brandContainer.classList.remove("emphasize");
