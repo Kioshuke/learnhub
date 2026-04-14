@@ -293,14 +293,15 @@ button:hover {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 15px;
-  max-width: 900px;
-  margin: auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
 }
 
 .game-shell {
   width: 100%;
-  max-width: 980px;
-  margin: 10px auto 0;
+  max-width: none;
+  margin: 10px 0 0;
   padding: 20px;
   border-radius: 26px;
   background: rgba(255, 255, 255, 0.74);
@@ -408,8 +409,8 @@ button:hover {
 /* ===== BLAST (QUIZ) - FIX HIỆU ỨNG ===== */
 .blast-box {
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -538,6 +539,7 @@ button:hover {
  transform: translateY(-4px);
  box-shadow: 0 15px 25px rgba(99, 102, 241, 0.4);
 }
+
 
 /* ===== PHÁO GIẤY CONFETTI (DÙNG CHUNG) ===== */
 .confetti-container {
@@ -1046,7 +1048,8 @@ button:hover {
 #battle-container {
     width: 100%;
     max-width: none;
-    height: 75vh; /* Chiều cao vừa đủ để thấy cả menu và nút */
+    height: calc(100vh - 190px);
+    min-height: 560px;
     margin: 0;
     background:
       radial-gradient(circle at 20% 15%, rgba(34, 211, 238, 0.2), transparent 35%),
@@ -1060,6 +1063,12 @@ button:hover {
     display: block; /* Tắt flex để các con tự nhảy theo vị trí tuyệt đối */
     box-shadow: inset 0 0 60px rgba(56, 189, 248, 0.1), 0 20px 45px rgba(15, 23, 42, 0.45);
 }   
+
+#match-content,
+#blast-content {
+    width: 100% !important;
+    max-width: none !important;
+}
 
 #battle-container::before {
     content: "";
@@ -1675,7 +1684,6 @@ button:hover {
 </div>
   <div class="confetti-container" id="confettiContainer"></div>
 </div>
-
 <!-- SCRIPT -->
 <script>
 function formatTopicNameFromDataFile(dataFile) {

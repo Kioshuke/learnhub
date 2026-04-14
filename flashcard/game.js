@@ -718,6 +718,8 @@ function spawnMonster() {
     const randomMonster = spaceMonsters[Math.floor(Math.random() * spaceMonsters.length)];
     const wrapper = document.createElement("div");
     wrapper.className = "monster-wrapper";
+    let topPos = -100;
+    wrapper.style.top = topPos + "px";
     
     wrapper.innerHTML = `
         <div class="monster-visual" style="position: relative; display: flex; justify-content: center;">
@@ -733,7 +735,6 @@ function spawnMonster() {
     area.appendChild(wrapper);
     currentMonsterNode = wrapper;
 
-    let topPos = -100; 
     let speed = 1.3 + (gameProgress.defender / total) * 1.5; 
     
     if (enemyFallInterval) clearInterval(enemyFallInterval);
