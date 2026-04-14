@@ -737,6 +737,138 @@ button:hover {
         animation-delay: 0.05s !important;
         filter: none !important;
     }
+
+    body {
+        padding: 8px 8px 16px;
+    }
+
+    #menu {
+        width: 100%;
+        max-width: none;
+        margin: 8px auto 10px;
+        padding: 8px;
+        border-radius: 16px;
+        overflow-x: auto;
+        justify-content: flex-start;
+    }
+
+    #menu button {
+        flex: 0 0 auto;
+        min-width: 78px;
+        white-space: nowrap;
+    }
+
+    #topicBanner,
+    #progressContainer {
+        width: 100%;
+        max-width: none;
+    }
+
+    .mode {
+        padding: 8px 0 14px;
+    }
+
+    .flash-wrapper {
+        gap: 10px;
+        max-width: 100%;
+    }
+
+    .flashcard {
+        width: 100% !important;
+        max-width: none;
+        height: 260px !important;
+        margin: 8px auto !important;
+    }
+
+    .flash-front,
+    .flash-back {
+        border-radius: 22px;
+        padding: 16px;
+        font-size: clamp(22px, 7vw, 30px);
+    }
+
+    .speaker-icon {
+        top: 12px;
+        right: 12px;
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    #battle-container {
+        height: min(62vh, 520px);
+        border-radius: 12px;
+    }
+
+    .defender-header {
+        margin: 8px;
+        padding: 8px 10px;
+        border-radius: 14px;
+    }
+
+    .def-progress-container {
+        height: 16px;
+    }
+
+    #def-progress-text {
+        font-size: 11px;
+    }
+
+    #hp-text-top {
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+
+    #player-zone {
+        bottom: 86px;
+        font-size: 34px;
+    }
+
+    #cannon {
+        font-size: 34px;
+    }
+
+    #ammo-shelf {
+        height: 74px;
+        padding: 0 4px;
+    }
+
+    #ammo-shelf button {
+        height: 50px;
+        margin: 2px;
+        font-size: 12px;
+        border-radius: 9px;
+        padding: 0 6px;
+    }
+
+    .popup-box {
+        padding: 30px 18px;
+        border-radius: 20px;
+    }
+
+    .popup-box h2 {
+        font-size: 28px;
+    }
+
+    .popup-box p {
+        font-size: 15px;
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 420px) {
+    .flashcard {
+        height: 230px !important;
+    }
+
+    .flash-front,
+    .flash-back {
+        font-size: clamp(19px, 6.8vw, 26px);
+    }
+
+    #ammo-shelf button {
+        font-size: 11px;
+    }
 }
 #music-control {
     position: fixed;
