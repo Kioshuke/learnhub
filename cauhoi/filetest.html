@@ -988,60 +988,315 @@ function getFeedback(score) {
         };
     }
 }
-const isMobile = window.innerWidth < 768;
+
+// Hàm phát sound pháo hoa
+function playFireworkSound() {
+    const audio = new Audio('https://www.myinstants.com/media/sounds/minecraft-firework-launch.mp3');
+    audio.volume = 0.6;
+    audio.play().catch(e => console.log('Sound play failed:', e));
+}
+
 function launchConfetti() {
     const container = document.getElementById("confetti-container");
+    
+    // Phát sound 3 lần với khoảng cách
+    playFireworkSound();
+    setTimeout(() => playFireworkSound(), 800);
+    setTimeout(() => playFireworkSound(), 1600);
+    
+    // Phóng 3 loạt pháo hoa cách nhau
+    launchFireworkBurst(0);    // Loạt 1 ngay lập tức
+    setTimeout(() => launchFireworkBurst(1), 600);  // Loạt 2 sau 0.6s
+    setTimeout(() => launchFireworkBurst(2), 1200); // Loạt 3 sau 1.2s
+}
 
-    const isMobile = window.innerWidth < 768;
-
-    const particleCount = isMobile ? 30 : 120;
-    const maxSpread = isMobile ? 120 : 300;
-
-    const colors = ["#22c55e", "#3b82f6", "#facc15", "#ef4444", "#a855f7"];
-
+function launchFireworkBurst(burstIndex) {
+    const container = document.getElementById("confetti-container");
+    
+    // Màu sắc đa dạng hơn
+    const colors = [
+        "#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#feca57",
+        "#ff9ff3", "#54a0ff", "#48dbfb", "#ff6348", "#ffa502",
+        "#ff4757", "#5f27cd", "#00d2d3", "#ff9ff3", "#feca57"
+    ];
+    
+    // Số lượng particle nhiều hơn cho toàn màn hình
+    const particleCount = 150;
+    
+    // Vị trí ngẫu nhiên trên toàn màn hình
+    const positions = [
+        { x: 20, y: 30 },   // Góc trên trái
+        { x: 80, y: 25 },   // Góc trên phải
+        { x: 50, y: 40 },  // Giữa trên
+        { x: 15, y: 60 },  // Giữa trái
+        { x: 85, y: 55 },  // Giữa phải
+        { x: 35, y: 75 },  // Dưới trái
+        { x: 65, y: 70 },  // Dưới phải
+        { x: 50, y: 85 }   // Giữa dưới
+    ];
+    
+    // Chọn vị trí ngẫu nhiên cho loạt pháo này
+    const position = positions[burstIndex % positions.length];
+    
     for (let i = 0; i < particleCount; i++) {
         const confetti = document.createElement("div");
         confetti.classList.add("confetti");
-
+        
+        // Màu ngẫu nhiên
         confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-
-        // size
-        confetti.style.width = (6 + Math.random() * 8) + "px";
-        confetti.style.height = (10 + Math.random() * 10) + "px";
-
-        // góc + lực
-        const angle = Math.random() * Math.PI * 0.6 + Math.PI * 0.2;
-        const force = isMobile 
-            ? 550 + Math.random() * 250
-            : 450 + Math.random() * 500;
-
-        const x = Math.cos(angle) * (Math.random() * maxSpread);
-        const y = -Math.sin(angle) * force;
-
-        // vị trí 2 pháo giữa
-        const startX = (i % 2 === 0) ? "45%" : "55%";
-        confetti.style.left = startX;
-        confetti.style.bottom = "0px";
-
+        
+        // Kích thước đa dạng hơn
+        const size = 4 + Math.random() * 12;
+        confetti.style.width = size + "px";
+        confetti.style.height = (size * 1.5) + "px";
+        
+        // Độ mờ ngẫu nhiên
+        confetti.style.opacity = 0.7 + Math.random() * 0.3;
+        
+        // Góc bay ngẫu nhiên (360 độ)
+        const angle = Math.random() * Math.PI * 2;
+        const force = 200 + Math.random() * 400;
+        
+        const x = Math.cos(angle) * force;
+        const y = Math.sin(angle) * force;
+        
+        // Vị trí bắt đầu theo vị trí đã chọn
+        confetti.style.left = position.x + "%";
+        confetti.style.top = position.y + "%";
+        
         confetti.style.setProperty("--x", x + "px");
         confetti.style.setProperty("--y", y + "px");
-
+        
         container.appendChild(confetti);
-
-        // bay lên
-        const shootTime = isMobile ? 500 : 700;
-        confetti.style.animation = `explode ${shootTime}ms cubic-bezier(0.2,0.8,0.2,1) forwards`;
-
-        // rơi xuống
+        
+        // Thời gian bay lên ngẫu nhiên
+        const shootTime = 600 + Math.random() * 400;
+        confetti.style.animation = `explode ${shootTime}ms cubic-bezier(0.25,0.46,0.45,0.94) forwards`;
+        
+        // Rơi xuống với trọng lực
         setTimeout(() => {
-            const fallX = (Math.random() * 100 - 50) + "px";
+            const fallX = (Math.random() * 200 - 100) + "px";
+            const fallY = (300 + Math.random() * 400) + "px";
             confetti.style.setProperty("--fallX", fallX);
-            confetti.style.animation = `fallReal ${isMobile ? 1000 : 1600}ms linear forwards`;
+            confetti.style.setProperty("--fallY", fallY);
+            confetti.style.animation = `fallReal ${1500 + Math.random() * 1000}ms cubic-bezier(0.25,0.46,0.45,0.94) forwards`;
         }, shootTime);
-
-        setTimeout(() => confetti.remove(), 2500);
+        
+        // Xóa sau khi hoàn thành
+        setTimeout(() => confetti.remove(), 3000 + Math.random() * 1000);
     }
 }
+
+// Các hàm điều hướng và Modal
+function scrollToQuestion(i) {
+    const el = document.getElementById(`card-${i}`);
+    window.scrollTo({ top: el.offsetTop - 100, behavior: 'smooth' });
+    if(window.innerWidth <= 1024) toggleSidebar(); 
+}
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebarNav');
+    const overlay = document.getElementById('sidebarOverlay');
+    const isVisible = (sidebar.style.display === 'block');
+    sidebar.style.display = isVisible ? '' : 'block';
+    overlay.style.display = isVisible ? 'none' : 'flex';
+}
+
+// Khởi chạy
+loadQuestions();
+function confirmRestart() {
+location.reload();
+}
+function getFeedback(score) {
+    if (score < 5) {
+        return {
+            text: "Cần cố gắng thêm! Xem lại kiến thức nhé ",
+            color: "#ef4444",
+            bg: "#fee2e2",
+            animation: "shake"
+        };
+    } 
+    else if (score < 8) {
+        return {
+            text: "Tạm ổn, nhưng vẫn còn sai sót, xem lại kỹ hơn nhé ",
+            color: "#eab308",
+            bg: "#fef9c3",
+            animation: "pulse"
+        };
+    } 
+    else if (score < 10) {
+        return {
+            text: "Làm tốt lắm! Chỉ cần chút nữa là hoàn hảo ",
+            color: "#3b82f6",
+            bg: "#dbeafe",
+            animation: "pop"
+        };
+    } 
+    else {
+        return {
+            text: "Xuất sắc! Bạn đã hoàn thành rất tốt ",
+            color: "#22c55e",
+            bg: "#dcfce7",
+            animation: "bounceGlow"
+        };
+    }
+}
+
+// Hàm phát sound pháo hoa
+function playFireworkSound() {
+    const audio = new Audio('https://www.myinstants.com/media/sounds/minecraft-firework-launch.mp3');
+    audio.volume = 0.6;
+    audio.play().catch(e => console.log('Sound play failed:', e));
+}
+
+function launchConfetti() {
+    const container = document.getElementById("confetti-container");
+    
+    // Phát sound 3 lần với khoảng cách
+    playFireworkSound();
+    setTimeout(() => playFireworkSound(), 800);
+    setTimeout(() => playFireworkSound(), 1600);
+    
+    // Phóng 3 loạt pháo hoa cách nhau
+    launchFireworkBurst(0);    // Loạt 1 ngay lập tức
+    setTimeout(() => launchFireworkBurst(1), 600);  // Loạt 2 sau 0.6s
+    setTimeout(() => launchFireworkBurst(2), 1200); // Loạt 3 sau 1.2s
+}
+
+function launchFireworkBurst(burstIndex) {
+    const container = document.getElementById("confetti-container");
+    
+    // Màu sắc đa dạng hơn
+    const colors = [
+        "#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#feca57",
+        "#ff9ff3", "#54a0ff", "#48dbfb", "#ff6348", "#ffa502",
+        "#ff4757", "#5f27cd", "#00d2d3", "#ff9ff3", "#feca57"
+    ];
+    
+    // Số lượng particle nhiều hơn cho toàn màn hình
+    const particleCount = 150;
+    
+    // Vị trí ngẫu nhiên trên toàn màn hình
+    const positions = [
+        { x: 20, y: 30 },   // Góc trên trái
+        { x: 80, y: 25 },   // Góc trên phải
+        { x: 50, y: 40 },  // Giữa trên
+        { x: 15, y: 60 },  // Giữa trái
+        { x: 85, y: 55 },  // Giữa phải
+        { x: 35, y: 75 },  // Dưới trái
+        { x: 65, y: 70 },  // Dưới phải
+        { x: 50, y: 85 }   // Giữa dướiễn
+    ];
+    
+    // Chọn vị trí ngẫu nhiên cho loạt pháo này
+    const position = positions[burstIndex % positions.length];
+    
+    for (let i = 0; i < particleCount; i++) {
+        const confetti = document.createElement("div");
+        confetti.classList.add("confetti");
+        
+        // Màu ngẫu nhiên
+        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+        
+        // Kích thước đa dạng hơn
+        const size = 4 + Math.random() * 12;
+        confetti.style.width = size + "px";
+        confetti.style.height = (size * 1.5) + "px";
+        
+        // Độ mờ ngẫu nhiên
+        confetti.style.opacity = 0.7 + Math.random() * 0.3;
+        
+        // Góc bay ngẫu nhiên (360 độ)
+        const angle = Math.random() * Math.PI * 2;
+        const force = 200 + Math.random() * 400;
+        
+        const x = Math.cos(angle) * force;
+        const y = Math.sin(angle) * force;
+        
+        // Vị trí bắt đầu theo vị trí đã chọn
+        confetti.style.left = position.x + "%";
+        confetti.style.top = position.y + "%";
+        
+        confetti.style.setProperty("--x", x + "px");
+        confetti.style.setProperty("--y", y + "px");
+        
+        container.appendChild(confetti);
+        
+        // Thời gian bay lên ngẫu nhiên
+        const shootTime = 600 + Math.random() * 400;
+        confetti.style.animation = `explode ${shootTime}ms cubic-bezier(0.25,0.46,0.45,0.94) forwards`;
+        
+        // Rơi xuống với trọng lực
+        setTimeout(() => {
+            const fallX = (Math.random() * 200 - 100) + "px";
+            const fallY = (300 + Math.random() * 400) + "px";
+            confetti.style.setProperty("--fallX", fallX);
+            confetti.style.setProperty("--fallY", fallY);
+            confetti.style.animation = `fallReal ${1500 + Math.random() * 1000}ms cubic-bezier(0.25,0.46,0.45,0.94) forwards`;
+        }, shootTime);
+        
+        // Xóa sau khi hoàn thành
+        setTimeout(() => confetti.remove(), 3000 + Math.random() * 1000);
+    }
+}
+
+// Các hàm điều hướng và Modal
+function scrollToQuestion(i) {
+    const el = document.getElementById(`card-${i}`);
+    window.scrollTo({ top: el.offsetTop - 100, behavior: 'smooth' });
+    if(window.innerWidth <= 1024) toggleSidebar(); 
+}
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebarNav');
+    const overlay = document.getElementById('sidebarOverlay');
+    const isVisible = (sidebar.style.display === 'block');
+    sidebar.style.display = isVisible ? '' : 'block';
+    overlay.style.display = isVisible ? 'none' : 'flex';
+}
+
+// Khởi chạy
+loadQuestions();
+function confirmRestart() {
+location.reload();
+}
+function getFeedback(score) {
+    if (score < 5) {
+        return {
+            text: "Cần cố gắng thêm! Xem lại kiến thức nhé ",
+            color: "#ef4444",
+            bg: "#fee2e2",
+            animation: "shake"
+        };
+    } 
+    else if (score < 8) {
+        return {
+            text: "Tạm ổn, nhưng vẫn còn sai sót, xem lại kỹ hơn nhé ",
+            color: "#eab308",
+            bg: "#fef9c3",
+            animation: "pulse"
+        };
+    } 
+    else if (score < 10) {
+        return {
+            text: "Làm tốt lắm! Chỉ cần chút nữa là hoàn hảo ",
+            color: "#3b82f6",
+            bg: "#dbeafe",
+            animation: "pop"
+        };
+    } 
+    else {
+        return {
+            text: "Xuất sắc! Bạn đã hoàn thành rất tốt ",
+            color: "#22c55e",
+            bg: "#dcfce7",
+            animation: "bounceGlow"
+        };
+    }
+}
+
 </script>
 <div id="confetti-container"></div>
 </body>
