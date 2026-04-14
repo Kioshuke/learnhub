@@ -1,0 +1,410 @@
+[
+  {
+    "sectionTitle": "PHẦN I. CÂU TRẮC NGHIỆM NHIỀU PHƯƠNG ÁN LỰA CHỌN",
+    "sectionDesc": "Lệnh: Chọn <b>một</b> đáp án chính xác nhất trong các phương án trả lời sau:",
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "Từ trường là gì?",
+        "answers": [
+          "Là vùng không gian xung quanh nam châm.",
+          "Là vùng không gian xung quanh dòng điện.",
+          "Là một dạng vật chất tồn tại xung quanh nam châm hoặc dòng điện.",
+          "Là vùng không gian xung quanh điện tích đứng yên."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Tương tác nào sau đây là tương tác từ?",
+        "answers": [
+          "Tương tác giữa hai nam châm.",
+          "Tương tác giữa một điện tích đứng yên và một nam châm.",
+          "Tương tác giữa hai điện tích đứng yên.",
+          "Tương tác giữa một điện tích đứng yên và một dòng điện."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Đặc điểm nào sau đây không phải của đường sức từ?",
+        "answers": [
+          "Các đường sức từ là những đường cong khép kín.",
+          "Nơi nào từ trường mạnh hơn thì các đường sức từ ở đó dày hơn.",
+          "Tại mỗi điểm trong từ trường, có thể vẽ được vô số đường sức từ đi qua.",
+          "Nơi nào từ trường yếu hơn thì các đường sức từ vẽ thưa hơn."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Một đoạn dây dẫn thẳng dài mang dòng điện được đặt trong vùng từ trường đều có phương vuông góc với mặt phẳng hình vẽ, chiều hướng vào trong. Khi cho dòng điện đi trong dây theo chiều từ trái sang phải thì lực từ tác dụng lên dây dẫn có chiều:",
+        "image": "https://o.quizlet.com/nefR5mj2lLw6RFV8j6-NeA.png",
+        "answers": [
+          "Từ trái sang phải.",
+          "Từ phải sang trái.",
+          "Có phương thẳng đứng, chiều từ dưới lên.",
+          "Có phương thẳng đứng, chiều từ trên xuống."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Với Φ là từ thông, B là độ lớn cảm ứng từ, S là diện tích mạch kín và α là góc hợp bởi vectơ pháp tuyến của mạch kín và vectơ cảm ứng từ. Từ thông qua một mạch kín được xác định bằng công thức:",
+        "answers": [
+          "Φ = B.S.sinα",
+          "Φ = B.S.cosα",
+          "Φ = B.S.tanα",
+          "Φ = B.S.cotα"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Một cuộn dây kín đặt gần một nam châm. Khi đưa nam châm lại gần cuộn dây thì trong cuộn dây xuất hiện dòng điện cảm ứng. Ứng dụng hiện tượng này được dùng trong thiết bị nào sau đây?",
+        "answers": [
+          "Bàn ủi",
+          "Micro (micrô điện động)",
+          "Đèn LED",
+          "Pin mặt trời"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Cho một nam châm thẳng rơi theo phương thẳng đứng qua tâm O của vòng dây dẫn tròn nằm ngang như hình vẽ. Trong quá trình nam châm rơi, vòng dây xuất hiện dòng điện cảm ứng có chiều:",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2020/05/15-1590576417.PNG",
+        "answers": [
+          "Là chiều dương quy ước trên hình.",
+          "Ngược với chiều dương quy ước trên hình.",
+          "Ngược với chiều dương quy ước khi nam châm ở phía trên vòng dây và cùng chiều dương khi nam châm ở phía dưới.",
+          "Là chiều dương quy ước khi nam châm ở phía trên vòng dây và chiều ngược lại khi nam châm ở phía dưới."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Cường độ dòng điện trong mạch không phân nhánh có dạng i = 5√2.cos(100πt) (A). Cường độ dòng điện hiệu dụng trong mạch là:",
+        "answers": [
+          "I = 5 A",
+          "I = 2,83 A",
+          "I = 4 A",
+          "I = 1,41 A"
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Một dòng điện xoay chiều có cường độ i = 2√2.cos(100πt + π/6) (A). Phát biểu nào sau đây là đúng?",
+        "answers": [
+          "Cường độ dòng điện hiệu dụng bằng 3 A.",
+          "Chu kì dòng điện là 0,02 s.",
+          "Tần số là 100 Hz.",
+          "Pha ban đầu của dòng điện là π/6."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Lực hạt nhân là lực nào sau đây?",
+        "answers": [
+          "Lực điện.",
+          "Lực từ.",
+          "Lực tương tác giữa các nuclôn.",
+          "Lực tương tác giữa các thiên hà."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Trong thí nghiệm tán xạ hạt alpha, phần lớn các hạt alpha xuyên thẳng qua tấm vàng mỏng mà không xảy ra tương tác với nguyên tử vàng, điều này chứng tỏ điều gì?",
+        "answers": [
+          "Nguyên tử hoàn toàn đặc.",
+          "Nguyên tử không chứa bất cứ một loại hạt nào.",
+          "Nguyên tử chỉ chứa các hạt mang điện âm.",
+          "Nguyên tử không hoàn toàn đặc."
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "So với hạt nhân ⁴⁰₂₀Ca, hạt nhân ⁷⁶₂₇Co có nhiều hơn:",
+        "answers": [
+          "16 neutron và 7 prôtôn.",
+          "7 neutron và 16 prôtôn.",
+          "9 neutron và 7 prôtôn.",
+          "7 neutron và 9 prôtôn."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Với c là tốc độ ánh sáng trong chân không, hệ thức Einstein giữa năng lượng E và khối lượng m của vật là:",
+        "answers": [
+          "E = m.c²",
+          "E = m².c",
+          "E = 2m.c²",
+          "E = 2m.c"
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Các hạt nhân bền vững thường có số khối A nằm trong phạm vi:",
+        "answers": [
+          "50 < A < 80",
+          "30 < A < 95",
+          "60 < A < 150",
+          "80 < A < 160"
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Một chất phóng xạ ban đầu có N₀ hạt nhân. Sau 1 năm, còn lại một phần ba số hạt nhân ban đầu chưa phân rã. Sau 1 năm nữa, số hạt nhân còn lại chưa phân rã của chất phóng xạ đó là:",
+        "answers": [
+          "N₀/6",
+          "N₀/16",
+          "N₀/9",
+          "N₀/4"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Vật liệu nào sau đây hiệu quả nhất khi được sử dụng để che chắn phóng xạ γ?",
+        "answers": [
+          "Giấy",
+          "Gỗ",
+          "Nhôm",
+          "Chì"
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Cách nào là an toàn nhất để xử lí một lượng lớn chất thải có tính phóng xạ cao?",
+        "answers": [
+          "Thiêu trên ngọn lửa",
+          "Chôn sâu dưới lòng đất ở vùng có nền đá khô, cứng",
+          "Đổ xuống hố",
+          "Bơm ra sông, hồ"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Quy tắc phù hợp lần lượt với các hình sau là:",
+        "image": "https://ae-radioactive.com/wp-content/uploads/2023/06/download-1.png",
+        "answers": [
+          "Liều lượng, khoảng cách, thời gian",
+          "Che chắn, liều lượng, khoảng cách",
+          "Thời gian, khoảng cách, che chắn",
+          "Thời gian, đào tạo – giám sát, che chắn"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Phát biểu nào dưới đây là đúng? Từ trường không tương tác với:",
+        "answers": [
+          "Các điện tích chuyển động",
+          "Các điện tích đứng yên",
+          "Nam châm đứng yên",
+          "Nam châm chuyển động"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Đường sức từ có dạng là những đường thẳng song song và cách đều nhau xuất hiện ở:",
+        "answers": [
+          "Xung quanh dòng điện tròn",
+          "Xung quanh thanh nam châm thẳng",
+          "Bên trong của nam châm chữ U",
+          "Xung quanh dòng điện thẳng"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Các đường sức từ không có tính chất nào sau đây?",
+        "answers": [
+          "Qua mỗi điểm trong không gian chỉ vẽ được một đường sức từ duy nhất",
+          "Các đường sức từ luôn luôn là những đường cong không khép kín",
+          "Chiều của các đường sức từ tuân theo những quy tắc xác định",
+          "Quy ước từ trường mạnh thì vẽ đường sức từ mau và ngược lại."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Hình vẽ nào sau đây mô tả đúng về lực từ (F⃗) tác dụng lên một đoạn dây dẫn thẳng mang dòng điện cường độ I đặt trong một từ trường đều (B⃗)?",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2026/01/blobid0-1768485530.png",
+        "answers": [
+          "Hình 1",
+          "Hình 2",
+          "Hình 3",
+          "Hình 4"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Đơn vị của cảm ứng từ trong hệ SI là:",
+        "answers": [
+          "Tesla (T)",
+          "Weber (Wb)",
+          "Henry (H)",
+          "Volt (V)"
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Thiết bị nào sau đây hoạt động dựa trên hiện tượng cảm ứng điện từ, tức là sự xuất hiện suất điện động khi từ thông qua mạch kín biến thiên theo thời gian?",
+        "answers": [
+          "Quạt điện",
+          "Máy phát điện xoay chiều",
+          "Pin điện hoá",
+          "Ắc quy"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Bố trí nam châm thẳng và mạch kín (C) như hình vẽ. Từ thông qua vòng dây dẫn (C) biến thiên khi:",
+        "image": "https://video.vietjack.com/upload2/quiz_source1/2020/04/22-1586206843.PNG",
+        "answers": [
+          "(C) đứng yên, nam châm chuyển động xuống dưới",
+          "(C) và nam châm cùng chuyển động đều lên trên với vận tốc v",
+          "(C) và nam châm cùng chuyển động đều xuống dưới với vận tốc v",
+          "(C) và nam châm cùng đứng yên"
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Cường độ dòng điện trong mạch không phân nhánh có dạng i = 2√2cos(100πt) (A). Cường độ dòng điện hiệu dụng trong mạch là:",
+        "answers": [
+          "I = 4 A",
+          "I = 2,83 A",
+          "I = 2 A",
+          "I = 1,41 A"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Một dòng điện xoay chiều có cường độ i = 2√2cos(100πt + π/6) (A). Phát biểu nào sau đây là không đúng?",
+        "answers": [
+          "Cường độ dòng điện hiệu dụng bằng 2 A",
+          "Chu kì dòng điện là 0,02 s",
+          "Tần số là 100 Hz",
+          "Pha ban đầu của dòng điện là π/6"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Gọi mₚ là khối lượng của prôtôn, mₙ là khối lượng của nơtron, mₓ là khối lượng của hạt nhân và c là tốc độ ánh sáng trong chân không. Đại lượng: W = [Z.mₚ + (A − Z).mₙ − mₓ].c² được gọi là:",
+        "answers": [
+          "Năng lượng liên kết riêng của hạt nhân",
+          "Khối lượng nghỉ của hạt nhân",
+          "Độ hụt khối của hạt nhân",
+          "Năng lượng liên kết của hạt nhân"
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Hạt nhân ²⁴₁₁Na có:",
+        "answers": [
+          "13 prôtôn và 11 nơtron",
+          "11 prôtôn và 24 nơtron",
+          "11 prôtôn và 13 nơtron",
+          "24 prôtôn và 11 nơtron"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Hạt nhân của nguyên tử nào có số hạt nơtron là 28?",
+        "answers": [
+          "³⁹₁₉K",
+          "⁵⁶₂₆Fe",
+          "³¹₁₅P",
+          "²³₁₁Na"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Năng lượng liên kết riêng của một hạt nhân:",
+        "answers": [
+          "Có thể dương hoặc âm",
+          "Càng lớn thì hạt nhân càng bền",
+          "Càng nhỏ thì hạt nhân càng bền",
+          "Có thể bằng 0 với các hạt nhân đặc biệt"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Hạt nhân có độ hụt khối càng lớn thì có:",
+        "answers": [
+          "Năng lượng liên kết riêng càng nhỏ",
+          "Năng lượng liên kết riêng càng lớn",
+          "Năng lượng liên kết càng lớn",
+          "Năng lượng liên kết càng nhỏ"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Hằng số phóng xạ λ và chu kì bán rã T liên hệ với nhau bởi hệ thức nào sau đây?",
+        "answers": [
+          "λ.T = ln(2)",
+          "λ = T.ln(2)",
+          "λ = T/0,693",
+          "λ = 0,693/T"
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Cho 4 tia phóng xạ: tia α, tia β⁻, tia β⁺ và tia γ đi vào miền có điện trường đều theo phương vuông góc với đường sức điện. Tia phóng xạ không bị lệch khỏi phương truyền ban đầu là:",
+        "answers": [
+          "Tia γ",
+          "Tia β⁻",
+          "Tia β⁺",
+          "Tia α"
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Quy tắc phù hợp lần lượt với các hình sau là:",
+        "image": "https://ae-radioactive.com/wp-content/uploads/2023/06/download-1.png",
+        "answers": [
+          "Liều lượng, khoảng cách, thời gian",
+          "Che chắn, liều lượng, khoảng cách",
+          "Thời gian, khoảng cách, che chắn",
+          "Thời gian, đào tạo – giám sát, che chắn"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Khi làm việc với một nguồn phóng xạ, để giảm thiểu tác hại của bức xạ, một học sinh đề xuất các biện pháp sau: (1) Đứng xa nguồn hơn (2) Rút ngắn thời gian tiếp xúc (3) Tăng cường che chắn bằng vật liệu phù hợp (4) Tăng thời gian làm việc để quen với bức xạ. Phương án nào dưới đây là đúng?",
+        "answers": [
+          "(1), (2), (3)",
+          "(1), (3), (4)",
+          "(2), (3), (4)",
+          "(1), (2), (4)"
+        ],
+        "correct": 0
+      }
+    ]
+  }
+]
