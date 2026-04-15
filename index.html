@@ -3943,9 +3943,8 @@ window.emailLogin = async function() {
             return;
         }
 
-        // Ghi dữ liệu vào Firestore
+        // Ghi dữ liệu vào Firestore (chỉ cập nhật trạng thái đăng nhập, không ghi đè tên)
         await setDoc(doc(db, "users", user.uid), {
-            name: user.displayName || email.split('@')[0],
             email: user.email,
             photo: user.photoURL || "https://i.imgur.com/6VBx3io.png",
             lastLogin: new Date().toISOString(),
