@@ -1929,6 +1929,11 @@ body.dark-mode .card{
 
     <div id="authRegisterPanel" class="auth-panel" style="display:none;">
       <div class="auth-input-group">
+        <input type="text" id="registerName" required>
+        <label>Tên của bạn</label>
+      </div>
+
+      <div class="auth-input-group">
         <input type="email" id="registerEmail" required>
         <label>Email</label>
       </div>
@@ -1976,85 +1981,6 @@ body.dark-mode .card{
     </div>
 </div>
 </div>
-</div>
-
-<!-- USERNAME SETUP POPUP -->
-<div id="usernameSetupPopup" style="
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100vw;
-  height:100vh;
-  background:rgba(0,0,0,0.6);
-  backdrop-filter:blur(8px);
-  z-index:1000000;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-">
-  <div style="
-    background:linear-gradient(135deg, #ffffff, #f8faff);
-    padding:40px;
-    border-radius:24px;
-    max-width:420px;
-    width:90%;
-    text-align:center;
-    box-shadow:0 32px 64px rgba(0,0,0,0.2);
-    border:1px solid rgba(255,255,255,0.6);
-  ">
-    <div style="font-size:48px; margin-bottom:16px;">👋</div>
-    <h2 style="
-      margin:0 0 12px 0;
-      font-size:26px;
-      font-weight:800;
-      background:linear-gradient(90deg, #2563eb, #7c3aed);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-    ">Chào bạn mới!</h2>
-    <p style="
-      margin:0 0 24px 0;
-      color:#64748b;
-      font-size:15px;
-      line-height:1.5;
-    ">Bạn chưa có tên hiển thị. Hãy nhập tên của bạn để mọi người có thể nhận ra bạn nhé!</p>
-    
-    <div style="margin-bottom:20px;">
-      <input type="text" id="setupUsernameInput" placeholder="Nhập tên của bạn..." style="
-        width:100%;
-        padding:16px 20px;
-        font-size:16px;
-        border:2px solid #e2e8f0;
-        border-radius:16px;
-        outline:none;
-        transition:all 0.3s ease;
-        box-sizing:border-box;
-        font-family:'Segoe UI',Arial,sans-serif;
-      " onfocus="this.style.borderColor='#2563eb';this.style.boxShadow='0 0 0 4px rgba(37,99,235,0.1)';" onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';">
-    </div>
-    
-    <button onclick="saveUsername()" style="
-      width:100%;
-      padding:16px 24px;
-      font-size:16px;
-      font-weight:700;
-      color:#fff;
-      background:linear-gradient(135deg, #2563eb, #7c3aed);
-      border:none;
-      border-radius:16px;
-      cursor:pointer;
-      transition:all 0.3s ease;
-      box-shadow:0 8px 24px rgba(37,99,235,0.3);
-    " onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 32px rgba(37,99,235,0.4)';" onmouseout="this.style.transform='none';this.style.boxShadow='0 8px 24px rgba(37,99,235,0.3)';">
-      💾 Lưu tên của tôi
-    </button>
-    <p id="usernameError" style="
-      margin:12px 0 0 0;
-      color:#ef4444;
-      font-size:13px;
-      display:none;
-    "></p>
-  </div>
 </div>
 
 <div id="authNotice" class="notice-info" role="status" aria-live="polite">
@@ -3725,7 +3651,7 @@ show("lich");
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js"; 
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js"; 
-import { getFirestore, doc, setDoc, getDoc } 
+import { getFirestore, doc, setDoc } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js"; 
 const firebaseConfig = { 
   apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c", 
@@ -3843,110 +3769,6 @@ function enterPreviewMode(){
   startLoading();
 }
 
-// ===== USERNAME SETUP FUNCTIONS =====
-async function checkAndShowUsernameSetup(user) {
-  if (!user) return;
-
-  try {
-    // Check if user document exists and has a proper name
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
-
-    let needsSetup = false;
-
-    if (!userSnap.exists()) {
-      // New user, needs setup
-      needsSetup = true;
-    } else {
-      const userData = userSnap.data();
-      // Check if name is just the email prefix (default) or empty
-      const emailPrefix = user.email ? user.email.split('@')[0] : '';
-      if (!userData.name || userData.name === emailPrefix || userData.name === "User") {
-        needsSetup = true;
-      }
-    }
-
-    if (needsSetup) {
-      // Show the username setup popup
-      const popup = document.getElementById("usernameSetupPopup");
-      if (popup) {
-        popup.style.display = "flex";
-        // Focus on the input
-        setTimeout(() => {
-          const input = document.getElementById("setupUsernameInput");
-          if (input) input.focus();
-        }, 100);
-      }
-    }
-  } catch (error) {
-    console.error("Error checking username setup:", error);
-  }
-}
-
-window.saveUsername = async function() {
-  const input = document.getElementById("setupUsernameInput");
-  const errorEl = document.getElementById("usernameError");
-  const username = input.value.trim();
-
-  // Validate
-  if (!username) {
-    errorEl.innerText = "Vui lòng nhập tên của bạn";
-    errorEl.style.display = "block";
-    return;
-  }
-
-  if (username.length < 2) {
-    errorEl.innerText = "Tên phải có ít nhất 2 ký tự";
-    errorEl.style.display = "block";
-    return;
-  }
-
-  if (username.length > 30) {
-    errorEl.innerText = "Tên không được quá 30 ký tự";
-    errorEl.style.display = "block";
-    return;
-  }
-
-  const user = auth.currentUser;
-  if (!user) {
-    errorEl.innerText = "Bạn chưa đăng nhập";
-    errorEl.style.display = "block";
-    return;
-  }
-
-  try {
-    // Update user document with new name
-    await setDoc(doc(db, "users", user.uid), {
-      name: username,
-      email: user.email,
-      photo: user.photoURL || "https://i.imgur.com/6VBx3io.png",
-      lastLogin: new Date().toISOString(),
-      lastActive: Date.now(),
-      online: true
-    }, { merge: true });
-
-    // Update UI
-    const nameEl = document.getElementById("userName");
-    if (nameEl) nameEl.innerText = username;
-    const popupName = document.getElementById("popupName");
-    if (popupName) popupName.innerText = username;
-
-    // Hide popup
-    const popup = document.getElementById("usernameSetupPopup");
-    if (popup) popup.style.display = "none";
-
-    showAuthNotice("Tên của bạn đã được lưu!", "success", "Thành công");
-
-    // Reload to refresh all data
-    window.location.reload();
-
-  } catch (error) {
-    console.error("Error saving username:", error);
-    errorEl.innerText = "Có lỗi xảy ra, vui lòng thử lại";
-    errorEl.style.display = "block";
-  }
-};
-
 onAuthStateChanged(auth, async (user)=>{
 if(previewMode){
   enterPreviewMode();
@@ -3997,9 +3819,6 @@ if(user){
 
   // ✅ START LISTENER
   startListening();
-
-  // ✅ CHECK IF USER NEEDS TO SET UP USERNAME
-  await checkAndShowUsernameSetup(user);
 
 // vì bên trong đã có:
 
@@ -4117,9 +3936,6 @@ window.emailLogin = async function() {
 
         showAuthNotice("Đăng nhập thành công!", "success", "Thành công");
 
-        // Check if user needs to set up username
-        await checkAndShowUsernameSetup(user);
-
     } catch (error) {
         console.error("Lỗi đăng nhập:", error);
         let message = "Đăng nhập thất bại";
@@ -4142,12 +3958,18 @@ window.emailLogin = async function() {
 };
 
 window.emailRegister = async function() {
+    const name = document.getElementById("registerName").value.trim();
     const email = document.getElementById("registerEmail").value.trim();
     const password = document.getElementById("registerPassword").value;
     const confirmPassword = document.getElementById("registerConfirmPassword").value;
 
-    if (!email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword) {
         showAuthNotice("Vui lòng điền đầy đủ thông tin", "error", "Thiếu thông tin");
+        return;
+    }
+
+    if (name.length < 2) {
+        showAuthNotice("Tên phải có ít nhất 2 ký tự", "error", "Tên quá ngắn");
         return;
     }
 
@@ -4175,9 +3997,9 @@ window.emailRegister = async function() {
         const result = await createUserWithEmailAndPassword(auth, email, password);
         const user = result.user;
 
-        // Ghi dữ liệu vào Firestore
+        // Ghi dữ liệu vào Firestore với tên người dùng nhập
         await setDoc(doc(db, "users", user.uid), {
-            name: email.split('@')[0],
+            name: name,
             email: user.email,
             photo: "https://i.imgur.com/6VBx3io.png",
             lastLogin: new Date().toISOString(),
@@ -4186,10 +4008,19 @@ window.emailRegister = async function() {
             createdAt: new Date().toISOString()
         });
 
-        showAuthNotice("Đăng ký thành công! Chào mừng bạn đến với LearnHub.", "success", "Thành công");
+        showAuthNotice("Đăng ký thành công! Vui lòng đăng nhập.", "success", "Thành công");
 
-        // Check if user needs to set up username
-        await checkAndShowUsernameSetup(user);
+        // Xóa form đăng ký
+        document.getElementById("registerName").value = "";
+        document.getElementById("registerEmail").value = "";
+        document.getElementById("registerPassword").value = "";
+        document.getElementById("registerConfirmPassword").value = "";
+
+        // Chuyển sang tab đăng nhập
+        switchAuthTab('login');
+
+        // Điền email vào form đăng nhập
+        document.getElementById("loginEmail").value = email;
 
     } catch (error) {
         console.error("Lỗi đăng ký:", error);
