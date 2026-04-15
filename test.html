@@ -4682,16 +4682,34 @@ function updateWeeklyTime() {
 }
 
 function startWeeklyTracking() {
+    // Development mode logging
+    if (isDevMode) {
+        console.log('🔄 startWeeklyTracking() called');
+        console.log('📊 Current weeklyTotalTime before:', weeklyTotalTime);
+    }
+    
     // Check if it's a new week
     const now = new Date();
     const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
     const storedWeekStart = localStorage.getItem('weekStart');
+    
+    if (isDevMode) {
+        console.log('📅 Week Info:', {
+            now: now.toISOString(),
+            weekStart: weekStart.toISOString(),
+            storedWeekStart: storedWeekStart
+        });
+    }
     
     if (storedWeekStart !== weekStart.toISOString()) {
         // New week, reset counter
         weeklyTotalTime = 0;
         localStorage.setItem('weekStart', weekStart.toISOString());
         localStorage.setItem('weeklyTime', '0');
+        
+        if (isDevMode) {
+            console.log('🆕 New week detected, counter reset');
+        }
     } else {
         // Load existing time from Firebase first, then fallback to localStorage
         const user = auth.currentUser;
@@ -4701,12 +4719,28 @@ function startWeeklyTracking() {
             const stored = localStorage.getItem('weeklyTime');
             if (stored) {
                 weeklyTotalTime = parseInt(stored);
+                if (isDevMode) {
+                    console.log('💾 Loaded from localStorage:', weeklyTotalTime);
+                }
             }
         }
     }
     
+    // Clear existing interval if any
+    if (weeklyInterval) {
+        clearInterval(weeklyInterval);
+    }
+    
     isTracking = true;
     weeklyInterval = setInterval(updateWeeklyTime, 1000);
+    
+    if (isDevMode) {
+        console.log('✅ Weekly tracking started:', {
+            isTracking: isTracking,
+            intervalId: weeklyInterval,
+            initialTime: weeklyTotalTime
+        });
+    }
 }
 
 function loadWeeklyTimeFromFirebase(userId) {
@@ -4794,7 +4828,29 @@ function saveWeeklyTimeToFirebase(userId, time) {
 }
 
 // Start tracking when page loads
-document.addEventListener('DOMContentLoaded', startWeeklyTracking);
+document.addEventListener('DOMContentLoaded', () => {
+    // Development mode logging for initialization
+    if (isDevMode) {
+        console.log('🚀 DOMContentLoaded - Starting weekly tracking');
+        console.log('📊 Initial weeklyTotalTime:', weeklyTotalTime);
+        console.log('🔄 isTracking status:', isTracking);
+    }
+    
+    startWeeklyTracking();
+    
+    // Additional debug: Check if counter elements exist
+    const timeElement = document.getElementById('weeklyTime');
+    const progressElement = document.getElementById('weeklyProgress');
+    const statusElement = document.getElementById('counterStatus');
+    
+    if (isDevMode) {
+        console.log('🔍 Counter Elements Found:', {
+            timeElement: !!timeElement,
+            progressElement: !!progressElement,
+            statusElement: !!statusElement
+        });
+    }
+});
 
 // Pause tracking when page loses focus
 document.addEventListener('visibilitychange', () => {
