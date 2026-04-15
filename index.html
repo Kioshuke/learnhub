@@ -1915,12 +1915,12 @@ body.dark-mode .card{
       <div class="auth-divider">hoặc</div>
 
       <div class="auth-input-group">
-        <input type="email" id="loginEmail" required>
+        <input type="email" id="loginEmail" required onkeypress="if(event.key==='Enter')emailLogin()">
         <label>Email</label>
       </div>
 
       <div class="auth-input-group">
-        <input type="password" id="loginPassword" required>
+        <input type="password" id="loginPassword" required onkeypress="if(event.key==='Enter')emailLogin()">
         <label>Mật khẩu</label>
       </div>
 
@@ -1929,22 +1929,22 @@ body.dark-mode .card{
 
     <div id="authRegisterPanel" class="auth-panel" style="display:none;">
       <div class="auth-input-group">
-        <input type="text" id="registerName" required>
+        <input type="text" id="registerName" required onkeypress="if(event.key==='Enter')emailRegister()">
         <label>Tên của bạn</label>
       </div>
 
       <div class="auth-input-group">
-        <input type="email" id="registerEmail" required>
+        <input type="email" id="registerEmail" required onkeypress="if(event.key==='Enter')emailRegister()">
         <label>Email</label>
       </div>
 
       <div class="auth-input-group">
-        <input type="password" id="registerPassword" required>
+        <input type="password" id="registerPassword" required onkeypress="if(event.key==='Enter')emailRegister()">
         <label>Mật khẩu</label>
       </div>
 
       <div class="auth-input-group">
-        <input type="password" id="registerConfirmPassword" required>
+        <input type="password" id="registerConfirmPassword" required onkeypress="if(event.key==='Enter')emailRegister()">
         <label>Nhập lại mật khẩu</label>
       </div>
 
@@ -3651,7 +3651,7 @@ show("lich");
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js"; 
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js"; 
-import { getFirestore, doc, setDoc } 
+import { getFirestore, doc, setDoc, getDoc } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js"; 
 const firebaseConfig = { 
   apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c", 
@@ -3779,6 +3779,25 @@ if(user){
   document.getElementById("loginBox").style.display = "none";
   startLoading();
 
+  // ✅ LẤY DỮ LIỆU USER TỪ FIRESTORE (để có tên cho email/password user)
+  let userData = { ...user };
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      const firestoreData = userSnap.data();
+      // Merge Firestore data (ưu tiên displayName từ Firestore nếu có)
+      if (firestoreData.name) {
+        userData.displayName = firestoreData.name;
+      }
+      if (firestoreData.photo) {
+        userData.photoURL = firestoreData.photo;
+      }
+    }
+  } catch (e) {
+    console.log("Không thể lấy dữ liệu Firestore:", e);
+  }
+
   // ✅ GỬI USER SANG FORUM IFRAME
   function sendUserToForum(user){
     const forumIframe = document.getElementById("forumFrame");
@@ -3802,7 +3821,7 @@ if(user){
   }
 
   // ✅ GỌI HÀM
-  sendUserToForum(user);
+  sendUserToForum(userData);
 
   // ✅ UPDATE ONLINE STATUS
   if(!activeInterval){
@@ -3822,7 +3841,7 @@ if(user){
 
 // vì bên trong đã có:
 
-applyUserToUI(user);
+applyUserToUI(userData);
 
 } else {
   resetLoadingState();
@@ -4015,6 +4034,9 @@ window.emailRegister = async function() {
         document.getElementById("registerEmail").value = "";
         document.getElementById("registerPassword").value = "";
         document.getElementById("registerConfirmPassword").value = "";
+
+        // Đăng xuất để buộc user phải đăng nhập lại (vì createUserWithEmailAndPassword tự động đăng nhập)
+        await signOut(auth);
 
         // Chuyển sang tab đăng nhập
         switchAuthTab('login');
