@@ -3839,9 +3839,9 @@ if(user){
   // ✅ START LISTENER
   startListening();
 
-// vì bên trong đã có:
+  // vì bên trong đã có:
 
-applyUserToUI(userData);
+  applyUserToUI(userData);
 
 } else {
   resetLoadingState();
@@ -3884,6 +3884,9 @@ window.googleLogin = function() {
 
         console.log("✅ Đăng nhập & Lưu dữ liệu thành công!");
 
+        // Hiển thị thông báo đăng nhập thành công
+        showAuthNotice("Đăng nhập thành công!", "success", "Thành công");
+
         // 4. ĐIỀU HƯỚNG QUAY VỀ APP (Deep Link)
         // Kiểm tra xem có đang mở từ WebView Android không
         const isApp = navigator.userAgent.includes("Android");
@@ -3896,7 +3899,10 @@ window.googleLogin = function() {
             }, 1000);
         } else {
             // Nếu dùng trình duyệt máy tính bình thường thì load lại để cập nhật giao diện
-            window.location.reload();
+            // Delay 1.5s để user thấy thông báo thành công
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         }
 
     })
