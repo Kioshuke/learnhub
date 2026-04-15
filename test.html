@@ -3476,8 +3476,8 @@ if(id === "flash"){
 }
 
 },200);
-updateTabScrollTopBtn();
 }
+
 const buttons = document.querySelectorAll(".menu-buttons button[data-subject]");
 
 buttons.forEach(btn => {
@@ -4476,8 +4476,14 @@ overlay.addEventListener("click", () => {
 const isDevMode = new URLSearchParams(window.location.search).get('dev') === '1';
 if (isDevMode) {
     console.log('🔧 DEVELOPMENT MODE ENABLED');
-    console.log('📊 Firebase Config:', firebaseConfig);
     console.log('📱 User Agent:', navigator.userAgent);
+    console.log('🔗 Firebase Console: https://console.firebase.google.com/project/onthi12-thpttanhong/firestore');
+    console.log('📊 Project ID: onthi12-thpttanhong');
+    console.log('📧 Debug Commands:');
+    console.log('  - Firebase.auth().currentUser');
+    console.log('  - Firebase.firestore()');
+    console.log('  - localStorage.getItem("weeklyTime")');
+    console.log('  - Check Network tab in DevTools');
 }
 
 // Weekly Time Counter Logic
