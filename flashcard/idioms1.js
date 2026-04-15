@@ -1,7 +1,11 @@
 // ===== DÁN DATA Ở ĐÂY =====
-window.TOPIC_NAME = "40 Idioms";
+window.TOPIC_NAME = "40+ Idioms";
 
 const rawData = `
+Pay dividends - Mang lại lợi ích lớn, kết quả về sau
+Mark time - giậm chân tại chỗ, chờ thêm thời cơ
+Take root - (tập quán, hoạt động) ăn sâu, vững chắc
+Gain ground - Trở nên phổ biến, chiếm ưu thế
 Burn the midnight oil - Thức khuya làm việc, học bài
 Go the extra mile - Nỗ lực nhiều hơn mức mong đợi
 Pull out all the stops - Nỗ lực hết sức, dùng mọi cách để đạt mục tiêu
