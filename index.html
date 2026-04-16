@@ -2137,14 +2137,27 @@ transform:translateY(-5px);
   animation: shake 1s infinite;
 }
 
-/* rung nhẹ */
+/* ===== EXAM CARDS - WHITE BACKGROUND ===== */
+.exam-day{
+  background: #fff !important;
+  backdrop-filter: none !important;
+}
 
-@keyframes shake{
-0%{transform:translateX(0)}
-25%{transform:translateX(2px)}
-50%{transform:translateX(-2px)}
-75%{transform:translateX(2px)}
-100%{transform:translateX(0)}
+.exam-day.today,
+.exam-day.tomorrow,
+.exam-day.past{
+  background: #fff !important;
+}
+
+/* ===== NEXT EXAM CARD - GENTLE SHAKE ANIMATION ===== */
+@keyframes gentleShake{
+  0%, 100%{transform: translateX(0);}
+  25%{transform: translateX(3px);}
+  75%{transform: translateX(-3px);}
+}
+
+.exam-day.tomorrow{
+  animation: gentleShake 2.5s ease-in-out infinite;
 }
 
 @keyframes bgMove{
