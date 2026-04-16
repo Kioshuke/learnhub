@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="vi" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <style>
+  * { font-family: 'Be Vietnam Pro', sans-serif; }
+  @keyframes pulse-glow { 0%,100%{box-shadow:0 0 20px rgba(255,107,53,0.3)} 50%{box-shadow:0 0 40px rgba(255,107,53,0.6)} }
+  @keyframes fade-up { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes shake-wiggle { 0%,100%{transform:translateX(0)} 10%{transform:translateX(-2px)} 20%{transform:translateX(2px)} 30%{transform:translateX(-2px)} 40%{transform:translateX(2px)} }
+  .card-anim { animation: fade-up 0.6s ease both; }
+  .card-anim:nth-child(2) { animation-delay: 0.15s; }
+  .card-anim:nth-child(3) { animation-delay: 0.3s; }
+  .countdown-box { animation: pulse-glow 2.5s ease-in-out infinite; }
+  .day-row { transition: transform 0.2s, background 0.2s, box-shadow 0.2s; }
+  .day-row:hover { transform: translateX(4px); }
+  .day-row.today { background-color: rgba(220,38,38,0.4) !important; border: 2px solid rgb(239,68,68); box-shadow: 0 0 15px rgba(239,68,68,0.4); }
+  .day-row.upcoming { background-color: rgba(234,179,8,0.3) !important; border: 2px solid rgb(251,191,36); box-shadow: 0 0 15px rgba(251,191,36,0.3); animation: shake-wiggle 0.6s ease-in-out infinite; }
+</style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full overflow-auto bg-transparent">
+  <div id="app" class="h-full w-full bg-transparent text-white p-4 md:p-8">
+   <h1 id="mainTitle" class="text-center text-2xl md:text-4xl font-900 mb-6 md:mb-8 tracking-tight bg-gradient-to-r from-orange-400 via-pink-400 to-violet-400 bg-clip-text text-transparent">Lịch Thi 2026</h1><!-- Countdown -->
+   <div class="countdown-box max-w-xl mx-auto mb-8 rounded-2xl bg-gradient-to-br from-orange-600 to-red-700 p-5 text-center">
+    <p class="text-sm font-600 uppercase tracking-widest text-orange-200 mb-1">⏳ Đếm Ngược THPT Quốc Gia</p>
+    <div id="countdown" class="flex justify-center gap-3 mt-3">
+     <div class="bg-black/30 rounded-xl px-4 py-2 min-w-[60px]">
+      <span id="cd-days" class="text-3xl font-800">--</span>
+      <p class="text-[10px] text-orange-200 mt-1">NGÀY</p>
+     </div>
+     <div class="bg-black/30 rounded-xl px-4 py-2 min-w-[60px]">
+      <span id="cd-hours" class="text-3xl font-800">--</span>
+      <p class="text-[10px] text-orange-200 mt-1">GIỜ</p>
+     </div>
+     <div class="bg-black/30 rounded-xl px-4 py-2 min-w-[60px]">
+      <span id="cd-mins" class="text-3xl font-800">--</span>
+      <p class="text-[10px] text-orange-200 mt-1">PHÚT</p>
+     </div>
+     <div class="bg-black/30 rounded-xl px-4 py-2 min-w-[60px]">
+      <span id="cd-secs" class="text-3xl font-800">--</span>
+      <p class="text-[10px] text-orange-200 mt-1">GIÂY</p>
+     </div>
+    </div>
+   </div><!-- Cards -->
+   <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-6"><!-- Card 1: Lịch thi HK2 -->
+    <div class="card-anim rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden">
+     <div class="bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-3">
+      <h2 class="font-700 text-lg">📚 Lịch Thi Cuối HK2 – THPT Tân Hồng</h2>
+     </div>
+     <div class="p-4 space-y-3">
+      <div class="day-row rounded-xl bg-transparent p-3 border border-slate-700" data-date="2026-04-20">
+       <div class="flex items-center gap-2 font-700 text-violet-300 mb-1">
+        <i data-lucide="calendar" class="w-4 h-4"></i>Thứ 2 | 20/04
+       </div>
+       <p class="text-slate-300 text-sm font-500 mb-1">📝 Ngữ Văn + 🧲 Vật Lý</p>
+       <div class="text-xs text-slate-400 space-y-0.5">
+        <p>⏰ Ngữ Văn – 7:00</p>
+        <p>⏰ Vật Lý – 9:15</p>
+       </div>
+      </div>
+      <div class="day-row rounded-xl bg-transparent p-3 border border-slate-700" data-date="2026-04-21">
+       <div class="flex items-center gap-2 font-700 text-violet-300 mb-1">
+        <i data-lucide="calendar" class="w-4 h-4"></i>Thứ 3 | 21/04
+       </div>
+       <p class="text-slate-300 text-sm font-500 mb-1">🧮 Toán Học + 💻 Tin Học</p>
+       <div class="text-xs text-slate-400 space-y-0.5">
+        <p>⏰ Toán Học – 7:00</p>
+        <p>⏰ Tin Học – 8:40</p>
+       </div>
+      </div>
+      <div class="day-row rounded-xl bg-transparent p-3 border border-slate-700" data-date="2026-04-22">
+       <div class="flex items-center gap-2 font-700 text-violet-300 mb-1">
+        <i data-lucide="calendar" class="w-4 h-4"></i>Thứ 4 | 22/04
+       </div>
+       <p class="text-slate-300 text-sm font-500 mb-1">🏛️ Lịch Sử + ⚗️ Hóa Học</p>
+       <div class="text-xs text-slate-400 space-y-0.5">
+        <p>⏰ Lịch Sử – 7:00</p>
+        <p>⏰ Hóa Học – 7:55</p>
+       </div>
+      </div>
+      <div class="day-row rounded-xl bg-transparent p-3 border border-slate-700" data-date="2026-04-23">
+       <div class="flex items-center gap-2 font-700 text-violet-300 mb-1">
+        <i data-lucide="calendar" class="w-4 h-4"></i>Thứ 5 | 23/04
+       </div>
+       <p class="text-slate-300 text-sm font-500 mb-1">🔤 Tiếng Anh + 🧬 Sinh Học</p>
+       <div class="text-xs text-slate-400 space-y-0.5">
+        <p>⏰ Tiếng Anh – 7:00</p>
+        <p>⏰ Sinh Học – 8:10</p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Card 2: Lịch thi THPT QG -->
+    <div class="card-anim rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden">
+     <div class="bg-gradient-to-r from-orange-500 to-red-600 px-5 py-3">
+      <h2 class="font-700 text-lg">🎓 Lịch Thi THPT Quốc Gia 2026</h2>
+     </div>
+     <div class="p-4 space-y-3">
+      <div class="day-row rounded-xl bg-transparent p-3 border border-slate-700" data-date="2026-06-11">
+       <div class="flex items-center gap-2 font-700 text-orange-300 mb-1">
+        <i data-lucide="calendar" class="w-4 h-4"></i>Thứ 5 | 11/06
+       </div>
+       <div class="text-sm text-slate-300 space-y-1 mt-1">
+        <p>🌅 <span class="font-600 text-orange-200">Sáng:</span> Ngữ Văn – 7:00</p>
+        <p>🌇 <span class="font-600 text-orange-200">Chiều:</span> Toán – 14:00</p>
+       </div>
+      </div>
+      <div class="day-row rounded-xl bg-transparent p-3 border border-slate-700" data-date="2026-06-12">
+       <div class="flex items-center gap-2 font-700 text-orange-300 mb-1">
+        <i data-lucide="calendar" class="w-4 h-4"></i>Thứ 6 | 12/06
+       </div>
+       <div class="text-sm text-slate-300 space-y-1 mt-1">
+        <p>🌅 <span class="font-600 text-orange-200">Sáng:</span> Bài thi tự chọn</p>
+        <p class="text-xs text-slate-400 ml-5">Môn thứ 1 – 07:00 &nbsp;|&nbsp; Môn thứ 2 – 08:30</p>
+       </div>
+      </div>
+      <div class="mt-4 rounded-xl bg-orange-500/10 border border-orange-500/20 p-4 text-center">
+       <p class="text-orange-300 text-sm font-600">💪 Cố lên! Hãy ôn tập thật tốt nhé!</p>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+// Countdown to 11/06/2026 7:00 AM Vietnam time (UTC+7)
+const target = new Date('2026-06-11T00:00:00Z').getTime(); // 7:00 AM UTC+7 = 00:00 UTC
+
+// Exam dates for highlighting
+const examDates = {
+  hk2: [
+    { date: '2026-04-20', name: 'day1' },
+    { date: '2026-04-21', name: 'day2' },
+    { date: '2026-04-22', name: 'day3' },
+    { date: '2026-04-23', name: 'day4' }
+  ],
+  thptqg: [
+    { date: '2026-06-11', name: 'day1' },
+    { date: '2026-06-12', name: 'day2' }
+  ]
+};
+
+function updateCountdown() {
+  const now = Date.now();
+  const diff = Math.max(0, target - now);
+  const s = Math.floor(diff/1000);
+  document.getElementById('cd-days').textContent = String(Math.floor(s/86400)).padStart(2,'0');
+  document.getElementById('cd-hours').textContent = String(Math.floor((s%86400)/3600)).padStart(2,'0');
+  document.getElementById('cd-mins').textContent = String(Math.floor((s%3600)/60)).padStart(2,'0');
+  document.getElementById('cd-secs').textContent = String(s%60).padStart(2,'0');
+}
+
+function highlightExamDates() {
+  const today = new Date();
+  const todayStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  
+  // Get tomorrow's date
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.getFullYear() + '-' + String(tomorrow.getMonth()+1).padStart(2,'0') + '-' + String(tomorrow.getDate()).padStart(2,'0');
+  
+  // Get all day rows
+  const allRows = document.querySelectorAll('.day-row');
+  allRows.forEach((row, idx) => {
+    row.classList.remove('today', 'upcoming');
+    const dateStr = row.getAttribute('data-date');
+    
+    if (dateStr === todayStr) {
+      row.classList.add('today');
+    } else if (dateStr === tomorrowStr) {
+      row.classList.add('upcoming');
+    }
+  });
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+// Update highlighting on load and periodically (in case date changes)
+highlightExamDates();
+setInterval(highlightExamDates, 60000);
+
+// Element SDK
+const defaultConfig = {
+  main_title: 'Lịch Thi 2026',
+  background_color: '#020617',
+  surface_color: '#0f172a',
+  text_color: '#ffffff',
+  primary_color: '#7c3aed',
+  accent_color: '#f97316'
+};
+
+function applyConfig(config) {
+  const c = {...defaultConfig, ...config};
+  document.getElementById('mainTitle').textContent = c.main_title;
+  document.getElementById('app').style.backgroundColor = 'transparent';
+}
+
+if (window.elementSdk) {
+  window.elementSdk.init({
+    defaultConfig,
+    onConfigChange: async (config) => applyConfig(config),
+    mapToCapabilities: (config) => ({
+      recolorables: [
+        { get: () => config.primary_color || defaultConfig.primary_color, set: v => { config.primary_color = v; window.elementSdk.setConfig({primary_color:v}); }},
+        { get: () => config.accent_color || defaultConfig.accent_color, set: v => { config.accent_color = v; window.elementSdk.setConfig({accent_color:v}); }}
+      ],
+      borderables: [],
+      fontEditable: {
+        get: () => config.font_family || 'Be Vietnam Pro',
+        set: v => { config.font_family = v; window.elementSdk.setConfig({font_family:v}); }
+      },
+      fontSizeable: {
+        get: () => config.font_size || 16,
+        set: v => { config.font_size = v; window.elementSdk.setConfig({font_size:v}); }
+      }
+    }),
+    mapToEditPanelValues: (config) => new Map([
+      ['main_title', config.main_title || defaultConfig.main_title]
+    ])
+  });
+}
+
+lucide.createIcons();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ed145444030cdfe',t:'MTc3NjMyMjM4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
