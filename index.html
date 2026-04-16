@@ -2124,19 +2124,6 @@ transform:translateY(-5px);
   box-shadow:none;
 }
 
-/* ngày mai thi */
-
-.exam-day.tomorrow{
-  border-left:6px solid #f59e0b;
-
-  background: color-mix(in srgb, #f59e0b 12%, var(--card-bg));
-
-  box-shadow:
-    0 8px 20px color-mix(in srgb, #f59e0b 25%, transparent);
-
-  animation: shake 1s infinite;
-}
-
 /* ===== EXAM CARDS - WHITE BACKGROUND ===== */
 .exam-day{
   background: #fff !important;
@@ -2157,6 +2144,8 @@ transform:translateY(-5px);
 }
 
 .exam-day.tomorrow{
+  border-left: 6px solid #f59e0b !important;
+  box-shadow: 0 8px 20px color-mix(in srgb, #f59e0b 25%, transparent) !important;
   animation: gentleShake 2.5s ease-in-out infinite;
 }
 
@@ -3605,6 +3594,41 @@ window.switchAuthTab = switchAuthTab;
 window.authComingSoon = authComingSoon;
 window.showAuthNotice = showAuthNotice;
 initAuthSlides();
+
+// ===== TỰ ĐỘNG GÁN CLASS CHO LỊCH THI =====
+function updateExamDayClasses(){
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  
+  const examDays = document.querySelectorAll('.exam-day');
+  let nextExamFound = false;
+  
+  examDays.forEach(day => {
+    const dateStr = day.getAttribute('data-date');
+    if(!dateStr) return;
+    
+    const examDate = new Date(dateStr + 'T00:00:00');
+    examDate.setHours(0,0,0,0);
+    
+    const diffTime = examDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Xóa các class cũ
+    day.classList.remove('today', 'tomorrow', 'past');
+    
+    if(diffDays === 0){
+      day.classList.add('today');
+    } else if(diffDays === 1 && !nextExamFound){
+      day.classList.add('tomorrow');
+      nextExamFound = true; // Chỉ đánh dấu ngày thi tiếp theo đầu tiên
+    } else if(diffDays < 0){
+      day.classList.add('past');
+    }
+  });
+}
+
+// Chạy khi DOM load
+updateExamDayClasses();
 
 // kiểm tra ngày hôm nay
 closeBtn.onclick = function(){
