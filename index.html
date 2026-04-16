@@ -3595,40 +3595,17 @@ window.authComingSoon = authComingSoon;
 window.showAuthNotice = showAuthNotice;
 initAuthSlides();
 
-// ===== TỰ ĐỘNG GÁN CLASS CHO LỊCH THI =====
-function updateExamDayClasses(){
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  
-  const examDays = document.querySelectorAll('.exam-day');
-  let nextExamFound = false;
-  
-  examDays.forEach(day => {
-    const dateStr = day.getAttribute('data-date');
-    if(!dateStr) return;
-    
-    const examDate = new Date(dateStr + 'T00:00:00');
-    examDate.setHours(0,0,0,0);
-    
-    const diffTime = examDate - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    // Xóa các class cũ
-    day.classList.remove('today', 'tomorrow', 'past');
-    
-    if(diffDays === 0){
-      day.classList.add('today');
-    } else if(diffDays === 1 && !nextExamFound){
-      day.classList.add('tomorrow');
-      nextExamFound = true; // Chỉ đánh dấu ngày thi tiếp theo đầu tiên
-    } else if(diffDays < 0){
-      day.classList.add('past');
-    }
-  });
-}
+// ===== TỰ ĐỘNG GÁN CLASS CHO NGÀY THI TIẾP THEO =====
+const days = document.querySelectorAll('.exam-day');
 
-// Chạy khi DOM load
-updateExamDayClasses();
+days.forEach(d => d.classList.remove('tomorrow'));
+
+for (let day of days) {
+  if (!day.classList.contains('past')) {
+    day.classList.add('tomorrow');
+    break;
+  }
+}
 
 // kiểm tra ngày hôm nay
 closeBtn.onclick = function(){
