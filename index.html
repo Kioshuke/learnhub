@@ -2137,16 +2137,15 @@ transform:translateY(-5px);
 }
 
 /* ===== NEXT EXAM CARD - GENTLE SHAKE ANIMATION ===== */
-@keyframes gentleShake{
-  0%, 100%{transform: translateX(0);}
-  25%{transform: translateX(3px);}
-  75%{transform: translateX(-3px);}
+@keyframes gentleShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(3px); }
+  75% { transform: translateX(-3px); }
 }
 
 .exam-day.tomorrow{
-  border-left: 6px solid #f59e0b !important;
-  box-shadow: 0 8px 20px color-mix(in srgb, #f59e0b 25%, transparent) !important;
-  animation: gentleShake 2.5s ease-in-out infinite;
+  animation: gentleShake 2.5s ease-in-out infinite !important;
+  will-change: transform;
 }
 
 @keyframes bgMove{
@@ -2507,8 +2506,7 @@ box-shadow:0 8px 24px rgba(37,99,235,0.08);
 .progress-fill,
 #loadingText,
 .online-pulse,
-.status::before,
-.exam-day.tomorrow{
+.status::before{
 animation:none !important;
 }
 
@@ -4484,6 +4482,22 @@ chatBtn.addEventListener("click", () => {
 overlay.addEventListener("click", () => {
   frame.style.display = "none";
   overlay.style.display = "none";
+});
+</script>
+<script id="fix-tomorrow">
+document.addEventListener("DOMContentLoaded", () => {
+  const days = document.querySelectorAll('.exam-day');
+
+  // xóa class cũ
+  days.forEach(d => d.classList.remove('tomorrow'));
+
+  // tìm ngày tiếp theo
+  for (let day of days) {
+    if (!day.classList.contains('past')) {
+      day.classList.add('tomorrow');
+      break;
+    }
+  }
 });
 </script>
 </body>
