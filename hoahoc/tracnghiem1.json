@@ -235,7 +235,7 @@
       },
       {
         "type": "multiple",
-        "question": "Câu 22. Cho luồng khí CO dư qua hỗn hợp các oxide CuO, Fe₂O₃, Al₂O₃, MgO nung nóng ở nhiệt độ cao. Sau phản ứng, hỗn hợp chất rắn thu được gồm",
+        "question": "Cho luồng khí CO dư qua hỗn hợp các oxide CuO, Fe₂O₃, Al₂O₃, MgO nung nóng ở nhiệt độ cao. Sau phản ứng, hỗn hợp chất rắn thu được gồm",
         "answers": [
           "Cu, Fe, Al, Mg.",
           "Cu, FeO, Al₂O₃, MgO.",
@@ -264,7 +264,7 @@
           "Đinh iron(Fe) không thay đổi, dung dịch vẫn giữ nguyên màu xanh. ",
           "Đinh iron(Fe) bị sủi bọt khí, dung dịch không màu."
         ],
-        "correct": 2
+        "correct": 0
       },
       {
         "type": "multiple",
@@ -276,7 +276,7 @@
           "(2), (4) và (5).",
           "(1), (2) và (4)."
         ],
-        "correct": 0
+        "correct": 1
       },
       {
         "type": "multiple",
@@ -287,7 +287,7 @@
           "Sodium hydroxide.",
           "Sodium carbonate."
         ],
-        "correct": 3
+        "correct": 1
       },
       {
         "type": "multiple",
@@ -309,7 +309,7 @@
           "+3.",
           "+2."
         ],
-        "correct": 2
+        "correct": 1
       },
       {
         "type": "multiple",
@@ -320,7 +320,7 @@
           "Cr³⁺.",
           "Cu²⁺."
         ],
-        "correct": 2
+        "correct": 0
       },
       {
         "type": "multiple",
@@ -331,7 +331,7 @@
           "Mn và Ni.",
           "Fe và Cu."
         ],
-        "correct": 2
+        "correct": 0
       },
       {
         "type": "multiple",
