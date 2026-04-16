@@ -26,55 +26,57 @@
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
  </head>
  <body class="h-full overflow-auto bg-transparent">
-  <div id="app" class="h-full w-full bg-transparent text-white p-4 md:p-8">
+  <div id="app" class="h-full w-full bg-transparent text-white p-2 md:p-4">
    <!-- Header -->
-   <div class="max-w-5xl mx-auto mb-8">
-    <h2 style=" margin:5px 0 20px 0; font-size:28px; font-weight:700; text-align:center; background: linear-gradient(90deg,#2563eb,#06b6d4,#22c55e); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color:transparent; letter-spacing:0.5px; ">Tổng Hợp Lịch Thi Cho 2K8</h2>
+   <div class="max-w-5xl mx-auto mb-0">
+    <h1 style="margin: 5px 0 8px 0; font-size: 28px; font-weight: 700; text-align: center; background: linear-gradient(90deg, #2563eb, #06b6d4, #22c55e); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 0.5px;">Tổng Hợp Lịch Thi Cho 2K8</h1>
    </div><!-- Cards -->
-   <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-6"><!-- Card 1: Lịch thi HK2 -->
+   <div class="max-w-5xl mx-auto space-y-3 mt-3"><!-- Card 1: Lịch thi HK2 -->
     <div class="card-anim rounded-2xl bg-transparent border border-slate-700 overflow-hidden">
      <div class="bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-3">
-      <h2 class="font-700 text-xl">📚 Lịch Thi Cuối HK2 – THPT Tân Hồng</h2>
+      <h2 class="font-900 text-lg tracking-wide">📚 Lịch Thi Cuối HK2 – THPT Tân Hồng</h2>
      </div>
-     <div class="p-4 space-y-3">
-      <div class="day-row rounded-xl bg-white p-3 border border-slate-300" data-date="2026-04-20">
-       <div class="flex items-center gap-2 font-700 text-violet-600 mb-1">
-        <i data-lucide="calendar" class="w-4 h-4"></i>Thứ 2 | 20/04
+      <div class="p-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+       <div class="day-row rounded-xl bg-white p-4 border border-slate-300" data-date="2026-04-20">
+        <div class="flex items-center gap-2 font-900 text-violet-600 mb-2">
+         <i data-lucide="calendar" class="w-5 h-5"></i>Thứ 2 | 20/04
+        </div>
+        <p class="text-slate-700 text-sm font-500 mb-2">📝 Ngữ Văn + 🧲 Vật Lý</p>
+        <div class="text-xs text-slate-600 space-y-1">
+         <p>⏰ Ngữ Văn – 7:00</p>
+         <p>⏰ Vật Lý – 9:15</p>
+        </div>
        </div>
-       <p class="text-slate-700 text-sm font-500 mb-1">📝 Ngữ Văn + 🧲 Vật Lý</p>
-       <div class="text-xs text-slate-600 space-y-0.5">
-        <p>⏰ Ngữ Văn – 7:00</p>
-        <p>⏰ Vật Lý – 9:15</p>
+       <div class="day-row rounded-xl bg-white p-4 border border-slate-300" data-date="2026-04-21">
+        <div class="flex items-center gap-2 font-700 text-violet-600 mb-2">
+         <i data-lucide="calendar" class="w-5 h-5"></i>Thứ 3 | 21/04
+        </div>
+        <p class="text-slate-700 text-sm font-500 mb-2">🧮 Toán Học + 💻 Tin Học</p>
+        <div class="text-xs text-slate-600 space-y-1">
+         <p>⏰ Toán Học – 7:00</p>
+         <p>⏰ Tin Học – 8:40</p>
+        </div>
        </div>
-      </div>
-      <div class="day-row rounded-xl bg-white p-3 border border-slate-300" data-date="2026-04-21">
-       <div class="flex items-center gap-2 font-700 text-violet-600 mb-1">
-        <i data-lucide="calendar" class="w-4 h-4"></i>Thứ 3 | 21/04
+       <div class="day-row rounded-xl bg-white p-4 border border-slate-300" data-date="2026-04-22">
+        <div class="flex items-center gap-2 font-700 text-violet-600 mb-2">
+         <i data-lucide="calendar" class="w-5 h-5"></i>Thứ 4 | 22/04
+        </div>
+        <p class="text-slate-700 text-sm font-500 mb-2">🏛️ Lịch Sử + ⚗️ Hóa Học</p>
+        <div class="text-xs text-slate-600 space-y-1">
+         <p>⏰ Lịch Sử – 7:00</p>
+         <p>⏰ Hóa Học – 7:55</p>
+        </div>
        </div>
-       <p class="text-slate-700 text-sm font-500 mb-1">🧮 Toán Học + 💻 Tin Học</p>
-       <div class="text-xs text-slate-600 space-y-0.5">
-        <p>⏰ Toán Học – 7:00</p>
-        <p>⏰ Tin Học – 8:40</p>
-       </div>
-      </div>
-      <div class="day-row rounded-xl bg-white p-3 border border-slate-300" data-date="2026-04-22">
-       <div class="flex items-center gap-2 font-700 text-violet-600 mb-1">
-        <i data-lucide="calendar" class="w-4 h-4"></i>Thứ 4 | 22/04
-       </div>
-       <p class="text-slate-700 text-sm font-500 mb-1">🏛️ Lịch Sử + ⚗️ Hóa Học</p>
-       <div class="text-xs text-slate-600 space-y-0.5">
-        <p>⏰ Lịch Sử – 7:00</p>
-        <p>⏰ Hóa Học – 7:55</p>
-       </div>
-      </div>
-      <div class="day-row rounded-xl bg-white p-3 border border-slate-300" data-date="2026-04-23">
-       <div class="flex items-center gap-2 font-700 text-violet-600 mb-1">
-        <i data-lucide="calendar" class="w-4 h-4"></i>Thứ 5 | 23/04
-       </div>
-       <p class="text-slate-700 text-sm font-500 mb-1">🔤 Tiếng Anh + 🧬 Sinh Học</p>
-       <div class="text-xs text-slate-600 space-y-0.5">
-        <p>⏰ Tiếng Anh – 7:00</p>
-        <p>⏰ Sinh Học – 8:10</p>
+       <div class="day-row rounded-xl bg-white p-4 border border-slate-300" data-date="2026-04-23">
+        <div class="flex items-center gap-2 font-700 text-violet-600 mb-2">
+         <i data-lucide="calendar" class="w-5 h-5"></i>Thứ 5 | 23/04
+        </div>
+        <p class="text-slate-700 text-sm font-500 mb-2">🔤 Tiếng Anh + 🧬 Sinh Học</p>
+        <div class="text-xs text-slate-600 space-y-1">
+         <p>⏰ Tiếng Anh – 7:00</p>
+         <p>⏰ Sinh Học – 8:10</p>
+        </div>
        </div>
       </div>
      </div>
@@ -83,29 +85,31 @@
      <div class="bg-gradient-to-r from-orange-500 to-red-600 px-5 py-3">
       <h2 class="font-700 text-xl">🎓 Lịch Thi THPT Quốc Gia 2026</h2>
      </div>
-     <div class="p-4 space-y-3">
-      <div class="day-row rounded-xl bg-white p-3 border border-slate-300" data-date="2026-06-11">
-       <div class="flex items-center gap-2 font-700 text-orange-600 mb-1">
-        <i data-lucide="calendar" class="w-4 h-4"></i>Thứ 5 | 11/06
+     <div class="p-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+       <div class="day-row rounded-xl bg-white p-4 border border-slate-300" data-date="2026-06-11">
+        <div class="flex items-center gap-2 font-700 text-orange-600 mb-2">
+         <i data-lucide="calendar" class="w-5 h-5"></i>Thứ 5 | 11/06
+        </div>
+        <div class="text-sm text-slate-700 space-y-1 mt-1">
+         <p>🌅 <span class="font-600 text-orange-600">Sáng:</span> Ngữ Văn – 7:00</p>
+         <p>🌇 <span class="font-600 text-orange-600">Chiều:</span> Toán – 14:00</p>
+        </div>
        </div>
-       <div class="text-sm text-slate-700 space-y-1 mt-1">
-        <p>🌅 <span class="font-600 text-orange-600">Sáng:</span> Ngữ Văn – 7:00</p>
-        <p>🌇 <span class="font-600 text-orange-600">Chiều:</span> Toán – 14:00</p>
+       <div class="day-row rounded-xl bg-white p-4 border border-slate-300" data-date="2026-06-12">
+        <div class="flex items-center gap-2 font-700 text-orange-600 mb-2">
+         <i data-lucide="calendar" class="w-5 h-5"></i>Thứ 6 | 12/06
+        </div>
+        <div class="text-sm text-slate-700 space-y-1 mt-1">
+         <p>🌅 <span class="font-600 text-orange-600">Sáng:</span> Bài thi tự chọn</p>
+         <p class="text-xs text-slate-600 ml-5">Môn thứ 1 – 07:00 &nbsp;|&nbsp; Môn thứ 2 – 08:30</p>
+        </div>
        </div>
       </div>
-      <div class="day-row rounded-xl bg-white p-3 border border-slate-300" data-date="2026-06-12">
-       <div class="flex items-center gap-2 font-700 text-orange-600 mb-1">
-        <i data-lucide="calendar" class="w-4 h-4"></i>Thứ 6 | 12/06
-       </div>
-       <div class="text-sm text-slate-700 space-y-1 mt-1">
-        <p>🌅 <span class="font-600 text-orange-600">Sáng:</span> Bài thi tự chọn</p>
-        <p class="text-xs text-slate-600 ml-5">Môn thứ 1 – 07:00 &nbsp;|&nbsp; Môn thứ 2 – 08:30</p>
-       </div>
-      </div>
-      <div class="mt-4 rounded-xl bg-orange-500/10 border border-orange-500/20 p-4 text-center">
+      <div class="rounded-xl bg-orange-500/10 border border-orange-500/20 p-4 text-center mb-3">
        <p class="text-orange-600 text-sm font-600">💪 Cố lên! Hãy ôn tập thật tốt nhé!</p>
       </div><!-- Countdown moved here -->
-      <div class="countdown-box-small max-w-full rounded-xl bg-gradient-to-br from-orange-600 to-red-700 p-4 text-center mt-4">
+      <div class="countdown-box-small max-w-full rounded-xl bg-gradient-to-br from-orange-600 to-red-700 p-4 text-center">
        <p class="text-xs font-600 uppercase tracking-widest text-orange-200 mb-2">⏳ Đếm Ngược</p>
        <div id="countdown-small" class="flex justify-center gap-2 mt-2">
         <div class="bg-black/30 rounded-lg px-2 py-1 min-w-[50px]">
@@ -233,5 +237,5 @@ if (window.elementSdk) {
 
 lucide.createIcons();
 </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ed1554123ccce57',t:'MTc3NjMyMzAzNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ed1a652b5870519',t:'MTc3NjMyNjM1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
