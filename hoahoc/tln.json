@@ -7,7 +7,7 @@
         "type": "short_answer",
         "question": "Quá trình sản xuất NaHCO₃ được thực hiện bằng phương pháp Solvay dựa trên cơ sở độ tan của muối này. Xét cân bằng trong dung dịch ở giai đoạn carbonate hoá ở quá trình Solvay: <br> \nNaCl + NH₄HCO₃ ⇌ NaHCO₃ + NH₄Cl\n <br>Cho độ tan (g/100 g nước) của một số muối ở các nhiệt độ như bảng bên dưới: <br>(Nguồn:John A. Dean (1999), Hand book of Chemistry, Fifteenth Edition, McGraw-Hill, Inc)\n <br>Cho các nhận định sau:\n <br>1) Ở giai đoạn carbonate hoá, NaHCO₃ có độ tan thấp nhất trong các muối.\n <br>2) Tách biệt được NaHCO₃ ra khỏi hệ phản ứng bằng phương pháp kết tủa.\n <br>3) Trong công nghiêp, KHCO₃ cũng được sản xuất theo phương pháp Solvay.\n <br>4) Sau khi NaHCO₃ tách ra, phẩn dung dịch còn lại chứa chủ yếu NH₄Cl.\n <br>Liệt kê nhận định đúng theo thứ tự tăng dần?",
         "image": "../hoahoc/tlncau1.png",
-        "correct": "1, 2, 4"
+        "correct": "14"
       },
       {
         "type": "short_answer",
@@ -17,7 +17,7 @@
       {
         "type": "short_answer",
         "question": "Cho các kim loại: Zn, Sn, Fe, Co, Ti, Cu, V, Ag. Có bao nhiêu kim loại chuyển tiếp dãy thứ nhất trong số các kim loại trên?",
-        "correct": "6"
+        "correct": "5"
       },
       {
         "type": "short_answer",
@@ -28,12 +28,12 @@
       {
         "type": "short_answer",
         "question": " Cho các phản ứng sau:<br>(1) 2[Au(CN)₂]⁻(aq) + Zn(s) → [Zn(CN)₄]²⁻(aq) + 2Au(s)<br>(2) 2[Fe(CN)₆]⁴⁻(aq) + Cl₂(g) → 2[Fe(CN)₆]³⁻(aq) + 2Cl⁻(aq)<br>(3) [Ag(NH₃)₂]⁺(aq) + 2H⁺(aq) + Cl⁻(aq) → AgCl(s) + 2NH₄⁺(aq)<br>(4) [Cr(OH₂)₆]³⁺(aq) + 6OH⁻(aq) → [Cr(OH)₆]³⁻(aq) + 6H₂O(l)<br>Có bao nhiêu phản ứng xảy ra sự thay thế phối tử?",
-        "correct": "2"
+        "correct": "1"
       },
       {
         "type": "short_answer",
         "question": "Theo QCVN 01-1:2018/BYT, hàm lượng sắt tối đa cho phép trong nước sinh hoạt là 0,3 mg/L. Một mẫu nước có hàm lượng sắt cao gấp 28 lần ngưỡng cho phép, giả thiết sắt trong mẫu nước tồn tại ở dạng Fe₂(SO₄)₃ và FeSO₄ với tỉ lệ mol tương ứng là 1 : 8. Quá trình tách loại sắt trong 10m³ mẫu nước trên được thực hiện bằng cách sử dụng m gam vôi tôi (vừa đủ) để tăng pH, sau đó sục không khí:<br>Fe₂(SO₄)₃ + 3Ca(OH)₂ → 2Fe(OH)₃ + 3CaSO₄ (1)<br>FeSO₄ + Ca(OH)₂ + 1/4O₂ + 3/2H₂O → Fe(OH)₃ + CaSO₄ (2)<br>Giả thiết vôi tôi chỉ chứa Ca(OH)₂. Giá trị của m là bao nhiêu gam?",
-        "correct": "77,7"
+        "correct": "122"
       },
       {
         "type": "short_answer",
@@ -43,7 +43,7 @@
       {
         "type": "short_answer",
         "question": "Cho các kim loại: Zn, Sn, Fe, Co, Ti, Cu, V, Ag. Có bao nhiêu kim loại chuyển tiếp dãy thứ nhất trong số các kim loại trên?",
-        "correct": "6"
+        "correct": "5"
       },
       {
         "type": "short_answer",
