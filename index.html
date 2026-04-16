@@ -2148,6 +2148,26 @@ transform:translateY(-5px);
   will-change: transform;
 }
 
+/* ===== MÀU SẮC THEO TRẠNG THÁI ===== */
+.exam-day {
+  background: #f3f4f6 !important;
+}
+
+.exam-day.today {
+  background: #ef4444 !important;
+  color: #fff !important;
+}
+
+.exam-day.tomorrow {
+  background: #facc15 !important;
+  color: #000 !important;
+  animation: gentleShake 2s ease-in-out infinite !important;
+}
+
+.exam-day.past {
+  opacity: 0.6;
+}
+
 @keyframes bgMove{
 0%{background-position:0% 50%;}
 50%{background-position:100% 50%;}
@@ -3593,17 +3613,37 @@ window.authComingSoon = authComingSoon;
 window.showAuthNotice = showAuthNotice;
 initAuthSlides();
 
-// ===== TỰ ĐỘNG GÁN CLASS CHO NGÀY THI TIẾP THEO =====
-const days = document.querySelectorAll('.exam-day');
+// ===== TỰ ĐỘNG GÁN CLASS CHO NGÀY THI =====
+document.addEventListener("DOMContentLoaded", () => {
+  const days = document.querySelectorAll('.exam-day');
 
-days.forEach(d => d.classList.remove('tomorrow'));
+  const today = new Date();
+  today.setHours(0,0,0,0);
 
-for (let day of days) {
-  if (!day.classList.contains('past')) {
-    day.classList.add('tomorrow');
-    break;
-  }
-}
+  days.forEach(day => {
+    day.classList.remove('today', 'tomorrow', 'past');
+
+    const text = day.innerText;
+    const match = text.match(/(\d{1,2})\/(\d{1,2})/);
+    if (!match) return;
+
+    const d = parseInt(match[1]);
+    const m = parseInt(match[2]) - 1;
+
+    const examDate = new Date(today.getFullYear(), m, d);
+    examDate.setHours(0,0,0,0);
+
+    const diff = (examDate - today) / (1000 * 60 * 60 * 24);
+
+    if (diff === 0) {
+      day.classList.add('today');
+    } else if (diff === 1) {
+      day.classList.add('tomorrow');
+    } else if (diff < 0) {
+      day.classList.add('past');
+    }
+  });
+});
 
 // kiểm tra ngày hôm nay
 closeBtn.onclick = function(){
