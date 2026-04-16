@@ -82,6 +82,7 @@ html, body{
 width:100%;
 max-width:100%;
 overflow-x:hidden;
+overflow-y:auto;
 overscroll-behavior-x:none;
 }
 body.auth-locked > *:not(#loginBox):not(#loadingOverlay):not(#authNotice){
@@ -532,6 +533,13 @@ iframe {
   outline:0 !important;
   border-radius:0 !important;
   background:transparent;
+}
+
+/* Lịch thi iframe scroll fix */
+#lichFrame {
+  overflow: auto !important;
+  pointer-events: auto !important;
+  touch-action: auto !important;
 }
 
 #tabScrollTopBtn{
@@ -2810,11 +2818,13 @@ animation: pulse-green 2s infinite;
   </div>
 </div>
 
-<div id="lich" style="display:none">
+<div id="lich" style="display:none; margin-top: -15px; overflow: auto; -webkit-overflow-scrolling: touch;">
   <iframe 
     id="lichFrame" 
     src="lichthi.html" 
-    style="width:100%; height:100vh; border:none; display:block;">
+    scrolling="auto"
+    tabindex="0"
+    style="width:100%; height:100vh; border:none; display:block; pointer-events: auto;">
   </iframe>
 </div>
 
