@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="https://kioshuke.github.io/onthi12/favicon.png">
 
 <meta name="theme-color" content="#1a73e8">
-<title>LearnHub - THPT Tân Hồng</title>
+<title>LearnHub - THPT Tân Hồng </title>
 <meta name="description" content="Nền tảng học tập thông minh cho học sinh THPT Tân Hồng. Tra cứu lịch thi, tài liệu, làm bài ôn thi Vật lý, Sinh học, Tin học và Lịch sử nhanh chóng, tiện lợi và hoàn toàn miễn phí!.">
 
 <meta property="og:title" content="LearnHub - THPT Tân Hồng">
@@ -37,6 +37,7 @@
 <link rel="preconnect" href="https://www.gstatic.com">
 <link rel="preconnect" href="https://www.googleapis.com">
 <style>
+
 :root{
   --bg-main: #f6f8ff;
   --bg-pattern: #d6dcff;
@@ -81,6 +82,7 @@ html, body{
 width:100%;
 max-width:100%;
 overflow-x:hidden;
+overflow-y:auto;
 overscroll-behavior-x:none;
 }
 body.auth-locked > *:not(#loginBox):not(#loadingOverlay):not(#authNotice){
@@ -253,12 +255,6 @@ box-shadow: 0 4px 12px color-mix(in srgb, var(--btn-color) 40%, transparent);
     display: none;
 }
 
-/* Responsive cho điện thoại nhỏ */
-@media (max-width: 480px) {
-    .menu-brand span {
-        display: none; /* Ẩn chữ LearnHub trên máy quá nhỏ, chỉ để lại logo */
-    }
-}
 /* CONTENT */
 
 .content{
@@ -507,7 +503,7 @@ box-shadow:0 12px 28px color-mix(in srgb, var(--card-color) 30%, transparent);
     box-shadow: none;          /* Xóa bỏ đổ bóng (thứ trông như viền mờ) */
     border: none;              /* Đảm bảo không có border ẩn */
     position: relative;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;          /* Đảm bảo iframe không bị tràn ra ngoài */
 }
 
@@ -537,6 +533,13 @@ iframe {
   outline:0 !important;
   border-radius:0 !important;
   background:transparent;
+}
+
+/* Lịch thi iframe scroll fix */
+#lichFrame {
+  overflow: auto !important;
+  pointer-events: auto !important;
+  touch-action: auto !important;
 }
 
 #tabScrollTopBtn{
@@ -721,6 +724,7 @@ line-height:1.2;
 margin-bottom:10px;
 background:linear-gradient(135deg,#2563eb,#1d4ed8);
 -webkit-background-clip:text;
+background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
@@ -979,6 +983,16 @@ background:linear-gradient(180deg, rgba(255,255,255,0.97), rgba(239,246,255,0.98
 border-color:rgba(37,99,235,0.18);
 }
 
+#authNotice.notice-success{
+background:linear-gradient(180deg, rgba(255,255,255,0.97), rgba(240,255,240,0.98));
+border-color:rgba(34,197,94,0.18);
+}
+
+#authNotice.notice-success .notice-icon{
+background:rgba(34,197,94,0.12);
+color:#16a34a;
+}
+
 #authNotice .notice-icon{
 width:38px;
 height:38px;
@@ -1041,107 +1055,6 @@ to{
   opacity:0;
   transform:translateX(-50%) translateY(-12px) scale(0.98);
 }
-}
-
-@media (max-width: 900px){
-  #loginBox .auth-shell{
-    min-height:100vh;
-    border-radius:0;
-  }
-
-  #loginBox .auth-left{
-    width:100%;
-    max-width:100vw;
-    padding:28px 22px 30px;
-    justify-content:flex-start;
-    overflow-y:auto;
-  }
-
-  #loginBox .auth-right{
-    display:none;
-  }
-}
-
-@media (max-width: 600px){
-  #loginBox .auth-left{
-    padding:18px 14px 24px;
-  }
-
-  #loginBox .auth-brand{
-    gap:10px;
-    margin-bottom:16px;
-    padding:0 2px;
-  }
-
-  #loginBox .auth-brand img{
-    width:36px;
-    height:36px;
-  }
-
-  #loginBox .auth-brand span{
-    font-size:14px;
-    line-height:1.25;
-  }
-
-  #loginBox .auth-tabs{
-    gap:8px;
-    margin-bottom:14px;
-  }
-
-  #loginBox .auth-tab{
-    padding:11px 8px;
-    font-size:14px;
-    border-radius:14px;
-  }
-
-  #loginBox .auth-title{
-    font-size:22px;
-    margin-bottom:12px;
-  }
-
-  #loginBox .auth-login-btn,
-  #loginBox .auth-submit{
-    font-size:14px;
-  }
-
-  #loginBox .auth-login-btn{
-    padding:13px 12px;
-    gap:10px;
-    border-radius:15px;
-  }
-
-  #loginBox .auth-divider{
-    margin:16px 0;
-    font-size:13px;
-  }
-
-  #loginBox .auth-input-group{
-    margin-bottom:12px;
-  }
-
-  #loginBox .auth-input-group input{
-    padding:14px 12px;
-    border-radius:14px;
-    font-size:14px;
-  }
-
-  #loginBox .auth-input-group label{
-    left:11px;
-    font-size:13px;
-  }
-
-  #loginBox .auth-footer{
-    font-size:12px;
-    margin-top:18px;
-  }
-
-  #authNotice{
-    top:14px;
-    min-width:calc(100vw - 20px);
-    max-width:calc(100vw - 20px);
-    padding:14px;
-    border-radius:16px;
-  }
 }
 
 #loginBox .auth-mobile-showcase{
@@ -1382,14 +1295,6 @@ transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
 .loading-dots.slide-apart .loading-dot:nth-child(4){
 transform: translateX(80px) translateY(-20px);
 transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Fade out with smooth transform */
-.loading-dots.fade-out{
-opacity: 0;
-transform: scale(0.9);
-transition: opacity 0.35s ease-out, transform 0.35s ease-out;
-pointer-events: none;
 }
 
 /* Status text */
@@ -1736,7 +1641,7 @@ text-align: center;
 font-size: 18px;
 font-weight: 600;
 margin: 4px 0 2px;
-color: var(--text-main) !important;;
+color: var(--text-main) !important;
 }
 #popupEmail {
 text-align: center;
@@ -1815,62 +1720,6 @@ box-shadow: 0 10px 25px rgba(255, 77, 77, 0.35);
 /* 🔥 click */
 #logoutBtn:active{
 transform: scale(0.96);
-}
-.loading-brand{
-  text-align:center;
-  margin-bottom:18px;
-}
-
-.loading-brand img{
-  width:min(112px, 28vw);
-  height:auto;
-  max-height:120px;
-  object-fit:contain;
-  margin-bottom:12px;
-  border-radius:22px;
-  box-shadow:0 16px 40px rgba(37,99,235,0.22);
-  animation: bounceLogo 3s ease-in-out infinite;
-}
-@keyframes bounceLogo {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-.loading-brand h2{
-  margin:0;
-  font-size:clamp(17px, 4vw, 22px);
-  font-weight:800;
-  line-height:1.35;
-  letter-spacing:-0.02em;
-  background:linear-gradient(90deg, #1e40af, #2563eb, #0891b2);
-  -webkit-background-clip:text;
-  background-clip:text;
-  -webkit-text-fill-color:transparent;
-  color:transparent;
-}
-.loading-footer{
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  text-align:center;
-  opacity:0.78;
-  z-index:2;
-}
-
-.loading-footer img{
-  width:30px;
-  height:30px;
-  margin-bottom:5px;
-}
-
-.loading-footer p{
-  font-size:12px;
-  color: #475569;
-  letter-spacing:0.03em;
 }
 .dark-toggle{
   display:flex;
@@ -1983,114 +1832,6 @@ body.dark-mode .card{
     margin: 0 !important;
     width: auto !important;
 }
-
-/* Weekly Time Counter Styles */
-.weekly-time-counter {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  background: var(--card-bg);
-  padding: 20px 25px;
-  border-radius: 16px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-  border: 2px solid var(--card-color, #e5e7eb);
-  border-left-width: 6px;
-  margin: 20px 0;
-  position: relative;
-  overflow: hidden;
-}
-
-.weekly-time-counter::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--card-color) 15%, transparent),
-    transparent 40%
-  );
-  opacity: 0.8;
-  pointer-events: none;
-}
-
-.counter-icon {
-  font-size: 32px;
-  flex-shrink: 0;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-}
-
-.counter-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  position: relative;
-  z-index: 1;
-}
-
-.counter-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--card-text);
-  opacity: 0.9;
-}
-
-.counter-time {
-  font-size: 24px;
-  font-weight: 800;
-  font-family: 'Courier New', monospace;
-  color: var(--card-color);
-  background: color-mix(in srgb, var(--card-color) 12%, transparent);
-  padding: 8px 16px;
-  border-radius: 8px;
-  letter-spacing: 2px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-.counter-status {
-  font-size: 12px;
-  color: var(--card-sub);
-  font-style: italic;
-  text-align: center;
-}
-
-body.dark-mode .weekly-time-counter {
-  border-color: color-mix(in srgb, var(--card-color) 70%, #334155);
-}
-
-body.dark-mode .counter-time {
-  background: color-mix(in srgb, var(--card-color) 20%, #0f172a);
-  color: color-mix(in srgb, var(--card-color) 90%, #f1f5f9);
-}
-
-body.dark-mode .counter-label {
-  color: var(--card-text);
-}
-
-body.dark-mode .counter-status {
-  color: var(--card-sub);
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .weekly-time-counter {
-    padding: 15px 20px;
-    margin: 15px 0;
-    gap: 12px;
-  }
-  
-  .counter-icon {
-    font-size: 28px;
-  }
-  
-  .counter-time {
-    font-size: 20px;
-    padding: 6px 12px;
-  }
-  
-  .counter-label {
-    font-size: 13px;
-  }
-}
 </style>
 
 </head>
@@ -2123,9 +1864,12 @@ body.dark-mode .counter-status {
 <div id="popup">
 <div class="popup-box">
 <span class="close">&times;</span>
-<h3>📢 Thông báo</h3>
+<h3>📢 Thông báo (16/04/2026)</h3>
+<p style="text-align:left;"> <b>Thông báo nội dung:</b><br>
+- Đã hoàn thành tất cả các môn <br>
+- Đã cập nhật đáp án môn Hoá Học
 <p style="text-align:left;"> <b>Tính năng mới:</b><br>
-- LearnHub Forum, bạn có thể trao đổi với các thành viên khác tại đây. Để truy cập hãy bấm vào ô Forum trên thanh Menu!<br>- Hubie-AI của bạn, hỗ trợ giải đáp bài, trao đổi, trò chuyện,.....<br>- Cải tiến giao diện: Những bài đã được up sẽ có dấu chấm xanh (hoàn thành). Ngược lại, những bài chưa up sẽ có dấu chấm đỏ (Đang cập nhật)</p>
+- LearnHub Forum, bạn có thể trao đổi với các thành viên khác tại đây. Để truy cập hãy bấm vào ô Forum trên thanh Menu!<br>- Hubie-AI của bạn, hỗ trợ giải đáp bài, trao đổi, trò chuyện,.....<br>- Cải tiến giao diện: Những bài đã được up sẽ có dấu chấm xanh (hoàn thành). Ngược lại, những bài chưa up sẽ có dấu chấm đỏ (Đang cập nhật)<br>- Cải tiến giao diện, sửa bug, cập nhật lặt vặt,...</p>
 </div>
 </div>
 <div id="loginBox">
@@ -2183,35 +1927,40 @@ body.dark-mode .counter-status {
       <div class="auth-divider">hoặc</div>
 
       <div class="auth-input-group">
-        <input required>
+        <input type="email" id="loginEmail" required onkeypress="if(event.key==='Enter')emailLogin()">
         <label>Email</label>
       </div>
 
       <div class="auth-input-group">
-        <input type="password" required>
+        <input type="password" id="loginPassword" required onkeypress="if(event.key==='Enter')emailLogin()">
         <label>Mật khẩu</label>
       </div>
 
-      <button class="auth-submit" onclick="authComingSoon()">Đăng nhập</button>
+      <button class="auth-submit" onclick="emailLogin()">Đăng nhập</button>
     </div>
 
     <div id="authRegisterPanel" class="auth-panel" style="display:none;">
       <div class="auth-input-group">
-        <input required>
+        <input type="text" id="registerName" required onkeypress="if(event.key==='Enter')emailRegister()">
+        <label>Tên của bạn</label>
+      </div>
+
+      <div class="auth-input-group">
+        <input type="email" id="registerEmail" required onkeypress="if(event.key==='Enter')emailRegister()">
         <label>Email</label>
       </div>
 
       <div class="auth-input-group">
-        <input type="password" required>
+        <input type="password" id="registerPassword" required onkeypress="if(event.key==='Enter')emailRegister()">
         <label>Mật khẩu</label>
       </div>
 
       <div class="auth-input-group">
-        <input type="password" required>
+        <input type="password" id="registerConfirmPassword" required onkeypress="if(event.key==='Enter')emailRegister()">
         <label>Nhập lại mật khẩu</label>
       </div>
 
-      <button class="auth-submit" onclick="authComingSoon()">Đăng ký</button>
+      <button class="auth-submit" onclick="emailRegister()">Đăng ký</button>
     </div>
 
     <div class="auth-footer">Whitelist Mode | © 2026 LearnHub - THPT Tân Hồng | V26.04.14.1</div>
@@ -2339,149 +2088,6 @@ border-radius:50%;
 margin:auto;
 animation:spin 0.6s linear infinite;
 }
-.exam-schedule{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
-}
-
-.exam-day{
-background: var(--card-bg);
-color: var(--card-text);
-padding:20px;
-border-radius:12px;
-box-shadow:0 4px 15px rgba(0,0,0,0.08);
-transition:all 0.3s;
-border-left:6px solid color-mix(in srgb, var(--text-sub) 40%, transparent);
-}
-
-.exam-day:hover{
-transform:translateY(-5px);
-}
-
-.exam-day.today{
-  border-left:6px solid #ff4d4f;
-
-  background: color-mix(in srgb, #ff4d4f 12%, var(--card-bg));
-
-  box-shadow:
-    0 8px 20px color-mix(in srgb, #ff4d4f 25%, transparent);
-}
-.exam-day h3{
-  color: var(--card-text);
-}
-
-.exam-day p{
-  color: var(--card-sub);
-}
-/* ngày đã thi */
-
-.exam-day.past{
-  border-left:6px solid #6b7280;
-
-  background: color-mix(in srgb, #6b7280 10%, var(--card-bg));
-
-  opacity:0.65;
-  filter: grayscale(0.4);
-
-  box-shadow:none;
-}
-
-/* ngày mai thi */
-
-.exam-day.tomorrow{
-  border-left:6px solid #f59e0b;
-
-  background: color-mix(in srgb, #f59e0b 12%, var(--card-bg));
-
-  box-shadow:
-    0 8px 20px color-mix(in srgb, #f59e0b 25%, transparent);
-
-  animation: shake 1s infinite;
-}
-
-/* rung nhẹ */
-
-@keyframes shake{
-0%{transform:translateX(0)}
-25%{transform:translateX(2px)}
-50%{transform:translateX(-2px)}
-75%{transform:translateX(2px)}
-100%{transform:translateX(0)}
-}
-
-@keyframes bgMove{
-0%{background-position:0% 50%;}
-50%{background-position:100% 50%;}
-100%{background-position:0% 50%;}
-}
-.countdown-fix{
-grid-column: 3 / 5;
-position: relative;
-overflow: hidden;
-border-radius: 16px;
-padding: 20px;
-background: linear-gradient(263.58deg, #f7b839 12.38%, #d45f00 91.63%);
-border: 2px solid #e48a24;
-box-shadow: 0 10px 30px rgba(229,108,0,0.35);
-display:flex;
-align-items:center;
-gap:20px;
-}
-
-.countdown-fix::before{
-content:"";
-position:absolute;
-inset:0;
-background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.25), transparent 60%);
-opacity:0.6;
-}
-
-.countdown-fix *{
-font-family:'Segoe UI',sans-serif;
-box-sizing:border-box;
-}
-
-.title{
-color:white;
-font-size:20px;
-font-weight:bold;
-z-index:1;
-}
-
-.time-container{
-display:flex;
-gap:12px;
-z-index:1;
-}
-
-.time-item{
-display:flex;
-flex-direction:column;
-align-items:center;
-}
-
-.time-box{
-width:55px;
-height:55px;
-display:flex;
-align-items:center;
-justify-content:center;
-border-radius:14px;
-background: linear-gradient(145deg, #ffffff, #f1f1f1);
-font-size:28px;
-font-weight:bold;
-color:#E56C00;
-box-shadow:
-inset 0 2px 4px rgba(0,0,0,0.1),
-0 4px 10px rgba(0,0,0,0.2);
-}
-
-.label{
-color: rgba(255,255,255,0.9);
-font-size:13px;
-margin-top:4px;
-}
 
 /* avatar */
 .user-bar img{
@@ -2542,33 +2148,13 @@ body{
 --app-reveal-distance: 9px;
 --app-reveal-duration: 0.36s;
 }
-.exam-schedule{
-grid-template-columns: 1fr;
-}
-
-/* countdown chiếm full */
-.countdown-fix{
-grid-column: auto;
-flex-direction: column;
-align-items: flex-start;
-gap: 15px;
-}
 
 /* chữ nhỏ lại */
 .title{
 font-size:18px;
 }
 
-.time-box{
-width:50px;
-height:50px;
-font-size:22px;
-}
-
 /* padding card gọn lại */
-.exam-day{
-padding:16px;
-}
 .menu{
 display:flex;
 align-items:center;
@@ -2702,31 +2288,8 @@ height:34px;
 display:none;
 }
 
-/* ===== GRID + LỊCH ===== */
-.exam-schedule{
-grid-template-columns:1fr;
-}
-
-.exam-day{
-padding:16px;
-}
-
-/* ===== COUNTDOWN ===== */
-.countdown-fix{
-grid-column:auto;
-flex-direction:column;
-align-items:flex-start;
-gap:15px;
-}
-
 .title{
 font-size:18px;
-}
-
-.time-box{
-width:50px;
-height:50px;
-font-size:22px;
 }
 
 /* ===== MOBILE PERFORMANCE GUARD ===== */
@@ -2768,8 +2331,7 @@ box-shadow:0 8px 24px rgba(37,99,235,0.08);
 .progress-fill,
 #loadingText,
 .online-pulse,
-.status::before,
-.exam-day.tomorrow{
+.status::before{
 animation:none !important;
 }
 
@@ -2801,7 +2363,117 @@ height:min(62vh, 500px) !important;
 bottom:84px !important;
 }
 
+/* Tablet adjustments */
+.close-btn{
+margin-left: -5px;
 }
+
+}
+
+/* ===== LOGIN/REGISTER MOBILE ===== */
+@media (max-width: 900px){
+  #loginBox .auth-shell{
+    min-height:100vh;
+    border-radius:0;
+  }
+
+  #loginBox .auth-left{
+    width:100%;
+    max-width:100vw;
+    padding:28px 22px 30px;
+    justify-content:flex-start;
+    overflow-y:auto;
+  }
+
+  #loginBox .auth-right{
+    display:none;
+  }
+}
+
+@media (max-width: 600px){
+  #loginBox .auth-left{
+    padding:18px 14px 24px;
+  }
+
+  #loginBox .auth-brand{
+    gap:10px;
+    margin-bottom:16px;
+    padding:0 2px;
+  }
+
+  #loginBox .auth-brand img{
+    width:36px;
+    height:36px;
+  }
+
+  #loginBox .auth-brand span{
+    font-size:14px;
+    line-height:1.25;
+  }
+
+  #loginBox .auth-tabs{
+    gap:8px;
+    margin-bottom:14px;
+  }
+
+  #loginBox .auth-tab{
+    padding:11px 8px;
+    font-size:14px;
+    border-radius:14px;
+  }
+
+  #loginBox .auth-title{
+    font-size:22px;
+    margin-bottom:12px;
+  }
+
+  #loginBox .auth-login-btn,
+  #loginBox .auth-submit{
+    font-size:14px;
+  }
+
+  #loginBox .auth-login-btn{
+    padding:13px 12px;
+    gap:10px;
+    border-radius:15px;
+  }
+
+  #loginBox .auth-divider{
+    margin:16px 0;
+    font-size:13px;
+  }
+
+  #loginBox .auth-input-group{
+    margin-bottom:12px;
+  }
+
+  #loginBox .auth-input-group input{
+    padding:14px 12px;
+    border-radius:14px;
+    font-size:14px;
+  }
+
+  #loginBox .auth-input-group label{
+    left:11px;
+    font-size:13px;
+  }
+
+  #loginBox .auth-footer{
+    font-size:12px;
+    margin-top:18px;
+  }
+
+  #authNotice{
+    top:14px;
+    min-width:calc(100vw - 20px);
+    max-width:calc(100vw - 20px);
+    padding:14px;
+    border-radius:16px;
+  }
+}
+
+/* ===== END MOBILE CSS ===== */
+
 /* Hiệu ứng nhấp nháy cho chấm Online */
 @keyframes pulse-green {
 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
@@ -2910,12 +2582,6 @@ animation: pulse-green 2s infinite;
     filter: brightness(0.9);
 }
 
-/* Mobile: Giữ khoảng cách an toàn */
-@media (max-width: 1024px) {
-    .close-btn {
-        margin-left: -5px;
-    }
-}
 /* click */
 .quiz-btn:active{
   transform: scale(0.96);
@@ -2923,91 +2589,8 @@ animation: pulse-green 2s infinite;
 
 </style>
 <div id="mainContent" class="content">
-<div id="lich">
-  <h2 style="
-margin:5px 0 20px 0;
-font-size:28px;
-font-weight:700;
-text-align:center;
 
-background: linear-gradient(90deg,#2563eb,#06b6d4,#22c55e);
-background-clip: text;
--webkit-background-clip: text;
--webkit-text-fill-color:transparent;
-
-letter-spacing:0.5px;
-">
-Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
-</h2>
-<div class="exam-schedule">
-
-<div class="exam-day" data-date="2026-04-20">
-<h3>Thứ 2 | 20/04 📝Ngữ Văn + 🧲Vật Lý</h3>
-<p>⏰️Ngữ Văn - 7:00</p>
-<p>⏰️Vật Lý - 9:15</p>
 </div>
-
-<div class="exam-day" data-date="2026-04-21">
-<h3>Thứ 3 | 21/04 🧮Toán Học + 💻Tin Học</h3>
-<p>⏰️Toán Học - 7:00</p>
-<p>⏰️Tin Học - 8:40</p>
-</div>
-
-<div class="exam-day" data-date="2026-04-22">
-<h3>Thứ 4 | 22/04 🏛️Lịch Sử + ⚗️Hóa Học</h3>
-<p>⏰️Lịch Sử - 7:00</p>
-<p>⏰️Hóa Học - 7:55</p>
-</div>
-
-<div class="exam-day" data-date="2026-04-23">
-<h3>Thứ 5 | 23/04 🔤Tiếng Anh + 🧬Sinh Học</h3>
-<p>⏰️Tiếng Anh - 7:00</p>
-<p>⏰️Sinh Học - 8:10</p>
-</div>
-
-<!-- COUNTDOWN + WEEKLY TIME CONTAINER -->
-<div style="display: flex; gap: 20px; align-items: stretch; flex-wrap: wrap;">
-<!-- COUNTDOWN -->
-<div class="countdown-card countdown-fix">
-<div class="title">Countdown THPTQG</div>
-
-<div class="time-container">
-<div class="time-item">
-<div class="time-box" id="days">00</div>
-<div class="label">Ngày</div>
-</div>
-
-<div class="time-item">
-<div class="time-box" id="hours">00</div>
-<div class="label">Giờ</div>
-</div>
-
-<div class="time-item">
-<div class="time-box" id="minutes">00</div>
-<div class="label">Phút</div>
-</div>
-
-<div class="time-item">
-<div class="time-box" id="seconds">00</div>
-<div class="label">Giây</div>
-</div>
-</div>
-</div>
-</div>
-
-<!-- Weekly Access Time Counter -->
-<div class="weekly-time-counter">
-  <div class="counter-icon">⏱️</div>
-  <div class="counter-content">
-    <div class="counter-label">Thời gian học tuần này</div>
-    <div class="counter-time" id="weeklyTime">00:00:00</div>
-    <div class="counter-status">Đang đếm...</div>
-  </div>
-</div>
-</div>
-</div>
-</div>
-
 <div id="ly" style="display:none">
 <div class="grid">
 
@@ -3237,6 +2820,17 @@ Lịch Thi Cuối Học Kỳ II - THPT Tân Hồng
     </iframe>
   </div>
 </div>
+
+<div id="lich" style="display:none; margin-top: -15px; overflow: auto; -webkit-overflow-scrolling: touch;">
+  <iframe 
+    id="lichFrame" 
+    src="lichthi.html" 
+    scrolling="auto"
+    tabindex="0"
+    style="width:100%; height:100vh; border:none; display:block; pointer-events: auto;">
+  </iframe>
+</div>
+
 <button id="tabScrollTopBtn" type="button" aria-label="Cuộn lên đầu">↑</button>
 <div id="quiz"></div>
 </div>
@@ -3476,14 +3070,15 @@ if(id === "flash"){
 }
 
 },200);
+updateTabScrollTopBtn();
 }
-
 const buttons = document.querySelectorAll(".menu-buttons button[data-subject]");
 
 buttons.forEach(btn => {
 btn.addEventListener("click", () => {
 buttons.forEach(b => b.classList.remove("active"));
 btn.classList.add("active");
+});
 });
 
 function updateTabScrollTopBtn(){
@@ -3550,32 +3145,16 @@ function bindFrameScrollWatcher(frameId){
 
 bindFrameScrollWatcher("flashHubFrame");
 bindFrameScrollWatcher("forumFrame");
-});
-const now = new Date();
 
-document.querySelectorAll(".exam-day").forEach(day=>{
-
-let examDate = new Date(day.dataset.date);
-
-let tomorrow = new Date();
-tomorrow.setDate(now.getDate()+1);
-
-if(examDate.toDateString() === now.toDateString()){
-day.classList.add("today");
-}
-
-else if(examDate.toDateString() === tomorrow.toDateString()){
-day.classList.add("tomorrow");
-}
-
-else if(examDate < now){
-day.classList.add("past");
-}
-
-});
 const popup = document.getElementById("popup");
 const box = document.querySelector(".popup-box");
 const closeBtn = document.querySelector(".close");
+
+if(closeBtn && popup){
+  closeBtn.addEventListener("click", () => {
+    popup.style.display = "none";
+  });
+}
 
 const authSlideData = [
   {
@@ -3711,13 +3290,28 @@ function showAuthNotice(message, type = "info", title = ""){
     authNoticeTimer = null;
   }
 
-  notice.classList.remove("hide", "show", "notice-error", "notice-info");
-  notice.classList.add(type === "error" ? "notice-error" : "notice-info");
+  notice.classList.remove("hide", "show", "notice-error", "notice-info", "notice-success");
 
-  noticeTitle.textContent =
-    title || (type === "error" ? "Không thể tiếp tục" : "Thông báo");
+  // Set class and icon based on type
+  let icon = "i";
+  let defaultTitle = "Thông báo";
+  if (type === "error") {
+    notice.classList.add("notice-error");
+    icon = "✕";
+    defaultTitle = "Lỗi";
+  } else if (type === "success") {
+    notice.classList.add("notice-success");
+    icon = "✓";
+    defaultTitle = "Thành công";
+  } else {
+    notice.classList.add("notice-info");
+    icon = "i";
+    defaultTitle = "Thông báo";
+  }
+
+  noticeIcon.innerText = icon;
+  noticeTitle.innerText = title || defaultTitle;
   noticeMessage.textContent = message;
-  noticeIcon.textContent = type === "error" ? "!" : "i";
 
   notice.style.display = "flex";
   void notice.offsetWidth;
@@ -3750,65 +3344,18 @@ window.authComingSoon = authComingSoon;
 window.showAuthNotice = showAuthNotice;
 initAuthSlides();
 
-// kiểm tra ngày hôm nay
-closeBtn.onclick = function(){
-
-  box.classList.add("popup-hide");
-
-  setTimeout(()=>{
-    popup.style.display="none";
-  },300);
-
-}
-const examDate = new Date("June 11, 2026 07:30:00").getTime();
-
-function updateCountdown(){
-const now = new Date().getTime();
-const distance = examDate - now;
-
-// 🔥 nếu đã qua ngày thi
-if(distance <= 0){
-document.getElementById("days").innerText = "00";
-document.getElementById("hours").innerText = "00";
-document.getElementById("minutes").innerText = "00";
-document.getElementById("seconds").innerText = "00";
-return;
-}
-
-const days = Math.floor(distance / (1000*60*60*24));
-const hours = Math.floor((distance % (1000*60*60*24)) / (1000*60*60));
-const minutes = Math.floor((distance % (1000*60*60)) / (1000*60));
-const seconds = Math.floor((distance % (1000*60)) / 1000);
-
-document.getElementById("days").innerText = days;
-document.getElementById("hours").innerText = hours;
-document.getElementById("minutes").innerText = minutes;
-document.getElementById("seconds").innerText = seconds;
-}
-
-setInterval(updateCountdown,1000);
-updateCountdown();
-window.addEventListener("load", function(){
-
-// 1. Xóa tất cả trạng thái active cũ của các nút menu
-document.querySelectorAll(".menu-buttons button[data-subject]").forEach(b => b.classList.remove("active"));
-
-// 2. Tìm đúng nút "Lịch Thi" để thêm class active (dựa vào thuộc tính onclick chứa chữ 'lich')
-const btnLich = Array.from(document.querySelectorAll(".menu-buttons button[data-subject]")).find(btn => btn.getAttribute("onclick").includes('lich'));
-if(btnLich) btnLich.classList.add("active");
-
-// 3. Gọi hàm hiển thị nội dung Lịch thi
-show("lich");
-
+// Hiển thị tab mặc định khi trang load
+document.addEventListener("DOMContentLoaded", () => {
+  show('lich');
 });
 </script>
 
 <script type="module"> import { initializeApp }
  
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js"; 
-import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, setPersistence, browserLocalPersistence } 
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js"; 
-import { getFirestore, doc, setDoc } 
+import { getFirestore, doc, setDoc, getDoc } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js"; 
 const firebaseConfig = { 
   apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c", 
@@ -3841,6 +3388,7 @@ const allowList = [
 "pnpthuy.2811@gmail.com",
 "bangbang4951@gmail.com",
 "xmai9839@gmail.com",
+"learnhubadmin@gmail.com",
 ];
 let activeInterval = null;
 const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
@@ -3925,24 +3473,34 @@ function enterPreviewMode(){
   startLoading();
 }
 
-onAuthStateChanged(auth, (user)=>{
+onAuthStateChanged(auth, async (user)=>{
 if(previewMode){
   enterPreviewMode();
   return;
 }
 
 if(user){
-  // Development mode logging
-  if (isDevMode) {
-    console.log('✅ USER SIGNED IN:', user.email);
-    console.log('🆔 UID:', user.uid);
-    console.log('📱 Display Name:', user.displayName);
-    console.log('🔗 Auth State: AUTHENTICATED');
-    console.log('⏰ Sign-in Time:', new Date().toISOString());
-  }
-  
   document.getElementById("loginBox").style.display = "none";
   startLoading();
+
+  // ✅ LẤY DỮ LIỆU USER TỪ FIRESTORE (để có tên cho email/password user)
+  let userData = { ...user };
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      const firestoreData = userSnap.data();
+      // Merge Firestore data (ưu tiên displayName từ Firestore nếu có)
+      if (firestoreData.name) {
+        userData.displayName = firestoreData.name;
+      }
+      if (firestoreData.photo) {
+        userData.photoURL = firestoreData.photo;
+      }
+    }
+  } catch (e) {
+    console.log("Không thể lấy dữ liệu Firestore:", e);
+  }
 
   // ✅ GỬI USER SANG FORUM IFRAME
   function sendUserToForum(user){
@@ -3967,7 +3525,7 @@ if(user){
   }
 
   // ✅ GỌI HÀM
-  sendUserToForum(user);
+  sendUserToForum(userData);
 
   // ✅ UPDATE ONLINE STATUS
   if(!activeInterval){
@@ -3985,18 +3543,11 @@ if(user){
   // ✅ START LISTENER
   startListening();
 
-// vì bên trong đã có:
+  // vì bên trong đã có:
 
-applyUserToUI(user);
+  applyUserToUI(userData);
 
 } else {
-  // Development mode logging
-  if (isDevMode) {
-    console.log('❌ USER NOT SIGNED IN');
-    console.log('🔗 Auth State: NOT AUTHENTICATED');
-    console.log('⏰ Attempted Access Time:', new Date().toISOString());
-  }
-  
   resetLoadingState();
   document.getElementById("loginBox").style.display = "flex";
 }
@@ -4037,6 +3588,9 @@ window.googleLogin = function() {
 
         console.log("✅ Đăng nhập & Lưu dữ liệu thành công!");
 
+        // Hiển thị thông báo đăng nhập thành công
+        showAuthNotice("Đăng nhập thành công!", "success", "Thành công");
+
         // 4. ĐIỀU HƯỚNG QUAY VỀ APP (Deep Link)
         // Kiểm tra xem có đang mở từ WebView Android không
         const isApp = navigator.userAgent.includes("Android");
@@ -4049,7 +3603,10 @@ window.googleLogin = function() {
             }, 1000);
         } else {
             // Nếu dùng trình duyệt máy tính bình thường thì load lại để cập nhật giao diện
-            window.location.reload();
+            // Delay 1.5s để user thấy thông báo thành công
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         }
 
     })
@@ -4070,6 +3627,150 @@ window.googleLogin = function() {
         }
     });
 };
+
+// ===== EMAIL/PASSWORD AUTHENTICATION =====
+window.emailLogin = async function() {
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+
+    if (!email || !password) {
+        showAuthNotice("Vui lòng nhập email và mật khẩu", "error", "Thiếu thông tin");
+        return;
+    }
+
+    try {
+        const result = await signInWithEmailAndPassword(auth, email, password);
+        const user = result.user;
+
+        // Kiểm tra allowList
+        if (!allowList.includes(user.email)) {
+            showAuthNotice(
+                "Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.",
+                "error",
+                "Không có quyền truy cập"
+            );
+            await signOut(auth);
+            return;
+        }
+
+        // Ghi dữ liệu vào Firestore (chỉ cập nhật trạng thái đăng nhập, không ghi đè tên)
+        await setDoc(doc(db, "users", user.uid), {
+            email: user.email,
+            photo: user.photoURL || "https://i.imgur.com/6VBx3io.png",
+            lastLogin: new Date().toISOString(),
+            lastActive: Date.now(),
+            online: true
+        }, { merge: true });
+
+        showAuthNotice("Đăng nhập thành công!", "success", "Thành công");
+
+    } catch (error) {
+        console.error("Lỗi đăng nhập:", error);
+        let message = "Đăng nhập thất bại";
+        switch (error.code) {
+            case 'auth/user-not-found':
+                message = "Email này chưa được đăng ký";
+                break;
+            case 'auth/wrong-password':
+                message = "Mật khẩu không đúng";
+                break;
+            case 'auth/invalid-email':
+                message = "Email không hợp lệ";
+                break;
+            case 'auth/too-many-requests':
+                message = "Đăng nhập quá nhiều lần. Vui lòng thử lại sau";
+                break;
+        }
+        showAuthNotice(message, "error", "Đăng nhập thất bại");
+    }
+};
+
+window.emailRegister = async function() {
+    const name = document.getElementById("registerName").value.trim();
+    const email = document.getElementById("registerEmail").value.trim();
+    const password = document.getElementById("registerPassword").value;
+    const confirmPassword = document.getElementById("registerConfirmPassword").value;
+
+    if (!name || !email || !password || !confirmPassword) {
+        showAuthNotice("Vui lòng điền đầy đủ thông tin", "error", "Thiếu thông tin");
+        return;
+    }
+
+    if (name.length < 2) {
+        showAuthNotice("Tên phải có ít nhất 2 ký tự", "error", "Tên quá ngắn");
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        showAuthNotice("Mật khẩu nhập lại không khớp", "error", "Lỗi xác nhận");
+        return;
+    }
+
+    if (password.length < 6) {
+        showAuthNotice("Mật khẩu phải có ít nhất 6 ký tự", "error", "Mật khẩu quá ngắn");
+        return;
+    }
+
+    // Kiểm tra allowList trước khi đăng ký
+    if (!allowList.includes(email)) {
+        showAuthNotice(
+            "Email này không nằm trong danh sách được cấp quyền. Vui lòng liên hệ admin.",
+            "error",
+            "Không có quyền truy cập"
+        );
+        return;
+    }
+
+    try {
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        const user = result.user;
+
+        // Ghi dữ liệu vào Firestore với tên người dùng nhập
+        await setDoc(doc(db, "users", user.uid), {
+            name: name,
+            email: user.email,
+            photo: "https://i.imgur.com/6VBx3io.png",
+            lastLogin: new Date().toISOString(),
+            lastActive: Date.now(),
+            online: true,
+            createdAt: new Date().toISOString()
+        });
+
+        showAuthNotice("Đăng ký thành công! Vui lòng đăng nhập.", "success", "Thành công");
+
+        // Xóa form đăng ký
+        document.getElementById("registerName").value = "";
+        document.getElementById("registerEmail").value = "";
+        document.getElementById("registerPassword").value = "";
+        document.getElementById("registerConfirmPassword").value = "";
+
+        // Đăng xuất để buộc user phải đăng nhập lại (vì createUserWithEmailAndPassword tự động đăng nhập)
+        await signOut(auth);
+
+        // Chuyển sang tab đăng nhập
+        switchAuthTab('login');
+
+        // Điền email vào form đăng nhập
+        document.getElementById("loginEmail").value = email;
+
+    } catch (error) {
+        console.error("Lỗi đăng ký:", error);
+        let message = "Đăng ký thất bại";
+        switch (error.code) {
+            case 'auth/email-already-in-use':
+                message = "Email này đã được đăng ký";
+                break;
+            case 'auth/invalid-email':
+                message = "Email không hợp lệ";
+                break;
+            case 'auth/weak-password':
+                message = "Mật khẩu quá yếu (cần ít nhất 6 ký tự)";
+                break;
+        }
+        showAuthNotice(message, "error", "Đăng ký thất bại");
+    }
+};
+
 // Xử lý khi ẩn tab hoặc đóng trình duyệt
 const updateStatus = (isOnline) => {
 const user = auth.currentUser;
@@ -4343,7 +4044,9 @@ if (typeof db !== 'undefined') {
   /* Khởi tạo ở góc trái dưới */
   left: 20px;
   bottom: 20px;
-  touch-action: none; 
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
   will-change: transform;
 ">
   <img src="chatboiavt.png" style="width:100%; height:100%; object-fit:cover; pointer-events: none;">
@@ -4385,6 +4088,7 @@ document.addEventListener("pointerup", dragEnd);
 function dragStart(e) {
   if (e.button !== 0) return;
   
+  e.preventDefault();
   isDragging = true;
   hasMoved = false;
   chatBtn.style.transition = "none";
@@ -4471,323 +4175,6 @@ overlay.addEventListener("click", () => {
   frame.style.display = "none";
   overlay.style.display = "none";
 });
-
-// Development Mode Check
-const isDevMode = new URLSearchParams(window.location.search).get('dev') === '1';
-if (isDevMode) {
-    console.log('🔧 DEVELOPMENT MODE ENABLED');
-    console.log('📱 User Agent:', navigator.userAgent);
-    console.log('🔗 Firebase Console: https://console.firebase.google.com/project/onthi12-thpttanhong/firestore');
-    console.log('📊 Project ID: onthi12-thpttanhong');
-    console.log('📧 Debug Commands:');
-    console.log('  - Firebase.auth().currentUser');
-    console.log('  - Firebase.firestore()');
-    console.log('  - localStorage.getItem("weeklyTime")');
-    console.log('  - Check Network tab in DevTools');
-}
-
-// Weekly Time Counter Logic
-let weeklyStartTime = Date.now();
-let weeklyTotalTime = 0;
-let isTracking = true;
-let weeklyInterval;
-
-function updateWeeklyTime() {
-    if (!isTracking) return;
-    
-    weeklyTotalTime += 1000; // Add 1 second
-    
-    // Format time as HH:MM:SS
-    const hours = Math.floor(weeklyTotalTime / 3600000);
-    const minutes = Math.floor((weeklyTotalTime % 3600000) / 60000);
-    const seconds = Math.floor((weeklyTotalTime % 60000) / 1000);
-    
-    const timeString = 
-        String(hours).padStart(2, '0') + ':' +
-        String(minutes).padStart(2, '0') + ':' +
-        String(seconds).padStart(2, '0');
-    
-    // Update time display
-    const timeElement = document.getElementById('weeklyTime');
-    if (timeElement) {
-        timeElement.textContent = timeString;
-    }
-    
-    // Update status
-    const statusElement = document.querySelector('.counter-status');
-    if (statusElement) {
-        statusElement.textContent = 'Đang đếm...';
-    }
-    
-    // Development mode logging
-    if (isDevMode) {
-        console.log('⏱️ Weekly Time Update:', timeString, weeklyTotalTime);
-    }
-}
-
-function startWeeklyTracking() {
-    if (isDevMode) {
-        console.log('🔄 startWeeklyTracking() called');
-        console.log('📊 Current weeklyTotalTime before:', weeklyTotalTime);
-    }
-    
-    // Check if it's a new week
-    const now = new Date();
-    const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-    const storedWeekStart = localStorage.getItem('weekStart');
-    
-    if (isDevMode) {
-        console.log('📅 Week Info:', {
-            now: now.toISOString(),
-            weekStart: weekStart.toISOString(),
-            storedWeekStart: storedWeekStart
-        });
-    }
-    
-    if (storedWeekStart !== weekStart.toISOString()) {
-        // New week, reset counter
-        weeklyTotalTime = 0;
-        localStorage.setItem('weekStart', weekStart.toISOString());
-        localStorage.setItem('weeklyTime', '0');
-        
-        if (isDevMode) {
-            console.log('🆕 New week detected, counter reset');
-        }
-    } else {
-        // Load existing time from Firebase first, then fallback to localStorage
-        const user = auth.currentUser;
-        if (isDevMode) {
-            console.log('👤 Current user:', user ? user.email : 'Not logged in');
-        }
-        
-        if (user) {
-            if (isDevMode) {
-                console.log('🔥 Loading from Firebase for user:', user.uid);
-            }
-            loadWeeklyTimeFromFirebase(user.uid);
-        } else {
-            const stored = localStorage.getItem('weeklyTime');
-            if (stored) {
-                weeklyTotalTime = parseInt(stored);
-                if (isDevMode) {
-                    console.log('💾 Loaded from localStorage:', weeklyTotalTime);
-                }
-            }
-        }
-    }
-    
-    // Clear existing interval if any
-    if (weeklyInterval) {
-        clearInterval(weeklyInterval);
-        if (isDevMode) {
-            console.log('🧹 Cleared existing interval:', weeklyInterval);
-        }
-    }
-    
-    isTracking = true;
-    weeklyInterval = setInterval(updateWeeklyTime, 1000);
-    
-    if (isDevMode) {
-        console.log('✅ Weekly tracking started:', {
-            isTracking: isTracking,
-            intervalId: weeklyInterval,
-            initialTime: weeklyTotalTime
-        });
-    }
-}
-
-function loadWeeklyTimeFromFirebase(userId) {
-    if (isDevMode) {
-        console.log('🔥 loadWeeklyTimeFromFirebase called for userId:', userId);
-    }
-    
-    try {
-        const weekStart = new Date();
-        weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-        weekStart.setHours(0, 0, 0, 0);
-        
-        const weekKey = weekStart.toISOString().split('T')[0]; // YYYY-MM-DD format
-        
-        if (isDevMode) {
-            console.log('📅 Firebase weekKey:', weekKey);
-        }
-        
-        const docRef = doc(db, "users", userId, "weeklyTime", weekKey);
-        getDoc(docRef).then((docSnap) => {
-            if (isDevMode) {
-                console.log('📊 Firebase docSnap.exists():', docSnap.exists());
-            }
-            
-            if (docSnap.exists()) {
-                weeklyTotalTime = docSnap.data().totalTime || 0;
-                
-                if (isDevMode) {
-                    console.log('💾 Firebase loaded time:', weeklyTotalTime);
-                }
-                
-                // Update display immediately
-                const hours = Math.floor(weeklyTotalTime / 3600000);
-                const minutes = Math.floor((weeklyTotalTime % 3600000) / 60000);
-                const seconds = Math.floor((weeklyTotalTime % 60000) / 1000);
-                
-                const timeString = 
-                    String(hours).padStart(2, '0') + ':' +
-                    String(minutes).padStart(2, '0') + ':' +
-                    String(seconds).padStart(2, '0');
-                
-                const timeElement = document.getElementById('weeklyTime');
-                if (timeElement) {
-                    timeElement.textContent = timeString;
-                    if (isDevMode) {
-                        console.log('🎯 Updated time element with:', timeString);
-                    }
-                }
-            } else {
-                // Fallback to localStorage if Firebase has no data
-                const stored = localStorage.getItem('weeklyTime');
-                if (stored) {
-                    weeklyTotalTime = parseInt(stored);
-                    if (isDevMode) {
-                        console.log('📦 Firebase empty, using localStorage:', weeklyTotalTime);
-                    }
-                } else {
-                    if (isDevMode) {
-                        console.log('📭 No data in Firebase or localStorage');
-                    }
-                }
-            }
-        }).catch((error) => {
-            console.error("Error loading weekly time from Firebase:", error);
-            // Fallback to localStorage
-            const stored = localStorage.getItem('weeklyTime');
-            if (stored) {
-                weeklyTotalTime = parseInt(stored);
-                if (isDevMode) {
-                    console.log('📦 Firebase error, using localStorage:', weeklyTotalTime);
-                }
-            }
-        });
-    } catch (error) {
-        console.error("Error in loadWeeklyTimeFromFirebase:", error);
-        // Fallback to localStorage
-        const stored = localStorage.getItem('weeklyTime');
-        if (stored) {
-            weeklyTotalTime = parseInt(stored);
-            if (isDevMode) {
-                console.log('📦 Try-catch error, using localStorage:', weeklyTotalTime);
-            }
-        }
-    }
-}
-
-function pauseWeeklyTracking() {
-    if (isDevMode) {
-        console.log('⏸️ pauseWeeklyTracking() called');
-        console.log('📊 Current weeklyTotalTime before pause:', weeklyTotalTime);
-    }
-    
-    isTracking = false;
-    if (weeklyInterval) {
-        clearInterval(weeklyInterval);
-        if (isDevMode) {
-            console.log('🧹 Cleared interval:', weeklyInterval);
-        }
-    }
-    
-    // Save current time
-    localStorage.setItem('weeklyTime', weeklyTotalTime.toString());
-    
-    if (isDevMode) {
-        console.log('💾 Saved to localStorage:', weeklyTotalTime);
-    }
-    
-    // Save to Firebase if user is logged in
-    const user = auth.currentUser;
-    if (user) {
-        if (isDevMode) {
-            console.log('🔥 Saving to Firebase for user:', user.uid);
-        }
-        saveWeeklyTimeToFirebase(user.uid, weeklyTotalTime);
-    } else {
-        if (isDevMode) {
-            console.log('👤 No user logged in, only saved to localStorage');
-        }
-    }
-}
-
-function saveWeeklyTimeToFirebase(userId, time) {
-    if (isDevMode) {
-        console.log('🔥 saveWeeklyTimeToFirebase called:', { userId, time });
-    }
-    
-    try {
-        const weekStart = new Date();
-        weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-        weekStart.setHours(0, 0, 0, 0);
-        
-        const weekKey = weekStart.toISOString().split('T')[0]; // YYYY-MM-DD format
-        
-        if (isDevMode) {
-            console.log('📅 Firebase saving weekKey:', weekKey);
-        }
-        
-        setDoc(doc(db, "users", userId, "weeklyTime", weekKey), {
-            totalTime: time,
-            lastUpdated: Date.now(),
-            weekStart: weekKey
-        }, { merge: true }).then(() => {
-            if (isDevMode) {
-                console.log('✅ Firebase save successful:', time);
-            }
-        }).catch((error) => {
-            console.error("Error saving weekly time to Firebase:", error);
-            if (isDevMode) {
-                console.log('❌ Firebase save failed:', error.message);
-            }
-        });
-    } catch (error) {
-        console.error("Error in saveWeeklyTimeToFirebase:", error);
-        if (isDevMode) {
-            console.log('❌ Try-catch error:', error.message);
-        }
-    }
-}
-
-// Start tracking when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    if (isDevMode) {
-        console.log('🚀 DOMContentLoaded - Starting weekly tracking');
-        console.log('📊 Initial weeklyTotalTime:', weeklyTotalTime);
-        console.log('🔄 isTracking status:', isTracking);
-    }
-    
-    // Check if counter elements exist
-    const timeElement = document.getElementById('weeklyTime');
-    const statusElement = document.querySelector('.counter-status');
-    
-    if (isDevMode) {
-        console.log('🔍 Counter Elements Found:', {
-            timeElement: !!timeElement,
-            statusElement: !!statusElement,
-            weeklyCounterElement: !!document.querySelector('.weekly-time-counter')
-        });
-    }
-    
-    startWeeklyTracking();
-});
-
-// Pause tracking when page loses focus
-document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-        pauseWeeklyTracking();
-    } else {
-        startWeeklyTracking();
-    }
-});
-
-// Pause tracking when user leaves page
-window.addEventListener('beforeunload', pauseWeeklyTracking);
-
 </script>
 </body>
 </html>
