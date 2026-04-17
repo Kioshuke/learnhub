@@ -353,10 +353,6 @@ gap:25px;
 .card.active-card::before{
   opacity:1;
 }
-.card:hover::before{
-  opacity:1;
-}
-
 .card:hover::after{
   content:none;
 }
@@ -1262,11 +1258,36 @@ transform: scale(0.9);
 transition: opacity 0.35s ease-out, transform 0.35s ease-out;
 pointer-events: none;
 }
+/* ===== NEW: DOT SHRINK OUT ===== */
+@keyframes dotShrinkOut{
+  0%{
+    transform: scale(1);
+    opacity: 1;
+  }
+  100%{
+    transform: scale(0.2);
+    opacity: 0;
+  }
+}
 
+.loading-dots.shrink-out .loading-dot{
+  animation: dotShrinkOut 0.35s ease-out forwards !important;
+}
+.loading-dots.stop-animation .loading-dot{
+  animation-play-state: paused;
+}
+.loading-dot{
+  animation-fill-mode: both;
+}
+.loading-dots.shrink-out .loading-dot:nth-child(1){animation-delay:0s;}
+.loading-dots.shrink-out .loading-dot:nth-child(2){animation-delay:0.05s;}
+.loading-dots.shrink-out .loading-dot:nth-child(3){animation-delay:0.1s;}
+.loading-dots.shrink-out .loading-dot:nth-child(4){animation-delay:0.15s;}
 /* Hiệu ứng chuyển màu xanh lá khi hoàn thành */
 .loading-dots.done .loading-dot{
 background: linear-gradient(135deg, #22c55e, #16a34a);
-box-shadow: 0 8px 24px rgba(34,197,94,0.4);
+box-shadow: 0 0 12px rgba(59,130,246,0.6),
+              0 0 24px rgba(6,182,212,0.4);
 transition: background 0.5s ease, box-shadow 0.5s ease;
 }
 
@@ -1323,11 +1344,6 @@ transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 opacity: 1;
 filter: brightness(1.1);
 transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-#loadingOverlay.hide{
-  opacity:0;
-  visibility:hidden;
 }
 
 /* Loading brand với logo */
@@ -1868,6 +1884,7 @@ body.dark-mode .card{
 <p style="text-align:left;"> <b>Thông báo nội dung:</b><br>
 - Đã hoàn thành tất cả các môn <br>
 - Đã cập nhật đáp án môn Hoá Học
+</p>
 <p style="text-align:left;"> <b>Tính năng mới:</b><br>
 - LearnHub Forum, bạn có thể trao đổi với các thành viên khác tại đây. Để truy cập hãy bấm vào ô Forum trên thanh Menu!<br>- Hubie-AI của bạn, hỗ trợ giải đáp bài, trao đổi, trò chuyện,.....<br>- Cải tiến giao diện: Những bài đã được up sẽ có dấu chấm xanh (hoàn thành). Ngược lại, những bài chưa up sẽ có dấu chấm đỏ (Đang cập nhật)<br>- Cải tiến giao diện, sửa bug, cập nhật lặt vặt,...</p>
 </div>
@@ -2850,76 +2867,88 @@ const messages = [
 ];
 
 function startLoading(){
-    const overlay = document.getElementById("loadingOverlay");
-    if (!overlay || loadingStarted) return;
+const overlay = document.getElementById("loadingOverlay");
+if (!overlay || loadingStarted) return;
 
-    document.body.classList.add("auth-locked");
-    document.body.classList.remove("app-ready");
-    loadingStarted = true;
-    loadingState = "loading";
-    overlay.style.display = "flex";
-    overlay.classList.remove("hide");
-    loadingStatus.innerText = "🧠 Đang chuẩn bị kiến thức...";
-    document.getElementById("mainContent").classList.remove("show");
+document.body.classList.add("auth-locked");
+document.body.classList.remove("app-ready");
+loadingStarted = true;
+loadingState = "loading";
+overlay.style.display = "flex";
+overlay.classList.remove("hide");
+loadingStatus.innerText = "🧠 Đang chuẩn bị kiến thức...";
+document.getElementById("mainContent").classList.remove("show");
 
-    // Reset everything to initial state
-    const dotsContainer = document.querySelector(".loading-dots");
-    const brandContainer = document.querySelector(".loading-brand");
-    
-    if (dotsContainer) {
-        dotsContainer.classList.remove("speed-up", "fade-out");
-    }
-    if (brandContainer) {
-        brandContainer.classList.remove("emphasize");
-        brandContainer.classList.add("initially-hidden"); // 🔥 Ẩn logo ban đầu
-    }
+const dotsContainer = document.querySelector(".loading-dots");
+const brandContainer = document.querySelector(".loading-brand");
 
-    // Change status messages
-    let msgIndex = 0;
-    loadingTimer = setInterval(() => {
-        msgIndex++;
-        if (msgIndex < messages.length) {
-            loadingStatus.innerText = messages[msgIndex];
-        } else if (msgIndex === messages.length) {
-            // Show "Done" state - trigger transition
-            loadingStatus.innerText = "✅ Done!";
-            loadingState = "done";
-            
-            // Dừng animation và chuẩn bị chuyển tiếp
-            if (dotsContainer) {
-                dotsContainer.classList.add("stop-animation");
-            }
-        } else if (msgIndex === messages.length + 1) {
-            // Chuyển màu xanh lá và dạt sang hai bên
-            if (dotsContainer) {
-                dotsContainer.classList.add("done", "slide-apart");
-            }
-            loadingState = "transitioning";
-        } else if (msgIndex === messages.length + 2) {
-            // Fade in logo sau khi dots đã dạt ra hai bên
-            if (brandContainer) {
-                brandContainer.classList.remove("initially-hidden");
-                brandContainer.classList.add("emphasize");
-            }
-        } else if (msgIndex === messages.length + 3) {
-            // Fade out dots
-            if (dotsContainer) {
-                dotsContainer.classList.add("fade-out");
-            }
-        } else if (msgIndex === messages.length + 4) {
-            // Hide loading overlay and show main content
-            clearInterval(loadingTimer);
-            loadingTimer = null;
-            
-            overlay.classList.add("hide");
-            overlay.addEventListener("transitionend", () => {
-                overlay.style.display = "none";
-                document.body.classList.remove("auth-locked");
-                document.body.classList.add("app-ready");
-                document.getElementById("mainContent").classList.add("show");
-            }, { once: true });
+if (dotsContainer) {
+    dotsContainer.classList.remove(
+        "speed-up",
+        "fade-out",
+        "shrink-out",
+        "slide-apart",
+        "done",
+        "stop-animation"
+    );
+}
+
+if (brandContainer) {
+    brandContainer.classList.remove("emphasize");
+    brandContainer.classList.add("initially-hidden");
+}
+
+let msgIndex = 0;
+
+loadingTimer = setInterval(() => {
+    msgIndex++;
+
+    if (msgIndex < messages.length) {
+        loadingStatus.innerText = messages[msgIndex];
+
+    } else if (msgIndex === messages.length) {
+        loadingStatus.innerText = "✅ Done!";
+        loadingState = "done";
+
+    } else if (msgIndex === messages.length + 1) {
+        // 👉 chuyển xanh + dạt ra
+        if (dotsContainer) {
+            dotsContainer.classList.add("done", "slide-apart");
         }
-    }, 800); // Change message every 0.8 seconds (fast and smooth)
+
+    } else if (msgIndex === messages.length + 2) {
+        // 👉 hiện logo
+        if (brandContainer) {
+            brandContainer.classList.remove("initially-hidden");
+            brandContainer.classList.add("emphasize");
+        }
+
+    } else if (msgIndex === messages.length + 3) {
+        // 👉 CHỜ animation trước xong rồi mới shrink
+        setTimeout(() => {
+            if (dotsContainer) {
+                dotsContainer.classList.add("shrink-out");
+            }
+        }, 200); // delay nhỏ để tránh giật
+
+    } else if (msgIndex === messages.length + 4) {
+        clearInterval(loadingTimer);
+        loadingTimer = null;
+
+        overlay.addEventListener("transitionend", () => {
+            overlay.style.display = "none";
+            document.body.classList.remove("auth-locked");
+            document.body.classList.add("app-ready");
+            document.getElementById("mainContent").classList.add("show");
+        }, { once: true });
+
+        setTimeout(() => {
+            overlay.classList.add("hide");
+        }, 400);
+    }
+
+}, msgIndex < messages.length ? 800 : 1200);
+
 }
 
 function resetLoadingState(){
