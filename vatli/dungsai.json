@@ -38,9 +38,9 @@
         "question": "Khi nói về ảnh hưởng và nguyên tắc an toàn của phóng xạ, chọn phát biểu đúng, phát biểu sai:",
         "subQuestions": [
           { "text": "Biển báo tam giác vàng có hình cảnh báo phóng xạ dùng để chỉ nơi có phóng xạ", "correct": 1 },
-          { "text": "Khi làm việc với nguồn phóng xạ, cần đeo đồ bảo hộ đầy đủ như găng tay, khẩu trang, áo chì", "correct": 0 },
-          { "text": "Việc ăn uống, hút thuốc trong khu vực có phóng xạ là hoàn toàn cho phép nếu đã đeo đồ bảo hộ", "correct": 1 },
-          { "text": "Nếu phát hiện vật liệu phóng xạ nghi ngờ, cần báo ngay cho cơ quan chức năng có thẩm quyền", "correct": 0 }
+          { "text": "Khi làm việc với nguồn phóng xạ, cần đeo đồ bảo hộ đầy đủ như găng tay, khẩu trang, áo chì", "correct": 1 },
+          { "text": "Việc ăn uống, hút thuốc trong khu vực có phóng xạ là hoàn toàn cho phép nếu đã đeo đồ bảo hộ", "correct": 0 },
+          { "text": "Nếu phát hiện vật liệu phóng xạ nghi ngờ, cần báo ngay cho cơ quan chức năng có thẩm quyền", "correct": 1 }
         ]
       },
       {
