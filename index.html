@@ -490,19 +490,17 @@ box-shadow:0 12px 28px color-mix(in srgb, var(--card-color) 30%, transparent);
 }
 
 /* QUIZ */
+
 .quiz-box {
     margin-top: 30px;
     background: white;
-    padding: 0;                /* iframe sát mép */
-    border-radius: 0;
-    box-shadow: none;
-    border: none;
+    padding: 0;                /* Đổi từ 12px về 0 để iframe sát mép */
+    border-radius: 0;          /* Nếu muốn phẳng hoàn toàn, còn không cứ để 12px nếu thích bo góc */
+    box-shadow: none;          /* Xóa bỏ đổ bóng (thứ trông như viền mờ) */
+    border: none;              /* Đảm bảo không có border ẩn */
     position: relative;
-    /* Cho phép cuộn bằng chuột trên desktop và cuộn mượt trên mobile */
-    height: 100vh;             /* thay 100dvh -> 100vh */
-    min-height: 0;             /* tránh ép cao quá */
-    overflow: auto;            /* <<--- quan trọng: cho phép scroll với wheel */
-    -webkit-overflow-scrolling: touch;
+    height: 100dvh;
+    overflow: hidden;          /* Đảm bảo iframe không bị tràn ra ngoài */
 }
 
 iframe {
