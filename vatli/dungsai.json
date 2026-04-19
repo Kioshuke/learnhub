@@ -67,8 +67,8 @@
         "type": "true_false",
         "question": "Đồng vị phóng xạ β⁻ xenon ¹³³₅₄Xe được sử dụng trong phương pháp nguyên tử đánh dấu của y học hạt nhân khi kiểm tra chức năng và chẩn đoán các bệnh về phổi. Chu kì bán rã của ¹³³₅₄Xe là 5,24 ngày. Một mẫu khí chứa ¹³³₅₄Xe khi được sản xuất tại nhà máy có độ phóng xạ 4,25.10⁹ Bq. Mẫu đó được vận chuyển về bệnh viện và sử dụng sau 3,00 ngày.",
         "subQuestions": [
-          { "text": "Sản phẩm phân rã của xenon là ¹³³₅₅Cs", "correct": 1 },
-          { "text": "Hằng số phóng xạ của xenon là 0,132 s⁻¹", "correct": 0 },
+          { "text": "Sản phẩm phân rã của xenon ¹³³₅₄Xe là cesium ¹³³₅₅Cs", "correct": 1 },
+          { "text": "Hằng số phóng xạ của xenon ¹³³₅₄Xe là 0,132 s⁻¹", "correct": 0 },
           { "text": "Số nguyên tử ¹³³₅₄Xe trong mẫu mới sản xuất là 2,78.10¹⁵ nguyên tử", "correct": 1 },
           { "text": "Khi bệnh nhân sử dụng, độ phóng xạ của mẫu khí là 1,86.10⁹ Bq", "correct": 0 }
         ]
