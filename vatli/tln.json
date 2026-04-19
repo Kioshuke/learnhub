@@ -7,85 +7,85 @@
         "type": "short_answer",
         "question": "Một sợi dây dẫn điện được treo giữa hai cực của một nam châm. Người ta cho một dòng điện không đổi chạy qua sợi dây như hình vẽ. Lực từ tác dụng lên sợi dây có hướng theo hướng nào?",
         "image": "https://video.vietjack.com/upload2/quiz_source1/2026/02/blobid5-1770176991.png",
-        "correct": "3"
+        "correctAnswer": "3"
       },
       {
         "type": "short_answer",
         "question": "Một vòng dây kín đặt trong từ trường có B biến đổi theo thời gian như đồ thị. Trong khoảng thời gian nào thì độ lớn suất điện động cảm ứng xuất hiện trong vòng dây đạt giá trị cực đại?",
         "image": "../vatli/tlncau2.jpg",
-        "correct": "1"
+        "correctAnswer": "1"
       },
       {
         "type": "short_answer",
         "question": "Cường độ dòng điện trong mạch không phân nhánh có dạng i = 2√2.cos(100πt) (A). Xác định cường độ dòng điện cực đại trong mạch là bao nhiêu ampe? (Kết quả làm tròn đến hàng phần trăm)",
-        "correct": "2,83"
+        "correctAnswer": "2,83"
       },
       {
         "type": "short_answer",
         "question": "Tại khu vực dây dẫn đi qua, cảm ứng từ của từ trường Trái Đất có độ lớn B = 4.10⁻⁴ T, tạo với dây dẫn một góc 30°. Khi trong dây dẫn có dòng điện cường độ I = 2 A thì lực từ do từ trường Trái Đất tác dụng lên mỗi mét chiều dài dây dẫn là x.10⁻³ N. Giá trị của x là bao nhiêu?",
-        "correct": "0,4"
+        "correctAnswer": "0,4"
       },
       {
         "type": "short_answer",
         "question": "Một vòng dây dẫn kín, phẳng được đặt trong từ trường đều. Trong khoảng thời gian 0,04 s, từ thông qua vòng dây giảm đều từ giá trị 6.10⁻³ Wb về 0 thì suất điện động cảm ứng xuất hiện trong vòng dây có độ lớn bằng bao nhiêu vôn?",
-        "correct": "0,15"
+        "correctAnswer": "0,15"
       },
       {
         "type": "short_answer",
         "question": "Một dòng điện xoay chiều có biểu thức i = 10cos(100πt + π/3) (A). Cường độ dòng điện hiệu dụng có giá trị bằng bao nhiêu ampe? (Kết quả làm tròn đến hàng phần trăm)",
-        "correct": "7,07"
+        "correctAnswer": "7,07"
       },
       {
         "type": "short_answer",
         "question": "Khung dây phẳng có diện tích 100 cm² đặt trong từ trường đều, cảm ứng từ có độ lớn 0,2 T. Khi mặt phẳng khung dây hợp với B⃗ một góc 30° thì từ thông qua mặt phẳng là bao nhiêu miliweber (mWb)? (Làm tròn đến hàng đơn vị)",
-        "correct": "1"
+        "correctAnswer": "1"
       },
       {
         "type": "short_answer",
         "question": "Một đoạn dây dẫn mang dòng điện 10 A đặt vuông góc với các đường sức từ của một từ trường đều thì lực từ tác dụng lên mỗi mét chiều dài dây là 0,02 N. Bỏ qua ảnh hưởng của từ trường Trái Đất. Độ lớn cảm ứng từ của từ trường đó bằng bao nhiêu mili tesla (mT)?",
-        "correct": "2"
+        "correctAnswer": "2"
       },
       {
         "type": "short_answer",
         "question": "Chỉ ra số phát biểu đúng trong 5 phát biểu sau. Sóng thuộc sóng điện từ là: 1. Sóng vô tuyến 2. Sóng âm thanh 3. Ánh sáng nhìn thấy 4. Sóng siêu âm 5. Sóng thần",
-        "correct": "2"
+        "correctAnswer": "2"
       },
       {
         "type": "short_answer",
         "question": "Một đoạn dây dẫn có khối lượng 0,010 kg được treo bằng các lò xo trong từ trường đều có cảm ứng từ B = 0,041 T và hướng theo phương ngang. Phần dây dẫn nằm ngang trong từ trường và vuông góc với B⃗ có chiều dài 1,0 m. Lấy g = 9,8 m/s². Biết lò xo ở trạng thái tự nhiên và dây treo không nhiễm từ, xác định cường độ dòng điện chạy trong đoạn dây (đơn vị A)? (Kết quả làm tròn đến hàng phần mười)",
         "image": "https://vietjack.com/sbt-vat-li-12-cd/images/cau-1-trang-30-sbt-vat-li-lop-12.PNG",
-        "correct": "2,4"
+        "correctAnswer": "2,4"
       },
       {
         "type": "short_answer",
         "question": "Hạt nhân Ni có điện tích là +28e. Có bao nhiêu nơtron trong hạt nhân ⁶⁰₂₈Ni? (làm tròn đến hàng đơn vị)",
-        "correct": "32"
+        "correctAnswer": "32"
       },
       {
         "type": "short_answer",
         "question": "Cho biết số hạt nhân của một mẫu chất phóng xạ giảm dần theo thời gian theo quy luật được mô tả như đồ thị ở hình bên. Tính chu kì bán rã là bao nhiêu giây? (làm tròn đến hàng đơn vị)",
         "image": "../vatli/tlncau12.jpg",
-        "correct": "30"
+        "correctAnswer": "30"
       },
       {
         "type": "short_answer",
         "question": "Giả sử quả bom nguyên tử thả xuống Hiroshima có chứa 100 kg quặng uranium, trong đó ²³⁵₉₂U chiếm 25%. Biết trung bình mỗi phân hạch của ²³⁵₉₂U giải phóng 200 MeV. Khối lượng ²³⁵₉₂U chứa trong 100 kg quặng uranium bằng bao nhiêu kg? (làm tròn đến hàng đơn vị)",
-        "correct": "25"
+        "correctAnswer": "25"
       },
       {
         "type": "short_answer",
         "question": "Giả sử quả bom nguyên tử thả xuống Hiroshima có chứa 100 kg quặng uranium, trong đó ²³⁵₉₂U chiếm 25%. Biết trung bình mỗi phân hạch của ²³⁵₉₂U giải phóng 200 MeV. Năng lượng giải phóng của vụ nổ tương đương x.10⁸ kW.h. Tìm x (làm tròn đến hàng phần trăm)",
-        "correct": "5,69"
+        "correctAnswer": "5,69"
       },
       {
         "type": "short_answer",
         "question": "Đồng vị ²³⁸₉₂U phân rã qua một chuỗi phân rã phóng xạ α và β⁻ biến thành hạt nhân bền ²⁰⁶₈₂Pb. Biết chu kì bán rã của ²³⁸₉₂U là 4,47.10⁹ năm. Một khối đá được phát hiện chứa 46,97 mg ²³⁸₉₂U và 23,15 mg ²⁰⁶₈₂Pb. Giả sử khối đá khi mới hình thành không chứa chì và toàn bộ lượng chì có mặt đều là sản phẩm phân rã của ²³⁸₉₂U. Tuổi của khối đá là bao nhiêu tỉ năm? (Kết quả lấy đến một chữ số sau dấu thập phân)",
-        "correct": "2,9"
+        "correctAnswer": "2,9"
       },
       {
         "type": "short_answer",
         "question": "Công suất bức xạ toàn phần của Mặt Trời là P = 3,9.10²⁶ W. Phản ứng hạt nhân trong lòng Mặt Trời là phản ứng tổng hợp hiđrô thành heli và lượng heli tạo thành trong một năm (365 ngày) là 1,945.10¹⁹ kg. Khối lượng hiđrô tiêu thụ trong một năm trên Mặt Trời xấp xỉ bằng bao nhiêu (10¹⁹ kg)? (kết quả làm tròn đến hàng phần trăm)",
-        "correct": "1,96"
+        "correctAnswer": "1,96"
       }
     ]
   }
