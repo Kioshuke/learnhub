@@ -58,7 +58,7 @@
         "question": "Khi nói về phản ứng phân hạch hạt nhân, hãy chọn kết luận “Đúng” hoặc “Sai”:",
         "subQuestions": [
           { "text": "Hạt nhân ¹²₆C không thể phân hạch", "correct": 1 },
-          { "text": "Trong một phản ứng phân hạch, gọi tổng khối lượng nghỉ của các hạt trước phản ứng là m₁ và tổng khối lượng nghỉ của các hạt sau phản ứng là m₂ thì m₁ > m₂", "correct": 0 },
+          { "text": "Trong một phản ứng phân hạch, gọi tổng khối lượng nghỉ của các hạt trước phản ứng là m₁ và tổng khối lượng nghỉ của các hạt sau phản ứng là m₂ thì mₜ < mₛ", "correct": 0 },
           { "text": "Phần lớn năng lượng giải phóng trong phân hạch là động năng của các mảnh", "correct": 1 },
           { "text": "Sự phân hạch của hạt nhân ²³⁵₉₂U khi hấp thụ một nơtron chậm có thể xảy ra theo nhiều cách. Một trong các cách đó: ²³⁵₉₂U + ¹₀n → ¹⁴⁰₅₄Xe + ⁹⁴₃₈Sr + k.¹₀n. Số nơtron tạo ra trong phản ứng này là k = 3", "correct": 0 }
         ]
