@@ -123,7 +123,7 @@
           "Mn (Z = 25).",
           "Cu (Z = 29)."
         ],
-        "correct": 2
+        "correct": 0
       },
       {
         "type": "multiple",
@@ -151,9 +151,9 @@
         "type": "multiple",
         "question": "Cho một phức chất trong đó cation Ni²⁺ dùng sáu orbital trống để nhận các cặp electron từ sáu phân tử nước. Phức chất đó có công thức là",
         "answers": [
-          "[Ni(H₂O)₆]²⁺",
+          "[Ni(OH₂)₆]²⁺",
           "[Ni(OH)₆]⁴⁻",
-          "[Ni(H₂O)₆]²⁺",
+          "[Ni(OH)₆]²⁺",
           "[Ni(OH)₆]³⁻"
         ],
         "correct": 0
