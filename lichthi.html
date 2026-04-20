@@ -21,8 +21,19 @@
   .day-row:hover { transform: translateX(6px) scale(1.02); background-color: rgba(248,250,252,0.95) !important; }
   .day-row.today { background: linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(220,38,38,0.1) 100%) !important; border: 2px solid rgb(239,68,68); box-shadow: 0 0 20px rgba(239,68,68,0.5); }
   .day-row.upcoming { background: linear-gradient(135deg, rgba(251,191,36,0.2) 0%, rgba(234,179,8,0.15) 100%) !important; border: 2px solid rgb(251,191,36); box-shadow: 0 0 20px rgba(251,191,36,0.4); animation: shake-wiggle 0.6s ease-in-out infinite; }
+  html, body { background: transparent !important; }
+  body.dark-mode { background: transparent !important; color:#e2e8f0; }
+  body.dark-mode #app { color:#e2e8f0; }
+  body.dark-mode .card-anim { border-color: rgba(148,163,184,0.18) !important; }
+  body.dark-mode .day-row { background: rgba(15,23,42,0.88) !important; border-color: rgba(100,116,139,0.35) !important; }
+  body.dark-mode .day-row:hover { background: rgba(30,41,59,0.96) !important; }
+  body.dark-mode .day-row p,
+  body.dark-mode .day-row .text-slate-700,
+  body.dark-mode .day-row .text-slate-600 { color:#cbd5e1 !important; }
+  body.dark-mode .countdown-box-small { box-shadow: 0 16px 40px rgba(2,6,23,0.38); }
+  body.dark-mode .rounded-xl.bg-orange-500\\/10 { background: rgba(249,115,22,0.14) !important; border-color: rgba(249,115,22,0.25) !important; }
 </style>
-  <style>body { box-sizing: border-box; }</style>
+  <style>html, body { box-sizing: border-box; background: transparent !important; } body { box-sizing: border-box; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
  </head>
  <body class="h-full overflow-auto bg-transparent">
@@ -236,6 +247,13 @@ if (window.elementSdk) {
 }
 
 lucide.createIcons();
+
+window.addEventListener('message', (event) => {
+  if (!event.data || event.data.type !== 'DARK_MODE') return;
+
+  const isDark = Boolean(event.data.value);
+  document.body.classList.toggle('dark-mode', isDark);
+});
 </script>
  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ed1a652b5870519',t:'MTc3NjMyNjM1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
