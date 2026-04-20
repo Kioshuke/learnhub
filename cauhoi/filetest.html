@@ -393,12 +393,6 @@
         .quiz-locked .tf-options label {
         pointer-events: none; /* không cho click */
         }
-        /* Hover vẫn sáng lên cho UX */
-        .quiz-locked .ans-label:hover {
-          background: #c5d6e8;
-          border-color: #cbd5e1;
-          cursor: not-allowed;
-        }
         
 .quiz-locked .tf-row:hover {
   background: var(--tf-hover);
@@ -409,8 +403,23 @@
 .tf-question-text { flex: 1; font-size: 0.95rem; line-height: 1.5; }
 .tf-options { display: flex; gap: 10px; }
 /* Màu cho câu Trắc nghiệm và Đúng/Sai */
-.review-true { background-color: #dcfce7 !important; border-color: #22c55e !important; } /* Xanh lá nhạt */
-.review-false { background-color: #fee2e2 !important; border-color: #ef4444 !important; } /* Đỏ nhạt */
+/* Màu review bình thường */
+.review-true {
+    background: var(--success-light) !important;
+    border-color: var(--success) !important;
+}
+
+.review-false {
+    background: var(--danger-light) !important;
+    border-color: var(--danger) !important;
+}
+
+/* Hover khi đã khóa bài */
+.quiz-locked .ans-label:hover {
+    background: var(--tf-hover) !important;
+    border-color: var(--tf-border) !important;
+    cursor: not-allowed;
+}
 .true-text { color: var(--true-asw); font-weight: bold; }
 .false-text { color: var(--false-asw); font-weight: bold; }
 .tf-options input {
