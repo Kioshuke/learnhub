@@ -4423,13 +4423,6 @@ chatBtn.addEventListener("pointerdown", dragStart);
 document.addEventListener("pointermove", drag);
 document.addEventListener("pointerup", dragEnd);
 
-// Khởi tạo vị trí mặc định
-setTimeout(() => {
-  xOffset = 0;
-  yOffset = 0;
-  updatePosition();
-}, 0);
-
 function dragStart(e) {
   if (e.button !== 0) return;
   
@@ -4449,18 +4442,15 @@ function drag(e) {
   if (!isDragging) return;
   e.preventDefault();
 
-  // Chỉ cho phép kéo lên xuống (vertical), khóa vị trí X
+  currentX = e.clientX - startX;
   currentY = e.clientY - startY;
 
-  // Giới hạn trong màn hình (cách top/bottom 20px)
-  const maxY = window.innerHeight - chatBtn.offsetHeight - 20;
-  currentY = Math.max(-20, Math.min(currentY, maxY));
-
   // Kiểm tra nếu thực sự có di chuyển
-  if (Math.abs(currentY - yOffset) > 2) {
+  if (Math.abs(currentX - xOffset) > 2 || Math.abs(currentY - yOffset) > 2) {
     hasMoved = true;
   }
 
+  xOffset = currentX;
   yOffset = currentY;
 
   if (!rafId) {
@@ -4480,22 +4470,19 @@ function dragEnd() {
   isDragging = false;
   chatBtn.style.cursor = "grab";
   
-  // Hiệu ứng "hít" vào cạnh trên/dưới gần nhất
+  // Hiệu ứng "hít" vào cạnh gần nhất (trái hoặc phải)
   chatBtn.style.transition = "transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28)";
   
   const rect = chatBtn.getBoundingClientRect();
-  const middleY = window.innerHeight / 2;
+  const middle = window.innerWidth / 2;
   
-  if (rect.top + rect.height / 2 > middleY) {
-    // Hít xuống dưới - cách bottom 20px
-    yOffset = window.innerHeight - rect.height - 20 - (rect.top - parseInt(chatBtn.style.top || 0));
+  if (rect.left + rect.width / 2 > middle) {
+    // Hít lề phải
+    xOffset = window.innerWidth - rect.width - 40; 
   } else {
-    // Hít lên trên - cách top 20px
-    yOffset = 20 - rect.top;
+    // Hít lề trái
+    xOffset = 0; 
   }
-  
-  // Giữ nguyên vị trí X (luôn ở bên trái)
-  xOffset = 0;
   
   updatePosition();
 }
