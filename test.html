@@ -4121,11 +4121,13 @@ import {
 let unsubscribeUsers = null;
 
 function startListening(){
-if(unsubscribeUsers) unsubscribeUsers(); // tránh trùng
+if(unsubscribeUsers) unsubscribeUsers();
 
 unsubscribeUsers = onSnapshot(collection(db,"users"), (snap)=>{
 const list = document.getElementById("onlineList");
 if (!list) return;
+
+list.innerHTML = ""; // ← THIẾU DÒNG NÀY
 
 let onlineCount = 0;
 
@@ -4133,7 +4135,7 @@ snap.forEach(doc => {
 const u = doc.data();
 const now = Date.now();
 
-const ACTIVE_THRESHOLD = 45000; // 45s
+const ACTIVE_THRESHOLD = 45000;
 
 if (!u.lastActive || now - u.lastActive > ACTIVE_THRESHOLD) return;
 if (!u.online) return;
@@ -4141,19 +4143,23 @@ if (!u.online) return;
 const div = document.createElement("div");
 
 div.innerHTML = `
-       <div style="display:flex; align-items:center; gap:10px; padding:6px 8px;">
-         <img src="${u.photo || 'https://i.imgur.com/6VBx3io.png'}"
-              style="width:26px;height:26px;border-radius:50%;">
-         <span style="color: var(--text-main);">${u.name || "User"}</span>
-         <div class="online-pulse" style="width:8px;height:8px;background:#22c55e;border-radius:50%;"></div>
-       </div>
-     `;
+<div style="display:flex; align-items:center; gap:10px; padding:6px 8px;">
+<img src="${u.photo || 'https://i.imgur.com/6VBx3io.png'}"
+style="width:26px;height:26px;border-radius:50%;">
+<span style="color: var(--text-main);">${u.name || "User"}</span>
+<div class="online-pulse"
+style="width:8px;height:8px;background:#22c55e;border-radius:50%;">
+</div>
+</div>
+`;
+
 onlineCount++;
 list.appendChild(div);
 });
+
 const label = document.querySelector(".online-count-label");
 if (label) {
-  label.textContent = `Đang trực tuyến (${onlineCount})`;
+label.textContent = `Đang trực tuyến (${onlineCount})`;
 }
 });
 }
