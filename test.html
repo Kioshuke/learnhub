@@ -4111,7 +4111,12 @@ document.addEventListener("visibilitychange", () => {
 });
 
 // Trick để ép trình duyệt gửi dữ liệu cuối cùng trước khi đóng
-import { onSnapshot, collection } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import {
+  onSnapshot,
+  collection,
+  query,
+  where
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 let unsubscribeUsers = null;
 
@@ -4122,7 +4127,7 @@ unsubscribeUsers = onSnapshot(collection(db,"users"), (snap)=>{
 const list = document.getElementById("onlineList");
 if (!list) return;
 
-list.innerHTML = "";
+let onlineCount = 0;
 
 snap.forEach(doc => {
 const u = doc.data();
@@ -4143,9 +4148,13 @@ div.innerHTML = `
          <div class="online-pulse" style="width:8px;height:8px;background:#22c55e;border-radius:50%;"></div>
        </div>
      `;
-
+onlineCount++;
 list.appendChild(div);
 });
+const label = document.querySelector(".online-count-label");
+if (label) {
+  label.textContent = `Đang trực tuyến (${onlineCount})`;
+}
 });
 }
 window.logout = async function(){
@@ -4511,43 +4520,6 @@ overlay.addEventListener("click", () => {
   frame.style.display = "none";
   overlay.style.display = "none";
 });
-// 🔴 REAL-TIME ONLINE USER COUNT (Thêm vào phần JavaScript)
-let onlineCountUnsubscribe = null;
-
-function setupOnlineCountListener() {
-  const onlineCountLabel = document.querySelector('.online-count-label');
-  if (!onlineCountLabel) {
-    console.log("⏳ Chờ DOM load xong...");
-    setTimeout(setupOnlineCountListener, 500);
-    return;
-  }
-
-  // Bỏ listener cũ nếu có
-  if (onlineCountUnsubscribe) {
-    onlineCountUnsubscribe();
-  }
-
-  // Lắng nghe REAL-TIME các thay đổi trong collection users
-  onlineCountUnsubscribe = onSnapshot(
-    query(collection(db, "users"), where("online", "==", true)),
-    (snapshot) => {
-      const onlineCount = snapshot.size; // Đếm số doc có online: true
-      onlineCountLabel.textContent = `Đang trực tuyến (${onlineCount})`;
-    },
-    (error) => {
-      console.error("❌ Lỗi lắng nghe online users:", error);
-    }
-  );
-}
-
-// Gọi khi Firebase đã sẵn sàng
-if (auth.currentUser) {
-  setupOnlineCountListener();
-} else {
-  auth.onAuthStateChanged(() => {
-    setupOnlineCountListener();
-  });
-}
 </script>
 </body>
 </html>
