@@ -240,6 +240,9 @@ box-shadow: 0 4px 12px color-mix(in srgb, var(--btn-color) 40%, transparent);
     color: #1a73e8;
     white-space: nowrap;
 }
+body.dark-mode .menu-brand span{
+    color:#93c5fd;
+}
 .menu-buttons {
     display: flex;
     justify-content: flex-start;
@@ -502,6 +505,9 @@ box-shadow:0 12px 28px color-mix(in srgb, var(--card-color) 30%, transparent);
     height: 100dvh;
     overflow: hidden;          /* Đảm bảo iframe không bị tràn ra ngoài */
 }
+body.dark-mode .quiz-box{
+    background:#020617;
+}
 
 iframe {
     width: 100%;
@@ -537,6 +543,7 @@ iframe {
   pointer-events: auto !important;
   touch-action: auto !important;
 }
+
 
 #tabScrollTopBtn{
   position:fixed;
@@ -588,6 +595,11 @@ text-align:center;
 box-shadow:0 20px 50px rgba(0,0,0,0.35);
 position:relative;
 animation: popupShow 0.4s ease;
+}
+body.dark-mode .popup-box{
+  color:var(--text-main);
+  border:1px solid rgba(148,163,184,0.18);
+  box-shadow:0 24px 60px rgba(2,6,23,0.48);
 }
 .popup-info{
 display: flex;
@@ -1105,6 +1117,29 @@ color:#475569;
 margin:0;
 word-break:break-word;
 }
+body.dark-mode #authNotice{
+background:rgba(15,23,42,0.92);
+border-color:rgba(148,163,184,0.16);
+box-shadow:0 24px 64px rgba(2,6,23,0.52);
+}
+body.dark-mode #authNotice.notice-error{
+background:linear-gradient(180deg, rgba(30,41,59,0.96), rgba(69,10,10,0.94));
+border-color:rgba(248,113,113,0.20);
+}
+body.dark-mode #authNotice.notice-info{
+background:linear-gradient(180deg, rgba(30,41,59,0.96), rgba(15,23,42,0.96));
+border-color:rgba(96,165,250,0.20);
+}
+body.dark-mode #authNotice.notice-success{
+background:linear-gradient(180deg, rgba(30,41,59,0.96), rgba(20,83,45,0.94));
+border-color:rgba(74,222,128,0.18);
+}
+body.dark-mode #authNotice .notice-title{
+color:#f8fafc;
+}
+body.dark-mode #authNotice .notice-message{
+color:#cbd5e1;
+}
 
 @keyframes authNoticeIn{
 from{
@@ -1209,6 +1244,17 @@ display:block;
 font-size:11px;
 line-height:1.4;
 color:#475569;
+}
+body.dark-mode #loginBox .auth-mobile-caption{
+background:rgba(15,23,42,0.68);
+border:1px solid rgba(148,163,184,0.16);
+box-shadow:0 14px 30px rgba(2,6,23,0.32);
+}
+body.dark-mode #loginBox .auth-mobile-caption strong{
+color:#e2e8f0;
+}
+body.dark-mode #loginBox .auth-mobile-caption span{
+color:#cbd5e1;
 }
 
 @media (max-width: 900px){
@@ -1522,6 +1568,51 @@ transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   font-size:12px;
   color: #64748b;
   letter-spacing:0.03em;
+}
+
+body.dark-mode #loadingOverlay{
+  background: radial-gradient(circle at top, rgba(30,41,59,0.72), rgba(2,6,23,0.96));
+}
+
+body.dark-mode #loadingOverlay::before{
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(59,130,246,0.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(168,85,247,0.16) 0%, transparent 50%),
+    radial-gradient(ellipse at 40% 80%, rgba(34,211,238,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 60%, rgba(14,165,233,0.1) 0%, transparent 50%);
+}
+
+body.dark-mode #loadingOverlay::after{
+  background:
+    radial-gradient(ellipse at 25% 25%, rgba(59,130,246,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 75% 75%, rgba(99,102,241,0.08) 0%, transparent 55%);
+}
+
+body.dark-mode .loading-dot{
+  background: linear-gradient(135deg, #60a5fa, #22d3ee);
+  box-shadow: 0 10px 30px rgba(56,189,248,0.18);
+}
+
+body.dark-mode #loadingText{
+  color:#e2e8f0;
+}
+
+body.dark-mode .loading-brand h2{
+  background:linear-gradient(135deg, #bfdbfe, #7dd3fc, #a5b4fc, #c4b5fd);
+  background-size:200% 100%;
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+body.dark-mode .loading-brand.emphasize h2{
+  color:#bfdbfe;
+  -webkit-text-fill-color:#bfdbfe;
+  background:none;
+}
+
+body.dark-mode .loading-footer{
+  color:#94a3b8;
 }
 
 #loadingOverlay.hide{
@@ -1949,19 +2040,19 @@ body.dark-mode .card{
   </div>
 </div>
 <div class="loading-footer">
-  <p>© 2026 LearnHub • THPT Tân Hồng | V26.04.14.1</p>
+  <p>© 2026 LearnHub • THPT Tân Hồng | V26.04.20.2</p>
 </div>
 </div>
 <div id="popup">
 <div class="popup-box">
 <span class="close">&times;</span>
-<h3>📢 Thông báo (16/04/2026)</h3>
+<h3>📢 Thông báo (20/04/2026)</h3>
 <p style="text-align:left;"> <b>Thông báo nội dung:</b><br>
 - Đã hoàn thành tất cả các môn <br>
 - Đã cập nhật đáp án môn Hoá Học
 </p>
-<p style="text-align:left;"> <b>Tính năng mới:</b><br>
-- LearnHub Forum, bạn có thể trao đổi với các thành viên khác tại đây. Để truy cập hãy bấm vào ô Forum trên thanh Menu!<br>- Hubie-AI của bạn, hỗ trợ giải đáp bài, trao đổi, trò chuyện,.....<br>- Cải tiến giao diện: Những bài đã được up sẽ có dấu chấm xanh (hoàn thành). Ngược lại, những bài chưa up sẽ có dấu chấm đỏ (Đang cập nhật)<br>- Cải tiến giao diện, sửa bug, cập nhật lặt vặt,...</p>
+<p style="text-align:left;"> <b>Fix Bug:</b><br>
+- Fix giao diện <br>- Sửa dark mode</p>
 </div>
 </div>
 <div id="loginBox">
@@ -2055,7 +2146,7 @@ body.dark-mode .card{
       <button class="auth-submit" onclick="emailRegister()">Đăng ký</button>
     </div>
 
-    <div class="auth-footer">Whitelist Mode | © 2026 LearnHub - THPT Tân Hồng | V26.04.14.1</div>
+    <div class="auth-footer">Whitelist Mode | © 2026 LearnHub - THPT Tân Hồng | V26.04.20.2</div>
   </div>
 
   <div class="auth-right">
@@ -2150,6 +2241,10 @@ font-weight:600;
 border-radius:0;
 box-shadow:0 6px 15px rgba(0,0,0,0.25);
 }
+body.dark-mode .ticker-container{
+background:linear-gradient(90deg,#0f3e8a,#4c1d95);
+box-shadow:0 10px 24px rgba(2,6,23,0.32);
+}
 
 .ticker-text{
 display:inline-block;
@@ -2227,6 +2322,11 @@ backdrop-filter: blur(10px);
 box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 border: 1px solid rgba(0,0,0,0.05);
 }
+body.dark-mode #userBox{
+background:rgba(15,23,42,0.82);
+border-color:rgba(148,163,184,0.12);
+box-shadow:0 10px 24px rgba(2,6,23,0.28);
+}
 #welcomeText{
 color: var(--text-sub);
 font-size:15px;
@@ -2252,6 +2352,9 @@ object-fit:cover;
 
 border:2px solid #fff;
 box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+body.dark-mode #userAvatar{
+border-color:rgba(255,255,255,0.18);
 }
 
 @media (max-width:768px){
@@ -3269,6 +3372,63 @@ function bindFrameScrollWatcher(frameId){
 bindFrameScrollWatcher("flashHubFrame");
 bindFrameScrollWatcher("forumFrame");
 
+function attachFrameWheelHandoff(frameId){
+  const frame = document.getElementById(frameId);
+  if(!frame) return;
+
+  const attach = () => {
+    try {
+      const frameWindow = frame.contentWindow;
+      const frameDoc = frame.contentDocument || (frameWindow && frameWindow.document);
+      if(!frameWindow || !frameDoc) return;
+      if(frame.dataset.wheelHandoffBound === "true") return;
+
+      frame.dataset.wheelHandoffBound = "true";
+
+      const handoffWheel = (e) => {
+        if(window.innerWidth <= 900) return;
+        if(e.ctrlKey) return;
+
+        const root = frameDoc.scrollingElement || frameDoc.documentElement || frameDoc.body;
+        if(!root) return;
+
+        const maxScrollTop = root.scrollHeight - root.clientHeight;
+        if(maxScrollTop <= 0){
+          window.scrollBy({ top: e.deltaY, behavior: "auto" });
+          e.preventDefault();
+          updateTabScrollTopBtn();
+          return;
+        }
+
+        const atTop = root.scrollTop <= 1;
+        const atBottom = root.scrollTop >= maxScrollTop - 1;
+        const scrollingUp = e.deltaY < 0;
+        const scrollingDown = e.deltaY > 0;
+
+        if((scrollingUp && atTop) || (scrollingDown && atBottom)){
+          window.scrollBy({ top: e.deltaY, behavior: "auto" });
+          e.preventDefault();
+          updateTabScrollTopBtn();
+        }
+      };
+
+      frameWindow.addEventListener("wheel", handoffWheel, { passive: false });
+      frameDoc.addEventListener("wheel", handoffWheel, { passive: false });
+    } catch (e) {}
+  };
+
+  frame.addEventListener("load", () => {
+    frame.dataset.wheelHandoffBound = "false";
+    attach();
+  });
+
+  attach();
+}
+
+attachFrameWheelHandoff("lichFrame");
+attachFrameWheelHandoff("forumFrame");
+attachFrameWheelHandoff("flashHubFrame");
+
 const popup = document.getElementById("popup");
 const box = document.querySelector(".popup-box");
 const closeBtn = document.querySelector(".close");
@@ -3532,7 +3692,7 @@ const allowList = [
 ];
 let activeInterval = null;
 const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
-const maintenance = true;
+const maintenance = false;
 
 function applyUserToUI(user){
 const hour = new Date().getHours();
@@ -4086,7 +4246,7 @@ pop.style.display = "none";
 margin-top:10px;
 font-size: 13px;
 color: var(--text-sub);
-margin-bottom: 10px;">© 2026 LearnHub • THPT Tân Hồng | V26.04.14.1</p>
+margin-bottom: 10px;">© 2026 LearnHub • THPT Tân Hồng | V26.04.20.2</p>
 
 </div>
 <script>
@@ -4107,24 +4267,28 @@ function updateProgress(percent){
   }
 }
 const toggle = document.getElementById("darkModeToggle");
-// Tìm thẻ iframe đang chứa trang tntin1718
-const iframe = document.querySelector('iframe'); 
+const darkModeFrames = [
+    document.getElementById("lichFrame")
+].filter(Boolean);
 
-// Hàm gửi tín hiệu sang iframe
+// Hàm gửi tín hiệu sang các iframe cần đồng bộ dark mode
 function sendDarkModeToIframe(isDark) {
-    if (iframe && iframe.contentWindow) {
-        iframe.contentWindow.postMessage({ type: 'DARK_MODE', value: isDark }, '*');
-    }
+    darkModeFrames.forEach((frame) => {
+        if (frame && frame.contentWindow) {
+            frame.contentWindow.postMessage({ type: 'DARK_MODE', value: isDark }, '*');
+        }
+    });
 }
 
 // 1. Load lại trạng thái cũ khi vừa mở web
 if(localStorage.getItem("darkMode") === "on"){
     document.body.classList.add("dark-mode");
     toggle.checked = true;
-    // Đợi iframe load xong mới gửi tín hiệu ban đầu
-    if (iframe) {
-        iframe.onload = () => sendDarkModeToIframe(true);
-    }
+    darkModeFrames.forEach((frame) => {
+        if (frame) {
+            frame.onload = () => sendDarkModeToIframe(true);
+        }
+    });
 }
 
 // 2. Khi bấm nút gạt
