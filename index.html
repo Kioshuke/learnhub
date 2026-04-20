@@ -3532,6 +3532,7 @@ const allowList = [
 ];
 let activeInterval = null;
 const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
+const maintenance = true;
 
 function applyUserToUI(user){
 const hour = new Date().getHours();
@@ -3696,6 +3697,15 @@ if(user){
 
 
 window.googleLogin = function() {
+    if (maintenance) {
+        showAuthNotice(
+            "Sever đang bảo trì vui lòng quay lại sau!",
+            "error",
+            "Maintenance"
+        );
+        return;
+    }
+
     signInWithPopup(auth, provider)
     .then(async (result) => {
         const user = result.user;
@@ -3770,6 +3780,15 @@ window.googleLogin = function() {
 
 // ===== EMAIL/PASSWORD AUTHENTICATION =====
 window.emailLogin = async function() {
+    if (maintenance) {
+        showAuthNotice(
+            "Sever đang bảo trì vui lòng quay lại sau!",
+            "error",
+            "Maintenance"
+        );
+        return;
+    }
+
     const email = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value;
 
