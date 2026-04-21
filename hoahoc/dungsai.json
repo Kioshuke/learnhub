@@ -15,7 +15,7 @@
       },
       {
         "type": "true_false",
-        "question": "Câu 2. Từ những cấu trúc hình học đa dạng đến vai trò thiết yếu trong đời sống, các phức chất luôn là một lĩnh vực hấp dẫn của hóa học. Hãy kiểm tra kiến thức của bạn về những hợp chất này, đặc biệt là các hợp chất chứa kim loại chuyển tiếp như Nickel và Cobalt.",
+        "question": "Từ những cấu trúc hình học đa dạng đến vai trò thiết yếu trong đời sống, các phức chất luôn là một lĩnh vực hấp dẫn của hóa học. Hãy kiểm tra kiến thức của bạn về những hợp chất này, đặc biệt là các hợp chất chứa kim loại chuyển tiếp như Nickel và Cobalt.",
         "subQuestions": [
           { "text": "Trong một phức chất, các phối tử có thể là các anion hoặc các phân tử trung hòa, miễn là chúng có cặp electron tự do để cho nguyên tử trung tâm.", "correct": 1 },
           { "text": "Sự đổi màu của dung dịch khi cho các phối tử khác nhau vào dung dịch chứa ion kim loại chuyển tiếp là một dấu hiệu phổ biến của phản ứng tạo phức chất.", "correct": 1 },
@@ -69,7 +69,7 @@
         "question": "Magnesium (Mg) là kim loại được ứng dụng để tạo các hợp kim nhẹ, bền, đặc biệt là cho ngành công nghiệp sản xuất ô tô và hàng không vũ trụ. Magnesium được sản xuất trong công nghiệp theo quá trình Pidgeon với nguyên liệu ban đầu là quảng dolomite. Quá trình được thực hiện qua các giai đoạn sau: <br>Giai đoạn 1. Nung quặng dolomite: MgCO₃·CaCO₃ (rắn) ⟶ MgO (rắn) + CaO (rắn) + 2CO₂ (khí) <br>Giai đoạn 2. Dùng Si trong ferrosilicon (Fe, Si) làm chất khử trong điều kiện chân không: 2MgO (rắn) + 2CaO (rắn) + Si (rắn) ⟶ 2Mg (khí) + Ca₂SiO₄ (rắn) <br>Phản ứng chung của quá trình Pidgeon là: 2MgCO₃·CaCO₃ (rắn) + Si (rắn) ⟶ 2Mg (khí) + Ca₂SiO₄ (rắn) + 2CO₂ (khí) ΔH°₂₉₈ = −183 kJ",
         "subQuestions": [
           { "text": "Quá trình Pidgeon là quá trình thu nhiệt.", "correct": 0 },
-          { "text": "Phản ứng ở giai đoạn (2) thuộc phương pháp nhiệt luyện.", "correct": 0 },
+          { "text": "Phản ứng ở giai đoạn (2) thuộc phương pháp nhiệt luyện.", "correct": 1 },
           { "text": "Phản ứng ở giai đoạn (2) chứng tỏ MgO dễ bị oxi hóa bởi Si hơn hơn CaO. ", "correct": 0 },
           { "text": "Nếu hiệu suất của quá trình là 90% thì cứ 2,3 tấn quặng dolomite (chứa 80% MgCO₃·CaCO₃ về khối lượng) sẽ điều chế được 220 kg magnesium.", "correct": 0 }
         ]
