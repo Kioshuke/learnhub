@@ -79,7 +79,7 @@
         "question": "Để xác định hàm lượng Fe²⁺ trong một lọ muối Mohr (có công thức (NH₄)₂SO₄.FeSO₄.6H₂O) người ta tiến hành thí nghiệm như sau: <br>Cân 5,00 gam muối rồi hoà tan vào nước, thêm tiếp 5 mL dung dịch H₂SO₄ 20% rồi cho nước cất vào để được 100 mL dung dịch (kí hiệu là dung dịch X). Lấy 10 mL dung dịch X đem chuẩn độ bằng dung dịch chuẩn KMnO₄ 0,02 M thì thấy hết 10 mL.",
         "image": "https://vietjack.com/hoa-hoc-11-ct/images/cau-hoi-thao-luan-16-trang-18-hoa-hoc-11.PNG",
         "subQuestions": [
-          { "text": "Phương trình phản ứng chuẩn độ là: 6FeSO₄ + 2KMnO₄ + 4H₂SO₄ → 3Fe₂(SO₄)₃ + K₂SO₄ + 2MnO₂ + 4H₂O.", "correct": 0 },
+          { "text": "Phương trình phản ứng chuẩn độ là: 6FeSO₄ + 2KMnO₄ + 4H₂SO₄ → 3Fe₂(SO₄)₃ + K₂SO₄ + 2MnO₂ + 4H₂O.", "correct": 1 },
           { "text": "Thời điểm kết thúc chuẩn độ là lúc dung dịch xuất hiện màu hồng và tồn tại khoảng 20 giây.", "correct": 1 },
           { "text": "Khi để trong không khí lâu ngày thì hàm lượng FeSO₄ trong muối Mohr sẽ không thay đổi.", "correct": 0 },
           { "text": "Hàm lượng Fe²⁺ trong mẫu muối Mohr đem phân tích ở trên là 8,4%.", "correct": 0 }
