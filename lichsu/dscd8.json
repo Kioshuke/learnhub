@@ -28,7 +28,7 @@
         "question": "<i><br>“1. Huỷ bỏ tất cả các hiệp ước mà Pháp đã kí với bất kì nước nào.<br>2. Tuyên bố các dân tộc bình đẳng và hết sức giữ hoà bình.<br>3. Kiên quyết chống tất cả các lực lượng xâm phạm đến quyền lợi của nước Việt Nam.<br>4. Mật thiết liên lạc với các dân tộc bị áp bức và giai cấp vô sản trên thế giới”.</i> <br>(Trích Chương trình của Việt Minh, Đảng Cộng sản Việt Nam, Văn kiện Đảng toàn tập, Tập 7, NXB Chính trị quốc gia, Hà Nội, 2000, tr.114)",
         "subQuestions": [
           { "text": "Mặt trận Việt Minh (ra đời năm 1941) khẳng định các dân tộc ở Việt Nam đều bình đẳng.", "correct": 1 },
-          { "text": "Các hoạt động đối ngoại của Mặt trận Việt Minh hướng đến mục tiêu giành độc lập dân tộc.", "correct": 0 },
+          { "text": "Các hoạt động đối ngoại của Mặt trận Việt Minh hướng đến mục tiêu giành độc lập dân tộc.", "correct": 1 },
           { "text": "Mặt trận Việt Minh chủ trương thành lập mặt trận thống nhất của tất cả các dân tộc bị áp bức trên bán đảo Đông Dương.", "correct": 0 },
           { "text": "Hoạt động đối ngoại của Mặt trận Việt Minh góp phần gắn cách mạng Việt Nam với phong trào dân chủ chống phát xít trên thế giới.", "correct": 1 }
         ]
