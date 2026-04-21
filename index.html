@@ -2014,71 +2014,6 @@ body.dark-mode .card{
     margin: 0 !important;
     width: auto !important;
 }
-
-/* ================= THÔNG BÁO MÔN HỌC ================= */
-.subject-notice{
-  background: linear-gradient(135deg, color-mix(in srgb, var(--subject-color, #1a73e8) 15%, #fff), color-mix(in srgb, var(--subject-color, #1a73e8) 8%, #f8fbff));
-  border-left: 5px solid var(--subject-color, #1a73e8);
-  border-radius: 12px;
-  padding: 14px 18px;
-  margin-bottom: 20px;
-  font-size: 15px;
-  color: color-mix(in srgb, #1e293b 85%, var(--subject-color, #1a73e8) 15%);
-  box-shadow: 0 4px 15px color-mix(in srgb, var(--subject-color, #1a73e8) 12%, transparent);
-  animation: noticeSlideIn 0.5s ease, noticePulse 3s ease-in-out infinite 1s;
-  backdrop-filter: blur(8px);
-}
-
-.subject-notice strong{
-  color: var(--subject-color, #1a73e8);
-  font-weight: 700;
-  margin-right: 8px;
-}
-
-.subject-notice .notice-content{
-  display: inline;
-  font-weight: 500;
-}
-
-/* Animation khi hiện vào */
-@keyframes noticeSlideIn{
-  from{
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to{
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Animation nhấp nháy nhẹ */
-@keyframes noticePulse{
-  0%, 100%{
-    box-shadow: 0 4px 15px color-mix(in srgb, var(--subject-color, #1a73e8) 12%, transparent);
-  }
-  50%{
-    box-shadow: 0 4px 20px color-mix(in srgb, var(--subject-color, #1a73e8) 20%, transparent);
-  }
-}
-
-/* Dark mode */
-body.dark-mode .subject-notice{
-  background: linear-gradient(135deg, color-mix(in srgb, var(--subject-color, #1a73e8) 25%, #1e293b), color-mix(in srgb, var(--subject-color, #1a73e8) 15%, #0f172a));
-  color: color-mix(in srgb, #f1f5f9 90%, var(--subject-color, #1a73e8) 10%);
-}
-
-/* Màu theo từng môn */
-#ly .subject-notice{ --subject-color: #3b82f6; }
-#sinh .subject-notice{ --subject-color: #16a34a; }
-#tin .subject-notice{ --subject-color: #f59e0b; }
-#su .subject-notice{ --subject-color: #dc2626; }
-#hoa .subject-notice{ --subject-color: #9333ea; }
-#anh .subject-notice{ --subject-color: #ec4899; }
-#bxh .subject-notice{ --subject-color: #0ea5e9; }
-#flash .subject-notice{ --subject-color: #2563eb; }
-#lich .subject-notice{ --subject-color: #f97316; }
-
 </style>
 
 </head>
@@ -2872,7 +2807,6 @@ animation: pulse-green 2s infinite;
 
 </div>
 <div id="ly" style="display:none">
-<div class="subject-notice"><strong>📢 Thông Báo Môn Học: Đã thi xong</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -2897,7 +2831,6 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="sinh" style="display:none">
-<div class="subject-notice"><strong>📢 Thông Báo Môn Học:</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -2922,7 +2855,6 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="tin" style="display:none">
-<div class="subject-notice"><strong>📢 Thông Báo Môn Học: Đã thi xong</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -2977,7 +2909,6 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="su" style="display:none">
-<div class="subject-notice"><strong>📢 Thông Báo Môn Học: Đã lược bớt chủ đề 7: Nội dung thi Chủ đề 8 và 9</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -3014,7 +2945,6 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="hoa" style="display:none">
-<div class="subject-notice"><strong>📢 Thông Báo Môn Học: CHỐT ĐÁP ÁN HOÁ LỜ 👊👊👊</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -3045,7 +2975,6 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="anh" style="display:none">
-<div class="subject-notice"><strong>📢 Thông Báo Môn Học:</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
