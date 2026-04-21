@@ -203,55 +203,6 @@ button:hover { background: #1d4ed8; transform: translateY(-1px); }
 
 .actions { margin-top: 8px; display: flex; gap: 12px; align-items: center; }
 .like-btn { font-size: 13px; cursor: pointer; color: #334155; background: #f1f5f9; padding: 4px 8px; border-radius: 6px; transition: 0.2s; }
-.like-btn:hover { background: #e2e8f0; }
-
-/* Style cho nút Chi tiết */
-.detail-btn {
-  font-size: 12px;
-  color: var(--sub);
-  cursor: pointer;
-  margin-left: auto;
-  padding: 2px 8px;
-  border-radius: 4px;
-  transition: 0.2s;
-}
-.detail-btn:hover {
-  color: var(--primary);
-  background: #f1f5f9;
-}
-
-/* Style cho modal danh sách cảm xúc */
-.reaction-list {
-  max-height: 300px;
-  overflow-y: auto;
-  margin-top: 10px;
-}
-.reaction-item {
-  display: flex;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #f1f5f9;
-}
-.reaction-item:last-child {
-  border-bottom: none;
-}
-.reaction-emoji {
-  font-size: 16px;
-  margin-right: 10px;
-}
-.reaction-user {
-  font-size: 14px;
-  color: var(--text);
-}
-.reaction-section {
-  margin-bottom: 15px;
-}
-.reaction-section-title {
-  font-size: 13px;
-  color: var(--sub);
-  margin-bottom: 8px;
-  font-weight: 600;
-}
 
 .edit-btn, .delete-btn { font-size: 12px; cursor: pointer; margin-left: 10px; padding: 2px 6px; border-radius: 4px; transition: 0.2s; }
 .edit-btn { color: #059669; background: #ecfdf5; }
@@ -386,14 +337,6 @@ window.addEventListener("message", (event) => {
   if (event.data && event.data.type === "USER_INFO") {
     currentUser = event.data.user;
     document.getElementById("userBox").innerText = currentUser.name;
-    
-    // Lưu user info lên Firebase để dùng cho chi tiết cảm xúc
-    if (currentUser && currentUser.uid) {
-      db.ref("users/" + currentUser.uid).set({
-        name: currentUser.name,
-        lastActive: Date.now()
-      });
-    }
   }
 });
 
@@ -536,7 +479,6 @@ function createPostElement(post, allPosts){
       <span class="like-btn" onclick="toggleLike('${post.id}', true)">👍 ${countLikes(post)}</span>
       <span class="like-btn" onclick="toggleLike('${post.id}', false)">👎 ${countDislikes(post)}</span>
       <span class="reply-btn" onclick="setReply('${post.id}', '${post.user}')">↳ Trả lời</span>
-      ${(post.likes || post.dislikes) ? `<span class="detail-btn" onclick="showReactionDetail('${post.id}')">Chi tiết</span>` : ''}
     </div>
   `;
 
@@ -683,14 +625,13 @@ function toggleLike(postId, isLike){
     let likes = post.likes || {};
     let dislikes = post.dislikes || {};
     const uid = currentUser.uid;
-    const userName = currentUser.name;
 
     if(isLike){
       if(likes[uid]) delete likes[uid];
-      else { likes[uid] = userName; delete dislikes[uid]; }
+      else { likes[uid] = true; delete dislikes[uid]; }
     } else {
       if(dislikes[uid]) delete dislikes[uid];
-      else { dislikes[uid] = userName; delete likes[uid]; }
+      else { dislikes[uid] = true; delete likes[uid]; }
     }
     ref.update({ likes, dislikes });
     db.ref("events").push({ type: isLike ? "like" : "dislike", time: Date.now() });
@@ -703,88 +644,6 @@ db.ref("events").limitToLast(1).on("child_added", (snap) => {
   const ev = snap.val();
   if(ev) playSound(ev.type);
 });
-
-/* ================= CHI TIẾT CẢM XÚC (CHECK DATA TỪ NODE USERS) ================= */
-async function showReactionDetail(postId) {
-  // Lấy đồng thời dữ liệu bài post và danh sách tất cả users để tối ưu tốc độ
-  const [postSnap, usersSnap] = await Promise.all([
-    db.ref("posts/" + postId).once("value"),
-    db.ref("users").once("value")
-  ]);
-  
-  const post = postSnap.val();
-  const allUsers = usersSnap.val() || {}; // Danh sách user từ Firebase
-  
-  if (!post) return;
-
-  const likes = post.likes || {};
-  const dislikes = post.dislikes || {};
-  const likeUids = Object.keys(likes);
-  const dislikeUids = Object.keys(dislikes);
-
-  if (likeUids.length === 0 && dislikeUids.length === 0) {
-    showModal("Chi tiết cảm xúc", "Chưa có cảm xúc nào.", false, "", () => {});
-    return;
-  }
-
-  // Hàm hỗ trợ tìm tên dựa trên UID
-  const getName = (uid, currentData) => {
-    // 1. Ưu tiên lấy từ node /users/ trên Firebase
-    if (allUsers[uid]) {
-      return allUsers[uid].name || allUsers[uid].displayName || "Thành viên LearnHub";
-    }
-    // 2. Nếu không có, lấy tên lưu kèm trong bài post (dữ liệu cũ)
-    if (typeof currentData[uid] === 'string') {
-      return currentData[uid];
-    }
-    // 3. Cuối cùng mới để ẩn danh
-    return "Người dùng ẩn danh";
-  };
-
-  let html = '<div class="reaction-list">';
-  
-  // Hiển thị danh sách Like
-  if (likeUids.length > 0) {
-    html += `<div class="reaction-section">
-      <div class="reaction-section-title">👍 Thích (${likeUids.length})</div>`;
-    likeUids.forEach(uid => {
-      const userName = getName(uid, likes);
-      html += `<div class="reaction-item">
-        <span class="reaction-emoji">👍</span>
-        <span class="reaction-user">${userName}</span>
-      </div>`;
-    });
-    html += '</div>';
-  }
-
-  // Hiển thị danh sách Dislike
-  if (dislikeUids.length > 0) {
-    html += `<div class="reaction-section">
-      <div class="reaction-section-title">👎 Không thích (${dislikeUids.length})</div>`;
-    dislikeUids.forEach(uid => {
-      const userName = getName(uid, dislikes);
-      html += `<div class="reaction-item">
-        <span class="reaction-emoji">👎</span>
-        <span class="reaction-user">${userName}</span>
-      </div>`;
-    });
-    html += '</div>';
-  }
-
-  html += '</div>';
-
-  // Hiển thị lên Modal
-  const modal = document.getElementById("customModal");
-  const modalMsg = document.getElementById("modalMsg");
-  const modalInput = document.getElementById("modalInput");
-  const modalTitle = document.getElementById("modalTitle");
-
-  modalTitle.innerText = "Chi tiết cảm xúc";
-  modalMsg.innerHTML = html;
-  modalMsg.style.display = "block";
-  modalInput.style.display = "none";
-  modal.style.display = "flex";
-}
 </script>
 </body>
 </html>
