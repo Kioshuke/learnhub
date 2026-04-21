@@ -29,7 +29,7 @@
         "subQuestions": [
           { "text": "Các kim loại nhóm IA có cấu hình electron lớp ngoài cùng là ns¹.", "correct": 1 },
           { "text": "Tính khử của các kim loại nhóm IA tăng dần từ Lithium (Li) đến Cesium (Cs) do năng lượng ion hóa giảm dần.", "correct": 1 },
-          { "text": "Beryllium (Be) có tính chất lưỡng tính, có thể tan trong cả dung dịch acid và dung dịch base.", "correct": 1 },
+          { "text": "Beryllium (Be) có tính chất lưỡng tính, có thể tan trong cả dung dịch acid và dung dịch base.", "correct": 0 },
           { "text": "Khi điện phân dung dịch sodium chloride (NaCl), ta thu được chlorine (Cl₂) ở cathode và hydrogen (H₂) ở anode.", "correct": 0 }
         ]
       },
@@ -69,17 +69,17 @@
         "question": "Magnesium (Mg) là kim loại được ứng dụng để tạo các hợp kim nhẹ, bền, đặc biệt là cho ngành công nghiệp sản xuất ô tô và hàng không vũ trụ. Magnesium được sản xuất trong công nghiệp theo quá trình Pidgeon với nguyên liệu ban đầu là quảng dolomite. Quá trình được thực hiện qua các giai đoạn sau: <br>Giai đoạn 1. Nung quặng dolomite: MgCO₃·CaCO₃ (rắn) ⟶ MgO (rắn) + CaO (rắn) + 2CO₂ (khí) <br>Giai đoạn 2. Dùng Si trong ferrosilicon (Fe, Si) làm chất khử trong điều kiện chân không: 2MgO (rắn) + 2CaO (rắn) + Si (rắn) ⟶ 2Mg (khí) + Ca₂SiO₄ (rắn) <br>Phản ứng chung của quá trình Pidgeon là: 2MgCO₃·CaCO₃ (rắn) + Si (rắn) ⟶ 2Mg (khí) + Ca₂SiO₄ (rắn) + 2CO₂ (khí) ΔH°₂₉₈ = −183 kJ",
         "subQuestions": [
           { "text": "Quá trình Pidgeon là quá trình thu nhiệt.", "correct": 0 },
-          { "text": "Phản ứng ở giai đoạn (2) thuộc phương pháp nhiệt luyện.", "correct": 1 },
+          { "text": "Phản ứng ở giai đoạn (2) thuộc phương pháp nhiệt luyện.", "correct": 0 },
           { "text": "Phản ứng ở giai đoạn (2) chứng tỏ MgO dễ bị oxi hóa bởi Si hơn hơn CaO. ", "correct": 0 },
           { "text": "Nếu hiệu suất của quá trình là 90% thì cứ 2,3 tấn quặng dolomite (chứa 80% MgCO₃·CaCO₃ về khối lượng) sẽ điều chế được 220 kg magnesium.", "correct": 0 }
         ]
       },
       {
         "type": "true_false",
-        "question": "Câu 8. Để xác định hàm lượng Fe²⁺ trong một lọ muối Mohr (có công thức (NH₄)₂SO₄.FeSO₄.6H₂O) người ta tiến hành thí nghiệm như sau: <br>Cân 5,00 gam muối rồi hoà tan vào nước, thêm tiếp 5 mL dung dịch H₂SO₄ 20% rồi cho nước cất vào để được 100 mL dung dịch (kí hiệu là dung dịch X). Lấy 10 mL dung dịch X đem chuẩn độ bằng dung dịch chuẩn KMnO₄ 0,02 M thì thấy hết 10 mL.",
+        "question": "Để xác định hàm lượng Fe²⁺ trong một lọ muối Mohr (có công thức (NH₄)₂SO₄.FeSO₄.6H₂O) người ta tiến hành thí nghiệm như sau: <br>Cân 5,00 gam muối rồi hoà tan vào nước, thêm tiếp 5 mL dung dịch H₂SO₄ 20% rồi cho nước cất vào để được 100 mL dung dịch (kí hiệu là dung dịch X). Lấy 10 mL dung dịch X đem chuẩn độ bằng dung dịch chuẩn KMnO₄ 0,02 M thì thấy hết 10 mL.",
         "image": "https://vietjack.com/hoa-hoc-11-ct/images/cau-hoi-thao-luan-16-trang-18-hoa-hoc-11.PNG",
         "subQuestions": [
-          { "text": "Phương trình phản ứng chuẩn độ là: 6FeSO₄ + 2KMnO₄ + 4H₂SO₄ → 3Fe₂(SO₄)₃ + K₂SO₄ + 2MnO₂ + 4H₂O.", "correct": 1 },
+          { "text": "Phương trình phản ứng chuẩn độ là: 6FeSO₄ + 2KMnO₄ + 4H₂SO₄ → 3Fe₂(SO₄)₃ + K₂SO₄ + 2MnO₂ + 4H₂O.", "correct": 0 },
           { "text": "Thời điểm kết thúc chuẩn độ là lúc dung dịch xuất hiện màu hồng và tồn tại khoảng 20 giây.", "correct": 1 },
           { "text": "Khi để trong không khí lâu ngày thì hàm lượng FeSO₄ trong muối Mohr sẽ không thay đổi.", "correct": 0 },
           { "text": "Hàm lượng Fe²⁺ trong mẫu muối Mohr đem phân tích ở trên là 8,4%.", "correct": 0 }
@@ -124,7 +124,7 @@
           { "text": "Phản ứng ion chuẩn độ là: MnO₄⁻(aq) + 5Fe²⁺(aq) + 8H⁺(aq) → Mn²⁺(aq) + 5Fe³⁺(aq) + 4H₂O(l).", "correct": 1 },
           { "text": "Khi kết thúc chuẩn độ, dung dịch trong bình tam giác có màu hồng tồn tại bền trong khoảng 20 giây là của lượng rất nhỏ KMnO₄ dư.", "correct": 1 },
           { "text": "Mối quan hệ giữa V₁, C₁, V₂ và C₂ được biểu diến qua công thức 5V₁C₁ = V₂C₂.", "correct": 0 },
-          { "text": "Có thể thực hiện phép chuẩn độ trên bằng cách đựng dung dịch KMnO₄ ở bình tam giác và dung dịch Fe²⁺ trong môi trường acid ở burette cho kết quả chuẩn độ tương tự.", "correct": 1 }
+          { "text": "Có thể thực hiện phép chuẩn độ trên bằng cách đựng dung dịch KMnO₄ ở bình tam giác và dung dịch Fe²⁺ trong môi trường acid ở burette cho kết quả chuẩn độ tương tự.", "correct": 0 }
         ]
       },
       {
@@ -152,7 +152,7 @@
         "question": "Đá vôi (thành phần chính là CaCO₃) là nguồn nguyên liệu quan trọng trong sản xuất xi măng và vật liệu xây dựng. Xét các tính chất của các nguyên tố nhóm IIA:",
         "subQuestions": [
           { "text": "Trong tự nhiên, các kim loại nhóm IIA (từ Be đến Ba) chỉ tồn tại dưới dạng hợp chất, không tồn tại ở dạng đơn chất.", "correct": 1 },
-          { "text": "Tính kim loại của các nguyên tố nhóm IIA tăng dần từ Be đến Ba do bán kính nguyên tử tăng dần, làm giảm khả năng giữ electron lớp ngoài cùng.", "correct": 0 },
+          { "text": "Tính kim loại của các nguyên tố nhóm IIA tăng dần từ Be đến Ba do bán kính nguyên tử tăng dần, làm giảm khả năng giữ electron lớp ngoài cùng.", "correct": 1 },
           { "text": "Khi đốt nóng các hợp chất của Calcium trên ngọn lửa đèn khí, ngọn lửa sẽ chuyển sang màu xanh lục đặc trưng.", "correct": 0 },
           { "text": "Để loại bỏ cặn đá vôi bám trong ấm đun nước lâu ngày, người ta thường dùng dung dịch giấm ăn (acid acetic loãng) vì xảy ra phản ứng giải phóng khí CO₂.", "correct": 1 }
         ]
