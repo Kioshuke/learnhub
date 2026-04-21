@@ -2014,6 +2014,71 @@ body.dark-mode .card{
     margin: 0 !important;
     width: auto !important;
 }
+
+/* ================= THÔNG BÁO MÔN HỌC ================= */
+.subject-notice{
+  background: linear-gradient(135deg, color-mix(in srgb, var(--subject-color, #1a73e8) 15%, #fff), color-mix(in srgb, var(--subject-color, #1a73e8) 8%, #f8fbff));
+  border-left: 5px solid var(--subject-color, #1a73e8);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  font-size: 15px;
+  color: color-mix(in srgb, #1e293b 85%, var(--subject-color, #1a73e8) 15%);
+  box-shadow: 0 4px 15px color-mix(in srgb, var(--subject-color, #1a73e8) 12%, transparent);
+  animation: noticeSlideIn 0.5s ease, noticePulse 3s ease-in-out infinite 1s;
+  backdrop-filter: blur(8px);
+}
+
+.subject-notice strong{
+  color: var(--subject-color, #1a73e8);
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+.subject-notice .notice-content{
+  display: inline;
+  font-weight: 500;
+}
+
+/* Animation khi hiện vào */
+@keyframes noticeSlideIn{
+  from{
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to{
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation nhấp nháy nhẹ */
+@keyframes noticePulse{
+  0%, 100%{
+    box-shadow: 0 4px 15px color-mix(in srgb, var(--subject-color, #1a73e8) 12%, transparent);
+  }
+  50%{
+    box-shadow: 0 4px 20px color-mix(in srgb, var(--subject-color, #1a73e8) 20%, transparent);
+  }
+}
+
+/* Dark mode */
+body.dark-mode .subject-notice{
+  background: linear-gradient(135deg, color-mix(in srgb, var(--subject-color, #1a73e8) 25%, #1e293b), color-mix(in srgb, var(--subject-color, #1a73e8) 15%, #0f172a));
+  color: color-mix(in srgb, #f1f5f9 90%, var(--subject-color, #1a73e8) 10%);
+}
+
+/* Màu theo từng môn */
+#ly .subject-notice{ --subject-color: #3b82f6; }
+#sinh .subject-notice{ --subject-color: #16a34a; }
+#tin .subject-notice{ --subject-color: #f59e0b; }
+#su .subject-notice{ --subject-color: #dc2626; }
+#hoa .subject-notice{ --subject-color: #9333ea; }
+#anh .subject-notice{ --subject-color: #ec4899; }
+#bxh .subject-notice{ --subject-color: #0ea5e9; }
+#flash .subject-notice{ --subject-color: #2563eb; }
+#lich .subject-notice{ --subject-color: #f97316; }
+
 </style>
 
 </head>
@@ -2807,6 +2872,7 @@ animation: pulse-green 2s infinite;
 
 </div>
 <div id="ly" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học: Đã thi xong</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -2831,6 +2897,7 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="sinh" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học:</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -2855,6 +2922,7 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="tin" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học: Đã thi xong</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -2909,6 +2977,7 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="su" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học: Đã lược bớt chủ đề 7: Nội dung thi Chủ đề 8 và 9</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -2945,6 +3014,7 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="hoa" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học: Đáp án phần Trắc Nghiệm, Trả Lời Ngắn đã xong, đang check đáp án Đúng Sai</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -2975,6 +3045,7 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="anh" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học:</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -3840,6 +3911,17 @@ if(user){
 } else {
   resetLoadingState();
   document.getElementById("loginBox").style.display = "flex";
+
+  // 🔥 Dừng listener khi logout
+  if(unsubscribeUsers){
+    unsubscribeUsers();
+    unsubscribeUsers = null;
+  }
+  // Dừng interval cập nhật online status
+  if(activeInterval){
+    clearInterval(activeInterval);
+    activeInterval = null;
+  }
 }
 });
 // chỉ giữ login trong tab hiện tại
@@ -4110,46 +4192,58 @@ import {
 let unsubscribeUsers = null;
 
 function startListening(){
-if(unsubscribeUsers) unsubscribeUsers();
+// 🔥 Dừng listener cũ nếu có
+if(unsubscribeUsers) {
+  unsubscribeUsers();
+  unsubscribeUsers = null;
+}
+
+const list = document.getElementById("onlineList");
+const label = document.querySelector(".online-count-label");
+
+// Nếu không có element để hiển thị, không cần tạo listener
+if (!list && !label) {
+  console.log("Không tìm thấy onlineList hoặc online-count-label");
+  return;
+}
 
 unsubscribeUsers = onSnapshot(collection(db,"users"), (snap)=>{
-const list = document.getElementById("onlineList");
-if (!list) return;
+  if (list) list.innerHTML = "";
 
-list.innerHTML = ""; // ← THIẾU DÒNG NÀY
+  let onlineCount = 0;
 
-let onlineCount = 0;
+  snap.forEach(doc => {
+    const u = doc.data();
+    const now = Date.now();
 
-snap.forEach(doc => {
-const u = doc.data();
-const now = Date.now();
+    const ACTIVE_THRESHOLD = 45000;
 
-const ACTIVE_THRESHOLD = 45000;
+    if (!u.lastActive || now - u.lastActive > ACTIVE_THRESHOLD) return;
+    if (!u.online) return;
 
-if (!u.lastActive || now - u.lastActive > ACTIVE_THRESHOLD) return;
-if (!u.online) return;
+    if (list) {
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <div style="display:flex; align-items:center; gap:10px; padding:6px 8px;">
+          <img src="${u.photo || 'https://i.imgur.com/6VBx3io.png'}"
+            style="width:26px;height:26px;border-radius:50%;">
+          <span style="color: var(--text-main);">${u.name || "User"}</span>
+          <div class="online-pulse"
+            style="width:8px;height:8px;background:#22c55e;border-radius:50%;">
+          </div>
+        </div>
+      `;
+      list.appendChild(div);
+    }
 
-const div = document.createElement("div");
+    onlineCount++;
+  });
 
-div.innerHTML = `
-<div style="display:flex; align-items:center; gap:10px; padding:6px 8px;">
-<img src="${u.photo || 'https://i.imgur.com/6VBx3io.png'}"
-style="width:26px;height:26px;border-radius:50%;">
-<span style="color: var(--text-main);">${u.name || "User"}</span>
-<div class="online-pulse"
-style="width:8px;height:8px;background:#22c55e;border-radius:50%;">
-</div>
-</div>
-`;
-
-onlineCount++;
-list.appendChild(div);
-});
-
-const label = document.querySelector(".online-count-label");
-if (label) {
-label.textContent = `Đang trực tuyến (${onlineCount})`;
-}
+  if (label) {
+    label.textContent = `Đang trực tuyến (${onlineCount})`;
+  }
+}, (error) => {
+  console.error("Lỗi lắng nghe danh sách online:", error);
 });
 }
 window.logout = async function(){
@@ -4157,27 +4251,37 @@ const user = auth.currentUser;
 
 // cập nhật offline
 if(user){
-await setDoc(doc(db, "users", user.uid), {
-online: false
-}, { merge: true });
+  try {
+    await setDoc(doc(db, "users", user.uid), {
+      online: false,
+      lastSeen: new Date().toISOString()
+    }, { merge: true });
+  } catch (e) {
+    console.log("Lỗi cập nhật offline status:", e);
+  }
 }
 
-// 🔥 TẮT interval (THÊM Ở ĐÂY)
+// TẮT interval
 if(activeInterval){
   clearInterval(activeInterval);
   activeInterval = null;
 }
 
-// 🔥 tắt realtime listener
+// tắt realtime listener
 if(unsubscribeUsers){
-unsubscribeUsers();
-unsubscribeUsers = null;
+  unsubscribeUsers();
+  unsubscribeUsers = null;
 }
 
-// logout
-signOut(auth).then(()=>{
-location.reload();
-});
+// logout với xử lý lỗi
+try {
+  await signOut(auth);
+} catch (e) {
+  console.log("Lỗi đăng xuất:", e);
+} finally {
+  // Luôn reload dù có lỗi hay không
+  location.reload();
+}
 }
 document.addEventListener("click", function(e){
 const popup = document.getElementById("userPopup");
