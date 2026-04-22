@@ -25,6 +25,8 @@ CHECK ADMIN LOGIN
 */
 
 onAuthStateChanged(auth, async (user) => {
+  console.log("User hiện tại:", user);
+  console.log("Email hiện tại:", user?.email);
   if (!user) {
     alert("Bạn chưa đăng nhập!");
     window.location.href = "/";
