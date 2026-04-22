@@ -3014,7 +3014,7 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="hoa" style="display:none">
-<div class="subject-notice"><strong>📢 Thông Báo Môn Học: Đáp án phần Trắc Nghiệm, Trả Lời Ngắn đã xong, đang check đáp án Đúng Sai</strong><span class="notice-content"></span></div>
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học: CHỐT ĐÁP ÁN HOÁ LỜ 👊👊👊</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -3911,17 +3911,6 @@ if(user){
 } else {
   resetLoadingState();
   document.getElementById("loginBox").style.display = "flex";
-
-  // 🔥 Dừng listener khi logout
-  if(unsubscribeUsers){
-    unsubscribeUsers();
-    unsubscribeUsers = null;
-  }
-  // Dừng interval cập nhật online status
-  if(activeInterval){
-    clearInterval(activeInterval);
-    activeInterval = null;
-  }
 }
 });
 // chỉ giữ login trong tab hiện tại
@@ -4163,20 +4152,18 @@ window.emailRegister = async function() {
 
 // Xử lý khi ẩn tab hoặc đóng trình duyệt
 const updateStatus = (isOnline) => {
-const user = auth.currentUser;
-if (user) {
-// Sử dụng return để đảm bảo promise được xử lý
-return setDoc(doc(db, "users", user.uid), { 
-online: isOnline,
-lastSeen: new Date().toISOString() 
-}, { merge: true });
-}
+  const user = auth.currentUser;
+  if (!user) return;
+
+  return setDoc(doc(db, "users", user.uid), {
+    online: isOnline,
+    lastSeen: new Date().toISOString(),
+    lastActive: Date.now()
+  }, { merge: true });
 };
 
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden") {
-    updateStatus(false);
-  } else {
+  if (document.visibilityState === "visible") {
     updateStatus(true);
   }
 });
@@ -4192,58 +4179,46 @@ import {
 let unsubscribeUsers = null;
 
 function startListening(){
-// 🔥 Dừng listener cũ nếu có
-if(unsubscribeUsers) {
-  unsubscribeUsers();
-  unsubscribeUsers = null;
-}
-
-const list = document.getElementById("onlineList");
-const label = document.querySelector(".online-count-label");
-
-// Nếu không có element để hiển thị, không cần tạo listener
-if (!list && !label) {
-  console.log("Không tìm thấy onlineList hoặc online-count-label");
-  return;
-}
+if(unsubscribeUsers) unsubscribeUsers();
 
 unsubscribeUsers = onSnapshot(collection(db,"users"), (snap)=>{
-  if (list) list.innerHTML = "";
+const list = document.getElementById("onlineList");
+if (!list) return;
 
-  let onlineCount = 0;
+list.innerHTML = ""; // ← THIẾU DÒNG NÀY
 
-  snap.forEach(doc => {
-    const u = doc.data();
-    const now = Date.now();
+let onlineCount = 0;
 
-    const ACTIVE_THRESHOLD = 45000;
+snap.forEach(doc => {
+const u = doc.data();
+const now = Date.now();
 
-    if (!u.lastActive || now - u.lastActive > ACTIVE_THRESHOLD) return;
-    if (!u.online) return;
+const ACTIVE_THRESHOLD = 45000;
 
-    if (list) {
-      const div = document.createElement("div");
-      div.innerHTML = `
-        <div style="display:flex; align-items:center; gap:10px; padding:6px 8px;">
-          <img src="${u.photo || 'https://i.imgur.com/6VBx3io.png'}"
-            style="width:26px;height:26px;border-radius:50%;">
-          <span style="color: var(--text-main);">${u.name || "User"}</span>
-          <div class="online-pulse"
-            style="width:8px;height:8px;background:#22c55e;border-radius:50%;">
-          </div>
-        </div>
-      `;
-      list.appendChild(div);
-    }
+if (!u.lastActive || now - u.lastActive > ACTIVE_THRESHOLD) return;
+if (!u.online) return;
 
-    onlineCount++;
-  });
+const div = document.createElement("div");
 
-  if (label) {
-    label.textContent = `Đang trực tuyến (${onlineCount})`;
-  }
-}, (error) => {
-  console.error("Lỗi lắng nghe danh sách online:", error);
+div.innerHTML = `
+<div style="display:flex; align-items:center; gap:10px; padding:6px 8px;">
+<img src="${u.photo || 'https://i.imgur.com/6VBx3io.png'}"
+style="width:26px;height:26px;border-radius:50%;">
+<span style="color: var(--text-main);">${u.name || "User"}</span>
+<div class="online-pulse"
+style="width:8px;height:8px;background:#22c55e;border-radius:50%;">
+</div>
+</div>
+`;
+
+onlineCount++;
+list.appendChild(div);
+});
+
+const label = document.querySelector(".online-count-label");
+if (label) {
+label.textContent = `Đang trực tuyến (${onlineCount})`;
+}
 });
 }
 window.logout = async function(){
@@ -4251,37 +4226,27 @@ const user = auth.currentUser;
 
 // cập nhật offline
 if(user){
-  try {
-    await setDoc(doc(db, "users", user.uid), {
-      online: false,
-      lastSeen: new Date().toISOString()
-    }, { merge: true });
-  } catch (e) {
-    console.log("Lỗi cập nhật offline status:", e);
-  }
+await setDoc(doc(db, "users", user.uid), {
+online: false
+}, { merge: true });
 }
 
-// TẮT interval
+// 🔥 TẮT interval (THÊM Ở ĐÂY)
 if(activeInterval){
   clearInterval(activeInterval);
   activeInterval = null;
 }
 
-// tắt realtime listener
+// 🔥 tắt realtime listener
 if(unsubscribeUsers){
-  unsubscribeUsers();
-  unsubscribeUsers = null;
+unsubscribeUsers();
+unsubscribeUsers = null;
 }
 
-// logout với xử lý lỗi
-try {
-  await signOut(auth);
-} catch (e) {
-  console.log("Lỗi đăng xuất:", e);
-} finally {
-  // Luôn reload dù có lỗi hay không
-  location.reload();
-}
+// logout
+signOut(auth).then(()=>{
+location.reload();
+});
 }
 document.addEventListener("click", function(e){
 const popup = document.getElementById("userPopup");
