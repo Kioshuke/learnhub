@@ -33,7 +33,7 @@ onAuthStateChanged(auth, async (user) => {
 
   // Tạm thời check email admin
   // Sau này sẽ đổi sang role/custom claims
-  const adminEmail = "youradmin@gmail.com";
+  const adminEmail = "quanhao678@gmail.com";
 
   if (user.email !== adminEmail) {
     alert("Bạn không có quyền truy cập Admin Dashboard!");
