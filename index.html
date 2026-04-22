@@ -4152,18 +4152,20 @@ window.emailRegister = async function() {
 
 // Xử lý khi ẩn tab hoặc đóng trình duyệt
 const updateStatus = (isOnline) => {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  return setDoc(doc(db, "users", user.uid), {
-    online: isOnline,
-    lastSeen: new Date().toISOString(),
-    lastActive: Date.now()
-  }, { merge: true });
+const user = auth.currentUser;
+if (user) {
+// Sử dụng return để đảm bảo promise được xử lý
+return setDoc(doc(db, "users", user.uid), { 
+online: isOnline,
+lastSeen: new Date().toISOString() 
+}, { merge: true });
+}
 };
 
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") {
+  if (document.visibilityState === "hidden") {
+    updateStatus(false);
+  } else {
     updateStatus(true);
   }
 });
@@ -4221,43 +4223,33 @@ label.textContent = `Đang trực tuyến (${onlineCount})`;
 }
 });
 }
-window.logout = async function () {
-  const user = auth.currentUser;
+window.logout = async function(){
+const user = auth.currentUser;
 
-  try {
-    // cập nhật trạng thái offline trước khi logout
-    if (user) {
-      await setDoc(doc(db, "users", user.uid), {
-        online: false,
-        lastSeen: new Date().toISOString(),
-        lastActive: Date.now()
-      }, { merge: true });
-    }
+// cập nhật offline
+if(user){
+await setDoc(doc(db, "users", user.uid), {
+online: false
+}, { merge: true });
+}
 
-    // nếu có interval thì tắt
-    if (activeInterval) {
-      clearInterval(activeInterval);
-      activeInterval = null;
-    }
+// 🔥 TẮT interval (THÊM Ở ĐÂY)
+if(activeInterval){
+  clearInterval(activeInterval);
+  activeInterval = null;
+}
 
-    // nếu có listener online thì tắt
-    if (unsubscribeUsers) {
-      unsubscribeUsers();
-      unsubscribeUsers = null;
-    }
+// 🔥 tắt realtime listener
+if(unsubscribeUsers){
+unsubscribeUsers();
+unsubscribeUsers = null;
+}
 
-    // logout Firebase
-    await signOut(auth);
-
-    // đợi Firebase xoá session rồi mới reload
-    setTimeout(() => {
-      location.reload();
-    }, 800);
-
-  } catch (e) {
-    console.error("Lỗi logout:", e);
-  }
-};
+// logout
+signOut(auth).then(()=>{
+location.reload();
+});
+}
 document.addEventListener("click", function(e){
 const popup = document.getElementById("userPopup");
 const avatarBox = document.querySelector(".avatar-box");
