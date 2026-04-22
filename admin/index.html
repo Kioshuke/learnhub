@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <div class="container">
+    <h1>Admin Dashboard</h1>
+
+    <div class="stats">
+      <div class="card">
+        <h3>Tổng User</h3>
+        <p id="totalUsers">0</p>
+      </div>
+
+      <div class="card">
+        <h3>Đang Online</h3>
+        <p id="onlineUsers">0</p>
+      </div>
+    </div>
+
+    <h2>Danh sách người dùng</h2>
+    <div id="userList"></div>
+  </div>
+
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
