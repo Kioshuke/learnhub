@@ -57,6 +57,7 @@
       {
         "type": "multiple",
         "question": "Đồ thị mô tả ảnh hưởng của nhân tố sinh thái đến sinh lí ấu trùng giai đoạn 4 của một loài A như sau:Có bao nhiêu phát biểu đúng?<br>(1) Từ 15°C đến 36°C chính là giới hạn sinh thái của A.<br>(2) Khoảng 16°C-36°C là khoảng thuận lợi.<br>(3) Nhiệt độ 36°C là điểm cực thuận.<br>(4) Trong khoảng này,ở nhiệt độ 36°C,khả năng sinh trưởng của A là tốt nhất.",
+        "image": "../sinhhoc/tncau6.jpg",
         "answers": ["3.", "4.", "2.", "1."],
         "correct": 3
       },
