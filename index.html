@@ -4221,33 +4221,43 @@ label.textContent = `Đang trực tuyến (${onlineCount})`;
 }
 });
 }
-window.logout = async function(){
-const user = auth.currentUser;
+window.logout = async function () {
+  const user = auth.currentUser;
 
-// cập nhật offline
-if(user){
-await setDoc(doc(db, "users", user.uid), {
-online: false
-}, { merge: true });
-}
+  try {
+    // cập nhật trạng thái offline trước khi logout
+    if (user) {
+      await setDoc(doc(db, "users", user.uid), {
+        online: false,
+        lastSeen: new Date().toISOString(),
+        lastActive: Date.now()
+      }, { merge: true });
+    }
 
-// 🔥 TẮT interval (THÊM Ở ĐÂY)
-if(activeInterval){
-  clearInterval(activeInterval);
-  activeInterval = null;
-}
+    // nếu có interval thì tắt
+    if (activeInterval) {
+      clearInterval(activeInterval);
+      activeInterval = null;
+    }
 
-// 🔥 tắt realtime listener
-if(unsubscribeUsers){
-unsubscribeUsers();
-unsubscribeUsers = null;
-}
+    // nếu có listener online thì tắt
+    if (unsubscribeUsers) {
+      unsubscribeUsers();
+      unsubscribeUsers = null;
+    }
 
-// logout
-signOut(auth).then(()=>{
-location.reload();
-});
-}
+    // logout Firebase
+    await signOut(auth);
+
+    // đợi Firebase xoá session rồi mới reload
+    setTimeout(() => {
+      location.reload();
+    }, 800);
+
+  } catch (e) {
+    console.error("Lỗi logout:", e);
+  }
+};
 document.addEventListener("click", function(e){
 const popup = document.getElementById("userPopup");
 const avatarBox = document.querySelector(".avatar-box");
