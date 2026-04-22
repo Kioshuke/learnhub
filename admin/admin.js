@@ -1,6 +1,4 @@
-// admin.js
-// Vào /admin sẽ hiện popup đăng nhập Google luôn
-// chỉ đúng email admin mới được vào
+// admin/admin.js
 
 import {
   collection,
@@ -9,61 +7,34 @@ import {
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import {
-  onAuthStateChanged,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { db } from "./firebase.js";
 
-import { db, auth } from "./firebase.js";
+/*
+=====================================
+LOGIN RIÊNG CHO ADMIN
+=====================================
+*/
+
+const adminPassword = "Admin@123";
+
+const inputPass = prompt("Nhập mật khẩu Admin:");
+
+if (inputPass !== adminPassword) {
+  alert("Sai mật khẩu Admin!");
+  window.location.href = "/";
+} else {
+  renderUsers();
+}
+
+/*
+=====================================
+RENDER USER TABLE
+=====================================
+*/
 
 const userList = document.getElementById("userList");
 const totalUsers = document.getElementById("totalUsers");
 const onlineUsers = document.getElementById("onlineUsers");
-
-const adminEmail = "quanhao678@gmail.com"; // email admin của bạn
-const provider = new GoogleAuthProvider();
-
-/*
-========================================
-AUTO LOGIN GOOGLE
-========================================
-*/
-
-onAuthStateChanged(auth, async (user) => {
-  // chưa login -> tự bật popup login Google
-  if (!user) {
-    try {
-      await signInWithPopup(auth, provider);
-      return;
-    } catch (error) {
-      console.error(error);
-      alert("Đăng nhập thất bại!");
-      window.location.href = "/";
-      return;
-    }
-  }
-
-  console.log("Email hiện tại:", user.email);
-
-  // kiểm tra quyền admin
-  if (user.email !== adminEmail) {
-    alert("Bạn không có quyền truy cập Admin Dashboard!");
-    await signOut(auth);
-    window.location.href = "/";
-    return;
-  }
-
-  // đúng admin -> vào dashboard
-  renderUsers();
-});
-
-/*
-========================================
-REALTIME USER LIST
-========================================
-*/
 
 function renderUsers() {
   onSnapshot(collection(db, "users"), (snapshot) => {
@@ -78,42 +49,39 @@ function renderUsers() {
       const user = docSnap.data();
       const uid = docSnap.id;
 
-      if (user.online) online++;
+      if (user.online) {
+        online++;
+      }
 
-      const div = document.createElement("div");
-      div.className = "user-card";
+      const status = user.banned
+        ? "Bị khóa"
+        : user.approved
+        ? "Đã duyệt"
+        : "Chờ duyệt";
 
-      div.innerHTML = `
-        <h3>${user.displayName || "No Name"}</h3>
-        <p>Email: ${user.email || "Không có email"}</p>
-        <p>Role: ${user.role || "member"}</p>
-        <p>
-          Trạng thái:
-          ${
-            user.banned
-              ? "Bị khóa"
-              : user.approved
-              ? "Đã duyệt"
-              : "Chờ duyệt"
-          }
-        </p>
+      const tr = document.createElement("tr");
 
-        <div class="actions">
-          <button class="approve" onclick="approveUser('${uid}')">
+      tr.innerHTML = `
+        <td>${user.displayName || "No Name"}</td>
+        <td>${user.email || "Không có email"}</td>
+        <td>${user.role || "member"}</td>
+        <td>${status}</td>
+        <td>
+          <button onclick="approveUser('${uid}')">
             Duyệt
           </button>
 
-          <button class="ban" onclick="banUser('${uid}')">
+          <button onclick="banUser('${uid}')">
             Ban
           </button>
 
-          <button class="logout" onclick="forceLogout('${uid}')">
+          <button onclick="forceLogout('${uid}')">
             Logout
           </button>
-        </div>
+        </td>
       `;
 
-      userList.appendChild(div);
+      userList.appendChild(tr);
     });
 
     totalUsers.textContent = total;
@@ -122,9 +90,9 @@ function renderUsers() {
 }
 
 /*
-========================================
+=====================================
 ADMIN ACTIONS
-========================================
+=====================================
 */
 
 window.approveUser = async (uid) => {
