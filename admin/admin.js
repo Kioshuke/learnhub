@@ -1,4 +1,6 @@
 // admin.js
+// Vào /admin sẽ hiện popup đăng nhập Google luôn
+// chỉ đúng email admin mới được vào
 
 import {
   collection,
@@ -9,6 +11,8 @@ import {
 
 import {
   onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -18,25 +22,32 @@ const userList = document.getElementById("userList");
 const totalUsers = document.getElementById("totalUsers");
 const onlineUsers = document.getElementById("onlineUsers");
 
+const adminEmail = "quanhao678@gmail.com"; // email admin của bạn
+const provider = new GoogleAuthProvider();
+
 /*
-==================================================
-CHECK ADMIN LOGIN
-==================================================
+========================================
+AUTO LOGIN GOOGLE
+========================================
 */
 
 onAuthStateChanged(auth, async (user) => {
-  console.log("User hiện tại:", user);
-  console.log("Email hiện tại:", user?.email);
+  // chưa login -> tự bật popup login Google
   if (!user) {
-    alert("Bạn chưa đăng nhập!");
-    window.location.href = "/";
-    return;
+    try {
+      await signInWithPopup(auth, provider);
+      return;
+    } catch (error) {
+      console.error(error);
+      alert("Đăng nhập thất bại!");
+      window.location.href = "/";
+      return;
+    }
   }
 
-  // Tạm thời check email admin
-  // Sau này sẽ đổi sang role/custom claims
-  const adminEmail = "quanhao678@gmail.com";
+  console.log("Email hiện tại:", user.email);
 
+  // kiểm tra quyền admin
   if (user.email !== adminEmail) {
     alert("Bạn không có quyền truy cập Admin Dashboard!");
     await signOut(auth);
@@ -44,13 +55,14 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
+  // đúng admin -> vào dashboard
   renderUsers();
 });
 
 /*
-==================================================
+========================================
 REALTIME USER LIST
-==================================================
+========================================
 */
 
 function renderUsers() {
@@ -66,9 +78,7 @@ function renderUsers() {
       const user = docSnap.data();
       const uid = docSnap.id;
 
-      if (user.online) {
-        online++;
-      }
+      if (user.online) online++;
 
       const div = document.createElement("div");
       div.className = "user-card";
@@ -112,46 +122,31 @@ function renderUsers() {
 }
 
 /*
-==================================================
+========================================
 ADMIN ACTIONS
-==================================================
+========================================
 */
 
 window.approveUser = async (uid) => {
-  try {
-    await updateDoc(doc(db, "users", uid), {
-      approved: true
-    });
+  await updateDoc(doc(db, "users", uid), {
+    approved: true
+  });
 
-    alert("Đã duyệt user!");
-  } catch (error) {
-    console.error(error);
-    alert("Lỗi khi duyệt user");
-  }
+  alert("Đã duyệt user!");
 };
 
 window.banUser = async (uid) => {
-  try {
-    await updateDoc(doc(db, "users", uid), {
-      banned: true
-    });
+  await updateDoc(doc(db, "users", uid), {
+    banned: true
+  });
 
-    alert("Đã khóa tài khoản!");
-  } catch (error) {
-    console.error(error);
-    alert("Lỗi khi ban user");
-  }
+  alert("Đã khóa tài khoản!");
 };
 
 window.forceLogout = async (uid) => {
-  try {
-    await updateDoc(doc(db, "users", uid), {
-      forceLogout: true
-    });
+  await updateDoc(doc(db, "users", uid), {
+    forceLogout: true
+  });
 
-    alert("Đã yêu cầu logout!");
-  } catch (error) {
-    console.error(error);
-    alert("Lỗi khi force logout");
-  }
+  alert("Đã yêu cầu logout!");
 };
