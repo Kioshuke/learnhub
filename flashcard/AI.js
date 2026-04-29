@@ -1,5 +1,5 @@
 // ===== DÁN DATA Ở ĐÂY =====
-window.TOPIC_NAME = "Environment";
+window.TOPIC_NAME = "Artificial Intelligence (AI)";
 
 const rawData = `
 Algorithm - Thuật toán
