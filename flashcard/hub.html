@@ -144,6 +144,13 @@
       margin-bottom: 12px;
     }
 
+    .section-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 40px;
+    }
+
     .section-title {
       margin: 0;
       font-size: clamp(20px, 2.8vw, 28px);
@@ -151,16 +158,71 @@
     }
 
     .section-note {
-      color: #64748b;
-      font-size: 13px;
-      font-weight: 600;
+      min-width: 44px;
+      color: #475569;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .section-nav {
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(37, 99, 235, 0.28);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.96);
+      color: #2563eb;
+      cursor: pointer;
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 0;
+      display: inline-grid;
+      place-items: center;
+      padding: 0 0 3px;
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.14);
+      transition: transform 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
+    }
+
+    .section-nav:hover:not(:disabled) {
+      transform: translateY(-2px);
+      border-color: rgba(37, 99, 235, 0.55);
+    }
+
+    .section-nav:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      box-shadow: none;
     }
 
     .topic-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 16px;
       margin-top: 28px;
+    }
+
+    .topic-slider {
+      --slide-index: 0;
+      --slide-step: calc((100% + 16px) / 3);
+      margin: 28px -15px -22px;
+      overflow-x: hidden;
+      overflow-y: visible;
+      padding: 0 15px 22px;
+    }
+
+    .topic-slider .topic-grid {
+      display: flex;
+      grid-template-columns: none;
+      gap: 16px;
+      margin-top: 0;
+      transform: translateX(calc(var(--slide-index) * -1 * var(--slide-step)));
+      transition: transform 0.36s ease;
+    }
+
+    .topic-slider .topic-card {
+      flex: 0 0 calc((100% - 32px) / 3);
     }
 
     .topic-card {
@@ -169,14 +231,14 @@
       border-radius: 22px;
       background: var(--glass);
       border: 1px solid var(--line);
+      outline: 0 solid transparent;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 14px 26px rgba(15, 23, 42, 0.14);
       padding: 18px;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, outline-color 0.2s ease, outline-width 0.2s ease;
       min-height: 210px;
       animation: cardFloatIn 0.35s ease both;
     }
@@ -191,12 +253,20 @@
       top: -80px;
       background: radial-gradient(circle, rgba(167, 139, 250, 0.35), transparent 70%);
       pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
     }
 
     .topic-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 18px 32px rgba(15, 23, 42, 0.2);
-      border-color: rgba(37, 99, 235, 0.55);
+      transform: translateY(-7px) scale(1.018);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(239, 246, 255, 0.9));
+      border-color: rgba(37, 99, 235, 0.9);
+      outline: 3px solid rgba(37, 99, 235, 0.16);
+    }
+
+    .topic-card:hover::before {
+      opacity: 1;
+      transform: scale(1.16);
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.42), transparent 70%);
     }
 
     .card-top {
@@ -315,6 +385,58 @@
       cursor: pointer;
     }
 
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(248, 250, 252, 0.82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .loading-overlay.show {
+      display: flex;
+      animation: overlayFade 0.2s ease;
+    }
+
+    .loading-box {
+      width: min(360px, 100%);
+      border: 1px solid rgba(37, 99, 235, 0.22);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.96);
+      padding: 28px 22px;
+      text-align: center;
+      animation: popupIn 0.25s ease;
+    }
+
+    .loading-spinner {
+      width: 54px;
+      height: 54px;
+      margin: 0 auto 16px;
+      border: 5px solid rgba(37, 99, 235, 0.16);
+      border-top-color: #2563eb;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .loading-title {
+      margin: 0 0 8px;
+      color: #1d4ed8;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .loading-text {
+      margin: 0;
+      color: #475569;
+      line-height: 1.5;
+      font-weight: 600;
+    }
+
     @keyframes dropdownIn {
       from { opacity: 0; transform: translateY(-6px) scale(0.98); }
       to { opacity: 1; transform: translateY(0) scale(1); }
@@ -338,6 +460,48 @@
     @keyframes popupIn {
       from { opacity: 0; transform: translateY(10px) scale(0.96); }
       to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 860px) {
+      .topic-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .topic-slider {
+        --slide-step: calc((100% + 16px) / 2);
+      }
+
+      .topic-slider .topic-card {
+        flex-basis: calc((100% - 16px) / 2);
+      }
+    }
+
+    @media (max-width: 620px) {
+      .section-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .section-actions {
+        align-self: flex-end;
+        justify-content: flex-end;
+      }
+
+      .topic-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topic-slider {
+        --slide-step: calc(100% + 16px);
+      }
+
+      .topic-slider .topic-card {
+        flex-basis: 100%;
+      }
     }
   </style>
 </head>
@@ -372,6 +536,14 @@
       <h3>Thông báo</h3>
       <p id="popupMessage"></p>
       <button id="popupClose" class="popup-close" type="button">Đã hiểu</button>
+    </div>
+  </div>
+
+  <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
+    <div class="loading-box" role="status" aria-live="polite">
+      <div class="loading-spinner"></div>
+      <p class="loading-title">Đang mở bài học</p>
+      <p id="loadingText" class="loading-text">Chuẩn bị flashcard...</p>
     </div>
   </div>
 
@@ -429,10 +601,32 @@
     const popup = document.getElementById("popup");
     const popupMessage = document.getElementById("popupMessage");
     const popupClose = document.getElementById("popupClose");
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const loadingText = document.getElementById("loadingText");
+    const sectionSlides = {};
+    let isLoadingLesson = false;
+
+    function getVisibleCardCount() {
+      if (window.innerWidth <= 620) return 1;
+      if (window.innerWidth <= 860) return 2;
+      return 3;
+    }
 
     function showPopup(message) {
       popupMessage.textContent = message;
       popup.classList.add("show");
+    }
+
+    function openLesson(topic) {
+      if (isLoadingLesson) return;
+      isLoadingLesson = true;
+      loadingText.textContent = `Chuẩn bị bộ "${topic.name}"...`;
+      loadingOverlay.classList.add("show");
+      loadingOverlay.setAttribute("aria-hidden", "false");
+
+      setTimeout(() => {
+        window.location.href = topic.href;
+      }, 2400);
     }
 
     popupClose.addEventListener("click", () => popup.classList.remove("show"));
@@ -442,20 +636,53 @@
 
     function renderHub(filterValue = "all") {
       hubSections.innerHTML = "";
+      const isSingleSection = filterValue !== "all";
+      const visibleCardCount = getVisibleCardCount();
 
       sections
         .filter((section) => filterValue === "all" || section.key === filterValue)
         .forEach((section) => {
           const block = document.createElement("section");
           block.className = "section-block";
+          const shouldSlide = !isSingleSection && section.items.length > visibleCardCount;
+          const maxSlide = Math.max(0, section.items.length - visibleCardCount);
+          const slideIndex = Math.min(sectionSlides[section.key] || 0, maxSlide);
+          sectionSlides[section.key] = slideIndex;
 
           const header = document.createElement("div");
           header.className = "section-header";
           header.innerHTML = `
             <h2 class="section-title">${section.title}</h2>
-            <span class="section-note">${section.note}</span>
+            <div class="section-actions">
+              ${shouldSlide ? '<button class="section-nav prev" type="button" aria-label="Ô trước">‹</button>' : ''}
+              <span class="section-note">${section.note}</span>
+              ${shouldSlide ? '<button class="section-nav next" type="button" aria-label="Ô sau">›</button>' : ''}
+            </div>
           `;
           block.appendChild(header);
+
+          const slider = document.createElement("div");
+          if (shouldSlide) {
+            slider.className = "topic-slider";
+            slider.style.setProperty("--slide-index", slideIndex);
+          }
+
+          if (shouldSlide) {
+            const prevBtn = header.querySelector(".prev");
+            const nextBtn = header.querySelector(".next");
+            let activeSlide = slideIndex;
+            const updateSlide = (nextSlide) => {
+              activeSlide = Math.max(0, Math.min(maxSlide, nextSlide));
+              sectionSlides[section.key] = activeSlide;
+              slider.style.setProperty("--slide-index", activeSlide);
+              prevBtn.disabled = activeSlide === 0;
+              nextBtn.disabled = activeSlide === maxSlide;
+            };
+
+            updateSlide(activeSlide);
+            prevBtn.addEventListener("click", () => updateSlide(activeSlide - 1));
+            nextBtn.addEventListener("click", () => updateSlide(activeSlide + 1));
+          }
 
           const grid = document.createElement("div");
           grid.className = "topic-grid";
@@ -478,7 +705,7 @@
 
             card.querySelector(".open-btn").addEventListener("click", () => {
               if (topic.href && topic.href !== "#") {
-                window.location.href = topic.href;
+                openLesson(topic);
               } else {
                 showPopup("Nội dung đang được cập nhật. Vui lòng quay lại sau!");
               }
@@ -487,7 +714,12 @@
             grid.appendChild(card);
           });
 
-          block.appendChild(grid);
+          if (shouldSlide) {
+            slider.appendChild(grid);
+            block.appendChild(slider);
+          } else {
+            block.appendChild(grid);
+          }
           hubSections.appendChild(block);
         });
     }
@@ -511,6 +743,10 @@
       if (!filterRoot.contains(e.target)) {
         filterRoot.classList.remove("open");
       }
+    });
+
+    window.addEventListener("resize", () => {
+      renderHub(document.querySelector(".filter-item.active")?.dataset.value || "all");
     });
 
     renderHub();
