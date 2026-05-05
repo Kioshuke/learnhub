@@ -2,8 +2,6 @@
 window.TOPIC_NAME = "Education";
 
 const rawData = `
-Dưới đây là danh sách toàn bộ từ vựng từ tài liệu CD6: EDUCATION, đã được lọc sạch và chuyển sang định dạng Từ tiếng Anh - Nghĩa tiếng Việt (không đánh số) để bạn tiện học:
-
 Educate - Giáo dục
 Educated - Có giáo dục
 Education - Giáo dục
