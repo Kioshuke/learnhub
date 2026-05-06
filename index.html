@@ -3733,7 +3733,7 @@ document.addEventListener("DOMContentLoaded", () => {
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js"; 
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js"; 
-import { getFirestore, doc, setDoc, getDoc } 
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js"; 
 const firebaseConfig = { 
   apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c", 
@@ -3748,29 +3748,39 @@ const auth = getAuth(app); await setPersistence(auth, browserLocalPersistence);
 const db = getFirestore(app); 
 const provider = new GoogleAuthProvider();
 
-const allowList = [
-"quanhao678@gmail.com",
-"huunhan170908@gmail.com",
-"thanhcong0976888@gmail.com",
-"duchieu0383377967@gmail.com",
-"tanphat131008@gmail.com",
-"lebaonguyen3003@gmail.com",
-"lamhuynhanh456@gmail.com",
-"nguyenquyenthdt2021@gmail.com",
-"baonhiho.n2008@gmail.com",
-"baotran150308@gmail.com",
-"leducanh2022jojo@gmail.com",
-"quynhnhu07052020@gmail.com",
-"nguyenthimynhan202011@gmail.com",
-"kienquoc2021dt@gmail.com",
-"pnpthuy.2811@gmail.com",
-"bangbang4951@gmail.com",
-"xmai9839@gmail.com",
-"learnhubadmin@gmail.com",
-];
+let allowList = [];
 let activeInterval = null;
 const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
 const maintenance = false;
+
+function normalizeEmail(email){
+  return String(email || "").trim().toLowerCase();
+}
+
+function accessDocId(email){
+  return encodeURIComponent(normalizeEmail(email));
+}
+
+async function loadAllowList(){
+  try {
+    const snap = await getDocs(collection(db, "accessList"));
+    allowList = snap.docs
+      .map((item) => item.data())
+      .filter((item) => item && item.email && item.enabled !== false)
+      .map((item) => normalizeEmail(item.email));
+  } catch (error) {
+    console.warn("Không thể tải accessList từ Firestore.", error);
+    allowList = [];
+  }
+
+  return allowList;
+}
+
+const allowListReady = loadAllowList();
+
+function isAllowedEmail(email){
+  return allowList.includes(normalizeEmail(email));
+}
 
 function applyUserToUI(user){
 const hour = new Date().getHours();
@@ -3852,6 +3862,75 @@ function enterPreviewMode(){
   startLoading();
 }
 
+let unsubscribeAccessGuard = null;
+let unsubscribeUserGuard = null;
+let authGuardTriggered = false;
+
+function stopAccessGuards(){
+  if(unsubscribeAccessGuard){
+    unsubscribeAccessGuard();
+    unsubscribeAccessGuard = null;
+  }
+  if(unsubscribeUserGuard){
+    unsubscribeUserGuard();
+    unsubscribeUserGuard = null;
+  }
+  authGuardTriggered = false;
+}
+
+async function forceLogoutNow(message, title = "Phiên đăng nhập đã hết hiệu lực"){
+  if(authGuardTriggered) return;
+  authGuardTriggered = true;
+
+  showAuthNotice(message, "error", title);
+
+  try {
+    await updateStatus(false);
+  } catch (e) {}
+
+  try {
+    await signOut(auth);
+  } catch (e) {}
+}
+
+function startAccessGuards(user){
+  stopAccessGuards();
+  if(!user || !user.uid || !user.email) return;
+
+  try {
+    unsubscribeAccessGuard = onSnapshot(doc(db, "accessList", accessDocId(user.email)), (snap) => {
+      if(authGuardTriggered) return;
+      if(!snap.exists() || snap.data()?.enabled === false){
+        forceLogoutNow(
+          "Quyền truy cập của bạn vừa bị thu hồi. Vui lòng liên hệ admin nếu cần hỗ trợ.",
+          "Đã bị gỡ whitelist"
+        );
+      }
+    });
+  } catch (e) {}
+
+  try {
+    unsubscribeUserGuard = onSnapshot(doc(db, "users", user.uid), (snap) => {
+      if(authGuardTriggered) return;
+      if(!snap.exists()){
+        forceLogoutNow(
+          "Hồ sơ người dùng của bạn vừa bị xóa khỏi hệ thống.",
+          "Hồ sơ đã bị xóa"
+        );
+        return;
+      }
+
+      const data = snap.data() || {};
+      if(data.disabled){
+        forceLogoutNow(
+          "Tài khoản của bạn vừa bị vô hiệu hóa. Vui lòng liên hệ admin.",
+          "Tài khoản bị khóa"
+        );
+      }
+    });
+  } catch (e) {}
+}
+
 onAuthStateChanged(auth, async (user)=>{
 if(previewMode){
   enterPreviewMode();
@@ -3859,6 +3938,17 @@ if(previewMode){
 }
 
 if(user){
+  await loadAllowList();
+  if (!isAllowedEmail(user.email)) {
+    showAuthNotice(
+      "Tài khoản này không nằm trong whitelist hiện tại.",
+      "error",
+      "Không có quyền truy cập"
+    );
+    await signOut(auth);
+    return;
+  }
+
   document.getElementById("loginBox").style.display = "none";
   startLoading();
 
@@ -3869,6 +3959,15 @@ if(user){
     const userSnap = await getDoc(userRef);
     if (userSnap.exists()) {
       const firestoreData = userSnap.data();
+      if (firestoreData.disabled) {
+        showAuthNotice(
+          "Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.",
+          "error",
+          "Tài khoản bị khóa"
+        );
+        await signOut(auth);
+        return;
+      }
       // Merge Firestore data (ưu tiên displayName từ Firestore nếu có)
       if (firestoreData.name) {
         userData.displayName = firestoreData.name;
@@ -3921,12 +4020,14 @@ if(user){
 
   // ✅ START LISTENER
   startListening();
+  startAccessGuards(user);
 
   // vì bên trong đã có:
 
   applyUserToUI(userData);
 
 } else {
+  stopAccessGuards();
   resetLoadingState();
   document.getElementById("loginBox").style.display = "flex";
 }
@@ -3949,7 +4050,8 @@ window.googleLogin = function() {
         const user = result.user;
 
         // 1. Kiểm tra quyền truy cập (AllowList)
-        if (!allowList.includes(user.email)) {
+        await loadAllowList();
+        if (!isAllowedEmail(user.email)) {
             showAuthNotice(
               "Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin nếu bạn nghĩ đây là nhầm lẫn.",
               "error",
@@ -3959,8 +4061,20 @@ window.googleLogin = function() {
             return;
         }
 
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists() && userSnap.data().disabled) {
+            showAuthNotice(
+              "Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.",
+              "error",
+              "Tài khoản bị khóa"
+            );
+            await signOut(auth);
+            return;
+        }
+
         // 2. Ghi dữ liệu vào Firestore
-        await setDoc(doc(db, "users", user.uid), {
+        await setDoc(userRef, {
             name: user.displayName,
             email: user.email,
             photo: user.photoURL,
@@ -4029,6 +4143,7 @@ window.emailLogin = async function() {
 
     const email = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value;
+    await loadAllowList();
 
     if (!email || !password) {
         showAuthNotice("Vui lòng nhập email và mật khẩu", "error", "Thiếu thông tin");
@@ -4040,7 +4155,7 @@ window.emailLogin = async function() {
         const user = result.user;
 
         // Kiểm tra allowList
-        if (!allowList.includes(user.email)) {
+        if (!isAllowedEmail(user.email)) {
             showAuthNotice(
                 "Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.",
                 "error",
@@ -4050,8 +4165,20 @@ window.emailLogin = async function() {
             return;
         }
 
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists() && userSnap.data().disabled) {
+            showAuthNotice(
+                "Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.",
+                "error",
+                "Tài khoản bị khóa"
+            );
+            await signOut(auth);
+            return;
+        }
+
         // Ghi dữ liệu vào Firestore (chỉ cập nhật trạng thái đăng nhập, không ghi đè tên)
-        await setDoc(doc(db, "users", user.uid), {
+        await setDoc(userRef, {
             email: user.email,
             photo: user.photoURL || "https://i.imgur.com/6VBx3io.png",
             lastLogin: new Date().toISOString(),
@@ -4087,6 +4214,7 @@ window.emailRegister = async function() {
     const email = document.getElementById("registerEmail").value.trim();
     const password = document.getElementById("registerPassword").value;
     const confirmPassword = document.getElementById("registerConfirmPassword").value;
+    await loadAllowList();
 
     if (!name || !email || !password || !confirmPassword) {
         showAuthNotice("Vui lòng điền đầy đủ thông tin", "error", "Thiếu thông tin");
@@ -4109,7 +4237,7 @@ window.emailRegister = async function() {
     }
 
     // Kiểm tra allowList trước khi đăng ký
-    if (!allowList.includes(email)) {
+    if (!isAllowedEmail(email)) {
         showAuthNotice(
             "Email này không nằm trong danh sách được cấp quyền. Vui lòng liên hệ admin.",
             "error",
@@ -4190,10 +4318,7 @@ document.addEventListener("visibilitychange", () => {
 
 // Trick để ép trình duyệt gửi dữ liệu cuối cùng trước khi đóng
 import {
-  onSnapshot,
-  collection,
-  query,
-  where
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 let unsubscribeUsers = null;

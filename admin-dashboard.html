@@ -134,13 +134,6 @@
       letter-spacing:-.02em;
     }
 
-    .layout{
-      display:grid;
-      grid-template-columns:1.1fr 1.7fr;
-      gap:18px;
-      align-items:start;
-    }
-
     .panel{
       background:var(--panel);
       border:1px solid var(--line);
@@ -190,52 +183,102 @@
       margin-bottom:16px;
     }
 
-    .list{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      max-height:720px;
-      overflow:auto;
-      padding-right:4px;
-    }
-
-    .list::-webkit-scrollbar{ width:8px; }
-    .list::-webkit-scrollbar-thumb{ background:#c7d7ff; border-radius:999px; }
-
-    .allow-item, .user-item{
+    .sheet-wrap{
       border:1px solid var(--line);
-      background:linear-gradient(135deg, #ffffff, #f8fbff);
-      border-radius:22px;
-      padding:16px;
+      border-radius:24px;
+      overflow:hidden;
+      background:linear-gradient(180deg, #ffffff, #f9fbff);
     }
 
-    .allow-top, .user-top{
+    .sheet-scroll{
+      overflow:auto;
+      max-height:760px;
+    }
+
+    .sheet-scroll::-webkit-scrollbar{ width:10px; height:10px; }
+    .sheet-scroll::-webkit-scrollbar-thumb{ background:#c7d7ff; border-radius:999px; }
+
+    .sheet-table{
+      width:100%;
+      min-width:1140px;
+      border-collapse:separate;
+      border-spacing:0;
+    }
+
+    .sheet-table thead th{
+      position:sticky;
+      top:0;
+      z-index:3;
+      background:#eef4ff;
+      color:#29446f;
+      text-align:left;
+      font-size:12px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      padding:14px 12px;
+      border-bottom:1px solid var(--line);
+    }
+
+    .sheet-table tbody td{
+      padding:14px 12px;
+      border-bottom:1px solid #e8eefc;
+      vertical-align:top;
+      background:#fff;
+    }
+
+    .sheet-table tbody tr:nth-child(even) td{
+      background:#fbfdff;
+    }
+
+    .sheet-table tbody tr:hover td{
+      background:#f4f8ff;
+    }
+
+    .identity-cell{
       display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
       gap:12px;
+      align-items:flex-start;
+      min-width:260px;
     }
 
-    .email{
+    .mini-avatar{
+      width:46px;
+      height:46px;
+      border-radius:14px;
+      object-fit:cover;
+      background:#eef4ff;
+      border:1px solid #dbeafe;
+      flex:0 0 auto;
+    }
+
+    .identity-name{
       font-weight:700;
+      line-height:1.35;
+      margin-bottom:4px;
       word-break:break-word;
     }
 
-    .meta{
-      margin-top:4px;
+    .identity-email{
       color:var(--sub);
       font-size:13px;
       line-height:1.5;
+      word-break:break-word;
     }
 
-    .badge-row{
+    .mini-meta{
+      color:var(--sub);
+      font-size:12px;
+      line-height:1.55;
+      min-width:180px;
+    }
+
+    .status-stack{
       display:flex;
-      gap:8px;
+      gap:6px;
       flex-wrap:wrap;
-      margin-top:10px;
     }
 
-    .badge{
+    .chip{
       display:inline-flex;
       align-items:center;
       gap:6px;
@@ -245,27 +288,10 @@
       font-weight:700;
     }
 
-    .badge.online{ background:#dcfce7; color:#166534; }
-    .badge.offline{ background:#e2e8f0; color:#475569; }
-    .badge.disabled{ background:#fee2e2; color:#b91c1c; }
-    .badge.enabled{ background:#dbeafe; color:#1d4ed8; }
-
-    .user-body{
-      display:grid;
-      grid-template-columns:74px 1fr;
-      gap:14px;
-      margin-top:14px;
-      align-items:start;
-    }
-
-    .avatar{
-      width:74px;
-      height:74px;
-      border-radius:20px;
-      object-fit:cover;
-      border:2px solid #dbeafe;
-      background:#eff6ff;
-    }
+    .chip.green{ background:#dcfce7; color:#166534; }
+    .chip.red{ background:#fee2e2; color:#b91c1c; }
+    .chip.blue{ background:#dbeafe; color:#1d4ed8; }
+    .chip.gray{ background:#e2e8f0; color:#475569; }
 
     .field-row{
       display:flex;
@@ -276,15 +302,15 @@
     }
 
     .field-row .input{
-      min-width:220px;
-      flex:1 1 220px;
+      min-width:180px;
+      flex:1 1 180px;
     }
 
-    .user-actions, .allow-actions{
+    .row-actions{
       display:flex;
       gap:8px;
       flex-wrap:wrap;
-      margin-top:14px;
+      min-width:240px;
     }
 
     .login-card{
@@ -328,7 +354,6 @@
     .hidden{ display:none !important; }
 
     @media (max-width: 1100px){
-      .layout{ grid-template-columns:1fr; }
       .grid-stats{ grid-template-columns:repeat(2, minmax(0,1fr)); }
       .hero{ flex-direction:column; }
       .hero-actions{ justify-content:flex-start; }
@@ -339,7 +364,8 @@
       .hero, .panel, .login-card{ border-radius:22px; padding:18px; }
       .grid-stats{ grid-template-columns:1fr; }
       .inline-form{ flex-direction:column; }
-      .user-body{ grid-template-columns:1fr; }
+      .field-row{ flex-direction:column; align-items:stretch; }
+      .row-actions{ min-width:unset; }
     }
   </style>
 </head>
@@ -404,39 +430,42 @@
         </div>
       </div>
 
-      <div class="layout">
-        <section class="panel">
-          <h2>Whitelist</h2>
-          <p class="head-desc">Thêm, xoá hoặc bật/tắt email được phép vào LearnHub.</p>
+      <section class="panel">
+        <h2>Danh sách người dùng</h2>
+        <p class="head-desc">Gộp whitelist và hồ sơ user vào một bảng quản lý duy nhất, thao tác trực tiếp như một sheet nhỏ.</p>
 
-          <div class="inline-form">
-            <input id="allowEmailInput" class="input" type="email" placeholder="Nhập email cần cấp quyền">
-            <button class="btn btn-primary" id="addWhitelistBtn">Thêm whitelist</button>
+        <div class="inline-form">
+          <input id="allowEmailInput" class="input" type="email" placeholder="Nhập email cần thêm vào danh sách">
+          <button class="btn btn-primary" id="addWhitelistBtn">Thêm người dùng</button>
+        </div>
+
+        <div class="toolbar">
+          <input id="directorySearchInput" class="input" type="search" placeholder="Tìm theo tên, email hoặc UID">
+          <select id="directoryFilterSelect" class="select">
+            <option value="all">Tất cả</option>
+            <option value="whitelisted">Đã có whitelist</option>
+            <option value="not-whitelisted">Chưa whitelist</option>
+            <option value="disabled">Đang bị khóa</option>
+          </select>
+        </div>
+
+        <div class="sheet-wrap">
+          <div class="sheet-scroll">
+            <table class="sheet-table">
+              <thead>
+                <tr>
+                  <th>Người dùng</th>
+                  <th>Trạng thái</th>
+                  <th>Tên hiển thị</th>
+                  <th>Hoạt động</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="directoryTableBody"></tbody>
+            </table>
           </div>
-
-          <div class="toolbar">
-            <input id="allowSearchInput" class="input" type="search" placeholder="Tìm email trong whitelist">
-          </div>
-
-          <div id="allowList" class="list"></div>
-        </section>
-
-        <section class="panel">
-          <h2>User</h2>
-          <p class="head-desc">Đổi tên, khóa hoặc xoá hồ sơ người dùng trong Firestore.</p>
-
-          <div class="toolbar">
-            <input id="userSearchInput" class="input" type="search" placeholder="Tìm theo tên, email hoặc UID">
-            <select id="userFilterSelect" class="select">
-              <option value="all">Tất cả</option>
-              <option value="online">Chỉ online</option>
-              <option value="disabled">Chỉ bị khóa</option>
-            </select>
-          </div>
-
-          <div id="userList" class="list"></div>
-        </section>
-      </div>
+        </div>
+      </section>
     </section>
   </div>
 
@@ -493,11 +522,9 @@
     const onlineUsersEl = document.getElementById("onlineUsers");
     const disabledUsersEl = document.getElementById("disabledUsers");
     const totalWhitelistEl = document.getElementById("totalWhitelist");
-    const allowListEl = document.getElementById("allowList");
-    const userListEl = document.getElementById("userList");
-    const allowSearchInput = document.getElementById("allowSearchInput");
-    const userSearchInput = document.getElementById("userSearchInput");
-    const userFilterSelect = document.getElementById("userFilterSelect");
+    const directoryTableBody = document.getElementById("directoryTableBody");
+    const directorySearchInput = document.getElementById("directorySearchInput");
+    const directoryFilterSelect = document.getElementById("directoryFilterSelect");
 
     function showNotice(message, type = "info") {
       noticeEl.className = `notice ${type} show`;
@@ -569,49 +596,53 @@
       disabledUsersEl.textContent = String(userDocs.filter((item) => item.disabled).length);
     }
 
-    function renderAllowList() {
-      const keyword = normalizeEmail(allowSearchInput.value);
-      const filtered = allowDocs.filter((item) => normalizeEmail(item.email).includes(keyword));
+    function buildDirectoryRows() {
+      const allowByEmail = new Map(
+        allowDocs.map((item) => [normalizeEmail(item.email), item])
+      );
 
-      if (!filtered.length) {
-        allowListEl.innerHTML = `<div class="empty">Chưa có email nào khớp trong whitelist.</div>`;
-        return;
-      }
+      const userByEmail = new Map();
+      userDocs.forEach((item) => {
+        if (item.email) {
+          userByEmail.set(normalizeEmail(item.email), item);
+        }
+      });
 
-      allowListEl.innerHTML = filtered.map((item) => {
-        const enabled = item.enabled !== false;
-        return `
-          <article class="allow-item">
-            <div class="allow-top">
-              <div>
-                <div class="email">${escapeHtml(item.email)}</div>
-                <div class="meta">
-                  Thêm lúc: ${formatDate(item.addedAt)}<br>
-                  Cập nhật: ${formatDate(item.updatedAt)}
-                </div>
-                <div class="badge-row">
-                  <span class="badge ${enabled ? "enabled" : "disabled"}">
-                    ${enabled ? "Đang cho phép" : "Đã tắt quyền"}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div class="allow-actions">
-              <button class="btn ${enabled ? "btn-warning" : "btn-success"}" onclick="toggleWhitelist('${escapeHtml(item.id)}', ${enabled})">
-                ${enabled ? "Tắt quyền" : "Bật lại"}
-              </button>
-              <button class="btn btn-danger" onclick="removeWhitelist('${escapeHtml(item.id)}')">Xóa khỏi whitelist</button>
-            </div>
-          </article>
-        `;
-      }).join("");
+      const allEmails = new Set([
+        ...allowByEmail.keys(),
+        ...userByEmail.keys()
+      ]);
+
+      const rows = [];
+
+      allEmails.forEach((email) => {
+        const allow = allowByEmail.get(email);
+        const user = userByEmail.get(email);
+        rows.push({
+          email,
+          uid: user?.uid || "",
+          name: user?.name || user?.email || allow?.email || "Chưa có tên",
+          photo: user?.photo || "https://i.imgur.com/6VBx3io.png",
+          online: Boolean(user?.online),
+          disabled: Boolean(user?.disabled),
+          whitelisted: allow ? allow.enabled !== false : false,
+          allowId: allow?.id || emailDocId(email),
+          lastLogin: user?.lastLogin || "",
+          lastActive: user?.lastActive || "",
+          createdAt: user?.createdAt || "",
+          updatedAt: user?.updatedAt || allow?.updatedAt || "",
+          hasUserDoc: Boolean(user)
+        });
+      });
+
+      return rows.sort((a, b) => normalizeEmail(a.name).localeCompare(normalizeEmail(b.name)));
     }
 
-    function renderUsers() {
-      const keyword = normalizeEmail(userSearchInput.value);
-      const filter = userFilterSelect.value;
+    function renderDirectory() {
+      const keyword = normalizeEmail(directorySearchInput.value);
+      const filter = directoryFilterSelect.value;
 
-      const filtered = userDocs.filter((item) => {
+      const filtered = buildDirectoryRows().filter((item) => {
         const haystack = [
           item.uid,
           item.name,
@@ -619,57 +650,84 @@
         ].map((value) => normalizeEmail(value)).join(" ");
 
         if (keyword && !haystack.includes(keyword)) return false;
-        if (filter === "online" && !item.online) return false;
+        if (filter === "whitelisted" && !item.whitelisted) return false;
+        if (filter === "not-whitelisted" && item.whitelisted) return false;
         if (filter === "disabled" && !item.disabled) return false;
         return true;
       });
 
       if (!filtered.length) {
-        userListEl.innerHTML = `<div class="empty">Chưa có user nào khớp bộ lọc hiện tại.</div>`;
+        directoryTableBody.innerHTML = `<tr><td colspan="5"><div class="empty">Chưa có người dùng nào khớp bộ lọc hiện tại.</div></td></tr>`;
         return;
       }
 
-      userListEl.innerHTML = filtered.map((item) => {
+      directoryTableBody.innerHTML = filtered.map((item) => {
         const safeUid = escapeHtml(item.uid);
         const safeEmail = escapeHtml(item.email || "");
         const safeName = escapeHtml(item.name || item.email || "Chưa đặt tên");
         const safePhoto = escapeHtml(item.photo || "https://i.imgur.com/6VBx3io.png");
+        const statusChips = [
+          item.whitelisted
+            ? `<span class="chip blue">Có whitelist</span>`
+            : `<span class="chip gray">Chưa whitelist</span>`,
+          item.disabled
+            ? `<span class="chip red">Đã khóa</span>`
+            : ``,
+          item.online
+            ? `<span class="chip green">Online</span>`
+            : ``
+        ].filter(Boolean).join("");
+
         return `
-          <article class="user-item">
-            <div class="user-top">
-              <div>
-                <div class="email">${safeName}</div>
-                <div class="meta">
-                  ${safeEmail || "Không có email"}<br>
-                  UID: ${safeUid}
-                </div>
-                <div class="badge-row">
-                  <span class="badge ${item.online ? "online" : "offline"}">${item.online ? "Đang online" : "Offline"}</span>
-                  ${item.disabled ? `<span class="badge disabled">Đã bị khóa</span>` : `<span class="badge enabled">Đang hoạt động</span>`}
+          <tr>
+            <td>
+              <div class="identity-cell">
+                <img class="mini-avatar" src="${safePhoto}" alt="avatar">
+                <div>
+                  <div class="identity-name">${safeName}</div>
+                  <div class="identity-email">${safeEmail || "Chưa có email"}</div>
+                  <div class="mini-meta">UID: ${safeUid || "Chưa có"}${item.hasUserDoc ? "" : "<br>Chưa tạo hồ sơ Firestore"}</div>
                 </div>
               </div>
-            </div>
-            <div class="user-body">
-              <img class="avatar" src="${safePhoto}" alt="avatar">
-              <div>
-                <div class="meta">
-                  Lần đăng nhập cuối: ${formatDate(item.lastLogin)}<br>
-                  Hoạt động cuối: ${formatDate(item.lastActive)}<br>
-                  Tạo lúc: ${formatDate(item.createdAt)}
-                </div>
-                <div class="field-row">
-                  <input id="rename-${safeUid}" class="input" type="text" value="${safeName}" placeholder="Tên hiển thị mới">
-                  <button class="btn btn-primary" onclick="renameUser('${safeUid}')">Lưu tên</button>
-                </div>
-                <div class="user-actions">
-                  <button class="btn ${item.disabled ? "btn-success" : "btn-warning"}" onclick="toggleDisable('${safeUid}', ${item.disabled ? "true" : "false"})">
-                    ${item.disabled ? "Mở khóa user" : "Disable user"}
-                  </button>
-                  <button class="btn btn-danger" onclick="deleteUserData('${safeUid}', '${safeEmail}')">Xóa user</button>
-                </div>
+            </td>
+            <td>
+              <div class="status-stack">${statusChips}</div>
+            </td>
+            <td>
+              ${item.hasUserDoc
+                ? `
+                  <div class="field-row">
+                    <input id="rename-${safeUid}" class="input" type="text" value="${safeName}" placeholder="Tên hiển thị mới">
+                    <button class="btn btn-primary" onclick="renameUser('${safeUid}')">Lưu</button>
+                  </div>
+                `
+                : `<div class="mini-meta">Chỉ có trong whitelist, chưa phát sinh hồ sơ người dùng.</div>`
+              }
+            </td>
+            <td>
+              <div class="mini-meta">
+                Đăng nhập cuối: ${formatDate(item.lastLogin)}<br>
+                Hoạt động cuối: ${formatDate(item.lastActive)}<br>
+                Tạo lúc: ${formatDate(item.createdAt)}
               </div>
-            </div>
-          </article>
+            </td>
+            <td>
+              <div class="row-actions">
+                <button class="btn ${item.whitelisted ? "btn-warning" : "btn-success"}" onclick="toggleWhitelist('${escapeHtml(item.allowId)}', ${item.whitelisted})">
+                  ${item.whitelisted ? "Tắt whitelist" : "Cấp quyền"}
+                </button>
+                ${item.hasUserDoc
+                  ? `<button class="btn ${item.disabled ? "btn-success" : "btn-warning"}" onclick="toggleDisable('${safeUid}', ${item.disabled ? "true" : "false"})">
+                      ${item.disabled ? "Mở khóa" : "Khóa user"}
+                    </button>`
+                  : ``
+                }
+                <button class="btn btn-danger" onclick="deleteUserData('${safeUid}', '${safeEmail}')">
+                  ${item.hasUserDoc ? "Xóa user" : "Xóa email"}
+                </button>
+              </div>
+            </td>
+          </tr>
         `;
       }).join("");
     }
@@ -689,8 +747,7 @@
         .sort((a, b) => normalizeEmail(a.name || a.email).localeCompare(normalizeEmail(b.name || b.email)));
 
       updateStats();
-      renderAllowList();
-      renderUsers();
+      renderDirectory();
     }
 
     function startRealtime() {
@@ -702,7 +759,7 @@
           .map((item) => ({ id: item.id, ...item.data() }))
           .sort((a, b) => normalizeEmail(a.email).localeCompare(normalizeEmail(b.email)));
         updateStats();
-        renderAllowList();
+        renderDirectory();
       });
 
       unsubscribeUsers = onSnapshot(collection(db, "users"), (snap) => {
@@ -710,7 +767,7 @@
           .map((item) => ({ uid: item.id, ...item.data() }))
           .sort((a, b) => normalizeEmail(a.name || a.email).localeCompare(normalizeEmail(b.name || b.email)));
         updateStats();
-        renderUsers();
+        renderDirectory();
       });
     }
 
@@ -778,15 +835,15 @@
       showNotice("Đã thêm email vào whitelist.", "success");
     });
 
-    allowSearchInput.addEventListener("input", renderAllowList);
-    userSearchInput.addEventListener("input", renderUsers);
-    userFilterSelect.addEventListener("change", renderUsers);
+    directorySearchInput.addEventListener("input", renderDirectory);
+    directoryFilterSelect.addEventListener("change", renderDirectory);
 
     window.toggleWhitelist = async (docId, currentEnabled) => {
-      await updateDoc(doc(db, "accessList", docId), {
+      await setDoc(doc(db, "accessList", docId), {
+        email: normalizeEmail(decodeURIComponent(docId)),
         enabled: !currentEnabled,
         updatedAt: new Date().toISOString()
-      });
+      }, { merge: true });
       showNotice(currentEnabled ? "Đã tắt quyền email này." : "Đã bật lại quyền email này.", "success");
     };
 
@@ -813,6 +870,7 @@
     };
 
     window.toggleDisable = async (uid, currentDisabled) => {
+      if (!uid) return;
       await updateDoc(doc(db, "users", uid), {
         disabled: !currentDisabled,
         online: currentDisabled ? false : false,
@@ -823,9 +881,12 @@
     };
 
     window.deleteUserData = async (uid, email) => {
-      if (!confirm("Xóa hồ sơ Firestore của user này và gỡ khỏi whitelist?")) return;
+      const hasUser = Boolean(uid);
+      if (!confirm(hasUser ? "Xóa hồ sơ Firestore của user này và gỡ khỏi whitelist?" : "Xóa email này khỏi whitelist?")) return;
 
-      await deleteDoc(doc(db, "users", uid));
+      if (hasUser) {
+        await deleteDoc(doc(db, "users", uid));
+      }
 
       const normalizedEmail = normalizeEmail(email);
       if (normalizedEmail) {
@@ -836,7 +897,7 @@
         }
       }
 
-      showNotice("Đã xóa hồ sơ user và gỡ whitelist tương ứng.", "success");
+      showNotice(hasUser ? "Đã xóa hồ sơ user và gỡ whitelist tương ứng." : "Đã xóa email khỏi whitelist.", "success");
     };
 
     onAuthStateChanged(auth, async (user) => {
