@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnHub Admin Dashboard</title>
+  <style>
+    :root{
+      --bg:#eef4ff;
+      --panel:#ffffff;
+      --panel-soft:#f8fbff;
+      --line:#d7e4ff;
+      --text:#10203b;
+      --sub:#64748b;
+      --blue:#2563eb;
+      --cyan:#06b6d4;
+      --green:#16a34a;
+      --amber:#f59e0b;
+      --red:#dc2626;
+      --violet:#7c3aed;
+      --shadow:0 24px 60px rgba(37,99,235,0.12);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Segoe UI", Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(59,130,246,0.12), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(6,182,212,0.1), transparent 26%),
+        var(--bg);
+      min-height:100vh;
+    }
+
+    .page{
+      max-width:1320px;
+      margin:0 auto;
+      padding:28px 18px 40px;
+    }
+
+    .hero{
+      background:linear-gradient(135deg, #ffffff, #f5f9ff);
+      border:1px solid rgba(37,99,235,0.12);
+      border-radius:28px;
+      padding:24px;
+      box-shadow:var(--shadow);
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:18px;
+      margin-bottom:22px;
+    }
+
+    .hero h1{
+      margin:0 0 8px;
+      font-size:32px;
+      line-height:1.1;
+    }
+
+    .hero p{
+      margin:0;
+      color:var(--sub);
+      line-height:1.6;
+      max-width:760px;
+    }
+
+    .hero-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btn{
+      border:none;
+      border-radius:16px;
+      padding:12px 16px;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+      transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+    }
+
+    .btn:hover{ transform:translateY(-1px); }
+    .btn:disabled{ cursor:not-allowed; opacity:.6; transform:none; }
+    .btn-primary{ background:linear-gradient(135deg, var(--blue), #1d4ed8); color:#fff; box-shadow:0 14px 30px rgba(37,99,235,.18); }
+    .btn-soft{ background:#e8f0ff; color:#1d4ed8; }
+    .btn-danger{ background:#fee2e2; color:#b91c1c; }
+    .btn-success{ background:#dcfce7; color:#166534; }
+    .btn-warning{ background:#fef3c7; color:#92400e; }
+
+    .notice{
+      display:none;
+      margin-bottom:18px;
+      padding:14px 16px;
+      border-radius:18px;
+      border:1px solid transparent;
+      font-size:14px;
+      line-height:1.55;
+      box-shadow:0 14px 34px rgba(15,23,42,0.08);
+    }
+
+    .notice.show{ display:block; }
+    .notice.info{ background:#eff6ff; color:#1e40af; border-color:#bfdbfe; }
+    .notice.success{ background:#ecfdf5; color:#166534; border-color:#bbf7d0; }
+    .notice.error{ background:#fef2f2; color:#b91c1c; border-color:#fecaca; }
+    .notice.warn{ background:#fff7ed; color:#9a3412; border-color:#fed7aa; }
+
+    .grid-stats{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:16px;
+      margin-bottom:18px;
+    }
+
+    .stat{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .stat .label{
+      font-size:13px;
+      color:var(--sub);
+      margin-bottom:10px;
+    }
+
+    .stat .value{
+      font-size:32px;
+      font-weight:800;
+      letter-spacing:-.02em;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:1.1fr 1.7fr;
+      gap:18px;
+      align-items:start;
+    }
+
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:20px;
+      box-shadow:var(--shadow);
+    }
+
+    .panel h2{
+      margin:0 0 8px;
+      font-size:22px;
+    }
+
+    .panel p.head-desc{
+      margin:0 0 16px;
+      color:var(--sub);
+      line-height:1.55;
+      font-size:14px;
+    }
+
+    .inline-form{
+      display:flex;
+      gap:10px;
+      margin-bottom:16px;
+    }
+
+    .input, .select{
+      width:100%;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:16px;
+      padding:12px 14px;
+      font-size:14px;
+      outline:none;
+      color:var(--text);
+    }
+
+    .input:focus, .select:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 4px rgba(59,130,246,.1);
+    }
+
+    .toolbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      max-height:720px;
+      overflow:auto;
+      padding-right:4px;
+    }
+
+    .list::-webkit-scrollbar{ width:8px; }
+    .list::-webkit-scrollbar-thumb{ background:#c7d7ff; border-radius:999px; }
+
+    .allow-item, .user-item{
+      border:1px solid var(--line);
+      background:linear-gradient(135deg, #ffffff, #f8fbff);
+      border-radius:22px;
+      padding:16px;
+    }
+
+    .allow-top, .user-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .email{
+      font-weight:700;
+      word-break:break-word;
+    }
+
+    .meta{
+      margin-top:4px;
+      color:var(--sub);
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    .badge-row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .badge.online{ background:#dcfce7; color:#166534; }
+    .badge.offline{ background:#e2e8f0; color:#475569; }
+    .badge.disabled{ background:#fee2e2; color:#b91c1c; }
+    .badge.enabled{ background:#dbeafe; color:#1d4ed8; }
+
+    .user-body{
+      display:grid;
+      grid-template-columns:74px 1fr;
+      gap:14px;
+      margin-top:14px;
+      align-items:start;
+    }
+
+    .avatar{
+      width:74px;
+      height:74px;
+      border-radius:20px;
+      object-fit:cover;
+      border:2px solid #dbeafe;
+      background:#eff6ff;
+    }
+
+    .field-row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin-top:12px;
+      flex-wrap:wrap;
+    }
+
+    .field-row .input{
+      min-width:220px;
+      flex:1 1 220px;
+    }
+
+    .user-actions, .allow-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .login-card{
+      max-width:480px;
+      margin:10vh auto 0;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:30px;
+      padding:28px;
+      box-shadow:var(--shadow);
+      text-align:center;
+    }
+
+    .login-card h2{
+      margin:0 0 10px;
+      font-size:28px;
+    }
+
+    .login-card p{
+      margin:0 0 18px;
+      color:var(--sub);
+      line-height:1.6;
+    }
+
+    .hint{
+      margin-top:14px;
+      color:var(--sub);
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    .empty{
+      padding:22px 16px;
+      text-align:center;
+      color:var(--sub);
+      border:1px dashed #cbd5e1;
+      border-radius:18px;
+      background:#f8fbff;
+    }
+
+    .hidden{ display:none !important; }
+
+    @media (max-width: 1100px){
+      .layout{ grid-template-columns:1fr; }
+      .grid-stats{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+      .hero{ flex-direction:column; }
+      .hero-actions{ justify-content:flex-start; }
+    }
+
+    @media (max-width: 640px){
+      .page{ padding:18px 12px 28px; }
+      .hero, .panel, .login-card{ border-radius:22px; padding:18px; }
+      .grid-stats{ grid-template-columns:1fr; }
+      .inline-form{ flex-direction:column; }
+      .user-body{ grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div id="notice" class="notice info"></div>
+
+    <section id="loginView" class="login-card">
+      <h2>LearnHub Admin</h2>
+      <p>Đăng nhập bằng Google để quản lý whitelist, trạng thái tài khoản và dữ liệu user ngay trên web.</p>
+      <button class="btn btn-primary" id="googleAdminLoginBtn">Đăng nhập bằng Google</button>
+      <div class="hint">
+        Chỉ các email admin được khai báo trong file này mới vào được dashboard.
+      </div>
+    </section>
+
+    <section id="dashboardView" class="hidden">
+      <div class="hero">
+        <div>
+          <h1>Dashboard quản lý LearnHub</h1>
+          <p>
+            Quản lý whitelist, sửa tên hiển thị, khóa user, xoá hồ sơ Firestore và theo dõi ai đang online.
+            Dữ liệu ở đây đồng bộ trực tiếp với Firestore mà app chính đang dùng.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <button class="btn btn-soft" id="seedBtn">Nạp whitelist mặc định</button>
+          <button class="btn btn-primary" id="refreshBtn">Làm mới</button>
+          <button class="btn btn-danger" id="logoutBtn">Đăng xuất</button>
+        </div>
+      </div>
+
+      <div class="notice warn show" style="margin-top:-6px;">
+        `Xóa user` trong dashboard này sẽ xóa hồ sơ ở Firestore và gỡ whitelist tương ứng.
+        Nếu muốn xóa hẳn tài khoản trong Firebase Authentication thì vẫn cần Admin SDK hoặc Cloud Function riêng.
+      </div>
+
+      <div class="grid-stats">
+        <div class="stat">
+          <div class="label">Tổng user</div>
+          <div class="value" id="totalUsers">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Đang online</div>
+          <div class="value" id="onlineUsers">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Đang bị khóa</div>
+          <div class="value" id="disabledUsers">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Whitelist</div>
+          <div class="value" id="totalWhitelist">0</div>
+        </div>
+      </div>
+
+      <div class="layout">
+        <section class="panel">
+          <h2>Whitelist</h2>
+          <p class="head-desc">Thêm, xoá hoặc bật/tắt email được phép vào LearnHub.</p>
+
+          <div class="inline-form">
+            <input id="allowEmailInput" class="input" type="email" placeholder="Nhập email cần cấp quyền">
+            <button class="btn btn-primary" id="addWhitelistBtn">Thêm whitelist</button>
+          </div>
+
+          <div class="toolbar">
+            <input id="allowSearchInput" class="input" type="search" placeholder="Tìm email trong whitelist">
+          </div>
+
+          <div id="allowList" class="list"></div>
+        </section>
+
+        <section class="panel">
+          <h2>User</h2>
+          <p class="head-desc">Đổi tên, khóa hoặc xoá hồ sơ người dùng trong Firestore.</p>
+
+          <div class="toolbar">
+            <input id="userSearchInput" class="input" type="search" placeholder="Tìm theo tên, email hoặc UID">
+            <select id="userFilterSelect" class="select">
+              <option value="all">Tất cả</option>
+              <option value="online">Chỉ online</option>
+              <option value="disabled">Chỉ bị khóa</option>
+            </select>
+          </div>
+
+          <div id="userList" class="list"></div>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, onSnapshot, doc, setDoc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c",
+      authDomain: "onthi12-thpttanhong.firebaseapp.com",
+      projectId: "onthi12-thpttanhong",
+      storageBucket: "onthi12-thpttanhong.firebasestorage.app",
+      messagingSenderId: "922115936320",
+      appId: "1:922115936320:web:67b86c06af9149ff584fa5"
+    };
+
+    const defaultAllowList = [
+      "quanhao678@gmail.com",
+      "huunhan170908@gmail.com",
+      "thanhcong0976888@gmail.com",
+      "duchieu0383377967@gmail.com",
+      "tanphat131008@gmail.com",
+      "lebaonguyen3003@gmail.com",
+      "lamhuynhanh456@gmail.com",
+      "nguyenquyenthdt2021@gmail.com",
+      "baonhiho.n2008@gmail.com",
+      "baotran150308@gmail.com",
+      "leducanh2022jojo@gmail.com",
+      "quynhnhu07052020@gmail.com",
+      "nguyenthimynhan202011@gmail.com",
+      "kienquoc2021dt@gmail.com",
+      "pnpthuy.2811@gmail.com",
+      "bangbang4951@gmail.com",
+      "xmai9839@gmail.com",
+      "learnhubadmin@gmail.com"
+    ];
+
+    const adminEmails = [
+      "learnhubadmin@gmail.com",
+      "quanhao678@gmail.com"
+    ];
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    await setPersistence(auth, browserLocalPersistence);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    let allowDocs = [];
+    let userDocs = [];
+    let unsubscribeAllow = null;
+    let unsubscribeUsers = null;
+
+    const noticeEl = document.getElementById("notice");
+    const loginView = document.getElementById("loginView");
+    const dashboardView = document.getElementById("dashboardView");
+    const totalUsersEl = document.getElementById("totalUsers");
+    const onlineUsersEl = document.getElementById("onlineUsers");
+    const disabledUsersEl = document.getElementById("disabledUsers");
+    const totalWhitelistEl = document.getElementById("totalWhitelist");
+    const allowListEl = document.getElementById("allowList");
+    const userListEl = document.getElementById("userList");
+    const allowSearchInput = document.getElementById("allowSearchInput");
+    const userSearchInput = document.getElementById("userSearchInput");
+    const userFilterSelect = document.getElementById("userFilterSelect");
+
+    function showNotice(message, type = "info") {
+      noticeEl.className = `notice ${type} show`;
+      noticeEl.textContent = message;
+      clearTimeout(showNotice.timer);
+      showNotice.timer = setTimeout(() => {
+        noticeEl.className = `notice ${type}`;
+      }, 3200);
+    }
+
+    function normalizeEmail(email) {
+      return String(email || "").trim().toLowerCase();
+    }
+
+    function emailDocId(email) {
+      return encodeURIComponent(normalizeEmail(email));
+    }
+
+    function formatDate(value) {
+      if (!value) return "Chưa có";
+
+      let date;
+      if (typeof value === "number") {
+        date = new Date(value);
+      } else if (value?.toDate) {
+        date = value.toDate();
+      } else {
+        date = new Date(value);
+      }
+
+      if (Number.isNaN(date.getTime())) return "Chưa có";
+      return date.toLocaleString("vi-VN");
+    }
+
+    function escapeHtml(text) {
+      return String(text || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    async function seedDefaultAllowList() {
+      const snap = await getDocs(collection(db, "accessList"));
+      if (!snap.empty) {
+        showNotice("Whitelist Firestore đã có dữ liệu rồi.", "info");
+        return;
+      }
+
+      await Promise.all(
+        defaultAllowList.map((email) =>
+          setDoc(doc(db, "accessList", emailDocId(email)), {
+            email: normalizeEmail(email),
+            enabled: true,
+            addedAt: new Date().toISOString(),
+            source: "default-seed"
+          }, { merge: true })
+        )
+      );
+
+      showNotice("Đã nạp whitelist mặc định lên Firestore.", "success");
+    }
+
+    function updateStats() {
+      totalUsersEl.textContent = String(userDocs.length);
+      totalWhitelistEl.textContent = String(allowDocs.length);
+      onlineUsersEl.textContent = String(userDocs.filter((item) => item.online).length);
+      disabledUsersEl.textContent = String(userDocs.filter((item) => item.disabled).length);
+    }
+
+    function renderAllowList() {
+      const keyword = normalizeEmail(allowSearchInput.value);
+      const filtered = allowDocs.filter((item) => normalizeEmail(item.email).includes(keyword));
+
+      if (!filtered.length) {
+        allowListEl.innerHTML = `<div class="empty">Chưa có email nào khớp trong whitelist.</div>`;
+        return;
+      }
+
+      allowListEl.innerHTML = filtered.map((item) => {
+        const enabled = item.enabled !== false;
+        return `
+          <article class="allow-item">
+            <div class="allow-top">
+              <div>
+                <div class="email">${escapeHtml(item.email)}</div>
+                <div class="meta">
+                  Thêm lúc: ${formatDate(item.addedAt)}<br>
+                  Cập nhật: ${formatDate(item.updatedAt)}
+                </div>
+                <div class="badge-row">
+                  <span class="badge ${enabled ? "enabled" : "disabled"}">
+                    ${enabled ? "Đang cho phép" : "Đã tắt quyền"}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="allow-actions">
+              <button class="btn ${enabled ? "btn-warning" : "btn-success"}" onclick="toggleWhitelist('${escapeHtml(item.id)}', ${enabled})">
+                ${enabled ? "Tắt quyền" : "Bật lại"}
+              </button>
+              <button class="btn btn-danger" onclick="removeWhitelist('${escapeHtml(item.id)}')">Xóa khỏi whitelist</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderUsers() {
+      const keyword = normalizeEmail(userSearchInput.value);
+      const filter = userFilterSelect.value;
+
+      const filtered = userDocs.filter((item) => {
+        const haystack = [
+          item.uid,
+          item.name,
+          item.email
+        ].map((value) => normalizeEmail(value)).join(" ");
+
+        if (keyword && !haystack.includes(keyword)) return false;
+        if (filter === "online" && !item.online) return false;
+        if (filter === "disabled" && !item.disabled) return false;
+        return true;
+      });
+
+      if (!filtered.length) {
+        userListEl.innerHTML = `<div class="empty">Chưa có user nào khớp bộ lọc hiện tại.</div>`;
+        return;
+      }
+
+      userListEl.innerHTML = filtered.map((item) => {
+        const safeUid = escapeHtml(item.uid);
+        const safeEmail = escapeHtml(item.email || "");
+        const safeName = escapeHtml(item.name || item.email || "Chưa đặt tên");
+        const safePhoto = escapeHtml(item.photo || "https://i.imgur.com/6VBx3io.png");
+        return `
+          <article class="user-item">
+            <div class="user-top">
+              <div>
+                <div class="email">${safeName}</div>
+                <div class="meta">
+                  ${safeEmail || "Không có email"}<br>
+                  UID: ${safeUid}
+                </div>
+                <div class="badge-row">
+                  <span class="badge ${item.online ? "online" : "offline"}">${item.online ? "Đang online" : "Offline"}</span>
+                  ${item.disabled ? `<span class="badge disabled">Đã bị khóa</span>` : `<span class="badge enabled">Đang hoạt động</span>`}
+                </div>
+              </div>
+            </div>
+            <div class="user-body">
+              <img class="avatar" src="${safePhoto}" alt="avatar">
+              <div>
+                <div class="meta">
+                  Lần đăng nhập cuối: ${formatDate(item.lastLogin)}<br>
+                  Hoạt động cuối: ${formatDate(item.lastActive)}<br>
+                  Tạo lúc: ${formatDate(item.createdAt)}
+                </div>
+                <div class="field-row">
+                  <input id="rename-${safeUid}" class="input" type="text" value="${safeName}" placeholder="Tên hiển thị mới">
+                  <button class="btn btn-primary" onclick="renameUser('${safeUid}')">Lưu tên</button>
+                </div>
+                <div class="user-actions">
+                  <button class="btn ${item.disabled ? "btn-success" : "btn-warning"}" onclick="toggleDisable('${safeUid}', ${item.disabled ? "true" : "false"})">
+                    ${item.disabled ? "Mở khóa user" : "Disable user"}
+                  </button>
+                  <button class="btn btn-danger" onclick="deleteUserData('${safeUid}', '${safeEmail}')">Xóa user</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    async function refreshCollections() {
+      const [allowSnap, usersSnap] = await Promise.all([
+        getDocs(collection(db, "accessList")),
+        getDocs(collection(db, "users"))
+      ]);
+
+      allowDocs = allowSnap.docs
+        .map((item) => ({ id: item.id, ...item.data() }))
+        .sort((a, b) => normalizeEmail(a.email).localeCompare(normalizeEmail(b.email)));
+
+      userDocs = usersSnap.docs
+        .map((item) => ({ uid: item.id, ...item.data() }))
+        .sort((a, b) => normalizeEmail(a.name || a.email).localeCompare(normalizeEmail(b.name || b.email)));
+
+      updateStats();
+      renderAllowList();
+      renderUsers();
+    }
+
+    function startRealtime() {
+      if (unsubscribeAllow) unsubscribeAllow();
+      if (unsubscribeUsers) unsubscribeUsers();
+
+      unsubscribeAllow = onSnapshot(collection(db, "accessList"), (snap) => {
+        allowDocs = snap.docs
+          .map((item) => ({ id: item.id, ...item.data() }))
+          .sort((a, b) => normalizeEmail(a.email).localeCompare(normalizeEmail(b.email)));
+        updateStats();
+        renderAllowList();
+      });
+
+      unsubscribeUsers = onSnapshot(collection(db, "users"), (snap) => {
+        userDocs = snap.docs
+          .map((item) => ({ uid: item.id, ...item.data() }))
+          .sort((a, b) => normalizeEmail(a.name || a.email).localeCompare(normalizeEmail(b.name || b.email)));
+        updateStats();
+        renderUsers();
+      });
+    }
+
+    async function ensureAdmin(user) {
+      if (!user?.email || !adminEmails.includes(normalizeEmail(user.email))) {
+        showNotice("Email này không có quyền vào dashboard admin.", "error");
+        await signOut(auth);
+        return false;
+      }
+      return true;
+    }
+
+    document.getElementById("googleAdminLoginBtn").addEventListener("click", async () => {
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (error) {
+        console.error(error);
+        showNotice("Đăng nhập admin thất bại: " + error.message, "error");
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
+    document.getElementById("seedBtn").addEventListener("click", seedDefaultAllowList);
+    document.getElementById("refreshBtn").addEventListener("click", refreshCollections);
+
+    document.getElementById("addWhitelistBtn").addEventListener("click", async () => {
+      const input = document.getElementById("allowEmailInput");
+      const email = normalizeEmail(input.value);
+
+      if (!email || !email.includes("@")) {
+        showNotice("Vui lòng nhập email hợp lệ.", "error");
+        return;
+      }
+
+      await setDoc(doc(db, "accessList", emailDocId(email)), {
+        email,
+        enabled: true,
+        addedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+
+      input.value = "";
+      showNotice("Đã thêm email vào whitelist.", "success");
+    });
+
+    allowSearchInput.addEventListener("input", renderAllowList);
+    userSearchInput.addEventListener("input", renderUsers);
+    userFilterSelect.addEventListener("change", renderUsers);
+
+    window.toggleWhitelist = async (docId, currentEnabled) => {
+      await updateDoc(doc(db, "accessList", docId), {
+        enabled: !currentEnabled,
+        updatedAt: new Date().toISOString()
+      });
+      showNotice(currentEnabled ? "Đã tắt quyền email này." : "Đã bật lại quyền email này.", "success");
+    };
+
+    window.removeWhitelist = async (docId) => {
+      if (!confirm("Xóa email này khỏi whitelist?")) return;
+      await deleteDoc(doc(db, "accessList", docId));
+      showNotice("Đã xóa email khỏi whitelist.", "success");
+    };
+
+    window.renameUser = async (uid) => {
+      const input = document.getElementById(`rename-${uid}`);
+      const name = String(input?.value || "").trim();
+      if (name.length < 2) {
+        showNotice("Tên phải có ít nhất 2 ký tự.", "error");
+        return;
+      }
+
+      await updateDoc(doc(db, "users", uid), {
+        name,
+        updatedAt: new Date().toISOString()
+      });
+
+      showNotice("Đã cập nhật tên user.", "success");
+    };
+
+    window.toggleDisable = async (uid, currentDisabled) => {
+      await updateDoc(doc(db, "users", uid), {
+        disabled: !currentDisabled,
+        online: currentDisabled ? false : false,
+        updatedAt: new Date().toISOString()
+      });
+
+      showNotice(currentDisabled ? "Đã mở khóa user." : "Đã disable user.", "success");
+    };
+
+    window.deleteUserData = async (uid, email) => {
+      if (!confirm("Xóa hồ sơ Firestore của user này và gỡ khỏi whitelist?")) return;
+
+      await deleteDoc(doc(db, "users", uid));
+
+      const normalizedEmail = normalizeEmail(email);
+      if (normalizedEmail) {
+        const allowRef = doc(db, "accessList", emailDocId(normalizedEmail));
+        const allowSnap = await getDoc(allowRef);
+        if (allowSnap.exists()) {
+          await deleteDoc(allowRef);
+        }
+      }
+
+      showNotice("Đã xóa hồ sơ user và gỡ whitelist tương ứng.", "success");
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        if (unsubscribeAllow) unsubscribeAllow();
+        if (unsubscribeUsers) unsubscribeUsers();
+        loginView.classList.remove("hidden");
+        dashboardView.classList.add("hidden");
+        return;
+      }
+
+      const ok = await ensureAdmin(user);
+      if (!ok) return;
+
+      loginView.classList.add("hidden");
+      dashboardView.classList.remove("hidden");
+
+      await refreshCollections();
+      startRealtime();
+    });
+  </script>
+</body>
+</html>
