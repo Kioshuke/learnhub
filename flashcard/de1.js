@@ -3,7 +3,8 @@ window.TOPIC_NAME = "Đề tổng hợp 1";
 
 const rawData = `
 Pioneer / Trailblazer - Người tiên phong
-Nurture / Support - Nuôi dưỡng, hỗ trợ
+Nurture - Nuôi dưỡng
+Support - Hỗ trợ
 Pave the way for - Dọn đường cho, mở đường cho
 Expatriate - Người sống ở nước ngoài, ngoại quốc
 Prospect - Triển vọng, tiềm năng
@@ -15,7 +16,8 @@ Prowess - Kỹ năng điêu luyện, sự thành thạo
 Entrepreneur / Businessman - Doanh nhân
 Leverage - Tận dụng, khai thác
 Hesitate - Do dự, lưỡng lự
-Emerge / Appear - Xuất hiện, nổi lên
+Emerge - Xuất hiện, 
+Appear - Nổi lên
 Emergence - Sự xuất hiện, sự nổi lên
 Distinct - Khác biệt, riêng biệt
 Rivalry - Sự kình địch, sự đối đầu
@@ -32,7 +34,8 @@ Transparency - Sự minh bạch, sự rõ ràng
 Fishing log - Nhật ký đánh bắt
 Operate - Vận hành, phẫu thuật
 Operation - Sự vận hành, ca phẫu thuật
-Inspection / Examination - Cuộc thanh tra, sự kiểm tra
+Inspection - Cuộc thanh tra
+Examination - Sự kiểm tra
 Result from - Có nguyên nhân từ
 Result in / Lead to - Dẫn đến kết quả
 Penalty - Án phạt, hình phạt
