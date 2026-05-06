@@ -2014,6 +2014,71 @@ body.dark-mode .card{
     margin: 0 !important;
     width: auto !important;
 }
+
+/* ================= THÔNG BÁO MÔN HỌC ================= */
+.subject-notice{
+  background: linear-gradient(135deg, color-mix(in srgb, var(--subject-color, #1a73e8) 15%, #fff), color-mix(in srgb, var(--subject-color, #1a73e8) 8%, #f8fbff));
+  border-left: 5px solid var(--subject-color, #1a73e8);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  font-size: 15px;
+  color: color-mix(in srgb, #1e293b 85%, var(--subject-color, #1a73e8) 15%);
+  box-shadow: 0 4px 15px color-mix(in srgb, var(--subject-color, #1a73e8) 12%, transparent);
+  animation: noticeSlideIn 0.5s ease, noticePulse 3s ease-in-out infinite 1s;
+  backdrop-filter: blur(8px);
+}
+
+.subject-notice strong{
+  color: var(--subject-color, #1a73e8);
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+.subject-notice .notice-content{
+  display: inline;
+  font-weight: 500;
+}
+
+/* Animation khi hiện vào */
+@keyframes noticeSlideIn{
+  from{
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to{
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation nhấp nháy nhẹ */
+@keyframes noticePulse{
+  0%, 100%{
+    box-shadow: 0 4px 15px color-mix(in srgb, var(--subject-color, #1a73e8) 12%, transparent);
+  }
+  50%{
+    box-shadow: 0 4px 20px color-mix(in srgb, var(--subject-color, #1a73e8) 20%, transparent);
+  }
+}
+
+/* Dark mode */
+body.dark-mode .subject-notice{
+  background: linear-gradient(135deg, color-mix(in srgb, var(--subject-color, #1a73e8) 25%, #1e293b), color-mix(in srgb, var(--subject-color, #1a73e8) 15%, #0f172a));
+  color: color-mix(in srgb, #f1f5f9 90%, var(--subject-color, #1a73e8) 10%);
+}
+
+/* Màu theo từng môn */
+#ly .subject-notice{ --subject-color: #3b82f6; }
+#sinh .subject-notice{ --subject-color: #16a34a; }
+#tin .subject-notice{ --subject-color: #f59e0b; }
+#su .subject-notice{ --subject-color: #dc2626; }
+#hoa .subject-notice{ --subject-color: #9333ea; }
+#anh .subject-notice{ --subject-color: #ec4899; }
+#bxh .subject-notice{ --subject-color: #0ea5e9; }
+#flash .subject-notice{ --subject-color: #2563eb; }
+#lich .subject-notice{ --subject-color: #f97316; }
+
 </style>
 
 </head>
@@ -2046,14 +2111,8 @@ body.dark-mode .card{
 <div id="popup">
 <div class="popup-box">
 <span class="close">&times;</span>
-<h3>📢 Thông báo (20/04/2026)</h3>
-<p style="text-align:left;"> <b>Thông báo nội dung:</b><br>
-- Đã hoàn thành tất cả các môn <br>
-- Đã cập nhật đáp án môn Hoá Học
-</p>
-<p style="text-align:left;"> <b>Fix Bug:</b><br>
-- Fix giao diện <br>- Sửa dark mode</p>
-<p style="color: red; font-size: 25px; font-weight: bold;">Cái đéo j ko cs thì load lại web dùm. Đừng cs nhắn miết chọc tao điên đừng trách sao vào Blacklist!</p>
+<h3>📢 Thông báo</h3>
+<p style="text-align:left;"> <b>CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM</b> </p>
 </div>
 </div>
 <div id="loginBox">
@@ -2807,6 +2866,7 @@ animation: pulse-green 2s infinite;
 
 </div>
 <div id="ly" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học: Đã thi xong</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -2831,6 +2891,7 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="sinh" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học:</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -2855,6 +2916,7 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="tin" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học: Đã thi xong</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -2909,6 +2971,7 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="su" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học: Đã lược bớt chủ đề 7: Nội dung thi Chủ đề 8 và 9</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -2945,6 +3008,7 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="hoa" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học: CHỐT ĐÁP ÁN HOÁ LỜ 👊👊👊</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -2975,6 +3039,7 @@ animation: pulse-green 2s infinite;
 </div>
 
 <div id="anh" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học:</strong><span class="notice-content"></span></div>
 <div class="grid">
 
 <div class="card">
@@ -3644,7 +3709,7 @@ document.addEventListener("DOMContentLoaded", () => {
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js"; 
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js"; 
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs } 
+import { getFirestore, doc, setDoc, getDoc } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js"; 
 const firebaseConfig = { 
   apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c", 
@@ -3659,31 +3724,29 @@ const auth = getAuth(app); await setPersistence(auth, browserLocalPersistence);
 const db = getFirestore(app); 
 const provider = new GoogleAuthProvider();
 
-let allowList = [];
+const allowList = [
+"quanhao678@gmail.com",
+"huunhan170908@gmail.com",
+"thanhcong0976888@gmail.com",
+"duchieu0383377967@gmail.com",
+"tanphat131008@gmail.com",
+"lebaonguyen3003@gmail.com",
+"lamhuynhanh456@gmail.com",
+"nguyenquyenthdt2021@gmail.com",
+"baonhiho.n2008@gmail.com",
+"baotran150308@gmail.com",
+"leducanh2022jojo@gmail.com",
+"quynhnhu07052020@gmail.com",
+"nguyenthimynhan202011@gmail.com",
+"kienquoc2021dt@gmail.com",
+"pnpthuy.2811@gmail.com",
+"bangbang4951@gmail.com",
+"xmai9839@gmail.com",
+"learnhubadmin@gmail.com",
+];
 let activeInterval = null;
 const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
 const maintenance = false;
-
-async function loadAllowList(){
-  try {
-    const snap = await getDocs(collection(db, "accessList"));
-    allowList = snap.docs
-      .map((item) => item.data())
-      .filter((item) => item && item.email && item.enabled !== false)
-      .map((item) => String(item.email).trim().toLowerCase());
-  } catch (error) {
-    console.warn("Không thể tải accessList từ Firestore.", error);
-    allowList = [];
-  }
-
-  return allowList;
-}
-
-const allowListReady = loadAllowList();
-
-function isAllowedEmail(email){
-  return allowList.includes(String(email || "").trim().toLowerCase());
-}
 
 function applyUserToUI(user){
 const hour = new Date().getHours();
@@ -3772,18 +3835,6 @@ if(previewMode){
 }
 
 if(user){
-  await allowListReady;
-
-  if (!isAllowedEmail(user.email)) {
-    showAuthNotice(
-      "Tài khoản này không nằm trong whitelist hiện tại.",
-      "error",
-      "Không có quyền truy cập"
-    );
-    await signOut(auth);
-    return;
-  }
-
   document.getElementById("loginBox").style.display = "none";
   startLoading();
 
@@ -3794,15 +3845,6 @@ if(user){
     const userSnap = await getDoc(userRef);
     if (userSnap.exists()) {
       const firestoreData = userSnap.data();
-      if (firestoreData.disabled) {
-        showAuthNotice(
-          "Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.",
-          "error",
-          "Tài khoản bị khóa"
-        );
-        await signOut(auth);
-        return;
-      }
       // Merge Firestore data (ưu tiên displayName từ Firestore nếu có)
       if (firestoreData.name) {
         userData.displayName = firestoreData.name;
@@ -3881,10 +3923,9 @@ window.googleLogin = function() {
     signInWithPopup(auth, provider)
     .then(async (result) => {
         const user = result.user;
-        await allowListReady;
 
         // 1. Kiểm tra quyền truy cập (AllowList)
-        if (!isAllowedEmail(user.email)) {
+        if (!allowList.includes(user.email)) {
             showAuthNotice(
               "Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin nếu bạn nghĩ đây là nhầm lẫn.",
               "error",
@@ -3894,20 +3935,8 @@ window.googleLogin = function() {
             return;
         }
 
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists() && userSnap.data().disabled) {
-            showAuthNotice(
-              "Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.",
-              "error",
-              "Tài khoản bị khóa"
-            );
-            await signOut(auth);
-            return;
-        }
-
         // 2. Ghi dữ liệu vào Firestore
-        await setDoc(userRef, {
+        await setDoc(doc(db, "users", user.uid), {
             name: user.displayName,
             email: user.email,
             photo: user.photoURL,
@@ -3976,7 +4005,6 @@ window.emailLogin = async function() {
 
     const email = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value;
-    await allowListReady;
 
     if (!email || !password) {
         showAuthNotice("Vui lòng nhập email và mật khẩu", "error", "Thiếu thông tin");
@@ -3988,7 +4016,7 @@ window.emailLogin = async function() {
         const user = result.user;
 
         // Kiểm tra allowList
-        if (!isAllowedEmail(user.email)) {
+        if (!allowList.includes(user.email)) {
             showAuthNotice(
                 "Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.",
                 "error",
@@ -3998,20 +4026,8 @@ window.emailLogin = async function() {
             return;
         }
 
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists() && userSnap.data().disabled) {
-            showAuthNotice(
-                "Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.",
-                "error",
-                "Tài khoản bị khóa"
-            );
-            await signOut(auth);
-            return;
-        }
-
         // Ghi dữ liệu vào Firestore (chỉ cập nhật trạng thái đăng nhập, không ghi đè tên)
-        await setDoc(userRef, {
+        await setDoc(doc(db, "users", user.uid), {
             email: user.email,
             photo: user.photoURL || "https://i.imgur.com/6VBx3io.png",
             lastLogin: new Date().toISOString(),
@@ -4047,7 +4063,6 @@ window.emailRegister = async function() {
     const email = document.getElementById("registerEmail").value.trim();
     const password = document.getElementById("registerPassword").value;
     const confirmPassword = document.getElementById("registerConfirmPassword").value;
-    await allowListReady;
 
     if (!name || !email || !password || !confirmPassword) {
         showAuthNotice("Vui lòng điền đầy đủ thông tin", "error", "Thiếu thông tin");
@@ -4070,7 +4085,7 @@ window.emailRegister = async function() {
     }
 
     // Kiểm tra allowList trước khi đăng ký
-    if (!isAllowedEmail(email)) {
+    if (!allowList.includes(email)) {
         showAuthNotice(
             "Email này không nằm trong danh sách được cấp quyền. Vui lòng liên hệ admin.",
             "error",
@@ -4151,7 +4166,10 @@ document.addEventListener("visibilitychange", () => {
 
 // Trick để ép trình duyệt gửi dữ liệu cuối cùng trước khi đóng
 import {
-  onSnapshot
+  onSnapshot,
+  collection,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 let unsubscribeUsers = null;
