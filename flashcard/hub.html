@@ -132,6 +132,11 @@
     }
 
     .section-block {
+      --section-accent: #2563eb;
+      --section-accent-dark: #1d4ed8;
+      --section-soft: rgba(37, 99, 235, 0.12);
+      --section-border: rgba(37, 99, 235, 0.35);
+      --section-glow: rgba(124, 58, 237, 0.42);
       margin-top: 28px;
       animation: sectionFadeIn 0.45s ease both;
     }
@@ -154,7 +159,7 @@
     .section-title {
       margin: 0;
       font-size: clamp(20px, 2.8vw, 28px);
-      color: var(--primary);
+      color: var(--section-accent);
     }
 
     .section-note {
@@ -170,10 +175,10 @@
     .section-nav {
       width: 40px;
       height: 40px;
-      border: 1px solid rgba(37, 99, 235, 0.28);
+      border: 1px solid var(--section-border);
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.96);
-      color: #2563eb;
+      color: var(--section-accent);
       cursor: pointer;
       font-size: 28px;
       font-weight: 800;
@@ -181,13 +186,13 @@
       display: inline-grid;
       place-items: center;
       padding: 0 0 3px;
-      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.14);
+      box-shadow: 0 8px 16px var(--section-soft);
       transition: transform 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
     }
 
     .section-nav:hover:not(:disabled) {
       transform: translateY(-2px);
-      border-color: rgba(37, 99, 235, 0.55);
+      border-color: var(--section-accent);
     }
 
     .section-nav:disabled {
@@ -251,22 +256,22 @@
       border-radius: 50%;
       right: -60px;
       top: -80px;
-      background: radial-gradient(circle, rgba(167, 139, 250, 0.35), transparent 70%);
+      background: radial-gradient(circle, var(--section-soft), transparent 70%);
       pointer-events: none;
       transition: opacity 0.2s ease, transform 0.2s ease;
     }
 
     .topic-card:hover {
       transform: translateY(-7px) scale(1.018);
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(239, 246, 255, 0.9));
-      border-color: rgba(37, 99, 235, 0.9);
-      outline: 3px solid rgba(37, 99, 235, 0.16);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), var(--section-soft));
+      border-color: var(--section-accent);
+      outline: 3px solid var(--section-soft);
     }
 
     .topic-card:hover::before {
       opacity: 1;
       transform: scale(1.16);
-      background: radial-gradient(circle, rgba(124, 58, 237, 0.42), transparent 70%);
+      background: radial-gradient(circle, var(--section-glow), transparent 70%);
     }
 
     .card-top {
@@ -285,9 +290,9 @@
       font-size: 12px;
       padding: 5px 10px;
       border-radius: 999px;
-      background: var(--chip);
-      border: 1px solid rgba(37, 99, 235, 0.35);
-      color: #1d4ed8;
+      background: var(--section-soft);
+      border: 1px solid var(--section-border);
+      color: var(--section-accent-dark);
       white-space: nowrap;
     }
 
@@ -314,7 +319,7 @@
     }
 
     .count {
-      color: #1d4ed8;
+      color: var(--section-accent-dark);
       font-size: 13px;
       opacity: 0.9;
     }
@@ -325,9 +330,9 @@
       padding: 10px 14px;
       cursor: pointer;
       color: white;
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      background: linear-gradient(135deg, var(--section-accent), var(--section-accent-dark));
       font-weight: 700;
-      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.35);
+      box-shadow: 0 8px 16px var(--section-border);
       transition: transform 0.15s ease;
     }
 
@@ -520,6 +525,7 @@
         </button>
         <ul id="filterMenu" class="filter-menu">
           <li><button type="button" class="filter-item active" data-value="all">Hiện tất cả nhóm</button></li>
+          <li><button type="button" class="filter-item" data-value="exam">Từ vựng tổng hợp theo từng đề</button></li>
           <li><button type="button" class="filter-item" data-value="topic">Từ vựng theo chủ đề</button></li>
           <li><button type="button" class="filter-item" data-value="phrasal">Phrasal Verbs</button></li>
           <li><button type="button" class="filter-item" data-value="collocation">Collocations</button></li>
@@ -551,9 +557,33 @@
     // Chỉ cần sửa/chèn item trong mảng sections này.
     const sections = [
       {
+        key: "exam",
+        title: "Từ Vựng Tổng Hợp Theo Từng Đề",
+        note: "3 bộ",
+        theme: {
+          accent: "#db2777",
+          accentDark: "#be185d",
+          soft: "rgba(219, 39, 119, 0.12)",
+          border: "rgba(219, 39, 119, 0.34)",
+          glow: "rgba(244, 114, 182, 0.38)"
+        },
+        items: [
+          { name: "Đề tổng hợp 1", description: "Từ vựng trọng tâm theo đề luyện tập số 1.", words: 100, level: "Tổng hợp", icon: "🧾", href: "#" },
+          { name: "Đề tổng hợp 2", description: "Từ vựng trọng tâm theo đề luyện tập số 2.", words: 100, level: "Tổng hợp", icon: "📚", href: "#" },
+          { name: "Đề tổng hợp 3", description: "Từ vựng trọng tâm theo đề luyện tập số 3.", words: 100, level: "Tổng hợp", icon: "✅", href: "#" }
+        ]
+      },
+      {
         key: "topic",
         title: "Từ Vựng Theo Chủ Đề",
         note: "5 bộ",
+        theme: {
+          accent: "#2563eb",
+          accentDark: "#1d4ed8",
+          soft: "rgba(37, 99, 235, 0.12)",
+          border: "rgba(37, 99, 235, 0.35)",
+          glow: "rgba(96, 165, 250, 0.4)"
+        },
         items: [
           { name: "Environment", description: "Khí hậu, môi trường và phát triển bền vững.", words: 100, level: "Trung bình", icon: "🌍", href: "flash.html?data=environment.js" },
           { name: "Artificial Intelligence (AI) Part 1", description: "Trí tuệ nhân tạo và một số từ ngữ liên quan", words: 50, level: "Trung bình", icon: "🤖", href: "flash.html?data=AI.js" },
@@ -566,6 +596,13 @@
         key: "phrasal",
         title: "Phrasal Verbs",
         note: "3 bộ",
+        theme: {
+          accent: "#ea580c",
+          accentDark: "#c2410c",
+          soft: "rgba(234, 88, 12, 0.12)",
+          border: "rgba(234, 88, 12, 0.34)",
+          glow: "rgba(251, 146, 60, 0.38)"
+        },
         items: [
           { name: "Work & Office", description: "Các cụm động từ hay dùng trong công việc.", words: 80, level: "Trung Bình", icon: "📁", href: "#" },
           { name: "Daily Conversation", description: "Phrasal verbs dùng trong giao tiếp hằng ngày.", words: 75, level: "Dễ", icon: "💬", href: "#" },
@@ -576,6 +613,13 @@
         key: "collocation",
         title: "Collocations",
         note: "3 bộ",
+        theme: {
+          accent: "#059669",
+          accentDark: "#047857",
+          soft: "rgba(5, 150, 105, 0.12)",
+          border: "rgba(5, 150, 105, 0.34)",
+          glow: "rgba(52, 211, 153, 0.38)"
+        },
         items: [
           { name: "Part 1", description: "Tổng hợp 296 cụm từ cố định Phần 1", words: 100, level: "Trung Bình", icon: "📈", href: "flash.html?data=collocation1.js" },
           { name: "Part 2", description: "Tổng hợp 296 cụm từ cố định Phần 2", words: 100, level: "Trung Bình", icon: "📝", href: "flash.html?data=collocation2.js" },
@@ -586,6 +630,13 @@
         key: "idiom",
         title: "Idioms",
         note: "3 bộ",
+        theme: {
+          accent: "#7c3aed",
+          accentDark: "#6d28d9",
+          soft: "rgba(124, 58, 237, 0.12)",
+          border: "rgba(124, 58, 237, 0.34)",
+          glow: "rgba(167, 139, 250, 0.42)"
+        },
         items: [
           { name: "Idioms Part 1", description: "THÀNH NGỮ THƯỜNG XUYÊN XUẤT HIỆN TRONG ĐỀ THI TỐT NGHIỆP THPT QUỐC GIA", words: 40, level: "Nâng Cao", icon: "🌟", href: "flash.html?data=idioms1.js" },
           { name: "Workplace Idioms", description: "Idioms dùng trong tình huống công việc.", words: 65, level: "Trung bình", icon: "🏢", href: "#" },
@@ -645,6 +696,13 @@
         .forEach((section) => {
           const block = document.createElement("section");
           block.className = "section-block";
+          if (section.theme) {
+            block.style.setProperty("--section-accent", section.theme.accent);
+            block.style.setProperty("--section-accent-dark", section.theme.accentDark);
+            block.style.setProperty("--section-soft", section.theme.soft);
+            block.style.setProperty("--section-border", section.theme.border);
+            block.style.setProperty("--section-glow", section.theme.glow);
+          }
           const shouldSlide = !isSingleSection && section.items.length > visibleCardCount;
           const maxSlide = Math.max(0, section.items.length - visibleCardCount);
           const slideIndex = Math.min(sectionSlides[section.key] || 0, maxSlide);
