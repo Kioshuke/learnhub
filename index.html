@@ -3487,9 +3487,33 @@ const popup = document.getElementById("popup");
 const box = document.querySelector(".popup-box");
 const closeBtn = document.querySelector(".close");
 
-if(closeBtn && popup){
-  closeBtn.addEventListener("click", () => {
+function closeMainPopup(){
+  if(popup){
     popup.style.display = "none";
+  }
+}
+
+if(closeBtn && popup){
+  closeBtn.addEventListener("click", closeMainPopup);
+}
+
+if(popup && box){
+  popup.addEventListener("click", (e) => {
+    if(e.target === popup){
+      closeMainPopup();
+    }
+  });
+}
+
+document.addEventListener("keydown", (e) => {
+  if(e.key === "Escape" && popup && getComputedStyle(popup).display !== "none"){
+    closeMainPopup();
+  }
+});
+
+if(box){
+  box.addEventListener("click", (e) => {
+    e.stopPropagation();
   });
 }
 
