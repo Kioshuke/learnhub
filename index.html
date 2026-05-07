@@ -1066,6 +1066,11 @@ background:linear-gradient(180deg, rgba(255,255,255,0.97), rgba(239,246,255,0.98
 border-color:rgba(37,99,235,0.18);
 }
 
+#authNotice.notice-warning{
+background:linear-gradient(180deg, rgba(255,255,255,0.97), rgba(255,247,237,0.98));
+border-color:rgba(245,158,11,0.22);
+}
+
 #authNotice.notice-success{
 background:linear-gradient(180deg, rgba(255,255,255,0.97), rgba(240,255,240,0.98));
 border-color:rgba(34,197,94,0.18);
@@ -1096,6 +1101,11 @@ color:#dc2626;
 #authNotice.notice-info .notice-icon{
 background:rgba(37,99,235,0.12);
 color:#2563eb;
+}
+
+#authNotice.notice-warning .notice-icon{
+background:rgba(245,158,11,0.14);
+color:#d97706;
 }
 
 #authNotice .notice-content{
@@ -1129,6 +1139,10 @@ border-color:rgba(248,113,113,0.20);
 body.dark-mode #authNotice.notice-info{
 background:linear-gradient(180deg, rgba(30,41,59,0.96), rgba(15,23,42,0.96));
 border-color:rgba(96,165,250,0.20);
+}
+body.dark-mode #authNotice.notice-warning{
+background:linear-gradient(180deg, rgba(30,41,59,0.96), rgba(120,53,15,0.94));
+border-color:rgba(251,191,36,0.22);
 }
 body.dark-mode #authNotice.notice-success{
 background:linear-gradient(180deg, rgba(30,41,59,0.96), rgba(20,83,45,0.94));
@@ -3670,7 +3684,7 @@ function playNotificationSound(){
   });
 }
 
-function showAuthNotice(message, type = "info", title = ""){
+function showAuthNotice(message, type = "info", title = "", durationMs = 2600){
   const notice = document.getElementById("authNotice");
   const noticeTitle = document.getElementById("authNoticeTitle");
   const noticeMessage = document.getElementById("authNoticeMessage");
@@ -3683,7 +3697,7 @@ function showAuthNotice(message, type = "info", title = ""){
     authNoticeTimer = null;
   }
 
-  notice.classList.remove("hide", "show", "notice-error", "notice-info", "notice-success");
+  notice.classList.remove("hide", "show", "notice-error", "notice-info", "notice-success", "notice-warning");
 
   // Set class and icon based on type
   let icon = "i";
@@ -3692,6 +3706,10 @@ function showAuthNotice(message, type = "info", title = ""){
     notice.classList.add("notice-error");
     icon = "✕";
     defaultTitle = "Lỗi";
+  } else if (type === "warning") {
+    notice.classList.add("notice-warning");
+    icon = "!";
+    defaultTitle = "Chú ý";
   } else if (type === "success") {
     notice.classList.add("notice-success");
     icon = "✓";
@@ -3721,7 +3739,7 @@ function showAuthNotice(message, type = "info", title = ""){
       notice.classList.remove("hide");
       notice.style.display = "none";
     }, 220);
-  }, 2600);
+  }, Math.max(1200, Number(durationMs) || 2600));
 }
 
 function authComingSoon(){
@@ -3968,8 +3986,18 @@ function startAccessGuards(user){
       const safeMessage = String(data.message || "").trim();
       if(!safeMessage) return;
 
+      const targetMode = String(data.targetMode || "all");
+      const targetEmail = normalizeEmail(data.targetEmail || "");
+      if(targetMode === "single" && targetEmail && targetEmail !== normalizeEmail(user.email)){
+        return;
+      }
+
       localStorage.setItem(seenKey, broadcastId);
-      showAuthNotice(safeMessage, "info", title);
+      const noticeType = ["info", "warning", "error", "success"].includes(String(data.type || "info"))
+        ? String(data.type || "info")
+        : "info";
+      const durationMs = Number(data.durationMs || 3000);
+      showAuthNotice(safeMessage, noticeType, title, durationMs);
     });
   } catch (e) {}
 }

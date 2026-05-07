@@ -234,6 +234,11 @@
       color:var(--text);
     }
 
+    textarea.input{
+      font-family:inherit;
+      line-height:1.6;
+    }
+
     .input:focus, .select:focus{
       border-color:#93c5fd;
       box-shadow:0 0 0 4px rgba(59,130,246,.1);
@@ -244,6 +249,35 @@
       gap:10px;
       flex-wrap:wrap;
       margin-bottom:16px;
+    }
+
+    .admin-tabs{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin:0 0 18px;
+    }
+
+    .admin-tab{
+      border:none;
+      border-radius:999px;
+      padding:11px 16px;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+      background:linear-gradient(135deg, #eef4ff, #e8eeff);
+      color:#31518a;
+      transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .admin-tab.active{
+      color:#fff;
+      background:linear-gradient(135deg, #2563eb, #4f46e5);
+      box-shadow:0 14px 28px rgba(59,130,246,0.2);
+    }
+
+    .tab-panel.hidden{
+      display:none !important;
     }
 
     .sheet-wrap{
@@ -734,14 +768,39 @@
         Nếu muốn xóa hẳn tài khoản trong Firebase Authentication thì vẫn cần Admin SDK hoặc Cloud Function riêng.
       </div>
 
-      <section class="panel" style="margin-bottom:18px;">
+      <div class="admin-tabs">
+        <button class="admin-tab active" type="button" data-admin-tab="users">Quản lý user</button>
+        <button class="admin-tab" type="button" data-admin-tab="broadcasts">Gửi thông báo</button>
+      </div>
+
+      <section class="panel tab-panel hidden" id="broadcastsTabPanel" style="margin-bottom:18px;">
         <h2>Gửi thông báo toàn hệ thống</h2>
-        <p class="head-desc">Thông báo sẽ bật popup realtime trên web chính cho tất cả user đang mở LearnHub.</p>
+        <p class="head-desc">Thông báo sẽ bật popup realtime trên web chính với màu, icon và thời lượng bạn chọn.</p>
         <div class="field-row" style="margin-top:0;">
           <input id="broadcastTitleInput" class="input" type="text" placeholder="Tiêu đề thông báo, ví dụ: Lịch thi mới">
         </div>
         <div class="field-row">
           <textarea id="broadcastMessageInput" class="input" rows="4" style="resize:vertical; min-height:120px;" placeholder="Nhập nội dung thông báo gửi đến toàn bộ người dùng..."></textarea>
+        </div>
+        <div class="toolbar">
+          <select id="broadcastTypeSelect" class="select">
+            <option value="info">Thông báo thường - Xanh</option>
+            <option value="warning">Thông báo chú ý - Vàng</option>
+            <option value="error">Cảnh báo - Đỏ</option>
+          </select>
+          <select id="broadcastDurationSelect" class="select">
+            <option value="3000">Hiển thị 3 giây</option>
+            <option value="5000">Hiển thị 5 giây</option>
+            <option value="10000">Hiển thị 10 giây</option>
+            <option value="30000">Hiển thị 30 giây</option>
+          </select>
+        </div>
+        <div class="toolbar">
+          <select id="broadcastTargetModeSelect" class="select">
+            <option value="all">Gửi cho toàn bộ user</option>
+            <option value="single">Gửi riêng từng người</option>
+          </select>
+          <input id="broadcastTargetEmailInput" class="input" type="email" placeholder="Nhập email người nhận riêng, ví dụ: user@gmail.com" disabled>
         </div>
         <div class="hero-actions" style="justify-content:flex-start; margin-top:14px;">
           <button class="btn btn-primary" id="sendBroadcastBtn">Gửi thông báo</button>
@@ -768,7 +827,7 @@
         </div>
       </div>
 
-      <section class="panel">
+      <section class="panel tab-panel" id="usersTabPanel">
         <h2>Danh sách người dùng</h2>
         <p class="head-desc">Gộp whitelist và hồ sơ user vào một bảng quản lý duy nhất, thao tác trực tiếp như một sheet nhỏ.</p>
 
@@ -864,6 +923,31 @@
     const directoryTableBody = document.getElementById("directoryTableBody");
     const directorySearchInput = document.getElementById("directorySearchInput");
     const directoryFilterSelect = document.getElementById("directoryFilterSelect");
+    const adminTabButtons = document.querySelectorAll(".admin-tab");
+    const usersTabPanel = document.getElementById("usersTabPanel");
+    const broadcastsTabPanel = document.getElementById("broadcastsTabPanel");
+    const broadcastTargetModeSelect = document.getElementById("broadcastTargetModeSelect");
+    const broadcastTargetEmailInput = document.getElementById("broadcastTargetEmailInput");
+
+    function switchAdminTab(tab) {
+      adminTabButtons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.adminTab === tab);
+      });
+      usersTabPanel.classList.toggle("hidden", tab !== "users");
+      broadcastsTabPanel.classList.toggle("hidden", tab !== "broadcasts");
+    }
+
+    adminTabButtons.forEach((button) => {
+      button.addEventListener("click", () => switchAdminTab(button.dataset.adminTab));
+    });
+
+    broadcastTargetModeSelect.addEventListener("change", () => {
+      const isSingle = broadcastTargetModeSelect.value === "single";
+      broadcastTargetEmailInput.disabled = !isSingle;
+      if (!isSingle) {
+        broadcastTargetEmailInput.value = "";
+      }
+    });
 
     function showNotice(message, type = "info") {
       noticeEl.className = `notice ${type} show`;
@@ -1156,11 +1240,20 @@
     document.getElementById("sendBroadcastBtn").addEventListener("click", async () => {
       const titleInput = document.getElementById("broadcastTitleInput");
       const messageInput = document.getElementById("broadcastMessageInput");
+      const typeInput = document.getElementById("broadcastTypeSelect");
+      const durationInput = document.getElementById("broadcastDurationSelect");
       const title = String(titleInput.value || "").trim();
       const message = String(messageInput.value || "").trim();
+      const targetMode = broadcastTargetModeSelect.value;
+      const targetEmail = normalizeEmail(broadcastTargetEmailInput.value);
 
       if (!message) {
         showNotice("Vui lòng nhập nội dung thông báo.", "error");
+        return;
+      }
+
+      if (targetMode === "single" && (!targetEmail || !targetEmail.includes("@"))) {
+        showNotice("Vui lòng nhập email người nhận hợp lệ.", "error");
         return;
       }
 
@@ -1170,6 +1263,10 @@
           id: now,
           title: title || "Thông báo",
           message,
+          type: typeInput.value,
+          durationMs: Number(durationInput.value || 3000),
+          targetMode,
+          targetEmail: targetMode === "single" ? targetEmail : "",
           active: true,
           updatedAt: now,
           sender: adminEmail
@@ -1177,7 +1274,17 @@
 
         titleInput.value = "";
         messageInput.value = "";
-        showNotice("Đã gửi thông báo đến toàn bộ user đang mở LearnHub.", "success");
+        typeInput.value = "info";
+        durationInput.value = "3000";
+        broadcastTargetModeSelect.value = "all";
+        broadcastTargetEmailInput.value = "";
+        broadcastTargetEmailInput.disabled = true;
+        showNotice(
+          targetMode === "single"
+            ? `Đã gửi thông báo đến ${targetEmail}.`
+            : "Đã gửi thông báo đến toàn bộ user đang mở LearnHub.",
+          "success"
+        );
       } catch (error) {
         console.error("Lỗi gửi broadcast:", error);
         showNotice("Gửi thông báo thất bại. Kiểm tra Firestore rules hoặc kết nối rồi thử lại.", "error");
