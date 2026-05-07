@@ -2111,8 +2111,8 @@ body.dark-mode .subject-notice{
 <div id="popup">
 <div class="popup-box">
 <span class="close">&times;</span>
-<h3>📢 Thông báo</h3>
-<p style="text-align:left;"> <b>CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM</b> </p>
+<h3 id="mainPopupTitle">📢 Thông báo</h3>
+<p id="mainPopupMessage" style="text-align:left;"> <b>CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM</b> </p>
 </div>
 </div>
 <div id="loginBox">
@@ -3486,11 +3486,26 @@ attachFrameWheelHandoff("flashHubFrame");
 const popup = document.getElementById("popup");
 const box = document.querySelector(".popup-box");
 const closeBtn = document.querySelector(".close");
+const mainPopupTitleEl = document.getElementById("mainPopupTitle");
+const mainPopupMessageEl = document.getElementById("mainPopupMessage");
 
 function closeMainPopup(){
   if(popup){
     popup.style.display = "none";
   }
+}
+
+function showMainPopup(title, message){
+  if(mainPopupTitleEl){
+    mainPopupTitleEl.textContent = title || "📢 Thông báo";
+  }
+  if(mainPopupMessageEl){
+    mainPopupMessageEl.innerHTML = message || "";
+  }
+  if(popup){
+    popup.style.display = "flex";
+  }
+  playNotificationSound();
 }
 
 if(closeBtn && popup){
@@ -3864,6 +3879,7 @@ function enterPreviewMode(){
 
 let unsubscribeAccessGuard = null;
 let unsubscribeUserGuard = null;
+let unsubscribeBroadcastGuard = null;
 let authGuardTriggered = false;
 
 function stopAccessGuards(){
@@ -3874,6 +3890,10 @@ function stopAccessGuards(){
   if(unsubscribeUserGuard){
     unsubscribeUserGuard();
     unsubscribeUserGuard = null;
+  }
+  if(unsubscribeBroadcastGuard){
+    unsubscribeBroadcastGuard();
+    unsubscribeBroadcastGuard = null;
   }
   authGuardTriggered = false;
 }
@@ -3927,6 +3947,29 @@ function startAccessGuards(user){
           "Tài khoản bị khóa"
         );
       }
+    });
+  } catch (e) {}
+
+  try {
+    unsubscribeBroadcastGuard = onSnapshot(doc(db, "broadcasts", "current"), (snap) => {
+      if(!snap.exists()) return;
+
+      const data = snap.data() || {};
+      if(data.active === false) return;
+
+      const broadcastId = String(data.id || data.updatedAt || "");
+      if(!broadcastId) return;
+
+      const seenKey = "learnhub_last_broadcast_seen";
+      const lastSeen = localStorage.getItem(seenKey);
+      if(lastSeen === broadcastId) return;
+
+      const title = data.title ? `${data.title}` : "Thông báo";
+      const safeMessage = String(data.message || "").trim();
+      if(!safeMessage) return;
+
+      localStorage.setItem(seenKey, broadcastId);
+      showAuthNotice(safeMessage, "info", title);
     });
   } catch (e) {}
 }
