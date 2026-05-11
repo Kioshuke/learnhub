@@ -525,8 +525,9 @@
         </button>
         <ul id="filterMenu" class="filter-menu">
           <li><button type="button" class="filter-item active" data-value="all">Hiện tất cả nhóm</button></li>
-          <li><button type="button" class="filter-item" data-value="exam">Từ vựng tổng hợp theo từng đề</button></li>
+          <li><button type="button" class="filter-item" data-value="advanced500">500 Từ Vựng Chọn Lọc – Nâng Cao</button></li>
           <li><button type="button" class="filter-item" data-value="topic">Từ vựng theo chủ đề</button></li>
+          <li><button type="button" class="filter-item" data-value="exam">Từ vựng tổng hợp theo từng đề</button></li>
           <li><button type="button" class="filter-item" data-value="phrasal">Phrasal Verbs</button></li>
           <li><button type="button" class="filter-item" data-value="collocation">Collocations</button></li>
           <li><button type="button" class="filter-item" data-value="idiom">Idioms</button></li>
@@ -557,20 +558,22 @@
     // Chỉ cần sửa/chèn item trong mảng sections này.
     const sections = [
       {
-        key: "exam",
-        title: "Từ Vựng Tổng Hợp Theo Từng Đề",
-        note: "3 bộ",
+        key: "advanced500",
+        title: "Hệ Thống 500 Từ Vựng Chọn Lọc – Nâng Cao",
+        note: "5 phần",
         theme: {
-          accent: "#db2777",
-          accentDark: "#be185d",
-          soft: "rgba(219, 39, 119, 0.12)",
-          border: "rgba(219, 39, 119, 0.34)",
-          glow: "rgba(244, 114, 182, 0.38)"
+          accent: "#0891b2",
+          accentDark: "#0e7490",
+          soft: "rgba(8, 145, 178, 0.12)",
+          border: "rgba(8, 145, 178, 0.34)",
+          glow: "rgba(34, 211, 238, 0.4)"
         },
         items: [
-          { name: "Đề tổng hợp 1", description: "Từ vựng trọng tâm theo đề luyện tập số 1.", words: 100, level: "Tổng hợp", icon: "🧾", href: "flash.html?data=de1.js" },
-          { name: "Đề tổng hợp 2", description: "Từ vựng trọng tâm theo đề luyện tập số 2.", words: 100, level: "Tổng hợp", icon: "📚", href: "#" },
-          { name: "Đề tổng hợp 3", description: "Từ vựng trọng tâm theo đề luyện tập số 3.", words: 100, level: "Tổng hợp", icon: "✅", href: "#" }
+          { name: "Phần 1 – Từ 001–100", description: "100 từ vựng nâng cao chọn lọc phần 1, thường gặp trong văn bản học thuật và thi cử.", words: 100, level: "Nâng cao", icon: "🔷", href: "flash.html?data=adv500_1.js" },
+          { name: "Phần 2 – Từ 101–200", description: "100 từ vựng nâng cao chọn lọc phần 2, mở rộng vốn từ học thuật và giao tiếp.", words: 100, level: "Nâng cao", icon: "🔷", href: "flash.html?data=adv500_2.js" },
+          { name: "Phần 3 – Từ 201–300", description: "100 từ vựng nâng cao chọn lọc phần 3, tập trung vào từ đa nghĩa và ngữ cảnh.", words: 100, level: "Nâng cao", icon: "🔷", href: "flash.html?data=adv500_3.js" },
+          { name: "Phần 4 – Từ 301–400", description: "100 từ vựng nâng cao chọn lọc phần 4, chú trọng từ vựng học thuật và chuyên ngành.", words: 100, level: "Nâng cao", icon: "🔷", href: "flash.html?data=adv500_4.js" },
+          { name: "Phần 5 – Từ 401–500", description: "100 từ vựng nâng cao chọn lọc phần 5, hoàn thiện hệ thống 500 từ nâng cao.", words: 100, level: "Nâng cao", icon: "🔷", href: "flash.html?data=adv500_5.js" }
         ]
       },
       {
@@ -590,6 +593,23 @@
           { name: "Artificial Intelligence (AI) Part 2", description: "Trí tuệ nhân tạo và một số từ ngữ liên quan", words: 170, level: "Nâng cao", icon: "🤖", href: "flash.html?data=AI2.js" },
           { name: "Science & Technology", description: "Thiết bị số, internet, ứng dụng và AI.", words: 300, level: "Nâng cao", icon: "💻", href: "flash.html?data=tech.js" },
           { name: "Education", description: "Giáo dục và các từ vựng liên quan", words: 300, level: "Nâng cao", icon: "🎓", href: "flash.html?data=edu.js" }
+        ]
+      },
+      {
+        key: "exam",
+        title: "Từ Vựng Tổng Hợp Theo Từng Đề",
+        note: "3 bộ",
+        theme: {
+          accent: "#db2777",
+          accentDark: "#be185d",
+          soft: "rgba(219, 39, 119, 0.12)",
+          border: "rgba(219, 39, 119, 0.34)",
+          glow: "rgba(244, 114, 182, 0.38)"
+        },
+        items: [
+          { name: "Đề tổng hợp 1", description: "Từ vựng trọng tâm theo đề luyện tập số 1.", words: 100, level: "Tổng hợp", icon: "🧾", href: "flash.html?data=de1.js" },
+          { name: "Đề tổng hợp 2", description: "Từ vựng trọng tâm theo đề luyện tập số 2.", words: 100, level: "Tổng hợp", icon: "📚", href: "#" },
+          { name: "Đề tổng hợp 3", description: "Từ vựng trọng tâm theo đề luyện tập số 3.", words: 100, level: "Tổng hợp", icon: "✅", href: "#" }
         ]
       },
       {
