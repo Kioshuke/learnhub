@@ -1541,6 +1541,222 @@ button:hover {
     cursor: pointer;
     box-shadow: 0 12px 30px rgba(15, 23, 42, 0.35);
 }
+
+/* ===== VISUAL REFRESH - sinh động hơn, không đổi logic ===== */
+html,
+body {
+  background:
+    radial-gradient(circle at 12% 10%, rgba(236, 72, 153, 0.18), transparent 26%),
+    radial-gradient(circle at 84% 14%, rgba(37, 99, 235, 0.18), transparent 30%),
+    radial-gradient(circle at 68% 86%, rgba(245, 158, 11, 0.15), transparent 34%),
+    linear-gradient(135deg, #f8fbff 0%, #fff7fb 44%, #f5fffb 100%) !important;
+  background-attachment: fixed !important;
+}
+
+body {
+  isolation: isolate;
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.58), transparent 78%);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: auto -12% -26% -12%;
+  height: 42vh;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.12), transparent 68%);
+}
+
+#menu,
+#topicBanner,
+#progressContainer,
+.mode {
+  position: relative;
+  z-index: 1;
+}
+
+#menu {
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  box-shadow: 0 18px 42px rgba(37, 99, 235, 0.16);
+}
+
+#menu button {
+  position: relative;
+  overflow: hidden;
+}
+
+#menu button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.18), rgba(37, 99, 235, 0.16));
+  transition: opacity 0.2s ease;
+}
+
+#menu button:hover::before {
+  opacity: 1;
+}
+
+#menu button.active-nav {
+  background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
+  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.28);
+}
+
+#topicBanner,
+#progressContainer {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-color: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 16px 34px rgba(37, 99, 235, 0.13);
+}
+
+#topicBanner {
+  text-align: center;
+}
+
+#progressInner {
+  background: linear-gradient(90deg, #ec4899, #2563eb, #22c55e);
+  box-shadow: 0 0 18px rgba(37, 99, 235, 0.35);
+}
+
+.flash-front,
+.flash-back {
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(236, 72, 153, 0.13), transparent 28%),
+    radial-gradient(circle at 88% 18%, rgba(37, 99, 235, 0.12), transparent 30%),
+    rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.16);
+}
+
+.flash-front::before,
+.flash-back::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 24px;
+  border: 1px solid rgba(37, 99, 235, 0.1);
+  pointer-events: none;
+}
+
+.flash-front span,
+.flash-back {
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.flash-back {
+  background:
+    radial-gradient(circle at 16% 16%, rgba(34, 211, 238, 0.16), transparent 28%),
+    radial-gradient(circle at 86% 18%, rgba(168, 85, 247, 0.16), transparent 30%),
+    linear-gradient(140deg, rgba(255, 255, 255, 0.96), rgba(239, 246, 255, 0.94));
+  color: #3730a3;
+}
+
+.nav-arrow,
+.speaker-icon {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  color: #2563eb;
+  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.16);
+}
+
+.nav-arrow:hover,
+.speaker-icon:hover {
+  background: linear-gradient(135deg, #2563eb, #ec4899);
+  color: #fff;
+  border-color: transparent;
+}
+
+.game-start-card,
+.blast-box,
+.game-shell,
+.popup-box {
+  background:
+    radial-gradient(circle at top right, rgba(236, 72, 153, 0.1), transparent 34%),
+    radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.1), transparent 34%),
+    rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 20px 42px rgba(15, 23, 42, 0.14);
+}
+
+.game-start-card h2 {
+  color: #1d4ed8;
+}
+
+.match-card,
+.options button {
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.1);
+}
+
+.match-card:hover,
+.options button:hover {
+  box-shadow: 0 14px 26px rgba(37, 99, 235, 0.16);
+}
+
+#intro-screen {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(236, 72, 153, 0.2), transparent 30%),
+    radial-gradient(circle at 82% 20%, rgba(37, 99, 235, 0.22), transparent 34%),
+    radial-gradient(circle at 50% 92%, rgba(245, 158, 11, 0.18), transparent 36%),
+    linear-gradient(135deg, #f8fbff, #fff7fb 48%, #f5fffb);
+}
+
+#intro-screen h1 {
+  background: linear-gradient(135deg, #2563eb, #ec4899, #f59e0b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+}
+
+#intro-screen button {
+  background: linear-gradient(135deg, #2563eb, #ec4899);
+  box-shadow: 0 16px 34px rgba(37, 99, 235, 0.24);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#intro-screen button:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 20px 40px rgba(236, 72, 153, 0.22);
+}
+
+@media (max-width: 768px) {
+  .flash-front,
+  .flash-back {
+    border-radius: 26px;
+    font-size: clamp(24px, 8vw, 32px);
+  }
+
+  #topicBanner,
+  #progressContainer {
+    width: 92%;
+  }
+}
 </style>
 </head>
 
