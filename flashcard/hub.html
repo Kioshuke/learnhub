@@ -19,14 +19,54 @@
     }
 
     body {
+      --hub-hover-x: 50%;
+      --hub-hover-y: 24%;
+      --hub-hover-glow: rgba(37, 99, 235, 0);
+      --hub-hover-opacity: 0;
       margin: 0;
       font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       color: var(--text-main);
       min-height: 100vh;
-      background: transparent;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(236, 72, 153, 0.12), transparent 28%),
+        radial-gradient(circle at 88% 16%, rgba(37, 99, 235, 0.14), transparent 30%),
+        radial-gradient(circle at 72% 86%, rgba(245, 158, 11, 0.1), transparent 32%),
+        linear-gradient(135deg, #f8fbff 0%, #fff7fb 44%, #f8fffb 100%);
+      background-attachment: fixed;
+      position: relative;
+      overflow-x: hidden;
+      isolation: isolate;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent 78%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: var(--hub-hover-opacity);
+      background:
+        radial-gradient(circle at var(--hub-hover-x) var(--hub-hover-y), var(--hub-hover-glow), transparent 34%),
+        linear-gradient(135deg, var(--hub-hover-glow), transparent 56%);
+      transition: opacity 0.25s ease, background 0.25s ease;
     }
 
     .wrap {
+      position: relative;
+      z-index: 1;
       max-width: 1200px;
       margin: 0 auto;
       padding: 32px 18px 40px;
@@ -398,9 +438,12 @@
       align-items: center;
       justify-content: center;
       padding: 18px;
-      background: rgba(248, 250, 252, 0.82);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background:
+        linear-gradient(135deg, rgba(236, 72, 153, 0.16), rgba(37, 99, 235, 0.12) 46%, rgba(245, 158, 11, 0.13)),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.32) 0 2px, transparent 2px 14px),
+        rgba(248, 250, 252, 0.9);
+      backdrop-filter: blur(16px) saturate(1.12);
+      -webkit-backdrop-filter: blur(16px) saturate(1.12);
     }
 
     .loading-overlay.show {
@@ -409,23 +452,36 @@
     }
 
     .loading-box {
+      position: relative;
+      overflow: hidden;
       width: min(360px, 100%);
       border: 1px solid rgba(37, 99, 235, 0.22);
       border-radius: 22px;
-      background: rgba(255, 255, 255, 0.96);
-      padding: 28px 22px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(239, 246, 255, 0.92));
+      padding: 30px 22px 26px;
       text-align: center;
       animation: popupIn 0.25s ease;
     }
 
+    .loading-box::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 5px;
+      background: linear-gradient(90deg, #ec4899, #2563eb, #f59e0b);
+      transform-origin: left center;
+      animation: loadingBar 1.5s ease-in-out forwards;
+    }
+
     .loading-spinner {
-      width: 54px;
-      height: 54px;
+      width: 58px;
+      height: 58px;
       margin: 0 auto 16px;
-      border: 5px solid rgba(37, 99, 235, 0.16);
-      border-top-color: #2563eb;
+      border: 5px solid rgba(37, 99, 235, 0.14);
+      border-top-color: #ec4899;
+      border-right-color: #2563eb;
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      animation: spin 1.05s linear infinite;
     }
 
     .loading-title {
@@ -469,6 +525,11 @@
 
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+
+    @keyframes loadingBar {
+      from { transform: scaleX(0.08); }
+      to { transform: scaleX(1); }
     }
 
     @media (max-width: 860px) {
@@ -525,7 +586,8 @@
         </button>
         <ul id="filterMenu" class="filter-menu">
           <li><button type="button" class="filter-item active" data-value="all">Hiện tất cả nhóm</button></li>
-          <li><button type="button" class="filter-item" data-value="advanced500">500 Từ Vựng Chọn Lọc – Nâng Cao</button></li>
+          <li><button type="button" class="filter-item" data-value="foundation800">800 Từ Vựng Nền Tảng</button></li>
+          <li><button type="button" class="filter-item" data-value="elite300">300 Từ Vựng Tủ 9+</button></li>
           <li><button type="button" class="filter-item" data-value="topic">Từ vựng theo chủ đề</button></li>
           <li><button type="button" class="filter-item" data-value="exam">Từ vựng tổng hợp theo từng đề</button></li>
           <li><button type="button" class="filter-item" data-value="phrasal">Phrasal Verbs</button></li>
@@ -558,22 +620,42 @@
     // Chỉ cần sửa/chèn item trong mảng sections này.
     const sections = [
       {
-        key: "advanced500",
-        title: "Hệ Thống 500 Từ Vựng Chọn Lọc – Nâng Cao",
-        note: "5 phần",
+        key: "foundation800",
+        title: "800 Từ Vựng Nền Tảng",
+        note: "8 phần",
         theme: {
-          accent: "#0891b2",
-          accentDark: "#0e7490",
-          soft: "rgba(8, 145, 178, 0.12)",
-          border: "rgba(8, 145, 178, 0.34)",
-          glow: "rgba(34, 211, 238, 0.4)"
+          accent: "#ec4899",
+          accentDark: "#db2777",
+          soft: "rgba(236, 72, 153, 0.12)",
+          border: "rgba(236, 72, 153, 0.34)",
+          glow: "rgba(244, 114, 182, 0.38)"
         },
         items: [
-          { name: "Phần 1 – Từ 001–100", description: "100 từ vựng nâng cao chọn lọc phần 1, thường gặp trong văn bản học thuật và thi cử.", words: 100, level: "Nâng cao", icon: "🔴", href: "flash.html?data=adv500_1.js" },
-          { name: "Phần 2 – Từ 101–200", description: "100 từ vựng nâng cao chọn lọc phần 2, mở rộng vốn từ học thuật và giao tiếp.", words: 100, level: "Nâng cao", icon: "🟢", href: "flash.html?data=adv500_2.js" },
-          { name: "Phần 3 – Từ 201–300", description: "100 từ vựng nâng cao chọn lọc phần 3, tập trung vào từ đa nghĩa và ngữ cảnh.", words: 100, level: "Nâng cao", icon: "🔵", href: "flash.html?data=adv500_3.js" },
-          { name: "Phần 4 – Từ 301–400", description: "100 từ vựng nâng cao chọn lọc phần 4, chú trọng từ vựng học thuật và chuyên ngành.", words: 100, level: "Nâng cao", icon: "🟣", href: "flash.html?data=adv500_4.js" },
-          { name: "Phần 5 – Từ 401–500", description: "100 từ vựng nâng cao chọn lọc phần 5, hoàn thiện hệ thống 500 từ nâng cao.", words: 100, level: "Nâng cao", icon: "🟡", href: "flash.html?data=adv500_5.js" }
+          { name: "Nền tảng phần 1", description: "100 từ vựng nền tảng phần 1, ưu tiên từ thường gặp trong học tập và giao tiếp.", words: 100, level: "Trung bình", icon: "🌸", href: "flash.html?data=foundation800_1.js" },
+          { name: "Nền tảng phần 2", description: "100 từ vựng nền tảng phần 2, củng cố vốn từ phổ biến theo ngữ cảnh.", words: 100, level: "Trung bình", icon: "🌷", href: "flash.html?data=foundation800_2.js" },
+          { name: "Nền tảng phần 3", description: "100 từ vựng nền tảng phần 3, luyện nhận diện nghĩa và cách dùng tự nhiên.", words: 100, level: "Trung bình", icon: "🌺", href: "flash.html?data=foundation800_3.js" },
+          { name: "Nền tảng phần 4", description: "100 từ vựng nền tảng phần 4, mở rộng từ vựng đọc hiểu và viết câu.", words: 100, level: "Trung bình", icon: "💗", href: "flash.html?data=foundation800_4.js" },
+          { name: "Nền tảng phần 5", description: "100 từ vựng nền tảng phần 5, tập trung vào từ hay gặp trong đề luyện.", words: 100, level: "Trung bình", icon: "🪷", href: "flash.html?data=foundation800_5.js" },
+          { name: "Nền tảng phần 6", description: "100 từ vựng nền tảng phần 6, tăng độ chắc khi gặp từ trong đoạn văn.", words: 100, level: "Trung bình", icon: "🌼", href: "flash.html?data=foundation800_6.js" },
+          { name: "Nền tảng phần 7", description: "100 từ vựng nền tảng phần 7, bổ sung cụm nghĩa thường dùng trong bài thi.", words: 100, level: "Trung bình", icon: "🌻", href: "flash.html?data=foundation800_7.js" },
+          { name: "Nền tảng phần 8", description: "100 từ vựng nền tảng phần 8, hoàn thiện hệ thống 800 từ vựng nền tảng.", words: 100, level: "Trung bình", icon: "✨", href: "flash.html?data=foundation800_8.js" }
+        ]
+      },
+      {
+        key: "elite300",
+        title: "300 Từ Vựng Tủ Chuyên Sâu Nâng Cao 9+",
+        note: "3 phần",
+        theme: {
+          accent: "#f59e0b",
+          accentDark: "#d97706",
+          soft: "rgba(245, 158, 11, 0.13)",
+          border: "rgba(245, 158, 11, 0.36)",
+          glow: "rgba(251, 191, 36, 0.42)"
+        },
+        items: [
+          { name: "Tủ 9+ phần 1", description: "100 từ vựng chuyên sâu nâng cao 9+ phần 1, chọn lọc cho câu khó.", words: 100, level: "Nâng cao 9+", icon: "🏆", href: "flash.html?data=elite300_1.js" },
+          { name: "Tủ 9+ phần 2", description: "100 từ vựng chuyên sâu nâng cao 9+ phần 2, mở rộng sắc thái nghĩa.", words: 100, level: "Nâng cao 9+", icon: "🔥", href: "flash.html?data=elite300_2.js" },
+          { name: "Tủ 9+ phần 3", description: "100 từ vựng chuyên sâu nâng cao 9+ phần 3, hoàn thiện bộ từ vựng tủ.", words: 100, level: "Nâng cao 9+", icon: "💎", href: "flash.html?data=elite300_3.js" }
         ]
       },
       {
@@ -600,11 +682,11 @@
         title: "Từ Vựng Tổng Hợp Theo Từng Đề",
         note: "3 bộ",
         theme: {
-          accent: "#db2777",
-          accentDark: "#be185d",
-          soft: "rgba(219, 39, 119, 0.12)",
-          border: "rgba(219, 39, 119, 0.34)",
-          glow: "rgba(244, 114, 182, 0.38)"
+          accent: "#0891b2",
+          accentDark: "#0e7490",
+          soft: "rgba(8, 145, 178, 0.12)",
+          border: "rgba(8, 145, 178, 0.34)",
+          glow: "rgba(34, 211, 238, 0.4)"
         },
         items: [
           { name: "Đề tổng hợp 1", description: "Từ vựng trọng tâm theo đề luyện tập số 1.", words: 100, level: "Tổng hợp", icon: "🧾", href: "flash.html?data=de1.js" },
@@ -689,6 +771,25 @@
       popup.classList.add("show");
     }
 
+    function setHubBackgroundTheme(theme, event) {
+      if (!theme) return;
+      document.body.style.setProperty("--hub-hover-glow", theme.glow || theme.soft || "rgba(37, 99, 235, 0.22)");
+      document.body.style.setProperty("--hub-hover-opacity", "1");
+      updateHubBackgroundPosition(event);
+    }
+
+    function updateHubBackgroundPosition(event) {
+      if (!event) return;
+      const x = Math.round((event.clientX / window.innerWidth) * 100);
+      const y = Math.round((event.clientY / window.innerHeight) * 100);
+      document.body.style.setProperty("--hub-hover-x", `${x}%`);
+      document.body.style.setProperty("--hub-hover-y", `${y}%`);
+    }
+
+    function clearHubBackgroundTheme() {
+      document.body.style.setProperty("--hub-hover-opacity", "0");
+    }
+
     function openLesson(topic) {
       if (isLoadingLesson) return;
       isLoadingLesson = true;
@@ -698,7 +799,7 @@
 
       setTimeout(() => {
         window.location.href = topic.href;
-      }, 2400);
+      }, 1500);
     }
 
     popupClose.addEventListener("click", () => popup.classList.remove("show"));
@@ -789,6 +890,10 @@
                 showPopup("Nội dung đang được cập nhật. Vui lòng quay lại sau!");
               }
             });
+
+            card.addEventListener("mouseenter", (event) => setHubBackgroundTheme(section.theme, event));
+            card.addEventListener("mousemove", updateHubBackgroundPosition);
+            card.addEventListener("mouseleave", clearHubBackgroundTheme);
 
             grid.appendChild(card);
           });
