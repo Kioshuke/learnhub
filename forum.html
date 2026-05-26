@@ -392,7 +392,41 @@ button:active { transform: translateY(0); }
 .reaction-total { color: #98a2b3; font-size: 12px; font-weight: 900; }
 .reaction-detail-btn { display: inline-flex; align-items: center; }
 
-.reaction-detail-list { display: grid; gap: 8px; margin-top: 10px; }
+.reaction-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+.reaction-detail-preview,
+.reaction-detail-panel {
+  min-width: 0;
+  padding: 11px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+}
+.reaction-detail-label {
+  margin-bottom: 6px;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 750;
+}
+.reaction-detail-author {
+  color: #175cd3;
+  font-weight: 850;
+  margin-bottom: 5px;
+}
+.reaction-detail-text {
+  max-height: 160px;
+  overflow: auto;
+  color: #27364a;
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.reaction-detail-list { display: grid; gap: 8px; }
 .reaction-detail-item {
   display: flex;
   align-items: center;
@@ -427,7 +461,9 @@ button:active { transform: translateY(0); }
   white-space: nowrap;
 }
 
-.reaction-picker:hover .reaction-bar,
+.reaction-trigger:hover + .reaction-bar,
+.reaction-trigger:focus + .reaction-bar,
+.reaction-bar:hover,
 .reaction-picker:focus-within .reaction-bar {
   opacity: 1;
   pointer-events: auto;
@@ -489,7 +525,7 @@ button:active { transform: translateY(0); }
 }
 
 .modal-content {
-  width: min(92vw, 420px);
+  width: min(94vw, 640px);
   padding: 16px;
   background: #fff;
   border: 1px solid rgba(255,255,255,0.70);
@@ -521,7 +557,7 @@ button:active { transform: translateY(0); }
   .logo { flex: 0 1 auto; font-size: 15px; overflow: hidden; text-overflow: ellipsis; }
   .user-box { flex: 1 1 auto; max-width: none; min-width: 0; }
   .post-box, .post { max-width: 100%; border-radius: 14px; }
-  .post { overflow-x: clip; }
+  .post { overflow: visible; }
   .meta { padding-right: 0; }
   .post.current-user-post::before { position: static; display: inline-flex; margin-bottom: 6px; }
   .reply { margin-left: 8px !important; padding-left: 9px; }
@@ -535,10 +571,17 @@ button:active { transform: translateY(0); }
     transform: translate(-50%, 8px) scale(0.96);
   }
   .reaction-bar::-webkit-scrollbar { display: none; }
-  .reaction-picker:hover .reaction-bar,
+  .reaction-trigger:hover + .reaction-bar,
+  .reaction-trigger:focus + .reaction-bar,
+  .reaction-bar:hover,
   .reaction-picker:focus-within .reaction-bar {
     transform: translate(-50%, 0) scale(1);
   }
+  .reaction-detail-layout { grid-template-columns: 1fr; gap: 8px; }
+  .reaction-detail-preview,
+  .reaction-detail-panel { padding: 9px; }
+  .reaction-detail-text { max-height: 90px; }
+  .modal-content { width: min(94vw, 430px); }
   .mute-btn { margin-left: 0; min-width: 132px; }
 }
 </style>
@@ -923,7 +966,6 @@ function renderReactionButtons(post){
         <span>${current.label}</span>
         ${total ? `<span class="reaction-total">${total}</span>` : ""}
       </span>
-      ${total ? `<span class="reaction-detail-btn" onclick="showReactionDetails('${post.id}')">Chi tiết</span>` : ""}
       <span class="reaction-bar">
         ${REACTIONS.map(reaction => `
           <span class="reaction-btn ${selected === reaction.type ? "active" : ""}" title="${reaction.label}" onclick="toggleReaction('${post.id}', '${reaction.type}')">
@@ -932,6 +974,7 @@ function renderReactionButtons(post){
         `).join("")}
       </span>
     </span>
+    ${total ? `<span class="reaction-detail-btn" onclick="showReactionDetails('${post.id}')">Chi tiết</span>` : ""}
   `;
 }
 
@@ -987,8 +1030,16 @@ async function showReactionDetails(postId){
       </div>
     `;
   }).join("");
+  const postTitle = post.parentId ? "Bình luận đang xem" : "Bài viết đang xem";
+  const preview = `
+    <div class="reaction-detail-preview">
+      <div class="reaction-detail-label">${postTitle}</div>
+      <div class="reaction-detail-author">${escapeHTML(post.user || "Người dùng")}</div>
+      <div class="reaction-detail-text">${escapeHTML(post.text || "")}</div>
+    </div>
+  `;
 
-  showModal("Chi tiết cảm xúc", `<div class="reaction-detail-list">${rows}</div>`, false, "", null, true);
+  showModal("Chi tiết cảm xúc", `<div class="reaction-detail-layout">${preview}<div class="reaction-detail-panel"><div class="reaction-detail-label">Ai đã bày tỏ cảm xúc</div><div class="reaction-detail-list">${rows}</div></div></div>`, false, "", null, true);
 }
 
 function setReply(id, user) {
