@@ -30,10 +30,12 @@
 
 * { box-sizing: border-box; }
 
-html { background: var(--bg); }
+html { background: var(--bg); overflow-x: hidden; }
 
 body {
   min-height: 100vh;
+  max-width: 100vw;
+  overflow-x: hidden;
   margin: 0;
   color: var(--text);
   font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
@@ -45,6 +47,7 @@ body {
 
 .container {
   width: min(100%, 920px);
+  max-width: 100vw;
   margin: 0 auto;
   padding: 12px 14px 18px;
 }
@@ -81,6 +84,8 @@ body {
 
 .logo {
   position: relative;
+  min-width: 0;
+  white-space: nowrap;
   z-index: 1;
   display: flex;
   align-items: center;
@@ -511,15 +516,30 @@ button:active { transform: translateY(0); }
 .btn-secondary:hover { background: #e4e7ec; }
 
 @media (max-width: 560px) {
-  .container { padding: 12px; }
-  .header { position: static; min-height: 60px; border-radius: 16px; align-items: flex-start; }
-  .logo { font-size: 16px; }
-  .user-box { max-width: 58%; }
-  .post-box, .post { border-radius: 16px; }
+  .container { width: 100%; max-width: 100vw; padding: 10px; overflow-x: clip; }
+  .header { position: static; min-height: 52px; gap: 8px; border-radius: 14px; align-items: center; }
+  .logo { flex: 0 1 auto; font-size: 15px; overflow: hidden; text-overflow: ellipsis; }
+  .user-box { flex: 1 1 auto; max-width: none; min-width: 0; }
+  .post-box, .post { max-width: 100%; border-radius: 14px; }
+  .post { overflow-x: clip; }
   .meta { padding-right: 0; }
-  .post.current-user-post::before { position: static; display: inline-flex; margin-bottom: 8px; }
-  .reaction-bar { left: -12px; }
-  .mute-btn { margin-left: 0; }
+  .post.current-user-post::before { position: static; display: inline-flex; margin-bottom: 6px; }
+  .reply { margin-left: 8px !important; padding-left: 9px; }
+  .reply-thread-toggle { margin-left: 8px; }
+  .reaction-picker { max-width: 100%; }
+  .reaction-bar {
+    left: 50%;
+    max-width: calc(100vw - 28px);
+    overflow-x: auto;
+    scrollbar-width: none;
+    transform: translate(-50%, 8px) scale(0.96);
+  }
+  .reaction-bar::-webkit-scrollbar { display: none; }
+  .reaction-picker:hover .reaction-bar,
+  .reaction-picker:focus-within .reaction-bar {
+    transform: translate(-50%, 0) scale(1);
+  }
+  .mute-btn { margin-left: 0; min-width: 132px; }
 }
 </style>
 </head>
@@ -1048,7 +1068,7 @@ function toggleReaction(postId, type){
     delete dislikes[uid];
 
     ref.update({ reactions, likes, dislikes });
-    db.ref("events").push({ type: type === "like" ? "like" : "reaction", time: Date.now() });
+    db.ref("events").push({ type: "like", reactionType: type, time: Date.now() });
   });
 }
 
@@ -1065,18 +1085,3 @@ db.ref("events").limitToLast(1).on("child_added", (snap) => {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
