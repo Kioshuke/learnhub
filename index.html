@@ -10,6 +10,7 @@
 <link rel="apple-touch-icon" href="https://kioshuke.github.io/learnhub/favicon.png">
 
 <meta name="theme-color" content="#1a73e8">
+<meta name="robots" content="index, follow">
 <title>LearnHub - THPT Tân Hồng </title>
 <meta name="description" content="Nền tảng học tập thông minh cho học sinh THPT Tân Hồng. Tra cứu lịch thi, tài liệu, làm bài ôn thi Vật lý, Sinh học, Tin học và Lịch sử nhanh chóng, tiện lợi và hoàn toàn miễn phí!.">
 
@@ -2098,14 +2099,14 @@ body.dark-mode .subject-notice{
 </head>
 <body class="auth-locked">
 <div id="loadingOverlay">
-<audio id="clickSound" src="sound/mocor-os-keypad-sound.mp3" preload="auto"></audio>
-<audio id="dotest" src="sound/windows-xp-startup.mp3" preload="auto"></audio>
-<audio id="offtest" src="sound/preview_4.mp3" preload="auto"></audio>
-<audio id="openpopup" src="sound/discord-notification.mp3" preload="auto"></audio>
-<audio id="thongbaoSound" src="sound/thongbao.mp3" preload="auto"></audio>
+<audio id="clickSound" src="sound/mocor-os-keypad-sound.mp3" preload="none"></audio>
+<audio id="dotest" src="sound/windows-xp-startup.mp3" preload="none"></audio>
+<audio id="offtest" src="sound/preview_4.mp3" preload="none"></audio>
+<audio id="openpopup" src="sound/discord-notification.mp3" preload="none"></audio>
+<audio id="thongbaoSound" src="sound/thongbao.mp3" preload="none"></audio>
 <div class="loading-content">
   <div class="loading-brand">
-    <img src="newlogo.png" alt="logo">
+    <img src="newlogo.png" alt="logo" fetchpriority="high" decoding="async">
     <h2>LearnHub – Your smart path to success</h2>
   </div>
   <div class="loading-dots">
@@ -2269,15 +2270,15 @@ body.dark-mode .subject-notice{
   <span>LearnHub – Nâng cấp cách bạn học</span>
 </div>
 <div class="menu-buttons" id="menuButtons">
-  <button data-subject="lich" class="active" onclick="show('lich')">Lịch Thi</button>
-  <button data-subject="flash" onclick="show('flash')">FlashCard</button>
-  <button data-subject="bxh" onclick="show('bxh')">Forum</button>
-  <button data-subject="ly" onclick="show('ly')">Vật Lý</button>
-  <button data-subject="sinh" onclick="show('sinh')">Sinh Học</button>
-  <button data-subject="tin" onclick="show('tin')">Tin Học</button>
-  <button data-subject="su" onclick="show('su')">Lịch Sử</button>
-  <button data-subject="hoa" onclick="show('hoa')">Hoá Học</button>
-  <button data-subject="anh" onclick="show('anh')">Anh Văn</button>
+  <a role="button" data-subject="lich" class="active" href="#lich" onclick="show('lich');return false;">Lịch Thi</a>
+  <a role="button" data-subject="flash" href="#flash" onclick="show('flash');return false;">FlashCard</a>
+  <a role="button" data-subject="bxh" href="#bxh" onclick="show('bxh');return false;">Forum</a>
+  <a role="button" data-subject="ly" href="#ly" onclick="show('ly');return false;">Vật Lý</a>
+  <a role="button" data-subject="sinh" href="#sinh" onclick="show('sinh');return false;">Sinh Học</a>
+  <a role="button" data-subject="tin" href="#tin" onclick="show('tin');return false;">Tin Học</a>
+  <a role="button" data-subject="su" href="#su" onclick="show('su');return false;">Lịch Sử</a>
+  <a role="button" data-subject="hoa" href="#hoa" onclick="show('hoa');return false;">Hoá Học</a>
+  <a role="button" data-subject="anh" href="#anh" onclick="show('anh');return false;">Anh Văn</a>
 </div>
 </div>
 <div class="ticker-container">
@@ -2478,12 +2479,15 @@ scroll-snap-type:x mandatory;
 scroll-behavior:smooth;
 }
 
-.menu button{
+.menu button,
+.menu a[role="button"]{
 flex-shrink:0;
 white-space:nowrap;
 scroll-snap-align:start;
 padding:10px 16px;
 font-size:14px;
+text-decoration:none;
+cursor:pointer;
 }
 
 /* ===== TỐI ƯU HIỆU NĂNG ===== */
@@ -2876,7 +2880,7 @@ animation: pulse-green 2s infinite;
 }
 
 </style>
-<div id="mainContent" class="content">
+<main id="mainContent" class="content" aria-label="Nội dung chính">
 
 </div>
 <div id="ly" style="display:none">
@@ -3115,7 +3119,7 @@ animation: pulse-green 2s infinite;
 
 <button id="tabScrollTopBtn" type="button" aria-label="Cuộn lên đầu">↑</button>
 <div id="quiz"></div>
-</div>
+</main>
 
 <script>
 let loadingStatus = document.getElementById("loadingText");
@@ -3366,7 +3370,7 @@ if(id === "flash"){
 },200);
 updateTabScrollTopBtn();
 }
-const buttons = document.querySelectorAll(".menu-buttons button[data-subject]");
+const buttons = document.querySelectorAll(".menu-buttons [data-subject]");
 
 buttons.forEach(btn => {
 btn.addEventListener("click", () => {
@@ -4530,7 +4534,7 @@ pop.style.display = "none";
     <span class="slider"></span>
   </label>
 </div>
-<button id="logoutBtn" onclick="logout()">Đăng xuất</button>
+<button id="logoutBtn" onclick="logout()" aria-label="Đăng xuất khỏi tài khoản">Đăng xuất</button>
 <p style="text-align: center;
 margin-top:10px;
 font-size: 13px;
