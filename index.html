@@ -2096,6 +2096,7 @@ body.dark-mode .subject-notice{
 </style>
 
 </head>
+<a href="#mainContent" class="skip-to-main" style="position:absolute;left:-9999px;top:4px;z-index:999999;background:#1a73e8;color:#fff;padding:8px 16px;border-radius:4px;font-size:14px;text-decoration:none;" onfocus="this.style.left='4px'" onblur="this.style.left='-9999px'">Bỏ qua đến nội dung chính</a>
 <body class="auth-locked">
 <div id="loadingOverlay">
 <audio id="clickSound" src="sound/mocor-os-keypad-sound.mp3" preload="auto"></audio>
@@ -2166,17 +2167,17 @@ body.dark-mode .subject-notice{
       </div>
     </div>
     <div id="authLoginPanel" class="auth-panel">
-      <button class="auth-login-btn" onclick="googleLogin()">
+      <button class="auth-login-btn" onclick="googleLogin()" aria-label="Tiếp tục với Google">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
         <span>Tiếp tục với Google</span>
       </button>
 
-      <button class="auth-login-btn" onclick="authComingSoon()" style="margin-top:14px;">
+      <button class="auth-login-btn" onclick="authComingSoon()" style="margin-top:14px;" aria-label="Tiếp tục với GitHub">
         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub">
         <span>Tiếp tục với GitHub</span>
       </button>
 
-      <button class="auth-login-btn" onclick="authComingSoon()" style="margin-top:14px;">
+      <button class="auth-login-btn" onclick="authComingSoon()" style="margin-top:14px;" aria-label="Tiếp tục với Microsoft">
         <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft">
         <span>Tiếp tục với Microsoft</span>
       </button>
@@ -2876,7 +2877,7 @@ animation: pulse-green 2s infinite;
 }
 
 </style>
-<div id="mainContent" class="content">
+<main id="mainContent" class="content" aria-label="Nội dung chính">
 
 </div>
 <div id="ly" style="display:none">
@@ -3115,7 +3116,7 @@ animation: pulse-green 2s infinite;
 
 <button id="tabScrollTopBtn" type="button" aria-label="Cuộn lên đầu">↑</button>
 <div id="quiz"></div>
-</div>
+</main>
 
 <script>
 let loadingStatus = document.getElementById("loadingText");
