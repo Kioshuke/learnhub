@@ -253,12 +253,21 @@ function restartGame() {
 // 🟢 FLASHCARD
 ////////////////////////////////////////////////////////////////////////////////
 let current = 0;
+let viewedFlashcards = new Set();
+
+function markFlashcardViewed(index) {
+    if (!cards[index]) return;
+    viewedFlashcards.add(index);
+    gameProgress.flashcard = Math.min(viewedFlashcards.size, total);
+    progress = gameProgress.flashcard;
+    updateProgress();
+}
 
 function initFlashcard() {
     playBGM("flashcard");
     current = 0;
-    progress = 0;
-    updateProgress();
+    viewedFlashcards = new Set();
+    markFlashcardViewed(current);
     const inner = document.querySelector(".flash-inner");
     if (inner) inner.classList.remove("flipped");
     showCard();
@@ -277,15 +286,17 @@ function flipCard() {
 }
 
 function nextCard() {
-    if (progress >= total) return;
+    if (current >= cards.length - 1) {
+        if (viewedFlashcards.size >= total) checkComplete();
+        return;
+    }
+
     const cardEl = document.querySelector(".flashcard");
     cardEl.classList.add("slide-out-left");
 
     setTimeout(() => {
-        current = (current + 1) % cards.length;
-        gameProgress.flashcard = Math.min(gameProgress.flashcard + 1, total);
-        updateProgress();
-        checkComplete();
+        current = current + 1;
+        markFlashcardViewed(current);
         showCard();
         document.querySelector(".flash-inner").classList.remove("flipped");
         cardEl.classList.remove("slide-out-left");
@@ -302,6 +313,7 @@ function prevCard() {
 
     setTimeout(() => {
         current = (current - 1 + cards.length) % cards.length;
+        markFlashcardViewed(current);
         showCard();
         document.querySelector(".flash-inner").classList.remove("flipped");
         cardEl.classList.remove("slide-out-left");
