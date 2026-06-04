@@ -582,6 +582,17 @@ button:hover {
   opacity: 0; 
 }
 
+.slide-out-right {
+  transform: translateX(150px) rotate(15deg) scale(0.8) !important;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-in-left {
+  transform: translateX(-150px) rotate(-15deg) scale(0.8) !important;
+  opacity: 0;
+}
+
 /* Trạng thái khi thẻ mới bay vào vị trí chính giữa */
 .slide-active {
   transform: translateX(0) rotate(0deg) scale(1) !important;
@@ -675,6 +686,16 @@ button:hover {
 
     .slide-in-right {
         transform: translate3d(100%, 0, 0) !important;
+        opacity: 0;
+    }
+
+    .slide-out-right {
+        transform: translate3d(100%, 0, 0) !important;
+        opacity: 0;
+    }
+
+    .slide-in-left {
+        transform: translate3d(-100%, 0, 0) !important;
         opacity: 0;
     }
 
@@ -1745,6 +1766,119 @@ body::after {
   box-shadow: 0 20px 40px rgba(236, 72, 153, 0.22);
 }
 
+/* ===== BLAST REFRESH ===== */
+#blast-content {
+  display: none;
+  width: min(1180px, calc(100% - 36px)) !important;
+  margin: 8px auto 0;
+}
+
+.blast-box {
+  min-height: min(560px, calc(100vh - 290px));
+  padding: clamp(22px, 3vw, 38px);
+  border-radius: 30px;
+  justify-content: center;
+  gap: 22px;
+}
+
+.blast-box::before {
+  content: "BLAST MODE";
+  align-self: center;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
+.question {
+  width: min(720px, 100%);
+  margin: 0 auto 6px;
+  padding: clamp(22px, 4vw, 34px);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 14% 20%, rgba(236, 72, 153, 0.14), transparent 32%),
+    radial-gradient(circle at 86% 18%, rgba(37, 99, 235, 0.16), transparent 34%),
+    rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.86);
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
+  text-align: center;
+  line-height: 1.16;
+}
+
+.options {
+  width: min(760px, 100%);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.options button {
+  min-height: 70px;
+  margin: 0;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.options button:hover {
+  transform: translateY(-4px) scale(1.01);
+  background: #ffffff;
+  border-color: rgba(37, 99, 235, 0.45);
+}
+
+#score {
+  margin-top: 4px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.streak-badge {
+  min-width: 52px;
+  padding: 7px 16px;
+  text-align: center;
+  font-size: 24px;
+}
+
+#score.streak-pop {
+  animation: scorePop 0.42s cubic-bezier(0.2, 1.4, 0.35, 1);
+}
+
+#score.streak-pop .streak-badge {
+  animation: streakBurst 0.42s cubic-bezier(0.2, 1.4, 0.35, 1);
+}
+
+#score.streak-reset {
+  animation: scoreReset 0.28s ease;
+}
+
+@keyframes scorePop {
+  0% { transform: translateY(0) scale(1); }
+  45% { transform: translateY(-8px) scale(1.08); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes streakBurst {
+  0% { transform: scale(0.8) rotate(-4deg); filter: brightness(1); }
+  50% { transform: scale(1.35) rotate(4deg); filter: brightness(1.16); }
+  100% { transform: scale(1.05) rotate(0); filter: brightness(1); }
+}
+
+@keyframes scoreReset {
+  0%, 100% { transform: translateX(0); }
+  35% { transform: translateX(-6px); }
+  70% { transform: translateX(6px); }
+}
+
 @media (max-width: 768px) {
   .flash-front,
   .flash-back {
@@ -1755,6 +1889,24 @@ body::after {
   #topicBanner,
   #progressContainer {
     width: 92%;
+  }
+
+  #blast-content {
+    width: 94% !important;
+  }
+
+  .blast-box {
+    min-height: auto;
+    padding: 20px 14px;
+    border-radius: 24px;
+  }
+
+  .options {
+    grid-template-columns: 1fr;
+  }
+
+  .question {
+    font-size: clamp(26px, 9vw, 34px);
   }
 }
 </style>
