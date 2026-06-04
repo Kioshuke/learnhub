@@ -33,7 +33,7 @@ html, body {
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', 'Segoe UI', Roboto, Arial, system-ui, -apple-system, sans-serif;
+  font-family: 'Segoe UI', Roboto, Arial, system-ui, -apple-system, sans-serif;
   background: transparent;
   color: var(--text-main);
   min-height: 100vh;
@@ -1624,7 +1624,21 @@ body {
 
 body {
   isolation: isolate;
-  font-family: 'Inter', 'Segoe UI', Roboto, Arial, system-ui, -apple-system, sans-serif;
+  font-family: 'Segoe UI', Roboto, Arial, system-ui, -apple-system, sans-serif;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  font-synthesis: none;
+}
+
+button,
+.question,
+.options button,
+#topicBanner,
+#progressText,
+#score,
+.streak-badge {
+  font-family: 'Segoe UI', Roboto, Arial, system-ui, -apple-system, sans-serif !important;
+  font-variant-ligatures: none;
 }
 
 body > * {
@@ -1912,8 +1926,9 @@ body::after {
   border: 1px solid rgba(255, 255, 255, 0.86);
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.1);
   text-align: center;
-  line-height: 1.16;
+  line-height: 1.22;
   letter-spacing: 0;
+  font-weight: 800;
 }
 
 .options {
@@ -1929,9 +1944,31 @@ body::after {
   padding: 13px 16px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.9);
-  font-weight: 800;
-  line-height: 1.25;
+  font-weight: 700;
+  line-height: 1.38;
   letter-spacing: 0;
+  text-wrap: balance;
+}
+
+#menu button,
+#topicBanner,
+#topicName,
+#progressText,
+#question,
+.question,
+#options button,
+.options button,
+#score,
+.streak-badge {
+  font-family: 'Segoe UI', Roboto, Arial, system-ui, -apple-system, sans-serif !important;
+  font-synthesis: none;
+  letter-spacing: 0 !important;
+}
+
+#options button,
+.options button {
+  font-weight: 700 !important;
+  line-height: 1.42 !important;
 }
 
 .options button:hover {
