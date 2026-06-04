@@ -530,8 +530,8 @@ function nextQuestion() {
         optDiv.style.animation = "none";
         void qEl.offsetWidth; // Force reflow
         
-        qEl.style.animation = "slideInSmooth 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards";
-        optDiv.style.animation = "slideInSmooth 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.03s forwards";
+        qEl.style.animation = "slideInSmooth 0.24s ease-out forwards";
+        optDiv.style.animation = "slideInSmooth 0.26s ease-out 0.02s forwards";
     });
 
     speak(correct.front);
@@ -592,13 +592,13 @@ function answerBlast(choice, btn) {
         const qEl = document.getElementById("question");
         const optDiv = document.getElementById("options");
 
-        qEl.style.animation = "slideOutSmooth 0.3s ease-in forwards";
-        optDiv.style.animation = "slideOutSmooth 0.3s ease-in forwards";
+        qEl.style.animation = "slideOutSmooth 0.22s ease-in forwards";
+        optDiv.style.animation = "slideOutSmooth 0.22s ease-in forwards";
 
         setTimeout(() => {
             nextQuestion();
-        }, 300);
-    }, 500); // 0.5s là đủ để người dùng biết mình đúng
+        }, 220);
+    }, 360);
 }
 function speak(text) {
     if ('speechSynthesis' in window) {
@@ -848,16 +848,24 @@ function takeDamage() {
 }
 
 function pauseDefenderGame() {
+    if (currentMode !== "defender" || defenderHP <= 0 || gameProgress.defender >= total) return;
     isPaused = true;
-    document.getElementById("pause-overlay").style.display = "flex";
+    const pauseOverlay = document.getElementById("pause-overlay");
+    if (pauseOverlay) pauseOverlay.style.display = "flex";
     if (bgm.defender) bgm.defender.pause();
 }
 
 function resumeGame() {
     isPaused = false;
-    document.getElementById("pause-overlay").style.display = "none";
+    const pauseOverlay = document.getElementById("pause-overlay");
+    if (pauseOverlay) pauseOverlay.style.display = "none";
     if (bgm.defender) bgm.defender.play().catch(() => {});
+    if (currentMode === "defender" && defenderHP > 0 && gameProgress.defender < total && !currentMonsterNode) {
+        spawnMonster();
+    }
 }
+
+window.resumeGame = resumeGame;
 
 function restartDefenderGame() {
     startDefenderGame();
