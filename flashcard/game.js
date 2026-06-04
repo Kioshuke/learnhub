@@ -309,18 +309,18 @@ function nextCard() {
 
 function prevCard() {
     const cardEl = document.querySelector(".flashcard");
-    cardEl.classList.add("slide-out-left");
+    cardEl.classList.add("slide-out-right");
 
     setTimeout(() => {
         current = (current - 1 + cards.length) % cards.length;
         markFlashcardViewed(current);
         showCard();
         document.querySelector(".flash-inner").classList.remove("flipped");
-        cardEl.classList.remove("slide-out-left");
-        cardEl.classList.add("slide-in-right");
+        cardEl.classList.remove("slide-out-right");
+        cardEl.classList.add("slide-in-left");
 
         setTimeout(() => { cardEl.classList.add("slide-active"); }, 20);
-        setTimeout(() => { cardEl.classList.remove("slide-in-right", "slide-active"); }, 350);
+        setTimeout(() => { cardEl.classList.remove("slide-in-left", "slide-active"); }, 350);
     }, 200);
 }
 
@@ -550,7 +550,12 @@ function answerBlast(choice, btn) {
         // Rung nhẹ kiểu feedback điện thoại
         btn.style.animation = "shakeLow 0.3s ease";
         streak = 0;
-        if(scoreEl) scoreEl.innerHTML = `Streak: <span class="streak-badge dead">0</span> 💀`;
+        if(scoreEl) {
+            scoreEl.innerHTML = `Streak: <span class="streak-badge dead">0</span> 💀`;
+            scoreEl.classList.remove("streak-pop");
+            scoreEl.classList.add("streak-reset");
+            setTimeout(() => scoreEl.classList.remove("streak-reset"), 320);
+        }
         
         setTimeout(() => {
             btn.classList.remove("wrong");
@@ -577,6 +582,9 @@ function answerBlast(choice, btn) {
         else if (streak >= 20) { icon = "⚡⚡"; levelClass = "mega-streak"; }
         else if (streak >= 10) { icon = "🌟"; levelClass = "super-streak"; }
         scoreEl.innerHTML = `Streak: <span class="streak-badge ${levelClass}">${streak}</span> ${icon}`;
+        scoreEl.classList.remove("streak-pop");
+        void scoreEl.offsetWidth;
+        scoreEl.classList.add("streak-pop");
     }
 
     // Hiệu ứng "Bay đi" - Nhanh và gọn hơn
