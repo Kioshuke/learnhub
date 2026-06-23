@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Góp ý ý kiến - LearnHub</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script type="text/javascript">
+     (function(){
+        emailjs.init("Opbj2MlP6Dvp9ZsG5");
+     })();
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .feedback-container {
+      background: #ffffff;
+      width: 100%;
+      max-width: 480px;
+      padding: 32px 28px 24px 28px;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    .feedback-container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #0066cc, #3b82f6, #8b5cf6);
+    }
+
+    .feedback-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .feedback-header h2 {
+      margin: 0 0 6px 0;
+      color: #1e293b;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .feedback-header p {
+      margin: 0;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .required {
+      color: #ef4444;
+      margin-left: 3px;
+    }
+
+    .form-group input, 
+    .form-group textarea {
+      padding: 11px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 14px;
+      color: #1e293b;
+      background-color: #ffffff;
+      outline: none;
+      transition: all 0.15s ease;
+      font-family: inherit;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .form-group input:focus, 
+    .form-group textarea:focus {
+      border-color: #0066cc;
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
+    }
+
+    /* --- HỆ THỐNG CUSTOM SELECT CAO CẤP --- */
+    .custom-select-wrapper {
+      position: relative;
+      user-select: none;
+      width: 100%;
+    }
+
+    /* Ẩn thẻ select thật đi nhưng vẫn giữ để gửi dữ liệu form */
+    .real-select {
+      display: none;
+    }
+
+    /* Ô hiển thị select giả được custom bằng CSS */
+    .select-trigger {
+      padding: 11px 40px 11px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 14px;
+      color: #94a3b8; /* Màu mờ mặc định placeholder */
+      background-color: #ffffff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 0.15s ease;
+      position: relative;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .select-trigger.has-value {
+      color: #1e293b; /* Đổi màu chữ đậm khi đã chọn */
+    }
+
+    .select-trigger:after {
+      content: "\f107";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      font-size: 15px;
+      transition: transform 0.2s ease;
+    }
+
+    /* Trạng thái khi đang mở danh sách */
+    .custom-select-wrapper.open .select-trigger {
+      border-color: #0066cc;
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
+    }
+
+    .custom-select-wrapper.open .select-trigger:after {
+      transform: translateY(-50%) rotate(180deg); /* Mũi tên quay ngược lên */
+    }
+
+    /* Khung chứa danh sách các option tự tạo - Bo góc, đổ bóng sang xịn mịn */
+    .custom-options {
+      position: absolute;
+      display: block;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      z-index: 99;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 6px;
+      box-sizing: border-box;
+    }
+
+    /* Hiển thị mượt mà khi thêm class open */
+    .custom-select-wrapper.open .custom-options {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    /* Từng item option bên trong dropdown */
+    .custom-option {
+      padding: 10px 12px;
+      cursor: pointer;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #334155;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .custom-option:hover {
+      background-color: #f1f5f9;
+      color: #0066cc;
+    }
+
+    .custom-option.selected {
+      background-color: #e0f2fe;
+      color: #0369a1;
+      font-weight: 600;
+    }
+
+    .form-group textarea {
+      resize: none;
+      height: 95px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background: #0066cc;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-size: 14.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .btn-submit:hover {
+      background: #0052a3;
+    }
+
+    .btn-submit:disabled {
+      background: #cbd5e1;
+      color: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .success-container {
+      display: none;
+      text-align: center;
+      padding: 50px 10px;
+      animation: scaleIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .success-icon {
+      font-size: 56px;
+      color: #10b981;
+      margin-bottom: 18px;
+    }
+
+    .success-title {
+      font-size: 22px;
+      color: #1e293b;
+      margin: 0 0 10px 0;
+      font-weight: 700;
+    }
+
+    .success-text {
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .error-message {
+      display: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      text-align: center;
+      margin-top: 12px;
+      font-weight: 600;
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="feedback-container" id="container-box">
+    <div id="form-wrapper">
+      <div class="feedback-header">
+        <h2>Góp ý ý kiến</h2>
+        <p>Ý kiến của bạn giúp LearnHub hoàn thiện hơn mỗi ngày.</p>
+      </div>
+
+      <form id="lh-feedback-form">
+        <div class="form-group">
+          <label for="user_name">Họ và tên</label>
+          <input type="text" id="user_name" name="user_name" placeholder="Nhập tên của bạn (không bắt buộc)" autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label for="user_email">Email liên hệ<span class="required">*</span></label>
+          <input type="email" id="user_email" name="user_email" required placeholder="name@gmail.com" autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label for="feedback_type">Bạn muốn góp ý về điều gì?<span class="required">*</span></label>
+          
+          <div class="custom-select-wrapper">
+            <select id="feedback_type" name="feedback_type" required class="real-select">
+              <option value="" disabled selected>-- Chọn danh mục --</option>
+              <option value="Báo lỗi hệ thống">🐛 Báo lỗi tính năng / Hệ thống</option>
+              <option value="Góp ý giao diện">🎨 Góp ý giao diện / UI-UX</option>
+              <option value="Đề xuất nội dung">📚 Đề xuất nội dung học tập</option>
+              <option value="Ý kiến khác">💡 Ý kiến đóng góp khác</option>
+            </select>
+            
+            <div class="select-trigger" id="custom-trigger">-- Chọn danh mục --</div>
+            
+            <div class="custom-options">
+              <div class="custom-option" data-value="Báo lỗi hệ thống">🐛 Báo lỗi tính năng / Hệ thống</div>
+              <div class="custom-option" data-value="Góp ý giao diện">🎨 Góp ý giao diện / UI-UX</div>
+              <div class="custom-option" data-value="Đề xuất nội dung">📚 Đề xuất nội dung học tập</div>
+              <div class="custom-option" data-value="Ý kiến khác">💡 Ý kiến đóng góp khác</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="message">Nội dung chi tiết<span class="required">*</span></label>
+          <textarea id="message" name="message" required placeholder="Nhập nội dung bạn muốn nhắn gửi đến LearnHub..."></textarea>
+        </div>
+
+        <button type="submit" id="btn-text" class="btn-submit">
+          <i class="fa-solid fa-paper-plane"></i> Gửi ý kiến
+        </button>
+      </form>
+      
+      <div id="error-box" class="error-message"></div>
+    </div>
+
+    <div class="success-container" id="success-box">
+      <div class="success-icon">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h3 class="success-title">Gửi thành công!</h3>
+      <p class="success-text">
+        Cảm ơn bạn đã đóng góp phản hồi.<br>
+        Hệ thống đã ghi nhận và gửi một email phản hồi tự động đến hộp thư của bạn.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // --- XỬ LÝ LOGIC CUSTOM SELECT DROPDOWN ---
+    const wrapper = document.querySelector('.custom-select-wrapper');
+    const trigger = document.getElementById('custom-trigger');
+    const optionsContainer = document.querySelector('.custom-options');
+    const customOptions = document.querySelectorAll('.custom-option');
+    const realSelect = document.getElementById('feedback_type');
+
+    // Bấm vào ô select thì đóng/mở menu đổ xuống
+    trigger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      wrapper.classList.toggle('open');
+    });
+
+    // Khi chọn một option trong danh sách giả
+    customOptions.forEach(option => {
+      option.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const value = this.getAttribute('data-value');
+        const text = this.textContent;
+
+        // Cập nhật text hiển thị lên trigger và đổi màu chữ đậm
+        trigger.textContent = text;
+        trigger.classList.add('has-value');
+
+        // Cập nhật giá trị sang thẻ select ẩn để gửi đi qua EmailJS
+        realSelect.value = value;
+
+        // Xóa class active cũ và add class active cho item vừa chọn
+        customOptions.forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+
+        // Đóng menu lại
+        wrapper.classList.remove('open');
+      });
+    });
+
+    // Bấm ra ngoài vùng menu thì tự động đóng lại
+    document.addEventListener('click', function() {
+      wrapper.classList.remove('open');
+    });
+
+
+    // --- XỬ LÝ GỬI FORM EMAILJS ---
+    const form = document.getElementById('lh-feedback-form');
+    const formWrapper = document.getElementById('form-wrapper');
+    const successBox = document.getElementById('success-box');
+    const errorBox = document.getElementById('error-box');
+    const submitBtn = document.getElementById('btn-text');
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault(); 
+
+      // Kiểm tra xem đã chọn danh mục chưa (Vì dùng select giả nên check thủ công)
+      if (!realSelect.value) {
+        errorBox.style.display = 'block';
+        errorBox.innerText = '⚠️ Vui lòng chọn một danh mục đóng góp phản hồi!';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
+      errorBox.style.display = 'none'; 
+
+      const serviceID = 'service_7ku42kd'; 
+      const adminTemplateID = 'template_hkba0sf'; 
+      const userTemplateID = 'template_yx6vfty';   
+
+      const sendToAdmin = emailjs.sendForm(serviceID, adminTemplateID, this);
+      const sendToUser = emailjs.sendForm(serviceID, userTemplateID, this);
+
+      Promise.all([sendToAdmin, sendToUser])
+        .then(() => {
+          formWrapper.style.display = 'none';
+          successBox.style.display = 'block';
+          form.reset();
+          // Reset giao diện select giả về ban đầu
+          trigger.textContent = '-- Chọn danh mục --';
+          trigger.classList.remove('has-value');
+        })
+        .catch((err) => {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Thử lại';
+          errorBox.style.display = 'block';
+          errorBox.innerText = '😓 Đã có lỗi xảy ra. Vui lòng kiểm tra lại!';
+          console.log(JSON.stringify(err));
+        });
+    });
+  </script>
+
+</body>
+</html>
