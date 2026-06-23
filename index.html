@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -10,10 +10,10 @@
 <link rel="apple-touch-icon" href="https://kioshuke.github.io/learnhub/favicon.png">
 
 <meta name="theme-color" content="#1a73e8">
-<title>LearnHub - THPT Tân Hồng </title>
+<title>LearnHub Platform </title>
 <meta name="description" content="LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.">
 
-<meta property="og:title" content="LearnHub - THPT Tân Hồng">
+<meta property="og:title" content="LearnHub Platform">
 <meta property="og:description" content="Hệ thống hỗ trợ học tập và thi cử trực tuyến cho học sinh THPT.">
 <meta property="og:image" content="https://kioshuke.github.io/learnhub/favicon.png">
 <meta property="og:url" content="https://kioshuke.github.io/learnhub/">
@@ -22,7 +22,7 @@
   "@context": "https://schema.org",
   "@type": "WebApplication",
   "name": "LearnHub",
-  "alternateName": "LearnHub - THPT Tân Hồng",
+  "alternateName": "LearnHub Platform",
   "url": "https://kioshuke.github.io/learnhub/",
   "image": "https://kioshuke.github.io/learnhub/favicon.png",
   "description": "LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.",
@@ -1872,6 +1872,58 @@ transition: all 0.25s ease;
 color: var(--text-main);
 transform: scale(1.25) rotate(90deg);
 }
+.popup-more-wrap{
+position:absolute;
+top:10px;
+left:12px;
+z-index:2;
+}
+.popup-more-btn{
+width:32px;
+height:32px;
+border:0;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:20px;
+line-height:1;
+color:var(--text-sub);
+background:rgba(255,255,255,0.36);
+box-shadow:inset 0 0 0 1px rgba(255,255,255,0.16);
+cursor:pointer;
+transition:all .2s ease;
+}
+body.dark-mode .popup-more-btn{
+background:rgba(15,23,42,0.42);
+}
+.popup-more-btn:hover,
+.popup-more-btn[aria-expanded="true"]{
+color:var(--text-main);
+background:rgba(99,102,241,0.18);
+transform:translateY(-1px);
+}
+.popup-actions-menu{
+position:absolute;
+top:38px;
+left:0;
+width:176px;
+padding:8px;
+border-radius:14px;
+background:var(--popup-bg);
+backdrop-filter:blur(14px);
+box-shadow:0 14px 35px rgba(15,23,42,0.24);
+border:1px solid rgba(255,255,255,0.18);
+display:none;
+}
+.popup-actions-menu.show{
+display:block;
+animation:popupMenuIn .18s ease;
+}
+@keyframes popupMenuIn{
+from{opacity:0;transform:translateY(-6px) scale(.96);}
+to{opacity:1;transform:translateY(0) scale(1);}
+}
 /* Tìm chỗ này trong CSS và thêm vào */
 .avatar-box {
 position: relative; /* Bắt buộc có để chấm xanh bám vào đây */
@@ -1884,7 +1936,7 @@ justify-content: center;
 }
 #logoutBtn{
 width: 100%;
-margin-top: 15px;
+margin-top: 8px;
 padding: 10px;
 
 border: none;
@@ -2872,7 +2924,7 @@ display:block;
 width:100%;
 text-align:center;
 padding:10px 12px;
-margin:10px 0;
+margin:0;
 border-radius:12px;
 text-decoration:none;
 font-weight:600;
@@ -4428,13 +4480,17 @@ location.reload();
 document.addEventListener("click", function(e){
 const popup = document.getElementById("userPopup");
 const avatarBox = document.querySelector(".avatar-box");
+const moreWrap = document.querySelector(".popup-more-wrap");
 
 if(
 popup &&
 !popup.contains(e.target) &&
-!avatarBox.contains(e.target)
+(!avatarBox || !avatarBox.contains(e.target))
 ){
 popup.style.display = "none";
+}
+if(moreWrap && !moreWrap.contains(e.target)){
+closePopupActions();
 }
 });
 window.addEventListener("beforeunload", () => {
@@ -4460,11 +4516,38 @@ if(!pop) return;
 if(getComputedStyle(pop).display === "none"){
 pop.style.display = "block";
 } else {
+closePopupActions();
 pop.style.display = "none";
 }
 }
+function togglePopupActions(event){
+if(event) event.stopPropagation();
+const menu = document.getElementById("popupActionsMenu");
+const btn = document.getElementById("popupMoreBtn");
+if(!menu || !btn) return;
+const isOpen = menu.classList.toggle("show");
+btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+}
+function closePopupActions(){
+const menu = document.getElementById("popupActionsMenu");
+const btn = document.getElementById("popupMoreBtn");
+if(menu) menu.classList.remove("show");
+if(btn) btn.setAttribute("aria-expanded", "false");
+}
 </script>
 <div id="userPopup" style="display:none;">
+
+<div class="popup-more-wrap">
+  <button id="popupMoreBtn" class="popup-more-btn" type="button" onclick="togglePopupActions(event)" aria-label="Mở tuỳ chọn" aria-expanded="false">⋯</button>
+  <div id="popupActionsMenu" class="popup-actions-menu" onclick="event.stopPropagation()">
+    <a href="https://kioshuke.github.io/learnhub/admin-dashboard.html"
+       target="_blank"
+       class="admin-link-btn">
+       ⚙️ Admin Panel
+    </a>
+    <button id="logoutBtn" onclick="logout()">Đăng xuất</button>
+  </div>
+</div>
 
 <span class="popup-close" onclick="toggleUserPopup()">&times;</span>
 
@@ -4491,12 +4574,6 @@ pop.style.display = "none";
     <span class="slider"></span>
   </label>
 </div>
-<a href="https://kioshuke.github.io/learnhub/admin-dashboard.html"
-   target="_blank"
-   class="admin-link-btn">
-   ⚙️ Admin Dashboard
-</a>
-<button id="logoutBtn" onclick="logout()">Đăng xuất</button>
 <p style="text-align: center;
 margin-top:10px;
 font-size: 13px;
