@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -2112,7 +2112,7 @@ body.dark-mode .subject-notice{
   </div>
 </div>
 <div class="loading-footer">
-  <p>© 2026 LearnHub • THPT Tân Hồng | V26.04.20.2</p>
+  <p>© 2026 LearnHub Platform | All rights reserved!</p>
 </div>
 </div>
 <div id="popup">
@@ -2213,7 +2213,7 @@ body.dark-mode .subject-notice{
       <button class="auth-submit" onclick="emailRegister()">Đăng ký</button>
     </div>
 
-    <div class="auth-footer">Whitelist Mode | © 2026 LearnHub - THPT Tân Hồng | V26.04.20.2</div>
+    <div class="auth-footer">© 2026 LearnHub Platform | All rights reserved!</div>
   </div>
 
   <div class="auth-right">
@@ -2317,7 +2317,7 @@ box-shadow:0 10px 24px rgba(2,6,23,0.32);
 display:inline-block;
 white-space:nowrap;
 padding-left:100%;
-animation:scrollText 15s linear infinite;
+animation:scrollText 18s linear infinite;
 will-change:transform;
 }
 
@@ -2867,7 +2867,25 @@ animation: pulse-green 2s infinite;
 .quiz-btn:active{
   transform: scale(0.96);
 }
+.admin-link-btn{
+display:block;
+width:100%;
+text-align:center;
+padding:10px 12px;
+margin:10px 0;
+border-radius:12px;
+text-decoration:none;
+font-weight:600;
+background:linear-gradient(135deg,#2563eb,#1d4ed8);
+color:#fff;
+transition:.2s ease;
+box-sizing:border-box;
+}
 
+.admin-link-btn:hover{
+transform:translateY(-1px);
+filter:brightness(1.05);
+}
 </style>
 <div id="mainContent" class="content">
 
@@ -3212,7 +3230,7 @@ function loadQuiz(btn, link){
 
     <div class="loader" id="loader">
       <div class="spinner"></div>
-      <p>Đang tải bài kiểm tra...</p>
+      <p>Đang tải, đợi xíu nhe...</p>
     </div>
 
     <iframe id="quizFrame" src="${link}" style="display:none;"></iframe>
@@ -3791,7 +3809,7 @@ if(emailEl) emailEl.innerText = user.email || "preview@local.test";
 const quoteEl = document.getElementById("popupQuote");
 if(quoteEl) quoteEl.innerText = quote;
 
-document.getElementById("welcomeText").innerText = "Chúc bạn ôn thi thật tốt,";
+document.getElementById("welcomeText").innerText = "Chúc bạn một ngày tốt lành,";
 document.getElementById("userName").innerText = user.displayName || "Preview User";
 
 const avatar = user.photoURL || "https://i.imgur.com/6VBx3io.png";
@@ -4473,12 +4491,17 @@ pop.style.display = "none";
     <span class="slider"></span>
   </label>
 </div>
+<a href="https://kioshuke.github.io/learnhub/admin-dashboard.html"
+   target="_blank"
+   class="admin-link-btn">
+   ⚙️ Admin Dashboard
+</a>
 <button id="logoutBtn" onclick="logout()">Đăng xuất</button>
 <p style="text-align: center;
 margin-top:10px;
 font-size: 13px;
 color: var(--text-sub);
-margin-bottom: 10px;">© 2026 LearnHub • THPT Tân Hồng | V26.04.20.2</p>
+margin-bottom: 10px;">© 2026 LearnHub Platform | All rights reserved!</p>
 
 </div>
 <script>

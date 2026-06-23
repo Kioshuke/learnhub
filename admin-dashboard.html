@@ -18,13 +18,13 @@
       --amber:#f59e0b;
       --red:#dc2626;
       --violet:#7c3aed;
-      --shadow:0 26px 70px rgba(37,99,235,0.12);
+      --shadow:0 8px 24px rgba(15,23,42,0.08);
     }
 
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family:"Segoe UI", Arial, sans-serif;
+      font-family:'Inter',sans-serif;
       color:var(--text);
       background:
         linear-gradient(135deg, rgba(37,99,235,0.08), rgba(124,58,237,0.05)),
@@ -48,7 +48,7 @@
         linear-gradient(135deg, rgba(255,255,255,0.96), rgba(245,249,255,0.94)),
         linear-gradient(135deg, rgba(37,99,235,0.04), rgba(124,58,237,0.04));
       border:1px solid rgba(37,99,235,0.14);
-      border-radius:28px;
+      border-radius:18px;
       padding:24px;
       box-shadow:var(--shadow);
       display:flex;
@@ -69,7 +69,7 @@
 
     .hero h1{
       margin:0 0 8px;
-      font-size:32px;
+      font-size:28px;
       line-height:1.1;
       letter-spacing:-.02em;
     }
@@ -133,11 +133,15 @@
     .stat{
       background:linear-gradient(135deg, rgba(255,255,255,0.96), rgba(246,250,255,0.92));
       border:1px solid var(--line);
-      border-radius:24px;
+      border-radius:16px;
       padding:18px;
       box-shadow:var(--shadow);
       position:relative;
       overflow:hidden;
+      transition:.2s ease;
+    }
+    .stat:hover{
+      transform:translateY(-2px);
     }
 
     .stat::after{
@@ -200,7 +204,7 @@
       background:var(--panel);
       backdrop-filter:blur(10px);
       border:1px solid var(--line);
-      border-radius:28px;
+      border-radius:18px;
       padding:20px;
       box-shadow:var(--shadow);
     }
@@ -272,7 +276,7 @@
 
     .admin-tab.active{
       color:#fff;
-      background:linear-gradient(135deg, #2563eb, #4f46e5);
+      background:#2563eb;
       box-shadow:0 14px 28px rgba(59,130,246,0.2);
     }
 
@@ -317,7 +321,7 @@
     }
 
     .sheet-table tbody td{
-      padding:14px 12px;
+      padding:10px 12px;
       border-bottom:1px solid #e8eefc;
       vertical-align:top;
       background:#fff;
@@ -458,7 +462,7 @@
       background:linear-gradient(135deg, rgba(255,255,255,0.96), rgba(246,250,255,0.94));
       backdrop-filter:blur(10px);
       border:1px solid var(--line);
-      border-radius:30px;
+      border-radius:20px;
       padding:0;
       box-shadow:var(--shadow);
       text-align:left;
@@ -507,7 +511,7 @@
       content:"";
       position:absolute;
       inset:22px;
-      border-radius:28px;
+      border-radius:18px;
       border:1px solid rgba(255,255,255,0.16);
       background:
         radial-gradient(circle at top right, rgba(255,255,255,0.16), transparent 34%),
@@ -542,9 +546,13 @@
       align-items:center;
       justify-content:center;
       box-shadow:0 14px 30px rgba(37,99,235,0.15);
-      color:#2563eb;
-      font-size:24px;
-      font-weight:800;
+      overflow:hidden;
+      padding:4px;
+    }
+    .login-brand-badge img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
     }
 
     .login-brand-text{
@@ -564,7 +572,7 @@
     .login-form-wrap{
       margin-top:18px;
       padding:20px;
-      border-radius:24px;
+      border-radius:16px;
       background:linear-gradient(135deg, rgba(255,255,255,0.9), rgba(239,246,255,0.72));
       border:1px solid rgba(191,219,254,0.8);
       box-shadow:inset 0 1px 0 rgba(255,255,255,0.65);
@@ -591,7 +599,7 @@
 
     .login-right h3{
       margin:0 0 12px;
-      font-size:34px;
+      font-size:30px;
       line-height:1.08;
       letter-spacing:-.03em;
     }
@@ -712,13 +720,15 @@
     <section id="loginView" class="login-card">
       <div class="login-left">
         <div class="login-brand">
-          <div class="login-brand-badge">L</div>
+          <div class="login-brand-badge">
+            <img src="newlogo.png" alt="LearnHub Logo">
+          </div>
           <div>
             <div class="login-brand-text">LearnHub Admin</div>
             <h2>Trung tâm quản trị</h2>
           </div>
         </div>
-        <p class="login-subtitle">Đăng nhập bằng đúng tài khoản admin để quản lý whitelist, khóa user và đồng bộ dữ liệu LearnHub trong một nơi gọn gàng hơn Firebase Console.</p>
+        <p class="login-subtitle">Đăng nhập bằng đúng tài khoản admin để quản lý whitelist, khóa user và đồng bộ dữ liệu LearnHub trong một nơi gọn gàng hơn!</p>
         <div class="login-form-wrap">
           <div class="field-row" style="margin-top:0;">
             <input id="adminEmailInput" class="input" type="email" value="learnhubadmin@gmail.com" readonly>
