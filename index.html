@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -11,7 +11,7 @@
 
 <meta name="theme-color" content="#1a73e8">
 <title>LearnHub - THPT Tân Hồng </title>
-<meta name="description" content="Nền tảng học tập thông minh cho học sinh THPT Tân Hồng. Tra cứu lịch thi, tài liệu, làm bài ôn thi Vật lý, Sinh học, Tin học và Lịch sử nhanh chóng, tiện lợi và hoàn toàn miễn phí!.">
+<meta name="description" content="LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.">
 
 <meta property="og:title" content="LearnHub - THPT Tân Hồng">
 <meta property="og:description" content="Hệ thống hỗ trợ học tập và thi cử trực tuyến cho học sinh THPT.">
@@ -25,7 +25,7 @@
   "alternateName": "LearnHub - THPT Tân Hồng",
   "url": "https://kioshuke.github.io/learnhub/",
   "image": "https://kioshuke.github.io/learnhub/favicon.png",
-  "description": "Nền tảng học tập thông minh cho học sinh THPT Tân Hồng. Tra cứu lịch thi, tài liệu, làm bài ôn thi Vật lý, Sinh học, Tin học và Lịch sử nhanh chóng, tiện lợi và hoàn toàn miễn phí!.",
+  "description": "LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.",
   "applicationCategory": "EducationalApplication",
   "operatingSystem": "Web, Android",
   "author": {
@@ -213,7 +213,7 @@ box-shadow: 0 4px 12px color-mix(in srgb, var(--btn-color) 40%, transparent);
   --btn-color:#2563eb; /* 🔵 FlashCard */
 }
 
-.menu button[data-subject="lich"]{
+.menu button[data-subject="home"]{
   --btn-color:#f97316; /* 🟠 Orange - schedule, time */
 }
 .menu button[data-subject]:not(.active):hover{
@@ -398,7 +398,7 @@ gap:25px;
   --card-color: #0ea5e9; /* 🌊 Forum */
 }
 
-#lich .card{
+#home .card{
   --card-color: #f97316; /* 🟠 Lịch */
 }
 body.dark-mode .card{
@@ -535,13 +535,6 @@ iframe {
   outline:0 !important;
   border-radius:0 !important;
   background:transparent;
-}
-
-/* Lịch thi iframe scroll fix */
-#lichFrame {
-  overflow: auto !important;
-  pointer-events: auto !important;
-  touch-action: auto !important;
 }
 
 
@@ -2091,7 +2084,7 @@ body.dark-mode .subject-notice{
 #anh .subject-notice{ --subject-color: #ec4899; }
 #bxh .subject-notice{ --subject-color: #0ea5e9; }
 #flash .subject-notice{ --subject-color: #2563eb; }
-#lich .subject-notice{ --subject-color: #f97316; }
+#home .subject-notice{ --subject-color: #f97316; }
 
 </style>
 
@@ -2269,7 +2262,7 @@ body.dark-mode .subject-notice{
   <span>LearnHub – Nâng cấp cách bạn học</span>
 </div>
 <div class="menu-buttons" id="menuButtons">
-  <button data-subject="lich" class="active" onclick="show('lich')">Lịch Thi</button>
+  <button data-subject="home" class="active" onclick="show('home')">Home</button>
   <button data-subject="flash" onclick="show('flash')">FlashCard</button>
   <button data-subject="bxh" onclick="show('bxh')">Forum</button>
   <button data-subject="ly" onclick="show('ly')">Vật Lý</button>
@@ -2282,7 +2275,7 @@ body.dark-mode .subject-notice{
 </div>
 <div class="ticker-container">
 <div class="ticker-text">
-LearnHub - Nền tảng học tập thông minh cho học sinh THPT Tân Hồng. Tra cứu lịch thi, tài liệu, làm bài ôn thi Vật lý, Sinh học, Tin học và Lịch sử nhanh chóng, tiện lợi và hoàn toàn miễn phí!
+LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.
 </div>
 </div>
 <div id="userBox">
@@ -3061,14 +3054,7 @@ animation: pulse-green 2s infinite;
   </div>
 </div>
 
-<div id="lich" style="display:none; margin-top: -15px; overflow: auto; -webkit-overflow-scrolling: touch;">
-  <iframe 
-    id="lichFrame" 
-    src="lichthi.html" 
-    scrolling="auto"
-    tabindex="0"
-    style="width:100%; height:100vh; border:none; display:block; pointer-events: auto;">
-  </iframe>
+<div id="home" style="display:none; margin-top: -15px; overflow: auto; -webkit-overflow-scrolling: touch;">
 </div>
 
 <button id="tabScrollTopBtn" type="button" aria-label="Cuộn lên đầu">↑</button>
@@ -3079,7 +3065,7 @@ animation: pulse-green 2s infinite;
 let loadingStatus = document.getElementById("loadingText");
 let loadingStarted = false;
 let loadingTimer = null;
-let currentTab = "lich";
+let currentTab = "home";
 let loadingState = "loading"; // "loading" | "done" | "transitioning"
 
 const messages = [
@@ -3287,7 +3273,7 @@ if(id !== "flash"){
 window.scrollTo({ top:0, behavior:"smooth" });
 }
 
-const tabs = ["lich","flash","ly","hoa","sinh","tin","su","bxh","anh"];
+const tabs = ["home","flash","ly","hoa","sinh","tin","su","bxh","anh"];
 
 tabs.forEach(t=>{
 let el = document.getElementById(t);
@@ -3451,7 +3437,6 @@ function attachFrameWheelHandoff(frameId){
   attach();
 }
 
-attachFrameWheelHandoff("lichFrame");
 attachFrameWheelHandoff("forumFrame");
 attachFrameWheelHandoff("flashHubFrame");
 
@@ -3715,7 +3700,7 @@ initAuthSlides();
 
 // Hiển thị tab mặc định khi trang load
 document.addEventListener("DOMContentLoaded", () => {
-  show('lich');
+  show('home');
 });
 </script>
 
@@ -4514,9 +4499,6 @@ function updateProgress(percent){
   }
 }
 const toggle = document.getElementById("darkModeToggle");
-const darkModeFrames = [
-    document.getElementById("lichFrame")
-].filter(Boolean);
 
 // Hàm gửi tín hiệu sang các iframe cần đồng bộ dark mode
 function sendDarkModeToIframe(isDark) {
