@@ -163,6 +163,8 @@
 
   .faq-nav-brand img {
     border-radius: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 4px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
@@ -223,6 +225,91 @@
     .faq-nav-btn {
       width: 100%;
       justify-content: center;
+    }
+  }
+
+  /* Feedback Popup Styles */
+  .lh-popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .lh-popup-overlay.active {
+    display: flex;
+  }
+
+  .lh-popup-content {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: popupSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes popupSlideIn {
+    from {
+      transform: scale(0.9) translateY(-20px);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .lh-popup-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .lh-popup-close:hover {
+    background: rgba(0, 0, 0, 0.15);
+    color: #1e293b;
+    transform: rotate(90deg);
+  }
+
+  .lh-popup-iframe {
+    width: 100%;
+    height: 600px;
+    border: none;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .lh-popup-overlay {
+      padding: 16px;
+    }
+
+    .lh-popup-iframe {
+      height: 550px;
     }
   }
 
@@ -400,7 +487,7 @@
 
 <!-- Header đẹp hơn -->
 <div class="faq-header-nav">
-  <a href="index.html" class="faq-nav-brand">
+  <a href="https://kioshuke.github.io/learnhub" class="faq-nav-brand">
     <img src="logoweb.webp" width="60" height="60" alt="Logo LearnHub">
     <div class="faq-nav-text">
       <span class="faq-nav-title">LearnHub Platform</span>
@@ -408,7 +495,7 @@
     </div>
   </a>
   <div class="faq-nav-actions">
-    <a href="index.html" class="faq-nav-btn">
+    <a href="https://kioshuke.github.io/learnhub" class="faq-nav-btn">
       <i class="fa-solid fa-home"></i>
       <span>Về trang chủ</span>
     </a>
@@ -753,6 +840,14 @@
     z-index:9999;
 "></iframe>
 
+<!-- Feedback Popup từ trang chính -->
+<div id="lh-feedback-overlay" class="lh-popup-overlay" onclick="closeFeedbackModalByOverlay(event)">
+  <div class="lh-popup-content">
+    <button class="lh-popup-close" onclick="closeFeedbackModal()" title="Đóng">&times;</button>
+    <iframe src="gop-y.html" class="lh-popup-iframe"></iframe>
+  </div>
+</div>
+
 <script src="script.js"></script>
 <script>
   // FAQ Accordion functionality
@@ -773,6 +868,35 @@
     });
   });
 
+  // Feedback Modal Functions
+  function openFeedbackModal() {
+    const overlay = document.getElementById('lh-feedback-overlay');
+    if (overlay) {
+      overlay.classList.add('active');
+      document.body.classList.add('no-scroll');
+    }
+  }
+
+  function closeFeedbackModal() {
+    const overlay = document.getElementById('lh-feedback-overlay');
+    if (overlay) {
+      overlay.classList.remove('active');
+      document.body.classList.remove('no-scroll');
+    }
+  }
+
+  function closeFeedbackModalByOverlay(event) {
+    if (event.target.id === 'lh-feedback-overlay') {
+      closeFeedbackModal();
+    }
+  }
+
+  // Close modal on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeFeedbackModal();
+    }
+  });
 </script>
 
 </body>
