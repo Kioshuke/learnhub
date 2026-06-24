@@ -1,4 +1,4 @@
-// --- Dán đoạn này lên TRÊN CÙNG của file script.js ---
+// --- Performance optimized script.js ---
 const auth = window.auth;
 const db = window.db;
 const provider = window.provider;
@@ -10,11 +10,13 @@ const getDoc = window.getDoc;
 const setDoc = window.setDoc;
 const collection = window.collection;
 const getDocs = window.getDocs;
+
+// Cache DOM elements
 let loadingStatus = document.getElementById("loadingText");
 let loadingStarted = false;
 let loadingTimer = null;
 let currentTab = "home";
-let loadingState = "loading"; // "loading" | "done" | "transitioning"
+let loadingState = "loading";
 
 const messages = [
     "✨ Đang kết nối dữ liệu...",
@@ -23,6 +25,7 @@ const messages = [
     "🌈 Khởi tạo không gian học!"
 ];
 
+// Use requestAnimationFrame for smoother animations
 function startLoading(){
 const overlay = document.getElementById("loadingOverlay");
 if (!overlay || loadingStarted) return;
@@ -71,25 +74,22 @@ loadingTimer = setInterval(() => {
         loadingState = "done";
 
     } else if (msgIndex === messages.length + 1) {
-        // 👉 chuyển xanh + dạt ra
         if (dotsContainer) {
             dotsContainer.classList.add("done", "slide-apart");
         }
 
     } else if (msgIndex === messages.length + 2) {
-        // 👉 hiện logo
         if (brandContainer) {
             brandContainer.classList.remove("initially-hidden");
             brandContainer.classList.add("emphasize");
         }
 
     } else if (msgIndex === messages.length + 3) {
-        // 👉 CHỜ animation trước xong rồi mới shrink
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             if (dotsContainer) {
                 dotsContainer.classList.add("shrink-out");
             }
-        }, 200); // delay nhỏ để tránh giật
+        }, 200);
 
     } else if (msgIndex === messages.length + 4) {
         clearInterval(loadingTimer);

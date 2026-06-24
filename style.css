@@ -218,6 +218,15 @@ body.dark-mode {
   }
 }
 
+/* Reduce animations on mobile for better performance */
+@media (max-width: 768px) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 body{
 margin:0;
 font-family:'Segoe UI',Arial,sans-serif;
@@ -226,6 +235,7 @@ background-image: radial-gradient(var(--bg-pattern) 1.2px, transparent 1.2px);
 background-size:28px 28px;
 overflow-x:hidden;
 animation:fadeIn 0.6s ease;
+will-change: auto;
 }
 html, body{
 width:100%;
