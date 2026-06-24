@@ -26,7 +26,10 @@ const messages = [
 function startLoading(){
 const overlay = document.getElementById("loadingOverlay");
 if (!overlay || loadingStarted) return;
-
+if(typeof window.resetAppLoadingComplete === "function"){
+  window.resetAppLoadingComplete();
+}
+document.body.classList.add("no-scroll");
 document.body.classList.add("auth-locked");
 document.body.classList.remove("app-ready");
 loadingStarted = true;
@@ -94,9 +97,12 @@ loadingTimer = setInterval(() => {
 
         overlay.addEventListener("transitionend", () => {
             overlay.style.display = "none";
-            document.body.classList.remove("auth-locked");
+            document.body.classList.remove("auth-locked", "no-scroll");
             document.body.classList.add("app-ready");
             document.getElementById("mainContent").classList.add("show");
+            if(typeof window.markAppLoadingComplete === "function"){
+              window.markAppLoadingComplete();
+            }
         }, { once: true });
 
         setTimeout(() => {
@@ -112,8 +118,11 @@ function resetLoadingState(){
     const overlay = document.getElementById("loadingOverlay");
     if (!overlay) return;
 
+    if(typeof window.resetAppLoadingComplete === "function"){
+      window.resetAppLoadingComplete();
+    }
     document.body.classList.add("auth-locked");
-    document.body.classList.remove("app-ready");
+    document.body.classList.remove("app-ready", "no-scroll");
     if (loadingTimer) {
         clearInterval(loadingTimer);
         loadingTimer = null;
@@ -352,27 +361,23 @@ function attachFrameWheelHandoff(frameId){
         const root = frameDoc.scrollingElement || frameDoc.documentElement || frameDoc.body;
         if(!root) return;
 
-        const maxScrollTop = root.scrollHeight - root.clientHeight;
-        if(maxScrollTop <= 0){
-          window.scrollBy({ top: e.deltaY, behavior: "auto" });
-          e.preventDefault();
-          updateTabScrollTopBtn();
-          return;
-        }
-
-        const atTop = root.scrollTop <= 1;
+        const maxScrollTop = Math.max(0, root.scrollHeight - root.clientHeight);
+        const atTop = root.scrollTop <= 0;
         const atBottom = root.scrollTop >= maxScrollTop - 1;
-        const scrollingUp = e.deltaY < 0;
-        const scrollingDown = e.deltaY > 0;
+        const dy = e.deltaY;
 
-        if((scrollingUp && atTop) || (scrollingDown && atBottom)){
-          window.scrollBy({ top: e.deltaY, behavior: "auto" });
+        const shouldHandoff =
+          maxScrollTop <= 0 ||
+          (dy < 0 && atTop) ||
+          (dy > 0 && atBottom);
+
+        if(shouldHandoff){
+          window.scrollBy({ top: dy, behavior: "auto" });
           e.preventDefault();
           updateTabScrollTopBtn();
         }
       };
 
-      frameWindow.addEventListener("wheel", handoffWheel, { passive: false });
       frameDoc.addEventListener("wheel", handoffWheel, { passive: false });
     } catch (e) {}
   };
@@ -398,6 +403,9 @@ function closeMainPopup(){
   if(popup){
     popup.style.display = "none";
   }
+  if(window.lastWelcomePopupVersion){
+    localStorage.setItem("learnhub_welcome_popup_seen", window.lastWelcomePopupVersion);
+  }
 }
 
 function showMainPopup(title, message){
@@ -412,6 +420,9 @@ function showMainPopup(title, message){
   }
   playNotificationSound();
 }
+
+window.showMainPopup = showMainPopup;
+window.closeMainPopup = closeMainPopup;
 
 if(closeBtn && popup){
   closeBtn.addEventListener("click", closeMainPopup);
@@ -722,6 +733,7 @@ function updateProgress(percent){
 
     setTimeout(() => {
       document.getElementById("loadingOverlay").classList.add("hide");
+      document.body.classList.remove("no-scroll");
       document.getElementById("mainContent").classList.add("show");
     }, 800);
   }
@@ -924,6 +936,7 @@ chatBtn.addEventListener("click", () => {
 overlay.addEventListener("click", () => {
   frame.style.display = "none";
   overlay.style.display = "none";
+  document.body.classList.remove("no-scroll");
 });
 // ==================== CODE ĐIỀU KHIỂN SLIDESHOW TRANG CHỦ ====================
 let currentHomeSlide = 0;

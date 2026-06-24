@@ -722,7 +722,7 @@ iframe {
   height:100%;
   background:rgba(0,0,0,0.45);
   backdrop-filter:blur(5px);
-  display:flex;
+  display:none;
   align-items:center;
   justify-content:center;
   z-index:3000; /* 🔥 cao hơn menu */
@@ -1774,6 +1774,7 @@ body.dark-mode .loading-footer{
 #loadingOverlay.hide{
   opacity:0;
   visibility:hidden;
+  pointer-events:none;
 }
 
 /* ===== MAIN CONTENT TRANSITION - PERFORMANCE OPTIMIZED ===== */
@@ -1892,7 +1893,7 @@ letter-spacing:1px;
 }
 
 body{
-overscroll-behavior: none; /* giảm giật scroll */
+overscroll-behavior-y:auto;
 }
 #currentTime {
 margin-right: auto; 
@@ -3152,4 +3153,11 @@ filter:brightness(1.05);
   .slideshow-wrapper { grid-template-columns: 1fr; }
   .slide-info-side { padding: 25px 20px; height: 180px; }
   .slide-text-block { left: 20px; right: 20px; }
+}
+/* Thêm class này để chặn cuộn */
+.no-scroll {
+    overflow: hidden !important;
+    height: 100vh !important;
+    position: fixed !important;
+    width: 100% !important;
 }

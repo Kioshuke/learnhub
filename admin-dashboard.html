@@ -48,14 +48,14 @@
         linear-gradient(135deg, rgba(255,255,255,0.96), rgba(245,249,255,0.94)),
         linear-gradient(135deg, rgba(37,99,235,0.04), rgba(124,58,237,0.04));
       border:1px solid rgba(37,99,235,0.14);
-      border-radius:18px;
-      padding:24px;
+      border-radius:16px;
+      padding:20px 24px;
       box-shadow:var(--shadow);
       display:flex;
       justify-content:space-between;
-      align-items:flex-start;
+      align-items:center;
       gap:18px;
-      margin-bottom:22px;
+      margin-bottom:20px;
     }
 
     .hero::before{
@@ -68,17 +68,17 @@
     }
 
     .hero h1{
-      margin:0 0 8px;
-      font-size:28px;
-      line-height:1.1;
+      margin:0 0 6px;
+      font-size:26px;
+      line-height:1.2;
       letter-spacing:-.02em;
     }
 
     .hero p{
       margin:0;
       color:var(--sub);
-      line-height:1.6;
-      max-width:760px;
+      line-height:1.5;
+      font-size:14px;
     }
 
     .hero-actions{
@@ -90,10 +90,10 @@
 
     .btn{
       border:none;
-      border-radius:16px;
-      padding:12px 16px;
-      font-size:14px;
-      font-weight:700;
+      border-radius:12px;
+      padding:10px 14px;
+      font-size:13px;
+      font-weight:600;
       cursor:pointer;
       transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
     }
@@ -126,15 +126,15 @@
     .grid-stats{
       display:grid;
       grid-template-columns:repeat(4, minmax(0,1fr));
-      gap:16px;
-      margin-bottom:18px;
+      gap:14px;
+      margin-bottom:16px;
     }
 
     .stat{
       background:linear-gradient(135deg, rgba(255,255,255,0.96), rgba(246,250,255,0.92));
       border:1px solid var(--line);
-      border-radius:16px;
-      padding:18px;
+      border-radius:14px;
+      padding:16px;
       box-shadow:var(--shadow);
       position:relative;
       overflow:hidden;
@@ -184,14 +184,15 @@
     }
 
     .stat .label{
-      font-size:13px;
+      font-size:12px;
       color:var(--sub);
-      margin-bottom:10px;
+      margin-bottom:8px;
+      font-weight:500;
     }
 
     .stat .value{
-      font-size:32px;
-      font-weight:800;
+      font-size:28px;
+      font-weight:700;
       letter-spacing:-.02em;
     }
 
@@ -204,21 +205,21 @@
       background:var(--panel);
       backdrop-filter:blur(10px);
       border:1px solid var(--line);
-      border-radius:18px;
-      padding:20px;
+      border-radius:16px;
+      padding:18px 20px;
       box-shadow:var(--shadow);
     }
 
     .panel h2{
-      margin:0 0 8px;
-      font-size:22px;
+      margin:0 0 6px;
+      font-size:20px;
     }
 
     .panel p.head-desc{
-      margin:0 0 16px;
+      margin:0 0 14px;
       color:var(--sub);
-      line-height:1.55;
-      font-size:14px;
+      line-height:1.5;
+      font-size:13px;
     }
 
     .inline-form{
@@ -231,9 +232,9 @@
       width:100%;
       border:1px solid var(--line);
       background:#fff;
-      border-radius:16px;
-      padding:12px 14px;
-      font-size:14px;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:13px;
       outline:none;
       color:var(--text);
     }
@@ -257,17 +258,17 @@
 
     .admin-tabs{
       display:flex;
-      gap:10px;
+      gap:8px;
       flex-wrap:wrap;
-      margin:0 0 18px;
+      margin:0 0 16px;
     }
 
     .admin-tab{
       border:none;
       border-radius:999px;
-      padding:11px 16px;
-      font-size:14px;
-      font-weight:700;
+      padding:10px 14px;
+      font-size:13px;
+      font-weight:600;
       cursor:pointer;
       background:linear-gradient(135deg, #eef4ff, #e8eeff);
       color:#31518a;
@@ -286,7 +287,7 @@
 
     .sheet-wrap{
       border:1px solid var(--line);
-      border-radius:24px;
+      border-radius:16px;
       overflow:hidden;
       background:linear-gradient(180deg, rgba(255,255,255,0.96), rgba(249,251,255,0.94));
     }
@@ -313,15 +314,15 @@
       background:linear-gradient(90deg, #dbeafe, #e0e7ff 42%, #ede9fe 100%);
       color:#29446f;
       text-align:left;
-      font-size:12px;
+      font-size:11px;
       letter-spacing:.04em;
       text-transform:uppercase;
-      padding:14px 12px;
+      padding:12px 10px;
       border-bottom:1px solid var(--line);
     }
 
     .sheet-table tbody td{
-      padding:10px 12px;
+      padding:8px 10px;
       border-bottom:1px solid #e8eefc;
       vertical-align:top;
       background:#fff;
@@ -363,9 +364,9 @@
     }
 
     .mini-avatar{
-      width:46px;
-      height:46px;
-      border-radius:14px;
+      width:40px;
+      height:40px;
+      border-radius:12px;
       object-fit:cover;
       background:#eef4ff;
       border:1px solid #cddcff;
@@ -374,25 +375,26 @@
     }
 
     .identity-name{
-      font-weight:700;
-      line-height:1.35;
-      margin-bottom:4px;
+      font-weight:600;
+      line-height:1.3;
+      margin-bottom:3px;
       word-break:break-word;
       color:#1e3a8a;
+      font-size:14px;
     }
 
     .identity-email{
       color:var(--sub);
-      font-size:13px;
-      line-height:1.5;
+      font-size:12px;
+      line-height:1.4;
       word-break:break-word;
     }
 
     .mini-meta{
       color:var(--sub);
-      font-size:12px;
-      line-height:1.55;
-      min-width:180px;
+      font-size:11px;
+      line-height:1.5;
+      min-width:160px;
     }
 
     .hero::after,
@@ -435,6 +437,83 @@
     .chip.red{ background:linear-gradient(135deg, #fee2e2, #ffe4e6); color:#b91c1c; }
     .chip.blue{ background:linear-gradient(135deg, #dbeafe, #e0e7ff); color:#1d4ed8; }
     .chip.gray{ background:linear-gradient(135deg, #e2e8f0, #f1f5f9); color:#475569; }
+
+    .radio-group{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .radio-section{
+      margin-bottom:16px;
+    }
+
+    .radio-section-label{
+      display:block;
+      font-size:12px;
+      font-weight:600;
+      color:var(--sub);
+      margin-bottom:8px;
+      text-transform:uppercase;
+      letter-spacing:.02em;
+    }
+
+    .broadcast-layout{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:24px;
+      margin-bottom:14px;
+    }
+
+    .broadcast-left-column{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .broadcast-right-column{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .radio-option{
+      display:flex;
+      align-items:center;
+      gap:5px;
+      cursor:pointer;
+      padding:6px 10px;
+      border-radius:10px;
+      background:linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border:1px solid #e2e8f0;
+      transition:all .18s ease;
+    }
+
+    .radio-option:hover{
+      background:linear-gradient(135deg, #f1f5f9, #e2e8f0);
+      border-color:#cbd5e1;
+    }
+
+    .radio-option input[type="radio"]{
+      width:14px;
+      height:14px;
+      accent-color:#2563eb;
+      cursor:pointer;
+    }
+
+    .radio-option input[type="radio"]:checked + span{
+      color:#1d4ed8;
+      font-weight:600;
+    }
+
+    .radio-option:has(input[type="radio"]:checked){
+      background:linear-gradient(135deg, #dbeafe, #e0e7ff);
+      border-color:#93c5fd;
+    }
+
+    .radio-option span{
+      font-size:12px;
+    }
 
     .field-row{
       display:flex;
@@ -760,62 +839,113 @@
     <section id="dashboardView" class="hidden">
       <div class="hero">
         <div>
-          <h1>Dashboard quản lý LearnHub</h1>
-          <p>
-            Quản lý whitelist, sửa tên hiển thị, khóa user, xoá hồ sơ Firestore và theo dõi ai đang online.
-            Dữ liệu ở đây đồng bộ trực tiếp với Firestore mà app chính đang dùng.
-          </p>
+          <h1>Dashboard LearnHub</h1>
+          <p>Quản lý whitelist, khóa user, gửi thông báo và theo dõi dữ liệu thời gian thực.</p>
         </div>
         <div class="hero-actions">
-          <button class="btn btn-soft" id="seedBtn">Nạp whitelist mặc định</button>
+          <button class="btn btn-soft" id="seedBtn">Nạp whitelist</button>
           <button class="btn btn-primary" id="refreshBtn">Làm mới</button>
           <button class="btn btn-danger" id="logoutBtn">Đăng xuất</button>
         </div>
       </div>
 
-      <div class="notice warn show" style="margin-top:-6px;">
-        `Xóa user` trong dashboard này sẽ xóa hồ sơ ở Firestore và gỡ whitelist tương ứng.
-        Nếu muốn xóa hẳn tài khoản trong Firebase Authentication thì vẫn cần Admin SDK hoặc Cloud Function riêng.
-      </div>
-
       <div class="admin-tabs">
         <button class="admin-tab active" type="button" data-admin-tab="users">Quản lý user</button>
         <button class="admin-tab" type="button" data-admin-tab="broadcasts">Gửi thông báo</button>
+        <button class="admin-tab" type="button" data-admin-tab="welcomePopup">Popup cố định</button>
       </div>
 
       <section class="panel tab-panel hidden" id="broadcastsTabPanel" style="margin-bottom:18px;">
-        <h2>Gửi thông báo toàn hệ thống</h2>
-        <p class="head-desc">Thông báo sẽ bật popup realtime trên web chính với màu, icon và thời lượng bạn chọn.</p>
-        <div class="field-row" style="margin-top:0;">
-          <input id="broadcastTitleInput" class="input" type="text" placeholder="Tiêu đề thông báo, ví dụ: Lịch thi mới">
-        </div>
-        <div class="field-row">
-          <textarea id="broadcastMessageInput" class="input" rows="4" style="resize:vertical; min-height:120px;" placeholder="Nhập nội dung thông báo gửi đến toàn bộ người dùng..."></textarea>
-        </div>
-        <div class="toolbar">
-          <select id="broadcastTypeSelect" class="select">
-            <option value="info">Thông báo thường - Xanh</option>
-            <option value="warning">Thông báo chú ý - Vàng</option>
-            <option value="error">Cảnh báo - Đỏ</option>
-          </select>
-          <select id="broadcastDurationSelect" class="select">
-            <option value="3000">Hiển thị 3 giây</option>
-            <option value="5000">Hiển thị 5 giây</option>
-            <option value="10000">Hiển thị 10 giây</option>
-            <option value="30000">Hiển thị 30 giây</option>
-          </select>
-        </div>
-        <div class="toolbar">
-          <select id="broadcastTargetModeSelect" class="select">
-            <option value="all">Gửi cho toàn bộ user</option>
-            <option value="single">Gửi riêng từng người</option>
-          </select>
-          <input id="broadcastTargetEmailInput" class="input" type="email" placeholder="Nhập email người nhận riêng, ví dụ: user@gmail.com" disabled>
+        <p class="head-desc">Gửi thông báo realtime đến toàn bộ user hoặc từng người cụ thể.</p>
+        <div class="broadcast-layout">
+          <div class="broadcast-left-column">
+            <div class="field-row" style="margin-top:0;">
+              <input id="broadcastTitleInput" class="input" type="text" placeholder="Tiêu đề thông báo, ví dụ: Lịch thi mới">
+            </div>
+            <div class="field-row">
+              <textarea id="broadcastMessageInput" class="input" rows="4" style="resize:vertical; min-height:120px;" placeholder="Nhập nội dung thông báo gửi đến toàn bộ người dùng..."></textarea>
+            </div>
+            <div class="field-row">
+              <input id="broadcastTargetEmailInput" class="input" type="email" placeholder="Nhập email người nhận riêng, ví dụ: user@gmail.com" disabled>
+            </div>
+          </div>
+          <div class="broadcast-right-column">
+            <div class="radio-section">
+              <label class="radio-section-label">Loại thông báo</label>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="broadcastType" value="info" checked>
+                  <span>Thông báo thường - Xanh</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="broadcastType" value="warning">
+                  <span>Thông báo chú ý - Vàng</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="broadcastType" value="error">
+                  <span>Cảnh báo - Đỏ</span>
+                </label>
+              </div>
+            </div>
+            <div class="radio-section">
+              <label class="radio-section-label">Thời gian hiển thị</label>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="broadcastDuration" value="3000" checked>
+                  <span>3 giây</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="broadcastDuration" value="5000">
+                  <span>5 giây</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="broadcastDuration" value="10000">
+                  <span>10 giây</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="broadcastDuration" value="30000">
+                  <span>30 giây</span>
+                </label>
+              </div>
+            </div>
+            <div class="radio-section">
+              <label class="radio-section-label">Chế độ gửi</label>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="broadcastTargetMode" value="all" checked>
+                  <span>Gửi cho toàn bộ user</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="broadcastTargetMode" value="single">
+                  <span>Gửi riêng từng người</span>
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="hero-actions" style="justify-content:flex-start; margin-top:14px;">
           <button class="btn btn-primary" id="sendBroadcastBtn">Gửi thông báo</button>
           <button class="btn btn-soft" id="clearBroadcastBtn">Tắt thông báo hiện tại</button>
         </div>
+      </section>
+
+      <section class="panel tab-panel hidden" id="welcomePopupTabPanel" style="margin-bottom:18px;">
+        <p class="head-desc">Chỉnh popup chào mừng hiển thị sau khi user đăng nhập. Hỗ trợ HTML cơ bản (&lt;b&gt;, &lt;br&gt;, &lt;i&gt;).</p>
+        <div class="field-row" style="margin-top:0;">
+          <input id="welcomePopupTitleInput" class="input" type="text" placeholder="Tiêu đề popup, ví dụ: 📢 Thông báo">
+        </div>
+        <div class="field-row">
+          <textarea id="welcomePopupMessageInput" class="input" rows="6" style="resize:vertical; min-height:140px;" placeholder="Nội dung popup..."></textarea>
+        </div>
+        <label class="inline-check" style="display:flex; align-items:center; gap:8px; margin:4px 0 14px; font-weight:600;">
+          <input id="welcomePopupActiveInput" type="checkbox" checked>
+          Bật popup (hiện sau khi user đăng nhập)
+        </label>
+        <div class="hero-actions" style="justify-content:flex-start;">
+          <button class="btn btn-primary" id="saveWelcomePopupBtn">Lưu popup</button>
+          <button class="btn btn-soft" id="disableWelcomePopupBtn">Tắt popup</button>
+        </div>
+        <p class="head-desc" id="welcomePopupMeta" style="margin-top:12px; margin-bottom:0;"></p>
       </section>
 
       <div class="grid-stats">
@@ -838,8 +968,7 @@
       </div>
 
       <section class="panel tab-panel" id="usersTabPanel">
-        <h2>Danh sách người dùng</h2>
-        <p class="head-desc">Gộp whitelist và hồ sơ user vào một bảng quản lý duy nhất, thao tác trực tiếp như một sheet nhỏ.</p>
+        <p class="head-desc">Quản lý whitelist, chỉnh tên hiển thị, khóa/mở khóa user.</p>
 
         <div class="inline-form">
           <input id="allowEmailInput" class="input" type="email" placeholder="Nhập email cần thêm vào danh sách">
@@ -936,8 +1065,13 @@
     const adminTabButtons = document.querySelectorAll(".admin-tab");
     const usersTabPanel = document.getElementById("usersTabPanel");
     const broadcastsTabPanel = document.getElementById("broadcastsTabPanel");
+    const welcomePopupTabPanel = document.getElementById("welcomePopupTabPanel");
     const broadcastTargetModeSelect = document.getElementById("broadcastTargetModeSelect");
     const broadcastTargetEmailInput = document.getElementById("broadcastTargetEmailInput");
+    const welcomePopupTitleInput = document.getElementById("welcomePopupTitleInput");
+    const welcomePopupMessageInput = document.getElementById("welcomePopupMessageInput");
+    const welcomePopupActiveInput = document.getElementById("welcomePopupActiveInput");
+    const welcomePopupMeta = document.getElementById("welcomePopupMeta");
 
     function switchAdminTab(tab) {
       adminTabButtons.forEach((button) => {
@@ -945,18 +1079,24 @@
       });
       usersTabPanel.classList.toggle("hidden", tab !== "users");
       broadcastsTabPanel.classList.toggle("hidden", tab !== "broadcasts");
+      welcomePopupTabPanel.classList.toggle("hidden", tab !== "welcomePopup");
+      if (tab === "welcomePopup") {
+        loadWelcomePopupForm();
+      }
     }
 
     adminTabButtons.forEach((button) => {
       button.addEventListener("click", () => switchAdminTab(button.dataset.adminTab));
     });
 
-    broadcastTargetModeSelect.addEventListener("change", () => {
-      const isSingle = broadcastTargetModeSelect.value === "single";
-      broadcastTargetEmailInput.disabled = !isSingle;
-      if (!isSingle) {
-        broadcastTargetEmailInput.value = "";
-      }
+    document.querySelectorAll('input[name="broadcastTargetMode"]').forEach((radio) => {
+      radio.addEventListener("change", () => {
+        const isSingle = radio.value === "single";
+        broadcastTargetEmailInput.disabled = !isSingle;
+        if (!isSingle) {
+          broadcastTargetEmailInput.value = "";
+        }
+      });
     });
 
     function showNotice(message, type = "info") {
@@ -1250,11 +1390,12 @@
     document.getElementById("sendBroadcastBtn").addEventListener("click", async () => {
       const titleInput = document.getElementById("broadcastTitleInput");
       const messageInput = document.getElementById("broadcastMessageInput");
-      const typeInput = document.getElementById("broadcastTypeSelect");
-      const durationInput = document.getElementById("broadcastDurationSelect");
+      const typeInput = document.querySelector('input[name="broadcastType"]:checked');
+      const durationInput = document.querySelector('input[name="broadcastDuration"]:checked');
+      const targetModeInput = document.querySelector('input[name="broadcastTargetMode"]:checked');
       const title = String(titleInput.value || "").trim();
       const message = String(messageInput.value || "").trim();
-      const targetMode = broadcastTargetModeSelect.value;
+      const targetMode = targetModeInput ? targetModeInput.value : "all";
       const targetEmail = normalizeEmail(broadcastTargetEmailInput.value);
 
       if (!message) {
@@ -1273,8 +1414,8 @@
           id: now,
           title: title || "Thông báo",
           message,
-          type: typeInput.value,
-          durationMs: Number(durationInput.value || 3000),
+          type: typeInput ? typeInput.value : "info",
+          durationMs: Number(durationInput ? durationInput.value : 3000),
           targetMode,
           targetEmail: targetMode === "single" ? targetEmail : "",
           active: true,
@@ -1284,9 +1425,9 @@
 
         titleInput.value = "";
         messageInput.value = "";
-        typeInput.value = "info";
-        durationInput.value = "3000";
-        broadcastTargetModeSelect.value = "all";
+        document.querySelector('input[name="broadcastType"][value="info"]').checked = true;
+        document.querySelector('input[name="broadcastDuration"][value="3000"]').checked = true;
+        document.querySelector('input[name="broadcastTargetMode"][value="all"]').checked = true;
         broadcastTargetEmailInput.value = "";
         broadcastTargetEmailInput.disabled = true;
         showNotice(
@@ -1313,6 +1454,76 @@
       } catch (error) {
         console.error("Lỗi tắt broadcast:", error);
         showNotice("Không tắt được thông báo hiện tại. Kiểm tra quyền Firestore rồi thử lại.", "error");
+      }
+    });
+
+    async function loadWelcomePopupForm() {
+      try {
+        const snap = await getDoc(doc(db, "broadcasts", "welcomePopup"));
+        if (!snap.exists()) {
+          welcomePopupTitleInput.value = "📢 Thông báo";
+          welcomePopupMessageInput.value = "CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM";
+          welcomePopupActiveInput.checked = true;
+          welcomePopupMeta.textContent = "Chưa có bản lưu trên Firestore. Lưu lần đầu để áp dụng cho web chính.";
+          return;
+        }
+
+        const data = snap.data() || {};
+        welcomePopupTitleInput.value = data.title || "📢 Thông báo";
+        welcomePopupMessageInput.value = data.message || "";
+        welcomePopupActiveInput.checked = data.active !== false;
+        welcomePopupMeta.textContent = data.updatedAt
+          ? `Cập nhật lần cuối: ${formatDate(data.updatedAt)}${data.updatedBy ? ` · bởi ${data.updatedBy}` : ""}`
+          : "";
+      } catch (error) {
+        console.error("Lỗi tải welcome popup:", error);
+        showNotice("Không tải được popup cố định.", "error");
+      }
+    }
+
+    document.getElementById("saveWelcomePopupBtn").addEventListener("click", async () => {
+      const title = String(welcomePopupTitleInput.value || "").trim();
+      const message = String(welcomePopupMessageInput.value || "").trim();
+      const active = welcomePopupActiveInput.checked;
+
+      if (!message) {
+        showNotice("Vui lòng nhập nội dung popup.", "error");
+        return;
+      }
+
+      try {
+        const now = new Date().toISOString();
+        await setDoc(doc(db, "broadcasts", "welcomePopup"), {
+          title: title || "📢 Thông báo",
+          message,
+          active,
+          updatedAt: now,
+          updatedBy: adminEmail
+        }, { merge: true });
+
+        welcomePopupMeta.textContent = `Cập nhật lần cuối: ${formatDate(now)} · bởi ${adminEmail}`;
+        showNotice("Đã lưu popup cố định. Web chính sẽ cập nhật theo realtime.", "success");
+      } catch (error) {
+        console.error("Lỗi lưu welcome popup:", error);
+        showNotice("Lưu popup thất bại. Kiểm tra Firestore rules rồi thử lại.", "error");
+      }
+    });
+
+    document.getElementById("disableWelcomePopupBtn").addEventListener("click", async () => {
+      try {
+        const now = new Date().toISOString();
+        await setDoc(doc(db, "broadcasts", "welcomePopup"), {
+          active: false,
+          updatedAt: now,
+          updatedBy: adminEmail
+        }, { merge: true });
+
+        welcomePopupActiveInput.checked = false;
+        welcomePopupMeta.textContent = `Đã tắt popup · ${formatDate(now)}`;
+        showNotice("Đã tắt popup cố định trên web chính.", "success");
+      } catch (error) {
+        console.error("Lỗi tắt welcome popup:", error);
+        showNotice("Không tắt được popup cố định.", "error");
       }
     });
 

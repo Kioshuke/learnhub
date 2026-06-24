@@ -431,7 +431,6 @@ LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và s
 </div>
 
 <div id="home">
-  
   <div class="slideshow-wrapper">
     <div class="slide-media-side">
       <img class="slide-img active" src="loading1.jpg" alt="Slide 1">
@@ -491,7 +490,7 @@ LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và s
       
       <h6 class="dev-warning-text">
         <span>🛠️</span> 
-        <span><strong>Lưu ý:</strong> Hệ thống đang trong quá trình phát triển và hoàn thiện. Mọi đóng góp ý kiến hoặc báo lỗi vui lòng liên hệ trực tiếp Admin để phản hồi.</span>
+        <span><strong>Lưu ý:</strong> Hệ thống đang trong quá trình phát triển và hoàn thiện. Mọi đóng góp ý kiến hoặc báo lỗi vui lòng liên hệ Admin thông qua nút <i>Góp ý ý kiến</i> bên dưới để phản hồi.</span>
       </h6>
     </div>
   </div>
@@ -640,7 +639,43 @@ function enterPreviewMode(){
 let unsubscribeAccessGuard = null;
 let unsubscribeUserGuard = null;
 let unsubscribeBroadcastGuard = null;
+let unsubscribeWelcomePopup = null;
 let authGuardTriggered = false;
+let welcomePopupCache = null;
+let appLoadingComplete = false;
+
+const WELCOME_POPUP_DEFAULT = {
+  title: "📢 Thông báo",
+  message: "<b>CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM</b>",
+  active: true
+};
+
+function maybeShowWelcomePopup(data){
+  const payload = data || welcomePopupCache;
+  if(!payload || payload.active === false) return;
+  if(!appLoadingComplete) return;
+
+  const version = String(payload.updatedAt || "default");
+  const seenKey = "learnhub_welcome_popup_seen";
+  if(localStorage.getItem(seenKey) === version) return;
+
+  window.lastWelcomePopupVersion = version;
+  if(typeof window.showMainPopup === "function"){
+    window.showMainPopup(
+      payload.title || WELCOME_POPUP_DEFAULT.title,
+      payload.message || WELCOME_POPUP_DEFAULT.message
+    );
+  }
+}
+
+window.markAppLoadingComplete = function(){
+  appLoadingComplete = true;
+  maybeShowWelcomePopup(welcomePopupCache);
+};
+
+window.resetAppLoadingComplete = function(){
+  appLoadingComplete = false;
+};
 
 function stopAccessGuards(){
   if(unsubscribeAccessGuard){
@@ -654,6 +689,10 @@ function stopAccessGuards(){
   if(unsubscribeBroadcastGuard){
     unsubscribeBroadcastGuard();
     unsubscribeBroadcastGuard = null;
+  }
+  if(unsubscribeWelcomePopup){
+    unsubscribeWelcomePopup();
+    unsubscribeWelcomePopup = null;
   }
   authGuardTriggered = false;
 }
@@ -740,6 +779,17 @@ function startAccessGuards(user){
         : "info";
       const durationMs = Number(data.durationMs || 3000);
       showAuthNotice(safeMessage, noticeType, title, durationMs);
+    });
+  } catch (e) {}
+
+  try {
+    unsubscribeWelcomePopup = onSnapshot(doc(db, "broadcasts", "welcomePopup"), (snap) => {
+      if(!snap.exists()){
+        welcomePopupCache = { ...WELCOME_POPUP_DEFAULT, updatedAt: "default" };
+      } else {
+        welcomePopupCache = snap.data() || {};
+      }
+      maybeShowWelcomePopup(welcomePopupCache);
     });
   } catch (e) {}
 }
