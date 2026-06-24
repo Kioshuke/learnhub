@@ -2971,6 +2971,7 @@ filter:brightness(1.05);
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
   margin-bottom: 30px;
+  max-height: 500px; /* Tăng chiều cao tối đa */
 }
 
 .slide-media-side {
@@ -2996,20 +2997,32 @@ filter:brightness(1.05);
 }
 
 .slide-info-side {
-  padding: 35px 40px;
+  padding: 60px 80px 45px 80px; /* Padding hợp lý để tạo không gian thoáng */
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start; /* Đổi thành flex-start để căn từ trên */
   position: relative;
   background: var(--card-bg);
 }
 
+.slide-kicker {
+  font-size: 22px; /* Tăng kích thước chữ to nhất */
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #2563eb; /* Màu xanh dương đặc trưng */
+  margin-bottom: 25px;
+  padding: 20px 0;
+}
+
 .slide-text-block {
   position: absolute;
-  left: 40px; right: 40px;
+  left: 100px; right: 100px; /* Tăng khoảng cách để không bị sát lề */
+  top: 150px; /* Tăng top để nằm dưới slide-kicker */
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.6s ease-in-out;
+  z-index: 1; /* Đảm bảo z-index thấp hơn slide-kicker */
 }
 
 .slide-text-block.active {
@@ -3019,17 +3032,36 @@ filter:brightness(1.05);
 
 .slide-text-block h2 {
   margin: 0 0 12px 0;
-  font-size: 24px;
+  font-size: 28px; /* Tăng kích thước chữ */
   font-weight: 700;
   color: var(--blue-accent);
   line-height: 1.3;
+  transition: color 0.6s ease-in-out;
 }
 
 .slide-text-block p {
   margin: 0;
-  font-size: 14.5px;
+  font-size: 16px; /* Tăng kích thước chữ */
   color: var(--text-sub);
   line-height: 1.6;
+  transition: color 0.6s ease-in-out;
+}
+
+/* Màu text thay đổi theo slide - chỉ đổi màu tiêu đề h2 */
+.slide-text-block[data-text-color="#2563eb"].active h2 {
+  color: #2563eb;
+}
+
+.slide-text-block[data-text-color="#16a34a"].active h2 {
+  color: #16a34a;
+}
+
+.slide-text-block[data-text-color="#f59e0b"].active h2 {
+  color: #f59e0b;
+}
+
+.slide-text-block[data-text-color="#7c3aed"].active h2 {
+  color: #7c3aed;
 }
 
 .home-welcome-box {
