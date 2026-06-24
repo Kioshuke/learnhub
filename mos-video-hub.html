@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hub ôn tập MOS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #eef6ff;
@@ -171,6 +174,131 @@
       box-shadow: 0 0 0 5px var(--success-soft);
     }
 
+    /* ===== Category (cấp 1) ===== */
+    .category-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .category {
+      overflow: hidden;
+      border: 1px solid rgba(215, 226, 242, 0.9);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .category:hover {
+      border-color: rgba(37, 99, 235, 0.28);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .category-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      min-height: 64px;
+      gap: 14px;
+      border: 0;
+      padding: 16px 20px;
+      background: linear-gradient(135deg, var(--accent-soft), #fce7e9);
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: filter 0.18s ease;
+    }
+
+    .category:nth-child(5n + 1) .category-toggle {
+      background: linear-gradient(135deg, #dbeafe, #eaf2ff);
+    }
+
+    .category:nth-child(5n + 2) .category-toggle {
+      background: linear-gradient(135deg, #dcfce7, #eafdf1);
+    }
+
+    .category:nth-child(5n + 3) .category-toggle {
+      background: linear-gradient(135deg, #fde2d8, #fdeee8);
+    }
+
+    .category:nth-child(5n + 4) .category-toggle {
+      background: linear-gradient(135deg, #ffe8d6, #fff1e4);
+    }
+
+    .category:nth-child(5n + 5) .category-toggle {
+      background: linear-gradient(135deg, #ede9fe, #f4f1ff);
+    }
+
+    .category-toggle:hover {
+      filter: brightness(0.97);
+    }
+
+    .category-heading {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .category-title {
+      color: #1c2a44;
+      font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+      font-size: clamp(17px, 1.9vw, 21px);
+      font-weight: 700;
+      letter-spacing: 0.1px;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .category-meta {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 64px;
+      border-radius: 999px;
+      padding: 7px 16px;
+      background: rgba(255, 255, 255, 0.75);
+      color: #1c2a44;
+      font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(20, 51, 94, 0.07);
+    }
+
+    .category-right {
+      display: flex;
+      align-items: center;
+      flex: 0 0 auto;
+      gap: 12px;
+    }
+
+    .category .chevron {
+      background: rgba(255, 255, 255, 0.75);
+    }
+
+    .category.open > .category-toggle .chevron {
+      transform: rotate(180deg);
+    }
+
+    .category-body {
+      display: none;
+      padding: 16px 16px 18px;
+      background: linear-gradient(180deg, #fbfdff 0%, #f6faff 100%);
+    }
+
+    .category.open > .category-body {
+      display: block;
+    }
+
+    .category-empty {
+      padding: 10px 6px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+    }
+
     .toolbar button {
       display: inline-flex;
       align-items: center;
@@ -206,6 +334,10 @@
       gap: 12px;
     }
 
+    .category-body .video-list {
+      gap: 10px;
+    }
+
     .lesson {
       overflow: hidden;
       border: 1px solid rgba(215, 226, 242, 0.9);
@@ -226,10 +358,10 @@
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      min-height: 74px;
-      gap: 14px;
+      min-height: 56px;
+      gap: 12px;
       border: 0;
-      padding: 16px 18px;
+      padding: 11px 14px;
       background: transparent;
       color: var(--text);
       text-align: left;
@@ -242,15 +374,15 @@
 
     .lesson-heading {
       display: grid;
-      gap: 7px;
+      gap: 4px;
       min-width: 0;
     }
 
     .lesson-title {
       color: #24324b;
-      font-size: clamp(16px, 1.7vw, 18px);
-      font-weight: 700;
-      line-height: 1.35;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.3;
       overflow-wrap: anywhere;
     }
 
@@ -259,13 +391,13 @@
       align-items: center;
       width: fit-content;
       border-radius: 999px;
-      padding: 5px 10px;
+      padding: 3px 9px;
       background: linear-gradient(135deg, var(--accent), #14b8a6);
       color: #ffffff;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       letter-spacing: 0;
-      box-shadow: 0 10px 22px rgba(37, 99, 235, 0.22);
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
     }
 
     .lesson:nth-child(3n + 1) .lesson-badge {
@@ -295,6 +427,13 @@
       font-weight: 900;
     }
 
+    .lesson .chevron {
+      flex: 0 0 28px;
+      width: 28px;
+      height: 28px;
+      font-size: 15px;
+    }
+
     .lesson.open .chevron {
       transform: rotate(180deg);
     }
@@ -302,7 +441,7 @@
     .lesson-body {
       display: none;
       border-top: 1px solid rgba(215, 226, 242, 0.8);
-      padding: 16px 18px 18px;
+      padding: 12px 14px 14px;
       background: linear-gradient(180deg, #fbfdff 0%, #f6faff 100%);
     }
 
@@ -364,12 +503,31 @@
       }
 
       .lesson-toggle {
-        min-height: 72px;
-        padding: 15px;
+        min-height: 54px;
+        padding: 10px 12px;
       }
 
       .lesson-body {
-        padding: 14px;
+        padding: 11px 12px;
+      }
+
+      .category-toggle {
+        min-height: 60px;
+        padding: 14px 16px;
+      }
+
+      .category-meta {
+        min-width: 52px;
+        padding: 6px 11px;
+        font-size: 13px;
+      }
+
+      .category-right {
+        gap: 8px;
+      }
+
+      .category-body {
+        padding: 12px 10px 14px;
       }
 
     }
@@ -401,32 +559,79 @@
       </button>
     </div>
 
-    <section id="videoList" class="video-list" aria-label="Danh sách video ôn tập MOS"></section>
+    <section id="categoryList" class="category-list" aria-label="Danh sách mục ôn tập MOS"></section>
     <p id="emptyState" class="empty">Không tìm thấy video phù hợp.</p>
   </main>
 
   <script>
-    const videos = [
+    // ====== DỮ LIỆU: 5 MỤC LỚN, MỖI MỤC CHỨA NHIỀU BÀI ======
+    // Cách thêm bài mới: vào đúng mục (category) bên dưới, copy 1 dòng { lesson: ..., title: ..., url: ... }
+    // rồi dán link Facebook + tên bài vào. Không cần sửa gì khác.
+    const categories = [
       {
-        lesson: "Bài 1",
-        title: "Ví dụ video ôn tập MOS",
-        url: "https://www.facebook.com/anhthetime/videos/1547575493678920/?idorvanity=1120718009886483"
+        name: "MOS Word",
+        lessons: [
+          {
+            lesson: "Bài 1",
+            title: "Ví dụ video ôn tập MOS",
+            url: "https://www.facebook.com/anhthetime/videos/1547575493678920/?idorvanity=1120718009886483"
+          },
+          {
+            lesson: "Bài 2",
+            title: "MOS WORD",
+            url: "https://www.facebook.com/anhthetime/videos/1749227052951529/?idorvanity=1120718009886483"
+          },
+          // Dạng video Facebook:
+          // {
+          //   lesson: "Bài 3",
+          //   title: "Tên video của bạn",
+          //   url: "DAN_LINK_FACEBOOK_VAO_DAY"
+          // },
+        ]
       },
       {
-        lesson: "Bài 2",
-        title: "MOS WORD",
-        url: "https://www.facebook.com/anhthetime/videos/1749227052951529/?idorvanity=1120718009886483"
+        name: "MOS Excel",
+        lessons: [
+          // {
+          //   lesson: "Bài 1",
+          //   title: "Tên video của bạn",
+          //   url: "DAN_LINK_FACEBOOK_VAO_DAY"
+          // },
+        ]
       },
-      // Dạng video Facebook:
-      // {
-      //   lesson: "Bài 2",
-      //   title: "Tên video của bạn",
-      //   url: "DAN_LINK_FACEBOOK_VAO_DAY"
-      // },
-
+      {
+        name: "MOS PowerPoint",
+        lessons: [
+          // {
+          //   lesson: "Bài 1",
+          //   title: "Tên video của bạn",
+          //   url: "DAN_LINK_FACEBOOK_VAO_DAY"
+          // },
+        ]
+      },
+      {
+        name: "IC3 - ICDL",
+        lessons: [
+          // {
+          //   lesson: "Bài 1",
+          //   title: "Tên video của bạn",
+          //   url: "DAN_LINK_FACEBOOK_VAO_DAY"
+          // },
+        ]
+      },
+      {
+        name: "Các môn đại học",
+        lessons: [
+          // {
+          //   lesson: "Bài 1",
+          //   title: "Tên video của bạn",
+          //   url: "DAN_LINK_FACEBOOK_VAO_DAY"
+          // },
+        ]
+      },
     ];
 
-    const videoList = document.querySelector("#videoList");
+    const categoryList = document.querySelector("#categoryList");
     const lessonCount = document.querySelector("#lessonCount");
     const searchInput = document.querySelector("#searchInput");
     const closeAllBtn = document.querySelector("#closeAllBtn");
@@ -475,55 +680,131 @@
       `;
     }
 
-    function renderVideos(filterText = "") {
-      const keyword = filterText.trim().toLowerCase();
-      const filteredVideos = videos.filter((video) => {
-        const searchableText = `${video.lesson || ""} ${video.title || ""}`.toLowerCase();
-        return searchableText.includes(keyword);
-      });
+    function getLessonHtml(video, catIndex, lessonIndex) {
+      const lessonId = `lesson-${catIndex}-${lessonIndex}`;
+      return `
+        <article class="lesson">
+          <button class="lesson-toggle" type="button" aria-expanded="false" aria-controls="${lessonId}">
+            <span class="lesson-heading">
+              <span class="lesson-badge">${escapeHtml(video.lesson || `Bài ${lessonIndex + 1}`)}</span>
+              <span class="lesson-title">${escapeHtml(video.title || "Bài học chưa có tiêu đề")}</span>
+            </span>
+            <span class="chevron" aria-hidden="true">⌄</span>
+          </button>
+          <div id="${lessonId}" class="lesson-body">
+            ${getVideoHtml(video)}
+          </div>
+        </article>
+      `;
+    }
 
-      videoList.innerHTML = filteredVideos.map((video, index) => {
+    function renderCategories(filterText = "") {
+      const keyword = filterText.trim().toLowerCase();
+      const isSearching = keyword.length > 0;
+      let totalMatches = 0;
+
+      const html = categories.map((category, catIndex) => {
+        const filteredLessons = category.lessons.filter((video) => {
+          const searchableText = `${category.name || ""} ${video.lesson || ""} ${video.title || ""}`.toLowerCase();
+          return searchableText.includes(keyword);
+        });
+
+        // Khi không tìm kiếm, hiện toàn bộ bài của mục (kể cả mục rỗng)
+        const lessonsToShow = isSearching ? filteredLessons : category.lessons;
+        totalMatches += lessonsToShow.length;
+
+        // Khi đang tìm kiếm: ẩn hẳn mục không có kết quả khớp
+        if (isSearching && filteredLessons.length === 0) {
+          return "";
+        }
+
+        // Mục tự mở khi đang tìm kiếm và có kết quả khớp
+        const openClass = isSearching && filteredLessons.length > 0 ? " open" : "";
+        const bodyContent = lessonsToShow.length
+          ? lessonsToShow.map((video, lessonIndex) => getLessonHtml(video, catIndex, lessonIndex)).join("")
+          : `<p class="category-empty">Chưa có bài nào trong mục này.</p>`;
+
         return `
-          <article class="lesson">
-            <button class="lesson-toggle" type="button" aria-expanded="false" aria-controls="lesson-${index}">
-              <span class="lesson-heading">
-                <span class="lesson-badge">${escapeHtml(video.lesson || `Bài ${index + 1}`)}</span>
-                <span class="lesson-title">${escapeHtml(video.title || "Bài học chưa có tiêu đề")}</span>
+          <article class="category${openClass}" data-cat-index="${catIndex}">
+            <button class="category-toggle" type="button" aria-expanded="${isSearching && filteredLessons.length > 0 ? "true" : "false"}" aria-controls="category-${catIndex}">
+              <span class="category-heading">
+                <span class="category-title">${escapeHtml(category.name || `Mục ${catIndex + 1}`)}</span>
               </span>
-              <span class="chevron" aria-hidden="true">⌄</span>
+              <span class="category-right">
+                <span class="category-meta">${category.lessons.length} bài</span>
+                <span class="chevron" aria-hidden="true">⌄</span>
+              </span>
             </button>
-            <div id="lesson-${index}" class="lesson-body">
-              ${getVideoHtml(video)}
+            <div id="category-${catIndex}" class="category-body">
+              <div class="video-list">
+                ${bodyContent}
+              </div>
             </div>
           </article>
         `;
       }).join("");
 
-      lessonCount.textContent = `${filteredVideos.length} video`;
-      emptyState.classList.toggle("show", filteredVideos.length === 0);
+      categoryList.innerHTML = html;
+      lessonCount.textContent = `${totalMatches} video`;
+      emptyState.classList.toggle("show", isSearching && totalMatches === 0);
     }
 
-    videoList.addEventListener("click", (event) => {
-      const toggle = event.target.closest(".lesson-toggle");
+    categoryList.addEventListener("click", (event) => {
+      // Bấm vào mục lớn (category) — chỉ mở 1 mục tại 1 thời điểm
+      const categoryToggle = event.target.closest(".category-toggle");
+      if (categoryToggle) {
+        const category = categoryToggle.closest(".category");
+        const willOpen = !category.classList.contains("open");
 
-      if (!toggle) {
+        document.querySelectorAll(".category.open").forEach((openCategory) => {
+          if (openCategory !== category) {
+            openCategory.classList.remove("open");
+            openCategory.querySelector(".category-toggle").setAttribute("aria-expanded", "false");
+            // Đóng luôn các bài đang mở trong mục bị thu gọn
+            openCategory.querySelectorAll(".lesson.open").forEach((lesson) => {
+              lesson.classList.remove("open");
+              lesson.querySelector(".lesson-toggle").setAttribute("aria-expanded", "false");
+            });
+          }
+        });
+
+        category.classList.toggle("open", willOpen);
+        categoryToggle.setAttribute("aria-expanded", String(willOpen));
         return;
       }
 
-      const lesson = toggle.closest(".lesson");
-      const isOpen = lesson.classList.toggle("open");
-      toggle.setAttribute("aria-expanded", String(isOpen));
+      // Bấm vào 1 bài (lesson) bên trong mục — chỉ mở 1 bài tại 1 thời điểm trong cùng mục
+      const lessonToggle = event.target.closest(".lesson-toggle");
+      if (lessonToggle) {
+        const lesson = lessonToggle.closest(".lesson");
+        const category = lessonToggle.closest(".category");
+        const willOpen = !lesson.classList.contains("open");
 
-      if (!isOpen) {
-        toggle.focus();
-        return;
+        category.querySelectorAll(".lesson.open").forEach((openLesson) => {
+          if (openLesson !== lesson) {
+            openLesson.classList.remove("open");
+            openLesson.querySelector(".lesson-toggle").setAttribute("aria-expanded", "false");
+          }
+        });
+
+        lesson.classList.toggle("open", willOpen);
+        lessonToggle.setAttribute("aria-expanded", String(willOpen));
+
+        if (!willOpen) {
+          lessonToggle.focus();
+          return;
+        }
+
+        const iframe = lesson.querySelector("iframe");
+        setTimeout(() => iframe?.focus(), 120);
       }
-
-      const iframe = lesson.querySelector("iframe");
-      setTimeout(() => iframe?.focus(), 120);
     });
 
     closeAllBtn.addEventListener("click", () => {
+      document.querySelectorAll(".category.open").forEach((category) => {
+        category.classList.remove("open");
+        category.querySelector(".category-toggle").setAttribute("aria-expanded", "false");
+      });
       document.querySelectorAll(".lesson.open").forEach((lesson) => {
         lesson.classList.remove("open");
         lesson.querySelector(".lesson-toggle").setAttribute("aria-expanded", "false");
@@ -531,10 +812,10 @@
     });
 
     searchInput.addEventListener("input", () => {
-      renderVideos(searchInput.value);
+      renderCategories(searchInput.value);
     });
 
-    renderVideos();
+    renderCategories();
   </script>
 </body>
 </html>
