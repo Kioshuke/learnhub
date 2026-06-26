@@ -192,6 +192,12 @@ setTimeout(() => {
   loader.style.display="none";
   iframe.style.display="block";
 
+  // 🆕 [LearnHub Test - Giai đoạn 1] Gửi user sang iframe vừa load (nếu đã đăng nhập)
+  // Hàm này được định nghĩa trong index.html, tự kiểm tra null nếu chưa có user.
+  if(typeof window.sendUserToQuizFrame === "function"){
+    window.sendUserToQuizFrame();
+  }
+
   // 🔥 SCROLL SAU KHI LOAD XONG
   document.getElementById("quiz").scrollIntoView({
     behavior: "smooth",

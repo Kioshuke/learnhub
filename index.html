@@ -319,7 +319,7 @@ LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và s
 <div class="card">
 <h3>Trắc nghiệm</h3><div class="status done"></div>
 <p>Chủ đề 8. LỊCH SỬ ĐỐI NGOẠI CỦA VIỆT NAM THỜI CẬN – HIỆN ĐẠI</p>
-<a class="btn" href="cauhoi/filetest.html?de=../lichsu/tracnghiemsucd8.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../lichsu/tracnghiemsucd8.json'); return false;">Làm bài</a>
+<a class="btn" href="cauhoi/filetest.html" onclick="loadQuiz(this,'cauhoi/filetest.html'); return false;">Làm bài</a>
 </div>
 
 <div class="card">
@@ -504,24 +504,15 @@ LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và s
 </div>
 
 
-<script type="module"> import { initializeApp }
- 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js"; 
-import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } 
+<script type="module">
+import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js"; 
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs } 
+import { doc, setDoc, getDoc, collection, getDocs } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js"; 
-const firebaseConfig = { 
-  apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c", 
-  authDomain: "onthi12-thpttanhong.firebaseapp.com", 
-  projectId: "onthi12-thpttanhong", 
-  storageBucket: "onthi12-thpttanhong.firebasestorage.app", 
-  messagingSenderId: "922115936320", 
-  appId: "1:922115936320:web:67b86c06af9149ff584fa5" 
-}; 
-const app = initializeApp(firebaseConfig); 
-const auth = getAuth(app); await setPersistence(auth, browserLocalPersistence); 
-const db = getFirestore(app); 
+// 🆕 [Refactor] Dùng chung app/auth/db từ firebase-config.js, không tự initializeApp() nữa.
+// Hành vi và giá trị của auth/db hoàn toàn không đổi so với trước (cùng firebaseConfig, cùng project).
+import { app, auth, db } from "./firebase-config.js";
+await setPersistence(auth, browserLocalPersistence); 
 const provider = new GoogleAuthProvider();
 
 let allowList = [];
@@ -869,6 +860,21 @@ if(user){
 
   // ✅ GỌI HÀM
   sendUserToForum(userData);
+
+  // 🆕 [LearnHub Test] Lưu lại user hiện tại để gửi sang quizFrame
+  // (quizFrame được tạo động mỗi lần bấm "Làm bài" qua loadQuiz(),
+  // nên cần lưu global để gửi lại mỗi khi iframe đó load/reload)
+  window.currentLearnHubUser = {
+    uid: userData.uid,
+    email: userData.email,
+    photo: userData.photoURL,
+    displayName: userData.displayName
+  };
+
+  // 🆕 [LearnHub Test] Nếu quizFrame đang mở sẵn (trường hợp hiếm), gửi luôn
+  if(typeof window.sendUserToQuizFrame === "function"){
+    window.sendUserToQuizFrame();
+  }
 
   // ✅ UPDATE ONLINE STATUS
   if(!activeInterval){
@@ -1289,6 +1295,25 @@ window.addEventListener("beforeunload", () => {
   window.setDoc = setDoc;
   window.collection = collection;
   window.getDocs = getDocs;
+
+  // 🆕 [LearnHub Test - Giai đoạn 1] Gửi thông tin user sang iframe #quizFrame (filetest.html)
+  // - Chỉ gửi khi quizFrame đã load xong và đã có user đăng nhập (window.currentLearnHubUser).
+  // - Được gọi từ script.js mỗi khi iframe.onload bắn lên (loadQuiz), nên tự gửi lại mỗi khi mở/reload đề.
+  window.sendUserToQuizFrame = function(){
+    const quizFrame = document.getElementById("quizFrame");
+    const u = window.currentLearnHubUser;
+    if(!quizFrame || !quizFrame.contentWindow || !u) return;
+
+    quizFrame.contentWindow.postMessage({
+      type: "LEARNHUB_USER",
+      user: {
+        uid: u.uid,
+        email: u.email,
+        photo: u.photo,
+        displayName: u.displayName
+      }
+    }, "*");
+  };
 </script>
 <footer class="lh-footer">
   <div class="lh-footer-main">
