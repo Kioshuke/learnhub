@@ -644,21 +644,56 @@ body.dark-mode .ans-label:hover {
 <body>
 
 <div class="container">
-    <header>
-        <div class="logo-area">
-            <h2>LearnHub Test</h2>
-            <!-- 🆕 [LearnHub Test - Giai đoạn 1] Hiển thị tên người đang làm bài, ẩn nếu chưa có user -->
-            <div id="learnHubUserBadge" style="display:none; font-size:0.8rem; font-weight:500; color:var(--text-sub, #666); margin-top:2px;">
-                Đang làm bài: <span id="learnHubUserName"></span>
-            </div>
+<header style="
+    display: flex; 
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card); 
+    padding: 12px 20px; 
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+    margin-bottom: 25px;
+    position: sticky; 
+    top: 15px; 
+    z-index: 100;
+    border: 1px solid rgba(0,0,0,0.05);
+    gap: 15px;
+    flex-wrap: wrap;
+">
+    <div class="logo-area" style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start; flex: 1;">
+        <h2 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: var(--primary);">LearnHub Test 📝</h2>
+        
+        <div id="learnHubUserBadge" style="display: none; font-size: 0.85rem; font-weight: 500; color: var(--text-sub, #666);">
+            <i class="fas fa-user-circle" style="margin-right: 4px;"></i>
+            Đang làm bài: <strong id="learnHubUserName" style="color: var(--text); font-weight: 600;"></strong>
         </div>
-        <div id="action-button-container">
-            <div id="timerBox" class="timer-box" style="display:none;">
-                <span>⏱️</span><span id="timerText">00:00:00</span>
-            </div>
-            <button class="btn btn-primary" onclick="openModal('confirmModal')"><span>📤</span> Nộp bài</button>
+    </div>
+
+    <div id="action-button-container" style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
+        
+        <div id="timerBox" class="timer-box" style="
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            font-family: 'DM Mono', monospace, system-ui;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        ">
+            <span>⏱️</span>
+            <span id="timerText">00:00:00</span>
         </div>
-    </header>
+
+        <button id="submitBtn" class="btn btn-primary" onclick="submitQuiz()" style="display: none;">
+            <span>📤</span> Nộp bài
+        </button>
+    </div>
+</header>
     <div class="main-layout">
     <div class="quiz-section" id="quiz-container">Đang tải câu hỏi...</div>
     
@@ -1070,13 +1105,33 @@ function formatHMS(totalSeconds) {
 function updateTimerDisplay() {
     const timerText = document.getElementById('timerText');
     const timerBox = document.getElementById('timerBox');
+    
+    // 1. Cập nhật thời gian
     timerText.innerText = formatHMS(remainingSeconds);
 
+    // 2. Reset các class cũ (nếu sốp vẫn có viết CSS riêng cho các class này)
     timerBox.classList.remove('timer-warning', 'timer-danger');
+    
+    // 3. Cập nhật màu sắc trực tiếp theo số giây còn lại để tránh bị ép đè CSS
     if (remainingSeconds <= 60) {
+        // Trạng thái Nguy hiểm (Dưới 1 phút): Nền đỏ chữ đỏ đậm nhấp nháy
         timerBox.classList.add('timer-danger');
+        timerBox.style.background = '#fee2e2'; // Đỏ nhạt
+        timerBox.style.color = '#dc2626';      // Đỏ đậm
+        timerBox.style.borderColor = '#fca5a5';
+        
     } else if (remainingSeconds <= 300) {
+        // Trạng thái Cảnh báo (Dưới 5 phút): Nền cam chữ cam đậm
         timerBox.classList.add('timer-warning');
+        timerBox.style.background = '#fff7ed'; // Cam nhạt
+        timerBox.style.color = '#ea580c';      // Cam đậm
+        timerBox.style.borderColor = '#fed7aa';
+        
+    } else {
+        // Trạng thái Bình thường (Trên 5 phút): Trả về màu var(--primary) của LearnHub
+        timerBox.style.background = 'var(--primary-light)';
+        timerBox.style.color = 'var(--primary)';
+        timerBox.style.borderColor = 'transparent';
     }
 }
 
