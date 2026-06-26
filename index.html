@@ -1392,18 +1392,43 @@ color: var(--text-sub);
 margin-bottom: 10px;">© 2026 LearnHub Platform | All rights reserved!</p>
 
 </div>
-<div id="chatOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9998; background: rgba(0,0,0,0.1);"></div>
+<div id="chatOverlay" onclick="toggleHubieChat()" style="
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh; 
+    z-index: 9998; 
+    background: rgba(0, 0, 0, 0.2);
+"></div>
+
+<iframe id="chatbotFrame" src="AI.html" style="
+    display: none;
+    position: fixed;
+    bottom: 95px; /* Nằm ngay trên nút chat 65px + cách ra một chút */
+    left: 20px; /* Căn lề trái bằng với nút chat */
+    width: 90%;
+    max-width: 380px; /* Độ rộng vừa vặn, nhỏ gọn như ảnh mẫu */
+    height: 70vh;
+    max-height: 520px; /* Chiều cao lý tưởng của popup góc */
+    border: none;
+    border-radius: 16px; /* Bo góc tròn mịn */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    background: white;
+    overflow: hidden;
+" loading="lazy"></iframe>
 
 <div id="chatButton" style="
-  position:fixed;
-  width:65px;
-  height:65px;
-  border-radius:50%;
-  overflow:hidden;
+  position: fixed;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  overflow: hidden;
   cursor: grab;
-  z-index:9999;
-  box-shadow:0 6px 18px rgba(0,0,0,0.25);
-  /* Khởi tạo ở góc trái dưới */
+  z-index: 9999;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
   left: 20px;
   bottom: 20px;
   touch-action: none;
@@ -1413,19 +1438,6 @@ margin-bottom: 10px;">© 2026 LearnHub Platform | All rights reserved!</p>
 ">
   <img src="chatboiavt.png" style="width:100%; height:100%; object-fit:cover; pointer-events: none;" loading="lazy" width="65" height="65">
 </div>
-
-<iframe id="chatbotFrame" data-src="chatbot.html" src="about:blank" style="
-    display:none;
-    position:fixed;
-    bottom:95px;
-    left:20px;
-    width:350px;
-    height:500px;
-    border:none;
-    border-radius:12px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.2);
-    z-index:9999;
-" loading="lazy"></iframe>
 <script src="script.js" defer></script>
 </body>
 </html>

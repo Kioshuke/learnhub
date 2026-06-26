@@ -972,3 +972,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // Có thể check thêm điều kiện tùy thuộc logic định tuyến của bạn
     startHomeSlideshow();
 });
+// ==================== LOGIC ĐIỀU KHIỂN POPUP GÓC HUBIE AI ====================
+function toggleHubieChat() {
+  const frame = document.getElementById("chatbotFrame");
+  const overlay = document.getElementById("chatOverlay");
+  if (!frame || !overlay) return;
+
+  if (frame.style.display === "none" || frame.style.display === "") {
+    // Ép iframe nạp/gọi lại file AI.html trực tiếp để trị dứt điểm lỗi trắng màn hình
+    frame.src = "AI.html";
+    
+    // Hiển thị popup góc và lớp overlay
+    frame.style.display = "block";
+    overlay.style.display = "block";
+    document.body.classList.add("no-scroll");
+  } else {
+    // Ẩn khung chat khi đóng
+    frame.style.display = "none";
+    overlay.style.display = "none";
+    document.body.classList.remove("no-scroll");
+  }
+}
+
+// Gắn sự kiện kích hoạt mượt mà vào nút chatButton
+const chatBtnEl = document.getElementById("chatButton");
+if (chatBtnEl) {
+  chatBtnEl.addEventListener("pointerup", (e) => {
+    if (typeof isDragging !== "undefined" && isDragging) {
+      return; // Đang kéo thả nút đi chỗ khác thì không mở chat
+    }
+    toggleHubieChat(); // Click/Chạm cố định thì bung chatbox
+  });
+}
