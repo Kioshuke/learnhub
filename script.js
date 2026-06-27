@@ -579,8 +579,8 @@ function initAuthSlides(){
   }, 4000);
 }
 
-function playNotificationSound(){
-  const audio = document.getElementById("thongbaoSound");
+function playNotificationSound(soundId = "thongbaoSound"){
+  const audio = document.getElementById(soundId);
   if(!audio) return;
 
   // Reset audio to start
@@ -592,7 +592,7 @@ function playNotificationSound(){
   });
 }
 
-function showAuthNotice(message, type = "info", title = "", durationMs = 2600){
+function showAuthNotice(message, type = "info", title = "", durationMs = 2600, soundId = "thongbaoSound"){
   const notice = document.getElementById("authNotice");
   const noticeTitle = document.getElementById("authNoticeTitle");
   const noticeMessage = document.getElementById("authNoticeMessage");
@@ -637,7 +637,7 @@ function showAuthNotice(message, type = "info", title = "", durationMs = 2600){
   notice.classList.add("show");
 
   // Play notification sound when popup appears
-  playNotificationSound();
+  playNotificationSound(soundId);
 
   authNoticeTimer = setTimeout(() => {
     notice.classList.remove("show");
