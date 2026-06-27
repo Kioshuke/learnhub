@@ -47,6 +47,7 @@
 <audio id="offtest" src="sound/preview_4.mp3" preload="none"></audio>
 <audio id="openpopup" src="sound/discord-notification.mp3" preload="none"></audio>
 <audio id="thongbaoSound" src="sound/thongbao.mp3" preload="none"></audio>
+<audio id="realtimeSound" src="sound/realtimesound.mp3" preload="none"></audio>
 <div class="loading-content">
   <div class="loading-brand">
     <img src="newlogo.png" alt="logo" loading="eager" width="80" height="80">
@@ -771,7 +772,7 @@ function startAccessGuards(user){
         ? String(data.type || "info")
         : "info";
       const durationMs = Number(data.durationMs || 3000);
-      showAuthNotice(safeMessage, noticeType, title, durationMs);
+      showAuthNotice(safeMessage, noticeType, title, durationMs, "realtimeSound");
     });
   } catch (e) {}
 
