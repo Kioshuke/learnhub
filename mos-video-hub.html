@@ -566,20 +566,36 @@
   <script>
     // ====== DỮ LIỆU: 5 MỤC LỚN, MỖI MỤC CHỨA NHIỀU BÀI ======
     // Cách thêm bài mới: vào đúng mục (category) bên dưới, copy 1 dòng { lesson: ..., title: ..., url: ... }
-    // rồi dán link Facebook + tên bài vào. Không cần sửa gì khác.
+    // rồi dán link Facebook HOẶC YouTube + tên bài vào. Hệ thống tự nhận diện loại link, không cần khai báo gì thêm.
+    // Link YouTube nhận các dạng: youtube.com/watch?v=..., youtu.be/..., youtube.com/shorts/...
     const categories = [
       {
         name: "MOS Word",
         lessons: [
           {
             lesson: "Bài 1",
-            title: "Ví dụ video ôn tập MOS",
+            title: "Buổi 1",
             url: "https://www.facebook.com/anhthetime/videos/1547575493678920/?idorvanity=1120718009886483"
           },
           {
             lesson: "Bài 2",
-            title: "MOS WORD",
+            title: "Buổi 2",
             url: "https://www.facebook.com/anhthetime/videos/1749227052951529/?idorvanity=1120718009886483"
+          },
+          {
+            lesson: "Bài 3",
+            title: "Buổi 3",
+            url: "https://www.youtube.com/watch?v=FT-2Hmv6je0"
+          },
+          {
+            lesson: "Bài 4",
+            title: "Buổi 4",
+            url: "https://www.youtube.com/watch?v=46vMx8vENDA"
+          },
+          {
+            lesson: "Bài 5",
+            title: "Buổi 5",
+            url: "https://www.youtube.com/watch?v=acV8xa-v1g8"
           },
           // Dạng video Facebook:
           // {
@@ -592,10 +608,15 @@
       {
         name: "MOS Excel",
         lessons: [
+          {
+            lesson: "Bài 1",
+            title: "",
+            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+          },
           // {
-          //   lesson: "Bài 1",
+          //   lesson: "Bài 2",
           //   title: "Tên video của bạn",
-          //   url: "DAN_LINK_FACEBOOK_VAO_DAY"
+          //   url: "DAN_LINK_YOUTUBE_HOAC_FACEBOOK_VAO_DAY"
           // },
         ]
       },
@@ -637,11 +658,38 @@
     const closeAllBtn = document.querySelector("#closeAllBtn");
     const emptyState = document.querySelector("#emptyState");
 
-    function getFacebookIframeHtml(url) {
-      if (!url) {
+    function getYoutubeEmbedUrl(url) {
+      try {
+        const parsed = new URL(url);
+        let videoId = "";
+
+        if (parsed.hostname.includes("youtu.be")) {
+          // Dạng: https://youtu.be/VIDEO_ID
+          videoId = parsed.pathname.slice(1);
+        } else if (parsed.hostname.includes("youtube.com")) {
+          if (parsed.pathname.startsWith("/shorts/")) {
+            // Dạng: https://www.youtube.com/shorts/VIDEO_ID
+            videoId = parsed.pathname.split("/")[2] || "";
+          } else if (parsed.pathname.startsWith("/embed/")) {
+            // Dạng: https://www.youtube.com/embed/VIDEO_ID
+            videoId = parsed.pathname.split("/")[2] || "";
+          } else {
+            // Dạng: https://www.youtube.com/watch?v=VIDEO_ID
+            videoId = parsed.searchParams.get("v") || "";
+          }
+        }
+
+        if (!videoId) {
+          return "";
+        }
+
+        return `https://www.youtube.com/embed/${videoId}`;
+      } catch {
         return "";
       }
+    }
 
+    function getFacebookIframeHtml(url) {
       const embedUrl = new URL("https://www.facebook.com/plugins/video.php");
       embedUrl.searchParams.set("height", "314");
       embedUrl.searchParams.set("href", url);
@@ -663,6 +711,34 @@
       `;
     }
 
+    function getYoutubeIframeHtml(embedUrl) {
+      return `
+        <iframe
+          src="${embedUrl}"
+          title="Video ôn tập MOS"
+          tabindex="0"
+          frameborder="0"
+          allowfullscreen="true"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share">
+        </iframe>
+      `;
+    }
+
+    // Tự nhận diện link là YouTube hay Facebook rồi build iframe phù hợp.
+    // Sốp chỉ cần dán link bình thường (watch?v=..., youtu.be/..., shorts/..., hoặc link Facebook), không cần khai báo loại.
+    function getVideoEmbedHtml(url) {
+      if (!url) {
+        return "";
+      }
+
+      const youtubeEmbedUrl = getYoutubeEmbedUrl(url);
+      if (youtubeEmbedUrl) {
+        return getYoutubeIframeHtml(youtubeEmbedUrl);
+      }
+
+      return getFacebookIframeHtml(url);
+    }
+
     function escapeHtml(text) {
       return String(text)
         .replaceAll("&", "&amp;")
@@ -675,7 +751,7 @@
     function getVideoHtml(video) {
       return `
         <div class="video-frame">
-          ${getFacebookIframeHtml(video.url || "")}
+          ${getVideoEmbedHtml(video.url || "")}
         </div>
       `;
     }
