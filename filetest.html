@@ -691,12 +691,19 @@ body.dark-mode .ans-label:hover {
 
             <button id="submitBtn" class="btn btn-primary" onclick="submitQuiz()" style="
                 display: none;
-                padding: 10px 20px;
-                font-weight: 600;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                height: 44px; /* Ép bằng chiều cao với bộ đếm thời gian */
+                padding: 0 20px;
+                font-weight: 700;
+                font-size: 0.95rem;
                 border-radius: 12px;
                 cursor: pointer;
+                box-sizing: border-box;
+                white-space: nowrap;
             ">
-                <i class="fas fa-paper-plane" style="margin-right: 6px;"></i>📤 Nộp bài
+                <i class="fas fa-paper-plane"></i> <span>Nộp bài</span>
             </button>
         </div>
     </header>
