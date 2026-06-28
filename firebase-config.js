@@ -20,10 +20,9 @@
 //   instance riêng của mình — đây là hành vi đúng và không đổi so với trước).
 // ============================================================================
 
-// 1. Thêm import "browserLocalPersistence" và "setPersistence" ở dòng đầu file
 import { initializeApp, getApps, getApp } 
   from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getAuth, setPersistence, browserLocalPersistence } // <--- Thêm 2 cái này vào đây
+import { getAuth }
   from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import { getFirestore }
   from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
@@ -43,13 +42,14 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// 🚀 THÊM ĐOẠN NÀY: Ép Firebase trong iframe sử dụng LocalStorage đồng bộ với trang mẹ
-setPersistence(auth, browserLocalPersistence)
-  .then(() => {
-    console.log("[Firebase Config] Đã đồng bộ Persistence thành công!");
-  })
-  .catch((err) => {
-    console.error("[Firebase Config] Lỗi đồng bộ trạng thái đăng nhập:", err);
-  });
+// ⚠️ KHÔNG gọi setPersistence() ở đây nữa.
+// File này được import ở NHIỀU nơi: index.html (trang chính) và filetest.html
+// (chạy trong iframe, bị tạo mới mỗi lần mở bài trắc nghiệm). Mỗi lần
+// setPersistence() chạy, nó ghi vào localStorage — và việc ghi đó kích hoạt
+// sự kiện "storage" mà Auth instance của trang index.html đang lắng nghe,
+// khiến onAuthStateChanged() của trang chính bị fire lại như thể vừa
+// đăng nhập lần nữa (=> bug "tự signin lại" khi mở quiz mới).
+// index.html đã tự gọi setPersistence() một lần cho riêng nó (xem script
+// chính của trang), nên ở đây không cần và không nên gọi lại.
 
 export { app, db, auth };
