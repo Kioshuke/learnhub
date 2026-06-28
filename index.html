@@ -513,6 +513,7 @@ from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 // 🆕 [Refactor] Dùng chung app/auth/db từ firebase-config.js, không tự initializeApp() nữa.
 // Hành vi và giá trị của auth/db hoàn toàn không đổi so với trước (cùng firebaseConfig, cùng project).
 import { app, auth, db } from "./firebase-config.js";
+import { createUserStats, resetWeekIfNeeded, updateUserStats } from "./learnhub-stats.js";
 await setPersistence(auth, browserLocalPersistence); 
 const provider = new GoogleAuthProvider();
 
@@ -1323,6 +1324,25 @@ window.addEventListener("beforeunload", () => {
       }
     }, "*");
   };
+  window.addEventListener("message", async (event) => {
+  if (!event.data || event.data.type !== "LEARNHUB_TEST_RESULT") return;
+
+  const quizFrame = document.getElementById("quizFrame");
+  if (quizFrame && event.source !== quizFrame.contentWindow) return;
+
+  const u = window.currentLearnHubUser;
+  const score = Number(event.data.score);
+
+  if (u && u.uid && Number.isFinite(score)) {
+    try {
+      await createUserStats(u);
+      await resetWeekIfNeeded(u.uid);
+      await updateUserStats(u.uid, score);
+    } catch (e) {
+      console.log("Không thể lưu kết quả từ iframe:", e);
+    }
+  }
+});
 </script>
 <footer class="lh-footer">
   <div class="lh-footer-main">
