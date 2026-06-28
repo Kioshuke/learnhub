@@ -8,48 +8,65 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: transparent; /* Đổi thành trong suốt để tiệp màu với khung modal cha */
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        /* Ẩn thanh cuộn xám (scrollbar) cho toàn bộ trình duyệt (Chrome, Safari, Edge, Firefox) */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        html, body {
+            -ms-overflow-style: none;  /* IE và Edge */
+            scrollbar-width: none;  /* Firefox */
         }
     </style>
 </head>
-<body class="py-10 px-4">
+<body class="w-full h-full antialiased">
 
-    <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-center text-white">
-            <h1 class="text-3xl font-bold uppercase tracking-wider mb-2 flex justify-center items-center gap-2">
-                <i class="fas fa-trophy text-yellow-300 animate-bounce"></i> VIP LEADERBOARD 🏆
+    <!-- Bung full bề ngang (w-full), loại bỏ viền bo ngoài to và bóng đổ nặng để khớp giao diện nhúng -->
+    <div class="w-full min-h-screen bg-white rounded-xl overflow-hidden flex flex-col">
+        
+        <!-- Tinh giản ô tiêu đề gọn gàng, giảm padding, thu nhỏ font chữ -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3.5 text-center text-white flex flex-col items-center justify-center gap-0.5">
+            <h1 class="text-xl font-bold uppercase tracking-wide flex justify-center items-center gap-2">
+                <i class="fas fa-trophy text-yellow-300 text-base"></i> VIP LEADERBOARD 🏆
             </h1>
-            <p class="text-blue-100 text-sm">Hệ thống vinh danh học viên LearnHub</p>
+            <p class="text-blue-100/90 text-xs font-medium">Hệ thống vinh danh học viên LearnHub</p>
         </div>
 
-        <div class="flex border-b border-gray-200 bg-gray-50">
-            <button id="tab-current" class="w-1/2 py-4 text-center font-semibold text-sm border-b-2 border-blue-600 text-blue-600 transition-all focus:outline-none">
+        <!-- Thanh Tab tinh chỉnh khít và mượt hơn -->
+        <div class="flex border-b border-gray-100 bg-gray-50/80">
+            <button id="tab-current" class="w-1/2 py-3 text-center font-bold text-xs uppercase tracking-wider border-b-2 border-blue-600 text-blue-600 transition-all focus:outline-none">
                 <i class="fas fa-calendar-day mr-1"></i> Tuần này
             </button>
-            <button id="tab-history" class="w-1/2 py-4 text-center font-semibold text-sm text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 transition-all focus:outline-none">
+            <button id="tab-history" class="w-1/2 py-3 text-center font-semibold text-xs uppercase tracking-wider text-gray-400 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-200 transition-all focus:outline-none">
                 <i class="fas fa-history mr-1"></i> Tuần trước
             </button>
         </div>
 
-        <div id="loading" class="p-10 text-center text-gray-500">
-            <i class="fas fa-spinner fa-spin text-3xl text-indigo-600 mb-2"></i>
-            <p id="loading-text">Đang tải bảng xếp hạng tuần này...</p>
-        </div>
+        <!-- Khung nội dung bảng xếp hạng tự động cuộn không lộ thanh xám -->
+        <div class="flex-1 overflow-y-auto px-3 py-2">
+            
+            <div id="loading" class="py-12 text-center text-gray-400">
+                <i class="fas fa-spinner fa-spin text-2xl text-indigo-500 mb-2"></i>
+                <p id="loading-text" class="text-xs font-medium">Đang tải bảng xếp hạng tuần này...</p>
+            </div>
 
-        <div id="leaderboard-content" class="hidden p-6">
-            <div class="overflow-x-auto">
+            <div id="leaderboard-content" class="hidden">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="border-b-2 border-gray-100 text-gray-600 uppercase text-xs font-semibold tracking-wider">
-                            <th class="py-3 px-4 text-center">Hạng</th>
-                            <th class="py-3 px-4">Học viên</th>
-                            <th class="py-3 px-4 text-center" id="th-extra">Số bài</th>
-                            <th class="py-3 px-4 text-center">Điểm số</th>
+                        <tr class="border-b border-gray-100 text-gray-400 uppercase text-[10px] font-bold tracking-widest">
+                            <th class="py-2.5 px-2 text-center w-14">Hạng</th>
+                            <th class="py-2.5 px-2">Học viên</th>
+                            <th class="py-2.5 px-2 text-center w-16" id="th-extra">Số bài</th>
+                            <th class="py-2.5 px-2 text-center w-20">Điểm số</th>
                         </tr>
                     </thead>
-                    <tbody id="leaderboard-rows" class="divide-y divide-gray-100 text-gray-700">
-                        </tbody>
+                    <tbody id="leaderboard-rows" class="divide-y divide-gray-50 text-gray-700 text-sm">
+                        <!-- Data đổ vào đây -->
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -59,7 +76,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, query, orderBy, limit, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        // Cấu hình Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c", 
             authDomain: "onthi12-thpttanhong.firebaseapp.com",
@@ -70,9 +86,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let currentTab = "current"; // "current" hoặc "history"
+        let currentTab = "current";
 
-        // Hàm tính toán mã tuần tự động (Hỗ trợ tìm tuần trước)
         function getWeekKeys() {
             const now = new Date();
             const oneJan = new Date(now.getFullYear(), 0, 1);
@@ -105,7 +120,6 @@
                     loadingText.innerText = "Đang tải dữ liệu tuần này...";
                     thExtra.innerText = "Số bài";
 
-                    // Đọc từ bảng testStats thời gian thực
                     const q = query(collection(db, "testStats"), orderBy("weekScore", "desc"), limit(10));
                     const snap = await getDocs(q);
                     
@@ -125,15 +139,14 @@
                         });
                     }
                 } else {
-                    loadingText.innerText = `Đang tìm dữ liệu vinh danh tuần trước (${weeks.previous})...`;
+                    loadingText.innerText = `Đang tìm dữ liệu tuần trước (${weeks.previous})...`;
                     thExtra.innerText = "Mã Tuần";
 
-                    // Đọc từ bảng weeklyWinners chốt sẵn của tuần trước
                     const winnerDocRef = doc(db, "weeklyWinners", weeks.previous);
                     const winnerSnap = await getDoc(winnerDocRef);
 
                     if (winnerSnap.exists() && winnerSnap.data().top) {
-                        const topArr = winnerSnap.data().top; // Mảng chứa [{uid, name, weekScore}, ...]
+                        const topArr = winnerSnap.data().top;
                         for (const winner of topArr) {
                             listData.push({
                                 name: winner.name || "Học viên vinh danh",
@@ -144,38 +157,37 @@
                     }
                 }
 
-                // Render giao diện
                 let htmlRows = "";
                 let rank = 1;
 
                 if (listData.length === 0) {
-                    htmlRows = `<tr><td colspan="4" class="text-center py-8 text-gray-400">Không có dữ liệu xếp hạng cho mục này.</td></tr>`;
+                    htmlRows = `<tr><td colspan="4" class="text-center py-6 text-gray-400 text-xs">Không có dữ liệu xếp hạng.</td></tr>`;
                 } else {
                     listData.forEach((item) => {
                         let rankDisplay = rank;
                         let rowBg = "";
                         if (rank === 1) {
-                            rankDisplay = `<i class="fas fa-medal text-yellow-500 text-xl"></i>`;
-                            rowBg = "bg-yellow-50/40 font-semibold";
+                            rankDisplay = `<i class="fas fa-medal text-yellow-500 text-base"></i>`;
+                            rowBg = "bg-yellow-50/30 font-semibold";
                         } else if (rank === 2) {
-                            rankDisplay = `<i class="fas fa-medal text-gray-400 text-xl"></i>`;
-                            rowBg = "bg-gray-50/40";
+                            rankDisplay = `<i class="fas fa-medal text-gray-400 text-base"></i>`;
+                            rowBg = "bg-gray-50/30";
                         } else if (rank === 3) {
-                            rankDisplay = `<i class="fas fa-medal text-amber-600 text-xl"></i>`;
-                            rowBg = "bg-amber-50/40";
+                            rankDisplay = `<i class="fas fa-medal text-amber-600 text-base"></i>`;
+                            rowBg = "bg-amber-50/30";
                         }
 
                         htmlRows += `
-                            <tr class="hover:bg-indigo-50/30 transition-colors ${rowBg}">
-                                <td class="py-4 px-4 text-center font-bold text-gray-600">${rankDisplay}</td>
-                                <td class="py-4 px-4 flex items-center gap-2">
-                                    <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs uppercase">
+                            <tr class="hover:bg-indigo-50/20 transition-colors ${rowBg}">
+                                <td class="py-3 px-2 text-center font-bold text-gray-500">${rankDisplay}</td>
+                                <td class="py-3 px-2 flex items-center gap-2 max-w-[140px]">
+                                    <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-[10px] uppercase flex-shrink-0">
                                         ${item.name.charAt(0)}
                                     </div>
-                                    <span class="font-medium text-gray-900">${item.name}</span>
+                                    <span class="font-medium text-gray-800 truncate block w-full" title="${item.name}">${item.name}</span>
                                 </td>
-                                <td class="py-4 px-4 text-center text-sm text-gray-400">${item.extra}</td>
-                                <td class="py-4 px-4 text-center text-indigo-600 font-bold">${item.score}đ</td>
+                                <td class="py-3 px-2 text-center text-xs text-gray-400 font-medium">${item.extra}</td>
+                                <td class="py-3 px-2 text-center text-indigo-600 font-bold">${item.score}đ</td>
                             </tr>
                         `;
                         rank++;
@@ -188,26 +200,24 @@
 
             } catch (error) {
                 console.error("Lỗi tải dữ liệu:", error);
-                loadingElement.innerHTML = `<p class="text-red-500">Gặp sự cố khi kết nối dữ liệu.</p>`;
+                loadingElement.innerHTML = `<p class="text-red-500 text-xs py-4">Gặp sự cố khi kết nối dữ liệu.</p>`;
             }
         }
 
-        // Cài đặt sự kiện chuyển đổi Tab
         document.getElementById("tab-current").addEventListener("click", (e) => {
             currentTab = "current";
-            e.target.className = "w-1/2 py-4 text-center font-semibold text-sm border-b-2 border-blue-600 text-blue-600 transition-all focus:outline-none";
-            document.getElementById("tab-history").className = "w-1/2 py-4 text-center font-semibold text-sm text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 transition-all focus:outline-none";
+            e.currentTarget.className = "w-1/2 py-3 text-center font-bold text-xs uppercase tracking-wider border-b-2 border-blue-600 text-blue-600 transition-all focus:outline-none";
+            document.getElementById("tab-history").className = "w-1/2 py-3 text-center font-semibold text-xs uppercase tracking-wider text-gray-400 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-200 transition-all focus:outline-none";
             fetchAndRender("current");
         });
 
         document.getElementById("tab-history").addEventListener("click", (e) => {
             currentTab = "history";
-            e.target.className = "w-1/2 py-4 text-center font-semibold text-sm border-b-2 border-blue-600 text-blue-600 transition-all focus:outline-none";
-            document.getElementById("tab-current").className = "w-1/2 py-4 text-center font-semibold text-sm text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300 transition-all focus:outline-none";
+            e.currentTarget.className = "w-1/2 py-3 text-center font-bold text-xs uppercase tracking-wider border-b-2 border-blue-600 text-blue-600 transition-all focus:outline-none";
+            document.getElementById("tab-current").className = "w-1/2 py-3 text-center font-semibold text-xs uppercase tracking-wider text-gray-400 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-200 transition-all focus:outline-none";
             fetchAndRender("history");
         });
 
-        // Khởi động load trang ban đầu
         window.addEventListener("DOMContentLoaded", () => fetchAndRender("current"));
     </script>
 </body>
