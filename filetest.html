@@ -863,6 +863,19 @@ let timerInterval = null;
 let examStartTime = null;     // Mốc thời gian bắt đầu làm bài (Date.now())
 let examEndTime = null;       // Mốc thời gian khi nộp bài
 let isSubmitted = false;      // Tránh nộp bài 2 lần (vd: vừa hết giờ vừa bấm nộp)
+const DEFAULT_EXAM_TIME_LIMIT_MINUTES = 15;
+
+function getExamTimeLimitSeconds(data) {
+    const sections = Array.isArray(data) ? data : (Array.isArray(data.sections) ? data.sections : []);
+    const rawLimit =
+        Number(data && data.timeLimit) ||
+        Number(data && data.duration) ||
+        Number(data && data.durationMinutes) ||
+        Number(sections.find(section => Number(section.timeLimit) > 0)?.timeLimit) ||
+        DEFAULT_EXAM_TIME_LIMIT_MINUTES;
+
+    return Math.max(0, Math.round(rawLimit * 60));
+}
 
 // 3. Hàm xáo trộn mảng (Giữ nguyên)
 function shuffle(array) {
@@ -1243,7 +1256,8 @@ scoreCircle.style.animation = feedback.animation + " 0.6s ease";
     closeModal('confirmModal');
     openModal('resultModal');
     updateProgress(true, userScore);
-    document.getElementById('timerBox').style.display = 'none';
+    const timerBoxEl = document.getElementById('timerBox');
+    if (timerBoxEl) timerBoxEl.style.display = 'none';
     const submitBtnEl = document.getElementById('submitBtn');
     if (submitBtnEl) submitBtnEl.style.display = 'none';
 
