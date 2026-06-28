@@ -1077,9 +1077,15 @@ function renderQuiz() {
 
     // 5. Hàm Nộp bài và Chấm điểm (Logic 0.25đ mỗi ý đúng-sai)
 function startExamTimer() {
-    // Nếu đề không khai báo thời gian làm bài thì bỏ qua, chỉ ghi mốc bắt đầu
+    // Ghi mốc bắt đầu làm bài
     examStartTime = Date.now();
 
+    // ✅ Nút "Nộp bài" luôn phải hiện ra khi vào bài, bất kể đề có giới hạn
+    // giờ làm hay không — không gắn chung điều kiện với đồng hồ đếm giờ.
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) submitBtn.style.display = 'inline-flex';
+
+    // Nếu đề không khai báo thời gian làm bài thì bỏ qua phần đồng hồ
     if (!examTimeLimitSeconds || examTimeLimitSeconds <= 0) return;
 
     remainingSeconds = examTimeLimitSeconds;
@@ -1249,6 +1255,8 @@ scoreCircle.style.animation = feedback.animation + " 0.6s ease";
     openModal('resultModal');
     updateProgress(true, userScore);
     document.getElementById('timerBox').style.display = 'none';
+    const submitBtnEl = document.getElementById('submitBtn');
+    if (submitBtnEl) submitBtnEl.style.display = 'none';
 
     // 🆕 [LearnHub Test - Giai đoạn 2] Lưu kết quả vào testStats/{uid} sau khi đã chấm điểm xong (score đã tính ở trên)
     if (typeof window.saveTestResult === "function") {
