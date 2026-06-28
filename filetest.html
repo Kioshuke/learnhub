@@ -284,6 +284,16 @@ body.dark-mode .ans-label:hover {
             border-color: #3b82f6;
             color: #60a5fa;
         }
+        
+        body.dark-mode .image-board {
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        
+        body.dark-mode .leaderboard-embed {
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
 
         /* Nút bấm */
         button {
@@ -472,6 +482,86 @@ body.dark-mode .ans-label:hover {
         .modal-content {
             background: var(--card); padding: 35px; border-radius: 28px;
             width: 90%; max-width: 400px; text-align: center;
+        }
+        
+        /* Result modal responsive layout */
+        .result-modal-wrapper {
+            display: flex;
+            gap: 20px;
+            max-width: 900px;
+            width: 95%;
+            text-align: left;
+        }
+        
+        .result-left {
+            flex: 1;
+            min-width: 300px;
+            text-align: center;
+        }
+        
+        .result-right {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .image-board {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 16px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .image-grid img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+        }
+        
+        .leaderboard-embed {
+            flex: 1;
+            min-height: 300px;
+            background: var(--card);
+            border-radius: 16px;
+            border: 1px solid rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        /* Mobile responsive - stack vertically */
+        @media (max-width: 768px) {
+            .result-modal-wrapper {
+                flex-direction: column;
+                max-width: 400px;
+            }
+            
+            .result-left {
+                min-width: auto;
+            }
+            
+            .result-right {
+                min-width: auto;
+                order: 2; /* Move to bottom on mobile */
+            }
+            
+            .image-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .image-grid img {
+                height: 60px;
+            }
+            
+            .leaderboard-embed {
+                min-height: 250px;
+            }
         }
 
         .score-circle {
@@ -735,21 +825,37 @@ body.dark-mode .ans-label:hover {
 </div>
 
 <div id="resultModal" class="modal-overlay">
-    <div class="modal-content">
-        <h3 style="justify-content: center;">🎉Bạn đã hoàn thành bài thi!</h3>
-        <div class="score-circle" id="scoreValue">0</div>
-        <h3>📊Kết quả</h3>
-        <p id="statsText"></p>
-        <div id="timeSpentBox" style="display:inline-flex; align-items:center; gap:8px; background:var(--primary-light); color:var(--primary); padding:8px 16px; border-radius:12px; font-weight:700; font-size:0.95rem; margin: 6px 0;">
-            <span>⏱️</span><span id="timeSpentText"></span>
+    <div class="modal-content result-modal-wrapper">
+        <div class="result-left">
+            <h3 style="justify-content: center;">🎉Bạn đã hoàn thành bài thi!</h3>
+            <div class="score-circle" id="scoreValue">0</div>
+            <h3>📊Kết quả</h3>
+            <p id="statsText"></p>
+            <div id="timeSpentBox" style="display:inline-flex; align-items:center; gap:8px; background:var(--primary-light); color:var(--primary); padding:8px 16px; border-radius:12px; font-weight:700; font-size:0.95rem; margin: 6px 0;">
+                <span>⏱️</span><span id="timeSpentText"></span>
+            </div>
+            <p id="feedbackText" style="font-weight:700; font-size:1.1rem; margin-top:8px;"></p>
+            <!-- 🆕 [LearnHub Test - Giai đoạn 2] Trạng thái lưu kết quả lên Firestore -->
+            <p id="saveStatsStatus" style="display:none; font-size:0.85rem; font-weight:600; margin-top:4px;"></p>
+            <p>Để xem chi tiết vui lòng bấm vào mục lục nhé!</p>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 25px;">
+                <button class="btn btn-primary" style="justify-content: center;" onclick="reviewMode()">👁️ Xem bài làm</button>
+                <button class="btn" style="justify-content: center; background: #c81515" onclick="openModal('restartModal')">🔄 Làm lại</button>
+            </div>
         </div>
-        <p id="feedbackText" style="font-weight:700; font-size:1.1rem; margin-top:8px;"></p>
-        <!-- 🆕 [LearnHub Test - Giai đoạn 2] Trạng thái lưu kết quả lên Firestore -->
-        <p id="saveStatsStatus" style="display:none; font-size:0.85rem; font-weight:600; margin-top:4px;"></p>
-        <p>Để xem chi tiết vui lòng bấm vào mục lục nhé!</p>
-        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 25px;">
-            <button class="btn btn-primary" style="justify-content: center;" onclick="reviewMode()">👁️ Xem bài làm</button>
-            <button class="btn" style="justify-content: center; background: #c81515" onclick="openModal('restartModal')">🔄 Làm lại</button>
+        <div class="result-right">
+            <div class="image-board">
+                <h4 style="margin: 0 0 10px 0; font-size: 0.9rem; color: var(--text-sub);">🖼️ Bảng ảnh</h4>
+                <div class="image-grid">
+                    <img src="https://via.placeholder.com/100x100/3b82f6/ffffff?text=1" alt="Image 1" style="border-radius: 8px;">
+                    <img src="https://via.placeholder.com/100x100/10b981/ffffff?text=2" alt="Image 2" style="border-radius: 8px;">
+                    <img src="https://via.placeholder.com/100x100/f59e0b/ffffff?text=3" alt="Image 3" style="border-radius: 8px;">
+                    <img src="https://via.placeholder.com/100x100/ef4444/ffffff?text=4" alt="Image 4" style="border-radius: 8px;">
+                </div>
+            </div>
+            <div class="leaderboard-embed">
+                <iframe src="leaderboard.html" frameborder="0" style="width: 100%; height: 100%; border-radius: 12px;"></iframe>
+            </div>
         </div>
     </div>
 </div>
