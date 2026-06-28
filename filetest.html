@@ -669,7 +669,7 @@ body.dark-mode .ans-label:hover {
             </div>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
+        <div id="action-button-container" style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
             
             <div id="timerBox" style="display: none;">
                 <div class="timer-box" style="
@@ -1061,7 +1061,9 @@ function renderQuiz() {
             textEl.innerText = `${doneCount}/${totalQs} câu`;
         }
     }
-
+function submitQuiz() {
+    openModal('confirmModal');
+}
     // 5. Hàm Nộp bài và Chấm điểm (Logic 0.25đ mỗi ý đúng-sai)
 function startExamTimer() {
     // Ghi mốc bắt đầu làm bài
