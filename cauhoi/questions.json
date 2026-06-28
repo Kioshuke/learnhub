@@ -1,7 +1,8 @@
 [
   {
     "sectionTitle": "PHẦN I. CÂU HỎI TRẮC NGHIỆM",
-    "sectionDesc": "Lệnh: Chọn <b>một</b> đáp án chính xác nhất trong các phương án trả lời sau:",
+    "sectionDesc": "Chọn <b>một</b> đáp án chính xác nhất trong các phương án trả lời sau:",
+    "timeLimit": 0.5,
     "questions": [
       {
         "type": "multiple",
