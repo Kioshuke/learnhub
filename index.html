@@ -702,6 +702,7 @@ async function forceLogoutNow(message, title = "Phiên đăng nhập đã hết 
   } catch (e) {}
 
   try {
+    console.trace("SIGN OUT");
     await signOut(auth);
   } catch (e) {}
 }
@@ -802,6 +803,7 @@ if(user){
       "error",
       "Không có quyền truy cập"
     );
+    console.trace("SIGN OUT");
     await signOut(auth);
     return;
   }
@@ -822,6 +824,7 @@ if(user){
           "error",
           "Tài khoản bị khóa"
         );
+        console.trace("SIGN OUT");
         await signOut(auth);
         return;
       }
@@ -929,6 +932,7 @@ window.googleLogin = function() {
               "error",
               "Không có quyền truy cập"
             );
+            console.trace("SIGN OUT");
             await signOut(auth);
             return;
         }
@@ -941,6 +945,7 @@ window.googleLogin = function() {
               "error",
               "Tài khoản bị khóa"
             );
+            console.trace("SIGN OUT");
             await signOut(auth);
             return;
         }
@@ -1033,6 +1038,7 @@ window.emailLogin = async function() {
                 "error",
                 "Không có quyền truy cập"
             );
+            console.trace("SIGN OUT");
             await signOut(auth);
             return;
         }
@@ -1045,6 +1051,7 @@ window.emailLogin = async function() {
                 "error",
                 "Tài khoản bị khóa"
             );
+            console.trace("SIGN OUT");
             await signOut(auth);
             return;
         }
@@ -1142,6 +1149,7 @@ window.emailRegister = async function() {
         document.getElementById("registerConfirmPassword").value = "";
 
         // Đăng xuất để buộc user phải đăng nhập lại (vì createUserWithEmailAndPassword tự động đăng nhập)
+        console.trace("SIGN OUT");
         await signOut(auth);
 
         // Chuyển sang tab đăng nhập
