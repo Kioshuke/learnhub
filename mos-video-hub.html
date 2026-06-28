@@ -347,6 +347,18 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
 
+    .document-link {
+      text-decoration: none;
+    }
+
+    .document-badge {
+      background: linear-gradient(135deg, var(--office), #f2994a) !important;
+    }
+
+    .document-chevron {
+      font-size: 16px;
+    }
+
     .lesson:hover {
       border-color: rgba(37, 99, 235, 0.28);
       box-shadow: var(--shadow-hover);
@@ -568,9 +580,13 @@
     // Cách thêm bài mới: vào đúng mục (category) bên dưới, copy 1 dòng { lesson: ..., title: ..., url: ... }
     // rồi dán link Facebook HOẶC YouTube + tên bài vào. Hệ thống tự nhận diện loại link, không cần khai báo gì thêm.
     // Link YouTube nhận các dạng: youtube.com/watch?v=..., youtu.be/..., youtube.com/shorts/...
+    // documentUrl (tùy chọn): nếu mục có link folder Drive tài liệu, dán vào đây.
+    // Sẽ tự hiện 1 dòng "Tài liệu" ở trên cùng (trước Bài 1) trong mục đó, bấm vào mở folder Drive.
+    // Không khai báo documentUrl thì mục đó không có dòng Tài liệu.
     const categories = [
       {
         name: "MOS Word",
+        documentUrl: "https://drive.google.com/drive/folders/181rUF1_PNQrpqiTJt4mDAWU8HuZgy_Sp?usp=drive_link",
         lessons: [
           {
             lesson: "Bài 1",
@@ -756,6 +772,24 @@
       `;
     }
 
+    function getDocumentRowHtml(documentUrl) {
+      if (!documentUrl) {
+        return "";
+      }
+
+      return `
+        <article class="lesson document-lesson">
+          <a class="lesson-toggle document-link" href="${documentUrl}" target="_blank" rel="noopener noreferrer">
+            <span class="lesson-heading">
+              <span class="lesson-badge document-badge">Tài liệu</span>
+              <span class="lesson-title">Mở trong Google Drive</span>
+            </span>
+            <span class="chevron document-chevron" aria-hidden="true">↗</span>
+          </a>
+        </article>
+      `;
+    }
+
     function getLessonHtml(video, catIndex, lessonIndex) {
       const lessonId = `lesson-${catIndex}-${lessonIndex}`;
       return `
@@ -796,9 +830,11 @@
 
         // Mục tự mở khi đang tìm kiếm và có kết quả khớp
         const openClass = isSearching && filteredLessons.length > 0 ? " open" : "";
-        const bodyContent = lessonsToShow.length
+        const documentRowHtml = getDocumentRowHtml(category.documentUrl);
+        const lessonsHtml = lessonsToShow.length
           ? lessonsToShow.map((video, lessonIndex) => getLessonHtml(video, catIndex, lessonIndex)).join("")
           : `<p class="category-empty">Chưa có bài nào trong mục này.</p>`;
+        const bodyContent = documentRowHtml + lessonsHtml;
 
         return `
           <article class="category${openClass}" data-cat-index="${catIndex}">
@@ -850,7 +886,7 @@
       }
 
       // Bấm vào 1 bài (lesson) bên trong mục — chỉ mở 1 bài tại 1 thời điểm trong cùng mục
-      const lessonToggle = event.target.closest(".lesson-toggle");
+      const lessonToggle = event.target.closest(".lesson-toggle:not(.document-link)");
       if (lessonToggle) {
         const lesson = lessonToggle.closest(".lesson");
         const category = lessonToggle.closest(".category");
