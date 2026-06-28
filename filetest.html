@@ -285,11 +285,6 @@ body.dark-mode .ans-label:hover {
             color: #60a5fa;
         }
         
-        body.dark-mode .image-board {
-            background: rgba(15, 23, 42, 0.72);
-            border: 1px solid rgba(255,255,255,0.06);
-        }
-        
         body.dark-mode .leaderboard-embed {
             background: rgba(15, 23, 42, 0.72);
             border: 1px solid rgba(255,255,255,0.06);
@@ -507,24 +502,6 @@ body.dark-mode .ans-label:hover {
             gap: 15px;
         }
         
-        .image-board {
-            background: var(--card);
-            padding: 15px;
-            border-radius: 16px;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-        
-        .image-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-        
-        .image-grid img {
-            width: 100%;
-            height: 80px;
-            object-fit: cover;
-        }
         
         .leaderboard-embed {
             flex: 1;
@@ -549,14 +526,6 @@ body.dark-mode .ans-label:hover {
             .result-right {
                 min-width: auto;
                 order: 2; /* Move to bottom on mobile */
-            }
-            
-            .image-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-            
-            .image-grid img {
-                height: 60px;
             }
             
             .leaderboard-embed {
@@ -844,15 +813,6 @@ body.dark-mode .ans-label:hover {
             </div>
         </div>
         <div class="result-right">
-            <div class="image-board">
-                <h4 style="margin: 0 0 10px 0; font-size: 0.9rem; color: var(--text-sub);">🖼️ Bảng ảnh</h4>
-                <div class="image-grid">
-                    <img src="https://via.placeholder.com/100x100/3b82f6/ffffff?text=1" alt="Image 1" style="border-radius: 8px;">
-                    <img src="https://via.placeholder.com/100x100/10b981/ffffff?text=2" alt="Image 2" style="border-radius: 8px;">
-                    <img src="https://via.placeholder.com/100x100/f59e0b/ffffff?text=3" alt="Image 3" style="border-radius: 8px;">
-                    <img src="https://via.placeholder.com/100x100/ef4444/ffffff?text=4" alt="Image 4" style="border-radius: 8px;">
-                </div>
-            </div>
             <div class="leaderboard-embed">
                 <iframe src="leaderboard.html" frameborder="0" style="width: 100%; height: 100%; border-radius: 12px;"></iframe>
             </div>
