@@ -430,6 +430,7 @@
         let activeInterval = null;
         let unsubscribeUsers = null;
         let unsubscribeViewUser = null; // Listener cho profile người khác
+        let unsubscribeOwnProfile = null; // Listener cho profile của mình
         let currentViewUserId = null; // Track user đang xem
 
         // ===== UPDATE ONLINE STATUS =====
@@ -572,11 +573,21 @@
                 unsubscribeViewUser();
                 unsubscribeViewUser = null;
             }
+            if (unsubscribeOwnProfile) {
+                unsubscribeOwnProfile();
+                unsubscribeOwnProfile = null;
+            }
         }
 
         // Load profile người khác
         function loadViewUserProfile(userId) {
-            // Unsubscribe listener cũ nếu có
+            // Unsubscribe listener của profile mình trước
+            if (unsubscribeOwnProfile) {
+                unsubscribeOwnProfile();
+                unsubscribeOwnProfile = null;
+            }
+
+            // Unsubscribe listener người khác cũ nếu có
             if (unsubscribeViewUser) {
                 unsubscribeViewUser();
                 unsubscribeViewUser = null;
@@ -610,16 +621,22 @@
 
         // Load profile của chính mình
         function loadOwnProfile() {
-            // Unsubscribe listener cũ nếu có
+            // Unsubscribe listener người khác trước
             if (unsubscribeViewUser) {
                 unsubscribeViewUser();
                 unsubscribeViewUser = null;
             }
 
+            // Unsubscribe listener profile mình cũ nếu có
+            if (unsubscribeOwnProfile) {
+                unsubscribeOwnProfile();
+                unsubscribeOwnProfile = null;
+            }
+
             currentViewUserId = null;
 
             const userDocRef = doc(db, 'users', currentUserId);
-            onSnapshot(userDocRef, (snapshot) => {
+            unsubscribeOwnProfile = onSnapshot(userDocRef, (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.data();
 
