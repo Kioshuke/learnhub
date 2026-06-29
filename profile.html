@@ -429,6 +429,8 @@
         let currentUserId = null;
         let activeInterval = null;
         let unsubscribeUsers = null;
+        let unsubscribeViewUser = null; // Listener cho profile người khác
+        let currentViewUserId = null; // Track user đang xem
 
         // ===== UPDATE ONLINE STATUS =====
         function updateOnlineStatus(isOnline) {
@@ -526,8 +528,20 @@
 
         // Xem profile người khác
         window.viewUserProfile = function(userId) {
-            // Mở profile của người khác (có thể truyền qua URL parameter)
-            window.location.href = `profile.html?user=${userId}`;
+            const currentUrl = new URL(window.location.href);
+            const currentViewUser = currentUrl.searchParams.get('user');
+
+            // Nếu click vào cùng người, không làm gì
+            if (currentViewUser === userId) {
+                return;
+            }
+
+            // Cập nhật URL mà không reload trang
+            const newUrl = `profile.html?user=${userId}`;
+            window.history.pushState({ userId: userId }, '', newUrl);
+
+            // Load profile người khác
+            loadViewUserProfile(userId);
         };
 
         // Xem tất cả users
@@ -546,7 +560,120 @@
                 unsubscribeUsers();
                 unsubscribeUsers = null;
             }
+            if (unsubscribeViewUser) {
+                unsubscribeViewUser();
+                unsubscribeViewUser = null;
+            }
         }
+
+        // Load profile người khác
+        function loadViewUserProfile(userId) {
+            // Unsubscribe listener cũ nếu có
+            if (unsubscribeViewUser) {
+                unsubscribeViewUser();
+                unsubscribeViewUser = null;
+            }
+
+            currentViewUserId = userId;
+
+            const viewUserDocRef = doc(db, 'users', userId);
+            unsubscribeViewUser = onSnapshot(viewUserDocRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.data();
+                    document.getElementById('profile-name-display').innerText = data.name || "Người dùng";
+                    document.getElementById('profile-email-display').innerText = data.email || "N/A";
+                    document.getElementById('profile-avatar-display').src = data.photo || "https://lh3.googleusercontent.com/a/default-user=s120-c";
+                    document.getElementById('profile-bio-display').innerText = data.bio ? `"${data.bio}"` : `"Chưa có tiểu sử"`;
+                    document.getElementById('profile-phone-display').innerText = data.phone || "Chưa cập nhật";
+                    document.getElementById('profile-birth-display').innerText = formatDate(data.birthdate);
+                    document.getElementById('profile-gender-display').innerText = data.gender || "Chưa cập nhật";
+                    document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
+
+                    const finalRole = data.role || "Thành viên";
+                    document.getElementById('profile-role-display').innerText = finalRole;
+                    applyRoleBadgeStyle(finalRole);
+
+                    // Ẩn nút settings khi xem profile người khác
+                    const settingsBtn = document.querySelector('button[onclick="openSettingsModal()"]');
+                    if (settingsBtn) settingsBtn.style.display = 'none';
+                }
+            });
+        }
+
+        // Load profile của chính mình
+        function loadOwnProfile() {
+            // Unsubscribe listener cũ nếu có
+            if (unsubscribeViewUser) {
+                unsubscribeViewUser();
+                unsubscribeViewUser = null;
+            }
+
+            currentViewUserId = null;
+
+            const userDocRef = doc(db, 'users', currentUserId);
+            onSnapshot(userDocRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.data();
+
+                    document.getElementById('profile-name-display').innerText = data.name || "Chưa cập nhật";
+                    document.getElementById('profile-email-display').innerText = data.email || auth.currentUser?.email;
+                    document.getElementById('profile-avatar-display').src = data.photo || "https://lh3.googleusercontent.com/a/default-user=s120-c";
+
+                    document.getElementById('profile-bio-display').innerText = data.bio ? `"${data.bio}"` : `"Chưa có tiểu sử"`;
+                    document.getElementById('profile-phone-display').innerText = data.phone || "Chưa cập nhật";
+
+                    document.getElementById('profile-birth-display').innerText = formatDate(data.birthdate);
+                    document.getElementById('profile-gender-display').innerText = data.gender || "Chưa cập nhật";
+                    document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
+
+                    const finalRole = data.role || "Thành viên";
+                    document.getElementById('profile-role-display').innerText = finalRole;
+
+                    applyRoleBadgeStyle(finalRole);
+
+                    document.getElementById('input-name').value = data.name || "";
+                    document.getElementById('input-avatar').value = data.photo || "";
+                    document.getElementById('input-bio').value = data.bio || "";
+                    document.getElementById('input-phone').value = data.phone || "";
+                    document.getElementById('input-birth').value = data.birthdate || "";
+                    document.getElementById('input-gender').value = data.gender || "";
+                    document.getElementById('school-name-display').value = data.school || "";
+
+                    // Hiển thị nút settings khi xem profile của mình
+                    const settingsBtn = document.querySelector('button[onclick="openSettingsModal()"]');
+                    if (settingsBtn) settingsBtn.style.display = 'flex';
+                } else {
+                    setDoc(userDocRef, {
+                        name: auth.currentUser?.displayName || "Học viên mới",
+                        email: auth.currentUser?.email,
+                        photo: auth.currentUser?.photoURL || "https://lh3.googleusercontent.com/a/default-user=s120-c",
+                        bio: "",
+                        phone: "",
+                        birthdate: "",
+                        gender: "",
+                        school: "",
+                        role: "Thành viên",
+                        online: true,
+                        lastActive: Date.now(),
+                        createdAt: new Date().toISOString()
+                    }).then(() => {
+                        console.log("Đã khởi tạo tài khoản mới thành công!");
+                    }).catch(err => console.error("Lỗi khởi tạo tài khoản:", err));
+                }
+            });
+        }
+
+        // Theo dõi thay đổi URL để load profile tương ứng
+        window.addEventListener('popstate', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewUserId = urlParams.get('user');
+
+            if (viewUserId && viewUserId !== currentUserId) {
+                loadViewUserProfile(viewUserId);
+            } else {
+                loadOwnProfile();
+            }
+        });
 
         window.openSettingsModal = function() {
             settingsModal.classList.remove('opacity-0', 'pointer-events-none');
@@ -610,82 +737,9 @@
                 const viewUserId = urlParams.get('user');
 
                 if (viewUserId && viewUserId !== currentUserId) {
-                    // Load profile của người khác
-                    const viewUserDocRef = doc(db, 'users', viewUserId);
-                    onSnapshot(viewUserDocRef, (snapshot) => {
-                        if (snapshot.exists()) {
-                            const data = snapshot.data();
-                            document.getElementById('profile-name-display').innerText = data.name || "Người dùng";
-                            document.getElementById('profile-email-display').innerText = data.email || "N/A";
-                            document.getElementById('profile-avatar-display').src = data.photo || "https://lh3.googleusercontent.com/a/default-user=s120-c";
-                            document.getElementById('profile-bio-display').innerText = data.bio ? `"${data.bio}"` : `"Chưa có tiểu sử"`;
-                            document.getElementById('profile-phone-display').innerText = data.phone || "Chưa cập nhật";
-                            document.getElementById('profile-birth-display').innerText = formatDate(data.birthdate);
-                            document.getElementById('profile-gender-display').innerText = data.gender || "Chưa cập nhật";
-                            document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
-
-                            const finalRole = data.role || "Thành viên";
-                            document.getElementById('profile-role-display').innerText = finalRole;
-                            applyRoleBadgeStyle(finalRole);
-
-                            // Ẩn nút settings khi xem profile người khác
-                            const settingsBtn = document.querySelector('button[onclick="openSettingsModal()"]');
-                            if (settingsBtn) settingsBtn.style.display = 'none';
-                        }
-                    });
+                    loadViewUserProfile(viewUserId);
                 } else {
-                    // Load profile của chính mình
-                    const userDocRef = doc(db, 'users', currentUserId);
-                    onSnapshot(userDocRef, (snapshot) => {
-                        if (snapshot.exists()) {
-                            const data = snapshot.data();
-
-                            document.getElementById('profile-name-display').innerText = data.name || "Chưa cập nhật";
-                            document.getElementById('profile-email-display').innerText = data.email || user.email;
-                            document.getElementById('profile-avatar-display').src = data.photo || "https://lh3.googleusercontent.com/a/default-user=s120-c";
-
-                            document.getElementById('profile-bio-display').innerText = data.bio ? `"${data.bio}"` : `"Chưa có tiểu sử"`;
-                            document.getElementById('profile-phone-display').innerText = data.phone || "Chưa cập nhật";
-
-                            document.getElementById('profile-birth-display').innerText = formatDate(data.birthdate);
-                            document.getElementById('profile-gender-display').innerText = data.gender || "Chưa cập nhật";
-                            document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
-
-                            const finalRole = data.role || "Thành viên";
-                            document.getElementById('profile-role-display').innerText = finalRole;
-
-                            applyRoleBadgeStyle(finalRole);
-
-                            document.getElementById('input-name').value = data.name || "";
-                            document.getElementById('input-avatar').value = data.photo || "";
-                            document.getElementById('input-bio').value = data.bio || "";
-                            document.getElementById('input-phone').value = data.phone || "";
-                            document.getElementById('input-birth').value = data.birthdate || "";
-                            document.getElementById('input-gender').value = data.gender || "";
-                            document.getElementById('school-name-display').value = data.school || "";
-
-                            // Hiển thị nút settings khi xem profile của mình
-                            const settingsBtn = document.querySelector('button[onclick="openSettingsModal()"]');
-                            if (settingsBtn) settingsBtn.style.display = 'flex';
-                        } else {
-                            setDoc(userDocRef, {
-                                name: user.displayName || "Học viên mới",
-                                email: user.email,
-                                photo: user.photoURL || "https://lh3.googleusercontent.com/a/default-user=s120-c",
-                                bio: "",
-                                phone: "",
-                                birthdate: "",
-                                gender: "",
-                                school: "",
-                                role: "Thành viên",
-                                online: true,
-                                lastActive: Date.now(),
-                                createdAt: new Date().toISOString()
-                            }).then(() => {
-                                console.log("Đã khởi tạo tài khoản mới thành công!");
-                            }).catch(err => console.error("Lỗi khởi tạo tài khoản:", err));
-                        }
-                    });
+                    loadOwnProfile();
                 }
 
                 const statsDocRef = doc(db, 'testStats', currentUserId);
