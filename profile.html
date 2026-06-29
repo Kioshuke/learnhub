@@ -248,51 +248,8 @@
                             <span class="text-[10px] font-bold text-green-600 bg-white px-1.5 py-0.5 rounded-md">Đang hoạt động</span>
                         </div>
                         
-                        <div class="grid grid-cols-4 gap-3 bg-white p-3 rounded-xl border border-gray-100">
-                            <div class="flex flex-col items-center text-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group">
-                                <div class="relative">
-                                    <img src="https://lh3.googleusercontent.com/a/default-user=s40" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
-                                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
-                                </div>
-                                <span class="text-[10px] font-medium mt-1.5 text-gray-700 truncate w-full px-0.5">Anh Tuấn</span>
-                            </div>
-
-                            <div class="flex flex-col items-center text-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group">
-                                <div class="relative">
-                                    <img src="https://lh3.googleusercontent.com/a/default-user=s40" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
-                                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
-                                </div>
-                                <span class="text-[10px] font-medium mt-1.5 text-gray-700 truncate w-full px-0.5">Minh Thư</span>
-                            </div>
-
-                            <div class="flex flex-col items-center text-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group">
-                                <div class="relative">
-                                    <img src="https://lh3.googleusercontent.com/a/default-user=s40" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
-                                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
-                                </div>
-                                <span class="text-[10px] font-medium mt-1.5 text-gray-700 truncate w-full px-0.5">Quốc Bảo</span>
-                            </div>
-
-                            <div class="flex flex-col items-center text-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group">
-                                <div class="relative">
-                                    <img src="https://lh3.googleusercontent.com/a/default-user=s40" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
-                                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
-                                </div>
-                                <span class="text-[10px] font-medium mt-1.5 text-gray-700 truncate w-full px-0.5">Ngọc Hân</span>
-                            </div>
-
-                            <div class="flex flex-col items-center text-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group">
-                                <div class="relative">
-                                    <img src="https://lh3.googleusercontent.com/a/default-user=s40" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
-                                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
-                                </div>
-                                <span class="text-[10px] font-medium mt-1.5 text-gray-700 truncate w-full px-0.5">Hoàng Long</span>
-                            </div>
-
-                            <div class="flex flex-col items-center justify-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-dashed border-blue-200 bg-blue-50/30 h-[68px]">
-                                <i class="fas fa-ellipsis-h text-xs text-lh-primary"></i>
-                                <span class="text-[10px] font-bold text-lh-primary mt-1">Xem thêm</span>
-                            </div>
+                        <div id="users-grid" class="grid grid-cols-4 gap-3 bg-white p-3 rounded-xl border border-gray-100">
+                            <!-- Users will be loaded dynamically from Firebase -->
                         </div>
                     </div>
                 </div>
@@ -465,11 +422,134 @@
 
     <script type="module">
         import { db, auth } from "./firebase-config.js";
-        import { doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+        import { doc, onSnapshot, setDoc, collection } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
         import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
         const settingsModal = document.getElementById('settings-modal');
         let currentUserId = null;
+        let activeInterval = null;
+        let unsubscribeUsers = null;
+
+        // ===== UPDATE ONLINE STATUS =====
+        function updateOnlineStatus(isOnline) {
+            const user = auth.currentUser;
+            if (user) {
+                return setDoc(doc(db, "users", user.uid), {
+                    online: isOnline,
+                    lastActive: Date.now(),
+                    lastSeen: new Date().toISOString()
+                }, { merge: true });
+            }
+        }
+
+        // Theo dõi visibility change để cập nhật online status
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "hidden") {
+                updateOnlineStatus(false);
+            } else {
+                updateOnlineStatus(true);
+            }
+        });
+
+        // Interval để cập nhật online status mỗi 5 giây
+        function startOnlineInterval() {
+            if (!activeInterval) {
+                activeInterval = setInterval(() => {
+                    const u = auth.currentUser;
+                    if (u) {
+                        setDoc(doc(db, "users", u.uid), {
+                            lastActive: Date.now(),
+                            online: true
+                        }, { merge: true });
+                    }
+                }, 5000);
+            }
+        }
+
+        // ===== LISTEN TO USERS COLLECTION =====
+        function startUsersListener() {
+            if (unsubscribeUsers) unsubscribeUsers();
+
+            unsubscribeUsers = onSnapshot(collection(db, "users"), (snap) => {
+                const usersContainer = document.getElementById('users-grid');
+                if (!usersContainer) return;
+
+                const users = [];
+                snap.forEach(doc => {
+                    users.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Sắp xếp: online trước, sau đó theo lastActive mới nhất
+                const now = Date.now();
+                const ACTIVE_THRESHOLD = 45000;
+
+                users.sort((a, b) => {
+                    const aOnline = a.online && a.lastActive && (now - a.lastActive) < ACTIVE_THRESHOLD;
+                    const bOnline = b.online && b.lastActive && (now - b.lastActive) < ACTIVE_THRESHOLD;
+
+                    if (aOnline && !bOnline) return -1;
+                    if (!aOnline && bOnline) return 1;
+                    return (b.lastActive || 0) - (a.lastActive || 0);
+                });
+
+                // Hiển thị 11 người đầu tiên
+                const displayUsers = users.slice(0, 11);
+                const hasMore = users.length > 11;
+
+                let html = '';
+                displayUsers.forEach(u => {
+                    const isOnline = u.online && u.lastActive && (now - u.lastActive) < ACTIVE_THRESHOLD;
+                    const statusColor = isOnline ? 'bg-green-500' : 'bg-red-500';
+                    const statusPulse = isOnline ? 'animate-pulse' : '';
+
+                    html += `
+                        <div class="flex flex-col items-center text-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group" onclick="viewUserProfile('${u.id}')">
+                            <div class="relative">
+                                <img src="${u.photo || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
+                                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 ${statusColor} border-2 border-white rounded-full ${statusPulse}"></span>
+                            </div>
+                            <span class="text-[10px] font-medium mt-1.5 text-gray-700 truncate w-full px-0.5">${u.name || 'User'}</span>
+                        </div>
+                    `;
+                });
+
+                // Nút xem thêm
+                if (hasMore) {
+                    html += `
+                        <div class="flex flex-col items-center justify-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-dashed border-blue-200 bg-blue-50/30 h-[68px]" onclick="viewAllUsers()">
+                            <i class="fas fa-ellipsis-h text-xs text-lh-primary"></i>
+                            <span class="text-[10px] font-bold text-lh-primary mt-1">Xem thêm</span>
+                        </div>
+                    `;
+                }
+
+                usersContainer.innerHTML = html;
+            });
+        }
+
+        // Xem profile người khác
+        window.viewUserProfile = function(userId) {
+            // Mở profile của người khác (có thể truyền qua URL parameter)
+            window.location.href = `profile.html?user=${userId}`;
+        };
+
+        // Xem tất cả users
+        window.viewAllUsers = function() {
+            // Có thể mở modal hoặc trang riêng để hiển thị tất cả
+            window.showToast('Tính năng xem tất cả đang phát triển', 'info');
+        };
+
+        // Cleanup khi logout
+        function cleanup() {
+            if (activeInterval) {
+                clearInterval(activeInterval);
+                activeInterval = null;
+            }
+            if (unsubscribeUsers) {
+                unsubscribeUsers();
+                unsubscribeUsers = null;
+            }
+        }
 
         window.openSettingsModal = function() {
             settingsModal.classList.remove('opacity-0', 'pointer-events-none');
@@ -523,6 +603,10 @@
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUserId = user.uid;
+
+                // Bắt đầu cập nhật online status và listener users
+                startOnlineInterval();
+                startUsersListener();
                 
                 const userDocRef = doc(db, 'users', currentUserId);
                 onSnapshot(userDocRef, (snapshot) => {
@@ -591,8 +675,39 @@
 
             } else {
                 console.log("Học viên chưa đăng nhập!");
+                cleanup();
             }
         });
+
+        // Xử lý khi xem profile người khác qua URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewUserId = urlParams.get('user');
+
+        if (viewUserId && viewUserId !== currentUserId) {
+            // Load profile của người khác
+            const viewUserDocRef = doc(db, 'users', viewUserId);
+            onSnapshot(viewUserDocRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.data();
+                    document.getElementById('profile-name-display').innerText = data.name || "Người dùng";
+                    document.getElementById('profile-email-display').innerText = data.email || "N/A";
+                    document.getElementById('profile-avatar-display').src = data.photo || "https://lh3.googleusercontent.com/a/default-user=s120-c";
+                    document.getElementById('profile-bio-display').innerText = data.bio ? `"${data.bio}"` : `"Chưa có tiểu sử"`;
+                    document.getElementById('profile-phone-display').innerText = data.phone || "Chưa cập nhật";
+                    document.getElementById('profile-birth-display').innerText = formatDate(data.birthdate);
+                    document.getElementById('profile-gender-display').innerText = data.gender || "Chưa cập nhật";
+                    document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
+
+                    const finalRole = data.role || "Thành viên";
+                    document.getElementById('profile-role-display').innerText = finalRole;
+                    applyRoleBadgeStyle(finalRole);
+
+                    // Ẩn nút settings khi xem profile người khác
+                    const settingsBtn = document.querySelector('button[onclick="openSettingsModal()"]');
+                    if (settingsBtn) settingsBtn.style.display = 'none';
+                }
+            });
+        }
 
         window.saveSettings = function(e) {
             e.preventDefault();
