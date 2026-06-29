@@ -240,14 +240,14 @@
                         </div>
                     </div>
 
-                    <div class="space-y-3 bg-green-100/70 border border-green-200 rounded-xl p-4 shadow-sm">
+                    <div id="users-section" class="space-y-3 bg-green-100/70 border border-green-200 rounded-xl p-4 shadow-sm">
                         <div class="flex justify-between items-center">
                             <h3 class="text-xs font-bold uppercase tracking-widest text-lh-textSub flex items-center gap-1.5">
                                 <i class="fas fa-circle text-[8px] text-green-500"></i> Hệ Thống Hồ Sơ Người Dùng
                             </h3>
                             <span class="text-[10px] font-bold text-green-600 bg-white px-1.5 py-0.5 rounded-md">Đang hoạt động</span>
                         </div>
-                        
+
                         <div id="users-grid" class="grid grid-cols-4 gap-3 bg-white p-3 rounded-xl border border-gray-100">
                             <!-- Users will be loaded dynamically from Firebase -->
                         </div>
@@ -595,6 +595,10 @@
 
             currentViewUserId = userId;
 
+            // Ẩn phần Hệ Thống Hồ Sơ Người Dùng khi xem profile người khác
+            const usersSection = document.getElementById('users-section');
+            if (usersSection) usersSection.style.display = 'none';
+
             const viewUserDocRef = doc(db, 'users', userId);
             unsubscribeViewUser = onSnapshot(viewUserDocRef, (snapshot) => {
                 if (snapshot.exists()) {
@@ -634,6 +638,10 @@
             }
 
             currentViewUserId = null;
+
+            // Hiển thị lại phần Hệ Thống Hồ Sơ Người Dùng khi xem profile của mình
+            const usersSection = document.getElementById('users-section');
+            if (usersSection) usersSection.style.display = 'block';
 
             const userDocRef = doc(db, 'users', currentUserId);
             unsubscribeOwnProfile = onSnapshot(userDocRef, (snapshot) => {
