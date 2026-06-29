@@ -31,7 +31,7 @@
         <!-- Tinh giản ô tiêu đề gọn gàng, giảm padding, thu nhỏ font chữ -->
         <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3.5 text-center text-white flex flex-col items-center justify-center gap-0.5">
             <h1 class="text-xl font-bold uppercase tracking-wide flex justify-center items-center gap-2">
-                <i class="fas fa-trophy text-yellow-300 text-base"></i> VIP LEADERBOARD 🏆
+                <i class="fas fa-trophy text-yellow-300 text-base"></i> LEARNHUB LEADERBOARD 🏆
             </h1>
             <p class="text-blue-100/90 text-xs font-medium">Hệ thống vinh danh học viên LearnHub</p>
         </div>
@@ -39,10 +39,10 @@
         <!-- Thanh Tab tinh chỉnh khít và mượt hơn -->
         <div class="flex border-b border-gray-100 bg-gray-50/80">
             <button id="tab-current" class="w-1/2 py-3 text-center font-bold text-xs uppercase tracking-wider border-b-2 border-blue-600 text-blue-600 transition-all focus:outline-none">
-                <i class="fas fa-calendar-day mr-1"></i> Tuần này
+                <i class="fas fa-calendar-day mr-1"></i> Tuần này <span id="current-week-id" class="ml-1 text-[10px] opacity-80"></span>
             </button>
             <button id="tab-history" class="w-1/2 py-3 text-center font-semibold text-xs uppercase tracking-wider text-gray-400 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-200 transition-all focus:outline-none">
-                <i class="fas fa-history mr-1"></i> Tuần trước
+                <i class="fas fa-history mr-1"></i> Tuần trước <span id="prev-week-id" class="ml-1 text-[10px] opacity-80"></span>
             </button>
         </div>
 
@@ -90,12 +90,29 @@
 
         function getWeekKeys() {
             const now = new Date();
-            const oneJan = new Date(now.getFullYear(), 0, 1);
-            const numberOfDays = Math.floor((now - oneJan) / (24 * 60 * 60 * 1000));
-            const currentWeekNum = Math.ceil((numberOfDays + oneJan.getDay() + 1) / 7);
+            const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            const currentWeekNum = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
             
-            const currentWeekKey = `${now.getFullYear()}-W${String(currentWeekNum).padStart(2, '0')}`;
-            const prevWeekKey = `${now.getFullYear()}-W${String(currentWeekNum - 1).padStart(2, '0')}`;
+            const currentWeekKey = `${d.getUTCFullYear()}-W${String(currentWeekNum).padStart(2, '0')}`;
+            
+            // Tính tuần trước
+            const prevDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const pd = new Date(Date.UTC(prevDate.getFullYear(), prevDate.getMonth(), prevDate.getDate()));
+            const pDayNum = pd.getUTCDay() || 7;
+            pd.setUTCDate(pd.getUTCDate() + 4 - pDayNum);
+            const pYearStart = new Date(Date.UTC(pd.getUTCFullYear(), 0, 1));
+            const prevWeekNum = Math.ceil((((pd - pYearStart) / 86400000) + 1) / 7);
+            const prevWeekKey = `${pd.getUTCFullYear()}-W${String(prevWeekNum).padStart(2, '0')}`;
+            
+            // --- ĐỔ MÃ TUẦN THẲNG VÀO CÁC NÚT TAB ---
+            const currentTxt = document.getElementById("current-week-id");
+            const prevTxt = document.getElementById("prev-week-id");
+            if (currentTxt) currentTxt.innerText = `(${currentWeekKey})`;
+            if (prevTxt) prevTxt.innerText = `(${prevWeekKey})`;
+            // ----------------------------------------
             
             return { current: currentWeekKey, previous: prevWeekKey };
         }
