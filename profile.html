@@ -81,6 +81,15 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(26, 115, 232, 0.12);
         }
+
+        /* ===== TOAST TIMELINE ANIMATION ===== */
+        @keyframes shrinkWidth {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        .toast-timeline {
+            animation: shrinkWidth 5s linear forwards;
+        }
     </style>
 </head>
 <body class="bg-lh-bg text-lh-text min-h-screen py-4 px-4 sm:py-6 sm:px-6 flex justify-center items-start">
@@ -387,40 +396,49 @@
     <div id="toast-container" class="fixed top-5 right-5 z-[99999] flex flex-col gap-3 pointer-events-none"></div>
 
     <script>
-        // Hàm hiển thị thông báo Toast dạng popup bo góc mờ kính (Hỗ trợ Dark Mode hệ thống)
+        // Hàm hiển thị thông báo Toast dạng popup bo góc mờ kính siêu đẹp kèm thanh thời gian chạy ngược
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             if (!container) return;
 
             let icon = '💡';
             let iconColor = 'text-blue-500';
-            let borderColor = 'border-blue-500/30';
+            let barColor = 'bg-blue-500';
+            let borderColor = 'border-blue-500/20';
             
             if (type === 'success') {
-                icon = '✅';
-                iconColor = 'text-green-500';
-                borderColor = 'border-green-500/30';
+                icon = '✨';
+                iconColor = 'text-emerald-500';
+                barColor = 'bg-emerald-500';
+                borderColor = 'border-emerald-500/20';
             } else if (type === 'error' || type === 'warning') {
-                icon = '❌';
-                iconColor = 'text-red-500';
-                borderColor = 'border-red-500/30';
+                icon = '💥';
+                iconColor = 'text-rose-500';
+                barColor = 'bg-rose-500';
+                borderColor = 'border-rose-500/20';
             }
 
             const toast = document.createElement('div');
-            toast.className = `flex items-center gap-3 p-4 rounded-xl shadow-lg border backdrop-blur-md transition-all duration-300 transform translate-x-full opacity-0 pointer-events-auto max-w-sm`;
-            toast.style.background = 'var(--popup-bg, rgba(255, 255, 255, 0.85))';
+            // Giao diện tinh chỉnh bo góc tròn sâu (rounded-2xl) và bóng mịn màng thanh lịch
+            toast.className = `flex flex-col rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] border backdrop-blur-xl transition-all duration-300 transform translate-x-full opacity-0 pointer-events-auto max-w-sm overflow-hidden`;
+            toast.style.background = 'var(--popup-bg, rgba(255, 255, 255, 0.9))';
             toast.style.borderColor = 'var(--footer-border, #e5e7eb)';
             toast.classList.add(borderColor);
 
             toast.innerHTML = `
-                <span class="${iconColor} text-lg">${icon}</span>
-                <div class="flex-1 text-sm font-semibold" style="color: var(--text-main, #111827);">${message}</div>
-                <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-600 text-xs ml-2">×</button>
+                <div class="flex items-center gap-3 p-4 pr-5">
+                    <span class="${iconColor} text-xl flex-shrink-0">${icon}</span>
+                    <div class="flex-1 text-xs font-bold tracking-wide" style="color: var(--text-main, #1e293b);">${message}</div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600 text-sm font-bold ml-2 transition-colors">×</button>
+                </div>
+                <div class="w-full h-[3px] bg-gray-100/50 mt-auto">
+                    <div class="h-full toast-timeline ${barColor}"></div>
+                </div>
             `;
 
             container.appendChild(toast);
 
-            // Kích hoạt hiệu ứng bay vào từ bên phải
+            // Kích hoạt hiệu ứng bay vào từ bên phải mượt mà
             setTimeout(() => {
                 toast.classList.remove('translate-x-full', 'opacity-0');
             }, 10);
@@ -428,15 +446,15 @@
             // Phát âm thanh thông báo
             try {
                 const audio = new Audio('sound/realtimesound.mp3');
-                audio.volume = 0.6;
+                audio.volume = 0.5;
                 audio.play();
             } catch (e) {
-                console.log("Trình duyệt chặn autoplay âm thanh:", e);
+                console.log("Trình duyệt chặn phát âm thanh:", e);
             }
 
-            // Tự động đóng sau 5 giây (5000ms)
+            // Tự động đóng sau đúng 5 giây trùng khít với thanh chạy ngược
             setTimeout(() => {
-                toast.classList.add('opacity-0', 'scale-95');
+                toast.classList.add('opacity-0', '-translate-y-2', 'scale-95');
                 setTimeout(() => { toast.remove(); }, 300);
             }, 5000);
         }
@@ -446,17 +464,13 @@
     </script>
 
     <script type="module">
-        // Import trực tiếp db và auth từ file cấu hình duy nhất của sốp
         import { db, auth } from "./firebase-config.js";
-        
-        // Import các hàm cần thiết của Firestore v12 và Auth v12
         import { doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
         import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
         const settingsModal = document.getElementById('settings-modal');
         let currentUserId = null;
 
-        // Đưa các hàm đóng/mở modal ra phạm vi toàn cục (window) để các nút onclick HTML chạy được
         window.openSettingsModal = function() {
             settingsModal.classList.remove('opacity-0', 'pointer-events-none');
             settingsModal.firstElementChild.classList.remove('scale-95');
@@ -472,7 +486,7 @@
             document.getElementById('input-confirm-password').value = "";
         }
 
-        // Định dạng hiển thị ngày DD/MM/YYYY
+        // ĐỊNH DẠNG NGÀY THÁNG NĂM CHUẨN DD/MM/YYYY
         function formatDate(dateString) {
             if (!dateString) return "Chưa cập nhật";
             const date = new Date(dateString);
@@ -483,31 +497,27 @@
             return `${day}/${month}/${year}`;
         }
 
-        // TỰ ĐỘNG KIỂM TRA ĐĂNG NHẬP VÀ KHỞI TẠO ĐỒNG BỘ DATA CHO TẤT CẢ USER
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUserId = user.uid;
                 
-                // 1. Lắng nghe realtime thông tin cá nhân từ collection 'users'
                 const userDocRef = doc(db, 'users', currentUserId);
                 onSnapshot(userDocRef, (snapshot) => {
                     if (snapshot.exists()) {
                         const data = snapshot.data();
                         
-                        // Đổ dữ liệu ra ngoài UI hiển thị công khai
                         document.getElementById('profile-name-display').innerText = data.name || "Chưa cập nhật";
                         document.getElementById('profile-email-display').innerText = data.email || user.email;
                         document.getElementById('profile-avatar-display').src = data.photo || "https://lh3.googleusercontent.com/a/default-user=s120-c";
                         document.getElementById('profile-bio-display').innerText = data.bio ? `"${data.bio}"` : `"Quyết tâm chinh phục mọi kỳ thi!"`;
                         document.getElementById('profile-phone-display').innerText = data.phone || "Chưa cập nhật";
+                        
+                        // Định dạng hiển thị ngày sinh chuẩn trên UI
                         document.getElementById('profile-birth-display').innerText = formatDate(data.birthdate);
                         document.getElementById('profile-gender-display').innerText = data.gender || "Chưa cập nhật";
                         document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
-                        
-                        // Hiển thị Chức vụ
                         document.getElementById('profile-role-display').innerText = data.role || "Thành viên";
 
-                        // Điền sẵn dữ liệu vào form Input của Modal để sửa
                         document.getElementById('input-name').value = data.name || "";
                         document.getElementById('input-avatar').value = data.photo || "";
                         document.getElementById('input-bio').value = data.bio || "";
@@ -516,7 +526,6 @@
                         document.getElementById('input-gender').value = data.gender || "";
                         document.getElementById('input-school').value = data.school || "";
                     } else {
-                        // TỰ ĐỘNG KHỞI TẠO MẶC ĐỊNH
                         setDoc(userDocRef, {
                             name: user.displayName || "Học viên mới",
                             email: user.email,
@@ -535,21 +544,17 @@
                     }
                 });
 
-                // 2. Lắng nghe realtime thống kê điểm số từ collection 'testStats'
                 const statsDocRef = doc(db, 'testStats', currentUserId);
                 onSnapshot(statsDocRef, (snapshot) => {
                     if (snapshot.exists()) {
                         const stats = snapshot.data();
-                        
                         document.getElementById('stat-total-tests').innerText = stats.totalTests || 0;
                         document.getElementById('stat-total-score').innerText = parseFloat(stats.totalScore || 0).toFixed(2);
                         document.getElementById('stat-best-score').innerText = parseFloat(stats.bestScore || 0).toFixed(2);
                         
-                        // Tính toán điểm số trung bình
                         const avg = stats.totalTests ? (stats.totalScore / stats.totalTests) : 0;
                         document.getElementById('stat-avg-score').innerText = avg.toFixed(2);
                         
-                        // Tiến trình XP thanh dưới cùng
                         const currentXp = stats.xp || 0;
                         document.getElementById('profile-xp-display').innerHTML = `⭐ ${currentXp} XP`;
                         document.getElementById('stat-xp-progress').innerText = `${currentXp} / 100 XP`;
@@ -561,7 +566,6 @@
             }
         });
 
-        // XỬ LÝ LƯU SETTINGS KHI SUBMIT FORM MODAL (ĐÃ CHUYỂN TOÀN BỘ SANG TOAST NOTIFICATION)
         window.saveSettings = function(e) {
             e.preventDefault();
             if (!currentUserId) return window.showToast("Lỗi: Không tìm thấy phiên đăng nhập!", "error");
@@ -570,7 +574,6 @@
             const textNewPassword = document.getElementById('input-new-password').value;
             const confirmPassword = document.getElementById('input-confirm-password').value;
 
-            // Xử lý nghiệp vụ đổi mật khẩu tài khoản
             if (oldPassword || textNewPassword || confirmPassword) {
                 if (!oldPassword) return window.showToast("Vui lòng nhập mật khẩu cũ để xác minh!", "warning");
                 if (textNewPassword !== confirmPassword) return window.showToast("Mật khẩu mới không trùng khớp!", "error");
@@ -586,22 +589,24 @@
                 }).catch(() => window.showToast("Mật khẩu cũ không chính xác!", "error"));
             }
 
-            // Gom cụm thông tin để lưu đè lên Firestore
+            const inputBirthVal = document.getElementById('input-birth').value;
+
             const updatedProfile = {
                 name: document.getElementById('input-name').value,
                 photo: document.getElementById('input-avatar').value,
                 bio: document.getElementById('input-bio').value,
                 phone: document.getElementById('input-phone').value,
-                birthdate: document.getElementById('input-birth').value,
+                birthdate: inputBirthVal, // Lưu nguyên dạng YYYY-MM-DD để input date đọc hiểu
                 gender: document.getElementById('input-gender').value,
                 school: document.getElementById('input-school').value,
                 updatedAt: new Date().toISOString()
             };
 
-            // Lưu đè dữ liệu lên Firestore có sử dụng merge: true
             const userDocRef = doc(db, 'users', currentUserId);
             setDoc(userDocRef, updatedProfile, { merge: true })
                 .then(() => {
+                    // Cập nhật nóng ngay lập tức định dạng DD/MM/YYYY lên giao diện chính
+                    document.getElementById('profile-birth-display').innerText = formatDate(inputBirthVal);
                     window.showToast("Cài đặt hồ sơ của bạn đã được lưu lại thành công!", "success");
                     closeSettingsModal();
                 })
