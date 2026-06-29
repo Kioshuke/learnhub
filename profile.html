@@ -481,8 +481,19 @@
                     users.push({ id: doc.id, ...doc.data() });
                 });
 
-                // Sắp xếp theo thứ tự chữ cái (alphabetical) theo tên
+                // Sắp xếp: online trước (theo bảng chữ cái), offline sau (theo bảng chữ cái)
+                const now = Date.now();
+                const ACTIVE_THRESHOLD = 45000;
+
                 users.sort((a, b) => {
+                    const aOnline = a.online && a.lastActive && (now - a.lastActive) < ACTIVE_THRESHOLD;
+                    const bOnline = b.online && b.lastActive && (now - b.lastActive) < ACTIVE_THRESHOLD;
+
+                    // Online trước, offline sau
+                    if (aOnline && !bOnline) return -1;
+                    if (!aOnline && bOnline) return 1;
+
+                    // Cùng trạng thái, sắp xếp theo bảng chữ cái
                     const nameA = (a.name || '').toLowerCase();
                     const nameB = (b.name || '').toLowerCase();
                     return nameA.localeCompare(nameB, 'vi');
@@ -491,9 +502,6 @@
                 // Hiển thị 11 người đầu tiên
                 const displayUsers = users.slice(0, 11);
                 const hasMore = users.length > 11;
-
-                const now = Date.now();
-                const ACTIVE_THRESHOLD = 45000;
 
                 let html = '';
                 displayUsers.forEach(u => {
