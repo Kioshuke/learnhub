@@ -384,6 +384,67 @@
         </div>
     </div>
 
+    <div id="toast-container" class="fixed top-5 right-5 z-[99999] flex flex-col gap-3 pointer-events-none"></div>
+
+    <script>
+        // Hàm hiển thị thông báo Toast dạng popup bo góc mờ kính (Hỗ trợ Dark Mode hệ thống)
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            let icon = '💡';
+            let iconColor = 'text-blue-500';
+            let borderColor = 'border-blue-500/30';
+            
+            if (type === 'success') {
+                icon = '✅';
+                iconColor = 'text-green-500';
+                borderColor = 'border-green-500/30';
+            } else if (type === 'error' || type === 'warning') {
+                icon = '❌';
+                iconColor = 'text-red-500';
+                borderColor = 'border-red-500/30';
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `flex items-center gap-3 p-4 rounded-xl shadow-lg border backdrop-blur-md transition-all duration-300 transform translate-x-full opacity-0 pointer-events-auto max-w-sm`;
+            toast.style.background = 'var(--popup-bg, rgba(255, 255, 255, 0.85))';
+            toast.style.borderColor = 'var(--footer-border, #e5e7eb)';
+            toast.classList.add(borderColor);
+
+            toast.innerHTML = `
+                <span class="${iconColor} text-lg">${icon}</span>
+                <div class="flex-1 text-sm font-semibold" style="color: var(--text-main, #111827);">${message}</div>
+                <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-600 text-xs ml-2">×</button>
+            `;
+
+            container.appendChild(toast);
+
+            // Kích hoạt hiệu ứng bay vào từ bên phải
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+            }, 10);
+
+            // Phát âm thanh thông báo
+            try {
+                const audio = new Audio('sound/realtimesound.mp3');
+                audio.volume = 0.6;
+                audio.play();
+            } catch (e) {
+                console.log("Trình duyệt chặn autoplay âm thanh:", e);
+            }
+
+            // Tự động đóng sau 5 giây (5000ms)
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => { toast.remove(); }, 300);
+            }, 5000);
+        }
+
+        // Đưa hàm ra phạm vi toàn cục window để module firebase ở dưới gọi được
+        window.showToast = showToast;
+    </script>
+
     <script type="module">
         // Import trực tiếp db và auth từ file cấu hình duy nhất của sốp
         import { db, auth } from "./firebase-config.js";
@@ -443,7 +504,7 @@
                         document.getElementById('profile-gender-display').innerText = data.gender || "Chưa cập nhật";
                         document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
                         
-                        // Hiển thị Chức vụ (Nếu trên DB chưa có trường role thì mặc định UI hiển thị là "Thành viên")
+                        // Hiển thị Chức vụ
                         document.getElementById('profile-role-display').innerText = data.role || "Thành viên";
 
                         // Điền sẵn dữ liệu vào form Input của Modal để sửa
@@ -455,8 +516,7 @@
                         document.getElementById('input-gender').value = data.gender || "";
                         document.getElementById('input-school').value = data.school || "";
                     } else {
-                        // TỰ ĐỘNG KHỞI TẠO MẶC ĐỊNH: Nếu chưa có document trên Firestore -> Tạo bản ghi mới
-                        // Tuyệt đối không tạo sẵn trường 'role' ở đây theo đúng ý sốp để quản lý chỗ khác
+                        // TỰ ĐỘNG KHỞI TẠO MẶC ĐỊNH
                         setDoc(userDocRef, {
                             name: user.displayName || "Học viên mới",
                             email: user.email,
@@ -470,7 +530,7 @@
                             lastActive: Date.now(),
                             createdAt: new Date().toISOString()
                         }).then(() => {
-                            console.log("Đã khởi tạo tài khoản mới với các trường rỗng mặc định (không kèm role) thành công!");
+                            console.log("Đã khởi tạo tài khoản mới thành công!");
                         }).catch(err => console.error("Lỗi khởi tạo tài khoản:", err));
                     }
                 });
@@ -501,10 +561,10 @@
             }
         });
 
-        // XỬ LÝ LƯU SETTINGS KHI SUBMIT FORM MODAL (CẬP NHẬT TRƯỜNG DỮ LIỆU)
+        // XỬ LÝ LƯU SETTINGS KHI SUBMIT FORM MODAL (ĐÃ CHUYỂN TOÀN BỘ SANG TOAST NOTIFICATION)
         window.saveSettings = function(e) {
             e.preventDefault();
-            if (!currentUserId) return alert("Lỗi: Không tìm thấy phiên đăng nhập!");
+            if (!currentUserId) return window.showToast("Lỗi: Không tìm thấy phiên đăng nhập!", "error");
 
             const oldPassword = document.getElementById('input-old-password').value;
             const textNewPassword = document.getElementById('input-new-password').value;
@@ -512,21 +572,21 @@
 
             // Xử lý nghiệp vụ đổi mật khẩu tài khoản
             if (oldPassword || textNewPassword || confirmPassword) {
-                if (!oldPassword) return alert("Vui lòng nhập mật khẩu cũ để xác minh!");
-                if (textNewPassword !== confirmPassword) return alert("Mật khẩu mới không trùng khớp!");
-                if (textNewPassword.length < 6) return alert("Mật khẩu mới phải từ 6 ký tự trở lên!");
+                if (!oldPassword) return window.showToast("Vui lòng nhập mật khẩu cũ để xác minh!", "warning");
+                if (textNewPassword !== confirmPassword) return window.showToast("Mật khẩu mới không trùng khớp!", "error");
+                if (textNewPassword.length < 6) return window.showToast("Mật khẩu mới phải từ 6 ký tự trở lên!", "warning");
                 
                 const user = auth.currentUser;
                 const credential = EmailAuthProvider.credential(user.email, oldPassword);
                 
                 reauthenticateWithCredential(user, credential).then(() => {
                     updatePassword(user, textNewPassword).then(() => {
-                        alert("Đổi mật khẩu tài khoản thành công!");
-                    }).catch(err => alert("Lỗi đổi mật khẩu: " + err.message));
-                }).catch(() => alert("Mật khẩu cũ không chính xác!"));
+                        window.showToast("Đổi mật khẩu tài khoản thành công!", "success");
+                    }).catch(err => window.showToast("Lỗi đổi mật khẩu: " + err.message, "error"));
+                }).catch(() => window.showToast("Mật khẩu cũ không chính xác!", "error"));
             }
 
-            // Gom cụm thông tin để lưu đè lên Firestore (Đảm bảo không ghi đè làm mất trường 'role' của sốp)
+            // Gom cụm thông tin để lưu đè lên Firestore
             const updatedProfile = {
                 name: document.getElementById('input-name').value,
                 photo: document.getElementById('input-avatar').value,
@@ -538,15 +598,15 @@
                 updatedAt: new Date().toISOString()
             };
 
-            // Lưu đè dữ liệu lên Firestore có sử dụng merge: true để giữ lại các trường khác (như role)
+            // Lưu đè dữ liệu lên Firestore có sử dụng merge: true
             const userDocRef = doc(db, 'users', currentUserId);
             setDoc(userDocRef, updatedProfile, { merge: true })
                 .then(() => {
-                    alert("Cài đặt hồ sơ của bạn đã được lưu lại thành công!");
+                    window.showToast("Cài đặt hồ sơ của bạn đã được lưu lại thành công!", "success");
                     closeSettingsModal();
                 })
                 .catch((error) => {
-                    alert("Lỗi lưu dữ liệu: " + error.message);
+                    window.showToast("Lỗi lưu dữ liệu: " + error.message, "error");
                 });
         }
     </script>
