@@ -550,6 +550,102 @@
       to { transform: scaleX(1); }
     }
 
+    /* ===== SKELETON LOADING (cho lưới thẻ chủ đề, tránh giật khi dựng DOM nặng) ===== */
+    @keyframes skeletonShimmer {
+      0% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .skel-bar {
+      background: linear-gradient(90deg, #e2e9f5 25%, #f2f6fc 37%, #e2e9f5 63%);
+      background-size: 400% 100%;
+      animation: skeletonShimmer 1.4s ease infinite;
+      border-radius: 8px;
+    }
+
+    .skel-section {
+      margin-top: 28px;
+    }
+
+    .skel-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .skel-title {
+      width: 200px;
+      height: 26px;
+    }
+
+    .skel-note {
+      width: 60px;
+      height: 20px;
+    }
+
+    .skel-card {
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.6);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 210px;
+    }
+
+    .skel-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .skel-emoji {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+    }
+
+    .skel-chip {
+      width: 64px;
+      height: 20px;
+      border-radius: 999px;
+    }
+
+    .skel-card-title {
+      width: 70%;
+      height: 20px;
+    }
+
+    .skel-card-desc {
+      width: 100%;
+      height: 14px;
+    }
+
+    .skel-card-desc.short {
+      width: 60%;
+    }
+
+    .skel-card-meta {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .skel-count {
+      width: 50px;
+      height: 14px;
+    }
+
+    .skel-btn {
+      width: 80px;
+      height: 34px;
+      border-radius: 12px;
+    }
+
     @media (max-width: 860px) {
       .topic-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -613,7 +709,66 @@
       </div>
     </div>
 
-    <main id="hubSections"></main>
+    <main id="hubSections">
+      <section class="skel-section">
+        <div class="skel-section-header">
+          <div class="skel-bar skel-title"></div>
+          <div class="skel-bar skel-note"></div>
+        </div>
+        <div class="topic-grid">
+          <div class="skel-card">
+            <div class="skel-card-top"><div class="skel-bar skel-emoji"></div><div class="skel-bar skel-chip"></div></div>
+            <div class="skel-bar skel-card-title"></div>
+            <div class="skel-bar skel-card-desc"></div>
+            <div class="skel-bar skel-card-desc short"></div>
+            <div class="skel-card-meta"><div class="skel-bar skel-count"></div><div class="skel-bar skel-btn"></div></div>
+          </div>
+          <div class="skel-card">
+            <div class="skel-card-top"><div class="skel-bar skel-emoji"></div><div class="skel-bar skel-chip"></div></div>
+            <div class="skel-bar skel-card-title"></div>
+            <div class="skel-bar skel-card-desc"></div>
+            <div class="skel-bar skel-card-desc short"></div>
+            <div class="skel-card-meta"><div class="skel-bar skel-count"></div><div class="skel-bar skel-btn"></div></div>
+          </div>
+          <div class="skel-card">
+            <div class="skel-card-top"><div class="skel-bar skel-emoji"></div><div class="skel-bar skel-chip"></div></div>
+            <div class="skel-bar skel-card-title"></div>
+            <div class="skel-bar skel-card-desc"></div>
+            <div class="skel-bar skel-card-desc short"></div>
+            <div class="skel-card-meta"><div class="skel-bar skel-count"></div><div class="skel-bar skel-btn"></div></div>
+          </div>
+        </div>
+      </section>
+      <section class="skel-section">
+        <div class="skel-section-header">
+          <div class="skel-bar skel-title"></div>
+          <div class="skel-bar skel-note"></div>
+        </div>
+        <div class="topic-grid">
+          <div class="skel-card">
+            <div class="skel-card-top"><div class="skel-bar skel-emoji"></div><div class="skel-bar skel-chip"></div></div>
+            <div class="skel-bar skel-card-title"></div>
+            <div class="skel-bar skel-card-desc"></div>
+            <div class="skel-bar skel-card-desc short"></div>
+            <div class="skel-card-meta"><div class="skel-bar skel-count"></div><div class="skel-bar skel-btn"></div></div>
+          </div>
+          <div class="skel-card">
+            <div class="skel-card-top"><div class="skel-bar skel-emoji"></div><div class="skel-bar skel-chip"></div></div>
+            <div class="skel-bar skel-card-title"></div>
+            <div class="skel-bar skel-card-desc"></div>
+            <div class="skel-bar skel-card-desc short"></div>
+            <div class="skel-card-meta"><div class="skel-bar skel-count"></div><div class="skel-bar skel-btn"></div></div>
+          </div>
+          <div class="skel-card">
+            <div class="skel-card-top"><div class="skel-bar skel-emoji"></div><div class="skel-bar skel-chip"></div></div>
+            <div class="skel-bar skel-card-title"></div>
+            <div class="skel-bar skel-card-desc"></div>
+            <div class="skel-bar skel-card-desc short"></div>
+            <div class="skel-card-meta"><div class="skel-bar skel-count"></div><div class="skel-bar skel-btn"></div></div>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
 
   <div id="popup" class="popup-overlay">
@@ -931,7 +1086,12 @@
       renderHub(document.querySelector(".filter-item.active")?.dataset.value || "all");
     });
 
-    renderHub();
+    // Hiện skeleton 1 nhịp vẽ trước, sau đó mới dựng lưới thẻ thật (phần nặng: nhiều thẻ + blur + gradient)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        renderHub();
+      });
+    });
   </script>
 </body>
 </html>

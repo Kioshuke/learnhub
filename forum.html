@@ -584,6 +584,32 @@ button:active { transform: translateY(0); }
   .modal-content { width: min(94vw, 430px); }
   .mute-btn { margin-left: 0; min-width: 132px; }
 }
+/* ===== SKELETON LOADING (trong lúc Firebase SDK + kết nối realtime DB) ===== */
+@keyframes skeletonShimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.skel-bar {
+  background: linear-gradient(90deg, #e2e9f5 25%, #f2f6fc 37%, #e2e9f5 63%);
+  background-size: 400% 100%;
+  animation: skeletonShimmer 1.4s ease infinite;
+  border-radius: 8px;
+}
+.skel-post {
+  margin-bottom: 9px;
+  padding: 11px 12px 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-soft);
+}
+.skel-meta-line { width: 140px; height: 14px; margin-bottom: 10px; }
+.skel-text-line { height: 14px; margin-bottom: 7px; }
+.skel-text-line.w-95 { width: 95%; }
+.skel-text-line.w-60 { width: 60%; }
+.skel-actions-row { display: flex; gap: 10px; margin-top: 10px; }
+.skel-pill { width: 70px; height: 22px; border-radius: 999px; }
+.skel-reply { width: 50px; height: 22px; border-radius: 999px; }
 </style>
 </head>
 <body>
@@ -605,8 +631,38 @@ button:active { transform: translateY(0); }
     </button>
   </div>
 
-  <div id="posts"></div>
+  <div id="posts">
+    <div class="skel-post">
+      <div class="skel-bar skel-meta-line"></div>
+      <div class="skel-bar skel-text-line w-95"></div>
+      <div class="skel-bar skel-text-line w-60"></div>
+      <div class="skel-actions-row"><div class="skel-bar skel-pill"></div><div class="skel-bar skel-reply"></div></div>
+    </div>
+    <div class="skel-post">
+      <div class="skel-bar skel-meta-line"></div>
+      <div class="skel-bar skel-text-line w-95"></div>
+      <div class="skel-bar skel-text-line w-60"></div>
+      <div class="skel-actions-row"><div class="skel-bar skel-pill"></div><div class="skel-bar skel-reply"></div></div>
+    </div>
+    <div class="skel-post">
+      <div class="skel-bar skel-meta-line"></div>
+      <div class="skel-bar skel-text-line w-95"></div>
+      <div class="skel-bar skel-text-line w-60"></div>
+      <div class="skel-actions-row"><div class="skel-bar skel-pill"></div><div class="skel-bar skel-reply"></div></div>
+    </div>
+  </div>
 </div>
+
+<script>
+  // An toàn độc lập: nếu Firebase SDK lỗi/mạng treo, renderPosts() sẽ không bao giờ chạy
+  // để clear timeout này -> sau 12s tự hiện thông báo thay vì kẹt skeleton mãi.
+  window.__forumSkeletonTimeout = setTimeout(() => {
+    const postsEl = document.getElementById('posts');
+    if (postsEl && postsEl.querySelector('.skel-post')) {
+      postsEl.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8;font-size:14px;">⚠️ Không kết nối được diễn đàn (mạng chậm hoặc lỗi). Vui lòng tải lại trang.</div>';
+    }
+  }, 12000);
+</script>
 
 <div id="customModal" class="modal-overlay">
   <div class="modal-content">
@@ -795,6 +851,7 @@ db.ref("posts").on("value", (snapshot) => {
 });
 
 function renderPosts(snapshot){
+  clearTimeout(window.__forumSkeletonTimeout);
   const data = snapshot.val();
   const container = document.getElementById("posts");
   if(!container) return;

@@ -544,6 +544,30 @@ body.dark-mode .ans-label:hover {
         .nav-item.nav-wrong { background: #fef2f2 !important; border-color: var(--danger) !important; color: var(--danger) !important; }
 
         @media (max-width: 600px) { .answers-grid { grid-template-columns: 1fr; }}
+
+        /* ===== SKELETON LOADING (trong lúc fetch JSON đề thi + dựng DOM câu hỏi) ===== */
+        @keyframes skeletonShimmer {
+            0% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .skel-bar {
+            background: linear-gradient(90deg, #e2e9f5 25%, #f2f6fc 37%, #e2e9f5 63%);
+            background-size: 400% 100%;
+            animation: skeletonShimmer 1.4s ease infinite;
+            border-radius: 8px;
+        }
+        body.dark-mode .skel-bar {
+            background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 37%, rgba(255,255,255,0.06) 63%);
+            background-size: 400% 100%;
+        }
+        .skel-q-badge { width: 64px; height: 20px; border-radius: 15px; margin-bottom: 12px; }
+        .skel-q-line { height: 16px; margin-bottom: 8px; }
+        .skel-q-line.w-90 { width: 90%; }
+        .skel-q-line.w-70 { width: 70%; }
+        .skel-answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+        @media (max-width: 600px) { .skel-answers-grid { grid-template-columns: 1fr; } }
+        .skel-ans { height: 46px; border-radius: 12px; }
+        .skel-nav-item { aspect-ratio: 1; border-radius: 8px; }
         .short-input:focus {
             outline: none;
             border-color: var(--primary) !important;
@@ -767,14 +791,52 @@ body.dark-mode .ans-label:hover {
         </div>
     </header>
     <div class="main-layout">
-    <div class="quiz-section" id="quiz-container">Đang tải câu hỏi...</div>
+    <div class="quiz-section" id="quiz-container">
+        <div class="question-card">
+            <div class="skel-bar skel-q-badge"></div>
+            <div class="skel-bar skel-q-line w-90"></div>
+            <div class="skel-bar skel-q-line w-70"></div>
+            <div class="skel-answers-grid">
+                <div class="skel-bar skel-ans"></div>
+                <div class="skel-bar skel-ans"></div>
+                <div class="skel-bar skel-ans"></div>
+                <div class="skel-bar skel-ans"></div>
+            </div>
+        </div>
+        <div class="question-card">
+            <div class="skel-bar skel-q-badge"></div>
+            <div class="skel-bar skel-q-line w-90"></div>
+            <div class="skel-bar skel-q-line w-70"></div>
+            <div class="skel-answers-grid">
+                <div class="skel-bar skel-ans"></div>
+                <div class="skel-bar skel-ans"></div>
+                <div class="skel-bar skel-ans"></div>
+                <div class="skel-bar skel-ans"></div>
+            </div>
+        </div>
+        <div class="question-card">
+            <div class="skel-bar skel-q-badge"></div>
+            <div class="skel-bar skel-q-line w-90"></div>
+            <div class="skel-bar skel-q-line w-70"></div>
+            <div class="skel-answers-grid">
+                <div class="skel-bar skel-ans"></div>
+                <div class="skel-bar skel-ans"></div>
+                <div class="skel-bar skel-ans"></div>
+                <div class="skel-bar skel-ans"></div>
+            </div>
+        </div>
+    </div>
     
     <aside class="sidebar" id="sidebarNav">
         <div class="sidebar-header">
             <span>MỤC LỤC</span>
             <span id="progressText" style="color:var(--primary); font-size: 0.9rem;">0/0</span>
         </div>
-        <div class="nav-grid" id="navGrid"></div>
+        <div class="nav-grid" id="navGrid">
+            <div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div>
+            <div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div>
+            <div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div>
+        </div>
     </aside>
 </div>
 
@@ -965,7 +1027,11 @@ async function loadQuestions() {
         const timestamp = new Date().getTime();
         
         // SỬ DỤNG BIẾN JSON_FILE ĐÃ LẤY Ở TRÊN
-        const res = await fetch(`${JSON_FILE}?v=${timestamp}`);
+        // Timeout 15s: tránh kẹt skeleton mãi nếu mạng bị treo (không phải lỗi 404 rõ ràng)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const res = await fetch(`${JSON_FILE}?v=${timestamp}`, { signal: controller.signal });
+        clearTimeout(timeoutId);
         
         if (!res.ok) {
             throw new Error(`Không tìm thấy file dữ liệu: ${JSON_FILE}`);
@@ -1011,9 +1077,10 @@ async function loadQuestions() {
 
     } catch (e) {
         console.error(e);
+        const msg = e.name === 'AbortError' ? 'Mạng quá chậm hoặc bị treo, vui lòng thử lại.' : e.message;
         document.getElementById('quiz-container').innerHTML = `
             <div style="padding: 20px; background: #fee2e2; color: #ef4444; border-radius: 10px; border: 1px solid #fca5a5;">
-                <strong>Lỗi tải đề thi:</strong> ${e.message} <br>
+                <strong>Lỗi tải đề thi:</strong> ${msg} <br>
                 <small>Vui lòng kiểm tra lại đường dẫn file .json</small>
             </div>`;
     }

@@ -62,8 +62,6 @@
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
-        .loading .hide-on-loading { opacity: 0; }
-        .loading .show-on-loading { display: block; }
         
         /* ===== BADGE SYSTEM ===== */
         .badge-item {
@@ -125,12 +123,12 @@
                                     <img id="profile-avatar-display" src="https://lh3.googleusercontent.com/a/default-user=s120-c" alt="Google Avatar" class="w-full h-full object-cover">
                                 </div>
                                 <div class="space-y-1 w-full">
-                                    <h2 id="profile-name-display" class="text-xl font-bold tracking-tight text-gray-900">Đang tải...</h2>
+                                    <h2 id="profile-name-display" class="text-xl font-bold tracking-tight text-gray-900"><span class="skeleton inline-block rounded" style="width:130px;height:1.1em;vertical-align:middle;">&nbsp;</span></h2>
                                     <p id="profile-bio-display" class="text-xs text-lh-textSub font-semibold italic">"Chưa có tiểu sử"</p>
                                     
                                     <div class="text-sm text-lh-textSub font-medium space-y-1 pt-1 border-t border-gray-100 sm:border-0">
                                         <p class="flex items-center justify-center sm:justify-start gap-1.5">
-                                            <i class="fas fa-envelope text-xs text-gray-400 w-4 text-center"></i><span id="profile-email-display">Đang tải...</span>
+                                            <i class="fas fa-envelope text-xs text-gray-400 w-4 text-center"></i><span id="profile-email-display"><span class="skeleton inline-block rounded" style="width:150px;height:0.9em;vertical-align:middle;">&nbsp;</span></span>
                                         </p>
                                         <p class="flex items-center justify-center sm:justify-start gap-1.5">
                                             <i class="fas fa-phone text-xs text-gray-400 w-4 text-center"></i><span id="profile-phone-display">Chưa cập nhật</span>
@@ -249,6 +247,14 @@
                         </div>
 
                         <div id="users-grid" class="grid grid-cols-4 gap-3 bg-white p-3 rounded-xl border border-gray-100">
+                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
+                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
+                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
+                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
+                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
+                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
+                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
+                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
                             <!-- Users will be loaded dynamically from Firebase -->
                         </div>
                     </div>

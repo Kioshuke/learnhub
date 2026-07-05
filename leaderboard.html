@@ -21,6 +21,18 @@
             -ms-overflow-style: none;  /* IE và Edge */
             scrollbar-width: none;  /* Firefox */
         }
+        /* ===== SKELETON LOADING ===== */
+        @keyframes skeletonShimmer {
+            0% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .skel-bar {
+            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 37%, #e5e7eb 63%);
+            background-size: 400% 100%;
+            animation: skeletonShimmer 1.4s ease infinite;
+            border-radius: 6px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body class="w-full h-full antialiased">
@@ -49,9 +61,42 @@
         <!-- Khung nội dung bảng xếp hạng tự động cuộn không lộ thanh xám -->
         <div class="flex-1 overflow-y-auto px-3 py-2">
             
-            <div id="loading" class="py-12 text-center text-gray-400">
-                <i class="fas fa-spinner fa-spin text-2xl text-indigo-500 mb-2"></i>
-                <p id="loading-text" class="text-xs font-medium">Đang tải bảng xếp hạng tuần này...</p>
+            <div id="loading" class="py-2">
+                <table class="w-full text-left border-collapse">
+                    <tbody class="divide-y divide-gray-50">
+                        <tr>
+                            <td class="py-3 px-2 text-center w-14"><div class="skel-bar mx-auto" style="width:20px;height:20px;border-radius:9999px;"></div></td>
+                            <td class="py-3 px-2"><div class="flex items-center gap-2"><div class="skel-bar" style="width:24px;height:24px;border-radius:9999px;flex-shrink:0;"></div><div class="skel-bar" style="width:90px;height:12px;"></div></div></td>
+                            <td class="py-3 px-2 text-center w-16"><div class="skel-bar mx-auto" style="width:22px;height:12px;"></div></td>
+                            <td class="py-3 px-2 text-center w-20"><div class="skel-bar mx-auto" style="width:36px;height:14px;"></div></td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-2 text-center w-14"><div class="skel-bar mx-auto" style="width:20px;height:20px;border-radius:9999px;"></div></td>
+                            <td class="py-3 px-2"><div class="flex items-center gap-2"><div class="skel-bar" style="width:24px;height:24px;border-radius:9999px;flex-shrink:0;"></div><div class="skel-bar" style="width:110px;height:12px;"></div></div></td>
+                            <td class="py-3 px-2 text-center w-16"><div class="skel-bar mx-auto" style="width:22px;height:12px;"></div></td>
+                            <td class="py-3 px-2 text-center w-20"><div class="skel-bar mx-auto" style="width:36px;height:14px;"></div></td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-2 text-center w-14"><div class="skel-bar mx-auto" style="width:20px;height:20px;border-radius:9999px;"></div></td>
+                            <td class="py-3 px-2"><div class="flex items-center gap-2"><div class="skel-bar" style="width:24px;height:24px;border-radius:9999px;flex-shrink:0;"></div><div class="skel-bar" style="width:75px;height:12px;"></div></div></td>
+                            <td class="py-3 px-2 text-center w-16"><div class="skel-bar mx-auto" style="width:22px;height:12px;"></div></td>
+                            <td class="py-3 px-2 text-center w-20"><div class="skel-bar mx-auto" style="width:36px;height:14px;"></div></td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-2 text-center w-14"><div class="skel-bar mx-auto" style="width:20px;height:20px;border-radius:9999px;"></div></td>
+                            <td class="py-3 px-2"><div class="flex items-center gap-2"><div class="skel-bar" style="width:24px;height:24px;border-radius:9999px;flex-shrink:0;"></div><div class="skel-bar" style="width:100px;height:12px;"></div></div></td>
+                            <td class="py-3 px-2 text-center w-16"><div class="skel-bar mx-auto" style="width:22px;height:12px;"></div></td>
+                            <td class="py-3 px-2 text-center w-20"><div class="skel-bar mx-auto" style="width:36px;height:14px;"></div></td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-2 text-center w-14"><div class="skel-bar mx-auto" style="width:20px;height:20px;border-radius:9999px;"></div></td>
+                            <td class="py-3 px-2"><div class="flex items-center gap-2"><div class="skel-bar" style="width:24px;height:24px;border-radius:9999px;flex-shrink:0;"></div><div class="skel-bar" style="width:85px;height:12px;"></div></div></td>
+                            <td class="py-3 px-2 text-center w-16"><div class="skel-bar mx-auto" style="width:22px;height:12px;"></div></td>
+                            <td class="py-3 px-2 text-center w-20"><div class="skel-bar mx-auto" style="width:36px;height:14px;"></div></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p id="loading-text" class="text-[10px] font-medium text-center text-gray-400 mt-1">Đang tải bảng xếp hạng tuần này...</p>
             </div>
 
             <div id="leaderboard-content" class="hidden">

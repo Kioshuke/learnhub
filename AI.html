@@ -11,59 +11,54 @@
         
         .chat-container { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: #fff; }
         
-        /* Thu nhỏ Header tinh tế hơn */
+        /* Header màu xanh dương chuẩn chỉnh ban đầu của ông */
         .chat-header { background: #1a73e8; color: white; padding: 10px 14px; display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); z-index: 10; position: relative; }
         .chat-header img { width: 32px; height: 32px; border-radius: 50%; background: white; object-fit: cover; }
         
-        /* Khung Chat tinh chỉnh khoảng cách nhỏ gọn */
-        .chat-box { flex: 1; padding: 12px; overflow-y: auto; background: #f8f9fa; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+        /* Nút làm mới cuộc trò chuyện tinh tế */
+        .reload-btn {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+            font-weight: bold;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        .reload-btn:hover {
+            opacity: 0.8;
+            transform: translateY(-50%) rotate(45deg);
+        }
+        .reload-btn:active {
+            transform: translateY(-50%) rotate(180deg);
+        }
         
-        .message-wrapper { display: flex; flex-direction: column; max-width: 80%; gap: 2px; }
-        .message-wrapper.user-wrapper { align-self: flex-end; align-items: flex-end; margin-left: auto; }
-        .message-wrapper.ai-wrapper { align-self: flex-start; align-items: flex-start; }
-        
-        /* Gom nhóm avatar + text của AI */
-        .ai-content-group { display: flex; gap: 8px; align-items: flex-start; width: 100%; }
-        
-        /* Thu nhỏ avatar trong khung chat */
-        .msg-avatar { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; background: #eee; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        
-        /* Bong bóng chat tinh gọn font chữ và padding */
-        .message { padding: 8px 12px; border-radius: 14px; word-break: break-word; line-height: 1.4; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .user-msg { background: #1a73e8; color: white; border-top-right-radius: 2px; }
-        .ai-msg { background: white; color: #333; border-top-left-radius: 2px; border: 1px solid #e1e4e8; }
-        .error-msg { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; align-self: center; max-width: 90%; font-size: 12px; border-radius: 8px; padding: 8px; text-align: center; }
-        
-        /* Dòng hiển thị Thời Gian (Timestamp) nhỏ mịn dưới bong bóng chat */
-        .msg-time { font-size: 10px; color: #999; margin: 2px 4px 0 4px; padding: 0 2px; user-select: none; }
-
-        /* Format text Markdown */
-        .message strong { font-weight: bold; color: inherit; }
-        .message em { font-style: italic; }
-        .message p { margin-bottom: 4px; }
-        .message p:last-child { margin-bottom: 0; }
-
-        /* Hiệu ứng gõ chữ nhấp nháy gọn hơn */
-        .typing-bubble { display: flex; align-items: center; gap: 4px; padding: 10px 14px; background: white; border-radius: 14px; border-top-left-radius: 2px; border: 1px solid #e1e4e8; }
-        .typing-dot { width: 6px; height: 6px; background: #7f8c8d; border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both; }
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes typingBounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1.0); }
+        /* Vùng chứa iframe sử dụng mẹo dịch chuyển để CHE và CẮT BỎ chữ "Được cung cấp bởi Dify" */
+        .iframe-wrapper {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+            background: #fff;
         }
 
-        /* Thanh trạng thái mỏng thanh lịch */
-        .status { font-size: 11px; color: #888; text-align: center; padding: 4px; background: #fafafa; border-bottom: 1px solid #eee; }
-
-        /* Khu vực nhập liệu thu nhỏ tối đa diện tích thừa */
-        .input-area { display: flex; padding: 10px; background: #fff; gap: 8px; border-top: 1px solid #eee; align-items: flex-end; }
-        
-        .input-area textarea { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 18px; outline: none; font-size: 14px; background: #f8f9fa; transition: all 0.2s; resize: none; max-height: 80px; font-family: inherit; line-height: 1.3; overflow-y: auto; }
-        .input-area textarea:focus { background: #fff; border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.1); }
-        
-        .input-area button { padding: 0 16px; background: #28a745; color: white; border: none; border-radius: 18px; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s; height: 34px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .input-area button:hover { background: #218838; }
+        /* Đẩy iframe lên trên 56px để giấu đi phần header chứa chữ "Powered by Dify" */
+        .iframe-wrapper iframe {
+            position: absolute;
+            top: -56px; 
+            left: 0;
+            width: 100%;
+            /* Bù lại khoảng cách 56px đã đẩy lên để không lộ khoảng trống dưới đáy */
+            height: calc(100% + 56px); 
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -73,275 +68,48 @@
         <img src="chatboiavt.png" alt="Hubie" onerror="this.src='https://via.placeholder.com/32'">
         <span>Hubie - Trợ lý LearnHub</span>
         
-        <button onclick="expandToFullTab()" title="Mở rộng toàn màn hình" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 4px; line-height: 1; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">↗</button>
-    </div>
-    <div class="status" id="status">Hubie sẵn sàng trực tuyến</div>
-    
-    <div class="chat-box" id="chatBox">
-        <div class="message-wrapper ai-wrapper">
-            <div class="ai-content-group">
-                <img class="msg-avatar" src="chatboiavt.png" onerror="this.src='https://via.placeholder.com/26'">
-                <div class="message ai-msg">Chào bạn! Mình là Hubie đây, trợ thủ đắc lực của bạn trên LearnHub nè! 🤖✨<br><br>Bạn có câu hỏi gì hay cần mình hỗ trợ về bài vở không? Cứ hỏi nha! 😊</div>
-            </div>
-            <div class="msg-time" id="welcome-time">10:00 PM</div>
-        </div>
+        <button class="reload-btn" onclick="reloadChat()" title="Làm mới cuộc trò chuyện">↻</button>
     </div>
     
-    <div class="input-area">
-        <textarea id="userInput" rows="1" placeholder="Hỏi Hubie điều gì đó..." onkeydown="handleKeyDown(event)" oninput="autoResizeTextarea(this)"></textarea>
-        <button onclick="sendMessage()">Gửi</button>
+    <div class="iframe-wrapper">
+        <iframe
+            id="difyIframe"
+            src="https://udify.app/chatbot/RfG89i4QKoVU8G42"
+            allow="microphone">
+        </iframe>
     </div>
 </div>
-<script src="config.js"></script>
+
 <script>
-    const API_KEY = CONFIG.API_KEY;
-    
-    // 💾 TỰ ĐỘNG NẠP LẠI LỊCH SỬ CHAT TỪ LOCALSTORAGE (NẾU CÓ)
-    let chatHistory = JSON.parse(localStorage.getItem("hubie_chat_history")) || [];
-
-    const systemInstructionText = `
-    Bạn là một trợ lý ảo thân thiện, thông minh và vui tính tên là Hubie của website học tập LearnHub.
-    HÃY TUÂN THỦ NGHIÊM NGẶT CÁC QUY TẮC DƯỚI ĐÂY ĐỂ TRẢ LỜI NGƯỜI DÙNG (LÀ HỌC SINH):
-    1. QUY TẮC TRẢ LỜI KIẾN THỨC (QUAN TRỌNG NHẤT): Khi học sinh hỏi về bất kỳ kiến thức học tập nào (Toán, Lý, Hóa, Địa lý, Lịch sử...), Hubie PHẢI TRẢ LỜI TRỰC TIẾP, đầy đủ và chính xác câu trả lời đó ngay lặp tức. Tuyệt đối không được từ chối hoặc bắt học sinh tự đi tìm kiếm trên web.
-    2. QUY TẮC GỢI Ý (ĐẶT Ở CUỐI BÀI): Sau khi đã trả lời xong kiến thức, Hubie có thể khéo léo gợi ý thêm 1 câu ngắn gọn bằng cách hướng dẫn học sinh vào mục Flashcard hoặc Bài kiểm tra có sẵn trên LearnHub để ôn luyện lại kiến thức đó.
-    3. QUY ĐỊNH TÍNH NĂNG: Nhớ rằng học sinh chỉ có quyền xem/học bài, KHÔNG có quyền tự tạo Flashcard hay bài kiểm tra mới (chỉ Admin mới tạo được).
-    4. QUY TẮC ICON: Tuyệt đối KHÔNG ĐƯỢC sử dụng các emoji cờ quốc gia (như cờ VN, Lào...) vì lỗi font hệ thống của người dùng. Hãy dùng các icon khác như 🌍, ✨, 📚, 🤖...
-    5. XƯNG HÔ: Trả lời ngắn gọn, vui vẻ, xưng là "Hubie" hoặc "mình" và gọi người dùng là "bạn".
-    `;
-
-    const MODEL_QUEUE = [
-        { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
-        { id: "gemini-3.1-flash-lite", name: "Gemini 3.1 Flash Lite" },
-        { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash" }
-    ];
-
-    function getCurrentTimeFormatted() {
-        const now = new Date();
-        let hours = now.getHours();
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12;
-        hours = hours ? hours : 12; 
-        return `${hours}:${minutes} ${ampm}`;
-    }
-
-    document.getElementById('welcome-time').innerText = getCurrentTimeFormatted();
-
-    // ↗ HÀM CHUYỂN HƯỚNG MỞ RỘNG SANG TRANG AI.HTML ĐỘC LẬP
-    function expandToFullTab() {
-        if (window.parent && window.parent !== window) {
-            window.parent.location.href = "AI.html";
-        } else {
-            window.location.href = "AI.html";
-        }
-    }
-
-    function formatMarkdown(text) {
-        let html = text;
-        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\*(.*?)\*\*/g, '<em>$1</em>');
-        return html.split('\n').map(line => line.trim() ? `<p>${line}</p>` : '<br>').join('');
-    }
-
-    function autoResizeTextarea(textarea) {
-        textarea.style.height = 'auto';
-        textarea.style.height = textarea.scrollHeight + 'px';
-    }
-
-    // 🔄 VẼ LẠI GIAO DIỆN CHAT CŨ KHI KHỞI CHẠY TRANG WEB ĐỘC LẬP
-    function renderSavedChat() {
-        const savedHTML = localStorage.getItem("hubie_chat_html");
-        if (savedHTML) {
-            document.getElementById('chatBox').innerHTML = savedHTML;
-            scrollToBottom();
-        }
-    }
-
-    // 💾 ĐỒNG BỘ LƯU DỮ LIỆU CHAT VÀO MÁY
-    function saveChatToLocal() {
-        localStorage.setItem("hubie_chat_history", JSON.stringify(chatHistory));
-        localStorage.setItem("hubie_chat_html", document.getElementById('chatBox').innerHTML);
-    }
-
-    // ⚡ RESET KHI LOAD LẠI WEB HOẶC ĐÓNG TAB: Xóa sạch bộ nhớ Local ngay lập tức
-    window.addEventListener("beforeunload", () => {
-        localStorage.removeItem("hubie_chat_history");
-        localStorage.removeItem("hubie_chat_html");
-    });
-
-    async function fetchWithBackup(requestBody, modelIndex = 0) {
-        if (modelIndex >= MODEL_QUEUE.length) {
-            throw new Error("Tất cả các model dự phòng đều đã hết lượt dùng trong ngày!");
-        }
-        const currentModel = MODEL_QUEUE[modelIndex];
-        const statusEl = document.getElementById('status');
-        statusEl.innerText = `Hubie đang kết nối với ${currentModel.name}...`;
-
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel.id}:generateContent?key=${API_KEY}`;
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody)
-            });
-            const data = await response.json();
-            if (data.error && (data.error.code === 429 || data.error.code === 404)) {
-                return await fetchWithBackup(requestBody, modelIndex + 1);
+    // ⚡️ CƠ CHẾ KÍCH HOẠT LÀM MỚI GIÁN TIẾP CHUẨN DIFY
+    function reloadChat() {
+        const iframe = document.getElementById('difyIframe');
+        if (iframe) {
+            try {
+                // Bước 1: Gửi tín hiệu dọn dẹp session thông qua cơ chế truyền tin của hệ thống Dify Client
+                iframe.contentWindow.postMessage(JSON.stringify({
+                    type: 'dify-client-clear-session',
+                    data: {}
+                }), '*');
+                
+                // Bước 2: Gửi kèm lệnh thiết lập lại trạng thái hội thoại độc lập
+                iframe.contentWindow.postMessage({
+                    event: 'reset-conversation'
+                }, '*');
+            } catch (e) {
+                console.log("Dính bảo mật Cross-Origin nhẹ, hệ thống tự chuyển hướng fallback");
             }
-            if (data.error) throw new Error(`${data.error.status} - ${data.error.message}`);
-            return { data: data, activeModelName: currentModel.name };
-        } catch (err) {
-            return await fetchWithBackup(requestBody, modelIndex + 1);
-        }
-    }
-
-    async function sendMessage() {
-        const inputEl = document.getElementById('userInput');
-        const statusEl = document.getElementById('status');
-        const text = inputEl.value.trim();
-
-        if (!text) return;
-
-        appendUserMessage(text);
-        inputEl.value = '';
-        inputEl.style.height = 'auto';
-
-        chatHistory.push({ role: "user", parts: [{ text: text }] });
-        saveChatToLocal(); // Lưu ngay tin nhắn của user
-
-        const requestBody = {
-            contents: chatHistory,
-            systemInstruction: { parts: [{ text: systemInstructionText }] },
-            generationConfig: { temperature: 0.7, maxOutputTokens: 1000 }
-        };
-
-        const typingIndicator = showTypingIndicator();
-        scrollToBottom();
-
-        try {
-            const result = await fetchWithBackup(requestBody, 0);
-            const data = result.data;
-            const activeModelName = result.activeModelName;
             
-            removeTypingIndicator(typingIndicator);
-
-            if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
-                const responseText = data.candidates[0].content.parts[0].text;
-                chatHistory.push({ role: "model", parts: [{ text: responseText }] });
-
-                appendAiMessage(responseText);
-                statusEl.innerText = `Hubie đã trả lời - ${activeModelName}`;
-                saveChatToLocal(); // Lưu phản hồi của AI vào local
-                scrollToBottom();
-            } else {
-                throw new Error("Phản hồi trống hoặc sai cấu trúc.");
-            }
-        } catch (error) {
-            removeTypingIndicator(typingIndicator);
-            appendErrorMessage(`⚠️ Hubie bảo trì: ${error.message}`);
-            statusEl.innerText = "Gặp sự cố lỗi hệ thống";
-            chatHistory.pop(); 
-            scrollToBottom();
+            // Bước 3: Ép iframe load lại để cập nhật trạng thái trống hoàn toàn
+            iframe.src = iframe.src;
         }
     }
 
-    function handleKeyDown(event) {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            sendMessage();
-        }
-    }
-
-    function scrollToBottom() {
-        const chatBox = document.getElementById('chatBox');
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    function appendUserMessage(text) {
-        const chatBox = document.getElementById('chatBox');
-        const wrapper = document.createElement('div');
-        wrapper.className = 'message-wrapper user-wrapper';
-        
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'message user-msg';
-        msgDiv.innerText = text;
-        
-        const timeDiv = document.createElement('div');
-        timeDiv.className = 'msg-time';
-        timeDiv.innerText = getCurrentTimeFormatted();
-        
-        wrapper.appendChild(msgDiv);
-        wrapper.appendChild(timeDiv);
-        chatBox.appendChild(wrapper);
-    }
-
-    function appendAiMessage(text) {
-        const chatBox = document.getElementById('chatBox');
-        const wrapper = document.createElement('div');
-        wrapper.className = 'message-wrapper ai-wrapper';
-        
-        const contentGroup = document.createElement('div');
-        contentGroup.className = 'ai-content-group';
-        
-        const avatar = document.createElement('img');
-        avatar.className = 'msg-avatar';
-        avatar.src = 'chatboiavt.png';
-        avatar.onerror = function() { this.src = 'https://via.placeholder.com/26'; };
-        
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'message ai-msg';
-        msgDiv.innerHTML = formatMarkdown(text);
-        
-        contentGroup.appendChild(avatar);
-        contentGroup.appendChild(msgDiv);
-        
-        const timeDiv = document.createElement('div');
-        timeDiv.className = 'msg-time';
-        timeDiv.style.paddingLeft = '34px'; 
-        timeDiv.innerText = getCurrentTimeFormatted();
-        
-        wrapper.appendChild(contentGroup);
-        wrapper.appendChild(timeDiv);
-        chatBox.appendChild(wrapper);
-    }
-
-    function showTypingIndicator() {
-        const chatBox = document.getElementById('chatBox');
-        const wrapper = document.createElement('div');
-        wrapper.className = 'message-wrapper ai-wrapper';
-        
-        const contentGroup = document.createElement('div');
-        contentGroup.className = 'ai-content-group';
-        
-        const avatar = document.createElement('img');
-        avatar.className = 'msg-avatar';
-        avatar.src = 'chatboiavt.png';
-        
-        const bubble = document.createElement('div');
-        bubble.className = 'typing-bubble';
-        bubble.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
-        
-        contentGroup.appendChild(avatar);
-        contentGroup.appendChild(bubble);
-        wrapper.appendChild(contentGroup);
-        chatBox.appendChild(wrapper);
-        return wrapper;
-    }
-
-    function removeTypingIndicator(el) {
-        if (el && el.parentNode) el.parentNode.removeChild(el);
-    }
-
-    function appendErrorMessage(text) {
-        const chatBox = document.getElementById('chatBox');
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'message error-msg';
-        msgDiv.innerText = text;
-        chatBox.appendChild(msgDiv);
-    }
-
-    // 🚀 CHẠY NẠP LẠI TIN NHẮN CŨ NGAY KHI VỪA MỞ FILE AI.HTML ĐỘC LẬP
-    renderSavedChat();
+    // Tự động dọn dẹp và reset sạch sẽ lịch sử ngay khi load/F5 lại trang web
+    window.addEventListener('DOMContentLoaded', () => {
+        // Chờ 300ms cho iframe kịp khởi tạo rồi ném lệnh dọn dẹp vào
+        setTimeout(reloadChat, 300);
+    });
 </script>
 
 </body>
