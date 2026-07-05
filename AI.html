@@ -3,114 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LearnHub AI - Hubie Gọn Nhẹ</title>
+    <title>LearnHub AI - Hubie</title>
     <style>
-        /* Tối ưu lại toàn bộ container để vừa khít popup nhỏ */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body, html { width: 100%; height: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #fff; overflow: hidden; }
-        
-        .chat-container { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: #fff; }
-        
-        /* Header màu xanh dương chuẩn chỉnh ban đầu của ông */
-        .chat-header { background: #1a73e8; color: white; padding: 10px 14px; display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); z-index: 10; position: relative; }
-        .chat-header img { width: 32px; height: 32px; border-radius: 50%; background: white; object-fit: cover; }
-        
-        /* Nút làm mới cuộc trò chuyện tinh tế */
-        .reload-btn {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
+        /* Tối ưu hóa tràn viền tuyệt đối để iframe tự quyết định giao diện */
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+        body, html { 
+            width: 100%; 
+            height: 100%; 
+            background: transparent; 
+            overflow: hidden; 
+        }
+        .chat-container { 
+            width: 100%; 
+            height: 100%; 
+        }
+        iframe { 
+            width: 100%; 
+            height: 100%; 
             border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 4px;
-            line-height: 1;
-            font-weight: bold;
-            transition: transform 0.2s, opacity 0.2s;
-        }
-        .reload-btn:hover {
-            opacity: 0.8;
-            transform: translateY(-50%) rotate(45deg);
-        }
-        .reload-btn:active {
-            transform: translateY(-50%) rotate(180deg);
-        }
-        
-        /* Vùng chứa iframe sử dụng mẹo dịch chuyển để CHE và CẮT BỎ chữ "Được cung cấp bởi Dify" */
-        .iframe-wrapper {
-            flex: 1;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            position: relative;
-            background: #fff;
-        }
-
-        /* Đẩy iframe lên trên 56px để giấu đi phần header chứa chữ "Powered by Dify" */
-        .iframe-wrapper iframe {
-            position: absolute;
-            top: -56px; 
-            left: 0;
-            width: 100%;
-            /* Bù lại khoảng cách 56px đã đẩy lên để không lộ khoảng trống dưới đáy */
-            height: calc(100% + 56px); 
-            border: none;
+            display: block;
         }
     </style>
 </head>
 <body>
 
 <div class="chat-container">
-    <div class="chat-header">
-        <img src="chatboiavt.png" alt="Hubie" onerror="this.src='https://via.placeholder.com/32'">
-        <span>Hubie - Trợ lý LearnHub</span>
-        
-        <button class="reload-btn" onclick="reloadChat()" title="Làm mới cuộc trò chuyện">↻</button>
-    </div>
-    
-    <div class="iframe-wrapper">
-        <iframe
-            id="difyIframe"
-            src="https://udify.app/chatbot/RfG89i4QKoVU8G42"
-            allow="microphone">
-        </iframe>
-    </div>
+    <iframe
+        src="https://udify.app/chatbot/RfG89i4QKoVU8G42"
+        allow="microphone">
+    </iframe>
 </div>
-
-<script>
-    // ⚡️ CƠ CHẾ KÍCH HOẠT LÀM MỚI GIÁN TIẾP CHUẨN DIFY
-    function reloadChat() {
-        const iframe = document.getElementById('difyIframe');
-        if (iframe) {
-            try {
-                // Bước 1: Gửi tín hiệu dọn dẹp session thông qua cơ chế truyền tin của hệ thống Dify Client
-                iframe.contentWindow.postMessage(JSON.stringify({
-                    type: 'dify-client-clear-session',
-                    data: {}
-                }), '*');
-                
-                // Bước 2: Gửi kèm lệnh thiết lập lại trạng thái hội thoại độc lập
-                iframe.contentWindow.postMessage({
-                    event: 'reset-conversation'
-                }, '*');
-            } catch (e) {
-                console.log("Dính bảo mật Cross-Origin nhẹ, hệ thống tự chuyển hướng fallback");
-            }
-            
-            // Bước 3: Ép iframe load lại để cập nhật trạng thái trống hoàn toàn
-            iframe.src = iframe.src;
-        }
-    }
-
-    // Tự động dọn dẹp và reset sạch sẽ lịch sử ngay khi load/F5 lại trang web
-    window.addEventListener('DOMContentLoaded', () => {
-        // Chờ 300ms cho iframe kịp khởi tạo rồi ném lệnh dọn dẹp vào
-        setTimeout(reloadChat, 300);
-    });
-</script>
 
 </body>
 </html>
