@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LearnHub Forum</title>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<style>
+:root{
+  --primary:#2563eb;
+  --primary-dark:#1d4ed8;
+  --accent:#14b8a6;
+  --bg:#f4f7fb;
+  --surface:#ffffff;
+  --surface-soft:#f8fafc;
+  --text:#111827;
+  --sub:#667085;
+  --muted:#98a2b3;
+  --line:#e6eaf0;
+  --line-strong:#d9e2ec;
+  --success:#10b981;
+  --danger:#ef4444;
+  --shadow:0 6px 18px rgba(16, 24, 40, 0.07);
+  --shadow-soft:0 2px 9px rgba(16, 24, 40, 0.055);
+}
+
+* { box-sizing: border-box; }
+
+html { background: var(--bg); overflow-x: hidden; }
+
+body {
+  min-height: 100vh;
+  max-width: 100vw;
+  overflow-x: hidden;
+  margin: 0;
+  color: var(--text);
+  font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.86), rgba(244,247,251,0.96)),
+    radial-gradient(circle at 18% 0%, rgba(37,99,235,0.12), transparent 26%),
+    radial-gradient(circle at 92% 10%, rgba(20,184,166,0.12), transparent 24%);
+}
+
+.container {
+  width: min(100%, 920px);
+  max-width: 100vw;
+  margin: 0 auto;
+  padding: 12px 14px 18px;
+}
+
+.header {
+  position: sticky;
+  top: 10px;
+  z-index: 15;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  min-height: 52px;
+  margin-bottom: 7px;
+  padding: 9px 12px;
+  color: #fff;
+  background: linear-gradient(135deg, #1d4ed8, #0f766e);
+  border: 1px solid rgba(255,255,255,0.24);
+  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(29,78,216,0.16);
+  overflow: hidden;
+}
+
+.header::after {
+  content: "";
+  position: absolute;
+  inset: auto -30px -48px auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.13);
+  pointer-events: none;
+}
+
+.logo {
+  position: relative;
+  min-width: 0;
+  white-space: nowrap;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 550;
+  letter-spacing: 0;
+}
+
+.user-box {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  max-width: 48%;
+  min-height: 32px;
+  padding: 3px 9px 3px 3px;
+  color: #f8fafc;
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.user-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  color: #164e63;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 6px 14px rgba(15,23,42,0.18);
+}
+
+.user-name-current {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.post-box {
+  margin-bottom: 7px;
+  padding: 10px;
+  background: rgba(255,255,255,0.94);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+textarea {
+  width: 100%;
+  min-height: 74px;
+  padding: 7px 10px;
+  color: #172033;
+  background: #f9fbfe;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  font: 400 14px/1.45 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+textarea:focus {
+  background: #fff;
+  border-color: rgba(37,99,235,0.58);
+  box-shadow: 0 0 0 4px rgba(37,99,235,0.11);
+}
+
+textarea::placeholder { color: #98a2b3; font-style: normal; }
+
+.char-counter {
+  margin-top: 3px;
+  color: var(--muted);
+  text-align: right;
+  font-size: 12px;
+  font-weight: 550;
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px 13px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), #0f766e);
+  box-shadow: 0 8px 18px rgba(37,99,235,0.22);
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+button:hover { transform: translateY(-1px); filter: brightness(1.03); box-shadow: 0 12px 22px rgba(37,99,235,0.26); }
+button:active { transform: translateY(0); }
+
+.post-submit { min-width: 92px; }
+.mute-btn { margin-left: 6px; min-width: 140px; background: #475467 !important; box-shadow: 0 8px 18px rgba(71,84,103,0.18); }
+.mute-btn:hover { background: #344054 !important; }
+
+.post {
+  position: relative;
+  margin-bottom: 9px;
+  padding: 11px 12px 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-soft);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+  overflow: visible;
+}
+
+.post:hover {
+  transform: translateY(-1px);
+  border-color: #d8e2ee;
+  box-shadow: 0 8px 18px rgba(16,24,40,0.08);
+}
+
+.post.current-user-post {
+  border-color: rgba(37,99,235,0.34);
+  box-shadow: 0 12px 30px rgba(37,99,235,0.12);
+}
+
+.post.current-user-post::before {
+  content: "Bài của bạn";
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  padding: 2px 7px;
+  color: #175cd3;
+  background: #eff8ff;
+  border: 1px solid #b2ddff;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 550;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-height: 20px;
+  margin-bottom: 5px;
+  padding-right: 72px;
+  color: var(--sub);
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.meta b {
+  color: #175cd3;
+  font-weight: 800;
+}
+
+.meta .current-user-name {
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), #0f766e);
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-weight: 850;
+  box-shadow: 0 5px 12px rgba(37,99,235,0.16);
+}
+
+.edit-btn, .delete-btn {
+  margin-left: 2px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 650;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.edit-btn { color: #027a48; background: #ecfdf3; }
+.delete-btn { color: #b42318; background: #fef3f2; }
+.edit-btn:hover { background: #d1fadf; }
+.delete-btn:hover { background: #fee4e2; }
+
+.post div[style*="white-space: pre-wrap;"],
+.reply div[style*="white-space: pre-wrap;"] {
+  margin-top: 8px;
+  color: #27364a;
+  font-size: 14px;
+  line-height: 1.45;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px solid #eef2f6;
+}
+
+.reply-btn,
+.reaction-trigger,
+.reaction-detail-btn {
+  min-height: 24px;
+  padding: 0 7px;
+  border-radius: 999px;
+  color: #667085;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.reply-btn { display: inline-flex; align-items: center; }
+.reply-btn:hover,
+.reaction-trigger:hover,
+.reaction-picker:focus-within .reaction-trigger,
+.reaction-detail-btn:hover {
+  color: #175cd3;
+  background: #eff8ff;
+  text-decoration: none;
+}
+
+.replies-wrapper { margin-top: 6px; }
+
+.reply-thread-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 0 16px;
+  padding: 5px 9px 5px 0;
+  color: #667085;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.reply-thread-toggle::before {
+  content: "";
+  width: 28px;
+  height: 18px;
+  border-left: 2px solid #cfd8e3;
+  border-bottom: 2px solid #cfd8e3;
+  border-radius: 0 0 0 10px;
+  transform: translateY(-5px);
+}
+
+.reply-thread-toggle:hover { color: #175cd3; }
+.reply-list { margin-top: 4px; }
+
+.reply {
+  margin-top: 10px;
+  margin-left: 20px;
+  padding: 7px 9px 7px 11px;
+  background: #f8fafc;
+  border-left: 3px solid #dbeafe;
+  border-radius: 0 10px 10px 0;
+}
+
+.reply .actions { margin-top: 8px; padding-top: 8px; gap: 7px; }
+
+.reply-status-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 7px;
+  padding: 7px 10px;
+  color: #175cd3;
+  background: #eff8ff;
+  border: 1px solid #b2ddff;
+  border-radius: 14px;
+  animation: slideIn 0.25s ease;
+}
+
+.replying-text { font-size: 13px; font-weight: 800; }
+.replying-text b { color: #0f766e; background: rgba(20,184,166,0.10); padding: 2px 7px; border-radius: 999px; }
+.cancel-reply { color: #667085; cursor: pointer; font-size: 20px; line-height: 1; transition: color 0.18s ease; }
+.cancel-reply:hover { color: var(--danger); }
+
+@keyframes slideIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+.reaction-picker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding-top: 42px;
+  margin-top: -42px;
+}
+
+.reaction-trigger { display: inline-flex; align-items: center; gap: 5px; }
+.reaction-total { color: #98a2b3; font-size: 12px; font-weight: 900; }
+.reaction-detail-btn { display: inline-flex; align-items: center; }
+
+.reaction-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+.reaction-detail-preview,
+.reaction-detail-panel {
+  min-width: 0;
+  padding: 11px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+}
+.reaction-detail-label {
+  margin-bottom: 6px;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 750;
+}
+.reaction-detail-author {
+  color: #175cd3;
+  font-weight: 850;
+  margin-bottom: 5px;
+}
+.reaction-detail-text {
+  max-height: 160px;
+  overflow: auto;
+  color: #27364a;
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.reaction-detail-list { display: grid; gap: 8px; }
+.reaction-detail-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 11px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+}
+.reaction-detail-user { min-width: 0; color: #172033; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reaction-detail-type { display: inline-flex; align-items: center; gap: 7px; color: #475467; font-size: 13px; font-weight: 850; flex: 0 0 auto; }
+
+.reaction-bar {
+  position: absolute;
+  left: -8px;
+  bottom: calc(100% - 38px);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  background: #fff;
+  border: 1px solid #edf1f5;
+  border-radius: 999px;
+  box-shadow: 0 14px 34px rgba(16,24,40,0.18);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px) scale(0.96);
+  transform-origin: left bottom;
+  transition: opacity 0.16s ease 0.08s, transform 0.16s ease 0.08s;
+  white-space: nowrap;
+}
+
+.reaction-trigger:hover + .reaction-bar,
+.reaction-trigger:focus + .reaction-bar,
+.reaction-bar:hover,
+.reaction-picker:focus-within .reaction-bar {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+  transition-delay: 0s;
+}
+
+.reaction-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.reaction-btn:hover,
+.reaction-btn.active {
+  transform: translateY(-6px) scale(1.2);
+  background: #f8fafc;
+  box-shadow: 0 5px 12px rgba(16,24,40,0.13);
+}
+.reaction-btn.active { outline: 2px solid #b2ddff; }
+
+.react-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+}
+.react-icon.like { background: #1877f2; }
+.react-icon.love { background: #f43f5e; }
+.react-icon.care { background: #f59e0b; }
+.react-icon.haha { background: #facc15; }
+.react-icon.wow { background: #fbbf24; }
+.react-icon.sad { background: #60a5fa; }
+.react-icon.angry { background: #ef4444; }
+.react-icon.dislike { background: #64748b; }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(15,23,42,0.48);
+  backdrop-filter: blur(6px);
+}
+
+.modal-content {
+  width: min(94vw, 640px);
+  padding: 16px;
+  background: #fff;
+  border: 1px solid rgba(255,255,255,0.70);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(15,23,42,0.24);
+  animation: popIn 0.22s ease-out;
+}
+
+@keyframes popIn { from { transform: translateY(8px) scale(0.98); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+
+.modal-content h3 { margin: 0 0 8px; color: var(--text); font-size: 18px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+
+#modalInput {
+  width: 100%;
+  height: 86px;
+  padding: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  font-family: inherit;
+}
+
+.btn-secondary { background: #eef2f6; color: #475467; box-shadow: none; }
+.btn-secondary:hover { background: #e4e7ec; }
+
+@media (max-width: 560px) {
+  .container { width: 100%; max-width: 100vw; padding: 10px; overflow-x: clip; }
+  .header { position: static; min-height: 52px; gap: 8px; border-radius: 14px; align-items: center; }
+  .logo { flex: 0 1 auto; font-size: 15px; overflow: hidden; text-overflow: ellipsis; }
+  .user-box { flex: 1 1 auto; max-width: none; min-width: 0; }
+  .post-box, .post { max-width: 100%; border-radius: 14px; }
+  .post { overflow: visible; }
+  .meta { padding-right: 0; }
+  .post.current-user-post::before { position: static; display: inline-flex; margin-bottom: 6px; }
+  .reply { margin-left: 8px !important; padding-left: 9px; }
+  .reply-thread-toggle { margin-left: 8px; }
+  .reaction-picker { max-width: 100%; }
+  .reaction-bar {
+    left: 50%;
+    max-width: calc(100vw - 28px);
+    overflow-x: auto;
+    scrollbar-width: none;
+    transform: translate(-50%, 8px) scale(0.96);
+  }
+  .reaction-bar::-webkit-scrollbar { display: none; }
+  .reaction-trigger:hover + .reaction-bar,
+  .reaction-trigger:focus + .reaction-bar,
+  .reaction-bar:hover,
+  .reaction-picker:focus-within .reaction-bar {
+    transform: translate(-50%, 0) scale(1);
+  }
+  .reaction-detail-layout { grid-template-columns: 1fr; gap: 8px; }
+  .reaction-detail-preview,
+  .reaction-detail-panel { padding: 9px; }
+  .reaction-detail-text { max-height: 90px; }
+  .modal-content { width: min(94vw, 430px); }
+  .mute-btn { margin-left: 0; min-width: 132px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="logo">🚀 LearnHub Forum</div>
+    <div class="user-box" id="userBox">Chưa đăng nhập</div>
+  </div>
+
+  <div class="post-box composer-card">
+    <div id="replyingTo"></div>
+    <textarea id="content" placeholder="Bạn muốn trao đổi điều gì?" maxlength="500"></textarea>
+    <div class="char-counter"><span id="charCount">0</span>/500</div>
+    
+    <button class="post-submit" onclick="sendPost()">Đăng</button>
+    <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
+      🔊 Âm thanh: Bật
+    </button>
+  </div>
+
+  <div id="posts"></div>
+</div>
+
+<div id="customModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 id="modalTitle">Thông báo</h3>
+    <div id="modalBody">
+      <textarea id="modalInput" style="display:none;"></textarea>
+      <p id="modalMsg"></p>
+    </div>
+    <div class="modal-actions">
+      <button id="modalCancel" class="btn-secondary">Hủy</button>
+      <button id="modalConfirm" style="background: var(--primary); color: white; border:none; padding: 10px 16px; border-radius: 10px; cursor:pointer;">Xác nhận</button>
+    </div>
+  </div>
+</div>
+
+<audio id="soundPost" src="sound/post.mp3" preload="auto"></audio>
+<audio id="soundLike" src="sound/like.mp3" preload="auto"></audio>
+<audio id="soundDislike" src="sound/dislike.mp3" preload="auto"></audio>
+
+<script>
+/* ================= FIREBASE CONFIG ================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c",
+  authDomain: "onthi12-thpttanhong.firebaseapp.com",
+  databaseURL: "https://onthi12-thpttanhong-default-rtdb.asia-southeast1.firebasedatabase.app/",
+  projectId: "onthi12-thpttanhong",
+  storageBucket: "onthi12-thpttanhong.appspot.com"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const firestoreDb = firebase.firestore();
+
+/* ================= BIẾN TOÀN CỤC ================= */
+let currentUser = null;
+let replyTo = null;
+let isFirstLoad = true;
+let isMuted = localStorage.getItem("forum_muted") === "true";
+let modalAction = null; 
+let userDirectoryCache = null;
+
+/* ================= HỆ THỐNG MODAL (POPUP) ================= */
+function showModal(title, msg, isInput, currentText, onConfirm, isHtml = false) {
+  const modal = document.getElementById("customModal");
+  const modalInput = document.getElementById("modalInput");
+  const modalMsg = document.getElementById("modalMsg");
+  const modalTitle = document.getElementById("modalTitle");
+
+  modalTitle.innerText = title;
+  if(isHtml) modalMsg.innerHTML = msg;
+  else modalMsg.innerText = msg;
+  modalAction = onConfirm; 
+  
+  if (isInput) {
+    modalInput.style.display = "block";
+    modalInput.value = currentText;
+    modalMsg.style.display = "none";
+  } else {
+    modalInput.style.display = "none";
+    modalMsg.style.display = "block";
+  }
+  modal.style.display = "flex";
+}
+
+/* ================= NHẬN THÔNG TIN USER TỪ APP CHÍNH ================= */
+window.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "USER_INFO") {
+    currentUser = event.data.user;
+    updateUserBox();
+  }
+});
+
+function escapeHTML(value){
+  return String(value || "").replace(/[&<>"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[char]));
+}
+
+function getInitials(name){
+  const parts = String(name || "?").trim().split(/\s+/).filter(Boolean);
+  if(parts.length === 0) return "?";
+  return parts.slice(-2).map(part => part[0]).join("").toUpperCase();
+}
+
+function updateUserBox(){
+  const userBox = document.getElementById("userBox");
+  if(!userBox || !currentUser) return;
+  const safeName = escapeHTML(currentUser.name || "Người dùng");
+  userBox.innerHTML = `<span class="user-avatar">${escapeHTML(getInitials(currentUser.name))}</span><span class="user-name-current">${safeName}</span>`;
+}
+
+/* ================= KHI TRANG LOAD XONG ================= */
+window.addEventListener("load", () => {
+  updateMuteUI();
+  
+  const contentArea = document.getElementById("content");
+  const charCountDisplay = document.getElementById("charCount");
+
+  // Xử lý Tự giãn và Đếm ký tự
+  contentArea.addEventListener("input", function() {
+    // 1. Logic Tự giãn (Auto-resize)
+    this.style.height = "auto"; // Reset về auto để tính lại chiều cao
+    this.style.height = (this.scrollHeight) + "px"; // Gán chiều cao mới theo nội dung
+
+    // 2. Logic Đếm ký tự
+    const len = this.value.length;
+    charCountDisplay.innerText = len;
+    
+    // Đổi màu nếu sắp hết dung lượng (ví dụ trên 450 ký tự thì hiện màu đỏ)
+    charCountDisplay.style.color = len >= 450 ? "#ef4444" : "#64748b";
+  });
+
+  // --- Giữ nguyên các đoạn code cũ của bạn bên dưới ---
+  const modal = document.getElementById("customModal");
+  document.getElementById("modalCancel").onclick = () => { modal.style.display = "none"; };
+  document.getElementById("modalConfirm").onclick = () => {
+    if (typeof modalAction === "function") modalAction();
+    modal.style.display = "none";
+  };
+  window.parent.postMessage({ type: "FORUM_READY" }, "*");
+});
+
+/* ================= QUẢN LÝ ÂM THANH ================= */
+function updateMuteUI() {
+  const btn = document.getElementById("muteBtn");
+  if (isMuted) {
+    btn.innerHTML = "🔇 Âm thanh: Tắt";
+    btn.style.background = "#ef4444"; 
+  } else {
+    btn.innerHTML = "🔊 Âm thanh: Bật";
+    btn.style.background = "#64748b"; 
+  }
+}
+
+function toggleMute() {
+  isMuted = !isMuted;
+  localStorage.setItem("forum_muted", isMuted); 
+  updateMuteUI();
+}
+
+function playSound(type){
+  if (isMuted) return;
+  let id = "sound" + type.charAt(0).toUpperCase() + type.slice(1);
+  let sound = document.getElementById(id);
+  if(sound){
+    sound.currentTime = 0;
+    sound.play().catch(e => console.log("Sound error: " + e));
+  }
+}
+
+/* ================= GỬI BÀI VIẾT / PHẢN HỒI ================= */
+function sendPost(){
+  const contentArea = document.getElementById("content");
+  const text = contentArea.value.trim();
+
+  if(!text) return;
+  if(!currentUser) {
+    alert("Vui lòng chờ ứng dụng xác thực thông tin người dùng...");
+    return;
+  }
+
+  const newPost = {
+    text: text,
+    user: currentUser.name,
+    uid: currentUser.uid || null,
+    parentId: replyTo || null,
+    time: Date.now()
+  };
+
+  // 1. Đẩy dữ liệu lên Firebase
+  db.ref("posts").push(newPost);
+  db.ref("events").push({ type: "post", time: Date.now() });
+
+  // 2. Reset toàn bộ form về trạng thái ban đầu
+  contentArea.value = ""; 
+  contentArea.style.height = "80px"; // Đặt lại chiều cao min-height bạn đã set trong CSS
+  document.getElementById("charCount").innerText = "0"; 
+  document.getElementById("charCount").style.color = "#64748b"; // Reset màu chữ đếm ký tự
+  
+  replyTo = null;
+  document.getElementById("replyingTo").innerHTML = "";
+  contentArea.focus();
+}
+
+/* ================= HIỂN THỊ BÀI VIẾT (RENDER) ================= */
+db.ref("posts").on("value", (snapshot) => {
+  renderPosts(snapshot);
+});
+
+function renderPosts(snapshot){
+  const data = snapshot.val();
+  const container = document.getElementById("posts");
+  if(!container) return;
+  
+  const scrollPos = window.scrollY;
+  container.innerHTML = "";
+  
+  if(!data) return;
+
+  const allPosts = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+  const parents = allPosts.filter(p => !p.parentId).sort((a, b) => b.time - a.time);
+
+  parents.forEach(post => {
+    container.appendChild(createPostElement(post, allPosts));
+  });
+
+  window.scrollTo(0, scrollPos);
+}
+
+function createPostElement(post, allPosts){
+  const div = document.createElement("div");
+  const isOwner = currentUser && post.uid === currentUser.uid;
+  div.className = isOwner ? "post current-user-post" : "post";
+  const ownerActions = isOwner ? `
+    <span class="edit-btn" onclick="editPost('${post.id}', '${post.text.replace(/'/g, "\\'")}')">✎ Sửa</span>
+    <span class="delete-btn" onclick="deletePost('${post.id}')">🗑 Xóa</span>
+  ` : "";
+
+  div.innerHTML = `
+    <div class="meta">
+      <b class="${isOwner ? "current-user-name" : ""}">${post.user}</b> • ${formatTime(post.time)} 
+      ${post.isEdited ? '<i style="font-size:10px">(đã chỉnh sửa)</i>' : ''}
+      ${ownerActions}
+    </div>
+    <div style="white-space: pre-wrap;">${post.text}</div>
+    <div class="actions">
+      ${renderReactionButtons(post)}
+      <span class="reply-btn" onclick="setReply('${post.id}', '${post.user}')">Trả lời</span>
+    </div>
+  `;
+
+  const repliesContainer = document.createElement("div");
+  renderReplies(post.id, repliesContainer, allPosts, 1);
+  div.appendChild(repliesContainer);
+  
+  return div;
+}
+
+function renderReplies(parentId, container, allPosts, level){
+  const replies = allPosts
+    .filter(p => p.parentId === parentId)
+    .sort((a, b) => a.time - b.time);
+  if(replies.length === 0) return;
+
+  let expanded = false;
+  const wrapper = document.createElement("div");
+  wrapper.className = "replies-wrapper";
+
+  const renderList = () => {
+    wrapper.innerHTML = "";
+
+    const btn = document.createElement("div");
+    btn.className = "reply-thread-toggle";
+    btn.innerText = expanded ? "Ẩn phản hồi" : `Xem ${replies.length} phản hồi`;
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      expanded = !expanded;
+      renderList();
+    };
+    wrapper.appendChild(btn);
+
+    if(!expanded) return;
+
+    const listWrap = document.createElement("div");
+    listWrap.className = "reply-list";
+
+    replies.forEach(rep => {
+      const repDiv = document.createElement("div");
+      repDiv.className = "reply";
+      repDiv.style.marginLeft = Math.min(level * 12, 36) + "px";
+      
+      const isOwner = currentUser && rep.uid === currentUser.uid;
+      const ownerActions = isOwner ? `
+        <span class="edit-btn" onclick="editPost('${rep.id}', '${rep.text.replace(/'/g, "\\'")}')">✎</span>
+        <span class="delete-btn" onclick="deletePost('${rep.id}')">🗑</span>
+      ` : "";
+
+      repDiv.innerHTML = `
+        <div class="meta"><b class="${isOwner ? "current-user-name" : ""}">${rep.user}</b> • ${formatTime(rep.time)} ${ownerActions}</div>
+        <div style="white-space: pre-wrap;">${rep.text}</div>
+        <div class="actions">
+          ${renderReactionButtons(rep)}
+          <span class="reply-btn" onclick="setReply('${rep.id}', '${rep.user}')">Trả lời</span>
+        </div>
+      `;
+      
+      renderReplies(rep.id, repDiv, allPosts, level + 1);
+      listWrap.appendChild(repDiv);
+    });
+
+    wrapper.appendChild(listWrap);
+  };
+
+  renderList();
+  container.appendChild(wrapper);
+}
+/* ================= TIỆN ÍCH (THỜI GIAN THEO FORMAT YÊU CẦU) ================= */
+function formatTime(t){
+  const d = new Date(t);
+  const date = d.getDate().toString().padStart(2,'0');
+  const month = (d.getMonth()+1).toString().padStart(2,'0');
+  const year = d.getFullYear();
+  const hours = d.getHours().toString().padStart(2,'0');
+  const minutes = d.getMinutes().toString().padStart(2,'0');
+  const seconds = d.getSeconds().toString().padStart(2,'0');
+  
+  // Format: Ngày/Tháng/Năm Giờ:Phút:Giây
+  return `${date}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+}
+
+const REACTIONS = [
+  { type: "like", icon: "👍", label: "Thích" },
+  { type: "love", icon: "❤", label: "Yêu thích" },
+  { type: "care", icon: "🥰", label: "Thương thương" },
+  { type: "haha", icon: "😄", label: "Haha" },
+  { type: "wow", icon: "😮", label: "Wow" },
+  { type: "sad", icon: "😢", label: "Buồn" },
+  { type: "angry", icon: "😡", label: "Giận" }
+];
+
+function countReaction(p, type){
+  const reactions = p.reactions || {};
+  let total = Object.values(reactions).filter(value => value === type).length;
+  if(type === "like" && p.likes) total += Object.keys(p.likes).filter(uid => !reactions[uid]).length;
+  if(type === "dislike" && p.dislikes) total += Object.keys(p.dislikes).filter(uid => !reactions[uid]).length;
+  return total;
+}
+
+function getUserReaction(p){
+  if(!currentUser) return "";
+  const uid = currentUser.uid;
+  if(p.reactions && p.reactions[uid]) return p.reactions[uid];
+  if(p.likes && p.likes[uid]) return "like";
+  if(p.dislikes && p.dislikes[uid]) return "dislike";
+  return "";
+}
+
+function getReactionMeta(type){
+  if(type === "dislike") return { type: "dislike", icon: "👎", label: "Không thích" };
+  return REACTIONS.find(reaction => reaction.type === type) || REACTIONS[0];
+}
+
+function totalReactionCount(post){
+  const reactionUsers = new Set(Object.keys(post.reactions || {}));
+  let total = reactionUsers.size;
+  if(post.likes) Object.keys(post.likes).forEach(uid => { if(!reactionUsers.has(uid)) total++; });
+  if(post.dislikes) Object.keys(post.dislikes).forEach(uid => { if(!reactionUsers.has(uid)) total++; });
+  return total;
+}
+
+function renderReactionButtons(post){
+  const selected = getUserReaction(post);
+  const current = selected ? getReactionMeta(selected) : { type: "like", icon: "👍", label: "Thích" };
+  const total = totalReactionCount(post);
+  return `
+    <span class="reaction-picker">
+      <span class="reaction-trigger" onclick="toggleReaction('${post.id}', '${current.type}')">
+        ${selected ? `<span class="react-icon ${current.type}">${current.icon}</span>` : ""}
+        <span>${current.label}</span>
+        ${total ? `<span class="reaction-total">${total}</span>` : ""}
+      </span>
+      <span class="reaction-bar">
+        ${REACTIONS.map(reaction => `
+          <span class="reaction-btn ${selected === reaction.type ? "active" : ""}" title="${reaction.label}" onclick="toggleReaction('${post.id}', '${reaction.type}')">
+            <span class="react-icon ${reaction.type}">${reaction.icon}</span>
+          </span>
+        `).join("")}
+      </span>
+    </span>
+    ${total ? `<span class="reaction-detail-btn" onclick="showReactionDetails('${post.id}')">Chi tiết</span>` : ""}
+  `;
+}
+
+function countLikes(p){ return countReaction(p, "like"); }
+function countDislikes(p){ return countReaction(p, "dislike"); }
+
+function collectReactionEntries(post){
+  const entriesByUid = new Map();
+  Object.entries(post.reactions || {}).forEach(([uid, type]) => {
+    if(uid && type) entriesByUid.set(uid, type);
+  });
+  Object.keys(post.likes || {}).forEach(uid => {
+    if(uid && !entriesByUid.has(uid)) entriesByUid.set(uid, "like");
+  });
+  Object.keys(post.dislikes || {}).forEach(uid => {
+    if(uid && !entriesByUid.has(uid)) entriesByUid.set(uid, "dislike");
+  });
+  return [...entriesByUid.entries()].map(([uid, type]) => ({ uid, type }));
+}
+
+async function getUserDirectory(){
+  if(userDirectoryCache) return userDirectoryCache;
+  const directory = new Map();
+  try {
+    const snap = await firestoreDb.collection("users").get();
+    snap.forEach(doc => {
+      const data = doc.data() || {};
+      directory.set(doc.id, data.name || data.email || doc.id);
+    });
+  } catch (error) {
+    console.warn("Không tải được danh sách user:", error);
+  }
+  userDirectoryCache = directory;
+  return directory;
+}
+
+async function showReactionDetails(postId){
+  const snap = await db.ref("posts/" + postId).once("value");
+  const post = snap.val();
+  if(!post) return showModal("Chi tiết cảm xúc", "Không tìm thấy bài viết này.", false, "", null);
+
+  const entries = collectReactionEntries(post);
+  if(entries.length === 0) return showModal("Chi tiết cảm xúc", "Chưa có ai thả cảm xúc.", false, "", null);
+
+  const directory = await getUserDirectory();
+  const rows = entries.map(entry => {
+    const meta = getReactionMeta(entry.type);
+    const name = directory.get(entry.uid) || (currentUser && currentUser.uid === entry.uid ? currentUser.name : "User không rõ");
+    return `
+      <div class="reaction-detail-item">
+        <span class="reaction-detail-user">${escapeHTML(name)}</span>
+        <span class="reaction-detail-type"><span class="react-icon ${meta.type}">${meta.icon}</span>${escapeHTML(meta.label)}</span>
+      </div>
+    `;
+  }).join("");
+  const postTitle = post.parentId ? "Bình luận đang xem" : "Bài viết đang xem";
+  const preview = `
+    <div class="reaction-detail-preview">
+      <div class="reaction-detail-label">${postTitle}</div>
+      <div class="reaction-detail-author">${escapeHTML(post.user || "Người dùng")}</div>
+      <div class="reaction-detail-text">${escapeHTML(post.text || "")}</div>
+    </div>
+  `;
+
+  showModal("Chi tiết cảm xúc", `<div class="reaction-detail-layout">${preview}<div class="reaction-detail-panel"><div class="reaction-detail-label">Ai đã bày tỏ cảm xúc</div><div class="reaction-detail-list">${rows}</div></div></div>`, false, "", null, true);
+}
+
+function setReply(id, user) {
+  replyTo = id;
+  const replyBox = document.getElementById("replyingTo");
+  
+  replyBox.innerHTML = `
+    <div class="reply-status-container">
+      <div class="replying-text">
+        <span>↳ Đang trả lời <b>@${user}</b></span>
+      </div>
+      <div class="cancel-reply" onclick="cancelReply()" title="Hủy trả lời">×</div>
+    </div>
+  `;
+  
+  // Cuộn lên khung nhập liệu
+  document.querySelector(".post-box").scrollIntoView({ behavior: "smooth", block: "center" });
+  document.getElementById("content").focus();
+}
+
+// Thêm hàm hủy trả lời mới
+function cancelReply() {
+  replyTo = null;
+  document.getElementById("replyingTo").innerHTML = "";
+  document.getElementById("content").focus();
+}
+
+/* ================= LOGIC XÓA SẠCH DATABASE ================= */
+async function deletePost(postId) {
+  showModal("Xác nhận xóa", "Bạn có chắc muốn xóa bài này và các phản hồi liên quan?", false, "", async () => {
+    const snapshot = await db.ref("posts").once("value");
+    const allData = snapshot.val();
+    if (!allData) return;
+    
+    function getAllChildIds(id, data) {
+      let ids = [id];
+      for (let key in data) {
+        if (data[key].parentId === id) ids = ids.concat(getAllChildIds(key, data));
+      }
+      return ids;
+    }
+
+    const updates = {};
+    getAllChildIds(postId, allData).forEach(id => { updates["posts/" + id] = null; });
+    await db.ref().update(updates);
+  });
+}
+
+function editPost(postId, oldText) {
+  showModal("Chỉnh sửa bài viết", "", true, oldText, () => {
+    const newText = document.getElementById("modalInput").value.trim();
+    if (newText && newText !== oldText) {
+      db.ref("posts/" + postId).update({
+        text: newText,
+        isEdited: true,
+        editTime: Date.now()
+      });
+    }
+  });
+}
+
+/* ================= TƯƠNG TÁC CẢM XÚC ================= */
+function toggleReaction(postId, type){
+  if(!currentUser) return;
+  const ref = db.ref("posts/" + postId);
+  ref.once("value").then(snap => {
+    const post = snap.val() || {};
+    const uid = currentUser.uid;
+    let reactions = post.reactions || {};
+    let likes = post.likes || {};
+    let dislikes = post.dislikes || {};
+
+    if(reactions[uid] === type) delete reactions[uid];
+    else reactions[uid] = type;
+
+    delete likes[uid];
+    delete dislikes[uid];
+
+    ref.update({ reactions, likes, dislikes });
+    db.ref("events").push({ type: "like", reactionType: type, time: Date.now() });
+  });
+}
+
+function toggleLike(postId, isLike){
+  toggleReaction(postId, isLike ? "like" : "sad");
+}
+
+/* ================= LẮNG NGHE SỰ KIỆN ÂM THANH ================= */
+db.ref("events").limitToLast(1).on("child_added", (snap) => {
+  if (isFirstLoad) { isFirstLoad = false; return; }
+  const ev = snap.val();
+  if(ev) playSound(ev.type);
+});
+</script>
+</body>
+</html>

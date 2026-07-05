@@ -1,0 +1,1494 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<meta name="google-site-verification" content="T8hlEJb2HT-iCvVbHPeribVXAyr7x9ShD570c1TR710" />
+<link rel="icon" href="https://kioshuke.github.io/learnhub/favicon.png" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="https://kioshuke.github.io/learnhub/favicon.png">
+<link rel="apple-touch-icon" href="https://kioshuke.github.io/learnhub/favicon.png">
+
+<meta name="theme-color" content="#1a73e8">
+<title>LearnHub Platform </title>
+<meta name="description" content="LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.">
+
+<meta property="og:title" content="LearnHub Platform">
+<meta property="og:description" content="Hệ thống hỗ trợ học tập và thi cử trực tuyến cho học sinh THPT.">
+<meta property="og:image" content="https://kioshuke.github.io/learnhub/favicon.png">
+<meta property="og:url" content="https://kioshuke.github.io/learnhub/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "LearnHub",
+  "alternateName": "LearnHub Platform",
+  "url": "https://kioshuke.github.io/learnhub/",
+  "image": "https://kioshuke.github.io/learnhub/favicon.png",
+  "description": "LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Web, Android",
+  "author": {
+    "@type": "Organization",
+    "name": "THPT Tân Hồng"
+  }
+}
+</script>
+<link rel="preconnect" href="https://www.gstatic.com">
+<link rel="preconnect" href="https://www.googleapis.com">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-locked">
+<div id="loadingOverlay">
+<audio id="clickSound" src="sound/mocor-os-keypad-sound.mp3" preload="none"></audio>
+<audio id="dotest" src="sound/windows-xp-startup.mp3" preload="none"></audio>
+<audio id="offtest" src="sound/preview_4.mp3" preload="none"></audio>
+<audio id="openpopup" src="sound/discord-notification.mp3" preload="none"></audio>
+<audio id="thongbaoSound" src="sound/thongbao.mp3" preload="none"></audio>
+<audio id="realtimeSound" src="sound/realtimesound.mp3" preload="none"></audio>
+<div class="loading-content">
+  <div class="loading-brand">
+    <img src="newlogo.png" alt="logo" loading="eager" width="80" height="80">
+    <h2>LearnHub – Your smart path to success</h2>
+  </div>
+  <div class="loading-dots">
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+  </div>
+  <div class="loading-text-box">
+    <p id="loadingText">🧠 Đang chuẩn bị kiến thức...</p>
+  </div>
+</div>
+<div class="loading-footer">
+  <p>© 2026 LearnHub Platform | All rights reserved!</p>
+</div>
+</div>
+<div id="popup">
+<div class="popup-box">
+<span class="close">&times;</span>
+<h3 id="mainPopupTitle">📢 Thông báo</h3>
+<p id="mainPopupMessage" style="text-align:left;"> <b>CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM</b> </p>
+</div>
+</div>
+<div id="loginBox">
+<div class="auth-shell">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <img src="newlogo.png" alt="Logo LearnHub" loading="lazy" width="55" height="55">
+      <span>LearnHub Platform - With Hubie AI</span>
+    </div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" data-auth-tab="login" onclick="switchAuthTab('login')">Đăng nhập</div>
+      <div class="auth-tab" data-auth-tab="register" onclick="switchAuthTab('register')">Đăng ký</div>
+    </div>
+
+    <div class="auth-title">Chào mừng trở lại!</div>
+    <div class="auth-mobile-showcase">
+      <div class="auth-mobile-slide">
+        <div class="auth-mobile-blur" style="background-image:url('loading1.jpg')"></div>
+        <div class="auth-mobile-main" style="background-image:url('loading1.jpg')"></div>
+      </div>
+      <div class="auth-mobile-slide">
+        <div class="auth-mobile-blur" style="background-image:url('loading2.jpg')"></div>
+        <div class="auth-mobile-main" style="background-image:url('loading2.jpg')"></div>
+      </div>
+      <div class="auth-mobile-slide">
+        <div class="auth-mobile-blur" style="background-image:url('loading3.jpg')"></div>
+        <div class="auth-mobile-main" style="background-image:url('loading3.jpg')"></div>
+      </div>
+      <div class="auth-mobile-slide">
+        <div class="auth-mobile-blur" style="background-image:url('loading4.jpg')"></div>
+        <div class="auth-mobile-main" style="background-image:url('loading4.jpg')"></div>
+      </div>
+      <div class="auth-mobile-caption">
+        <strong id="authMobileTitle">LearnHub trên di động</strong>
+        <span id="authMobileDesc">Ôn thi nhanh, gọn và dễ dùng ngay trên điện thoại</span>
+      </div>
+    </div>
+    <div id="authLoginPanel" class="auth-panel">
+      <button class="auth-login-btn" onclick="googleLogin()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" height="18" loading="lazy">
+        <span>Tiếp tục với Google</span>
+      </button>
+
+      <button class="auth-login-btn" onclick="authComingSoon()" style="margin-top:14px;">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" width="18" height="18" loading="lazy">
+        <span>Tiếp tục với GitHub</span>
+      </button>
+
+      <button class="auth-login-btn" onclick="authComingSoon()" style="margin-top:14px;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" width="18" height="18" loading="lazy">
+        <span>Tiếp tục với Microsoft</span>
+      </button>
+
+      <div class="auth-divider">hoặc</div>
+
+      <div class="auth-input-group">
+        <input type="email" id="loginEmail" required onkeypress="if(event.key==='Enter')emailLogin()">
+        <label>Email</label>
+      </div>
+
+      <div class="auth-input-group">
+        <input type="password" id="loginPassword" required onkeypress="if(event.key==='Enter')emailLogin()">
+        <label>Mật khẩu</label>
+      </div>
+
+      <button class="auth-submit" onclick="emailLogin()">Đăng nhập</button>
+    </div>
+
+    <div id="authRegisterPanel" class="auth-panel" style="display:none;">
+      <div class="auth-input-group">
+        <input type="text" id="registerName" required onkeypress="if(event.key==='Enter')emailRegister()">
+        <label>Tên của bạn</label>
+      </div>
+
+      <div class="auth-input-group">
+        <input type="email" id="registerEmail" required onkeypress="if(event.key==='Enter')emailRegister()">
+        <label>Email</label>
+      </div>
+
+      <div class="auth-input-group">
+        <input type="password" id="registerPassword" required onkeypress="if(event.key==='Enter')emailRegister()">
+        <label>Mật khẩu</label>
+      </div>
+
+      <div class="auth-input-group">
+        <input type="password" id="registerConfirmPassword" required onkeypress="if(event.key==='Enter')emailRegister()">
+        <label>Nhập lại mật khẩu</label>
+      </div>
+
+      <button class="auth-submit" onclick="emailRegister()">Đăng ký</button>
+    </div>
+
+    <div class="auth-footer">© 2026 LearnHub Platform | All rights reserved!</div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-header-bar">
+      <span>LearnHub News</span>
+    </div>
+    <div class="auth-slide">
+      <div class="auth-bg-blur" style="background-image:url('loading1.jpg')"></div>
+      <div class="auth-bg-main" style="background-image:url('loading1.jpg')"></div>
+    </div>
+
+    <div class="auth-slide">
+      <div class="auth-bg-blur" style="background-image:url('loading2.jpg')"></div>
+      <div class="auth-bg-main" style="background-image:url('loading2.jpg')"></div>
+    </div>
+
+    <div class="auth-slide">
+      <div class="auth-bg-blur" style="background-image:url('loading3.jpg')"></div>
+      <div class="auth-bg-main" style="background-image:url('loading3.jpg')"></div>
+    </div>
+
+    <div class="auth-slide">
+      <div class="auth-bg-blur" style="background-image:url('loading4.jpg')"></div>
+      <div class="auth-bg-main" style="background-image:url('loading4.jpg')"></div>
+    </div>
+
+    <div class="auth-overlay">
+      <h1 id="authSlideTitle">LearnHub - Nang cap cach ban hoc</h1>
+      <p id="authSlideDesc">On thi nhanh • Giao dien hien dai • Toi uu trai nghiem</p>
+    </div>
+</div>
+</div>
+</div>
+
+<div id="authNotice" class="notice-info" role="status" aria-live="polite">
+  <div class="notice-icon" id="authNoticeIcon">i</div>
+  <div class="notice-content">
+    <p class="notice-title" id="authNoticeTitle">Thong bao</p>
+    <p class="notice-message" id="authNoticeMessage"></p>
+  </div>
+</div>
+
+<div class="menu">
+<div class="menu-brand">
+  <img src="logoweb.webp" width="60" height="60" alt="Logo LearnHub">
+  <span>LearnHub – Nâng cấp cách bạn học</span>
+</div>
+<div class="menu-buttons" id="menuButtons">
+  <button data-subject="home" class="active" onclick="show('home')">Home</button>
+  <button data-subject="flash" onclick="show('flash')">FlashCard</button>
+  <button data-subject="bxh" onclick="show('bxh')">Forum</button>
+  <button data-subject="ly" onclick="show('ly')">Vật Lý</button>
+  <button data-subject="sinh" onclick="show('sinh')">Sinh Học</button>
+  <button data-subject="tin" onclick="show('tin')">Tin Học</button>
+  <button data-subject="su" onclick="show('su')">Lịch Sử</button>
+  <button data-subject="hoa" onclick="show('hoa')">Hoá Học</button>
+  <button data-subject="anh" onclick="show('anh')">Anh Văn</button>
+</div>
+</div>
+<div class="ticker-container">
+<div class="ticker-text">
+LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.
+</div>
+</div>
+<div id="userBox">
+
+<div id="currentTime"></div>
+
+<div class="user-right">
+  <div class="user-text">
+    <span id="welcomeText"></span>
+    <span id="userName"></span>
+  </div>
+
+  <div class="avatar-box" onclick="toggleUserPopup()">
+    <img id="userAvatar" alt="Ảnh đại diện người dùng">
+    <span id="onlineDot" class="online-pulse"></span>
+  </div>
+</div>
+
+</div>
+<div id="mainContent" class="content">
+
+</div>
+<div id="ly" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học: Đã thi xong</strong><span class="notice-content"></span></div>
+<div class="grid">
+
+<div class="card">
+<h3>Trắc nghiệm</h3><div class="status done"></div>
+<p>Bài ôn tập trắc nghiệm môn Vật Lý.</p>
+<a class="btn" href="cauhoi/filetest.html?de=../vatli/tracnghiem.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../vatli/tracnghiem.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Đúng / Sai</h3><div class="status done"></div>
+<p>Bài ôn tập dạng đúng sai.</p>
+<a class="btn" href="cauhoi/filetest.html?de=../vatli/dungsai.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../vatli/dungsai.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Trả lời ngắn</h3><div class="status done"></div>
+<p>Bài ôn tập trả lời ngắn.</p>
+<a class="btn" href="cauhoi/filetest.html?de=../vatli/tln.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../vatli/tln.json'); return false;">Làm bài</a>
+</div>
+
+</div>
+</div>
+
+<div id="sinh" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học:</strong><span class="notice-content"></span></div>
+<div class="grid">
+
+<div class="card">
+<h3>Trắc nghiệm</h3><div class="status done"></div>
+<p>Bài ôn tập trắc nghiệm môn Sinh Học.</p>
+<a class="btn" href="cauhoi/filetest.html?de=../sinhhoc/tracnghiem.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../sinhhoc/tracnghiem.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Đúng / Sai</h3><div class="status done"></div>
+<p>Bài ôn tập dạng đúng sai môn Sinh.</p>
+<a class="btn" href="cauhoi/filetest.html?de=../sinhhoc/dungsai.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../sinhhoc/dungsai.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Trả lời ngắn</h3>
+<p>Bài ôn tập trả lời ngắn môn Sinh.</p><div class="status done"></div>
+<a class="btn" href="cauhoi/filetest.html?de=../sinhhoc/tln.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../sinhhoc/tln.json'); return false;">Làm bài</a>
+</div>
+
+</div>
+</div>
+
+<div id="tin" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học: </strong><span class="notice-content"></span></div>
+<div class="grid">
+
+<div class="card">
+<h3>Ôn Tập MOS</h3><div class="status done"></div>
+<p>Ôn tập chứng chỉ MOS và các kỹ năng liên quan về Word, Excel, PowerPoint.</p>
+<a class="btn" href="mos-video-hub.html" onclick="loadQuiz(this,'mos-video-hub.html'); return false;">Mở</a>
+</div>
+
+</div>
+</div>
+
+<div id="su" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học: Đã lược bớt chủ đề 7: Nội dung thi Chủ đề 8 và 9</strong><span class="notice-content"></span></div>
+<div class="grid">
+
+<div class="card">
+<h3>Trắc nghiệm</h3><div class="status done"></div>
+<p>Chủ đề 8. LỊCH SỬ ĐỐI NGOẠI CỦA VIỆT NAM THỜI CẬN – HIỆN ĐẠI</p>
+<a class="btn" href="filetest.html?de=cauhoi/questions.json" onclick="loadQuiz(this,'filetest.html?de=cauhoi/questions.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Trắc nghiệm</h3><div class="status done"></div>
+<p>Chủ đề 9. HỒ CHÍ MINH TRONG LỊCH SỬ VIỆT NAM</p>
+<a class="btn" href="filetest.html?de=cauhoi/questions.json" onclick="loadQuiz(this,'filetest.html?de=cauhoi/questions.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Đúng Sai</h3><div class="status done"></div>
+<p>Chủ đề 8. LỊCH SỬ ĐỐI NGOẠI CỦA VIỆT NAM THỜI CẬN – HIỆN ĐẠI</p>
+<a class="btn" href="cauhoi/filetest.html?de=../lichsu/dscd8.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../lichsu/dscd8.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Đúng Sai</h3><div class="status done"></div>
+<p>Chủ đề 9. HỒ CHÍ MINH TRONG LỊCH SỬ VIỆT NAM</p>
+<a class="btn" href="cauhoi/filetest.html?de=../lichsu/dscd9.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../lichsu/dscd9.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>File Đáp án</h3>
+<p>Đáp Án Phần Trắc Nghiệm</p>
+<a class="btn" href="lichsu/Sử TN HK2.pdf" onclick="loadQuiz(this,'lichsu/Sử TN HK2.pdf'); return false;">Xem</a>
+</div>
+
+</div>
+</div>
+
+<div id="hoa" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học: CHỐT ĐÁP ÁN HOÁ LỜ 👊👊👊</strong><span class="notice-content"></span></div>
+<div class="grid">
+
+<div class="card">
+<h3>Trắc nghiệm P1</h3><span class="status done"></span>
+<p>Bài ôn tập trắc nghiệm môn Hoá Học.</p>
+<a class="btn" href="cauhoi/filetest.html?de=../hoahoc/tracnghiem1.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../hoahoc/tracnghiem1.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Trắc nghiệm P2</h3><span class="status done"></span>
+<p>Bài ôn tập trắc nghiệm môn Hoá Học.</p>
+<a class="btn" href="cauhoi/filetest.html?de=../hoahoc/tracnghiem2.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../hoahoc/tracnghiem2.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Đúng / Sai</h3><div class="status done"></div>
+<p>Bài ôn tập dạng đúng sai môn Hoá.</p>
+<a class="btn" href="cauhoi/filetest.html?de=../hoahoc/dungsai.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../hoahoc/dungsai.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Trả lời ngắn</h3><div class="status done"></div>
+<p>Bài ôn tập trả lời ngắn môn Hoá.</p>
+<a class="btn" href="cauhoi/filetest.html?de=../hoahoc/tln.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../hoahoc/tln.json'); return false;">Làm bài</a>
+</div>
+
+</div>
+</div>
+
+<div id="anh" style="display:none">
+<div class="subject-notice"><strong>📢 Thông Báo Môn Học:</strong><span class="notice-content"></span></div>
+<div class="grid">
+
+<div class="card">
+<h3>Phần 1</h3><span class="status done"></span>
+<p>Điền lỗ ngắn + Sắp xếp hội thoại</p>
+<a class="btn" href="cauhoi/questionenglish.html?de=../cauhoi/english.json" onclick="loadQuiz(this,'cauhoi/questionenglish.html?de=../cauhoi/english.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Phần 2</h3><span class="status done"></span>
+<p>Bài đọc 8 câu</p>
+<a class="btn" href="cauhoi/questionenglish.html?de=../cauhoi/8cau.json" onclick="loadQuiz(this,'cauhoi/questionenglish.html?de=../cauhoi/8cau.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Phần 3</h3><div class="status done"></div>
+<p>Bài đọc 10 câu</p>
+<a class="btn" href="cauhoi/questionenglish.html?de=../cauhoi/10cau.json" onclick="loadQuiz(this,'cauhoi/questionenglish.html?de=../cauhoi/10cau.json'); return false;">Làm bài</a>
+</div>
+
+<div class="card">
+<h3>Phần 4</h3><div class="status done"></div>
+<p>Bài đọc điền lỗ dài</p>
+<a class="btn" href="cauhoi/questionenglish.html?de=../cauhoi/dienlo2.json" onclick="loadQuiz(this,'cauhoi/questionenglish.html?de=../cauhoi/dienlo2.json'); return false;">Làm bài</a>
+</div>
+
+</div>
+</div>
+
+<div id="bxh" style="display:none">
+  <div class="grid">
+    <iframe 
+      id="forumFrame" 
+      src="forum.html" 
+      style="width:100%; height:600px; border:none; border-radius:12px;">
+    </iframe>
+  </div>
+</div>
+<div id="flash" style="display:none">
+  <div class="flashcard-frame-shell">
+    <iframe
+      id="flashHubFrame"
+      src="flashcard/hub.html"
+      title="LearnHub FlashCard"
+      loading="lazy">
+    </iframe>
+  </div>
+</div>
+
+<div id="home">
+  <div class="slideshow-wrapper">
+    <div class="slide-media-side">
+      <img class="slide-img active" src="loading1.jpg" alt="Slide 1">
+      <img class="slide-img" src="loading2.jpg" alt="Slide 2">
+      <img class="slide-img" src="loading3.jpg" alt="Slide 3">
+      <img class="slide-img" src="loading4.jpg" alt="Slide 4">
+    </div>
+
+    <div class="slide-info-side">
+      <div class="slide-kicker">Bản tin LearnHub</div>
+      <div class="slide-text-block active" data-text-color="#2563eb">
+        <h2>LearnHub Platform:<br>Bứt Phá Lộ Trình Tự Học</h2>
+        <p>Nâng cấp cách bạn tiếp cận kiến thức với không gian trực tuyến toàn diện, ôn thi nhanh, giao diện hiện đại và tối ưu trải nghiệm học tập, đặc biệt trang web chúng tôi thiết kế riêng hệ thống LearnHub Test phục vụ làm kiểm tra, ôn tập,....</p>
+      </div>
+      <div class="slide-text-block" data-text-color="#16a34a">
+        <h2>Giao Diện Chính:<br>Trợ Lý Ảo Hubie AI</h2>
+        <p>Làm quen với người bạn mới Hubie - Trợ lý trí tuệ nhân tạo thông minh tích hợp trực tiếp, luôn sẵn sàng đồng hành và hỗ trợ giải đáp thắc mắc kiến thức 24/7 trong mọi bài kiểm tra, ôn tập kiến thức.</p>
+      </div>
+      <div class="slide-text-block" data-text-color="#f59e0b">
+        <h2>LearnHub Forum:<br>Mạng Xã Hội Học Tập</h2>
+        <p>Không gian thảo luận, trao đổi, đặt câu hỏi giải bài tập và kết nối các thành viên tương tác với nhau như một trang Mạng Xã Hội nội bộ với đầy đủ tính năng như thả cảm xúc, reply, xem chi tiết,....</p>
+      </div>
+      <div class="slide-text-block" data-text-color="#7c3aed">
+        <h2>Smart Flashcard:<br>Ghi Nhớ Từ Vựng</h2>
+        <p>Học từ vựng tiếng Anh siêu tốc qua phương pháp lật thẻ trực quan, sở hữu nhiều thể loại học tập, ôn tập phong phú bao gồm chế độ Ghép Thẻ - Blast - Chiến thần và chủ đề từ vựng đa dạng. Ngoài ra các phương thức khác đang được cập nhật thêm.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="home-welcome-box">
+    <h1>Chào mừng bạn đến với LearnHub Platform!</h1>
+    <p class="subtitle">Hệ sinh thái học tập và rèn luyện trực tuyến tích hợp công nghệ thông minh, được xây dựng nhằm mang lại không gian tự học linh hoạt, cá nhân hóa và tối ưu nhất cho học sinh - sinh viên.</p>
+    
+    <div class="hubie-introduce">
+      <div class="hubie-avatar">🤖</div>
+      <div class="hubie-content">
+        <h4>Gặp gỡ Trợ lý ảo Hubie</h4>
+        <p>Mình là Hubie, AI tích hợp trên hệ thống. Hãy nhấn vào biểu tượng bong bóng chat ở góc màn hình bất cứ lúc nào để hỏi bài hoặc ôn lại công thức cùng mình nhé!</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="home-details-full">
+    <div class="info-card">
+      <h3>📌 Mục Đích & Ý Nghĩa Hệ Thống</h3>
+      <p>LearnHub là một nền tảng hỗ trợ học tập trực tuyến, được xây dựng nhằm cung cấp không gian tự học và ôn luyện tập trung. Hệ thống cung cấp các công cụ thiết thực giúp học sinh tối ưu hóa quy trình chuẩn bị cho kỳ thi, ôn tập:</p>
+      <ul class="purpose-list">
+        <li><strong>Lưu trữ tài liệu tập trung:</strong> Gom toàn bộ đề kiểm tra, file lý thuyết từ nhiều nguồn tin cậy về một nơi để dễ tra cứu.</li>
+        <li><strong>Hệ thống làm bài trực tuyến:</strong> Hỗ trợ thực hành trắc nghiệm với tính năng bấm giờ và chấm điểm tự động.</li>
+        <li><strong>Ghi nhận hoạt động:</strong> Theo dõi tần suất đăng nhập và tiến độ ôn tập dựa trên dữ liệu được lưu trữ trên Firestore.</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h3>👨‍💻 Thông Tin Website</h3>
+      <p>Đây là một dự án công nghệ cá nhân phi lợi nhuận, được nghiên cứu, thiết kế giao diện và phát triển mã nguồn có sự kết hợp cùng AI. Nền tảng sử dụng các công nghệ web hiện đại kết hợp cơ sở dữ liệu đám mây Firebase.</p>
+      <p>Hệ sinh thái này được lập ra với mục tiêu cốt lõi là phục vụ riêng cho hoạt động học tập, chia sẻ tài liệu. Toàn bộ tính năng đều miễn phí, bảo mật cao thông qua cổng kiểm soát danh sách thành viên nghiêm ngặt.</p>
+      
+      <h6 class="dev-warning-text">
+        <span>🛠️</span> 
+        <span><strong>Lưu ý:</strong> Hệ thống đang trong quá trình phát triển và hoàn thiện. Mọi đóng góp ý kiến hoặc báo lỗi vui lòng liên hệ Admin thông qua nút <i>Góp ý ý kiến</i> bên dưới để phản hồi.</span>
+      </h6>
+    </div>
+  </div>
+
+</div>
+
+<button id="tabScrollTopBtn" type="button" aria-label="Cuộn lên đầu">↑</button>
+<div id="quiz"></div>
+</div>
+
+
+<script type="module">
+import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js"; 
+import { doc, setDoc, getDoc, collection, getDocs } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js"; 
+// 🆕 [Refactor] Dùng chung app/auth/db từ firebase-config.js, không tự initializeApp() nữa.
+// Hành vi và giá trị của auth/db hoàn toàn không đổi so với trước (cùng firebaseConfig, cùng project).
+import { app, auth, db } from "./firebase-config.js";
+import { createUserStats, resetWeekIfNeeded, updateUserStats } from "./learnhub-stats.js";
+await setPersistence(auth, browserLocalPersistence); 
+const provider = new GoogleAuthProvider();
+
+let allowList = [];
+let activeInterval = null;
+const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
+const maintenance = false;
+
+function normalizeEmail(email){
+  return String(email || "").trim().toLowerCase();
+}
+
+function accessDocId(email){
+  return encodeURIComponent(normalizeEmail(email));
+}
+
+async function loadAllowList(){
+  try {
+    const snap = await getDocs(collection(db, "accessList"));
+    allowList = snap.docs
+      .map((item) => item.data())
+      .filter((item) => item && item.email && item.enabled !== false)
+      .map((item) => normalizeEmail(item.email));
+  } catch (error) {
+    console.warn("Không thể tải accessList từ Firestore.", error);
+    allowList = [];
+  }
+
+  return allowList;
+}
+
+const allowListReady = loadAllowList();
+
+function isAllowedEmail(email){
+  return allowList.includes(normalizeEmail(email));
+}
+
+function applyUserToUI(user){
+const hour = new Date().getHours();
+let greeting = "";
+let quote = "";
+
+if (hour >= 5 && hour < 11) {
+greeting = "☀️ Chào buổi sáng,";
+quote = "Chúc bạn một ngày học tập năng suất!";
+} else if (hour >= 11 && hour < 14) {
+greeting = "🌤️ Nghỉ trưa thôi,";
+quote = "Nạp năng lượng để chiến đấu tiếp nhé!";
+} else if (hour >= 14 && hour < 18) {
+greeting = "☕ Chào buổi chiều,";
+quote = "Sắp hết ngày rồi, cố gắng lên nào!";
+} else {
+greeting = "🌙 Chào buổi tối,";
+quote = "Đừng thức quá khuya, giữ sức khỏe nhé!";
+}
+
+const greetingEl = document.getElementById("greetingText");
+if(greetingEl){
+greetingEl.innerText = greeting;
+}
+
+const nameEl = document.getElementById("popupName");
+if(nameEl) nameEl.innerText = user.displayName || "Bạn";
+
+const emailEl = document.getElementById("popupEmail");
+if(emailEl) emailEl.innerText = user.email || "preview@local.test";
+
+const quoteEl = document.getElementById("popupQuote");
+if(quoteEl) quoteEl.innerText = quote;
+
+document.getElementById("welcomeText").innerText = "Chúc bạn một ngày tốt lành,";
+document.getElementById("userName").innerText = user.displayName || "Preview User";
+
+const avatar = user.photoURL || "https://i.imgur.com/6VBx3io.png";
+
+const userAvatar = document.getElementById("userAvatar");
+if(userAvatar){
+userAvatar.src = avatar;
+userAvatar.alt = user.displayName
+  ? `Ảnh đại diện của ${user.displayName}`
+  : "Ảnh đại diện người dùng";
+}
+
+const popupAvatar = document.getElementById("popupAvatar");
+if (popupAvatar) {
+  popupAvatar.src = avatar;
+  popupAvatar.alt = user.displayName
+    ? `Ảnh đại diện của ${user.displayName}`
+    : "Ảnh đại diện người dùng";
+}
+}
+
+function enterPreviewMode(){
+  const previewUser = {
+    uid: "preview-user",
+    displayName: "Preview User",
+    email: "preview@local.test",
+    photoURL: "https://i.imgur.com/6VBx3io.png"
+  };
+
+  document.getElementById("loginBox").style.display = "none";
+  applyUserToUI(previewUser);
+
+  const forumIframe = document.getElementById("forumFrame");
+  if (forumIframe && forumIframe.contentWindow) {
+    forumIframe.contentWindow.postMessage({
+      type: "USER_INFO",
+      user: {
+        uid: previewUser.uid,
+        name: previewUser.displayName
+      }
+    }, "*");
+  }
+
+  startLoading();
+}
+
+let unsubscribeAccessGuard = null;
+let unsubscribeUserGuard = null;
+let unsubscribeBroadcastGuard = null;
+let unsubscribeWelcomePopup = null;
+let authGuardTriggered = false;
+let welcomePopupCache = null;
+let appLoadingComplete = false;
+
+const WELCOME_POPUP_DEFAULT = {
+  title: "📢 Thông báo",
+  message: "<b>CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM</b>",
+  active: true
+};
+
+function maybeShowWelcomePopup(data){
+  const payload = data || welcomePopupCache;
+  if(!payload || payload.active === false) return;
+  if(!appLoadingComplete) return;
+
+  const version = String(payload.updatedAt || "default");
+  const seenKey = "learnhub_welcome_popup_seen";
+  if(localStorage.getItem(seenKey) === version) return;
+
+  window.lastWelcomePopupVersion = version;
+  if(typeof window.showMainPopup === "function"){
+    window.showMainPopup(
+      payload.title || WELCOME_POPUP_DEFAULT.title,
+      payload.message || WELCOME_POPUP_DEFAULT.message
+    );
+  }
+}
+
+window.markAppLoadingComplete = function(){
+  appLoadingComplete = true;
+  maybeShowWelcomePopup(welcomePopupCache);
+};
+
+window.resetAppLoadingComplete = function(){
+  appLoadingComplete = false;
+};
+
+function stopAccessGuards(){
+  if(unsubscribeAccessGuard){
+    unsubscribeAccessGuard();
+    unsubscribeAccessGuard = null;
+  }
+  if(unsubscribeUserGuard){
+    unsubscribeUserGuard();
+    unsubscribeUserGuard = null;
+  }
+  if(unsubscribeBroadcastGuard){
+    unsubscribeBroadcastGuard();
+    unsubscribeBroadcastGuard = null;
+  }
+  if(unsubscribeWelcomePopup){
+    unsubscribeWelcomePopup();
+    unsubscribeWelcomePopup = null;
+  }
+  authGuardTriggered = false;
+}
+
+async function forceLogoutNow(message, title = "Phiên đăng nhập đã hết hiệu lực"){
+  if(authGuardTriggered) return;
+  authGuardTriggered = true;
+
+  showAuthNotice(message, "error", title);
+
+  try {
+    await updateStatus(false);
+  } catch (e) {}
+
+  try {
+    console.trace("SIGN OUT");
+    await signOut(auth);
+  } catch (e) {}
+}
+
+function startAccessGuards(user){
+  stopAccessGuards();
+  if(!user || !user.uid || !user.email) return;
+
+  try {
+    unsubscribeAccessGuard = onSnapshot(doc(db, "accessList", accessDocId(user.email)), (snap) => {
+      if(authGuardTriggered) return;
+      if(!snap.exists() || snap.data()?.enabled === false){
+        forceLogoutNow(
+          "Quyền truy cập của bạn vừa bị thu hồi. Vui lòng liên hệ admin nếu cần hỗ trợ.",
+          "Đã bị gỡ whitelist"
+        );
+      }
+    });
+  } catch (e) {}
+
+  try {
+    unsubscribeUserGuard = onSnapshot(doc(db, "users", user.uid), (snap) => {
+      if(authGuardTriggered) return;
+      if(!snap.exists()){
+        forceLogoutNow(
+          "Hồ sơ người dùng của bạn vừa bị xóa khỏi hệ thống.",
+          "Hồ sơ đã bị xóa"
+        );
+        return;
+      }
+
+      const data = snap.data() || {};
+      if(data.disabled){
+        forceLogoutNow(
+          "Tài khoản của bạn vừa bị vô hiệu hóa. Vui lòng liên hệ admin.",
+          "Tài khoản bị khóa"
+        );
+      }
+    });
+  } catch (e) {}
+
+  try {
+    unsubscribeBroadcastGuard = onSnapshot(doc(db, "broadcasts", "current"), (snap) => {
+      if(!snap.exists()) return;
+
+      const data = snap.data() || {};
+      if(data.active === false) return;
+
+      const broadcastId = String(data.id || data.updatedAt || "");
+      if(!broadcastId) return;
+
+      const seenKey = "learnhub_last_broadcast_seen";
+      const lastSeen = localStorage.getItem(seenKey);
+      if(lastSeen === broadcastId) return;
+
+      const title = data.title ? `${data.title}` : "Thông báo";
+      const safeMessage = String(data.message || "").trim();
+      if(!safeMessage) return;
+
+      const targetMode = String(data.targetMode || "all");
+      const targetEmail = normalizeEmail(data.targetEmail || "");
+      if(targetMode === "single" && targetEmail && targetEmail !== normalizeEmail(user.email)){
+        return;
+      }
+
+      localStorage.setItem(seenKey, broadcastId);
+      const noticeType = ["info", "warning", "error", "success"].includes(String(data.type || "info"))
+        ? String(data.type || "info")
+        : "info";
+      const durationMs = Number(data.durationMs || 3000);
+      showAuthNotice(safeMessage, noticeType, title, durationMs, "realtimeSound");
+    });
+  } catch (e) {}
+
+  try {
+    unsubscribeWelcomePopup = onSnapshot(doc(db, "broadcasts", "welcomePopup"), (snap) => {
+      if(!snap.exists()){
+        welcomePopupCache = { ...WELCOME_POPUP_DEFAULT, updatedAt: "default" };
+      } else {
+        welcomePopupCache = snap.data() || {};
+      }
+      maybeShowWelcomePopup(welcomePopupCache);
+    });
+  } catch (e) {}
+}
+
+onAuthStateChanged(auth, async (user)=>{
+if(previewMode){
+  enterPreviewMode();
+  return;
+}
+
+if(user){
+  await loadAllowList();
+  if (!isAllowedEmail(user.email)) {
+    showAuthNotice(
+      "Tài khoản này không nằm trong whitelist hiện tại.",
+      "error",
+      "Không có quyền truy cập"
+    );
+    console.trace("SIGN OUT");
+    await signOut(auth);
+    return;
+  }
+
+  document.getElementById("loginBox").style.display = "none";
+  startLoading();
+
+  // ✅ LẤY DỮ LIỆU USER TỪ FIRESTORE (để có tên cho email/password user)
+  let userData = { ...user };
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      const firestoreData = userSnap.data();
+      if (firestoreData.disabled) {
+        showAuthNotice(
+          "Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.",
+          "error",
+          "Tài khoản bị khóa"
+        );
+        console.trace("SIGN OUT");
+        await signOut(auth);
+        return;
+      }
+      // Merge Firestore data (ưu tiên displayName từ Firestore nếu có)
+      if (firestoreData.name) {
+        userData.displayName = firestoreData.name;
+      }
+      if (firestoreData.photo) {
+        userData.photoURL = firestoreData.photo;
+      }
+    }
+  } catch (e) {
+    console.log("Không thể lấy dữ liệu Firestore:", e);
+  }
+
+  // ✅ GỬI USER SANG FORUM IFRAME
+  function sendUserToForum(user){
+    const forumIframe = document.getElementById("forumFrame");
+    if(!forumIframe) return;
+
+    const send = () => {
+      forumIframe.contentWindow.postMessage({
+        type: "USER_INFO",
+        user: {
+          uid: user.uid,
+          name: user.displayName || user.email
+        }
+      }, "*");
+    };
+
+    if(forumIframe.contentWindow){
+      send();
+    }
+
+    forumIframe.onload = send;
+  }
+
+  // ✅ GỌI HÀM
+  sendUserToForum(userData);
+
+  // 🆕 [LearnHub Test] Lưu lại user hiện tại để gửi sang quizFrame
+  // (quizFrame được tạo động mỗi lần bấm "Làm bài" qua loadQuiz(),
+  // nên cần lưu global để gửi lại mỗi khi iframe đó load/reload)
+  window.currentLearnHubUser = {
+    uid: userData.uid,
+    email: userData.email,
+    photo: userData.photoURL,
+    displayName: userData.displayName
+  };
+
+  // 🆕 [LearnHub Test] Nếu quizFrame đang mở sẵn (trường hợp hiếm), gửi luôn
+  if(typeof window.sendUserToQuizFrame === "function"){
+    window.sendUserToQuizFrame();
+  }
+
+  // ✅ UPDATE ONLINE STATUS
+  if(!activeInterval){
+    activeInterval = setInterval(()=>{
+      const u = auth.currentUser;
+      if(u){
+        setDoc(doc(db,"users",u.uid),{
+          lastActive: Date.now(),
+          online: true
+        },{ merge:true });
+      }
+    }, 5000);
+  }
+
+  // ✅ START LISTENER
+  startListening();
+  startAccessGuards(user);
+
+  // vì bên trong đã có:
+
+  applyUserToUI(userData);
+
+} else {
+  stopAccessGuards();
+  resetLoadingState();
+  document.getElementById("loginBox").style.display = "flex";
+}
+});
+// chỉ giữ login trong tab hiện tại
+
+
+window.googleLogin = function() {
+    if (maintenance) {
+        showAuthNotice(
+            "Sever đang bảo trì vui lòng quay lại sau!",
+            "error",
+            "Maintenance"
+        );
+        return;
+    }
+
+    signInWithPopup(auth, provider)
+    .then(async (result) => {
+        const user = result.user;
+
+        // 1. Kiểm tra quyền truy cập (AllowList)
+        await loadAllowList();
+        if (!isAllowedEmail(user.email)) {
+            showAuthNotice(
+              "Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin nếu bạn nghĩ đây là nhầm lẫn.",
+              "error",
+              "Không có quyền truy cập"
+            );
+            console.trace("SIGN OUT");
+            await signOut(auth);
+            return;
+        }
+
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists() && userSnap.data().disabled) {
+            showAuthNotice(
+              "Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.",
+              "error",
+              "Tài khoản bị khóa"
+            );
+            console.trace("SIGN OUT");
+            await signOut(auth);
+            return;
+        }
+
+        // 2. Ghi dữ liệu vào Firestore
+        await setDoc(userRef, {
+            name: user.displayName,
+            email: user.email,
+            photo: user.photoURL,
+            lastLogin: new Date().toISOString(),
+            lastActive: Date.now(),
+            online: true 
+        }, { merge: true }); // Dùng merge để không ghi đè mất dữ liệu cũ nếu có
+
+        // 3. Ẩn hộp đăng nhập trên Web
+        if (document.getElementById("loginBox")) {
+            document.getElementById("loginBox").style.display = "none";
+        }
+
+        console.log("✅ Đăng nhập & Lưu dữ liệu thành công!");
+
+        // Hiển thị thông báo đăng nhập thành công
+        showAuthNotice("Đăng nhập thành công!", "success", "Thành công");
+
+        // 4. ĐIỀU HƯỚNG QUAY VỀ APP (Deep Link)
+        // Kiểm tra xem có đang mở từ WebView Android không
+        const isApp = navigator.userAgent.includes("Android");
+
+        if (isApp) {
+            // Delay 1 xíu để đảm bảo Firebase đã lưu xong Session trên trình duyệt
+            setTimeout(() => {
+                // Gọi tới scheme mà ông đã khai báo trong AndroidManifest.xml
+                window.location.href = "myapp://auth";
+            }, 1000);
+        } else {
+            // Nếu dùng trình duyệt máy tính bình thường thì load lại để cập nhật giao diện
+            // Delay 1.5s để user thấy thông báo thành công
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        }
+
+    })
+    .catch((error) => {
+        console.error("Lỗi Google Login:", error);
+        if (error.code === 'auth/popup-blocked') {
+            showAuthNotice(
+              "Vui lòng cho phép cửa sổ popup của trình duyệt để tiếp tục đăng nhập Google.",
+              "error",
+              "Popup đang bị chặn"
+            );
+        } else {
+            showAuthNotice(
+              "Đăng nhập chưa thành công: " + error.message,
+              "error",
+              "Đã xảy ra lỗi"
+            );
+        }
+    });
+};
+
+// ===== EMAIL/PASSWORD AUTHENTICATION =====
+window.emailLogin = async function() {
+    if (maintenance) {
+        showAuthNotice(
+            "Sever đang bảo trì vui lòng quay lại sau!",
+            "error",
+            "Maintenance"
+        );
+        return;
+    }
+
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+    await loadAllowList();
+
+    if (!email || !password) {
+        showAuthNotice("Vui lòng nhập email và mật khẩu", "error", "Thiếu thông tin");
+        return;
+    }
+
+    try {
+        const result = await signInWithEmailAndPassword(auth, email, password);
+        const user = result.user;
+
+        // Kiểm tra allowList
+        if (!isAllowedEmail(user.email)) {
+            showAuthNotice(
+                "Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.",
+                "error",
+                "Không có quyền truy cập"
+            );
+            console.trace("SIGN OUT");
+            await signOut(auth);
+            return;
+        }
+
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists() && userSnap.data().disabled) {
+            showAuthNotice(
+                "Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.",
+                "error",
+                "Tài khoản bị khóa"
+            );
+            console.trace("SIGN OUT");
+            await signOut(auth);
+            return;
+        }
+
+        // Ghi dữ liệu vào Firestore (chỉ cập nhật trạng thái đăng nhập, không ghi đè tên)
+        await setDoc(userRef, {
+            email: user.email,
+            photo: user.photoURL || "https://i.imgur.com/6VBx3io.png",
+            lastLogin: new Date().toISOString(),
+            lastActive: Date.now(),
+            online: true
+        }, { merge: true });
+
+        showAuthNotice("Đăng nhập thành công!", "success", "Thành công");
+
+    } catch (error) {
+        console.error("Lỗi đăng nhập:", error);
+        let message = "Đăng nhập thất bại";
+        switch (error.code) {
+            case 'auth/user-not-found':
+                message = "Email này chưa được đăng ký";
+                break;
+            case 'auth/wrong-password':
+                message = "Mật khẩu không đúng";
+                break;
+            case 'auth/invalid-email':
+                message = "Email không hợp lệ";
+                break;
+            case 'auth/too-many-requests':
+                message = "Đăng nhập quá nhiều lần. Vui lòng thử lại sau";
+                break;
+        }
+        showAuthNotice(message, "error", "Đăng nhập thất bại");
+    }
+};
+
+window.emailRegister = async function() {
+    const name = document.getElementById("registerName").value.trim();
+    const email = document.getElementById("registerEmail").value.trim();
+    const password = document.getElementById("registerPassword").value;
+    const confirmPassword = document.getElementById("registerConfirmPassword").value;
+    await loadAllowList();
+
+    if (!name || !email || !password || !confirmPassword) {
+        showAuthNotice("Vui lòng điền đầy đủ thông tin", "error", "Thiếu thông tin");
+        return;
+    }
+
+    if (name.length < 2) {
+        showAuthNotice("Tên phải có ít nhất 2 ký tự", "error", "Tên quá ngắn");
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        showAuthNotice("Mật khẩu nhập lại không khớp", "error", "Lỗi xác nhận");
+        return;
+    }
+
+    if (password.length < 6) {
+        showAuthNotice("Mật khẩu phải có ít nhất 6 ký tự", "error", "Mật khẩu quá ngắn");
+        return;
+    }
+
+    // Kiểm tra allowList trước khi đăng ký
+    if (!isAllowedEmail(email)) {
+        showAuthNotice(
+            "Email này không nằm trong danh sách được cấp quyền. Vui lòng liên hệ admin.",
+            "error",
+            "Không có quyền truy cập"
+        );
+        return;
+    }
+
+    try {
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        const user = result.user;
+
+        // Ghi dữ liệu vào Firestore với tên người dùng nhập
+        await setDoc(doc(db, "users", user.uid), {
+            name: name,
+            email: user.email,
+            photo: "https://i.imgur.com/6VBx3io.png",
+            lastLogin: new Date().toISOString(),
+            lastActive: Date.now(),
+            online: true,
+            createdAt: new Date().toISOString()
+        });
+
+        showAuthNotice("Đăng ký thành công! Vui lòng đăng nhập.", "success", "Thành công");
+
+        // Xóa form đăng ký
+        document.getElementById("registerName").value = "";
+        document.getElementById("registerEmail").value = "";
+        document.getElementById("registerPassword").value = "";
+        document.getElementById("registerConfirmPassword").value = "";
+
+        // Đăng xuất để buộc user phải đăng nhập lại (vì createUserWithEmailAndPassword tự động đăng nhập)
+        console.trace("SIGN OUT");
+        await signOut(auth);
+
+        // Chuyển sang tab đăng nhập
+        switchAuthTab('login');
+
+        // Điền email vào form đăng nhập
+        document.getElementById("loginEmail").value = email;
+
+    } catch (error) {
+        console.error("Lỗi đăng ký:", error);
+        let message = "Đăng ký thất bại";
+        switch (error.code) {
+            case 'auth/email-already-in-use':
+                message = "Email này đã được đăng ký";
+                break;
+            case 'auth/invalid-email':
+                message = "Email không hợp lệ";
+                break;
+            case 'auth/weak-password':
+                message = "Mật khẩu quá yếu (cần ít nhất 6 ký tự)";
+                break;
+        }
+        showAuthNotice(message, "error", "Đăng ký thất bại");
+    }
+};
+
+// Xử lý khi ẩn tab hoặc đóng trình duyệt
+const updateStatus = (isOnline) => {
+const user = auth.currentUser;
+if (user) {
+// Sử dụng return để đảm bảo promise được xử lý
+return setDoc(doc(db, "users", user.uid), { 
+online: isOnline,
+lastSeen: new Date().toISOString() 
+}, { merge: true });
+}
+};
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    updateStatus(false);
+  } else {
+    updateStatus(true);
+  }
+});
+
+// Trick để ép trình duyệt gửi dữ liệu cuối cùng trước khi đóng
+import {
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+let unsubscribeUsers = null;
+
+function startListening(){
+if(unsubscribeUsers) unsubscribeUsers();
+
+unsubscribeUsers = onSnapshot(collection(db,"users"), (snap)=>{
+const list = document.getElementById("onlineList");
+if (!list) return;
+
+list.innerHTML = ""; // ← THIẾU DÒNG NÀY
+
+let onlineCount = 0;
+
+snap.forEach(doc => {
+const u = doc.data();
+const now = Date.now();
+
+const ACTIVE_THRESHOLD = 45000;
+
+if (!u.lastActive || now - u.lastActive > ACTIVE_THRESHOLD) return;
+if (!u.online) return;
+
+const div = document.createElement("div");
+
+div.innerHTML = `
+<div style="display:flex; align-items:center; gap:10px; padding:6px 8px;">
+<img src="${u.photo || 'https://i.imgur.com/6VBx3io.png'}"
+style="width:26px;height:26px;border-radius:50%;">
+<span style="color: var(--text-main);">${u.name || "User"}</span>
+<div class="online-pulse"
+style="width:8px;height:8px;background:#22c55e;border-radius:50%;">
+</div>
+</div>
+`;
+
+onlineCount++;
+list.appendChild(div);
+});
+
+const label = document.querySelector(".online-count-label");
+if (label) {
+label.textContent = `Đang trực tuyến (${onlineCount})`;
+}
+});
+}
+window.logout = async function(){
+const user = auth.currentUser;
+
+// cập nhật offline
+if(user){
+await setDoc(doc(db, "users", user.uid), {
+online: false
+}, { merge: true });
+}
+
+// 🔥 TẮT interval (THÊM Ở ĐÂY)
+if(activeInterval){
+  clearInterval(activeInterval);
+  activeInterval = null;
+}
+
+// 🔥 tắt realtime listener
+if(unsubscribeUsers){
+unsubscribeUsers();
+unsubscribeUsers = null;
+}
+
+// logout
+signOut(auth).then(()=>{
+location.reload();
+});
+}
+document.addEventListener("click", function(e){
+const popup = document.getElementById("userPopup");
+const avatarBox = document.querySelector(".avatar-box");
+const moreWrap = document.querySelector(".popup-more-wrap");
+
+if(
+popup &&
+!popup.contains(e.target) &&
+(!avatarBox || !avatarBox.contains(e.target))
+){
+popup.style.display = "none";
+}
+if(moreWrap && !moreWrap.contains(e.target)){
+closePopupActions();
+}
+});
+window.addEventListener("beforeunload", () => {
+  updateStatus(false);
+});
+// --- Dán đoạn này vào CUỐI thẻ <script type="module"> trong index.html ---
+  window.auth = auth;
+  window.db = db;
+  window.provider = provider;
+  window.onAuthStateChanged = onAuthStateChanged;
+  window.signInWithPopup = signInWithPopup;
+  window.signOut = signOut;
+  window.doc = doc;
+  window.getDoc = getDoc;
+  window.setDoc = setDoc;
+  window.collection = collection;
+  window.getDocs = getDocs;
+
+  // 🆕 [LearnHub Test - Giai đoạn 1] Gửi thông tin user sang iframe #quizFrame (filetest.html)
+  // - Chỉ gửi khi quizFrame đã load xong và đã có user đăng nhập (window.currentLearnHubUser).
+  // - Được gọi từ script.js mỗi khi iframe.onload bắn lên (loadQuiz), nên tự gửi lại mỗi khi mở/reload đề.
+  window.sendUserToQuizFrame = function(){
+    const quizFrame = document.getElementById("quizFrame");
+    const u = window.currentLearnHubUser;
+    if(!quizFrame || !quizFrame.contentWindow || !u) return;
+
+    quizFrame.contentWindow.postMessage({
+      type: "LEARNHUB_USER",
+      user: {
+        uid: u.uid,
+        email: u.email,
+        photo: u.photo,
+        displayName: u.displayName
+      }
+    }, "*");
+  };
+  window.addEventListener("message", async (event) => {
+  if (!event.data || event.data.type !== "LEARNHUB_TEST_RESULT") return;
+
+  const quizFrame = document.getElementById("quizFrame");
+  if (quizFrame && event.source !== quizFrame.contentWindow) return;
+
+  const u = window.currentLearnHubUser;
+  const score = Number(event.data.score);
+
+  if (u && u.uid && Number.isFinite(score)) {
+    try {
+      await createUserStats(u);
+      await resetWeekIfNeeded(u.uid);
+      await updateUserStats(u.uid, score);
+    } catch (e) {
+      console.log("Không thể lưu kết quả từ iframe:", e);
+    }
+  }
+});
+</script>
+<footer class="lh-footer">
+  <div class="lh-footer-main">
+
+    <div class="lh-footer-brand">
+      <div class="lh-footer-brand-logo">
+        <img src="https://kioshuke.github.io/learnhub/favicon.png" alt="LearnHub Logo">
+        <h3>LearnHub Platform</h3>
+      </div>
+      <p>Nền tảng học tập trực tuyến đột phá, đồng hành cùng học sinh và sinh viên trên con đường chinh phục tri thức.</p>
+    </div>
+
+    <div class="lh-footer-col">
+      <h4>Kết nối</h4>
+      <div class="lh-social-icons">
+        <a href="ĐIỀN_LINK_FACEBOOK" class="fb" target="_blank" rel="noopener" title="Facebook Fanpage"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="ĐIỀN_LINK_YOUTUBE" class="yt" target="_blank" rel="noopener" title="Kênh Youtube"><i class="fa-brands fa-youtube"></i></a>
+        <a href="ĐIỀN_LINK_TIKTOK" class="tk" target="_blank" rel="noopener" title="Kênh TikTok"><i class="fa-brands fa-tiktok"></i></a>
+        <a href="ĐIỀN_LINK_CỘNG_ĐỒNG" class="cm" target="_blank" rel="noopener" title="Cộng đồng học tập"><i class="fa-solid fa-users"></i></a>
+      </div>
+    </div>
+
+    <div class="lh-footer-col">
+      <h4>Hỗ trợ</h4>
+      <ul class="lh-footer-links">
+        <li><a href="https://kioshuke.github.io/learnhub/faq.html">Trung tâm trợ giúp</a></li>
+        <li><a href="javascript:void(0);" onclick="openFeedbackModal()">Góp ý ý kiến</a></li>
+      </ul>
+    </div>
+
+    <div class="lh-footer-col">
+      <h4>Liên hệ</h4>
+      <ul class="lh-footer-links lh-contact-info">
+        <li><strong>Email:</strong> learnhubplatform@gmail.com</li>
+        <li><strong>Hotline:</strong> 0335925257 (8h00 - 21h00)</li>
+        <li><strong>Địa chỉ:</strong> Xã Tân Hồng, Đồng Tháp</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="lh-footer-bottom">
+    <span>© 2026 LearnHub Platform. Tất cả quyền được bảo lưu.</span>
+    <div class="lh-footer-bottom-links">
+      <a href="#">Điều khoản sử dụng</a>
+      <a href="#">Chính sách bảo mật</a>
+      <span>Phiên bản v1.26.06</span>
+    </div>
+  </div>
+</footer>
+<div id="lh-feedback-overlay" class="lh-popup-overlay" onclick="closeFeedbackModalByOverlay(event)">
+  <div class="lh-popup-content">
+    <button class="lh-popup-close" onclick="closeFeedbackModal()" title="Đóng">&times;</button>
+    <iframe src="gop-y.html" class="lh-popup-iframe"></iframe>
+  </div>
+</div>
+
+<div id="userPopup" style="display:none;">
+
+<div class="popup-more-wrap">
+  <button id="popupMoreBtn" class="popup-more-btn" type="button" onclick="togglePopupActions(event)" aria-label="Mở tuỳ chọn" aria-expanded="false">⋯</button>
+  <div id="popupActionsMenu" class="popup-actions-menu" onclick="event.stopPropagation()">
+    <a href="profile.html">👤 Tài khoản</a>
+    <a href="https://kioshuke.github.io/learnhub/admin-dashboard.html" target="_blank" class="admin-link-btn">⚙️ Admin Panel</a>
+    <button id="logoutBtn" onclick="logout()">🚪 Đăng xuất</button>
+  </div>
+</div>
+
+<span class="popup-close" onclick="toggleUserPopup()">&times;</span>
+
+<div class="popup-info">
+<img id="popupAvatar">
+<div id="greetingText"></div>
+<h3 id="popupName"></h3>
+<p id="popupEmail"></p>
+<p id="popupQuote"></p>
+</div>
+
+<hr class="popup-divider">
+
+<div style="font-weight: 600; font-size: 12px; color: var(--text-sub); margin-bottom: 8px;" class="online-count-label">
+  Đang trực tuyến (0)
+</div>
+
+<div id="onlineList" style="max-height: 150px; overflow-y: auto;"></div>
+<div class="dark-toggle">
+  <span>🌙 Dark mode</span>
+
+  <label class="switch">
+    <input type="checkbox" id="darkModeToggle">
+    <span class="slider"></span>
+  </label>
+</div>
+<p style="text-align: center;
+margin-top:10px;
+font-size: 13px;
+color: var(--text-sub);
+margin-bottom: 10px;">© 2026 LearnHub Platform | All rights reserved!</p>
+
+</div>
+<div id="chatOverlay" onclick="toggleHubieChat()" style="
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh; 
+    z-index: 9998; 
+    background: rgba(0, 0, 0, 0.2);
+"></div>
+
+<iframe id="chatbotFrame" src="AI.html" style="
+    display: none;
+    position: fixed;
+    bottom: 95px; /* Nằm ngay trên nút chat 65px + cách ra một chút */
+    left: 20px; /* Căn lề trái bằng với nút chat */
+    width: 90%;
+    max-width: 380px; /* Độ rộng vừa vặn, nhỏ gọn như ảnh mẫu */
+    height: 70vh;
+    max-height: 520px; /* Chiều cao lý tưởng của popup góc */
+    border: none;
+    border-radius: 16px; /* Bo góc tròn mịn */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    background: white;
+    overflow: hidden;
+" loading="lazy"></iframe>
+
+<div id="chatButton" style="
+  position: fixed;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: grab;
+  z-index: 9999;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  left: 20px;
+  bottom: 20px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+">
+  <img src="chatboiavt.png" style="width:100%; height:100%; object-fit:cover; pointer-events: none;" loading="lazy" width="65" height="65">
+</div>
+<script src="script.js" defer></script>
+</body>
+</html>

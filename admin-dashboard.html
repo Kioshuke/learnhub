@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnHub Admin Dashboard</title>
+  <style>
+    :root{
+      --bg:#f6f8ff;
+      --panel:rgba(255,255,255,0.92);
+      --panel-soft:#f8fbff;
+      --line:#d9e4ff;
+      --text:#112142;
+      --sub:#64748b;
+      --blue:#2563eb;
+      --cyan:#06b6d4;
+      --green:#16a34a;
+      --amber:#f59e0b;
+      --red:#dc2626;
+      --violet:#7c3aed;
+      --shadow:0 8px 24px rgba(15,23,42,0.08);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Inter',sans-serif;
+      color:var(--text);
+      background:
+        linear-gradient(135deg, rgba(37,99,235,0.08), rgba(124,58,237,0.05)),
+        radial-gradient(circle at top right, rgba(59,130,246,0.14), transparent 24%),
+        radial-gradient(circle at 20% 18%, rgba(124,58,237,0.12), transparent 22%),
+        radial-gradient(circle at bottom left, rgba(6,182,212,0.1), transparent 24%),
+        radial-gradient(#d6dcff 1.2px, transparent 1.2px),
+        var(--bg);
+      background-size:auto, auto, auto, auto, 28px 28px, auto;
+      min-height:100vh;
+    }
+
+    .page{
+      max-width:1320px;
+      margin:0 auto;
+      padding:28px 18px 40px;
+    }
+
+    .hero{
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.96), rgba(245,249,255,0.94)),
+        linear-gradient(135deg, rgba(37,99,235,0.04), rgba(124,58,237,0.04));
+      border:1px solid rgba(37,99,235,0.14);
+      border-radius:16px;
+      padding:20px 24px;
+      box-shadow:var(--shadow);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:18px;
+      margin-bottom:20px;
+    }
+
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:0 0 auto 0;
+      height:5px;
+      background:linear-gradient(90deg, #2563eb, #06b6d4, #7c3aed);
+      opacity:.9;
+    }
+
+    .hero h1{
+      margin:0 0 6px;
+      font-size:26px;
+      line-height:1.2;
+      letter-spacing:-.02em;
+    }
+
+    .hero p{
+      margin:0;
+      color:var(--sub);
+      line-height:1.5;
+      font-size:14px;
+    }
+
+    .hero-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btn{
+      border:none;
+      border-radius:12px;
+      padding:10px 14px;
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+      transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+    }
+
+    .btn:hover{ transform:translateY(-1px); }
+    .btn:disabled{ cursor:not-allowed; opacity:.6; transform:none; }
+    .btn-primary{ background:linear-gradient(135deg, var(--blue), #1d4ed8); color:#fff; box-shadow:0 14px 30px rgba(37,99,235,.18); }
+    .btn-soft{ background:linear-gradient(135deg, #eef4ff, #e0ebff); color:#1d4ed8; }
+    .btn-danger{ background:linear-gradient(135deg, #fee2e2, #ffe4e6); color:#b91c1c; }
+    .btn-success{ background:linear-gradient(135deg, #dcfce7, #d1fae5); color:#166534; }
+    .btn-warning{ background:linear-gradient(135deg, #fef3c7, #ffedd5); color:#92400e; }
+
+    /* Biến thông báo thành dạng Toast cố định ở góc phải màn hình */
+    .notice {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 9999;
+      width: 360px;
+      max-width: calc(100vw - 48px);
+      padding: 16px 20px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      font-size: 14px;
+      line-height: 1.5;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+      transform: translateX(120%);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .notice.show {
+      transform: translateX(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .notice.info { background: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+    .notice.success { background: #ecfdf5; color: #166534; border-color: #bbf7d0; }
+    .notice.error { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+    .notice.warn { background: #fff7ed; color: #9a3412; border-color: #fed7aa; }
+
+    .grid-stats{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:14px;
+      margin-bottom:16px;
+    }
+
+    .stat{
+      background:linear-gradient(135deg, rgba(255,255,255,0.96), rgba(246,250,255,0.92));
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+      transition:.2s ease;
+    }
+    .stat:hover{
+      transform:translateY(-2px);
+    }
+
+    .stat::after{
+      content:"";
+      position:absolute;
+      inset:auto -10% -45% auto;
+      width:140px;
+      height:140px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(59,130,246,0.14), transparent 68%);
+      pointer-events:none;
+    }
+
+    .stat:nth-child(1){
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.96), rgba(239,246,255,0.96)),
+        linear-gradient(135deg, rgba(37,99,235,0.08), transparent);
+      border-color:#bfdbfe;
+    }
+
+    .stat:nth-child(2){
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.96), rgba(236,253,245,0.96)),
+        linear-gradient(135deg, rgba(22,163,74,0.08), transparent);
+      border-color:#bbf7d0;
+    }
+
+    .stat:nth-child(3){
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.96), rgba(254,242,242,0.96)),
+        linear-gradient(135deg, rgba(220,38,38,0.08), transparent);
+      border-color:#fecaca;
+    }
+
+    .stat:nth-child(4){
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.96), rgba(245,243,255,0.96)),
+        linear-gradient(135deg, rgba(124,58,237,0.08), transparent);
+      border-color:#ddd6fe;
+    }
+
+    .stat .label{
+      font-size:12px;
+      color:var(--sub);
+      margin-bottom:8px;
+      font-weight:500;
+    }
+
+    .stat .value{
+      font-size:28px;
+      font-weight:700;
+      letter-spacing:-.02em;
+    }
+
+    .stat:nth-child(1) .value{ color:#1d4ed8; }
+    .stat:nth-child(2) .value{ color:#15803d; }
+    .stat:nth-child(3) .value{ color:#b91c1c; }
+    .stat:nth-child(4) .value{ color:#7c3aed; }
+
+    .panel{
+      background:var(--panel);
+      backdrop-filter:blur(10px);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:18px 20px;
+      box-shadow:var(--shadow);
+    }
+
+    .panel h2{
+      margin:0 0 6px;
+      font-size:20px;
+    }
+
+    .panel p.head-desc{
+      margin:0 0 14px;
+      color:var(--sub);
+      line-height:1.5;
+      font-size:13px;
+    }
+
+    .inline-form{
+      display:flex;
+      gap:10px;
+      margin-bottom:16px;
+    }
+
+    .input, .select{
+      width:100%;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:13px;
+      outline:none;
+      color:var(--text);
+    }
+
+    textarea.input{
+      font-family:inherit;
+      line-height:1.6;
+    }
+
+    .input:focus, .select:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 4px rgba(59,130,246,.1);
+    }
+
+    .toolbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+
+    .admin-tabs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin:0 0 16px;
+    }
+
+    .admin-tab{
+      border:none;
+      border-radius:999px;
+      padding:10px 14px;
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+      background:linear-gradient(135deg, #eef4ff, #e8eeff);
+      color:#31518a;
+      transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .admin-tab.active{
+      color:#fff;
+      background:#2563eb;
+      box-shadow:0 14px 28px rgba(59,130,246,0.2);
+    }
+
+    .tab-panel.hidden{
+      display:none !important;
+    }
+
+    .sheet-wrap{
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,0.96), rgba(249,251,255,0.94));
+    }
+
+    .sheet-scroll{
+      overflow:auto;
+      max-height:760px;
+    }
+
+    .sheet-scroll::-webkit-scrollbar{ width:10px; height:10px; }
+    .sheet-scroll::-webkit-scrollbar-thumb{ background:#c7d7ff; border-radius:999px; }
+
+    .sheet-table{
+      width:100%;
+      min-width:1140px;
+      border-collapse:separate;
+      border-spacing:0;
+    }
+
+    .sheet-table thead th{
+      position:sticky;
+      top:0;
+      z-index:3;
+      background:linear-gradient(90deg, #dbeafe, #e0e7ff 42%, #ede9fe 100%);
+      color:#29446f;
+      text-align:left;
+      font-size:11px;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      padding:12px 10px;
+      border-bottom:1px solid var(--line);
+    }
+
+    .sheet-table tbody td{
+      padding:8px 10px;
+      border-bottom:1px solid #e8eefc;
+      vertical-align:top;
+      background:#fff;
+    }
+
+    .sheet-table tbody tr:nth-child(even) td{
+      background:#fbfdff;
+    }
+
+    .sheet-table tbody tr:hover td{
+      background:linear-gradient(135deg, #f4f8ff, #eef5ff);
+    }
+
+    .sheet-table tbody tr td:first-child{
+      border-left:3px solid transparent;
+    }
+
+    .sheet-table tbody tr:nth-child(4n + 1) td:first-child{
+      border-left-color:#60a5fa;
+    }
+
+    .sheet-table tbody tr:nth-child(4n + 2) td:first-child{
+      border-left-color:#34d399;
+    }
+
+    .sheet-table tbody tr:nth-child(4n + 3) td:first-child{
+      border-left-color:#f59e0b;
+    }
+
+    .sheet-table tbody tr:nth-child(4n + 4) td:first-child{
+      border-left-color:#a78bfa;
+    }
+
+    .identity-cell{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      min-width:260px;
+    }
+
+    .mini-avatar{
+      width:40px;
+      height:40px;
+      border-radius:12px;
+      object-fit:cover;
+      background:#eef4ff;
+      border:1px solid #cddcff;
+      box-shadow:0 10px 20px rgba(37,99,235,0.08);
+      flex:0 0 auto;
+    }
+
+    .identity-name{
+      font-weight:600;
+      line-height:1.3;
+      margin-bottom:3px;
+      word-break:break-word;
+      color:#1e3a8a;
+      font-size:14px;
+    }
+
+    .identity-email{
+      color:var(--sub);
+      font-size:12px;
+      line-height:1.4;
+      word-break:break-word;
+    }
+
+    .mini-meta{
+      color:var(--sub);
+      font-size:11px;
+      line-height:1.5;
+      min-width:160px;
+    }
+
+    .hero::after,
+    .panel::after,
+    .login-card::after{
+      content:"";
+      position:absolute;
+      inset:auto auto -40px -40px;
+      width:160px;
+      height:160px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(59,130,246,0.08), transparent 70%);
+      pointer-events:none;
+    }
+
+    .hero,
+    .panel,
+    .login-card{
+      position:relative;
+      overflow:hidden;
+    }
+
+    .status-stack{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .chip.green{ background:linear-gradient(135deg, #dcfce7, #d1fae5); color:#166534; }
+    .chip.red{ background:linear-gradient(135deg, #fee2e2, #ffe4e6); color:#b91c1c; }
+    .chip.blue{ background:linear-gradient(135deg, #dbeafe, #e0e7ff); color:#1d4ed8; }
+    .chip.gray{ background:linear-gradient(135deg, #e2e8f0, #f1f5f9); color:#475569; }
+
+    .radio-group{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .radio-section{
+      margin-bottom:16px;
+    }
+
+    .radio-section-label{
+      display:block;
+      font-size:12px;
+      font-weight:600;
+      color:var(--sub);
+      margin-bottom:8px;
+      text-transform:uppercase;
+      letter-spacing:.02em;
+    }
+
+    .broadcast-layout{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:24px;
+      margin-bottom:14px;
+    }
+
+    .broadcast-left-column{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .broadcast-right-column{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .radio-option{
+      display:flex;
+      align-items:center;
+      gap:5px;
+      cursor:pointer;
+      padding:6px 10px;
+      border-radius:10px;
+      background:linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border:1px solid #e2e8f0;
+      transition:all .18s ease;
+    }
+
+    .radio-option:hover{
+      background:linear-gradient(135deg, #f1f5f9, #e2e8f0);
+      border-color:#cbd5e1;
+    }
+
+    .radio-option input[type="radio"]{
+      width:14px;
+      height:14px;
+      accent-color:#2563eb;
+      cursor:pointer;
+    }
+
+    .radio-option input[type="radio"]:checked + span{
+      color:#1d4ed8;
+      font-weight:600;
+    }
+
+    .radio-option:has(input[type="radio"]:checked){
+      background:linear-gradient(135deg, #dbeafe, #e0e7ff);
+      border-color:#93c5fd;
+    }
+
+    .radio-option span{
+      font-size:12px;
+    }
+
+    .field-row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin-top:12px;
+      flex-wrap:wrap;
+    }
+
+    .field-row .input{
+      min-width:180px;
+      flex:1 1 180px;
+    }
+
+    .row-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      min-width:240px;
+    }
+
+    .login-card{
+      max-width:980px;
+      margin:8vh auto 0;
+      background:linear-gradient(135deg, rgba(255,255,255,0.96), rgba(246,250,255,0.94));
+      backdrop-filter:blur(10px);
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:0;
+      box-shadow:var(--shadow);
+      text-align:left;
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+    }
+
+    .login-card h2{
+      margin:0 0 10px;
+      font-size:28px;
+    }
+
+    .login-card p{
+      margin:0 0 18px;
+      color:var(--sub);
+      line-height:1.6;
+    }
+
+    .hint{
+      margin-top:14px;
+      color:var(--sub);
+      font-size:13px;
+      line-height:1.5;
+    }
+
+    .login-left{
+      padding:34px 34px 30px;
+      position:relative;
+      z-index:1;
+    }
+
+    .login-right{
+      position:relative;
+      min-height:100%;
+      overflow:hidden;
+      background:
+        linear-gradient(160deg, rgba(30,64,175,0.92), rgba(37,99,235,0.84) 38%, rgba(6,182,212,0.76) 72%, rgba(124,58,237,0.78)),
+        radial-gradient(circle at 22% 24%, rgba(255,255,255,0.18), transparent 24%);
+      color:#fff;
+      display:flex;
+      align-items:flex-end;
+      padding:32px;
+    }
+
+    .login-right::before{
+      content:"";
+      position:absolute;
+      inset:22px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,0.16);
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.16), transparent 34%),
+        linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+      backdrop-filter:blur(10px);
+    }
+
+    .login-right::after{
+      content:"";
+      position:absolute;
+      width:220px;
+      height:220px;
+      right:-40px;
+      top:-50px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,0.18), transparent 68%);
+    }
+
+    .login-brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .login-brand-badge{
+      width:52px;
+      height:52px;
+      border-radius:18px;
+      background:linear-gradient(135deg, #dbeafe, #ffffff);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 14px 30px rgba(37,99,235,0.15);
+      overflow:hidden;
+      padding:4px;
+    }
+    .login-brand-badge img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+    }
+
+    .login-brand-text{
+      font-size:14px;
+      color:#4f46e5;
+      font-weight:700;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+    }
+
+    .login-subtitle{
+      color:var(--sub);
+      line-height:1.7;
+      margin-bottom:22px;
+    }
+
+    .login-form-wrap{
+      margin-top:18px;
+      padding:20px;
+      border-radius:16px;
+      background:linear-gradient(135deg, rgba(255,255,255,0.9), rgba(239,246,255,0.72));
+      border:1px solid rgba(191,219,254,0.8);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+
+    .login-right-copy{
+      position:relative;
+      z-index:1;
+      max-width:340px;
+    }
+
+    .login-right-kicker{
+      display:inline-flex;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.14);
+      border:1px solid rgba(255,255,255,0.18);
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      margin-bottom:14px;
+    }
+
+    .login-right h3{
+      margin:0 0 12px;
+      font-size:30px;
+      line-height:1.08;
+      letter-spacing:-.03em;
+    }
+
+    .login-right p{
+      margin:0;
+      color:rgba(255,255,255,0.86);
+      line-height:1.7;
+      font-size:15px;
+    }
+
+    .login-orbs{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+    }
+
+    .login-orb{
+      position:absolute;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,0.22), transparent 68%);
+      filter:blur(2px);
+    }
+
+    .login-orb.orb-a{
+      width:160px;
+      height:160px;
+      top:10%;
+      right:16%;
+    }
+
+    .login-orb.orb-b{
+      width:100px;
+      height:100px;
+      bottom:16%;
+      left:12%;
+    }
+
+    .empty{
+      padding:22px 16px;
+      text-align:center;
+      color:var(--sub);
+      border:1px dashed #cbd5e1;
+      border-radius:18px;
+      background:#f8fbff;
+    }
+
+    .hidden{ display:none !important; }
+
+    @media (max-width: 1100px){
+      .grid-stats{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+      .hero{ flex-direction:column; }
+      .hero-actions{ justify-content:flex-start; }
+    }
+
+    @media (max-width: 640px){
+      .page{ padding:18px 12px 28px; }
+      .hero, .panel, .login-card{ border-radius:22px; padding:18px; }
+      .grid-stats{ grid-template-columns:1fr; }
+      .inline-form{ flex-direction:column; }
+      .field-row{ flex-direction:column; align-items:stretch; }
+      .row-actions{ min-width:unset; }
+    }
+
+    @media (max-width: 900px){
+      .login-card{
+        grid-template-columns:1fr;
+      }
+
+      .login-left{
+        padding:24px 22px 20px;
+      }
+
+      .login-right{
+        min-height:260px;
+        padding:24px;
+      }
+
+      .login-right h3{
+        font-size:28px;
+      }
+    }
+
+    @media (max-width: 640px){
+      .login-card{
+        padding:0 !important;
+      }
+
+      .login-left{
+        padding:22px 18px 18px;
+      }
+
+      .login-form-wrap{
+        padding:16px;
+        border-radius:20px;
+      }
+
+      .login-right{
+        min-height:220px;
+        padding:20px 18px;
+      }
+
+      .login-right::before{
+        inset:14px;
+        border-radius:22px;
+      }
+
+      .login-right h3{
+        font-size:24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div id="notice" class="notice info"></div>
+
+    <section id="loginView" class="login-card">
+      <div class="login-left">
+        <div class="login-brand">
+          <div class="login-brand-badge">
+            <img src="newlogo.png" alt="LearnHub Logo">
+          </div>
+          <div>
+            <div class="login-brand-text">LearnHub Admin</div>
+            <h2>Trung tâm quản trị</h2>
+          </div>
+        </div>
+        <p class="login-subtitle">Đăng nhập bằng đúng tài khoản admin để quản lý whitelist, khóa user và đồng bộ dữ liệu LearnHub trong một nơi gọn gàng hơn!</p>
+        <div class="login-form-wrap">
+          <div class="field-row" style="margin-top:0;">
+            <input id="adminEmailInput" class="input" type="email" value="learnhubadmin@gmail.com" readonly>
+          </div>
+          <div class="field-row">
+            <input id="adminPasswordInput" class="input" type="password" placeholder="Nhập mật khẩu admin">
+          </div>
+          <div class="field-row" style="justify-content:flex-start;">
+            <button class="btn btn-primary" id="adminLoginBtn">Đăng nhập Admin</button>
+          </div>
+        </div>
+        <div class="hint">
+          Chỉ tài khoản <strong>learnhubadmin@gmail.com</strong> mới được phép vào dashboard này.
+        </div>
+      </div>
+      <div class="login-right">
+        <div class="login-orbs">
+          <div class="login-orb orb-a"></div>
+          <div class="login-orb orb-b"></div>
+        </div>
+        <div class="login-right-copy">
+          <div class="login-right-kicker">Private Access</div>
+          <h3>Quản lý LearnHub nhanh, gọn và đỡ rối hơn</h3>
+          <p>Whitelist, khóa user, chỉnh tên hiển thị và theo dõi dữ liệu thời gian thực trong một dashboard đồng bộ với hệ sinh thái chính.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="dashboardView" class="hidden">
+      <div class="hero">
+        <div>
+          <h1>Dashboard LearnHub</h1>
+          <p>Quản lý whitelist, khóa user, gửi thông báo và theo dõi dữ liệu thời gian thực.</p>
+        </div>
+        <div class="hero-actions">
+          <button class="btn btn-soft" id="seedBtn">Nạp whitelist</button>
+          <button class="btn btn-primary" id="refreshBtn">Làm mới</button>
+          <button class="btn btn-danger" id="logoutBtn">Đăng xuất</button>
+        </div>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="admin-tab active" type="button" data-admin-tab="users">Quản lý user</button>
+        <button class="admin-tab" type="button" data-admin-tab="broadcasts">Gửi thông báo</button>
+        <button class="admin-tab" type="button" data-admin-tab="welcomePopup">Popup cố định</button>
+      </div>
+
+      <section class="panel tab-panel hidden" id="broadcastsTabPanel" style="margin-bottom:18px;">
+        <p class="head-desc">Gửi thông báo realtime đến toàn bộ user hoặc từng người cụ thể.</p>
+        <div class="broadcast-layout">
+          <div class="broadcast-left-column">
+            <div class="field-row" style="margin-top:0;">
+              <input id="broadcastTitleInput" class="input" type="text" placeholder="Tiêu đề thông báo, ví dụ: Lịch thi mới">
+            </div>
+            <div class="field-row">
+              <textarea id="broadcastMessageInput" class="input" rows="4" style="resize:vertical; min-height:120px;" placeholder="Nhập nội dung thông báo gửi đến toàn bộ người dùng..."></textarea>
+            </div>
+            <div class="field-row">
+              <input id="broadcastTargetEmailInput" class="input" type="email" placeholder="Nhập email người nhận riêng, ví dụ: user@gmail.com" disabled>
+            </div>
+          </div>
+          <div class="broadcast-right-column">
+            <div class="radio-section">
+              <label class="radio-section-label">Loại thông báo</label>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="broadcastType" value="info" checked>
+                  <span>Thông báo thường - Xanh</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="broadcastType" value="warning">
+                  <span>Thông báo chú ý - Vàng</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="broadcastType" value="error">
+                  <span>Cảnh báo - Đỏ</span>
+                </label>
+              </div>
+            </div>
+            <div class="radio-section">
+              <label class="radio-section-label">Thời gian hiển thị</label>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="broadcastDuration" value="3000" checked>
+                  <span>3 giây</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="broadcastDuration" value="5000">
+                  <span>5 giây</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="broadcastDuration" value="10000">
+                  <span>10 giây</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="broadcastDuration" value="30000">
+                  <span>30 giây</span>
+                </label>
+              </div>
+            </div>
+            <div class="radio-section">
+              <label class="radio-section-label">Chế độ gửi</label>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="broadcastTargetMode" value="all" checked>
+                  <span>Gửi cho toàn bộ user</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="broadcastTargetMode" value="single">
+                  <span>Gửi riêng từng người</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-actions" style="justify-content:flex-start; margin-top:14px;">
+          <button class="btn btn-primary" id="sendBroadcastBtn">Gửi thông báo</button>
+          <button class="btn btn-soft" id="clearBroadcastBtn">Tắt thông báo hiện tại</button>
+        </div>
+      </section>
+
+      <section class="panel tab-panel hidden" id="welcomePopupTabPanel" style="margin-bottom:18px;">
+        <p class="head-desc">Chỉnh popup chào mừng hiển thị sau khi user đăng nhập. Hỗ trợ HTML cơ bản (&lt;b&gt;, &lt;br&gt;, &lt;i&gt;).</p>
+        <div class="field-row" style="margin-top:0;">
+          <input id="welcomePopupTitleInput" class="input" type="text" placeholder="Tiêu đề popup, ví dụ: 📢 Thông báo">
+        </div>
+        <div class="field-row">
+          <textarea id="welcomePopupMessageInput" class="input" rows="6" style="resize:vertical; min-height:140px;" placeholder="Nội dung popup..."></textarea>
+        </div>
+        <label class="inline-check" style="display:flex; align-items:center; gap:8px; margin:4px 0 14px; font-weight:600;">
+          <input id="welcomePopupActiveInput" type="checkbox" checked>
+          Bật popup (hiện sau khi user đăng nhập)
+        </label>
+        <div class="hero-actions" style="justify-content:flex-start;">
+          <button class="btn btn-primary" id="saveWelcomePopupBtn">Lưu popup</button>
+          <button class="btn btn-soft" id="disableWelcomePopupBtn">Tắt popup</button>
+        </div>
+        <p class="head-desc" id="welcomePopupMeta" style="margin-top:12px; margin-bottom:0;"></p>
+      </section>
+
+      <div class="grid-stats">
+        <div class="stat">
+          <div class="label">Tổng user</div>
+          <div class="value" id="totalUsers">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Đang online</div>
+          <div class="value" id="onlineUsers">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Đang bị khóa</div>
+          <div class="value" id="disabledUsers">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Whitelist</div>
+          <div class="value" id="totalWhitelist">0</div>
+        </div>
+      </div>
+
+      <section class="panel tab-panel" id="usersTabPanel">
+        <p class="head-desc">Quản lý whitelist, chỉnh tên hiển thị, khóa/mở khóa user.</p>
+
+        <div class="inline-form">
+          <input id="allowEmailInput" class="input" type="email" placeholder="Nhập email cần thêm vào danh sách">
+          <button class="btn btn-primary" id="addWhitelistBtn">Thêm người dùng</button>
+        </div>
+
+        <div class="toolbar">
+          <input id="directorySearchInput" class="input" type="search" placeholder="Tìm theo tên, email hoặc UID">
+          <select id="directoryFilterSelect" class="select">
+            <option value="all">Tất cả</option>
+            <option value="whitelisted">Đã có whitelist</option>
+            <option value="not-whitelisted">Chưa whitelist</option>
+            <option value="disabled">Đang bị khóa</option>
+          </select>
+        </div>
+
+        <div class="sheet-wrap">
+          <div class="sheet-scroll">
+            <table class="sheet-table">
+              <thead>
+                <tr>
+                  <th>Người dùng</th>
+                  <th>Trạng thái</th>
+                  <th>Vai trò</th>
+                  <th>Tên hiển thị</th>
+                  <th>Hoạt động</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="directoryTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </section>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import { initializeAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, onSnapshot, doc, setDoc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c",
+      authDomain: "onthi12-thpttanhong.firebaseapp.com",
+      projectId: "onthi12-thpttanhong",
+      storageBucket: "onthi12-thpttanhong.firebasestorage.app",
+      messagingSenderId: "922115936320",
+      appId: "1:922115936320:web:67b86c06af9149ff584fa5"
+    };
+
+    const defaultAllowList = [
+      "quanhao678@gmail.com",
+      "huunhan170908@gmail.com",
+      "thanhcong0976888@gmail.com",
+      "duchieu0383377967@gmail.com",
+      "tanphat131008@gmail.com",
+      "lebaonguyen3003@gmail.com",
+      "lamhuynhanh456@gmail.com",
+      "nguyenquyenthdt2021@gmail.com",
+      "baonhiho.n2008@gmail.com",
+      "baotran150308@gmail.com",
+      "leducanh2022jojo@gmail.com",
+      "quynhnhu07052020@gmail.com",
+      "nguyenthimynhan202011@gmail.com",
+      "kienquoc2021dt@gmail.com",
+      "pnpthuy.2811@gmail.com",
+      "bangbang4951@gmail.com",
+      "xmai9839@gmail.com",
+      "learnhubadmin@gmail.com"
+    ];
+
+    const adminEmail = "learnhubadmin@gmail.com";
+
+    const app = initializeApp(firebaseConfig, "learnhub-admin-dashboard");
+    const auth = initializeAuth(app, {
+      persistence: inMemoryPersistence
+    });
+    const db = getFirestore(app);
+    let allowDocs = [];
+    let userDocs = [];
+    let unsubscribeAllow = null;
+    let unsubscribeUsers = null;
+
+    const noticeEl = document.getElementById("notice");
+    const loginView = document.getElementById("loginView");
+    const dashboardView = document.getElementById("dashboardView");
+    const totalUsersEl = document.getElementById("totalUsers");
+    const onlineUsersEl = document.getElementById("onlineUsers");
+    const disabledUsersEl = document.getElementById("disabledUsers");
+    const totalWhitelistEl = document.getElementById("totalWhitelist");
+    const directoryTableBody = document.getElementById("directoryTableBody");
+    const directorySearchInput = document.getElementById("directorySearchInput");
+    const directoryFilterSelect = document.getElementById("directoryFilterSelect");
+    const adminTabButtons = document.querySelectorAll(".admin-tab");
+    const usersTabPanel = document.getElementById("usersTabPanel");
+    const broadcastsTabPanel = document.getElementById("broadcastsTabPanel");
+    const welcomePopupTabPanel = document.getElementById("welcomePopupTabPanel");
+    const broadcastTargetModeSelect = document.getElementById("broadcastTargetModeSelect");
+    const broadcastTargetEmailInput = document.getElementById("broadcastTargetEmailInput");
+    const welcomePopupTitleInput = document.getElementById("welcomePopupTitleInput");
+    const welcomePopupMessageInput = document.getElementById("welcomePopupMessageInput");
+    const welcomePopupActiveInput = document.getElementById("welcomePopupActiveInput");
+    const welcomePopupMeta = document.getElementById("welcomePopupMeta");
+
+    function switchAdminTab(tab) {
+      adminTabButtons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.adminTab === tab);
+      });
+      usersTabPanel.classList.toggle("hidden", tab !== "users");
+      broadcastsTabPanel.classList.toggle("hidden", tab !== "broadcasts");
+      welcomePopupTabPanel.classList.toggle("hidden", tab !== "welcomePopup");
+      if (tab === "welcomePopup") {
+        loadWelcomePopupForm();
+      }
+    }
+
+    adminTabButtons.forEach((button) => {
+      button.addEventListener("click", () => switchAdminTab(button.dataset.adminTab));
+    });
+
+    document.querySelectorAll('input[name="broadcastTargetMode"]').forEach((radio) => {
+      radio.addEventListener("change", () => {
+        const isSingle = radio.value === "single";
+        broadcastTargetEmailInput.disabled = !isSingle;
+        if (!isSingle) {
+          broadcastTargetEmailInput.value = "";
+        }
+      });
+    });
+
+    function showNotice(message, type = "info") {
+      // 1. Khởi tạo và phát âm thanh thông báo
+      // Thay 'sounds/notification.mp3' bằng đường dẫn thực tế tới file âm thanh của sốp
+      const noticeSound = new Audio('sound/realtimesound.mp3'); 
+      noticeSound.volume = 0.5; // Chỉnh âm lượng vừa phải (từ 0.0 đến 1.0)
+      
+      noticeSound.play().catch(err => {
+        // Tránh lỗi trình duyệt chặn tự động phát âm thanh khi user chưa tương tác với trang
+        console.log("Chưa thể phát âm thanh: ", err);
+      });
+
+      // 2. Hiển thị Toast Notification
+      noticeEl.className = `notice ${type} show`;
+      noticeEl.textContent = message;
+      
+      // 3. Tự động ẩn sau 3.2 giây
+      clearTimeout(showNotice.timer);
+      showNotice.timer = setTimeout(() => {
+        noticeEl.classList.remove("show"); 
+      }, 3200);
+    }
+
+    function normalizeEmail(email) {
+      return String(email || "").trim().toLowerCase();
+    }
+
+    function emailDocId(email) {
+      return encodeURIComponent(normalizeEmail(email));
+    }
+
+    function formatDate(value) {
+      if (!value) return "Chưa có";
+
+      let date;
+      if (typeof value === "number") {
+        date = new Date(value);
+      } else if (value?.toDate) {
+        date = value.toDate();
+      } else {
+        date = new Date(value);
+      }
+
+      if (Number.isNaN(date.getTime())) return "Chưa có";
+      return date.toLocaleString("vi-VN");
+    }
+
+    function escapeHtml(text) {
+      return String(text || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    async function seedDefaultAllowList() {
+      const snap = await getDocs(collection(db, "accessList"));
+      if (!snap.empty) {
+        showNotice("Whitelist Firestore đã có dữ liệu rồi.", "info");
+        return;
+      }
+
+      await Promise.all(
+        defaultAllowList.map((email) =>
+          setDoc(doc(db, "accessList", emailDocId(email)), {
+            email: normalizeEmail(email),
+            enabled: true,
+            addedAt: new Date().toISOString(),
+            source: "default-seed"
+          }, { merge: true })
+        )
+      );
+
+      showNotice("Đã nạp whitelist mặc định lên Firestore.", "success");
+    }
+
+    function updateStats() {
+      totalUsersEl.textContent = String(userDocs.length);
+      totalWhitelistEl.textContent = String(allowDocs.length);
+      onlineUsersEl.textContent = String(userDocs.filter((item) => item.online).length);
+      disabledUsersEl.textContent = String(userDocs.filter((item) => item.disabled).length);
+    }
+
+    function buildDirectoryRows() {
+      const allowByEmail = new Map(
+        allowDocs.map((item) => [normalizeEmail(item.email), item])
+      );
+
+      const userByEmail = new Map();
+      userDocs.forEach((item) => {
+        if (item.email) {
+          userByEmail.set(normalizeEmail(item.email), item);
+        }
+      });
+
+      const allEmails = new Set([
+        ...allowByEmail.keys(),
+        ...userByEmail.keys()
+      ]);
+
+      const rows = [];
+
+      allEmails.forEach((email) => {
+        const allow = allowByEmail.get(email);
+        const user = userByEmail.get(email);
+        rows.push({
+          email,
+          uid: user?.uid || "",
+          name: user?.name || user?.email || allow?.email || "Chưa có tên",
+          photo: user?.photo || "https://i.imgur.com/6VBx3io.png",
+          role: user?.role || "Thành viên",
+          online: Boolean(user?.online),
+          disabled: Boolean(user?.disabled),
+          whitelisted: allow ? allow.enabled !== false : false,
+          allowId: allow?.id || emailDocId(email),
+          lastLogin: user?.lastLogin || "",
+          lastActive: user?.lastActive || "",
+          createdAt: user?.createdAt || "",
+          updatedAt: user?.updatedAt || allow?.updatedAt || "",
+          hasUserDoc: Boolean(user)
+        });
+      });
+
+      return rows.sort((a, b) => normalizeEmail(a.name).localeCompare(normalizeEmail(b.name)));
+    }
+
+    function renderDirectory() {
+      const keyword = normalizeEmail(directorySearchInput.value);
+      const filter = directoryFilterSelect.value;
+
+      const filtered = buildDirectoryRows().filter((item) => {
+        const haystack = [
+          item.uid,
+          item.name,
+          item.email
+        ].map((value) => normalizeEmail(value)).join(" ");
+
+        if (keyword && !haystack.includes(keyword)) return false;
+        if (filter === "whitelisted" && !item.whitelisted) return false;
+        if (filter === "not-whitelisted" && item.whitelisted) return false;
+        if (filter === "disabled" && !item.disabled) return false;
+        return true;
+      });
+
+      if (!filtered.length) {
+        directoryTableBody.innerHTML = `<tr><td colspan="5"><div class="empty">Chưa có người dùng nào khớp bộ lọc hiện tại.</div></td></tr>`;
+        return;
+      }
+
+      directoryTableBody.innerHTML = filtered.map((item) => {
+        const safeUid = escapeHtml(item.uid);
+        const safeEmail = escapeHtml(item.email || "");
+        const safeName = escapeHtml(item.name || item.email || "Chưa đặt tên");
+        const safePhoto = escapeHtml(item.photo || "https://i.imgur.com/6VBx3io.png");
+        const statusChips = [
+          item.whitelisted
+            ? `<span class="chip blue">Có whitelist</span>`
+            : `<span class="chip gray">Chưa whitelist</span>`,
+          item.disabled
+            ? `<span class="chip red">Đã khóa</span>`
+            : ``,
+          item.online
+            ? `<span class="chip green">Online</span>`
+            : ``
+        ].filter(Boolean).join("");
+
+        // Mặc định nếu user chưa có thuộc tính role trong Firestore thì sẽ hiển thị là "Thành viên"
+        const currentRole = item.role || "Thành viên"; 
+
+        return `
+          <tr>
+            <td>
+              <div class="identity-cell">
+                <img class="mini-avatar" src="${safePhoto}" alt="avatar">
+                <div>
+                  <div class="identity-name">${safeName}</div>
+                  <div class="identity-email">${safeEmail || "Chưa có email"}</div>
+                  <div class="mini-meta">UID: ${safeUid || "Chưa có"}${item.hasUserDoc ? "" : "<br>Chưa tạo hồ sơ Firestore"}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="status-stack">${statusChips}</div>
+            </td>
+            <td>
+              <!-- Ô CHỌN ROLE TRỰC TIẾP LÊN FIRESTORE -->
+              ${item.hasUserDoc 
+                ? `
+                  <select class="select" onchange="changeUserRole('${safeUid}', this.value)" style="padding: 6px 10px; min-width: 120px; font-weight: 600;">
+                    <option value="Thành viên" ${currentRole === 'Thành viên' ? 'selected' : ''}>Thành viên</option>
+                    <option value="Giáo viên" ${currentRole === 'Giáo viên' ? 'selected' : ''}>Giáo viên</option>
+                    <option value="Admin" ${currentRole === 'Admin' ? 'selected' : ''}>Admin</option>
+                  </select>
+                `
+                : `<div class="mini-meta">Chưa kích hoạt hồ sơ</div>`
+              }
+            </td>
+            <td>
+              ${item.hasUserDoc
+                ? `
+                  <div class="field-row" style="margin-top:0;">
+                    <input id="rename-${safeUid}" class="input" type="text" value="${safeName}" placeholder="Tên hiển thị mới">
+                    <button class="btn btn-primary" onclick="renameUser('${safeUid}')">Lưu</button>
+                  </div>
+                `
+                : `<div class="mini-meta">Chỉ có trong whitelist, chưa phát sinh hồ sơ người dùng.</div>`
+              }
+            </td>
+            <td>
+              <div class="mini-meta">
+                Đăng nhập cuối: ${formatDate(item.lastLogin)}<br>
+                Hoạt động cuối: ${formatDate(item.lastActive)}<br>
+                Tạo lúc: ${formatDate(item.createdAt)}
+              </div>
+            </td>
+            <td>
+              <div class="row-actions">
+                <button class="btn ${item.whitelisted ? "btn-warning" : "btn-success"}" onclick="toggleWhitelist('${escapeHtml(item.allowId)}', ${item.whitelisted})">
+                  ${item.whitelisted ? "Tắt whitelist" : "Cấp quyền"}
+                </button>
+                ${item.hasUserDoc
+                  ? `<button class="btn ${item.disabled ? "btn-success" : "btn-warning"}" onclick="toggleDisable('${safeUid}', ${item.disabled ? "true" : "false"})">
+                      ${item.disabled ? "Mở khóa" : "Khóa user"}
+                    </button>`
+                  : ``
+                }
+                <button class="btn btn-danger" onclick="deleteUserData('${safeUid}', '${safeEmail}')">
+                  ${item.hasUserDoc ? "Xóa user" : "Xóa email"}
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function refreshCollections() {
+      const [allowSnap, usersSnap] = await Promise.all([
+        getDocs(collection(db, "accessList")),
+        getDocs(collection(db, "users"))
+      ]);
+
+      allowDocs = allowSnap.docs
+        .map((item) => ({ id: item.id, ...item.data() }))
+        .sort((a, b) => normalizeEmail(a.email).localeCompare(normalizeEmail(b.email)));
+
+      userDocs = usersSnap.docs
+        .map((item) => ({ uid: item.id, ...item.data() }))
+        .sort((a, b) => normalizeEmail(a.name || a.email).localeCompare(normalizeEmail(b.name || b.email)));
+
+      updateStats();
+      renderDirectory();
+    }
+
+    function startRealtime() {
+      if (unsubscribeAllow) unsubscribeAllow();
+      if (unsubscribeUsers) unsubscribeUsers();
+
+      unsubscribeAllow = onSnapshot(collection(db, "accessList"), (snap) => {
+        allowDocs = snap.docs
+          .map((item) => ({ id: item.id, ...item.data() }))
+          .sort((a, b) => normalizeEmail(a.email).localeCompare(normalizeEmail(b.email)));
+        updateStats();
+        renderDirectory();
+      });
+
+      unsubscribeUsers = onSnapshot(collection(db, "users"), (snap) => {
+        userDocs = snap.docs
+          .map((item) => ({ uid: item.id, ...item.data() }))
+          .sort((a, b) => normalizeEmail(a.name || a.email).localeCompare(normalizeEmail(b.name || b.email)));
+        updateStats();
+        renderDirectory();
+      });
+    }
+
+    async function ensureAdmin(user) {
+      if (!user?.email || normalizeEmail(user.email) !== adminEmail) {
+        showNotice("Email này không có quyền vào dashboard admin.", "error");
+        await signOut(auth);
+        return false;
+      }
+      return true;
+    }
+
+    document.getElementById("adminLoginBtn").addEventListener("click", async () => {
+      try {
+        const email = normalizeEmail(document.getElementById("adminEmailInput").value);
+        const password = document.getElementById("adminPasswordInput").value;
+
+        if (email !== adminEmail) {
+          showNotice("Chỉ được đăng nhập bằng learnhubadmin@gmail.com", "error");
+          return;
+        }
+
+        if (!password) {
+          showNotice("Vui lòng nhập mật khẩu admin.", "error");
+          return;
+        }
+
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        console.error(error);
+        let message = "Đăng nhập admin thất bại.";
+        if (error.code === "auth/invalid-credential" || error.code === "auth/wrong-password") {
+          message = "Sai mật khẩu hoặc tài khoản admin không hợp lệ.";
+        } else if (error.code === "auth/too-many-requests") {
+          message = "Đăng nhập quá nhiều lần. Vui lòng thử lại sau.";
+        }
+        showNotice(message, "error");
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
+    document.getElementById("seedBtn").addEventListener("click", seedDefaultAllowList);
+    document.getElementById("refreshBtn").addEventListener("click", refreshCollections);
+    document.getElementById("sendBroadcastBtn").addEventListener("click", async () => {
+      const titleInput = document.getElementById("broadcastTitleInput");
+      const messageInput = document.getElementById("broadcastMessageInput");
+      const typeInput = document.querySelector('input[name="broadcastType"]:checked');
+      const durationInput = document.querySelector('input[name="broadcastDuration"]:checked');
+      const targetModeInput = document.querySelector('input[name="broadcastTargetMode"]:checked');
+      const title = String(titleInput.value || "").trim();
+      const message = String(messageInput.value || "").trim();
+      const targetMode = targetModeInput ? targetModeInput.value : "all";
+      const targetEmail = normalizeEmail(broadcastTargetEmailInput.value);
+
+      if (!message) {
+        showNotice("Vui lòng nhập nội dung thông báo.", "error");
+        return;
+      }
+
+      if (targetMode === "single" && (!targetEmail || !targetEmail.includes("@"))) {
+        showNotice("Vui lòng nhập email người nhận hợp lệ.", "error");
+        return;
+      }
+
+      try {
+        const now = new Date().toISOString();
+        await setDoc(doc(db, "broadcasts", "current"), {
+          id: now,
+          title: title || "Thông báo",
+          message,
+          type: typeInput ? typeInput.value : "info",
+          durationMs: Number(durationInput ? durationInput.value : 3000),
+          targetMode,
+          targetEmail: targetMode === "single" ? targetEmail : "",
+          active: true,
+          updatedAt: now,
+          sender: adminEmail
+        }, { merge: true });
+
+        titleInput.value = "";
+        messageInput.value = "";
+        document.querySelector('input[name="broadcastType"][value="info"]').checked = true;
+        document.querySelector('input[name="broadcastDuration"][value="3000"]').checked = true;
+        document.querySelector('input[name="broadcastTargetMode"][value="all"]').checked = true;
+        broadcastTargetEmailInput.value = "";
+        broadcastTargetEmailInput.disabled = true;
+        showNotice(
+          targetMode === "single"
+            ? `Đã gửi thông báo đến ${targetEmail}.`
+            : "Đã gửi thông báo đến toàn bộ user đang mở LearnHub.",
+          "success"
+        );
+      } catch (error) {
+        console.error("Lỗi gửi broadcast:", error);
+        showNotice("Gửi thông báo thất bại. Kiểm tra Firestore rules hoặc kết nối rồi thử lại.", "error");
+      }
+    });
+
+    document.getElementById("clearBroadcastBtn").addEventListener("click", async () => {
+      try {
+        await setDoc(doc(db, "broadcasts", "current"), {
+          active: false,
+          updatedAt: new Date().toISOString(),
+          sender: adminEmail
+        }, { merge: true });
+
+        showNotice("Đã tắt thông báo hiện tại.", "success");
+      } catch (error) {
+        console.error("Lỗi tắt broadcast:", error);
+        showNotice("Không tắt được thông báo hiện tại. Kiểm tra quyền Firestore rồi thử lại.", "error");
+      }
+    });
+
+    async function loadWelcomePopupForm() {
+      try {
+        const snap = await getDoc(doc(db, "broadcasts", "welcomePopup"));
+        if (!snap.exists()) {
+          welcomePopupTitleInput.value = "📢 Thông báo";
+          welcomePopupMessageInput.value = "CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM";
+          welcomePopupActiveInput.checked = true;
+          welcomePopupMeta.textContent = "Chưa có bản lưu trên Firestore. Lưu lần đầu để áp dụng cho web chính.";
+          return;
+        }
+
+        const data = snap.data() || {};
+        welcomePopupTitleInput.value = data.title || "📢 Thông báo";
+        welcomePopupMessageInput.value = data.message || "";
+        welcomePopupActiveInput.checked = data.active !== false;
+        welcomePopupMeta.textContent = data.updatedAt
+          ? `Cập nhật lần cuối: ${formatDate(data.updatedAt)}${data.updatedBy ? ` · bởi ${data.updatedBy}` : ""}`
+          : "";
+      } catch (error) {
+        console.error("Lỗi tải welcome popup:", error);
+        showNotice("Không tải được popup cố định.", "error");
+      }
+    }
+
+    document.getElementById("saveWelcomePopupBtn").addEventListener("click", async () => {
+      const title = String(welcomePopupTitleInput.value || "").trim();
+      const message = String(welcomePopupMessageInput.value || "").trim();
+      const active = welcomePopupActiveInput.checked;
+
+      if (!message) {
+        showNotice("Vui lòng nhập nội dung popup.", "error");
+        return;
+      }
+
+      try {
+        const now = new Date().toISOString();
+        await setDoc(doc(db, "broadcasts", "welcomePopup"), {
+          title: title || "📢 Thông báo",
+          message,
+          active,
+          updatedAt: now,
+          updatedBy: adminEmail
+        }, { merge: true });
+
+        welcomePopupMeta.textContent = `Cập nhật lần cuối: ${formatDate(now)} · bởi ${adminEmail}`;
+        showNotice("Đã lưu popup cố định. Web chính sẽ cập nhật theo realtime.", "success");
+      } catch (error) {
+        console.error("Lỗi lưu welcome popup:", error);
+        showNotice("Lưu popup thất bại. Kiểm tra Firestore rules rồi thử lại.", "error");
+      }
+    });
+
+    document.getElementById("disableWelcomePopupBtn").addEventListener("click", async () => {
+      try {
+        const now = new Date().toISOString();
+        await setDoc(doc(db, "broadcasts", "welcomePopup"), {
+          active: false,
+          updatedAt: now,
+          updatedBy: adminEmail
+        }, { merge: true });
+
+        welcomePopupActiveInput.checked = false;
+        welcomePopupMeta.textContent = `Đã tắt popup · ${formatDate(now)}`;
+        showNotice("Đã tắt popup cố định trên web chính.", "success");
+      } catch (error) {
+        console.error("Lỗi tắt welcome popup:", error);
+        showNotice("Không tắt được popup cố định.", "error");
+      }
+    });
+
+    document.getElementById("addWhitelistBtn").addEventListener("click", async () => {
+      const input = document.getElementById("allowEmailInput");
+      const email = normalizeEmail(input.value);
+
+      if (!email || !email.includes("@")) {
+        showNotice("Vui lòng nhập email hợp lệ.", "error");
+        return;
+      }
+
+      await setDoc(doc(db, "accessList", emailDocId(email)), {
+        email,
+        enabled: true,
+        addedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+
+      input.value = "";
+      showNotice("Đã thêm email vào whitelist.", "success");
+    });
+
+    directorySearchInput.addEventListener("input", renderDirectory);
+    directoryFilterSelect.addEventListener("change", renderDirectory);
+
+    window.toggleWhitelist = async (docId, currentEnabled) => {
+      await setDoc(doc(db, "accessList", docId), {
+        email: normalizeEmail(decodeURIComponent(docId)),
+        enabled: !currentEnabled,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+      showNotice(currentEnabled ? "Đã tắt quyền email này." : "Đã bật lại quyền email này.", "success");
+    };
+
+    window.removeWhitelist = async (docId) => {
+      if (!confirm("Xóa email này khỏi whitelist?")) return;
+      await deleteDoc(doc(db, "accessList", docId));
+      showNotice("Đã xóa email khỏi whitelist.", "success");
+    };
+
+    window.renameUser = async (uid) => {
+      const input = document.getElementById(`rename-${uid}`);
+      const name = String(input?.value || "").trim();
+      if (name.length < 2) {
+        showNotice("Tên phải có ít nhất 2 ký tự.", "error");
+        return;
+      }
+
+      await updateDoc(doc(db, "users", uid), {
+        name,
+        updatedAt: new Date().toISOString()
+      });
+
+      showNotice("Đã cập nhật tên user.", "success");
+    };
+
+    window.toggleDisable = async (uid, currentDisabled) => {
+      if (!uid) return;
+      await updateDoc(doc(db, "users", uid), {
+        disabled: !currentDisabled,
+        online: currentDisabled ? false : false,
+        updatedAt: new Date().toISOString()
+      });
+
+      showNotice(currentDisabled ? "Đã mở khóa user." : "Đã disable user.", "success");
+    };
+    window.changeUserRole = async (uid, newRole) => {
+      if (!uid) return;
+      try {
+        await updateDoc(doc(db, "users", uid), {
+          role: newRole,
+          updatedAt: new Date().toISOString()
+        });
+        showNotice(`Đã chuyển quyền thành công thành: ${newRole}`, "success");
+      } catch (error) {
+        console.error("Lỗi cập nhật role:", error);
+        showNotice("Không thể cập nhật quyền, vui lòng kiểm tra Firestore rules.", "error");
+      }
+    };
+    window.deleteUserData = async (uid, email) => {
+      const hasUser = Boolean(uid);
+      if (!confirm(hasUser ? "Xóa hồ sơ Firestore của user này và gỡ khỏi whitelist?" : "Xóa email này khỏi whitelist?")) return;
+
+      if (hasUser) {
+        await deleteDoc(doc(db, "users", uid));
+      }
+
+      const normalizedEmail = normalizeEmail(email);
+      if (normalizedEmail) {
+        const allowRef = doc(db, "accessList", emailDocId(normalizedEmail));
+        const allowSnap = await getDoc(allowRef);
+        if (allowSnap.exists()) {
+          await deleteDoc(allowRef);
+        }
+      }
+
+      showNotice(hasUser ? "Đã xóa hồ sơ user và gỡ whitelist tương ứng." : "Đã xóa email khỏi whitelist.", "success");
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        if (unsubscribeAllow) unsubscribeAllow();
+        if (unsubscribeUsers) unsubscribeUsers();
+        loginView.classList.remove("hidden");
+        dashboardView.classList.add("hidden");
+        return;
+      }
+
+      const ok = await ensureAdmin(user);
+      if (!ok) return;
+
+      document.getElementById("adminPasswordInput").value = "";
+      loginView.classList.add("hidden");
+      dashboardView.classList.remove("hidden");
+
+      await refreshCollections();
+      startRealtime();
+    });
+  </script>
+</body>
+</html>

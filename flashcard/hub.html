@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LearnHub Flashcard</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --glass: rgba(255, 255, 255, 0.82);
+      --line: rgba(148, 163, 184, 0.35);
+      --text-main: #0f172a;
+      --text-sub: #475569;
+      --chip: rgba(37, 99, 235, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      --hub-hover-x: 50%;
+      --hub-hover-y: 24%;
+      --hub-hover-glow: rgba(37, 99, 235, 0);
+      --hub-hover-opacity: 0;
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(236, 72, 153, 0.12), transparent 28%),
+        radial-gradient(circle at 88% 16%, rgba(37, 99, 235, 0.14), transparent 30%),
+        radial-gradient(circle at 72% 86%, rgba(245, 158, 11, 0.1), transparent 32%),
+        linear-gradient(135deg, #f8fbff 0%, #fff7fb 44%, #f8fffb 100%);
+      background-attachment: fixed;
+      position: relative;
+      overflow-x: hidden;
+      isolation: isolate;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent 78%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: var(--hub-hover-opacity);
+      background:
+        radial-gradient(circle at var(--hub-hover-x) var(--hub-hover-y), var(--hub-hover-glow), transparent 34%),
+        linear-gradient(135deg, var(--hub-hover-glow), transparent 56%);
+      transition: opacity 0.25s ease, background 0.25s ease;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 18px 40px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 46px);
+      letter-spacing: 0.3px;
+      color: var(--primary);
+    }
+
+    .hero p {
+      margin: 0 auto;
+      max-width: 760px;
+      color: var(--text-sub);
+      line-height: 1.6;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      margin-top: 18px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+
+    .filter {
+      width: min(360px, 100%);
+      position: relative;
+    }
+
+    .filter-btn {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      background: rgba(255, 255, 255, 0.98);
+      color: #0f172a;
+      border-radius: 14px;
+      padding: 11px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .filter-caret {
+      font-size: 14px;
+      color: #2563eb;
+      transition: transform 0.2s ease;
+    }
+
+    .filter.open .filter-caret {
+      transform: rotate(180deg);
+    }
+
+    .filter-menu {
+      list-style: none;
+      margin: 8px 0 0;
+      padding: 8px;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      border-radius: 14px;
+      border: 1px solid #dbe4f0;
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.16);
+      display: none;
+      z-index: 20;
+      transform-origin: top center;
+      animation: dropdownIn 0.2s ease;
+    }
+
+    .filter.open .filter-menu {
+      display: block;
+    }
+
+    .filter-item {
+      width: 100%;
+      border: none;
+      background: transparent;
+      text-align: left;
+      border-radius: 10px;
+      padding: 10px 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+    }
+
+    .filter-item:hover,
+    .filter-item.active {
+      background: rgba(37, 99, 235, 0.1);
+      color: #1d4ed8;
+    }
+
+    .section-block {
+      --section-accent: #2563eb;
+      --section-accent-dark: #1d4ed8;
+      --section-soft: rgba(37, 99, 235, 0.12);
+      --section-border: rgba(37, 99, 235, 0.35);
+      --section-glow: rgba(124, 58, 237, 0.42);
+      margin-top: 28px;
+      animation: sectionFadeIn 0.45s ease both;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 40px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: clamp(20px, 2.8vw, 28px);
+      color: var(--section-accent);
+    }
+
+    .section-note {
+      min-width: 44px;
+      color: #475569;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .section-nav {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--section-border);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--section-accent);
+      cursor: pointer;
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 0;
+      display: inline-grid;
+      place-items: center;
+      padding: 0 0 3px;
+      box-shadow: 0 8px 16px var(--section-soft);
+      transition: transform 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
+    }
+
+    .section-nav:hover:not(:disabled) {
+      transform: translateY(-2px);
+      border-color: var(--section-accent);
+    }
+
+    .section-nav:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    .topic-slider {
+      --slide-index: 0;
+      --slide-step: calc((100% + 16px) / 3);
+      margin: 28px -15px -22px;
+      overflow-x: hidden;
+      overflow-y: visible;
+      padding: 0 15px 22px;
+    }
+
+    .topic-slider .topic-grid {
+      display: flex;
+      grid-template-columns: none;
+      gap: 16px;
+      margin-top: 0;
+      transform: translateX(calc(var(--slide-index) * -1 * var(--slide-step)));
+      transition: transform 0.36s ease;
+    }
+
+    .topic-slider .topic-card {
+      flex: 0 0 calc((100% - 32px) / 3);
+    }
+
+    .topic-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 22px;
+      background: var(--glass);
+      border: 1px solid var(--line);
+      outline: 0 solid transparent;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, outline-color 0.2s ease, outline-width 0.2s ease;
+      min-height: 210px;
+      animation: cardFloatIn 0.35s ease both;
+    }
+
+    .topic-card::before {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      right: -60px;
+      top: -80px;
+      background: radial-gradient(circle, var(--section-soft), transparent 70%);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .topic-card:hover {
+      transform: translateY(-7px) scale(1.018);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), var(--section-soft));
+      border-color: var(--section-accent);
+      outline: 3px solid var(--section-soft);
+    }
+
+    .topic-card:hover::before {
+      opacity: 1;
+      transform: scale(1.16);
+      background: radial-gradient(circle, var(--section-glow), transparent 70%);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .emoji {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .chip {
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--section-soft);
+      border: 1px solid var(--section-border);
+      color: var(--section-accent-dark);
+      white-space: nowrap;
+    }
+
+    .status-badge {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-done {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+
+    .status-update {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+    }
+
+    .topic-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .topic-desc {
+      margin: 0;
+      color: var(--text-sub);
+      line-height: 1.55;
+      font-size: 14px;
+      min-height: 44px;
+    }
+
+    .meta {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .count {
+      color: var(--section-accent-dark);
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .open-btn {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      color: white;
+      background: linear-gradient(135deg, var(--section-accent), var(--section-accent-dark));
+      font-weight: 700;
+      box-shadow: 0 8px 16px var(--section-border);
+      transition: transform 0.15s ease;
+    }
+
+    .open-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .popup-overlay.show {
+      display: flex;
+      animation: overlayFade 0.2s ease;
+    }
+
+    .popup-box {
+      width: min(420px, 100%);
+      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid #dbeafe;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+      padding: 22px 18px 16px;
+      text-align: center;
+      animation: popupIn 0.25s ease;
+    }
+
+    .popup-box h3 {
+      margin: 0 0 8px;
+      color: #1d4ed8;
+      font-size: 22px;
+    }
+
+    .popup-box p {
+      margin: 0 0 14px;
+      color: #475569;
+      line-height: 1.5;
+      font-weight: 500;
+    }
+
+    .popup-close {
+      border: none;
+      border-radius: 10px;
+      padding: 8px 14px;
+      color: #fff;
+      background: #2563eb;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background:
+        linear-gradient(135deg, rgba(236, 72, 153, 0.16), rgba(37, 99, 235, 0.12) 46%, rgba(245, 158, 11, 0.13)),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.32) 0 2px, transparent 2px 14px),
+        rgba(248, 250, 252, 0.9);
+      backdrop-filter: blur(16px) saturate(1.12);
+      -webkit-backdrop-filter: blur(16px) saturate(1.12);
+    }
+
+    .loading-overlay.show {
+      display: flex;
+      animation: overlayFade 0.2s ease;
+    }
+
+    .loading-box {
+      position: relative;
+      overflow: hidden;
+      width: min(360px, 100%);
+      border: 1px solid rgba(37, 99, 235, 0.22);
+      border-radius: 22px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(239, 246, 255, 0.92));
+      padding: 30px 22px 26px;
+      text-align: center;
+      animation: popupIn 0.25s ease;
+    }
+
+    .loading-box::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 5px;
+      background: linear-gradient(90deg, #ec4899, #2563eb, #f59e0b);
+      transform-origin: left center;
+      animation: loadingBar 1.5s ease-in-out forwards;
+    }
+
+    .loading-spinner {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 16px;
+      border: 5px solid rgba(37, 99, 235, 0.14);
+      border-top-color: #ec4899;
+      border-right-color: #2563eb;
+      border-radius: 50%;
+      animation: spin 1.05s linear infinite;
+    }
+
+    .loading-title {
+      margin: 0 0 8px;
+      color: #1d4ed8;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .loading-text {
+      margin: 0;
+      color: #475569;
+      line-height: 1.5;
+      font-weight: 600;
+    }
+
+    @keyframes dropdownIn {
+      from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes sectionFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes cardFloatIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes overlayFade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes popupIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes loadingBar {
+      from { transform: scaleX(0.08); }
+      to { transform: scaleX(1); }
+    }
+
+    @media (max-width: 860px) {
+      .topic-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .topic-slider {
+        --slide-step: calc((100% + 16px) / 2);
+      }
+
+      .topic-slider .topic-card {
+        flex-basis: calc((100% - 16px) / 2);
+      }
+    }
+
+    @media (max-width: 620px) {
+      .section-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .section-actions {
+        align-self: flex-end;
+        justify-content: flex-end;
+      }
+
+      .topic-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topic-slider {
+        --slide-step: calc(100% + 16px);
+      }
+
+      .topic-slider .topic-card {
+        flex-basis: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1>LearnHub Flashcard</h1>
+      <p>Chọn nhóm nội dung phù hợp để học từ vựng nhanh hơn. Mỗi bộ được thiết kế để luyện ghi nhớ, phản xạ và dùng từ tự nhiên trong ngữ cảnh.</p>
+    </header>
+
+    <div class="toolbar">
+      <div id="categoryFilter" class="filter">
+        <button id="filterBtn" class="filter-btn" type="button">
+          <span id="filterLabel">Hiện tất cả nhóm</span>
+          <span class="filter-caret">▼</span>
+        </button>
+        <ul id="filterMenu" class="filter-menu">
+          <li><button type="button" class="filter-item active" data-value="all">Hiện tất cả nhóm</button></li>
+          <li><button type="button" class="filter-item" data-value="foundation800">800 Từ Vựng Nền Tảng</button></li>
+          <li><button type="button" class="filter-item" data-value="elite300">300 Từ Vựng Tủ 9+</button></li>
+          <li><button type="button" class="filter-item" data-value="topic">Từ vựng theo chủ đề</button></li>
+          <li><button type="button" class="filter-item" data-value="exam">Từ vựng nhập môn</button></li>
+          <li><button type="button" class="filter-item" data-value="phrasal">Phrasal Verbs</button></li>
+        </ul>
+      </div>
+    </div>
+
+    <main id="hubSections"></main>
+  </div>
+
+  <div id="popup" class="popup-overlay">
+    <div class="popup-box">
+      <h3>Thông báo</h3>
+      <p id="popupMessage"></p>
+      <button id="popupClose" class="popup-close" type="button">Đã hiểu</button>
+    </div>
+  </div>
+
+  <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
+    <div class="loading-box" role="status" aria-live="polite">
+      <div class="loading-spinner"></div>
+      <p class="loading-title">Đang mở bài học</p>
+      <p id="loadingText" class="loading-text">Chuẩn bị flashcard...</p>
+    </div>
+  </div>
+
+  <script>
+    // Chỉ cần sửa/chèn item trong mảng sections này.
+    const sections = [
+      {
+        key: "foundation800",
+        title: "800 Từ Vựng Nền Tảng",
+        note: "8 bộ",
+        theme: {
+          accent: "#ec4899",
+          accentDark: "#db2777",
+          soft: "rgba(236, 72, 153, 0.12)",
+          border: "rgba(236, 72, 153, 0.34)",
+          glow: "rgba(244, 114, 182, 0.38)"
+        },
+        items: [
+          { name: "Nền tảng phần 1", description: "100 từ vựng nền tảng phần 1, ưu tiên từ thường gặp trong học tập và giao tiếp.", words: 100, level: "Trung bình", icon: "🌸", href: "flash.html?data=foundation800_1.js" },
+          { name: "Nền tảng phần 2", description: "100 từ vựng nền tảng phần 2, củng cố vốn từ phổ biến theo ngữ cảnh.", words: 100, level: "Trung bình", icon: "🌷", href: "flash.html?data=foundation800_2.js" },
+          { name: "Nền tảng phần 3", description: "100 từ vựng nền tảng phần 3, luyện nhận diện nghĩa và cách dùng tự nhiên.", words: 100, level: "Trung bình", icon: "🌺", href: "flash.html?data=foundation800_3.js" },
+          { name: "Nền tảng phần 4", description: "100 từ vựng nền tảng phần 4, mở rộng từ vựng đọc hiểu và viết câu.", words: 100, level: "Trung bình", icon: "💗", href: "flash.html?data=foundation800_4.js" },
+          { name: "Nền tảng phần 5", description: "100 từ vựng nền tảng phần 5, tập trung vào từ hay gặp trong đề luyện.", words: 100, level: "Trung bình", icon: "🪷", href: "flash.html?data=foundation800_5.js" },
+          { name: "Nền tảng phần 6", description: "100 từ vựng nền tảng phần 6, tăng độ chắc khi gặp từ trong đoạn văn.", words: 100, level: "Trung bình", icon: "🌼", href: "flash.html?data=foundation800_6.js" },
+          { name: "Nền tảng phần 7", description: "100 từ vựng nền tảng phần 7, bổ sung cụm nghĩa thường dùng trong bài thi.", words: 100, level: "Trung bình", icon: "🌻", href: "flash.html?data=foundation800_7.js" },
+          { name: "Nền tảng phần 8", description: "100 từ vựng nền tảng phần 8, hoàn thiện hệ thống 800 từ vựng nền tảng.", words: 100, level: "Trung bình", icon: "✨", href: "flash.html?data=foundation800_8.js" }
+        ]
+      },
+      {
+        key: "elite300",
+        title: "300 Từ Vựng Tủ Chuyên Sâu Nâng Cao 9+",
+        note: "3 bộ",
+        theme: {
+          accent: "#f59e0b",
+          accentDark: "#d97706",
+          soft: "rgba(245, 158, 11, 0.13)",
+          border: "rgba(245, 158, 11, 0.36)",
+          glow: "rgba(251, 191, 36, 0.42)"
+        },
+        items: [
+          { name: "Tủ 9+ phần 1", description: "100 từ vựng chuyên sâu nâng cao 9+ phần 1, chọn lọc cho câu khó.", words: 100, level: "Nâng cao 9+", icon: "🏆", href: "flash.html?data=elite300_1.js" },
+          { name: "Tủ 9+ phần 2", description: "100 từ vựng chuyên sâu nâng cao 9+ phần 2, mở rộng sắc thái nghĩa.", words: 100, level: "Nâng cao 9+", icon: "🔥", href: "flash.html?data=elite300_2.js" },
+          { name: "Tủ 9+ phần 3", description: "100 từ vựng chuyên sâu nâng cao 9+ phần 3, hoàn thiện bộ từ vựng tủ.", words: 100, level: "Nâng cao 9+", icon: "💎", href: "flash.html?data=elite300_3.js" }
+        ]
+      },
+      {
+        key: "topic",
+        title: "Từ Vựng Theo Chủ Đề",
+        note: "5 bộ",
+        theme: {
+          accent: "#2563eb",
+          accentDark: "#1d4ed8",
+          soft: "rgba(37, 99, 235, 0.12)",
+          border: "rgba(37, 99, 235, 0.35)",
+          glow: "rgba(96, 165, 250, 0.4)"
+        },
+        items: [
+          { name: "Environment", description: "Khí hậu, môi trường và phát triển bền vững.", words: 100, level: "Trung bình", icon: "🌍", href: "flash.html?data=environment.js" },
+          { name: "Artificial Intelligence (AI) Part 1", description: "Trí tuệ nhân tạo và một số từ ngữ liên quan", words: 50, level: "Trung bình", icon: "🤖", href: "flash.html?data=AI.js" },
+          { name: "Artificial Intelligence (AI) Part 2", description: "Trí tuệ nhân tạo và một số từ ngữ liên quan", words: 170, level: "Nâng cao", icon: "🤖", href: "flash.html?data=AI2.js" },
+          { name: "Science & Technology", description: "Thiết bị số, internet, ứng dụng và AI.", words: 300, level: "Nâng cao", icon: "💻", href: "flash.html?data=tech.js" },
+          { name: "Education", description: "Giáo dục và các từ vựng liên quan", words: 300, level: "Nâng cao", icon: "🎓", href: "flash.html?data=edu.js" }
+        ]
+      },
+      {
+        key: "exam",
+        title: "Từ Vựng Nhập Môn",
+        note: "9 bộ",
+        theme: {
+          accent: "#0891b2",
+          accentDark: "#0e7490",
+          soft: "rgba(8, 145, 178, 0.12)",
+          border: "rgba(8, 145, 178, 0.34)",
+          glow: "rgba(34, 211, 238, 0.4)"
+        },
+        items: [
+          { name: "Phần 1", description: "Từ Vựng Nhập Môn số 1.", words: 56, level: "Dễ", icon: "🧾", href: "flash.html?data=nhapmon1.js" },
+          { name: "Phần 2", description: "Từ Vựng Nhập Môn số 2.", words: 74, level: "Dễ", icon: "📚", href: "flash.html?data=nhapmon2.js" },
+          { name: "Phần 3", description: "Từ Vựng Nhập Môn số 3.", words: 56, level: "Dễ", icon: "✅", href: "flash.html?data=nhapmon3.js" },
+          { name: "Phần 4", description: "Từ Vựng Nhập Môn số 4.", words: 58, level: "Dễ", icon: "📖", href: "flash.html?data=nhapmon4.js" },
+          { name: "Phần 5", description: "Từ Vựng Nhập Môn số 5.", words: 53, level: "Dễ", icon: "📝", href: "flash.html?data=nhapmon5.js" },
+          { name: "Phần 6", description: "Từ Vựng Nhập Môn số 6.", words: 56, level: "Dễ", icon: "📄", href: "flash.html?data=nhapmon6.js" },
+          { name: "Phần 7", description: "Từ Vựng Nhập Môn số 7.", words: 62, level: "Dễ", icon: "📑", href: "flash.html?data=nhapmon7.js" },
+          { name: "Phần 8", description: "Từ Vựng Nhập Môn số 8.", words: 100, level: "Dễ", icon: "📘", href: "flash.html?data=nhapmon8.js" },
+          { name: "Phần 9", description: "Từ Vựng Nhập Môn số 9.", words: 100, level: "Dễ", icon: "📙", href: "flash.html?data=nhapmon9.js" }
+        ]
+      },
+      {
+        key: "phrasal",
+        title: "Phrasal Verbs",
+        note: "3 bộ",
+        theme: {
+          accent: "#ea580c",
+          accentDark: "#c2410c",
+          soft: "rgba(234, 88, 12, 0.12)",
+          border: "rgba(234, 88, 12, 0.34)",
+          glow: "rgba(251, 146, 60, 0.38)"
+        },
+        items: [
+          { name: "Work & Office", description: "Các cụm động từ hay dùng trong công việc.", words: 80, level: "Trung Bình", icon: "📁", href: "#" },
+          { name: "Daily Conversation", description: "Phrasal verbs dùng trong giao tiếp hằng ngày.", words: 75, level: "Dễ", icon: "💬", href: "#" },
+          { name: "Advanced Usage", description: "Cụm động từ nâng cao trong ngữ cảnh học thuật.", words: 95, level: "Nâng cao", icon: "🧠", href: "#" }
+        ]
+      }
+    ];
+
+    const hubSections = document.getElementById("hubSections");
+    const filterRoot = document.getElementById("categoryFilter");
+    const filterBtn = document.getElementById("filterBtn");
+    const filterMenu = document.getElementById("filterMenu");
+    const filterLabel = document.getElementById("filterLabel");
+    const popup = document.getElementById("popup");
+    const popupMessage = document.getElementById("popupMessage");
+    const popupClose = document.getElementById("popupClose");
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const loadingText = document.getElementById("loadingText");
+    const sectionSlides = {};
+    let isLoadingLesson = false;
+
+    function getVisibleCardCount() {
+      if (window.innerWidth <= 620) return 1;
+      if (window.innerWidth <= 860) return 2;
+      return 3;
+    }
+
+    function showPopup(message) {
+      popupMessage.textContent = message;
+      popup.classList.add("show");
+    }
+
+    function getSectionStatusBadge(sectionIndex) {
+      if (sectionIndex < 2) {
+        return '<span class="status-badge status-done">Đã hoàn thành</span>';
+      } else {
+        return '<span class="status-badge status-update">Đang được cập nhật</span>';
+      }
+    }
+
+    function setHubBackgroundTheme(theme, event) {
+      if (!theme) return;
+      document.body.style.setProperty("--hub-hover-glow", theme.glow || theme.soft || "rgba(37, 99, 235, 0.22)");
+      document.body.style.setProperty("--hub-hover-opacity", "1");
+      updateHubBackgroundPosition(event);
+    }
+
+    function updateHubBackgroundPosition(event) {
+      if (!event) return;
+      const x = Math.round((event.clientX / window.innerWidth) * 100);
+      const y = Math.round((event.clientY / window.innerHeight) * 100);
+      document.body.style.setProperty("--hub-hover-x", `${x}%`);
+      document.body.style.setProperty("--hub-hover-y", `${y}%`);
+    }
+
+    function clearHubBackgroundTheme() {
+      document.body.style.setProperty("--hub-hover-opacity", "0");
+    }
+
+    function openLesson(topic) {
+      if (isLoadingLesson) return;
+      isLoadingLesson = true;
+      loadingText.textContent = `Chuẩn bị bộ "${topic.name}"...`;
+      loadingOverlay.classList.add("show");
+      loadingOverlay.setAttribute("aria-hidden", "false");
+
+      setTimeout(() => {
+        window.location.href = topic.href;
+      }, 1500);
+    }
+
+    popupClose.addEventListener("click", () => popup.classList.remove("show"));
+    popup.addEventListener("click", (e) => {
+      if (e.target === popup) popup.classList.remove("show");
+    });
+
+    function renderHub(filterValue = "all") {
+      hubSections.innerHTML = "";
+      const isSingleSection = filterValue !== "all";
+      const visibleCardCount = getVisibleCardCount();
+
+      sections
+        .filter((section) => filterValue === "all" || section.key === filterValue)
+        .forEach((section, sectionIndex) => {
+          const block = document.createElement("section");
+          block.className = "section-block";
+          if (section.theme) {
+            block.style.setProperty("--section-accent", section.theme.accent);
+            block.style.setProperty("--section-accent-dark", section.theme.accentDark);
+            block.style.setProperty("--section-soft", section.theme.soft);
+            block.style.setProperty("--section-border", section.theme.border);
+            block.style.setProperty("--section-glow", section.theme.glow);
+          }
+          const shouldSlide = !isSingleSection && section.items.length > visibleCardCount;
+          const maxSlide = Math.max(0, section.items.length - visibleCardCount);
+          const slideIndex = Math.min(sectionSlides[section.key] || 0, maxSlide);
+          sectionSlides[section.key] = slideIndex;
+
+          const header = document.createElement("div");
+          header.className = "section-header";
+          const statusBadge = getSectionStatusBadge(sectionIndex);
+          header.innerHTML = `
+            <h2 class="section-title">${section.title}</h2>
+            <div class="section-actions">
+              ${statusBadge}
+              ${shouldSlide ? '<button class="section-nav prev" type="button" aria-label="Ô trước">‹</button>' : ''}
+              <span class="section-note">${section.note}</span>
+              ${shouldSlide ? '<button class="section-nav next" type="button" aria-label="Ô sau">›</button>' : ''}
+            </div>
+          `;
+          block.appendChild(header);
+
+          const slider = document.createElement("div");
+          if (shouldSlide) {
+            slider.className = "topic-slider";
+            slider.style.setProperty("--slide-index", slideIndex);
+          }
+
+          if (shouldSlide) {
+            const prevBtn = header.querySelector(".prev");
+            const nextBtn = header.querySelector(".next");
+            let activeSlide = slideIndex;
+            const updateSlide = (nextSlide) => {
+              activeSlide = Math.max(0, Math.min(maxSlide, nextSlide));
+              sectionSlides[section.key] = activeSlide;
+              slider.style.setProperty("--slide-index", activeSlide);
+              prevBtn.disabled = activeSlide === 0;
+              nextBtn.disabled = activeSlide === maxSlide;
+            };
+
+            updateSlide(activeSlide);
+            prevBtn.addEventListener("click", () => updateSlide(activeSlide - 1));
+            nextBtn.addEventListener("click", () => updateSlide(activeSlide + 1));
+          }
+
+          const grid = document.createElement("div");
+          grid.className = "topic-grid";
+
+          section.items.forEach((topic) => {
+            const card = document.createElement("article");
+            card.className = "topic-card";
+            card.innerHTML = `
+              <div class="card-top">
+                <span class="emoji">${topic.icon || "📘"}</span>
+                <span class="chip">${topic.level || "Cơ bản"}</span>
+              </div>
+              <h3 class="topic-title">${topic.name}</h3>
+              <p class="topic-desc">${topic.description || ""}</p>
+              <div class="meta">
+                <span class="count">${topic.words || 0} mục</span>
+                <button class="open-btn" type="button">Vào học</button>
+              </div>
+            `;
+
+            card.querySelector(".open-btn").addEventListener("click", () => {
+              if (topic.href && topic.href !== "#") {
+                openLesson(topic);
+              } else {
+                showPopup("Nội dung đang được cập nhật. Vui lòng quay lại sau!");
+              }
+            });
+
+            card.addEventListener("mouseenter", (event) => setHubBackgroundTheme(section.theme, event));
+            card.addEventListener("mousemove", updateHubBackgroundPosition);
+            card.addEventListener("mouseleave", clearHubBackgroundTheme);
+
+            grid.appendChild(card);
+          });
+
+          if (shouldSlide) {
+            slider.appendChild(grid);
+            block.appendChild(slider);
+          } else {
+            block.appendChild(grid);
+          }
+          hubSections.appendChild(block);
+        });
+    }
+
+    filterBtn.addEventListener("click", () => {
+      filterRoot.classList.toggle("open");
+    });
+
+    filterMenu.querySelectorAll(".filter-item").forEach((item) => {
+      item.addEventListener("click", () => {
+        const value = item.dataset.value;
+        filterLabel.textContent = item.textContent;
+        filterMenu.querySelectorAll(".filter-item").forEach((btn) => btn.classList.remove("active"));
+        item.classList.add("active");
+        filterRoot.classList.remove("open");
+        renderHub(value);
+      });
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!filterRoot.contains(e.target)) {
+        filterRoot.classList.remove("open");
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      renderHub(document.querySelector(".filter-item.active")?.dataset.value || "all");
+    });
+
+    renderHub();
+  </script>
+</body>
+</html>

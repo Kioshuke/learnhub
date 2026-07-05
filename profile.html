@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ Sơ Học Viên - LearnHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lh: {
+                            bg: '#f6f8ff',
+                            primary: '#1a73e8',
+                            primaryLight: '#eff6ff',
+                            card: '#ffffff',
+                            text: '#111827',
+                            textSub: '#6b7280',
+                            border: '#e5e7eb'
+                        }
+                    },
+                    borderRadius: {
+                        'lh': '18px',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f6f8ff;
+        }
+        /* Glassmorphism Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        /* Ẩn hoàn toàn thanh cuộn */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* ===== SKELETON LOADING ANIMATION ===== */
+        .skeleton {
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .loading .hide-on-loading { opacity: 0; }
+        .loading .show-on-loading { display: block; }
+        
+        /* ===== BADGE SYSTEM ===== */
+        .badge-item {
+            filter: grayscale(100%);
+            opacity: 0.4;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .badge-item.earned {
+            filter: grayscale(0%);
+            opacity: 1;
+            background: rgba(239, 246, 255, 0.6);
+            border-color: rgba(147, 197, 253, 0.5);
+        }
+        .badge-item.earned:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.12);
+        }
+
+        /* ===== TOAST TIMELINE ANIMATION ===== */
+        @keyframes shrinkWidth {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        .toast-timeline {
+            animation: shrinkWidth 5s linear forwards;
+        }
+    </style>
+</head>
+<body class="bg-lh-bg text-lh-text min-h-screen flex justify-center items-start">
+
+    <div class="w-full max-w-none bg-white/70 overflow-hidden flex flex-col glass-card">
+        
+        <div class="px-3 sm:px-6 py-4 grid grid-cols-[minmax(32px,auto)_1fr_minmax(32px,auto)] items-center gap-2" style="background-color: #2563eb;">
+            <button onclick="history.back()" class="flex items-center gap-1.5 text-sm font-semibold text-white/90 hover:text-white transition-colors justify-self-start">
+                <i class="fas fa-arrow-left text-xs"></i> <span class="hidden sm:inline">Quay lại</span>
+            </button>
+            <h1 class="text-lg sm:text-2xl font-bold text-white tracking-tight text-center truncate">
+                LearnHub - Hồ Sơ Người Dùng
+            </h1>
+            <button onclick="openSettingsModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-white/90 hover:bg-white/15 hover:text-white transition-all justify-self-end">
+                <i class="fas fa-cog text-base"></i>
+            </button>
+        </div>
+
+        <div class="p-4 sm:p-6 space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                
+                <div class="space-y-6">
+                    <div id="user-profile-section" class="bg-violet-100/70 border border-violet-200 p-5 rounded-xl space-y-4 shadow-sm">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-lh-textSub flex items-center gap-1.5">
+                            <i class="fas fa-id-card text-xs"></i> Hồ Sơ Chi Tiết
+                        </h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 items-center bg-white p-4 rounded-xl border border-gray-100">
+                            
+                            <div class="flex flex-col items-center sm:items-start text-center sm:text-left space-y-2">
+                                <div class="relative w-20 h-20 rounded-full overflow-hidden border-2 border-white shadow-md bg-gray-100 flex-shrink-0">
+                                    <img id="profile-avatar-display" src="https://lh3.googleusercontent.com/a/default-user=s120-c" alt="Google Avatar" class="w-full h-full object-cover">
+                                </div>
+                                <div class="space-y-1 w-full">
+                                    <h2 id="profile-name-display" class="text-xl font-bold tracking-tight text-gray-900">Đang tải...</h2>
+                                    <p id="profile-bio-display" class="text-xs text-lh-textSub font-semibold italic">"Chưa có tiểu sử"</p>
+                                    
+                                    <div class="text-sm text-lh-textSub font-medium space-y-1 pt-1 border-t border-gray-100 sm:border-0">
+                                        <p class="flex items-center justify-center sm:justify-start gap-1.5">
+                                            <i class="fas fa-envelope text-xs text-gray-400 w-4 text-center"></i><span id="profile-email-display">Đang tải...</span>
+                                        </p>
+                                        <p class="flex items-center justify-center sm:justify-start gap-1.5">
+                                            <i class="fas fa-phone text-xs text-gray-400 w-4 text-center"></i><span id="profile-phone-display">Chưa cập nhật</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2.5 text-sm text-gray-700 font-medium border-t sm:border-t-0 sm:border-l border-gray-200/80 pt-4 sm:pt-0 sm:pl-5 flex flex-col justify-center">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-birthday-cake text-blue-500 w-4 text-center"></i>
+                                    <span>Ngày sinh: <span id="profile-birth-display" class="font-semibold text-gray-900">Chưa cập nhật</span></span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-venus-mars text-indigo-500 w-4 text-center"></i>
+                                    <span>Giới tính: <span id="profile-gender-display" class="font-semibold text-gray-900">Chưa cập nhật</span></span>
+                                </div>
+                                <div class="flex items-start gap-2">
+                                    <i class="fas fa-school text-emerald-500 w-4 mt-0.5 text-center"></i>
+                                    <span>Trường: <span id="profile-school-display" class="font-semibold text-gray-900">Chưa cập nhật</span></span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="flex flex-wrap justify-center sm:justify-start gap-2 pt-3 border-t border-gray-200/60 w-full">
+                            <span id="profile-role-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-gray-50 text-gray-600 border border-gray-200">
+                                <span id="profile-role-dot" class="w-2 h-2 rounded-full bg-gray-500 animate-pulse"></span> <span id="profile-role-display">Thành viên</span>
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-blue-50 text-lh-primary border border-blue-200">
+                                🏅 Level 1
+                            </span>
+                            <span id="profile-xp-display" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-amber-50 text-amber-600 border border-amber-200">
+                                ⭐ 0 XP
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div class="space-y-3 bg-blue-100/70 border border-blue-200 rounded-xl p-4 shadow-sm">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-lh-textSub flex items-center gap-1.5">
+                            <i class="fas fa-chart-bar text-xs"></i> Thống kê hiệu suất (Tính theo thang điểm 10)
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="p-4 bg-white rounded-xl border border-gray-100 flex flex-col justify-between min-h-[72px]">
+                                <span class="text-[10px] font-bold text-lh-textSub uppercase tracking-wider">📚 Bài Đã Làm</span>
+                                <span id="stat-total-tests" class="text-xl font-extrabold text-lh-text mt-0.5">0</span>
+                            </div>
+                            <div class="p-4 bg-white rounded-xl border border-gray-100 flex flex-col justify-between min-h-[72px]">
+                                <span class="text-[10px] font-bold text-lh-textSub uppercase tracking-wider">🎯 Tổng Điểm</span>
+                                <span id="stat-total-score" class="text-xl font-extrabold text-lh-text mt-0.5">0.00</span>
+                            </div>
+                            <div class="p-4 bg-white rounded-xl border border-gray-100 flex flex-col justify-between min-h-[72px]">
+                                <span class="text-[10px] font-bold text-lh-textSub uppercase tracking-wider">📈 Điểm Trung Bình</span>
+                                <span id="stat-avg-score" class="text-xl font-extrabold text-lh-text mt-0.5">0.00</span>
+                            </div>
+                            <div class="p-4 bg-white rounded-xl border border-gray-100 flex flex-col justify-between min-h-[72px]">
+                                <span class="text-[10px] font-bold text-lh-textSub uppercase tracking-wider">🏆 Điểm Cao Nhất</span>
+                                <span id="stat-best-score" class="text-xl font-extrabold text-lh-text mt-0.5">0.00</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-white border border-blue-100/50 rounded-xl flex items-center justify-between text-xs font-semibold text-lh-primary">
+                            <span>⭐ Tiến trình tích lũy:</span>
+                            <span id="stat-xp-progress" class="font-bold">0 / 100 XP</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6 md:border-l md:border-gray-100 md:pl-6">
+                    <div class="space-y-3 bg-amber-100/70 border border-amber-200 rounded-xl p-4 shadow-sm">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-lh-textSub flex items-center gap-1.5">
+                            <i class="fas fa-award text-xs"></i> Vinh danh & Huy hiệu
+                        </h3>
+                        <div class="space-y-2.5">
+                            <div class="badge-item earned p-3 rounded-xl border border-gray-200/60 flex items-center justify-between gap-2.5 bg-white">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center font-bold text-base shadow-sm flex-shrink-0">🥇</div>
+                                    <div>
+                                        <h4 class="text-xs font-bold text-gray-800">Top 1 Tuần Trước</h4>
+                                        <p class="text-[11px] text-lh-textSub font-medium">Dẫn đầu bảng xếp hạng</p>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] font-bold uppercase bg-yellow-100/80 text-yellow-700 px-2 py-0.5 rounded-full flex-shrink-0">Đạt</span>
+                            </div>
+
+                            <div class="badge-item p-3 rounded-xl border border-gray-200/60 flex items-center justify-between gap-2.5 bg-white">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-blue-100 text-lh-primary flex items-center justify-center font-bold text-base shadow-sm flex-shrink-0">⭐</div>
+                                    <div>
+                                        <h4 class="text-xs font-bold text-gray-800">Thành Viên Tích Cực</h4>
+                                        <p class="text-[11px] text-lh-textSub font-medium">Cần làm tối thiểu 10 bài</p>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] font-bold uppercase bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full flex-shrink-0"><i class="fas fa-lock text-[8px] mr-0.5"></i> Khóa</span>
+                            </div>
+
+                            <div class="badge-item p-3 rounded-xl border border-gray-200/60 flex items-center justify-between gap-2.5 bg-white">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-base shadow-sm flex-shrink-0">🔥</div>
+                                    <div>
+                                        <h4 class="text-xs font-bold text-gray-800">Chăm Chỉ Vô Địch</h4>
+                                        <p class="text-[11px] text-lh-textSub font-medium">Hoàn thành xuất sắc 30 bài</p>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] font-bold uppercase bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full flex-shrink-0"><i class="fas fa-lock text-[8px] mr-0.5"></i> Khóa</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="users-section" class="space-y-3 bg-green-100/70 border border-green-200 rounded-xl p-4 shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-lh-textSub flex items-center gap-1.5">
+                                <i class="fas fa-circle text-[8px] text-green-500"></i> Hệ Thống Hồ Sơ Người Dùng
+                            </h3>
+                            <span class="text-[10px] font-bold text-green-600 bg-white px-1.5 py-0.5 rounded-md">Đang hoạt động</span>
+                        </div>
+
+                        <div id="users-grid" class="grid grid-cols-4 gap-3 bg-white p-3 rounded-xl border border-gray-100">
+                            <!-- Users will be loaded dynamically from Firebase -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="border-gray-100">
+
+            <div class="space-y-3 bg-indigo-100/70 border border-indigo-200 rounded-xl p-4 shadow-sm">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-lh-textSub flex items-center gap-1.5">
+                    <i class="fas fa-trophy text-xs"></i> Bảng Xếp Hạng Tuần
+                </h3>
+                <div class="w-full rounded-xl border border-gray-200/70 overflow-hidden shadow-sm bg-white h-[380px]">
+                    <iframe src="leaderboard.html" class="w-full h-full border-0" scrolling="no"></iframe>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="settings-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white rounded-lh w-full max-w-sm p-5 shadow-2xl transform scale-95 transition-transform duration-300 relative border border-gray-100 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-gray-100 pb-2.5 mb-3.5">
+                <h3 class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+                    <i class="fas fa-user-cog text-lh-primary"></i> Thiết lập tài khoản
+                </h3>
+                <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fas fa-times text-base"></i>
+                </button>
+            </div>
+
+            <form id="settings-form" onsubmit="saveSettings(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Đổi Avatar (URL Hình riêng)</label>
+                    <input type="url" id="input-avatar" placeholder="https://example.com/photo.png" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Tên hiển thị học viên</label>
+                    <input type="text" id="input-name" required class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Tiểu sử / Châm ngôn</label>
+                    <input type="text" id="input-bio" placeholder="Nhập châm ngôn học tập của bạn..." class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Ngày tháng năm sinh</label>
+                        <input type="date" id="input-birth" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Số điện thoại</label>
+                        <input type="tel" id="input-phone" placeholder="09xxxxxxxx" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2.5">
+                    <div class="col-span-1">
+                        <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Giới tính</label>
+                        <select id="input-gender" class="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                            <option value="">Chọn</option>
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Thông tin trường học</label>
+                        <input type="text" id="school-name-display" placeholder="Tên trường học..." class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-100 pt-3">
+                    <h4 class="text-[11px] font-bold text-blue-600 uppercase tracking-wider mb-2"><i class="fas fa-lock mr-1"></i> Thay đổi mật khẩu</h4>
+                    
+                    <div class="mb-2.5">
+                        <label class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-1">Mật khẩu hiện tại</label>
+                        <input type="password" id="input-old-password" placeholder="••••••••" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-1">Mật khẩu mới</label>
+                            <input type="password" id="input-new-password" placeholder="••••••••" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-1">Xác nhận lại</label>
+                            <input type="password" id="input-confirm-password" placeholder="••••••••" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 pt-2.5 border-t border-gray-100">
+                    <button type="button" onclick="closeSettingsModal()" class="w-1/2 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-lg transition-colors">
+                        Hủy bỏ
+                    </button>
+                    <button type="submit" class="w-1/2 py-2 bg-lh-primary hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition-colors shadow-sm">
+                        Lưu thiết lập
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed top-5 right-5 z-[99999] flex flex-col gap-3 pointer-events-none"></div>
+
+    <script>
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            let icon = '💡';
+            let iconColor = 'text-blue-500';
+            let barColor = 'bg-blue-500';
+            let borderColor = 'border-blue-500/20';
+            
+            if (type === 'success') {
+                icon = '✨';
+                iconColor = 'text-emerald-500';
+                barColor = 'bg-emerald-500';
+                borderColor = 'border-emerald-500/20';
+            } else if (type === 'error' || type === 'warning') {
+                icon = '💥';
+                iconColor = 'text-rose-500';
+                barColor = 'bg-rose-500';
+                borderColor = 'border-rose-500/20';
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `flex flex-col rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] border backdrop-blur-xl transition-all duration-300 transform translate-x-full opacity-0 pointer-events-auto max-w-sm overflow-hidden`;
+            toast.style.background = 'var(--popup-bg, rgba(255, 255, 255, 0.9))';
+            toast.style.borderColor = 'var(--footer-border, #e5e7eb)';
+            toast.classList.add(borderColor);
+
+            toast.innerHTML = `
+                <div class="flex items-center gap-3 p-4 pr-5">
+                    <span class="${iconColor} text-xl flex-shrink-0">${icon}</span>
+                    <div class="flex-1 text-xs font-bold tracking-wide" style="color: var(--text-main, #1e293b);">${message}</div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600 text-sm font-bold ml-2 transition-colors">×</button>
+                </div>
+                <div class="w-full h-[3px] bg-gray-100/50 mt-auto">
+                    <div class="h-full toast-timeline ${barColor}"></div>
+                </div>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+            }, 10);
+
+            try {
+                const audio = new Audio('sound/realtimesound.mp3');
+                audio.volume = 0.5;
+                audio.play();
+            } catch (e) {
+                console.log("Trình duyệt chặn phát âm thanh:", e);
+            }
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-2', 'scale-95');
+                setTimeout(() => { toast.remove(); }, 300);
+            }, 5000);
+        }
+
+        window.showToast = showToast;
+    </script>
+
+    <script type="module">
+        import { db, auth } from "./firebase-config.js";
+        import { doc, onSnapshot, setDoc, collection } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+        import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+        const settingsModal = document.getElementById('settings-modal');
+        let currentUserId = null;
+        let activeInterval = null;
+        let unsubscribeUsers = null;
+        let unsubscribeViewUser = null; // Listener cho profile người khác
+        let unsubscribeOwnProfile = null; // Listener cho profile của mình
+        let currentViewUserId = null; // Track user đang xem
+
+        // ===== UPDATE ONLINE STATUS =====
+        function updateOnlineStatus(isOnline) {
+            const user = auth.currentUser;
+            if (user) {
+                return setDoc(doc(db, "users", user.uid), {
+                    online: isOnline,
+                    lastActive: Date.now(),
+                    lastSeen: new Date().toISOString()
+                }, { merge: true });
+            }
+        }
+
+        // Theo dõi visibility change để cập nhật online status
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "hidden") {
+                updateOnlineStatus(false);
+            } else {
+                updateOnlineStatus(true);
+            }
+        });
+
+        // Interval để cập nhật online status mỗi 5 giây
+        function startOnlineInterval() {
+            if (!activeInterval) {
+                activeInterval = setInterval(() => {
+                    const u = auth.currentUser;
+                    if (u) {
+                        setDoc(doc(db, "users", u.uid), {
+                            lastActive: Date.now(),
+                            online: true
+                        }, { merge: true });
+                    }
+                }, 5000);
+            }
+        }
+
+        // ===== LISTEN TO USERS COLLECTION =====
+        function startUsersListener() {
+            if (unsubscribeUsers) unsubscribeUsers();
+
+            unsubscribeUsers = onSnapshot(collection(db, "users"), (snap) => {
+                const usersContainer = document.getElementById('users-grid');
+                if (!usersContainer) return;
+
+                const users = [];
+                snap.forEach(doc => {
+                    users.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Sắp xếp: online trước (theo bảng chữ cái), offline sau (theo bảng chữ cái)
+                const now = Date.now();
+                const ACTIVE_THRESHOLD = 45000;
+
+                users.sort((a, b) => {
+                    const aOnline = a.online && a.lastActive && (now - a.lastActive) < ACTIVE_THRESHOLD;
+                    const bOnline = b.online && b.lastActive && (now - b.lastActive) < ACTIVE_THRESHOLD;
+
+                    // Online trước, offline sau
+                    if (aOnline && !bOnline) return -1;
+                    if (!aOnline && bOnline) return 1;
+
+                    // Cùng trạng thái, sắp xếp theo bảng chữ cái
+                    const nameA = (a.name || '').toLowerCase();
+                    const nameB = (b.name || '').toLowerCase();
+                    return nameA.localeCompare(nameB, 'vi');
+                });
+
+                // Hiển thị 11 người đầu tiên
+                const displayUsers = users.slice(0, 11);
+                const hasMore = users.length > 11;
+
+                let html = '';
+                displayUsers.forEach(u => {
+                    const isOnline = u.online && u.lastActive && (now - u.lastActive) < ACTIVE_THRESHOLD;
+                    const statusColor = isOnline ? 'bg-green-500' : 'bg-red-500';
+                    const statusPulse = isOnline ? 'animate-pulse' : '';
+
+                    html += `
+                        <div class="flex flex-col items-center text-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group" onclick="viewUserProfile('${u.id}')">
+                            <div class="relative">
+                                <img src="${u.photo || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
+                                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 ${statusColor} border-2 border-white rounded-full ${statusPulse}"></span>
+                            </div>
+                            <span class="text-[10px] font-medium mt-1.5 text-gray-700 truncate w-full px-0.5">${u.name || 'User'}</span>
+                        </div>
+                    `;
+                });
+
+                // Nút xem thêm
+                if (hasMore) {
+                    html += `
+                        <div class="flex flex-col items-center justify-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-dashed border-blue-200 bg-blue-50/30 h-[68px]" onclick="viewAllUsers()">
+                            <i class="fas fa-ellipsis-h text-xs text-lh-primary"></i>
+                            <span class="text-[10px] font-bold text-lh-primary mt-1">Xem thêm</span>
+                        </div>
+                    `;
+                }
+
+                usersContainer.innerHTML = html;
+            });
+        }
+
+        // Xem profile người khác
+        window.viewUserProfile = function(userId) {
+            const currentUrl = new URL(window.location.href);
+            const currentViewUser = currentUrl.searchParams.get('user');
+
+            // Nếu click vào cùng người, không làm gì
+            if (currentViewUser === userId) {
+                return;
+            }
+
+            // Cập nhật URL mà không reload trang
+            const newUrl = `profile.html?user=${userId}`;
+            window.history.pushState({ userId: userId }, '', newUrl);
+
+            // Load profile người khác
+            loadViewUserProfile(userId);
+        };
+
+        // Xem tất cả users
+        window.viewAllUsers = function() {
+            // Có thể mở modal hoặc trang riêng để hiển thị tất cả
+            window.showToast('Tính năng xem tất cả đang phát triển', 'info');
+        };
+
+        // Cleanup khi logout
+        function cleanup() {
+            if (activeInterval) {
+                clearInterval(activeInterval);
+                activeInterval = null;
+            }
+            if (unsubscribeUsers) {
+                unsubscribeUsers();
+                unsubscribeUsers = null;
+            }
+            if (unsubscribeViewUser) {
+                unsubscribeViewUser();
+                unsubscribeViewUser = null;
+            }
+            if (unsubscribeOwnProfile) {
+                unsubscribeOwnProfile();
+                unsubscribeOwnProfile = null;
+            }
+        }
+
+        // Load profile người khác
+        function loadViewUserProfile(userId) {
+            // Unsubscribe listener của profile mình trước
+            if (unsubscribeOwnProfile) {
+                unsubscribeOwnProfile();
+                unsubscribeOwnProfile = null;
+            }
+
+            // Unsubscribe listener người khác cũ nếu có
+            if (unsubscribeViewUser) {
+                unsubscribeViewUser();
+                unsubscribeViewUser = null;
+            }
+
+            currentViewUserId = userId;
+
+            // Ẩn phần Hệ Thống Hồ Sơ Người Dùng khi xem profile người khác
+            const usersSection = document.getElementById('users-section');
+            if (usersSection) usersSection.style.display = 'none';
+
+            const viewUserDocRef = doc(db, 'users', userId);
+            unsubscribeViewUser = onSnapshot(viewUserDocRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.data();
+                    document.getElementById('profile-name-display').innerText = data.name || "Người dùng";
+                    document.getElementById('profile-email-display').innerText = data.email || "N/A";
+                    document.getElementById('profile-avatar-display').src = data.photo || "https://lh3.googleusercontent.com/a/default-user=s120-c";
+                    document.getElementById('profile-bio-display').innerText = data.bio ? `"${data.bio}"` : `"Chưa có tiểu sử"`;
+                    document.getElementById('profile-phone-display').innerText = data.phone || "Chưa cập nhật";
+                    document.getElementById('profile-birth-display').innerText = formatDate(data.birthdate);
+                    document.getElementById('profile-gender-display').innerText = data.gender || "Chưa cập nhật";
+                    document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
+
+                    const finalRole = data.role || "Thành viên";
+                    document.getElementById('profile-role-display').innerText = finalRole;
+                    applyRoleBadgeStyle(finalRole);
+
+                    // Ẩn nút settings khi xem profile người khác
+                    const settingsBtn = document.querySelector('button[onclick="openSettingsModal()"]');
+                    if (settingsBtn) settingsBtn.style.display = 'none';
+                }
+            });
+        }
+
+        // Load profile của chính mình
+        function loadOwnProfile() {
+            // Unsubscribe listener người khác trước
+            if (unsubscribeViewUser) {
+                unsubscribeViewUser();
+                unsubscribeViewUser = null;
+            }
+
+            // Unsubscribe listener profile mình cũ nếu có
+            if (unsubscribeOwnProfile) {
+                unsubscribeOwnProfile();
+                unsubscribeOwnProfile = null;
+            }
+
+            currentViewUserId = null;
+
+            // Hiển thị lại phần Hệ Thống Hồ Sơ Người Dùng khi xem profile của mình
+            const usersSection = document.getElementById('users-section');
+            if (usersSection) usersSection.style.display = 'block';
+
+            const userDocRef = doc(db, 'users', currentUserId);
+            unsubscribeOwnProfile = onSnapshot(userDocRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.data();
+
+                    document.getElementById('profile-name-display').innerText = data.name || "Chưa cập nhật";
+                    document.getElementById('profile-email-display').innerText = data.email || auth.currentUser?.email;
+                    document.getElementById('profile-avatar-display').src = data.photo || "https://lh3.googleusercontent.com/a/default-user=s120-c";
+
+                    document.getElementById('profile-bio-display').innerText = data.bio ? `"${data.bio}"` : `"Chưa có tiểu sử"`;
+                    document.getElementById('profile-phone-display').innerText = data.phone || "Chưa cập nhật";
+
+                    document.getElementById('profile-birth-display').innerText = formatDate(data.birthdate);
+                    document.getElementById('profile-gender-display').innerText = data.gender || "Chưa cập nhật";
+                    document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
+
+                    const finalRole = data.role || "Thành viên";
+                    document.getElementById('profile-role-display').innerText = finalRole;
+
+                    applyRoleBadgeStyle(finalRole);
+
+                    document.getElementById('input-name').value = data.name || "";
+                    document.getElementById('input-avatar').value = data.photo || "";
+                    document.getElementById('input-bio').value = data.bio || "";
+                    document.getElementById('input-phone').value = data.phone || "";
+                    document.getElementById('input-birth').value = data.birthdate || "";
+                    document.getElementById('input-gender').value = data.gender || "";
+                    document.getElementById('school-name-display').value = data.school || "";
+
+                    // Hiển thị nút settings khi xem profile của mình
+                    const settingsBtn = document.querySelector('button[onclick="openSettingsModal()"]');
+                    if (settingsBtn) settingsBtn.style.display = 'flex';
+                } else {
+                    setDoc(userDocRef, {
+                        name: auth.currentUser?.displayName || "Học viên mới",
+                        email: auth.currentUser?.email,
+                        photo: auth.currentUser?.photoURL || "https://lh3.googleusercontent.com/a/default-user=s120-c",
+                        bio: "",
+                        phone: "",
+                        birthdate: "",
+                        gender: "",
+                        school: "",
+                        role: "Thành viên",
+                        online: true,
+                        lastActive: Date.now(),
+                        createdAt: new Date().toISOString()
+                    }).then(() => {
+                        console.log("Đã khởi tạo tài khoản mới thành công!");
+                    }).catch(err => console.error("Lỗi khởi tạo tài khoản:", err));
+                }
+            });
+        }
+
+        // Theo dõi thay đổi URL để load profile tương ứng
+        window.addEventListener('popstate', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewUserId = urlParams.get('user');
+
+            if (viewUserId && viewUserId !== currentUserId) {
+                loadViewUserProfile(viewUserId);
+            } else {
+                loadOwnProfile();
+            }
+        });
+
+        window.openSettingsModal = function() {
+            settingsModal.classList.remove('opacity-0', 'pointer-events-none');
+            settingsModal.firstElementChild.classList.remove('scale-95');
+            settingsModal.firstElementChild.classList.add('scale-100');
+        }
+
+        window.closeSettingsModal = function() {
+            settingsModal.classList.add('opacity-0', 'pointer-events-none');
+            settingsModal.firstElementChild.classList.remove('scale-100');
+            settingsModal.firstElementChild.classList.add('scale-95');
+            document.getElementById('input-old-password').value = "";
+            document.getElementById('input-new-password').value = "";
+            document.getElementById('input-confirm-password').value = "";
+        }
+
+        // SỬA LẠI: Hàm format đảm bảo hiển thị đúng cấu trúc DD/MM/YYYY chuẩn chỉnh lên giao diện
+        function formatDate(dateString) {
+            if (!dateString) return "Chưa cập nhật";
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString;
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // SỬA LẠI: Logic phân phối màu chuẩn: Admin -> Đỏ, Giáo viên -> Vàng, Thành viên -> Xanh lá
+        function applyRoleBadgeStyle(roleName) {
+            const badge = document.getElementById('profile-role-badge');
+            const dot = document.getElementById('profile-role-dot');
+            if (!badge || !dot) return;
+
+            badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold border transition-all duration-300";
+            dot.className = "w-2 h-2 rounded-full animate-pulse";
+
+            const normalizedRole = String(roleName).trim().toLowerCase();
+
+            if (normalizedRole === 'admin') {
+                badge.classList.add('bg-rose-50', 'text-rose-600', 'border-rose-200');
+                dot.classList.add('bg-rose-500');
+            } else if (normalizedRole === 'giáo viên' || normalizedRole === 'giao vien') {
+                badge.classList.add('bg-amber-50', 'text-amber-600', 'border-amber-200');
+                dot.classList.add('bg-amber-500');
+            } else {
+                badge.classList.add('bg-green-50', 'text-green-600', 'border-green-200');
+                dot.classList.add('bg-green-500');
+            }
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUserId = user.uid;
+
+                // Bắt đầu cập nhật online status và listener users
+                startOnlineInterval();
+                startUsersListener();
+
+                // Kiểm tra xem có đang xem profile người khác không
+                const urlParams = new URLSearchParams(window.location.search);
+                const viewUserId = urlParams.get('user');
+
+                if (viewUserId && viewUserId !== currentUserId) {
+                    loadViewUserProfile(viewUserId);
+                } else {
+                    loadOwnProfile();
+                }
+
+                const statsDocRef = doc(db, 'testStats', currentUserId);
+                onSnapshot(statsDocRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const stats = snapshot.data();
+                        document.getElementById('stat-total-tests').innerText = stats.totalTests || 0;
+                        document.getElementById('stat-total-score').innerText = parseFloat(stats.totalScore || 0).toFixed(2);
+                        document.getElementById('stat-best-score').innerText = parseFloat(stats.bestScore || 0).toFixed(2);
+                        
+                        const avg = stats.totalTests ? (stats.totalScore / stats.totalTests) : 0;
+                        document.getElementById('stat-avg-score').innerText = avg.toFixed(2);
+                        
+                        const currentXp = stats.xp || 0;
+                        document.getElementById('profile-xp-display').innerHTML = `⭐ ${currentXp} XP`;
+                        document.getElementById('stat-xp-progress').innerText = `${currentXp} / 100 XP`;
+                    }
+                });
+
+            } else {
+                console.log("Học viên chưa đăng nhập!");
+                cleanup();
+            }
+        });
+
+        window.saveSettings = function(e) {
+            e.preventDefault();
+            if (!currentUserId) return window.showToast("Lỗi: Không tìm thấy phiên đăng nhập!", "error");
+
+            const oldPassword = document.getElementById('input-old-password').value;
+            const textNewPassword = document.getElementById('input-new-password').value;
+            const confirmPassword = document.getElementById('input-confirm-password').value;
+
+            if (oldPassword || textNewPassword || confirmPassword) {
+                if (!oldPassword) return window.showToast("Vui lòng nhập mật khẩu cũ để xác minh!", "warning");
+                if (textNewPassword !== confirmPassword) return window.showToast("Mật khẩu mới không trùng khớp!", "error");
+                if (textNewPassword.length < 6) return window.showToast("Mật khẩu mới phải từ 6 ký tự trở lên!", "warning");
+                
+                const user = auth.currentUser;
+                const credential = EmailAuthProvider.credential(user.email, oldPassword);
+                
+                reauthenticateWithCredential(user, credential).then(() => {
+                    updatePassword(user, textNewPassword).then(() => {
+                        window.showToast("Đổi mật khẩu tài khoản thành công!", "success");
+                    }).catch(err => window.showToast("Lỗi đổi mật khẩu: " + err.message, "error"));
+                }).catch(() => window.showToast("Mật khẩu cũ không chính xác!", "error"));
+            }
+
+            const inputBirthVal = document.getElementById('input-birth').value;
+
+            const updatedProfile = {
+                name: document.getElementById('input-name').value,
+                photo: document.getElementById('input-avatar').value,
+                bio: document.getElementById('input-bio').value,
+                phone: document.getElementById('input-phone').value,
+                birthdate: inputBirthVal, 
+                gender: document.getElementById('input-gender').value,
+                school: document.getElementById('school-name-display').value,
+                updatedAt: new Date().toISOString()
+            };
+
+            const userDocRef = doc(db, 'users', currentUserId);
+            setDoc(userDocRef, updatedProfile, { merge: true })
+                .then(() => {
+                    document.getElementById('profile-birth-display').innerText = formatDate(inputBirthVal);
+                    window.showToast("Cài đặt hồ sơ của bạn đã được lưu lại thành công!", "success");
+                    closeSettingsModal();
+                })
+                .catch((error) => {
+                    window.showToast("Lỗi lưu dữ liệu: " + error.message, "error");
+                });
+        }
+    </script>
+</body>
+</html>
