@@ -43,8 +43,8 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body class="auth-locked">
-<div id="maintenanceOverlay" class="min-h-screen bg-slate-50 flex flex-col justify-between items-center p-6 relative overflow-hidden">
-  <div class="absolute inset-0 opacity-[0.04] pointer-events-none" style="background-image: radial-gradient(#0066cc 1.5px, transparent 0); background-size: 24px 24px;"></div>
+<div id="maintenanceOverlay" class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 flex flex-col justify-between items-center p-6 relative overflow-hidden">
+  <div class="absolute inset-0 opacity-[0.06] pointer-events-none" style="background-image: radial-gradient(#0066cc 2px, transparent 0); background-size: 32px 32px;"></div>
 
   <header class="w-full max-w-5xl flex justify-between items-center py-4 z-10">
     <div class="flex items-center gap-2 text-xl font-bold text-[#0066cc]">
@@ -55,8 +55,8 @@
   <main class="max-w-xl w-full text-center space-y-8 my-auto z-10 px-4">
    
    <div class="flex justify-center">
-    <div class="p-5 bg-blue-50 rounded-full text-[#0066cc]">
-      <svg class="spin-slow w-16 h-16" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24">
+    <div class="p-6 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full text-[#0066cc] shadow-lg shadow-blue-500/20">
+      <svg class="spin-slow w-20 h-20" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93s.844.083 1.168-.142l.748-.56a1.125 1.125 0 011.543.169l.773.773a1.125 1.125 0 01.17 1.543l-.561.748c-.225.324-.258.78-.142 1.168s.506.71.93.78l.893.15c.543.09.94.56.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.424.07-.764.384-.93.78s-.083.844.142 1.168l.56.748a1.125 1.125 0 01-.169 1.543l-.773.773a1.125 1.125 0 01-1.543.17l-.748-.561c-.324-.225-.78-.258-1.168-.142s-.71.506-.78.93l-.15.893c-.09.543-.56.94-1.109.94h-1.094c-.55 0-1.02-.397-1.11-.94l-.148-.893c-.071-.424-.384-.764-.781-.93s-.844-.083-1.168.142l-.748.56a1.125 1.125 0 01-1.543-.169l-.773-.773a1.125 1.125 0 01-.17-1.543l.561-.748c.225-.324.258-.78.142-1.168s-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.764-.384.93-.78s.083-.844-.142-1.168l-.56-.748a1.125 1.125 0 01.17-1.543l.772-.773a1.125 1.125 0 011.543-.17l.748.561c.324.225.78.258 1.168.142s.71-.506.78-.93l.15-.894z" />
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
@@ -67,29 +67,29 @@
      <h1 class="text-3xl sm:text-4xl font-bold text-slate-800">
        Hệ Thống Đang <span class="text-[#ff7b29]">Bảo Trì</span>
      </h1>
-     <p id="maintenanceMessage" class="text-base sm:text-lg text-slate-500 max-w-md mx-auto leading-relaxed">
+     <p id="maintenanceMessage" class="text-base sm:text-lg text-slate-600 max-w-md mx-auto leading-relaxed">
        Hệ sinh thái học tập trực tuyến <b>LearnHub</b> đang được nâng cấp để tối ưu hóa tính năng và trải nghiệm người dùng. Chúng mình sẽ quay lại sớm nhất có thể!
      </p>
    </div>
 
-   <div class="w-full h-2 rounded-full overflow-hidden bg-slate-200 max-w-sm mx-auto">
-    <div class="h-full rounded-full bg-gradient-to-r from-[#0066cc] to-cyan-400 animate-bar"></div>
+   <div class="w-full h-2 rounded-full overflow-hidden bg-slate-200 max-w-sm mx-auto shadow-inner">
+    <div class="h-full rounded-full bg-gradient-to-r from-[#0066cc] to-cyan-400 animate-bar shadow-lg"></div>
    </div>
 
-   <div class="inline-block px-6 py-4 rounded-2xl bg-white border border-slate-100 shadow-sm max-w-sm w-full">
+   <div class="inline-block px-6 py-4 rounded-2xl bg-white border border-slate-200 shadow-lg max-w-sm w-full">
     <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Trạng thái hiện tại</p>
-    <p class="text-base font-bold text-slate-700 mt-1">🔧 Đang cập nhật cơ sở dữ liệu</p>
+    <p id="maintenanceStatusText" class="text-base font-bold text-slate-700 mt-1">🔧 Đang cập nhật...</p>
    </div>
 
    <div>
-     <a href="https://zalo.me/0335925257" target="_blank" class="inline-flex items-center gap-2 bg-[#ff7b29] hover:bg-[#e0631b] text-white font-semibold px-6 py-3 rounded-xl shadow-md shadow-orange-500/20 transition-all transform hover:-translate-y-0.5">
+     <a href="https://zalo.me/0335925257" target="_blank" class="inline-flex items-center gap-2 bg-[#ff7b29] hover:bg-[#e0631b] text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-orange-500/30 transition-all transform hover:-translate-y-0.5 hover:shadow-orange-500/40">
        <span>Liên hệ ban quản trị</span>
      </a>
    </div>
 
   </main>
 
-  <footer class="w-full text-center py-4 text-xs text-slate-400 border-t border-slate-200/60 z-10 bg-slate-50/80 backdrop-blur-sm">
+  <footer class="w-full text-center py-4 text-xs text-slate-500 border-t border-slate-200/60 z-10 bg-white/50 backdrop-blur-sm">
     &copy; 2026 LearnHub Platform - Hệ sinh thái học tập thông minh cho học sinh THPT.
   </footer>
 </div>
@@ -582,10 +582,19 @@ function applyMaintenanceUI(){
 
   if(maintenanceState.enabled){
     const msgEl = document.getElementById("maintenanceMessage");
+    const statusEl = document.getElementById("maintenanceStatusText");
+    
     if(msgEl){
       msgEl.textContent = maintenanceState.message
-        || "Hệ thống đang được bảo trì để nâng cấp trải nghiệm học tập. Vui lòng quay lại sau ít phút nữa.";
+        || "Hệ sinh thái học tập trực tuyến LearnHub đang được nâng cấp để tối ưu hóa tính năng và trải nghiệm người dùng. Chúng mình sẽ quay lại sớm nhất có thể!";
     }
+    
+    if(statusEl){
+      statusEl.textContent = maintenanceState.message 
+        ? "🔧 " + maintenanceState.message 
+        : "🔧 Đang cập nhật...";
+    }
+    
     document.body.classList.add("maintenance-active");
     // Ẩn login box khi maintenance mode bật
     const loginBox = document.getElementById("loginBox");
