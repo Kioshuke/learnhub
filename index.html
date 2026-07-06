@@ -43,8 +43,8 @@
 <body class="auth-locked">
 <div id="maintenanceOverlay">
   <div class="maintenance-card">
-    <span class="maintenance-icon">🛠️</span>
-    <h2>LearnHub đang bảo trì</h2>
+    <span class="maintenance-icon">�</span>
+    <h2>Hệ thống đang bảo trì</h2>
     <p id="maintenanceMessage">Hệ thống đang được bảo trì để nâng cấp trải nghiệm học tập. Vui lòng quay lại sau ít phút nữa.</p>
     <div class="maintenance-footer">Cảm ơn bạn đã kiên nhẫn chờ đợi 💙</div>
   </div>
@@ -542,11 +542,15 @@ function applyMaintenanceUI(){
       msgEl.textContent = maintenanceState.message
         || "Hệ thống đang được bảo trì để nâng cấp trải nghiệm học tập. Vui lòng quay lại sau ít phút nữa.";
     }
-    overlay.style.display = "flex";
     document.body.classList.add("maintenance-active");
+    // Ẩn login box khi maintenance mode bật
+    const loginBox = document.getElementById("loginBox");
+    if(loginBox) loginBox.style.display = "none";
   } else {
-    overlay.style.display = "none";
     document.body.classList.remove("maintenance-active");
+    // Hiện lại login box khi maintenance mode tắt
+    const loginBox = document.getElementById("loginBox");
+    if(loginBox && !auth.currentUser) loginBox.style.display = "flex";
   }
 }
 
@@ -559,7 +563,12 @@ try {
     applyMaintenanceUI();
 
     if(maintenanceState.enabled && auth.currentUser){
-      try { console.trace("SIGN OUT (maintenance mode)"); await signOut(auth); } catch(e){}
+      try { 
+        console.trace("SIGN OUT (maintenance mode)"); 
+        await signOut(auth); 
+        // Đảm bảo maintenance overlay vẫn hiển thị sau khi signOut
+        setTimeout(() => applyMaintenanceUI(), 100);
+      } catch(e){}
     }
   });
 } catch (e) {
@@ -968,11 +977,7 @@ if(user){
 
 window.googleLogin = function() {
     if (maintenanceState.enabled) {
-        showAuthNotice(
-            maintenanceState.message || "Sever đang bảo trì vui lòng quay lại sau!",
-            "error",
-            "Đang bảo trì"
-        );
+        applyMaintenanceUI();
         return;
     }
 
@@ -1066,11 +1071,7 @@ window.googleLogin = function() {
 // ===== EMAIL/PASSWORD AUTHENTICATION =====
 window.emailLogin = async function() {
     if (maintenanceState.enabled) {
-        showAuthNotice(
-            maintenanceState.message || "Sever đang bảo trì vui lòng quay lại sau!",
-            "error",
-            "Đang bảo trì"
-        );
+        applyMaintenanceUI();
         return;
     }
 

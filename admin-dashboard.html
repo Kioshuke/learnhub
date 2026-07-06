@@ -742,6 +742,131 @@
 
     .hidden{ display:none !important; }
 
+    /* ================= TOGGLE SWITCH ================= */
+    .toggle-switch {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle-slider {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      background: #cbd5e1;
+      border-radius: 999px;
+      transition: background 0.3s ease;
+      cursor: pointer;
+    }
+
+    .toggle-slider::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+    }
+
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(24px);
+    }
+
+    /* ================= CONFIRMATION MODAL ================= */
+    .confirm-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .confirm-modal.active {
+      display: flex;
+    }
+
+    .confirm-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 24px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      animation: modalPop 0.25s ease-out;
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.95) translateY(10px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .confirm-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .confirm-title {
+      margin: 0 0 10px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .confirm-message {
+      margin: 0 0 20px;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .confirm-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .confirm-btn-cancel {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .confirm-btn-cancel:hover {
+      background: #e2e8f0;
+    }
+
+    .confirm-btn-confirm {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      color: #fff;
+    }
+
+    .confirm-btn-confirm:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.25);
+    }
+
     @media (max-width: 1100px){
       .grid-stats{ grid-template-columns:repeat(2, minmax(0,1fr)); }
       .hero{ flex-direction:column; }
@@ -973,10 +1098,13 @@
           Đang tải trạng thái...
         </div>
 
-        <label class="inline-check" style="display:flex; align-items:center; gap:10px; margin:4px 0 14px; font-weight:700; font-size:15px;">
-          <input id="maintenanceEnabledInput" type="checkbox">
-          Bật chế độ bảo trì toàn hệ thống
-        </label>
+        <div style="display:flex; align-items:center; gap:12px; margin:4px 0 14px; font-weight:700; font-size:15px;">
+          <label class="toggle-switch" style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+            <input id="maintenanceEnabledInput" type="checkbox" style="display:none;">
+            <span class="toggle-slider"></span>
+            <span>Bật chế độ bảo trì toàn hệ thống</span>
+          </label>
+        </div>
 
         <div class="field-row">
           <textarea id="maintenanceMessageInput" class="input" rows="4" style="resize:vertical; min-height:100px;" placeholder="Nội dung hiển thị cho user, ví dụ: Hệ thống đang nâng cấp, dự kiến hoàn tất lúc 22h..."></textarea>
@@ -1638,26 +1766,61 @@
       const enabled = maintenanceEnabledInput.checked;
       const message = String(maintenanceMessageInput.value || "").trim();
 
-      if (enabled && !confirm("Xác nhận BẬT bảo trì? Toàn bộ user đang đăng nhập sẽ bị đăng xuất ngay lập tức và không thể truy cập web cho tới khi bạn tắt bảo trì.")) {
-        return;
+      // Show confirmation modal
+      const modal = document.getElementById("confirmModal");
+      const modalIcon = document.getElementById("confirmModalIcon");
+      const modalTitle = document.getElementById("confirmModalTitle");
+      const modalMessage = document.getElementById("confirmModalMessage");
+      const confirmBtn = document.getElementById("confirmModalConfirm");
+
+      if (enabled) {
+        modalIcon.textContent = "⚠️";
+        modalTitle.textContent = "Bật chế độ bảo trì?";
+        modalMessage.textContent = "Khi bật bảo trì, toàn bộ user đang đăng nhập sẽ bị đăng xuất ngay lập tức và mọi truy cập mới sẽ bị chặn. Bạn có chắc chắn muốn tiếp tục?";
+      } else {
+        modalIcon.textContent = "✅";
+        modalTitle.textContent = "Tắt chế độ bảo trì?";
+        modalMessage.textContent = "Khi tắt bảo trì, user có thể đăng nhập và truy cập web bình thường. Bạn có chắc chắn muốn tiếp tục?";
       }
 
-      try {
-        const now = new Date().toISOString();
-        await setDoc(doc(db, "settings", "maintenance"), {
-          enabled,
-          message,
-          updatedAt: now,
-          updatedBy: adminEmail
-        }, { merge: true });
+      modal.classList.add("active");
 
-        renderMaintenanceBanner({ enabled });
-        maintenanceMeta.textContent = `Cập nhật lần cuối: ${formatDate(now)} · bởi ${adminEmail}`;
-        showNotice(enabled ? "Đã BẬT bảo trì. Toàn bộ user đang bị đăng xuất và chặn truy cập." : "Đã TẮT bảo trì. Web hoạt động bình thường trở lại.", "success");
-      } catch (error) {
-        console.error("Lỗi cập nhật bảo trì:", error);
-        showNotice("Cập nhật bảo trì thất bại. Kiểm tra Firestore rules rồi thử lại.", "error");
-      }
+      // Handle confirm
+      const onConfirm = async () => {
+        modal.classList.remove("active");
+        confirmBtn.removeEventListener("click", onConfirm);
+        document.getElementById("confirmModalCancel").removeEventListener("click", onCancel);
+
+        try {
+          const now = new Date().toISOString();
+          await setDoc(doc(db, "settings", "maintenance"), {
+            enabled,
+            message,
+            updatedAt: now,
+            updatedBy: adminEmail
+          }, { merge: true });
+
+          renderMaintenanceBanner({ enabled });
+          maintenanceMeta.textContent = `Cập nhật lần cuối: ${formatDate(now)} · bởi ${adminEmail}`;
+          showNotice(enabled ? "Đã BẬT bảo trì. Toàn bộ user đang bị đăng xuất và chặn truy cập." : "Đã TẮT bảo trì. Web hoạt động bình thường trở lại.", "success");
+          await loadMaintenanceForm();
+        } catch (error) {
+          console.error("Lỗi cập nhật bảo trì:", error);
+          showNotice("Cập nhật bảo trì thất bại. Kiểm tra Firestore rules rồi thử lại.", "error");
+        }
+      };
+
+      // Handle cancel
+      const onCancel = () => {
+        modal.classList.remove("active");
+        confirmBtn.removeEventListener("click", onConfirm);
+        document.getElementById("confirmModalCancel").removeEventListener("click", onCancel);
+        // Revert checkbox state
+        maintenanceEnabledInput.checked = !enabled;
+      };
+
+      confirmBtn.addEventListener("click", onConfirm);
+      document.getElementById("confirmModalCancel").addEventListener("click", onCancel);
     });
 
     document.getElementById("refreshMaintenanceBtn").addEventListener("click", loadMaintenanceForm);
@@ -1780,4 +1943,18 @@
     });
   </script>
 </body>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="confirm-modal">
+  <div class="confirm-card">
+    <div class="confirm-icon" id="confirmModalIcon">⚠️</div>
+    <h3 class="confirm-title" id="confirmModalTitle">Xác nhận</h3>
+    <p class="confirm-message" id="confirmModalMessage">Bạn có chắc chắn muốn thực hiện hành động này?</p>
+    <div class="confirm-actions">
+      <button class="confirm-btn confirm-btn-cancel" id="confirmModalCancel">Hủy</button>
+      <button class="confirm-btn confirm-btn-confirm" id="confirmModalConfirm">Xác nhận</button>
+    </div>
+  </div>
+</div>
+
 </html>
