@@ -667,7 +667,8 @@ function enterPreviewMode(){
       type: "USER_INFO",
       user: {
         uid: previewUser.uid,
-        name: previewUser.displayName
+        name: previewUser.displayName,
+        role: previewUser.role || "member"
       }
     }, "*");
   }
@@ -886,6 +887,9 @@ if(user){
       if (firestoreData.photo) {
         userData.photoURL = firestoreData.photo;
       }
+      if (firestoreData.role) {
+        userData.role = firestoreData.role;
+      }
     }
   } catch (e) {
     console.log("Không thể lấy dữ liệu Firestore:", e);
@@ -901,7 +905,8 @@ if(user){
         type: "USER_INFO",
         user: {
           uid: user.uid,
-          name: user.displayName || user.email
+          name: user.displayName || user.email,
+          role: user.role || "member"
         }
       }, "*");
     };
