@@ -267,6 +267,23 @@ body.maintenance-active #maintenanceOverlay{
 display:flex !important;
 }
 
+/* Hiệu ứng thanh tiến trình chạy qua lại */
+@keyframes pulse-bar {
+    0% { width: 0%; min-width: 0%; }
+    50% { width: 70%; min-width: 40%; }
+    100% { width: 100%; min-width: 100%; }
+}
+.animate-bar {
+    animation: pulse-bar 2.5s ease-in-out infinite;
+}
+
+/* Hiệu ứng xoay bánh răng chậm, mượt mà */
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.spin-slow { animation: spin-slow 10s linear infinite; }
+
 #maintenanceOverlay{
 display:none;
 position:fixed;
