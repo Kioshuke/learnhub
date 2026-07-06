@@ -574,7 +574,21 @@ let activeInterval = null;
 const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
 
 // ================= MAINTENANCE MODE (realtime, đọc từ Firestore settings/maintenance) =================
-let maintenanceState = { enabled: true, message: "", initialized: false };
+let maintenanceState = { enabled: false, message: "", initialized: false };
+let previousMaintenanceEnabled = false;
+
+function handleMaintenanceTransition(newEnabled){
+  // Only sign out when maintenance is newly enabled (transition false -> true)
+  try {
+    if(newEnabled && !previousMaintenanceEnabled && auth && auth.currentUser){
+      console.trace("SIGN OUT (maintenance mode - transition)");
+      signOut(auth).catch(()=>{});
+      // ensure UI stays on maintenance after sign out
+      setTimeout(() => applyMaintenanceUI(), 100);
+    }
+  } catch(e) {}
+  previousMaintenanceEnabled = Boolean(newEnabled);
+}
 
 function applyMaintenanceUI(){
   const overlay = document.getElementById("maintenanceOverlay");
@@ -612,17 +626,11 @@ applyMaintenanceUI();
 try {
   onSnapshot(doc(db, "settings", "maintenance"), async (snap) => {
     const data = snap.exists() ? (snap.data() || {}) : {};
-    maintenanceState = { enabled: !!data.enabled, message: String(data.message || ""), initialized: true };
+    const newEnabled = !!data.enabled;
+    maintenanceState = { enabled: newEnabled, message: String(data.message || ""), initialized: true };
+    // handle transition-based sign out (only when it turns on)
+    handleMaintenanceTransition(newEnabled);
     applyMaintenanceUI();
-
-    if(maintenanceState.enabled && auth.currentUser){
-      try { 
-        console.trace("SIGN OUT (maintenance mode)"); 
-        await signOut(auth); 
-        // Đảm bảo maintenance overlay vẫn hiển thị sau khi signOut
-        setTimeout(() => applyMaintenanceUI(), 100);
-      } catch(e){}
-    }
   });
 } catch (e) {
   maintenanceState = { enabled: true, message: "", initialized: true };
@@ -906,7 +914,7 @@ if(previewMode){
 }
 
 if(user){
-  if (maintenanceState.enabled) {
+  if (maintenanceState.initialized && maintenanceState.enabled) {
     applyMaintenanceUI();
     try { console.trace("SIGN OUT (maintenance mode)"); await signOut(auth); } catch (e) {}
     return;
