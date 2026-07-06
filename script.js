@@ -168,8 +168,18 @@ function loadQuiz(btn, link){
     </div>
 
     <div class="loader" id="loader">
-      <div class="spinner"></div>
-      <p>Đang tải, đợi xíu nhe...</p>
+      <div class="skel-quiz-topbar">
+        <div class="skel-bar" style="width:90px;height:24px;border-radius:8px;"></div>
+        <div class="skel-bar" style="width:60px;height:24px;border-radius:8px;"></div>
+      </div>
+      <div class="skel-bar" style="width:100%;height:16px;margin-bottom:8px;"></div>
+      <div class="skel-bar" style="width:70%;height:16px;margin-bottom:16px;"></div>
+      <div class="skel-bar skel-quiz-card"></div>
+      <div class="skel-quiz-row">
+        <div class="skel-bar" style="width:90px;height:42px;border-radius:12px;"></div>
+        <div class="skel-bar" style="width:90px;height:42px;border-radius:12px;"></div>
+        <div class="skel-bar" style="width:90px;height:42px;border-radius:12px;"></div>
+      </div>
     </div>
 
     <iframe id="quizFrame" src="${link}" style="display:none;"></iframe>

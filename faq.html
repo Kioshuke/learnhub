@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="https://kioshuke.github.io/learnhub/favicon.png">
 
 <meta name="theme-color" content="#1a73e8">
-<title>Trung Tâm Trợ Giúp</title>
+<title>Trung Tâm Trợ Giúp - LearnHub Platform</title>
 <meta name="description" content="Câu hỏi thường gặp về LearnHub Platform - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên.">
 
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -120,53 +120,32 @@
     padding: 20px;
   }
 
-  /* FAQ Header Navigation Style */
+  /* Tối ưu hóa Header Navigation Style */
   .faq-header-nav {
-    background: linear-gradient(135deg, #1a73e8 0%, #3b82f6 100%);
-    padding: 20px 40px;
+    background: linear-gradient(135deg, #1a73e8 0%, #2563eb 100%);
+    padding: 16px 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 20px rgba(26, 115, 232, 0.15);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .faq-header-nav::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 300px;
-    height: 300px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-  }
-
-  .faq-header-nav::after {
-    content: '';
-    position: absolute;
-    bottom: -50%;
-    left: -10%;
-    width: 200px;
-    height: 200px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 50%;
+    box-shadow: 0 4px 20px rgba(26, 115, 232, 0.12);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
   }
 
   .faq-nav-brand {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
     text-decoration: none;
-    z-index: 1;
   }
 
   .faq-nav-brand img {
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 4px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 3px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
   .faq-nav-text {
@@ -175,52 +154,54 @@
   }
 
   .faq-nav-title {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 700;
     color: #ffffff;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3px;
   }
 
   .faq-nav-subtitle {
-    font-size: 14px;
+    font-size: 13px;
     color: rgba(255, 255, 255, 0.85);
-    margin-top: 4px;
-  }
-
-  .faq-nav-actions {
-    z-index: 1;
   }
 
   .faq-nav-btn {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 24px;
-    background: rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.15);
     color: #ffffff;
     text-decoration: none;
-    border-radius: 30px;
+    border-radius: 20px;
     font-weight: 600;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-size: 14px;
+    transition: all 0.25s ease;
+    border: 1px solid rgba(255, 255, 255, 0.25);
   }
 
   .faq-nav-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    background: #ffffff;
+    color: #1a73e8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
   @media (max-width: 768px) {
     .faq-header-nav {
-      padding: 16px 20px;
+      padding: 14px 20px;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
+      text-align: center;
+    }
+
+    .faq-nav-brand {
+      flex-direction: column;
+      gap: 8px;
     }
 
     .faq-nav-title {
-      font-size: 20px;
+      font-size: 18px;
     }
 
     .faq-nav-btn {
@@ -486,13 +467,13 @@
 </head>
 <body>
 
-<!-- Header đẹp hơn -->
+<!-- Header (Đã tối ưu cấu trúc) -->
 <div class="faq-header-nav">
   <a href="https://kioshuke.github.io/learnhub" class="faq-nav-brand">
-    <img src="logoweb.webp" width="60" height="60" alt="Logo LearnHub">
+    <img src="logoweb.webp" width="50" height="50" alt="Logo LearnHub">
     <div class="faq-nav-text">
-      <span class="faq-nav-title">LearnHub Platform - Trung Tâm Trợ Giúp</span>
-      <span class="faq-nav-subtitle">Các câu hỏi thường gặp</span>
+      <span class="faq-nav-title">LearnHub Platform</span>
+      <span class="faq-nav-subtitle">Trung Tâm Trợ Giúp Kỹ Thuật</span>
     </div>
   </a>
   <div class="faq-nav-actions">
@@ -507,255 +488,186 @@
 <div class="faq-container">
   <div class="faq-header">
     <h1>Trung Tâm Trợ Giúp -❓Các Câu Hỏi Thường Gặp</h1>
-    <p>Tìm câu trả lời cho các thắc mắc về LearnHub Platform</p>
+    <p>Tìm câu trả lời về tính năng, công nghệ và cách vận hành hệ thống LearnHub Platform</p>
   </div>
 
   <!-- Category 1: Tài khoản & đăng nhập -->
   <div class="faq-category">
     <div class="faq-category-title">
       <i class="fa-solid fa-user-circle"></i>
-      <span>1. Tài khoản & đăng nhập</span>
+      <span>1. Tài khoản & Đăng nhập</span>
     </div>
 
     <div class="faq-item">
       <div class="faq-question">
-        Web này có cần tài khoản không?
+        Web này có bắt buộc cần tài khoản không?
         <i class="fa-solid fa-chevron-down"></i>
       </div>
       <div class="faq-answer">
-        Có. Bạn cần đăng nhập để sử dụng đầy đủ các tính năng như làm bài kiểm tra, lưu điểm và xem bảng xếp hạng.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-question">
-        Web dùng đăng nhập bằng gì?
-        <i class="fa-solid fa-chevron-down"></i>
-      </div>
-      <div class="faq-answer">
-        Hệ thống hỗ trợ đăng nhập bằng tài khoản Google (Firebase Authentication), tài khoản email, Github,…. Hiện tại đang mở bằng tài khoản Google và các cách đăng nhập khác sẽ được phát triển trong thời gian sớm nhất.
+        Có. Để sử dụng đầy đủ các tiện ích nâng cao như tham gia làm bài kiểm tra, lưu trữ điểm số cá nhân, đồng bộ hóa lịch sử tiến trình và xem bảng xếp hạng học tập, bạn bắt buộc cần đăng nhập hệ thống.
       </div>
     </div>
 
     <div class="faq-item">
       <div class="faq-question">
-        Tôi đăng nhập trên thiết bị khác có mất dữ liệu không?
+        Nền tảng sử dụng công nghệ đăng nhập gì?
         <i class="fa-solid fa-chevron-down"></i>
       </div>
       <div class="faq-answer">
-        Không. Dữ liệu được đồng bộ theo tài khoản, nên bạn đăng nhập ở đâu cũng sẽ giữ nguyên tiến trình học.
+        Hệ thống tích hợp giải pháp xác thực bảo mật <strong>Firebase Authentication</strong>. Hiện tại, LearnHub mở cổng đăng nhập nhanh bằng tài khoản Google. Các phương thức bổ sung như Email riêng hay kết nối GitHub đang được cấu hình xây dựng.
       </div>
     </div>
 
     <div class="faq-item">
       <div class="faq-question">
-        Tôi quên đăng xuất trên máy khác thì sao?
+        Dữ liệu học tập có bị ảnh hưởng khi đổi thiết bị không?
         <i class="fa-solid fa-chevron-down"></i>
       </div>
       <div class="faq-answer">
-        Hệ thống sẽ tự động đăng xuất thiết bị hiện tại khi bạn đăng nhập thiết bị khác. Nếu bạn muốn đăng xuất cưỡng chế hãy liên hệ quản trị viên.
+        Không. Toàn bộ tiến trình làm bài và hồ sơ học tập liên kết chặt chẽ với ID tài khoản của bạn trên cơ sở dữ liệu đám mây, do đó thông tin sẽ giữ nguyên vẹn trên mọi thiết bị.
       </div>
     </div>
   </div>
 
-  <!-- Category 2: Bài kiểm tra & hệ thống quiz -->
+  <!-- Category 2: Hệ thống kiểm tra & Quiz module -->
   <div class="faq-category">
     <div class="faq-category-title">
       <i class="fa-solid fa-clipboard-list"></i>
-      <span>2. Bài kiểm tra & hệ thống quiz</span>
+      <span>2. Hệ thống kiểm tra & Quiz module</span>
     </div>
 
     <div class="faq-item">
       <div class="faq-question">
-        Bài kiểm tra hoạt động như thế nào?
+        Cơ chế hiển thị và đồng bộ bài Quiz hoạt động thế nào?
         <i class="fa-solid fa-chevron-down"></i>
       </div>
       <div class="faq-answer">
-        Bài kiểm tra được hiển thị trong hệ thống quiz (iframe hoặc module riêng), sau đó gửi kết quả về hệ thống chính để lưu.
+        Các bài kiểm tra được hiển thị độc lập thông qua module nhúng an toàn. Nhờ công nghệ liên kết dữ liệu, kết quả làm bài sau khi hoàn tất sẽ lập tức truyền tải tự động và đồng bộ về máy chủ hệ thống chính để lưu điểm.
       </div>
     </div>
 
     <div class="faq-item">
       <div class="faq-question">
-        Các dạng câu hỏi gồm những gì?
+        Hệ thống hỗ trợ các loại câu hỏi nào?
         <i class="fa-solid fa-chevron-down"></i>
       </div>
       <div class="faq-answer">
-        Hệ thống hỗ trợ:
+        LearnHub hỗ trợ linh hoạt 3 dạng cấu trúc câu hỏi chính bao gồm:
         <ul style="margin: 10px 0; padding-left: 20px;">
-          <li>Trắc nghiệm (multiple choice)</li>
-          <li>Đúng / sai (true / false)</li>
-          <li>Tự luận ngắn (short answer)</li>
+          <li>Trắc nghiệm chọn đáp án đúng (Multiple Choice)</li>
+          <li>Lựa chọn Đúng hoặc Sai (True / False)</li>
+          <li>Tự luận ngắn điền từ vào ô trống (Short Answer)</li>
         </ul>
       </div>
     </div>
 
     <div class="faq-item">
       <div class="faq-question">
-        Kết quả bài làm được tính như thế nào?
+        Nếu vô tình thoát trình duyệt giữa chừng, bài làm có bị mất không?
         <i class="fa-solid fa-chevron-down"></i>
       </div>
       <div class="faq-answer">
-        Điểm sẽ được chấm tự động dựa trên đáp án đúng đã cấu hình trong hệ thống câu hỏi.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-question">
-        Tôi có thể làm lại bài không?
-        <i class="fa-solid fa-chevron-down"></i>
-      </div>
-      <div class="faq-answer">
-        Tuỳ từng bài. Admin có thể thiết lập:
-        <ul style="margin: 10px 0; padding-left: 20px;">
-          <li>Làm lại nhiều lần (luyện tập)</li>
-          <li>Chỉ làm 1 lần (thi chính thức)</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-question">
-        Tôi thoát giữa chừng thì có mất bài không?
-        <i class="fa-solid fa-chevron-down"></i>
-      </div>
-      <div class="faq-answer">
-        Nếu hệ thống bật lưu tiến trình, bạn có thể tiếp tục. Nếu không, bài có thể bị reset. Hiện tại hệ thống lưu tiến trình vẫn đang được phát triển.
+        Hiện tại tính năng tự động sao lưu tiến trình tạm thời (Auto-save) đang được nâng cấp thử nghiệm. Để tránh mất dữ liệu không mong muốn khi gặp sự cố, bạn nên hoàn thành bài quiz liên tục và hạn chế tải lại trang trong khi làm.
       </div>
     </div>
   </div>
 
-  <!-- Category 3: Hệ thống kỹ thuật -->
+  <!-- Category 3: Trợ lý ảo Chatbot thông minh -->
+  <div class="faq-category">
+    <div class="faq-category-title">
+      <i class="fa-solid fa-robot"></i>
+      <span>3. Trợ lý ảo Chatbot trực tuyến</span>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Chatbot của LearnHub có thể hỗ trợ những gì?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Trợ lý ảo thông minh được tích hợp trực tiếp để giải đáp nhanh các thắc mắc của bạn về cấu trúc bài học, hướng dẫn thao tác tính năng kỹ thuật trên web và định hướng giải quyết các sự cố cơ bản một cách tức thì.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Làm thế nào để làm mới hoặc xóa lịch sử chat hiện tại?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Khi bạn đóng popup chatbot hoặc tải lại trang web chính, phiên làm việc (Session) của chatbot sẽ được tự động làm mới để sẵn sàng tiếp nhận luồng câu hỏi mới của bạn.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Khung chat hiển thị lỗi "Không thể kết nối" hoặc trang trắng?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Lỗi này xảy ra khi tài nguyên file <code>chatbot.html</code> chưa được tải xuống đầy đủ do kết nối mạng yếu. Bạn chỉ cần tắt popup khung chat, đợi 5 giây rồi nhấn lại vào biểu tượng avatar chatbot ở góc màn hình.
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 4: Hạ tầng kỹ thuật & Giao tiếp mạng -->
   <div class="faq-category">
     <div class="faq-category-title">
       <i class="fa-solid fa-cogs"></i>
-      <span>3. Hệ thống kỹ thuật</span>
+      <span>4. Hạ tầng kỹ thuật & Giao tiếp mạng</span>
     </div>
 
     <div class="faq-item">
       <div class="faq-question">
-        Web có dùng iframe không?
+        Tại sao nền tảng lại sử dụng giải pháp nhúng Iframe?
         <i class="fa-solid fa-chevron-down"></i>
       </div>
       <div class="faq-answer">
-        Có thể có. Một số bài quiz được nhúng bằng iframe và giao tiếp với web chính qua postMessage.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-question">
-        Dữ liệu giữa web chính và quiz được truyền như thế nào?
-        <i class="fa-solid fa-chevron-down"></i>
-      </div>
-      <div class="faq-answer">
-        Thông qua cơ chế postMessage, gồm:
-        <ul style="margin: 10px 0; padding-left: 20px;">
-          <li>user info</li>
-          <li>điểm số</li>
-          <li>trạng thái bài làm</li>
-        </ul>
+        Sử dụng Iframe giúp cô lập môi trường chạy các bài kiểm tra phức tạp, bảo vệ an toàn cho hệ thống lõi khỏi các nguy cơ can thiệp mã độc, đồng thời giúp tải mượt mà các module học tập phân tán.
       </div>
     </div>
 
     <div class="faq-item">
       <div class="faq-question">
-        Web có chạy tốt trên điện thoại không?
+        Cơ chế truyền nhận thông tin postMessage hoạt động ra sao?
         <i class="fa-solid fa-chevron-down"></i>
       </div>
       <div class="faq-answer">
-        Có. Giao diện được thiết kế responsive để dùng tốt trên mobile.
+        Đây là giao thức giao tiếp bảo mật đa nguồn chéo. Khi bạn hoàn tất bài làm trong Iframe, một chuỗi sự kiện được mã hóa chứa thông tin định danh và điểm số sẽ được phát đi một chiều an toàn tới trang web chủ quản LearnHub để ghi nhận.
       </div>
     </div>
   </div>
 
-  <!-- Category 4: Lỗi & hỗ trợ -->
+  <!-- Category 5: Xử lý sự cố & Đóng góp ý kiến -->
   <div class="faq-category">
     <div class="faq-category-title">
       <i class="fa-solid fa-life-ring"></i>
-      <span>4. Lỗi & hỗ trợ</span>
+      <span>5. Xử lý sự cố & Đóng góp ý kiến</span>
     </div>
 
     <div class="faq-item">
       <div class="faq-question">
-        Tôi bị lỗi không load được bài thì sao?
+        Hệ thống không ghi nhận điểm hoặc báo lỗi phiên làm việc?
         <i class="fa-solid fa-chevron-down"></i>
       </div>
       <div class="faq-answer">
-        Bạn có thể:
-        <ul style="margin: 10px 0; padding-left: 20px;">
-          <li>Tải lại trang</li>
-          <li>Kiểm tra mạng</li>
-          <li>Đăng nhập lại</li>
-        </ul>
+        Nguyên nhân chủ yếu do token xác thực đăng nhập bị hết hạn sau thời gian dài không tương tác. Hãy đăng xuất tài khoản, xóa bộ nhớ đệm trình duyệt, đăng nhập lại và thực hiện làm bài để hệ thống thiết lập lại cổng kết nối.
       </div>
     </div>
 
     <div class="faq-item">
       <div class="faq-question">
-        Tôi không gửi được điểm lên hệ thống thì sao?
+        Tôi muốn báo lỗi hệ thống hoặc đóng góp ý kiến nâng cấp?
         <i class="fa-solid fa-chevron-down"></i>
       </div>
       <div class="faq-answer">
-        Có thể do:
-        <ul style="margin: 10px 0; padding-left: 20px;">
-          <li>Mất kết nối</li>
-          <li>Lỗi iframe/postMessage</li>
-          <li>Session đăng nhập hết hạn</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-question">
-        Tôi cần hỗ trợ thì liên hệ ai?
-        <i class="fa-solid fa-chevron-down"></i>
-      </div>
-      <div class="faq-answer">
-        Liên hệ admin hoặc người quản lý hệ thống để được hỗ trợ trực tiếp. Bên cạnh đó bạn có thể liên hệ hỗ trợ hoặc để lại vấn đề/đóng góp ý kiến bằng nút Góp ý ý kiến hoặc cái thông tin liên hệ dưới phần chân trang (Footer).
-      </div>
-    </div>
-  </div>
-
-  <!-- Category 5: Quy định sử dụng -->
-  <div class="faq-category">
-    <div class="faq-category-title">
-      <i class="fa-solid fa-shield-halved"></i>
-      <span>5. Quy định sử dụng</span>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-question">
-        Tôi có được gian lận không?
-        <i class="fa-solid fa-chevron-down"></i>
-      </div>
-      <div class="faq-answer">
-        Không. Hệ thống có thể theo dõi hành vi và kết quả để đảm bảo công bằng.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-question">
-        Tôi có thể tạo nhiều tài khoản không?
-        <i class="fa-solid fa-chevron-down"></i>
-      </div>
-      <div class="faq-answer">
-        Không khuyến khích. Một người dùng nên sử dụng một tài khoản để đảm bảo dữ liệu chính xác.
-      </div>
-    </div>
-
-    <div class="faq-item">
-      <div class="faq-question">
-        Web có miễn phí không?
-        <i class="fa-solid fa-chevron-down"></i>
-      </div>
-      <div class="faq-answer">
-        Có, hệ thống hiện tại hoàn toàn miễn phí.
+        Chúng tôi rất trân trọng mọi ý kiến đóng góp. Bạn có thể sử dụng tính năng <strong>"Góp ý ý kiến"</strong> tại menu chân trang để mở form phản hồi, hoặc gửi thông tin trực tiếp đến hòm thư hỗ trợ kỹ thuật ở phần Footer.
       </div>
     </div>
   </div>
 </div>
 
-<!-- Footer giống trang chính -->
+<!-- Footer -->
 <footer class="lh-footer">
   <div class="lh-footer-main">
 
@@ -806,7 +718,7 @@
   </div>
 </footer>
 
-<!-- Chat Button từ trang chính -->
+<!-- Chat Button -->
 <div id="chatOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9998; background: rgba(0,0,0,0.1);"></div>
 
 <div id="chatButton" style="
@@ -815,7 +727,7 @@
   height:65px;
   border-radius:50%;
   overflow:hidden;
-  cursor: grab;
+  cursor: pointer;
   z-index:9999;
   box-shadow:0 6px 18px rgba(0,0,0,0.25);
   left: 20px;
@@ -841,7 +753,7 @@
     z-index:9999;
 "></iframe>
 
-<!-- Feedback Popup từ trang chính -->
+<!-- Feedback Popup -->
 <div id="lh-feedback-overlay" class="lh-popup-overlay" onclick="closeFeedbackModalByOverlay(event)">
   <div class="lh-popup-content">
     <button class="lh-popup-close" onclick="closeFeedbackModal()" title="Đóng">&times;</button>
@@ -868,6 +780,30 @@
       }
     });
   });
+
+  // Logic Toggle Đóng / Mở Chatbot trực tiếp hoàn chỉnh
+  const chatButton = document.getElementById('chatButton');
+  const chatbotFrame = document.getElementById('chatbotFrame');
+  const chatOverlay = document.getElementById('chatOverlay');
+
+  if (chatButton && chatbotFrame) {
+    chatButton.addEventListener('click', () => {
+      if (chatbotFrame.style.display === 'none' || chatbotFrame.style.display === '') {
+        chatbotFrame.style.display = 'block';
+        if (chatOverlay) chatOverlay.style.display = 'block';
+      } else {
+        chatbotFrame.style.display = 'none';
+        if (chatOverlay) chatOverlay.style.display = 'none';
+      }
+    });
+  }
+
+  if (chatOverlay) {
+    chatOverlay.addEventListener('click', () => {
+      chatbotFrame.style.display = 'none';
+      chatOverlay.style.display = 'none';
+    });
+  }
 
   // Feedback Modal Functions
   function openFeedbackModal() {
