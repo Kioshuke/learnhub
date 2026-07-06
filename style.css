@@ -254,32 +254,13 @@ overflow-x:hidden;
 overflow-y:auto;
 overscroll-behavior-x:none;
 }
-body.auth-locked > *:not(#loginBox):not(#loadingOverlay):not(#authNotice):not(#maintenanceOverlay){
+body.auth-locked > *:not(#loginBox):not(#loadingOverlay):not(#authNotice){
 display:none !important;
 }
 
-/* ================= MAINTENANCE MODE OVERLAY ================= */
-#maintenanceOverlay{
-  display:none;
-  position:fixed;
-  inset:0;
-  width:100vw;
-  min-height:100vh;
-  z-index:2147483647;
-  background:#fff;
-}
-
-body.maintenance-active{
-  overflow:hidden;
-}
-
-body.maintenance-active > *:not(#maintenanceOverlay){
-display:none !important;
-}
-
-body.maintenance-active #maintenanceOverlay{
-display:flex !important;
-}
+/* Maintenance overlay CSS removed from main stylesheet.
+   `maintenance.html` uses the shared `style.css` and can include
+   its own minimal overrides if needed. */
 
 /* Hiệu ứng thanh tiến trình chạy qua lại */
 @keyframes pulse-bar {
