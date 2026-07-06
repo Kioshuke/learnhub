@@ -259,6 +259,20 @@ display:none !important;
 }
 
 /* ================= MAINTENANCE MODE OVERLAY ================= */
+#maintenanceOverlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  width:100vw;
+  min-height:100vh;
+  z-index:2147483647;
+  background:#fff;
+}
+
+body.maintenance-active{
+  overflow:hidden;
+}
+
 body.maintenance-active > *:not(#maintenanceOverlay){
 display:none !important;
 }

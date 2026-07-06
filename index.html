@@ -574,13 +574,15 @@ let activeInterval = null;
 const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
 
 // ================= MAINTENANCE MODE (realtime, đọc từ Firestore settings/maintenance) =================
-let maintenanceState = { enabled: false, message: "" };
+let maintenanceState = { enabled: true, message: "", initialized: false };
 
 function applyMaintenanceUI(){
   const overlay = document.getElementById("maintenanceOverlay");
   if(!overlay) return;
 
-  if(maintenanceState.enabled){
+  const isMaintenanceActive = !maintenanceState.initialized || maintenanceState.enabled;
+
+  if(isMaintenanceActive){
     const statusEl = document.getElementById("maintenanceStatusText");
     
     if(statusEl){
@@ -589,11 +591,13 @@ function applyMaintenanceUI(){
         : "🔧 Đang cập nhật...";
     }
     
+    overlay.style.display = "flex";
     document.body.classList.add("maintenance-active");
     // Ẩn login box khi maintenance mode bật
     const loginBox = document.getElementById("loginBox");
     if(loginBox) loginBox.style.display = "none";
   } else {
+    overlay.style.display = "none";
     document.body.classList.remove("maintenance-active");
     // Hiện lại login box khi maintenance mode tắt
     const loginBox = document.getElementById("loginBox");
@@ -601,12 +605,14 @@ function applyMaintenanceUI(){
   }
 }
 
+applyMaintenanceUI();
+
 // Lắng nghe realtime để: (1) chặn ngay lập tức mọi truy cập mới, (2) đá văng
 // (signOut) tất cả user đang đăng nhập ngay khi admin bật bảo trì lên.
 try {
   onSnapshot(doc(db, "settings", "maintenance"), async (snap) => {
     const data = snap.exists() ? (snap.data() || {}) : {};
-    maintenanceState = { enabled: !!data.enabled, message: String(data.message || "") };
+    maintenanceState = { enabled: !!data.enabled, message: String(data.message || ""), initialized: true };
     applyMaintenanceUI();
 
     if(maintenanceState.enabled && auth.currentUser){
@@ -619,6 +625,8 @@ try {
     }
   });
 } catch (e) {
+  maintenanceState = { enabled: true, message: "", initialized: true };
+  applyMaintenanceUI();
   console.warn("Không thể lắng nghe trạng thái bảo trì:", e);
 }
 
