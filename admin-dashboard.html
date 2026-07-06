@@ -867,6 +867,7 @@
         <button class="admin-tab active" type="button" data-admin-tab="users">Quản lý user</button>
         <button class="admin-tab" type="button" data-admin-tab="broadcasts">Gửi thông báo</button>
         <button class="admin-tab" type="button" data-admin-tab="welcomePopup">Popup cố định</button>
+        <button class="admin-tab" type="button" data-admin-tab="maintenance">Bảo trì</button>
       </div>
 
       <section class="panel tab-panel hidden" id="broadcastsTabPanel" style="margin-bottom:18px;">
@@ -960,6 +961,32 @@
           <button class="btn btn-soft" id="disableWelcomePopupBtn">Tắt popup</button>
         </div>
         <p class="head-desc" id="welcomePopupMeta" style="margin-top:12px; margin-bottom:0;"></p>
+      </section>
+
+      <section class="panel tab-panel hidden" id="maintenanceTabPanel" style="margin-bottom:18px;">
+        <p class="head-desc">
+          Khi bật chế độ bảo trì: <strong>toàn bộ user đang đăng nhập sẽ bị đăng xuất ngay lập tức</strong>,
+          và mọi truy cập (đăng nhập mới) đều bị chặn bởi màn hình thông báo cho đến khi bạn tắt bảo trì.
+        </p>
+
+        <div id="maintenanceStatusBanner" style="border-radius:12px; padding:12px 14px; margin-bottom:16px; font-weight:600; font-size:13px;">
+          Đang tải trạng thái...
+        </div>
+
+        <label class="inline-check" style="display:flex; align-items:center; gap:10px; margin:4px 0 14px; font-weight:700; font-size:15px;">
+          <input id="maintenanceEnabledInput" type="checkbox">
+          Bật chế độ bảo trì toàn hệ thống
+        </label>
+
+        <div class="field-row">
+          <textarea id="maintenanceMessageInput" class="input" rows="4" style="resize:vertical; min-height:100px;" placeholder="Nội dung hiển thị cho user, ví dụ: Hệ thống đang nâng cấp, dự kiến hoàn tất lúc 22h..."></textarea>
+        </div>
+
+        <div class="hero-actions" style="justify-content:flex-start;">
+          <button class="btn btn-danger" id="saveMaintenanceBtn">Lưu & áp dụng</button>
+          <button class="btn btn-soft" id="refreshMaintenanceBtn">Làm mới</button>
+        </div>
+        <p class="head-desc" id="maintenanceMeta" style="margin-top:12px; margin-bottom:0;"></p>
       </section>
 
       <div class="grid-stats">
@@ -1087,6 +1114,11 @@
     const welcomePopupMessageInput = document.getElementById("welcomePopupMessageInput");
     const welcomePopupActiveInput = document.getElementById("welcomePopupActiveInput");
     const welcomePopupMeta = document.getElementById("welcomePopupMeta");
+    const maintenanceTabPanel = document.getElementById("maintenanceTabPanel");
+    const maintenanceEnabledInput = document.getElementById("maintenanceEnabledInput");
+    const maintenanceMessageInput = document.getElementById("maintenanceMessageInput");
+    const maintenanceStatusBanner = document.getElementById("maintenanceStatusBanner");
+    const maintenanceMeta = document.getElementById("maintenanceMeta");
 
     function switchAdminTab(tab) {
       adminTabButtons.forEach((button) => {
@@ -1095,8 +1127,12 @@
       usersTabPanel.classList.toggle("hidden", tab !== "users");
       broadcastsTabPanel.classList.toggle("hidden", tab !== "broadcasts");
       welcomePopupTabPanel.classList.toggle("hidden", tab !== "welcomePopup");
+      maintenanceTabPanel.classList.toggle("hidden", tab !== "maintenance");
       if (tab === "welcomePopup") {
         loadWelcomePopupForm();
+      }
+      if (tab === "maintenance") {
+        loadMaintenanceForm();
       }
     }
 
@@ -1571,6 +1607,60 @@
         showNotice("Không tắt được popup cố định.", "error");
       }
     });
+
+    function renderMaintenanceBanner(data) {
+      const enabled = Boolean(data && data.enabled);
+      maintenanceStatusBanner.textContent = enabled
+        ? "🔴 ĐANG BẬT BẢO TRÌ — Toàn bộ user bị chặn truy cập."
+        : "🟢 Đang tắt — Web hoạt động bình thường.";
+      maintenanceStatusBanner.style.background = enabled ? "#fee2e2" : "#dcfce7";
+      maintenanceStatusBanner.style.color = enabled ? "#b91c1c" : "#166534";
+      maintenanceStatusBanner.style.border = enabled ? "1px solid #fecaca" : "1px solid #bbf7d0";
+    }
+
+    async function loadMaintenanceForm() {
+      try {
+        const snap = await getDoc(doc(db, "settings", "maintenance"));
+        const data = snap.exists() ? (snap.data() || {}) : {};
+        maintenanceEnabledInput.checked = Boolean(data.enabled);
+        maintenanceMessageInput.value = data.message || "";
+        renderMaintenanceBanner(data);
+        maintenanceMeta.textContent = data.updatedAt
+          ? `Cập nhật lần cuối: ${formatDate(data.updatedAt)}${data.updatedBy ? ` · bởi ${data.updatedBy}` : ""}`
+          : "Chưa từng bật bảo trì.";
+      } catch (error) {
+        console.error("Lỗi tải trạng thái bảo trì:", error);
+        showNotice("Không tải được trạng thái bảo trì.", "error");
+      }
+    }
+
+    document.getElementById("saveMaintenanceBtn").addEventListener("click", async () => {
+      const enabled = maintenanceEnabledInput.checked;
+      const message = String(maintenanceMessageInput.value || "").trim();
+
+      if (enabled && !confirm("Xác nhận BẬT bảo trì? Toàn bộ user đang đăng nhập sẽ bị đăng xuất ngay lập tức và không thể truy cập web cho tới khi bạn tắt bảo trì.")) {
+        return;
+      }
+
+      try {
+        const now = new Date().toISOString();
+        await setDoc(doc(db, "settings", "maintenance"), {
+          enabled,
+          message,
+          updatedAt: now,
+          updatedBy: adminEmail
+        }, { merge: true });
+
+        renderMaintenanceBanner({ enabled });
+        maintenanceMeta.textContent = `Cập nhật lần cuối: ${formatDate(now)} · bởi ${adminEmail}`;
+        showNotice(enabled ? "Đã BẬT bảo trì. Toàn bộ user đang bị đăng xuất và chặn truy cập." : "Đã TẮT bảo trì. Web hoạt động bình thường trở lại.", "success");
+      } catch (error) {
+        console.error("Lỗi cập nhật bảo trì:", error);
+        showNotice("Cập nhật bảo trì thất bại. Kiểm tra Firestore rules rồi thử lại.", "error");
+      }
+    });
+
+    document.getElementById("refreshMaintenanceBtn").addEventListener("click", loadMaintenanceForm);
 
     document.getElementById("addWhitelistBtn").addEventListener("click", async () => {
       const input = document.getElementById("allowEmailInput");

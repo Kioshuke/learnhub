@@ -254,8 +254,65 @@ overflow-x:hidden;
 overflow-y:auto;
 overscroll-behavior-x:none;
 }
-body.auth-locked > *:not(#loginBox):not(#loadingOverlay):not(#authNotice){
+body.auth-locked > *:not(#loginBox):not(#loadingOverlay):not(#authNotice):not(#maintenanceOverlay){
 display:none !important;
+}
+
+/* ================= MAINTENANCE MODE OVERLAY ================= */
+#maintenanceOverlay{
+display:none;
+position:fixed;
+inset:0;
+width:100vw;
+height:100vh;
+z-index:2000000;
+background:
+  radial-gradient(circle at 20% 20%, rgba(37,99,235,0.35), transparent 45%),
+  radial-gradient(circle at 80% 80%, rgba(124,58,237,0.3), transparent 45%),
+  #0b1120;
+align-items:center;
+justify-content:center;
+padding:24px;
+}
+#maintenanceOverlay .maintenance-card{
+max-width:480px;
+width:100%;
+background:rgba(255,255,255,0.06);
+border:1px solid rgba(255,255,255,0.14);
+border-radius:20px;
+padding:36px 30px;
+text-align:center;
+color:#f1f5f9;
+backdrop-filter:blur(10px);
+box-shadow:0 20px 60px rgba(0,0,0,0.45);
+}
+#maintenanceOverlay .maintenance-icon{
+font-size:52px;
+margin-bottom:14px;
+animation:maintenanceSpin 3s linear infinite;
+display:inline-block;
+}
+#maintenanceOverlay h2{
+margin:0 0 12px;
+font-size:22px;
+letter-spacing:-.01em;
+}
+#maintenanceOverlay p{
+margin:0;
+font-size:14.5px;
+line-height:1.6;
+color:#cbd5e1;
+white-space:pre-line;
+}
+#maintenanceOverlay .maintenance-footer{
+margin-top:20px;
+font-size:12px;
+color:#94a3b8;
+}
+@keyframes maintenanceSpin{
+0%{ transform:rotate(0deg); }
+50%{ transform:rotate(15deg); }
+100%{ transform:rotate(0deg); }
 }
 @keyframes fadeIn{
 from{opacity:0;}

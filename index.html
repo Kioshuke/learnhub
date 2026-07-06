@@ -41,6 +41,14 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body class="auth-locked">
+<div id="maintenanceOverlay">
+  <div class="maintenance-card">
+    <span class="maintenance-icon">🛠️</span>
+    <h2>LearnHub đang bảo trì</h2>
+    <p id="maintenanceMessage">Hệ thống đang được bảo trì để nâng cấp trải nghiệm học tập. Vui lòng quay lại sau ít phút nữa.</p>
+    <div class="maintenance-footer">Cảm ơn bạn đã kiên nhẫn chờ đợi 💙</div>
+  </div>
+</div>
 <div id="loadingOverlay">
 <audio id="clickSound" src="sound/mocor-os-keypad-sound.mp3" preload="none"></audio>
 <audio id="dotest" src="sound/windows-xp-startup.mp3" preload="none"></audio>
@@ -520,7 +528,43 @@ const provider = new GoogleAuthProvider();
 let allowList = [];
 let activeInterval = null;
 const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
-const maintenance = false;
+
+// ================= MAINTENANCE MODE (realtime, đọc từ Firestore settings/maintenance) =================
+let maintenanceState = { enabled: false, message: "" };
+
+function applyMaintenanceUI(){
+  const overlay = document.getElementById("maintenanceOverlay");
+  if(!overlay) return;
+
+  if(maintenanceState.enabled){
+    const msgEl = document.getElementById("maintenanceMessage");
+    if(msgEl){
+      msgEl.textContent = maintenanceState.message
+        || "Hệ thống đang được bảo trì để nâng cấp trải nghiệm học tập. Vui lòng quay lại sau ít phút nữa.";
+    }
+    overlay.style.display = "flex";
+    document.body.classList.add("maintenance-active");
+  } else {
+    overlay.style.display = "none";
+    document.body.classList.remove("maintenance-active");
+  }
+}
+
+// Lắng nghe realtime để: (1) chặn ngay lập tức mọi truy cập mới, (2) đá văng
+// (signOut) tất cả user đang đăng nhập ngay khi admin bật bảo trì lên.
+try {
+  onSnapshot(doc(db, "settings", "maintenance"), async (snap) => {
+    const data = snap.exists() ? (snap.data() || {}) : {};
+    maintenanceState = { enabled: !!data.enabled, message: String(data.message || "") };
+    applyMaintenanceUI();
+
+    if(maintenanceState.enabled && auth.currentUser){
+      try { console.trace("SIGN OUT (maintenance mode)"); await signOut(auth); } catch(e){}
+    }
+  });
+} catch (e) {
+  console.warn("Không thể lắng nghe trạng thái bảo trì:", e);
+}
 
 function normalizeEmail(email){
   return String(email || "").trim().toLowerCase();
@@ -797,6 +841,12 @@ if(previewMode){
 }
 
 if(user){
+  if (maintenanceState.enabled) {
+    applyMaintenanceUI();
+    try { console.trace("SIGN OUT (maintenance mode)"); await signOut(auth); } catch (e) {}
+    return;
+  }
+
   await loadAllowList();
   if (!isAllowedEmail(user.email)) {
     showAuthNotice(
@@ -912,11 +962,11 @@ if(user){
 
 
 window.googleLogin = function() {
-    if (maintenance) {
+    if (maintenanceState.enabled) {
         showAuthNotice(
-            "Sever đang bảo trì vui lòng quay lại sau!",
+            maintenanceState.message || "Sever đang bảo trì vui lòng quay lại sau!",
             "error",
-            "Maintenance"
+            "Đang bảo trì"
         );
         return;
     }
@@ -1010,11 +1060,11 @@ window.googleLogin = function() {
 
 // ===== EMAIL/PASSWORD AUTHENTICATION =====
 window.emailLogin = async function() {
-    if (maintenance) {
+    if (maintenanceState.enabled) {
         showAuthNotice(
-            "Sever đang bảo trì vui lòng quay lại sau!",
+            maintenanceState.message || "Sever đang bảo trì vui lòng quay lại sau!",
             "error",
-            "Maintenance"
+            "Đang bảo trì"
         );
         return;
     }
