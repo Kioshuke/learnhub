@@ -116,6 +116,17 @@ body {
   white-space: nowrap;
 }
 
+.user-name-current.admin-name {
+  color: #dc2626;
+  font-weight: 900;
+}
+
+.user-box .user-avatar.admin {
+  background: linear-gradient(135deg,#dc2626,#b91c1c);
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(220,38,38,0.18);
+}
+
 .user-avatar {
   display: inline-flex;
   align-items: center;
@@ -820,7 +831,11 @@ function updateUserBox(){
     return;
   }
   const safeName = escapeHTML(currentUser.name || "Người dùng");
-  userBox.innerHTML = `<span class="user-avatar">${escapeHTML(getInitials(currentUser.name))}</span><span class="user-name-current">${safeName}</span>`;
+  const isAdmin = currentUser.role === 'admin' || currentUser.role === 'Admin';
+  const avatarClass = isAdmin ? 'user-avatar admin' : 'user-avatar';
+  const nameClass = isAdmin ? 'user-name-current admin-name' : 'user-name-current';
+  const adminBadge = isAdmin ? ' <span class="admin-badge" style="background:#fee2e2;color:#dc2626;padding:3px 8px;font-weight:800;border-radius:999px;margin-left:8px;border:1px solid rgba(220,38,38,0.15);">🛡 Admin</span>' : '';
+  userBox.innerHTML = `<span class="${avatarClass}">${escapeHTML(getInitials(currentUser.name))}</span><span class="${nameClass}">${safeName}</span>${adminBadge}`;
 }
 
 /* ================= KHI TRANG LOAD XONG ================= */

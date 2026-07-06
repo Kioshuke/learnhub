@@ -352,16 +352,17 @@ box-shadow:
 } 
 
 .menu button{
-padding:12px 22px;
-border:none;
-background:none;
-font-size:15px;
-cursor:pointer;
-transition:all 0.25s ease;
-border-radius:8px;
-color: var(--text-main);
-white-space: nowrap;
-flex-shrink: 0;
+  padding:12px 22px;
+  border:none;
+  background:none;
+  font-size:15px;
+  cursor:pointer;
+  transition:all 0.25s ease;
+  border-radius:8px;
+  color: color-mix(in srgb, var(--text-main) 92%, #000);
+  font-weight:600; /* make nav text a bit bolder */
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .menu button.active{
