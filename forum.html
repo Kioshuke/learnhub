@@ -30,7 +30,14 @@
 
 * { box-sizing: border-box; }
 
-html { background: transparent; overflow-x: hidden; }
+/* ẨN SCROLLBAR NHƯNG VẪN GIỮ CHỨC NĂNG CUỘN */
+html {
+  background: transparent;
+  overflow-x: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+html::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 
 body {
   min-height: 100vh;
@@ -40,7 +47,10 @@ body {
   color: var(--text);
   font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
   background: transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+body::-webkit-scrollbar { display: none; }
 
 .container {
   width: min(100%, 920px);

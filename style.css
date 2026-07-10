@@ -41,6 +41,13 @@
   --warn-border: #eef2f6;
 }
 
+/* ẨN SCROLLBAR NHƯNG VẪN GIỮ CHỨC NĂNG CUỘN */
+html, body {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
 body.dark-mode {
   --bg-main: #0f172a;
   --bg-pattern: #1e293b;

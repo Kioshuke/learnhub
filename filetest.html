@@ -29,12 +29,20 @@
             --true-asw: #15803d;
             --false-asw: #b91d1d;
         }
-        body { 
-            font-family: 'Inter', system-ui, sans-serif; 
-            background: var(--bg); 
-            margin: 0; 
-            padding: 20px; 
-            color: var(--text); 
+
+        /* ẨN SCROLLBAR NHƯNG VẪN GIỮ CHỨC NĂNG CUỘN */
+        html, body {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: var(--text);
             transition: all 0.3s ease; /* Hiệu ứng chuyển màu mượt */
         }
         body.dark-mode {
