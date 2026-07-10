@@ -806,25 +806,32 @@ function showModal(title, msg, isInput, currentText, onConfirm, isHtml = false) 
 }
 
 /* ================= CƠ CHẾ MỚI: XÁC THỰC LẠI QUA FIRESTORE TỪ WEB CHÍNH ================= */
+// Đếm thứ tự message để chặn trường hợp message gửi sau nhưng Firestore trả lời trước
+// (race condition) làm currentUser bị ghi đè bởi dữ liệu cũ -> tô sai bài viết/màu admin
+// và làm renderPosts() bị gọi chồng chéo không theo thứ tự -> nhìn như bị "lộn xộn".
+let __userInfoSeq = 0;
+
 window.addEventListener("message", async (event) => {
   if (event.data && event.data.type === "USER_INFO") {
+    const mySeq = ++__userInfoSeq;
     const receivedUser = event.data.user;
-    
+    let resolvedUser;
+
     if (receivedUser && receivedUser.uid) {
       try {
         // Chạy trực tiếp vào Firestore lấy thông tin mới nhất và an toàn nhất
         const userDoc = await firestoreDb.collection("users").doc(receivedUser.uid).get();
-        
+
         if (userDoc.exists) {
           const userData = userDoc.data();
-          currentUser = {
+          resolvedUser = {
             uid: receivedUser.uid,
             name: userData.name || receivedUser.name || "Người dùng",
             role: userData.role || "member" // Nhận role trực tiếp từ database
           };
         } else {
           // Fallback phòng khi user chưa kịp sync qua firestore
-          currentUser = {
+          resolvedUser = {
             uid: receivedUser.uid,
             name: receivedUser.name || "Người dùng",
             role: receivedUser.role || "member"
@@ -832,16 +839,27 @@ window.addEventListener("message", async (event) => {
         }
       } catch (err) {
         console.error("Lỗi kiểm tra quyền hạn user từ Firestore:", err);
-        currentUser = receivedUser; // fallback giữ nguyên data nhận được
+        resolvedUser = receivedUser; // fallback giữ nguyên data nhận được
       }
     } else {
-      currentUser = receivedUser;
+      resolvedUser = receivedUser;
     }
-    
+
+    // Có message mới hơn đến trong lúc đang chờ Firestore -> bỏ kết quả cũ này
+    if (mySeq !== __userInfoSeq) return;
+
+    // Không có gì thay đổi thì khỏi render lại cho đỡ giật/nhấp nháy
+    const isSameUser = currentUser && resolvedUser &&
+      currentUser.uid === resolvedUser.uid && currentUser.role === resolvedUser.role;
+
+    currentUser = resolvedUser;
     updateUserBox();
-    
+
+    if (isSameUser) return;
+
     // Ép làm mới lại danh sách bài đăng sau khi xác thực vai trò hoàn tất
     db.ref("posts").once("value", (snapshot) => {
+      if (mySeq !== __userInfoSeq) return; // có xác thực mới hơn rồi, bỏ qua kết quả cũ
       renderPosts(snapshot);
     });
   }
@@ -963,7 +981,7 @@ db.ref("posts").on("value", (snapshot) => {
   renderPosts(snapshot);
 });
 
-async function renderPosts(snapshot){
+function renderPosts(snapshot){
   clearTimeout(window.__forumSkeletonTimeout);
   const data = snapshot.val();
   const container = document.getElementById("posts");
@@ -976,25 +994,33 @@ async function renderPosts(snapshot){
 
   const allPosts = Object.entries(data).map(([id, val]) => ({ id, ...val }));
 
-  // Pre-load roles của tất cả users trước khi render
-  await preloadUserRoles(allPosts);
+  // Kiểm tra xem còn uid nào chưa có trong cache role không
+  const uncachedUids = [...new Set(allPosts.map(p => p.uid).filter(Boolean))]
+    .filter(uid => !userRoleCache.has(uid));
 
   const parents = allPosts.filter(p => !p.parentId).sort((a, b) => b.time - a.time);
 
-  for (const post of parents) {
-    const postElement = await createPostElement(post, allPosts);
+  parents.forEach(post => {
+    const postElement = createPostElement(post, allPosts);
     container.appendChild(postElement);
-  }
+  });
 
   window.scrollTo(0, scrollPos);
+
+  // Nếu còn role chưa load, load xong thì render lại 1 lần để tô màu đúng ngay
+  if (uncachedUids.length > 0) {
+    preloadUserRoles(allPosts).then(() => {
+      renderPosts(snapshot);
+    });
+  }
 }
 
-async function createPostElement(post, allPosts){
+function createPostElement(post, allPosts){
   const div = document.createElement("div");
   const isOwner = currentUser && post.uid === currentUser.uid;
 
-  // LOGIC NHẬN DIỆN MÀU SẮC ADMIN - SỬ DỤNG CACHE
-  const isAdmin = await getUserRole(post.uid) || post.role === "admin" || post.role === "Admin";
+  // LOGIC NHẬN DIỆN MÀU SẮC ADMIN - ƯU TIÊN POST.ROLE, RỒI CACHE
+  const isAdmin = post.role === "admin" || post.role === "Admin" || userRoleCache.get(post.uid);
 
   let postClasses = [];
   if (isOwner) postClasses.push("current-user-post");
@@ -1024,13 +1050,13 @@ async function createPostElement(post, allPosts){
   `;
 
   const repliesContainer = document.createElement("div");
-  await renderReplies(post.id, repliesContainer, allPosts, 1);
+  renderReplies(post.id, repliesContainer, allPosts, 1);
   div.appendChild(repliesContainer);
   
   return div;
 }
 
-async function renderReplies(parentId, container, allPosts, level){
+function renderReplies(parentId, container, allPosts, level){
   const replies = allPosts
     .filter(p => p.parentId === parentId)
     .sort((a, b) => a.time - b.time);
@@ -1040,7 +1066,7 @@ async function renderReplies(parentId, container, allPosts, level){
   const wrapper = document.createElement("div");
   wrapper.className = "replies-wrapper";
 
-  const renderList = async () => {
+  const renderList = () => {
     wrapper.innerHTML = "";
 
     const btn = document.createElement("div");
@@ -1062,8 +1088,8 @@ async function renderReplies(parentId, container, allPosts, level){
       const repDiv = document.createElement("div");
       const isOwner = currentUser && rep.uid === currentUser.uid;
 
-      // KIỂM TRA ROLE TỪ CACHE CHO REPLY
-      const isAdminReply = await getUserRole(rep.uid) || rep.role === "admin" || rep.role === "Admin";
+      // KIỂM TRA ROLE TỪ CACHE CHO REPLY - ƯU TIÊN REP.ROLE
+      const isAdminReply = rep.role === "admin" || rep.role === "Admin" || userRoleCache.get(rep.uid);
 
       let replyClasses = ["reply"];
       if (isAdminReply) replyClasses.push("admin-reply-card");
@@ -1090,7 +1116,7 @@ async function renderReplies(parentId, container, allPosts, level){
         </div>
       `;
       
-      await renderReplies(rep.id, repDiv, allPosts, level + 1);
+      renderReplies(rep.id, repDiv, allPosts, level + 1);
       listWrap.appendChild(repDiv);
     }
 
