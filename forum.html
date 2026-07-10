@@ -30,7 +30,7 @@
 
 * { box-sizing: border-box; }
 
-html { background: transparent; overflow-x: hidden; }
+html { background: var(--bg); overflow-x: hidden; }
 
 body {
   min-height: 100vh;
@@ -39,7 +39,10 @@ body {
   margin: 0;
   color: var(--text);
   font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
-  background: transparent;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.86), rgba(244,247,251,0.96)),
+    radial-gradient(circle at 18% 0%, rgba(37,99,235,0.12), transparent 26%),
+    radial-gradient(circle at 92% 10%, rgba(20,184,166,0.12), transparent 24%);
 }
 
 .container {
@@ -111,6 +114,17 @@ body {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
   overflow: hidden;
   white-space: nowrap;
+}
+
+.user-name-current.admin-name {
+  color: #dc2626;
+  font-weight: 900;
+}
+
+.user-box .user-avatar.admin {
+  background: linear-gradient(135deg,#dc2626,#b91c1c);
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(220,38,38,0.18);
 }
 
 .user-avatar {
@@ -231,6 +245,36 @@ button:active { transform: translateY(0); }
   font-weight: 550;
 }
 
+/* ================= CSS HIỂN THỊ NỔI BẬT ADMIN ================= */
+.post.admin-post-card {
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+  background: linear-gradient(180deg, #fffcfc 0%, #ffffff 100%) !important;
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.08) !important;
+}
+.post.admin-post-card::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 4px;
+  background: var(--danger);
+  border-radius: 0 4px 4px 0;
+}
+.meta .admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-left: 6px;
+  border: 1px solid rgba(220, 38, 38, 0.25);
+}
+
 .meta {
   display: flex;
   align-items: center;
@@ -249,6 +293,11 @@ button:active { transform: translateY(0); }
   font-weight: 800;
 }
 
+.meta b.admin-name {
+  color: #dc2626 !important;
+  font-weight: 850 !important;
+}
+
 .meta .current-user-name {
   color: #fff;
   background: linear-gradient(135deg, var(--primary), #0f766e);
@@ -256,6 +305,12 @@ button:active { transform: translateY(0); }
   border-radius: 999px;
   font-weight: 850;
   box-shadow: 0 5px 12px rgba(37,99,235,0.16);
+}
+
+.meta .current-user-name.admin-name {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+  box-shadow: 0 5px 12px rgba(220,38,38,0.25) !important;
 }
 
 .edit-btn, .delete-btn {
@@ -346,12 +401,18 @@ button:active { transform: translateY(0); }
 .reply-list { margin-top: 4px; }
 
 .reply {
+  position: relative;
   margin-top: 10px;
   margin-left: 20px;
   padding: 7px 9px 7px 11px;
   background: #f8fafc;
   border-left: 3px solid #dbeafe;
   border-radius: 0 10px 10px 0;
+}
+
+.reply.admin-reply-card {
+  border-left: 3px solid #ef4444 !important;
+  background: #fffcfc !important;
 }
 
 .reply .actions { margin-top: 8px; padding-top: 8px; gap: 7px; }
@@ -581,6 +642,32 @@ button:active { transform: translateY(0); }
   .modal-content { width: min(94vw, 430px); }
   .mute-btn { margin-left: 0; min-width: 132px; }
 }
+/* ===== SKELETON LOADING ===== */
+@keyframes skeletonShimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.skel-bar {
+  background: linear-gradient(90deg, #e2e9f5 25%, #f2f6fc 37%, #e2e9f5 63%);
+  background-size: 400% 100%;
+  animation: skeletonShimmer 1.4s ease infinite;
+  border-radius: 8px;
+}
+.skel-post {
+  margin-bottom: 9px;
+  padding: 11px 12px 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-soft);
+}
+.skel-meta-line { width: 140px; height: 14px; margin-bottom: 10px; }
+.skel-text-line { height: 14px; margin-bottom: 7px; }
+.skel-text-line.w-95 { width: 95%; }
+.skel-text-line.w-60 { width: 60%; }
+.skel-actions-row { display: flex; gap: 10px; margin-top: 10px; }
+.skel-pill { width: 70px; height: 22px; border-radius: 999px; }
+.skel-reply { width: 50px; height: 22px; border-radius: 999px; }
 </style>
 </head>
 <body>
@@ -588,7 +675,7 @@ button:active { transform: translateY(0); }
 <div class="container">
   <div class="header">
     <div class="logo">🚀 LearnHub Forum</div>
-    <div class="user-box" id="userBox">Chưa đăng nhập</div>
+    <div class="user-box" id="userBox">Đang xác thực...</div>
   </div>
 
   <div class="post-box composer-card">
@@ -602,8 +689,24 @@ button:active { transform: translateY(0); }
     </button>
   </div>
 
-  <div id="posts"></div>
+  <div id="posts">
+    <div class="skel-post">
+      <div class="skel-bar skel-meta-line"></div>
+      <div class="skel-bar skel-text-line w-95"></div>
+      <div class="skel-bar skel-text-line w-60"></div>
+      <div class="skel-actions-row"><div class="skel-bar skel-pill"></div><div class="skel-bar skel-reply"></div></div>
+    </div>
+  </div>
 </div>
+
+<script>
+  window.__forumSkeletonTimeout = setTimeout(() => {
+    const postsEl = document.getElementById('posts');
+    if (postsEl && postsEl.querySelector('.skel-post')) {
+      postsEl.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8;font-size:14px;">⚠️ Không kết nối được diễn đàn. Vui lòng tải lại trang.</div>';
+    }
+  }, 12000);
+</script>
 
 <div id="customModal" class="modal-overlay">
   <div class="modal-content">
@@ -668,11 +771,45 @@ function showModal(title, msg, isInput, currentText, onConfirm, isHtml = false) 
   modal.style.display = "flex";
 }
 
-/* ================= NHẬN THÔNG TIN USER TỪ APP CHÍNH ================= */
-window.addEventListener("message", (event) => {
+/* ================= CƠ CHẾ MỚI: XÁC THỰC LẠI QUA FIRESTORE TỪ WEB CHÍNH ================= */
+window.addEventListener("message", async (event) => {
   if (event.data && event.data.type === "USER_INFO") {
-    currentUser = event.data.user;
+    const receivedUser = event.data.user;
+    
+    if (receivedUser && receivedUser.uid) {
+      try {
+        // Chạy trực tiếp vào Firestore lấy thông tin mới nhất và an toàn nhất
+        const userDoc = await firestoreDb.collection("users").doc(receivedUser.uid).get();
+        
+        if (userDoc.exists) {
+          const userData = userDoc.data();
+          currentUser = {
+            uid: receivedUser.uid,
+            name: userData.name || receivedUser.name || "Người dùng",
+            role: userData.role || "member" // Nhận role trực tiếp từ database
+          };
+        } else {
+          // Fallback phòng khi user chưa kịp sync qua firestore
+          currentUser = {
+            uid: receivedUser.uid,
+            name: receivedUser.name || "Người dùng",
+            role: receivedUser.role || "member"
+          };
+        }
+      } catch (err) {
+        console.error("Lỗi kiểm tra quyền hạn user từ Firestore:", err);
+        currentUser = receivedUser; // fallback giữ nguyên data nhận được
+      }
+    } else {
+      currentUser = receivedUser;
+    }
+    
     updateUserBox();
+    
+    // Ép làm mới lại danh sách bài đăng sau khi xác thực vai trò hoàn tất
+    db.ref("posts").once("value", (snapshot) => {
+      renderPosts(snapshot);
+    });
   }
 });
 
@@ -688,9 +825,17 @@ function getInitials(name){
 
 function updateUserBox(){
   const userBox = document.getElementById("userBox");
-  if(!userBox || !currentUser) return;
+  if(!userBox) return;
+  if(!currentUser) {
+    userBox.innerText = "Chưa đăng nhập";
+    return;
+  }
   const safeName = escapeHTML(currentUser.name || "Người dùng");
-  userBox.innerHTML = `<span class="user-avatar">${escapeHTML(getInitials(currentUser.name))}</span><span class="user-name-current">${safeName}</span>`;
+  const isAdmin = currentUser.role === 'admin' || currentUser.role === 'Admin';
+  const avatarClass = isAdmin ? 'user-avatar admin' : 'user-avatar';
+  const nameClass = isAdmin ? 'user-name-current admin-name' : 'user-name-current';
+  const adminBadge = isAdmin ? ' <span class="admin-badge" style="background:#fee2e2;color:#dc2626;padding:3px 8px;font-weight:800;border-radius:999px;margin-left:8px;border:1px solid rgba(220,38,38,0.15);">🛡 Admin</span>' : '';
+  userBox.innerHTML = `<span class="${avatarClass}">${escapeHTML(getInitials(currentUser.name))}</span><span class="${nameClass}">${safeName}</span>${adminBadge}`;
 }
 
 /* ================= KHI TRANG LOAD XONG ================= */
@@ -700,21 +845,15 @@ window.addEventListener("load", () => {
   const contentArea = document.getElementById("content");
   const charCountDisplay = document.getElementById("charCount");
 
-  // Xử lý Tự giãn và Đếm ký tự
   contentArea.addEventListener("input", function() {
-    // 1. Logic Tự giãn (Auto-resize)
-    this.style.height = "auto"; // Reset về auto để tính lại chiều cao
-    this.style.height = (this.scrollHeight) + "px"; // Gán chiều cao mới theo nội dung
+    this.style.height = "auto"; 
+    this.style.height = (this.scrollHeight) + "px"; 
 
-    // 2. Logic Đếm ký tự
     const len = this.value.length;
     charCountDisplay.innerText = len;
-    
-    // Đổi màu nếu sắp hết dung lượng (ví dụ trên 450 ký tự thì hiện màu đỏ)
     charCountDisplay.style.color = len >= 450 ? "#ef4444" : "#64748b";
   });
 
-  // --- Giữ nguyên các đoạn code cũ của bạn bên dưới ---
   const modal = document.getElementById("customModal");
   document.getElementById("modalCancel").onclick = () => { modal.style.display = "none"; };
   document.getElementById("modalConfirm").onclick = () => {
@@ -767,19 +906,18 @@ function sendPost(){
     text: text,
     user: currentUser.name,
     uid: currentUser.uid || null,
+    role: currentUser.role || "member", 
     parentId: replyTo || null,
     time: Date.now()
   };
 
-  // 1. Đẩy dữ liệu lên Firebase
   db.ref("posts").push(newPost);
   db.ref("events").push({ type: "post", time: Date.now() });
 
-  // 2. Reset toàn bộ form về trạng thái ban đầu
   contentArea.value = ""; 
-  contentArea.style.height = "80px"; // Đặt lại chiều cao min-height bạn đã set trong CSS
+  contentArea.style.height = "80px"; 
   document.getElementById("charCount").innerText = "0"; 
-  document.getElementById("charCount").style.color = "#64748b"; // Reset màu chữ đếm ký tự
+  document.getElementById("charCount").style.color = "#64748b"; 
   
   replyTo = null;
   document.getElementById("replyingTo").innerHTML = "";
@@ -792,6 +930,7 @@ db.ref("posts").on("value", (snapshot) => {
 });
 
 function renderPosts(snapshot){
+  clearTimeout(window.__forumSkeletonTimeout);
   const data = snapshot.val();
   const container = document.getElementById("posts");
   if(!container) return;
@@ -814,15 +953,27 @@ function renderPosts(snapshot){
 function createPostElement(post, allPosts){
   const div = document.createElement("div");
   const isOwner = currentUser && post.uid === currentUser.uid;
-  div.className = isOwner ? "post current-user-post" : "post";
+  
+  // LOGIC NHẬN DIỆN MÀU SẮC ADMIN LINH HOẠT
+  const isAdmin = post.role === "admin" || (currentUser && currentUser.role === "admin" && post.uid === currentUser.uid);
+
+  let postClasses = [];
+  if (isOwner) postClasses.push("current-user-post");
+  if (isAdmin) postClasses.push("admin-post-card");
+  div.className = "post " + postClasses.join(" ");
+
   const ownerActions = isOwner ? `
     <span class="edit-btn" onclick="editPost('${post.id}', '${post.text.replace(/'/g, "\\'")}')">✎ Sửa</span>
     <span class="delete-btn" onclick="deletePost('${post.id}')">🗑 Xóa</span>
   ` : "";
 
+  const nameClass = isOwner ? "current-user-name" : "";
+  const adminNameClass = isAdmin ? "admin-name" : "";
+  const adminBadge = isAdmin ? `<span class="admin-badge">🛡 Admin</span>` : "";
+
   div.innerHTML = `
     <div class="meta">
-      <b class="${isOwner ? "current-user-name" : ""}">${post.user}</b> • ${formatTime(post.time)} 
+      <b class="${nameClass} ${adminNameClass}">${post.user}</b>${adminBadge} • ${formatTime(post.time)} 
       ${post.isEdited ? '<i style="font-size:10px">(đã chỉnh sửa)</i>' : ''}
       ${ownerActions}
     </div>
@@ -870,17 +1021,28 @@ function renderReplies(parentId, container, allPosts, level){
 
     replies.forEach(rep => {
       const repDiv = document.createElement("div");
-      repDiv.className = "reply";
+      const isOwner = currentUser && rep.uid === currentUser.uid;
+      
+      const isAdminReply = rep.role === "admin" || (currentUser && currentUser.role === "admin" && rep.uid === currentUser.uid);
+
+      let replyClasses = ["reply"];
+      if (isAdminReply) replyClasses.push("admin-reply-card");
+      repDiv.className = replyClasses.join(" ");
       repDiv.style.marginLeft = Math.min(level * 12, 36) + "px";
       
-      const isOwner = currentUser && rep.uid === currentUser.uid;
       const ownerActions = isOwner ? `
         <span class="edit-btn" onclick="editPost('${rep.id}', '${rep.text.replace(/'/g, "\\'")}')">✎</span>
         <span class="delete-btn" onclick="deletePost('${rep.id}')">🗑</span>
       ` : "";
 
+      const nameClass = isOwner ? "current-user-name" : "";
+      const adminNameClass = isAdminReply ? "admin-name" : "";
+      const adminBadge = isAdminReply ? `<span class="admin-badge">🛡 Admin</span>` : "";
+
       repDiv.innerHTML = `
-        <div class="meta"><b class="${isOwner ? "current-user-name" : ""}">${rep.user}</b> • ${formatTime(rep.time)} ${ownerActions}</div>
+        <div class="meta">
+          <b class="${nameClass} ${adminNameClass}">${rep.user}</b>${adminBadge} • ${formatTime(rep.time)} ${ownerActions}
+        </div>
         <div style="white-space: pre-wrap;">${rep.text}</div>
         <div class="actions">
           ${renderReactionButtons(rep)}
@@ -898,7 +1060,7 @@ function renderReplies(parentId, container, allPosts, level){
   renderList();
   container.appendChild(wrapper);
 }
-/* ================= TIỆN ÍCH (THỜI GIAN THEO FORMAT YÊU CẦU) ================= */
+/* ================= TIỆN ÍCH ================= */
 function formatTime(t){
   const d = new Date(t);
   const date = d.getDate().toString().padStart(2,'0');
@@ -908,7 +1070,6 @@ function formatTime(t){
   const minutes = d.getMinutes().toString().padStart(2,'0');
   const seconds = d.getSeconds().toString().padStart(2,'0');
   
-  // Format: Ngày/Tháng/Năm Giờ:Phút:Giây
   return `${date}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 }
 
@@ -1052,19 +1213,16 @@ function setReply(id, user) {
     </div>
   `;
   
-  // Cuộn lên khung nhập liệu
   document.querySelector(".post-box").scrollIntoView({ behavior: "smooth", block: "center" });
   document.getElementById("content").focus();
 }
 
-// Thêm hàm hủy trả lời mới
 function cancelReply() {
   replyTo = null;
   document.getElementById("replyingTo").innerHTML = "";
   document.getElementById("content").focus();
 }
 
-/* ================= LOGIC XÓA SẠCH DATABASE ================= */
 async function deletePost(postId) {
   showModal("Xác nhận xóa", "Bạn có chắc muốn xóa bài này và các phản hồi liên quan?", false, "", async () => {
     const snapshot = await db.ref("posts").once("value");
@@ -1098,7 +1256,6 @@ function editPost(postId, oldText) {
   });
 }
 
-/* ================= TƯƠNG TÁC CẢM XÚC ================= */
 function toggleReaction(postId, type){
   if(!currentUser) return;
   const ref = db.ref("posts/" + postId);
@@ -1124,7 +1281,6 @@ function toggleLike(postId, isLike){
   toggleReaction(postId, isLike ? "like" : "sad");
 }
 
-/* ================= LẮNG NGHE SỰ KIỆN ÂM THANH ================= */
 db.ref("events").limitToLast(1).on("child_added", (snap) => {
   if (isFirstLoad) { isFirstLoad = false; return; }
   const ev = snap.val();
