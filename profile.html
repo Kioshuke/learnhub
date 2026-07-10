@@ -740,11 +740,11 @@
                 onSnapshot(statsDocRef, (snapshot) => {
                     if (snapshot.exists()) {
                         const stats = snapshot.data();
-                        document.getElementById('stat-total-tests').innerText = stats.weeklyTests || 0;
-                        document.getElementById('stat-total-score').innerText = parseFloat(stats.weekScore || 0).toFixed(2);
-                        document.getElementById('stat-best-score').innerText = parseFloat(stats.weeklyBestScore || 0).toFixed(2);
+                        document.getElementById('stat-total-tests').innerText = stats.totalTests || 0;
+                        document.getElementById('stat-total-score').innerText = parseFloat(stats.totalScore || 0).toFixed(2);
+                        document.getElementById('stat-best-score').innerText = parseFloat(stats.bestScore || 0).toFixed(2);
                         
-                        const avg = stats.weeklyTests ? (stats.weekScore / stats.weeklyTests) : 0;
+                        const avg = stats.totalTests ? (stats.totalScore / stats.totalTests) : 0;
                         document.getElementById('stat-avg-score').innerText = avg.toFixed(2);
                     }
                 });

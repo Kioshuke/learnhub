@@ -31,9 +31,9 @@ export async function createUserStats(user) {
       const isNewWeek = existingData.weekKey && currentWeek && existingData.weekKey !== currentWeek;
       
       const payload = {
-        weekScore: isNewWeek ? 0 : Number(existingData.weekScore || 0),
-        weeklyTests: isNewWeek ? 0 : Number(existingData.weeklyTests || 0),
-        weeklyBestScore: isNewWeek ? 0 : Number(existingData.weeklyBestScore || 0),
+        totalTests: isNewWeek ? 0 : Number(existingData.totalTests || 0),
+        totalScore: isNewWeek ? 0 : Number(existingData.totalScore || 0),
+        bestScore: isNewWeek ? 0 : Number(existingData.bestScore || 0),
         weekKey: currentWeek,
         updatedAt: serverTimestamp()
       };
@@ -42,9 +42,9 @@ export async function createUserStats(user) {
     }
 
     const defaultStats = {
-      weekScore: 0,
-      weeklyTests: 0,
-      weeklyBestScore: 0,
+      totalTests: 0,
+      totalScore: 0,
+      bestScore: 0,
       weekKey: currentWeek,
       createdAt: serverTimestamp(),
       lastPlayed: serverTimestamp(),
@@ -73,9 +73,9 @@ export async function resetWeekIfNeeded(uid) {
     const statsData = statsSnap.data();
     if (statsData.weekKey !== currentWeek) {
       await setDoc(statsRef, {
-        weekScore: 0,
-        weeklyTests: 0,
-        weeklyBestScore: 0,
+        totalTests: 0,
+        totalScore: 0,
+        bestScore: 0,
         weekKey: currentWeek,
         updatedAt: serverTimestamp()
       }, { merge: true });
@@ -106,14 +106,14 @@ export async function updateUserStats(uid, score) {
 
     const isNewWeek = currentData.weekKey && currentWeek && currentData.weekKey !== currentWeek;
     
-    const weekScore = isNewWeek ? numericScore : Number(currentData.weekScore || 0) + numericScore;
-    const weeklyTests = isNewWeek ? 1 : Number(currentData.weeklyTests || 0) + 1;
-    const weeklyBestScore = isNewWeek ? numericScore : Math.max(Number(currentData.weeklyBestScore || 0), numericScore);
+    const totalTests = isNewWeek ? 1 : Number(currentData.totalTests || 0) + 1;
+    const totalScore = isNewWeek ? numericScore : Number(currentData.totalScore || 0) + numericScore;
+    const bestScore = isNewWeek ? numericScore : Math.max(Number(currentData.bestScore || 0), numericScore);
 
     const payload = {
-      weekScore,
-      weeklyTests,
-      weeklyBestScore,
+      totalTests,
+      totalScore,
+      bestScore,
       weekKey: currentWeek,
       lastPlayed: serverTimestamp(),
       updatedAt: serverTimestamp()
@@ -156,9 +156,9 @@ export async function loadUserStats(uid, fallbackUser = null) {
       name: userData.name ?? userData.displayName ?? fb.displayName ?? fb.name ?? null,
       email: userData.email ?? fb.email ?? null,
       photo: userData.photo ?? fb.photoURL ?? fb.photo ?? null,
-      weekScore: statsData.weekScore ?? 0,
-      weeklyTests: statsData.weeklyTests ?? 0,
-      weeklyBestScore: statsData.weeklyBestScore ?? 0,
+      totalTests: statsData.totalTests ?? 0,
+      totalScore: statsData.totalScore ?? 0,
+      bestScore: statsData.bestScore ?? 0,
       weekKey: statsData.weekKey ?? null
     };
   } catch (e) {
@@ -170,7 +170,7 @@ export async function loadUserStats(uid, fallbackUser = null) {
 export async function loadLeaderboard(options = {}) {
   const {
     mode = "current",
-    orderByField = "weekScore",
+    orderByField = "totalScore",
     limitCount = 10,
     weekKey = null
   } = options;
