@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -961,6 +961,13 @@ if(user){
     photo: userData.photoURL,
     displayName: userData.displayName
   };
+
+  try {
+    await createUserStats(window.currentLearnHubUser);
+    await resetWeekIfNeeded(userData.uid);
+  } catch (e) {
+    console.log("Không thể đồng bộ hồ sơ gamification khi đăng nhập:", e);
+  }
 
   // 🆕 [LearnHub Test] Nếu quizFrame đang mở sẵn (trường hợp hiếm), gửi luôn
   if(typeof window.sendUserToQuizFrame === "function"){

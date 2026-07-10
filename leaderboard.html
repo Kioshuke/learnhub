@@ -50,11 +50,8 @@
 
         <!-- Thanh Tab tinh chỉnh khít và mượt hơn -->
         <div class="flex border-b border-gray-100 bg-gray-50/80">
-            <button id="tab-current" class="w-1/2 py-3 text-center font-bold text-xs uppercase tracking-wider border-b-2 border-blue-600 text-blue-600 transition-all focus:outline-none">
+            <button id="tab-current" class="w-full py-3 text-center font-bold text-xs uppercase tracking-wider border-b-2 border-blue-600 text-blue-600 transition-all focus:outline-none">
                 <i class="fas fa-calendar-day mr-1"></i> Tuần này <span id="current-week-id" class="ml-1 text-[10px] opacity-80"></span>
-            </button>
-            <button id="tab-history" class="w-1/2 py-3 text-center font-semibold text-xs uppercase tracking-wider text-gray-400 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-200 transition-all focus:outline-none">
-                <i class="fas fa-history mr-1"></i> Tuần trước <span id="prev-week-id" class="ml-1 text-[10px] opacity-80"></span>
             </button>
         </div>
 
@@ -143,26 +140,13 @@
             
             const currentWeekKey = `${d.getUTCFullYear()}-W${String(currentWeekNum).padStart(2, '0')}`;
             
-            // Tính tuần trước
-            const prevDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            const pd = new Date(Date.UTC(prevDate.getFullYear(), prevDate.getMonth(), prevDate.getDate()));
-            const pDayNum = pd.getUTCDay() || 7;
-            pd.setUTCDate(pd.getUTCDate() + 4 - pDayNum);
-            const pYearStart = new Date(Date.UTC(pd.getUTCFullYear(), 0, 1));
-            const prevWeekNum = Math.ceil((((pd - pYearStart) / 86400000) + 1) / 7);
-            const prevWeekKey = `${pd.getUTCFullYear()}-W${String(prevWeekNum).padStart(2, '0')}`;
-            
-            // --- ĐỔ MÃ TUẦN THẲNG VÀO CÁC NÚT TAB ---
             const currentTxt = document.getElementById("current-week-id");
-            const prevTxt = document.getElementById("prev-week-id");
             if (currentTxt) currentTxt.innerText = `(${currentWeekKey})`;
-            if (prevTxt) prevTxt.innerText = `(${prevWeekKey})`;
-            // ----------------------------------------
             
-            return { current: currentWeekKey, previous: prevWeekKey };
+            return { current: currentWeekKey };
         }
 
-        async function fetchAndRender(mode) {
+        async function fetchAndRender() {
             const rowsContainer = document.getElementById("leaderboard-rows");
             const loadingElement = document.getElementById("loading");
             const contentElement = document.getElementById("leaderboard-content");
@@ -178,45 +162,26 @@
             try {
                 let listData = [];
 
-                if (mode === "current") {
-                    loadingText.innerText = "Đang tải dữ liệu tuần này...";
-                    thExtra.innerText = "Số bài";
+                loadingText.innerText = "Đang tải dữ liệu tuần này...";
+                thExtra.innerText = "Số bài";
 
-                    const q = query(collection(db, "testStats"), orderBy("weekScore", "desc"), limit(10));
-                    const snap = await getDocs(q);
-                    
-                    for (const d of snap.docs) {
-                        const stat = d.data();
-                        let displayName = "Học viên ẩn danh";
-                        if (stat.uid) {
-                            try {
-                                const uSnap = await getDoc(doc(db, "users", stat.uid));
-                                if (uSnap.exists()) displayName = uSnap.data().name || displayName;
-                            } catch (e) {}
-                        }
-                        listData.push({
-                            name: displayName,
-                            score: stat.weekScore || 0,
-                            extra: stat.totalTests || 0
-                        });
+                const q = query(collection(db, "testStats"), orderBy("weekScore", "desc"), limit(10));
+                const snap = await getDocs(q);
+                
+                for (const d of snap.docs) {
+                    const stat = d.data();
+                    let displayName = "Học viên ẩn danh";
+                    if (stat.uid) {
+                        try {
+                            const uSnap = await getDoc(doc(db, "users", stat.uid));
+                            if (uSnap.exists()) displayName = uSnap.data().name || displayName;
+                        } catch (e) {}
                     }
-                } else {
-                    loadingText.innerText = `Đang tìm dữ liệu tuần trước (${weeks.previous})...`;
-                    thExtra.innerText = "Mã Tuần";
-
-                    const winnerDocRef = doc(db, "weeklyWinners", weeks.previous);
-                    const winnerSnap = await getDoc(winnerDocRef);
-
-                    if (winnerSnap.exists() && winnerSnap.data().top) {
-                        const topArr = winnerSnap.data().top;
-                        for (const winner of topArr) {
-                            listData.push({
-                                name: winner.name || "Học viên vinh danh",
-                                score: winner.weekScore || 0,
-                                extra: weeks.previous
-                            });
-                        }
-                    }
+                    listData.push({
+                        name: displayName,
+                        score: stat.weekScore || 0,
+                        extra: stat.weeklyTests || 0
+                    });
                 }
 
                 let htmlRows = "";
@@ -266,21 +231,7 @@
             }
         }
 
-        document.getElementById("tab-current").addEventListener("click", (e) => {
-            currentTab = "current";
-            e.currentTarget.className = "w-1/2 py-3 text-center font-bold text-xs uppercase tracking-wider border-b-2 border-blue-600 text-blue-600 transition-all focus:outline-none";
-            document.getElementById("tab-history").className = "w-1/2 py-3 text-center font-semibold text-xs uppercase tracking-wider text-gray-400 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-200 transition-all focus:outline-none";
-            fetchAndRender("current");
-        });
-
-        document.getElementById("tab-history").addEventListener("click", (e) => {
-            currentTab = "history";
-            e.currentTarget.className = "w-1/2 py-3 text-center font-bold text-xs uppercase tracking-wider border-b-2 border-blue-600 text-blue-600 transition-all focus:outline-none";
-            document.getElementById("tab-current").className = "w-1/2 py-3 text-center font-semibold text-xs uppercase tracking-wider text-gray-400 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-200 transition-all focus:outline-none";
-            fetchAndRender("history");
-        });
-
-        window.addEventListener("DOMContentLoaded", () => fetchAndRender("current"));
+        window.addEventListener("DOMContentLoaded", () => fetchAndRender());
     </script>
 </body>
 </html>
