@@ -158,9 +158,6 @@
                             <span id="profile-role-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-gray-50 text-gray-600 border border-gray-200">
                                 <span id="profile-role-dot" class="w-2 h-2 rounded-full bg-gray-500 animate-pulse"></span> <span id="profile-role-display"><span class="skeleton inline-block rounded" style="width:60px;height:0.9em;vertical-align:middle;">&nbsp;</span></span>
                             </span>
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-blue-50 text-lh-primary border border-blue-200">
-                                🏅 <span class="skeleton inline-block rounded" style="width:40px;height:0.9em;vertical-align:middle;">&nbsp;</span>
-                            </span>
                         </div>
 
                     </div>
@@ -392,6 +389,7 @@
         let unsubscribeUsers = null;
         let unsubscribeViewUser = null; // Listener cho profile người khác
         let unsubscribeOwnProfile = null; // Listener cho profile của mình
+        let unsubscribeStats = null; // Listener cho stats
         let currentViewUserId = null; // Track user đang xem
 
         // ===== UPDATE ONLINE STATUS =====
@@ -540,6 +538,32 @@
             }
         }
 
+        // Load stats theo UID
+        function loadStatsForUser(uid) {
+            if (unsubscribeStats) {
+                unsubscribeStats();
+                unsubscribeStats = null;
+            }
+
+            const statsDocRef = doc(db, 'testStats', uid);
+            unsubscribeStats = onSnapshot(statsDocRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const stats = snapshot.data();
+                    document.getElementById('stat-total-tests').innerText = stats.totalTests || 0;
+                    document.getElementById('stat-total-score').innerText = parseFloat(stats.totalScore || 0).toFixed(2);
+                    document.getElementById('stat-best-score').innerText = parseFloat(stats.bestScore || 0).toFixed(2);
+                    
+                    const avg = stats.totalTests ? (stats.totalScore / stats.totalTests) : 0;
+                    document.getElementById('stat-avg-score').innerText = avg.toFixed(2);
+                } else {
+                    document.getElementById('stat-total-tests').innerText = 0;
+                    document.getElementById('stat-total-score').innerText = "0.00";
+                    document.getElementById('stat-best-score').innerText = "0.00";
+                    document.getElementById('stat-avg-score').innerText = "0.00";
+                }
+            });
+        }
+
         // Load profile người khác
         function loadViewUserProfile(userId) {
             // Unsubscribe listener của profile mình trước
@@ -580,6 +604,9 @@
                     // Ẩn nút settings khi xem profile người khác
                     const settingsBtn = document.querySelector('button[onclick="openSettingsModal()"]');
                     if (settingsBtn) settingsBtn.style.display = 'none';
+
+                    // Load stats của user đang xem
+                    loadStatsForUser(userId);
                 }
             });
         }
@@ -636,23 +663,23 @@
                     // Hiển thị nút settings khi xem profile của mình
                     const settingsBtn = document.querySelector('button[onclick="openSettingsModal()"]');
                     if (settingsBtn) settingsBtn.style.display = 'flex';
+
+                    // Load stats của chính mình
+                    loadStatsForUser(currentUserId);
                 } else {
-                    setDoc(userDocRef, {
-                        name: auth.currentUser?.displayName || "Học viên mới",
-                        email: auth.currentUser?.email,
-                        photo: auth.currentUser?.photoURL || "https://lh3.googleusercontent.com/a/default-user=s120-c",
+                    // Tạo profile mặc định nếu chưa có
+                    const defaultData = {
+                        name: auth.currentUser?.displayName || "Học viên",
+                        email: auth.currentUser?.email || "",
+                        photo: auth.currentUser?.photoURL || "",
                         bio: "",
                         phone: "",
                         birthdate: "",
                         gender: "",
                         school: "",
-                        role: "Thành viên",
-                        online: true,
-                        lastActive: Date.now(),
-                        createdAt: new Date().toISOString()
-                    }).then(() => {
-                        console.log("Đã khởi tạo tài khoản mới thành công!");
-                    }).catch(err => console.error("Lỗi khởi tạo tài khoản:", err));
+                        role: "Thành viên"
+                    };
+                    setDoc(userDocRef, defaultData, { merge: true });
                 }
             });
         }
@@ -735,19 +762,6 @@
                 } else {
                     loadOwnProfile();
                 }
-
-                const statsDocRef = doc(db, 'testStats', currentUserId);
-                onSnapshot(statsDocRef, (snapshot) => {
-                    if (snapshot.exists()) {
-                        const stats = snapshot.data();
-                        document.getElementById('stat-total-tests').innerText = stats.totalTests || 0;
-                        document.getElementById('stat-total-score').innerText = parseFloat(stats.totalScore || 0).toFixed(2);
-                        document.getElementById('stat-best-score').innerText = parseFloat(stats.bestScore || 0).toFixed(2);
-                        
-                        const avg = stats.totalTests ? (stats.totalScore / stats.totalTests) : 0;
-                        document.getElementById('stat-avg-score').innerText = avg.toFixed(2);
-                    }
-                });
 
             } else {
                 console.log("Học viên chưa đăng nhập!");
