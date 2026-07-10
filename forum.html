@@ -745,8 +745,35 @@ let currentUser = null;
 let replyTo = null;
 let isFirstLoad = true;
 let isMuted = localStorage.getItem("forum_muted") === "true";
-let modalAction = null; 
+let modalAction = null;
 let userDirectoryCache = null;
+let userRoleCache = new Map(); // Cache role của users
+
+/* ================= HELPER: LẤY ROLE TỪ CACHE/FIRESTORE ================= */
+async function getUserRole(uid) {
+  if (!uid) return false;
+  if (userRoleCache.has(uid)) return userRoleCache.get(uid);
+
+  try {
+    const userDoc = await firestoreDb.collection("users").doc(uid).get();
+    if (userDoc.exists) {
+      const userData = userDoc.data();
+      const isAdmin = userData.role === "admin" || userData.role === "Admin";
+      userRoleCache.set(uid, isAdmin);
+      return isAdmin;
+    }
+  } catch (err) {
+    console.error("Lỗi lấy role:", err);
+  }
+  return false;
+}
+
+/* ================= PRE-LOAD ROLES CỦA TẤT CẢ USERS ================= */
+async function preloadUserRoles(allPosts) {
+  const uniqueUids = [...new Set(allPosts.map(p => p.uid).filter(Boolean))];
+  const promises = uniqueUids.map(uid => getUserRole(uid));
+  await Promise.all(promises);
+}
 
 /* ================= HỆ THỐNG MODAL (POPUP) ================= */
 function showModal(title, msg, isInput, currentText, onConfirm, isHtml = false) {
@@ -832,9 +859,9 @@ function updateUserBox(){
   }
   const safeName = escapeHTML(currentUser.name || "Người dùng");
   const isAdmin = currentUser.role === 'admin' || currentUser.role === 'Admin';
-  const avatarClass = isAdmin ? 'user-avatar admin' : 'user-avatar';
-  const nameClass = isAdmin ? 'user-name-current admin-name' : 'user-name-current';
-  const adminBadge = isAdmin ? ' <span class="admin-badge" style="background:#fee2e2;color:#dc2626;padding:3px 8px;font-weight:800;border-radius:999px;margin-left:8px;border:1px solid rgba(220,38,38,0.15);">🛡 Admin</span>' : '';
+  const avatarClass = 'user-avatar';
+  const nameClass = 'user-name-current';
+  const adminBadge = '';
   userBox.innerHTML = `<span class="${avatarClass}">${escapeHTML(getInitials(currentUser.name))}</span><span class="${nameClass}">${safeName}</span>${adminBadge}`;
 }
 
@@ -929,33 +956,38 @@ db.ref("posts").on("value", (snapshot) => {
   renderPosts(snapshot);
 });
 
-function renderPosts(snapshot){
+async function renderPosts(snapshot){
   clearTimeout(window.__forumSkeletonTimeout);
   const data = snapshot.val();
   const container = document.getElementById("posts");
   if(!container) return;
-  
+
   const scrollPos = window.scrollY;
   container.innerHTML = "";
-  
+
   if(!data) return;
 
   const allPosts = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+
+  // Pre-load roles của tất cả users trước khi render
+  await preloadUserRoles(allPosts);
+
   const parents = allPosts.filter(p => !p.parentId).sort((a, b) => b.time - a.time);
 
-  parents.forEach(post => {
-    container.appendChild(createPostElement(post, allPosts));
-  });
+  for (const post of parents) {
+    const postElement = await createPostElement(post, allPosts);
+    container.appendChild(postElement);
+  }
 
   window.scrollTo(0, scrollPos);
 }
 
-function createPostElement(post, allPosts){
+async function createPostElement(post, allPosts){
   const div = document.createElement("div");
   const isOwner = currentUser && post.uid === currentUser.uid;
-  
-  // LOGIC NHẬN DIỆN MÀU SẮC ADMIN LINH HOẠT
-  const isAdmin = post.role === "admin" || (currentUser && currentUser.role === "admin" && post.uid === currentUser.uid);
+
+  // LOGIC NHẬN DIỆN MÀU SẮC ADMIN - SỬ DỤNG CACHE
+  const isAdmin = await getUserRole(post.uid) || post.role === "admin" || post.role === "Admin";
 
   let postClasses = [];
   if (isOwner) postClasses.push("current-user-post");
@@ -985,13 +1017,13 @@ function createPostElement(post, allPosts){
   `;
 
   const repliesContainer = document.createElement("div");
-  renderReplies(post.id, repliesContainer, allPosts, 1);
+  await renderReplies(post.id, repliesContainer, allPosts, 1);
   div.appendChild(repliesContainer);
   
   return div;
 }
 
-function renderReplies(parentId, container, allPosts, level){
+async function renderReplies(parentId, container, allPosts, level){
   const replies = allPosts
     .filter(p => p.parentId === parentId)
     .sort((a, b) => a.time - b.time);
@@ -1001,7 +1033,7 @@ function renderReplies(parentId, container, allPosts, level){
   const wrapper = document.createElement("div");
   wrapper.className = "replies-wrapper";
 
-  const renderList = () => {
+  const renderList = async () => {
     wrapper.innerHTML = "";
 
     const btn = document.createElement("div");
@@ -1019,11 +1051,12 @@ function renderReplies(parentId, container, allPosts, level){
     const listWrap = document.createElement("div");
     listWrap.className = "reply-list";
 
-    replies.forEach(rep => {
+    for (const rep of replies) {
       const repDiv = document.createElement("div");
       const isOwner = currentUser && rep.uid === currentUser.uid;
-      
-      const isAdminReply = rep.role === "admin" || (currentUser && currentUser.role === "admin" && rep.uid === currentUser.uid);
+
+      // KIỂM TRA ROLE TỪ CACHE CHO REPLY
+      const isAdminReply = await getUserRole(rep.uid) || rep.role === "admin" || rep.role === "Admin";
 
       let replyClasses = ["reply"];
       if (isAdminReply) replyClasses.push("admin-reply-card");
@@ -1050,9 +1083,9 @@ function renderReplies(parentId, container, allPosts, level){
         </div>
       `;
       
-      renderReplies(rep.id, repDiv, allPosts, level + 1);
+      await renderReplies(rep.id, repDiv, allPosts, level + 1);
       listWrap.appendChild(repDiv);
-    });
+    }
 
     wrapper.appendChild(listWrap);
   };
