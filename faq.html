@@ -18,10 +18,32 @@
 <link rel="stylesheet" href="style.css">
 
 <style>
+  /* Ẩn thanh cuộn bên phải nhưng vẫn cho phép cuộn trang */
+  html, body {
+    overflow-x: hidden; /* Chống tràn chiều ngang tuyệt đối */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  *, *:before, *:after {
+    box-sizing: inherit;
+  }
+  
+  html::-webkit-scrollbar, body::-webkit-scrollbar {
+    display: none; /* Ẩn thanh cuộn trên Chrome, Safari, Edge */
+  }
+
+  html, body {
+    -ms-overflow-style: none;  /* Ẩn thanh cuộn trên IE và Edge cũ */
+    scrollbar-width: none;  /* Ẩn thanh cuộn trên Firefox */
+  }
+
   /* FAQ Page Specific Styles */
   body {
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     min-height: 100vh;
+    padding-top: 110px; /* Thêm phần đệm để không bị header fixed che khuất nội dung trên desktop */
   }
 
   .faq-container {
@@ -120,7 +142,7 @@
     padding: 20px;
   }
 
-  /* Tối ưu hóa Header Navigation Style */
+  /* Tối ưu hóa Header Navigation Style - CỐ ĐỊNH CỨNG FIXED PHẲNG ĐỀU */
   .faq-header-nav {
     background: linear-gradient(135deg, #1a73e8 0%, #2563eb 100%);
     padding: 16px 40px;
@@ -128,8 +150,11 @@
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 4px 20px rgba(26, 115, 232, 0.12);
-    position: sticky;
+    position: fixed; 
     top: 0;
+    left: 0;
+    right: 0; /* Căng đều sang mép phải */
+    width: 100%;
     z-index: 1000;
     backdrop-filter: blur(8px);
   }
@@ -165,6 +190,11 @@
     color: rgba(255, 255, 255, 0.85);
   }
 
+  .faq-nav-actions {
+    display: flex;
+    align-items: center;
+  }
+
   .faq-nav-btn {
     display: flex;
     align-items: center;
@@ -188,24 +218,43 @@
   }
 
   @media (max-width: 768px) {
+    body {
+      padding-top: 190px; /* Đẩy khoảng trống rộng hơn phù hợp với chiều cao header mobile */
+    }
+
     .faq-header-nav {
-      padding: 14px 20px;
+      padding: 20px;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
       text-align: center;
+      align-items: center;
+      justify-content: center;
     }
 
     .faq-nav-brand {
       flex-direction: column;
       gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .faq-nav-text {
+      align-items: center;
+      text-align: center;
     }
 
     .faq-nav-title {
-      font-size: 18px;
+      font-size: 20px;
+    }
+
+    .faq-nav-actions {
+      width: 100%;
+      justify-content: center;
     }
 
     .faq-nav-btn {
-      width: 100%;
+      width: auto;
+      min-width: 160px;
       justify-content: center;
     }
   }
@@ -467,7 +516,7 @@
 </head>
 <body>
 
-<!-- Header (Đã tối ưu cấu trúc) -->
+<!-- Header -->
 <div class="faq-header-nav">
   <a href="https://kioshuke.github.io/learnhub" class="faq-nav-brand">
     <img src="logoweb.webp" width="50" height="50" alt="Logo LearnHub">
@@ -619,7 +668,7 @@
 
     <div class="faq-item">
       <div class="faq-question">
-        Tại sao nền tảng lại sử dụng giải pháp nhúng Iframe?
+        Tại sau nền tảng lại sử dụng giải pháp nhúng Iframe?
         <i class="fa-solid fa-chevron-down"></i>
       </div>
       <div class="faq-answer">
@@ -837,4 +886,4 @@
 </script>
 
 </body>
-</html>
+</html> 

@@ -238,6 +238,15 @@
                 </button>
             </div>
 
+            <div class="flex gap-1 mb-3.5 bg-gray-100 p-1 rounded-lg">
+                <button type="button" onclick="switchSettingsTab('info')" id="tab-btn-info" class="flex-1 py-1.5 rounded-md text-xs font-bold transition-all">
+                    <i class="fas fa-user mr-1"></i> Thông tin
+                </button>
+                <button type="button" onclick="switchSettingsTab('password')" id="tab-btn-password" class="flex-1 py-1.5 rounded-md text-xs font-bold transition-all">
+                    <i class="fas fa-lock mr-1"></i> Mật khẩu
+                </button>
+            </div>
+
             <form id="settings-form" onsubmit="saveSettings(event)" class="space-y-3.5">
                 <div>
                     <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Đổi Avatar (URL Hình riêng)</label>
@@ -281,23 +290,30 @@
                     </div>
                 </div>
 
-                <div class="border-t border-gray-100 pt-3">
-                    <h4 class="text-[11px] font-bold text-blue-600 uppercase tracking-wider mb-2"><i class="fas fa-lock mr-1"></i> Thay đổi mật khẩu</h4>
-                    
-                    <div class="mb-2.5">
-                        <label class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-1">Mật khẩu hiện tại</label>
-                        <input type="password" id="input-old-password" placeholder="••••••••" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
-                    </div>
+                <div class="flex gap-2 pt-2.5 border-t border-gray-100">
+                    <button type="button" onclick="closeSettingsModal()" class="w-1/2 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-lg transition-colors">
+                        Hủy bỏ
+                    </button>
+                    <button type="submit" class="w-1/2 py-2 bg-lh-primary hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition-colors shadow-sm">
+                        Lưu thông tin
+                    </button>
+                </div>
+            </form>
 
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-1">Mật khẩu mới</label>
-                            <input type="password" id="input-new-password" placeholder="••••••••" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
-                        </div>
-                        <div>
-                            <label class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-1">Xác nhận lại</label>
-                            <input type="password" id="input-confirm-password" placeholder="••••••••" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
-                        </div>
+            <form id="password-form" onsubmit="savePassword(event)" class="space-y-3.5 hidden">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Mật khẩu hiện tại</label>
+                    <input type="password" id="input-old-password" placeholder="••••••••" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Mật khẩu mới</label>
+                        <input type="password" id="input-new-password" placeholder="••••••••" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Xác nhận lại</label>
+                        <input type="password" id="input-confirm-password" placeholder="••••••••" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
                     </div>
                 </div>
 
@@ -306,7 +322,7 @@
                         Hủy bỏ
                     </button>
                     <button type="submit" class="w-1/2 py-2 bg-lh-primary hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition-colors shadow-sm">
-                        Lưu thiết lập
+                        Đổi mật khẩu
                     </button>
                 </div>
             </form>
@@ -700,6 +716,32 @@
             settingsModal.classList.remove('opacity-0', 'pointer-events-none');
             settingsModal.firstElementChild.classList.remove('scale-95');
             settingsModal.firstElementChild.classList.add('scale-100');
+            switchSettingsTab('info');
+        }
+
+        window.switchSettingsTab = function(tab) {
+            const infoForm = document.getElementById('settings-form');
+            const passwordForm = document.getElementById('password-form');
+            const btnInfo = document.getElementById('tab-btn-info');
+            const btnPassword = document.getElementById('tab-btn-password');
+            const activeClasses = ['bg-white', 'text-lh-primary', 'shadow-sm'];
+            const inactiveClasses = ['text-gray-500'];
+
+            if (tab === 'password') {
+                infoForm.classList.add('hidden');
+                passwordForm.classList.remove('hidden');
+                btnPassword.classList.add(...activeClasses);
+                btnPassword.classList.remove(...inactiveClasses);
+                btnInfo.classList.remove(...activeClasses);
+                btnInfo.classList.add(...inactiveClasses);
+            } else {
+                passwordForm.classList.add('hidden');
+                infoForm.classList.remove('hidden');
+                btnInfo.classList.add(...activeClasses);
+                btnInfo.classList.remove(...inactiveClasses);
+                btnPassword.classList.remove(...activeClasses);
+                btnPassword.classList.add(...inactiveClasses);
+            }
         }
 
         window.closeSettingsModal = function() {
@@ -773,25 +815,6 @@
             e.preventDefault();
             if (!currentUserId) return window.showToast("Lỗi: Không tìm thấy phiên đăng nhập!", "error");
 
-            const oldPassword = document.getElementById('input-old-password').value;
-            const textNewPassword = document.getElementById('input-new-password').value;
-            const confirmPassword = document.getElementById('input-confirm-password').value;
-
-            if (oldPassword || textNewPassword || confirmPassword) {
-                if (!oldPassword) return window.showToast("Vui lòng nhập mật khẩu cũ để xác minh!", "warning");
-                if (textNewPassword !== confirmPassword) return window.showToast("Mật khẩu mới không trùng khớp!", "error");
-                if (textNewPassword.length < 6) return window.showToast("Mật khẩu mới phải từ 6 ký tự trở lên!", "warning");
-                
-                const user = auth.currentUser;
-                const credential = EmailAuthProvider.credential(user.email, oldPassword);
-                
-                reauthenticateWithCredential(user, credential).then(() => {
-                    updatePassword(user, textNewPassword).then(() => {
-                        window.showToast("Đổi mật khẩu tài khoản thành công!", "success");
-                    }).catch(err => window.showToast("Lỗi đổi mật khẩu: " + err.message, "error"));
-                }).catch(() => window.showToast("Mật khẩu cũ không chính xác!", "error"));
-            }
-
             const inputBirthVal = document.getElementById('input-birth').value;
 
             const updatedProfile = {
@@ -815,6 +838,31 @@
                 .catch((error) => {
                     window.showToast("Lỗi lưu dữ liệu: " + error.message, "error");
                 });
+        }
+
+        window.savePassword = function(e) {
+            e.preventDefault();
+            if (!currentUserId) return window.showToast("Lỗi: Không tìm thấy phiên đăng nhập!", "error");
+
+            const oldPassword = document.getElementById('input-old-password').value;
+            const textNewPassword = document.getElementById('input-new-password').value;
+            const confirmPassword = document.getElementById('input-confirm-password').value;
+
+            if (!oldPassword) return window.showToast("Vui lòng nhập mật khẩu cũ để xác minh!", "warning");
+            if (textNewPassword !== confirmPassword) return window.showToast("Mật khẩu mới không trùng khớp!", "error");
+            if (textNewPassword.length < 6) return window.showToast("Mật khẩu mới phải từ 6 ký tự trở lên!", "warning");
+
+            const user = auth.currentUser;
+            const credential = EmailAuthProvider.credential(user.email, oldPassword);
+
+            reauthenticateWithCredential(user, credential).then(() => {
+                updatePassword(user, textNewPassword).then(() => {
+                    window.showToast("Đổi mật khẩu tài khoản thành công!", "success");
+                    document.getElementById('input-old-password').value = "";
+                    document.getElementById('input-new-password').value = "";
+                    document.getElementById('input-confirm-password').value = "";
+                }).catch(err => window.showToast("Lỗi đổi mật khẩu: " + err.message, "error"));
+            }).catch(() => window.showToast("Mật khẩu cũ không chính xác!", "error"));
         }
     </script>
 </body>
