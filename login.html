@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<link rel="icon" href="pictures/favicon.png" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="pictures/favicon.png">
+<link rel="apple-touch-icon" href="pictures/favicon.png">
+<meta name="theme-color" content="#1a73e8">
+<title>Đăng nhập - LearnHub Platform</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://www.gstatic.com">
+<link rel="preconnect" href="https://www.googleapis.com">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<audio id="thongbaoSound" src="sound/thongbao.mp3" preload="none"></audio>
+
+<div id="loginBox">
+<div class="auth-shell">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <img src="pictures/newlogo.png" alt="Logo LearnHub" loading="lazy" width="55" height="55">
+      <span>LearnHub Platform - With Hubie AI</span>
+    </div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" data-auth-tab="login" onclick="switchAuthTab('login')">Đăng nhập</div>
+      <div class="auth-tab" data-auth-tab="register" onclick="switchAuthTab('register')">Đăng ký</div>
+    </div>
+
+    <div class="auth-title">Chào mừng trở lại!</div>
+    <div class="auth-mobile-showcase">
+      <div class="auth-mobile-slide">
+        <div class="auth-mobile-blur" style="background-image:url('pictures/loading1.jpg')"></div>
+        <div class="auth-mobile-main" style="background-image:url('pictures/loading1.jpg')"></div>
+      </div>
+      <div class="auth-mobile-slide">
+        <div class="auth-mobile-blur" style="background-image:url('pictures/loading2.jpg')"></div>
+        <div class="auth-mobile-main" style="background-image:url('pictures/loading2.jpg')"></div>
+      </div>
+      <div class="auth-mobile-slide">
+        <div class="auth-mobile-blur" style="background-image:url('pictures/loading3.jpg')"></div>
+        <div class="auth-mobile-main" style="background-image:url('pictures/loading3.jpg')"></div>
+      </div>
+      <div class="auth-mobile-slide">
+        <div class="auth-mobile-blur" style="background-image:url('pictures/loading4.jpg')"></div>
+        <div class="auth-mobile-main" style="background-image:url('pictures/loading4.jpg')"></div>
+      </div>
+      <div class="auth-mobile-caption">
+        <strong id="authMobileTitle">LearnHub trên di động</strong>
+        <span id="authMobileDesc">Ôn thi nhanh, gọn và dễ dùng ngay trên điện thoại</span>
+      </div>
+    </div>
+    <div id="authLoginPanel" class="auth-panel">
+      <button class="auth-login-btn" onclick="googleLogin()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" height="18" loading="lazy">
+        <span>Tiếp tục với Google</span>
+      </button>
+
+      <button class="auth-login-btn" onclick="authComingSoon()" style="margin-top:14px;">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" width="18" height="18" loading="lazy">
+        <span>Tiếp tục với GitHub</span>
+      </button>
+
+      <button class="auth-login-btn" onclick="authComingSoon()" style="margin-top:14px;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" width="18" height="18" loading="lazy">
+        <span>Tiếp tục với Microsoft</span>
+      </button>
+
+      <div class="auth-divider">hoặc</div>
+
+      <div class="auth-input-group">
+        <input type="email" id="loginEmail" required onkeypress="if(event.key==='Enter')emailLogin()">
+        <label>Email</label>
+      </div>
+
+      <div class="auth-input-group">
+        <input type="password" id="loginPassword" required onkeypress="if(event.key==='Enter')emailLogin()">
+        <label>Mật khẩu</label>
+      </div>
+
+      <button class="auth-submit" onclick="emailLogin()">Đăng nhập</button>
+    </div>
+
+    <div id="authRegisterPanel" class="auth-panel" style="display:none;">
+      <div class="auth-input-group">
+        <input type="text" id="registerName" required onkeypress="if(event.key==='Enter')emailRegister()">
+        <label>Tên của bạn</label>
+      </div>
+
+      <div class="auth-input-group">
+        <input type="email" id="registerEmail" required onkeypress="if(event.key==='Enter')emailRegister()">
+        <label>Email</label>
+      </div>
+
+      <div class="auth-input-group">
+        <input type="password" id="registerPassword" required onkeypress="if(event.key==='Enter')emailRegister()">
+        <label>Mật khẩu</label>
+      </div>
+
+      <div class="auth-input-group">
+        <input type="password" id="registerConfirmPassword" required onkeypress="if(event.key==='Enter')emailRegister()">
+        <label>Nhập lại mật khẩu</label>
+      </div>
+
+      <button class="auth-submit" onclick="emailRegister()">Đăng ký</button>
+    </div>
+
+    <div class="auth-footer">© 2026 LearnHub Platform | All rights reserved!</div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-header-bar">
+      <span>LearnHub News</span>
+    </div>
+    <div class="auth-slide">
+      <div class="auth-bg-blur" style="background-image:url('pictures/loading1.jpg')"></div>
+      <div class="auth-bg-main" style="background-image:url('pictures/loading1.jpg')"></div>
+    </div>
+
+    <div class="auth-slide">
+      <div class="auth-bg-blur" style="background-image:url('pictures/loading2.jpg')"></div>
+      <div class="auth-bg-main" style="background-image:url('pictures/loading2.jpg')"></div>
+    </div>
+
+    <div class="auth-slide">
+      <div class="auth-bg-blur" style="background-image:url('pictures/loading3.jpg')"></div>
+      <div class="auth-bg-main" style="background-image:url('pictures/loading3.jpg')"></div>
+    </div>
+
+    <div class="auth-slide">
+      <div class="auth-bg-blur" style="background-image:url('pictures/loading4.jpg')"></div>
+      <div class="auth-bg-main" style="background-image:url('pictures/loading4.jpg')"></div>
+    </div>
+
+    <div class="auth-overlay">
+      <h1 id="authSlideTitle">LearnHub - Nang cap cach ban hoc</h1>
+      <p id="authSlideDesc">On thi nhanh • Giao dien hien dai • Toi uu trai nghiem</p>
+    </div>
+</div>
+</div>
+</div>
+
+<div id="authNotice" class="notice-info" role="status" aria-live="polite">
+  <div class="notice-icon" id="authNoticeIcon">i</div>
+  <div class="notice-content">
+    <p class="notice-title" id="authNoticeTitle">Thong bao</p>
+    <p class="notice-message" id="authNoticeMessage"></p>
+  </div>
+</div>
+
+<script type="module">
+import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js"; 
+import { doc, setDoc, getDoc, collection, getDocs, onSnapshot } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js"; 
+import { app, auth, db } from "./firebase-config.js";
+
+await setPersistence(auth, browserLocalPersistence); 
+const provider = new GoogleAuthProvider();
+
+let allowList = [];
+let maintenanceState = { enabled: false, message: "", initialized: false };
+
+try {
+  onSnapshot(doc(db, "settings", "maintenance"), (snap) => {
+    const data = snap.exists() ? (snap.data() || {}) : {};
+    maintenanceState = { enabled: !!data.enabled, message: String(data.message || ""), initialized: true };
+    if (maintenanceState.enabled) {
+      window.location.replace('maintenance.html');
+    }
+  });
+} catch(e) {}
+
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+async function loadAllowList() {
+  try {
+    const snap = await getDocs(collection(db, "accessList"));
+    allowList = snap.docs
+      .map(item => item.data())
+      .filter(item => item && item.email && item.enabled !== false)
+      .map(item => normalizeEmail(item.email));
+  } catch(e) {
+    allowList = [];
+  }
+  return allowList;
+}
+
+function isAllowedEmail(email) {
+  return allowList.includes(normalizeEmail(email));
+}
+
+let authNoticeTimer = null;
+
+function playNotificationSound(soundId = "thongbaoSound") {
+  const audio = document.getElementById(soundId);
+  if (!audio) return;
+  audio.currentTime = 0;
+  audio.play().catch(() => {});
+}
+
+function showAuthNotice(message, type = "info", title = "", durationMs = 2600, soundId = "thongbaoSound") {
+  const notice = document.getElementById("authNotice");
+  const noticeTitle = document.getElementById("authNoticeTitle");
+  const noticeMessage = document.getElementById("authNoticeMessage");
+  const noticeIcon = document.getElementById("authNoticeIcon");
+  if (!notice || !noticeTitle || !noticeMessage || !noticeIcon) return;
+
+  if (authNoticeTimer) { clearTimeout(authNoticeTimer); authNoticeTimer = null; }
+  notice.classList.remove("hide", "show", "notice-error", "notice-info", "notice-success", "notice-warning");
+
+  let icon = "i";
+  let defaultTitle = "Thông báo";
+  if (type === "error") { notice.classList.add("notice-error"); icon = "✕"; defaultTitle = "Lỗi"; }
+  else if (type === "warning") { notice.classList.add("notice-warning"); icon = "!"; defaultTitle = "Chú ý"; }
+  else if (type === "success") { notice.classList.add("notice-success"); icon = "✓"; defaultTitle = "Thành công"; }
+  else { notice.classList.add("notice-info"); }
+
+  noticeIcon.innerText = icon;
+  noticeTitle.innerText = title || defaultTitle;
+  noticeMessage.textContent = message;
+  notice.style.display = "flex";
+  void notice.offsetWidth;
+  notice.classList.add("show");
+  playNotificationSound(soundId);
+
+  authNoticeTimer = setTimeout(() => {
+    notice.classList.remove("show");
+    notice.classList.add("hide");
+    setTimeout(() => { notice.classList.remove("hide"); notice.style.display = "none"; }, 220);
+  }, Math.max(1200, Number(durationMs) || 2600));
+}
+
+function switchAuthTab(type) {
+  const login = document.getElementById("authLoginPanel");
+  const register = document.getElementById("authRegisterPanel");
+  const tabs = document.querySelectorAll("#loginBox .auth-tab");
+  tabs.forEach(tab => tab.classList.remove("active"));
+  if (type === "login") {
+    if (login) login.style.display = "block";
+    if (register) register.style.display = "none";
+  } else {
+    if (login) login.style.display = "none";
+    if (register) register.style.display = "block";
+  }
+  const activeTab = document.querySelector(`#loginBox .auth-tab[data-auth-tab="${type}"]`);
+  if (activeTab) activeTab.classList.add("active");
+}
+
+function authComingSoon() {
+  showAuthNotice("Tính năng này đang phát triển. Hiện tại bạn vẫn đăng nhập bằng Google như cũ.", "info", "Tính năng sắp ra mắt");
+}
+
+const authSlideData = [
+  { title: "LearnHub – Nâng cấp cách bạn học", desc: "Ôn thi nhanh • Giao diện hiện đại • Tối ưu trải nghiệm" },
+  { title: "Giao diện chính - Hubie AI", desc: "Trợ lý AI thông minh hỗ trợ học tập" },
+  { title: "LearnHub Forum", desc: "Trao đổi • Hỏi đáp • Kết nối học sinh như một trang MXH" },
+  { title: "Tính năng Smart FlashCard", desc: "Học từ vựng thông minh với nhiều thể loại học tập, từ vựng đa dạng" }
+];
+let authSlideIndex = 0;
+let authSlideTimer = null;
+
+function updateAuthSlideText(index) {
+  const titleEl = document.getElementById("authSlideTitle");
+  const descEl = document.getElementById("authSlideDesc");
+  const mobileTitleEl = document.getElementById("authMobileTitle");
+  const mobileDescEl = document.getElementById("authMobileDesc");
+  if (!titleEl || !descEl) return;
+  const title = authSlideData[index].title;
+  const desc = authSlideData[index].desc;
+  titleEl.innerHTML = '';
+  descEl.innerHTML = '';
+  title.split('').forEach((char, i) => {
+    const span = document.createElement('span');
+    span.className = 'char';
+    span.textContent = char === ' ' ? '\u00A0' : char;
+    span.style.animationDelay = `${i * 0.03}s`;
+    titleEl.appendChild(span);
+  });
+  const descSpan = document.createElement('span');
+  descSpan.className = 'desc-reveal';
+  descSpan.textContent = desc;
+  descEl.appendChild(descSpan);
+  if (mobileTitleEl) { mobileTitleEl.style.opacity = "0"; setTimeout(() => { mobileTitleEl.textContent = title; mobileTitleEl.style.opacity = "1"; }, 150); }
+  if (mobileDescEl) { mobileDescEl.style.opacity = "0"; setTimeout(() => { mobileDescEl.textContent = desc; mobileDescEl.style.opacity = "1"; }, 250); }
+}
+
+function initAuthSlides() {
+  const desktopSlides = document.querySelectorAll("#loginBox .auth-right .auth-slide");
+  const mobileSlides = document.querySelectorAll("#loginBox .auth-mobile-slide");
+  if (!desktopSlides.length && !mobileSlides.length) return;
+  if (desktopSlides.length) desktopSlides[0].classList.add("active");
+  if (mobileSlides.length) mobileSlides[0].classList.add("active");
+  updateAuthSlideText(0);
+  if (authSlideTimer) clearInterval(authSlideTimer);
+  authSlideTimer = setInterval(() => {
+    const totalSlides = desktopSlides.length || mobileSlides.length;
+    if (!totalSlides) return;
+    const prevIndex = authSlideIndex;
+    authSlideIndex = (authSlideIndex + 1) % totalSlides;
+    if (desktopSlides.length) { desktopSlides[prevIndex].classList.remove("active"); desktopSlides[authSlideIndex].classList.add("active"); }
+    if (mobileSlides.length) { mobileSlides[prevIndex].classList.remove("active"); mobileSlides[authSlideIndex].classList.add("active"); }
+    updateAuthSlideText(authSlideIndex);
+  }, 4000);
+}
+
+initAuthSlides();
+window.switchAuthTab = switchAuthTab;
+window.authComingSoon = authComingSoon;
+window.showAuthNotice = showAuthNotice;
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    window.location.href = 'index.html';
+    return;
+  }
+  document.getElementById("loginBox").style.display = "flex";
+});
+
+window.googleLogin = async function() {
+  if (maintenanceState.enabled) { window.location.replace('maintenance.html'); return; }
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    await loadAllowList();
+    if (!isAllowedEmail(user.email)) {
+      showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập");
+      await signOut(auth);
+      return;
+    }
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists() && userSnap.data().disabled) {
+      showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa");
+      await signOut(auth);
+      return;
+    }
+    await setDoc(userRef, {
+      name: user.displayName,
+      email: user.email,
+      photo: user.photoURL,
+      lastLogin: new Date().toISOString(),
+      lastActive: Date.now(),
+      online: true
+    }, { merge: true });
+    showAuthNotice("Đăng nhập thành công!", "success", "Thành công");
+    const isApp = navigator.userAgent.includes("Android");
+    if (isApp) {
+      setTimeout(() => { window.location.href = "myapp://auth"; }, 1000);
+    } else {
+      setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+    }
+  } catch(error) {
+    console.error("Lỗi Google Login:", error);
+    if (error.code === 'auth/popup-blocked') {
+      showAuthNotice("Vui lòng cho phép cửa sổ popup của trình duyệt để tiếp tục đăng nhập Google.", "error", "Popup đang bị chặn");
+    } else {
+      showAuthNotice("Đăng nhập chưa thành công: " + error.message, "error", "Đã xảy ra lỗi");
+    }
+  }
+};
+
+window.emailLogin = async function() {
+  if (maintenanceState.enabled) { window.location.replace('maintenance.html'); return; }
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  await loadAllowList();
+  if (!email || !password) {
+    showAuthNotice("Vui lòng nhập email và mật khẩu", "error", "Thiếu thông tin");
+    return;
+  }
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    const user = result.user;
+    if (!isAllowedEmail(user.email)) {
+      showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập");
+      await signOut(auth);
+      return;
+    }
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists() && userSnap.data().disabled) {
+      showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa");
+      await signOut(auth);
+      return;
+    }
+    await setDoc(userRef, {
+      email: user.email,
+      photo: user.photoURL || "https://i.imgur.com/6VBx3io.png",
+      lastLogin: new Date().toISOString(),
+      lastActive: Date.now(),
+      online: true
+    }, { merge: true });
+    showAuthNotice("Đăng nhập thành công!", "success", "Thành công");
+  } catch(error) {
+    console.error("Lỗi đăng nhập:", error);
+    let message = "Đăng nhập thất bại";
+    switch (error.code) {
+      case 'auth/user-not-found': message = "Email này chưa được đăng ký"; break;
+      case 'auth/wrong-password': message = "Mật khẩu không đúng"; break;
+      case 'auth/invalid-email': message = "Email không hợp lệ"; break;
+      case 'auth/too-many-requests': message = "Đăng nhập quá nhiều lần. Vui lòng thử lại sau"; break;
+    }
+    showAuthNotice(message, "error", "Đăng nhập thất bại");
+  }
+};
+
+window.emailRegister = async function() {
+  const name = document.getElementById("registerName").value.trim();
+  const email = document.getElementById("registerEmail").value.trim();
+  const password = document.getElementById("registerPassword").value;
+  const confirmPassword = document.getElementById("registerConfirmPassword").value;
+  await loadAllowList();
+  if (!name || !email || !password || !confirmPassword) {
+    showAuthNotice("Vui lòng điền đầy đủ thông tin", "error", "Thiếu thông tin");
+    return;
+  }
+  if (name.length < 2) { showAuthNotice("Tên phải có ít nhất 2 ký tự", "error", "Tên quá ngắn"); return; }
+  if (password !== confirmPassword) { showAuthNotice("Mật khẩu nhập lại không khớp", "error", "Lỗi xác nhận"); return; }
+  if (password.length < 6) { showAuthNotice("Mật khẩu phải có ít nhất 6 ký tự", "error", "Mật khẩu quá ngắn"); return; }
+  if (!isAllowedEmail(email)) {
+    showAuthNotice("Email này không nằm trong danh sách được cấp quyền. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập");
+    return;
+  }
+  try {
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    const user = result.user;
+    await setDoc(doc(db, "users", user.uid), {
+      name: name, email: user.email, photo: "https://i.imgur.com/6VBx3io.png",
+      lastLogin: new Date().toISOString(), lastActive: Date.now(), online: true, createdAt: new Date().toISOString()
+    });
+    showAuthNotice("Đăng ký thành công! Vui lòng đăng nhập.", "success", "Thành công");
+    document.getElementById("registerName").value = "";
+    document.getElementById("registerEmail").value = "";
+    document.getElementById("registerPassword").value = "";
+    document.getElementById("registerConfirmPassword").value = "";
+    await signOut(auth);
+    switchAuthTab('login');
+    document.getElementById("loginEmail").value = email;
+  } catch(error) {
+    console.error("Lỗi đăng ký:", error);
+    let message = "Đăng ký thất bại";
+    switch (error.code) {
+      case 'auth/email-already-in-use': message = "Email này đã được đăng ký"; break;
+      case 'auth/invalid-email': message = "Email không hợp lệ"; break;
+      case 'auth/weak-password': message = "Mật khẩu quá yếu (cần ít nhất 6 ký tự)"; break;
+    }
+    showAuthNotice(message, "error", "Đăng ký thất bại");
+  }
+};
+</script>
+</body>
+</html>

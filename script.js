@@ -241,12 +241,19 @@ function show(id){
 currentTab = id;
 
 // 🔥 XÓA bài + scroll
-document.getElementById("quiz").innerHTML = "";
+const quizEl = document.getElementById("quiz");
+if(quizEl) quizEl.innerHTML = "";
 if(id !== "flash"){
 window.scrollTo({ top:0, behavior:"smooth" });
 }
 
-const tabs = ["home","flash","ly","hoa","sinh","tin","su","bxh","anh"];
+// Active nav link
+const navMap = {'home':'index.html','flash':'index.html#flash','bxh':'index.html#forum'};
+document.querySelectorAll('.nav-link').forEach(a => {
+  a.classList.toggle('active', a.getAttribute('href') === navMap[id]);
+});
+
+const tabs = ["home","flash","bxh"];
 
 tabs.forEach(t=>{
 let el = document.getElementById(t);
@@ -283,14 +290,7 @@ if(id === "flash"){
 },200);
 updateTabScrollTopBtn();
 }
-const buttons = document.querySelectorAll(".menu-buttons button[data-subject]");
-
-buttons.forEach(btn => {
-btn.addEventListener("click", () => {
-buttons.forEach(b => b.classList.remove("active"));
-btn.classList.add("active");
-});
-});
+// Nav links giờ là <a> tags, không cần JS handler
 
 function updateTabScrollTopBtn(){
   const btn = document.getElementById("tabScrollTopBtn");
@@ -675,7 +675,14 @@ initAuthSlides();
 
 // Hiển thị tab mặc định khi trang load
 document.addEventListener("DOMContentLoaded", () => {
-  show('home');
+  const hash = window.location.hash.replace('#','');
+  const validTabs = ['home','flash','bxh'];
+  show(validTabs.includes(hash) ? hash : 'home');
+});
+window.addEventListener('hashchange', () => {
+  const hash = window.location.hash.replace('#','');
+  const validTabs = ['home','flash','bxh'];
+  if(validTabs.includes(hash)) show(hash);
 });
   const feedbackOverlay = document.getElementById('lh-feedback-overlay');
 
@@ -703,11 +710,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 function updateTime(){
 const now = new Date();
-
 const time = now.toLocaleTimeString("vi-VN");
-
-document.getElementById("currentTime").innerText =
-"📍 Tân Hồng - Đồng Tháp • " + time;
+const el = document.getElementById("currentTime");
+if(el) el.innerText = time;
 }
 
 setInterval(updateTime,1000);

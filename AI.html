@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LearnHub AI - Hubie Gọn Nhẹ</title>
+    <title>LearnHub AI - Hubie</title>
     <style>
         /* Tối ưu lại toàn bộ container để vừa khít popup nhỏ */
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -115,7 +115,7 @@
 
 <div class="chat-container">
     <div class="chat-header">
-        <img src="chatboiavt.png" alt="Hubie" onerror="this.src='https://via.placeholder.com/32'">
+        <img src="pictures/chatboiavt.png" alt="Hubie" onerror="this.src='https://via.placeholder.com/32'">
         <span>Hubie - Trợ lý LearnHub</span>
         
         <button class="info-btn" onclick="openInfoModal()" title="Thông tin về Hubie">ℹ️</button>
@@ -125,7 +125,7 @@
     <div class="chat-box" id="chatBox">
         <div class="message-wrapper ai-wrapper">
             <div class="ai-content-group">
-                <img class="msg-avatar" src="chatboiavt.png" onerror="this.src='https://via.placeholder.com/26'">
+                <img class="msg-avatar" src="pictures/chatboiavt.png" onerror="this.src='https://via.placeholder.com/26'">
                 <div class="message ai-msg">Chào bạn! Mình là Hubie đây, trợ thủ đắc lực của bạn trên LearnHub nè! 🤖✨<br><br>Bạn có câu hỏi gì hay cần mình hỗ trợ về bài vở không? Cứ hỏi hoặc paste thẳng ảnh bài tập vô đây nha! 😊</div>
             </div>
             <div class="msg-time" id="welcome-time">10:00 PM</div>
@@ -171,7 +171,7 @@
 
 <script>
 // ĐÃ ĐỔI THÀNH CHUỖI NGUYÊN VẸN ĐỂ KIỂM TRA CHAT
-    const API_KEY = "AQ.Ab8RN6J4F8FGtRTfWOWOS9Vsnfu1UjONVLy84qAR1OzNPio6kQ";
+    const API_KEY = "AIzaSyD8yrrZ9YhW3DnYD_KzdlcoNBEVutoO_8E";
     
     let chatHistory = JSON.parse(localStorage.getItem("hubie_chat_history")) || [];
     let selectedFileData = null;
@@ -188,7 +188,7 @@
 
     const MODEL_QUEUE = [
         { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
-        { id: "gemini-3.1-flash-lite", name: "Gemini 3.1 Flash Lite" },
+        { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite" },
         { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash" }
     ];
 
@@ -329,9 +329,10 @@
             if (data.error && (data.error.code === 429 || data.error.code === 404)) {
                 return await fetchWithBackup(requestBody, modelIndex + 1);
             }
-            if (data.error) throw new Error(`${data.error.status} - ${data.error.message}`);
+            if (data.error) throw new Error(`[${currentModel.id}] ${data.error.status || data.error.code}: ${data.error.message}`);
             return { data: data, activeModelName: currentModel.name };
         } catch (err) {
+            if (err.message && err.message.startsWith('[')) throw err;
             return await fetchWithBackup(requestBody, modelIndex + 1);
         }
     }
@@ -405,6 +406,7 @@
             }
         } catch (error) {
             removeTypingIndicator(typingIndicator);
+            console.error(`[Hubie] API Error:`, error);
             appendErrorMessage(`⚠️ Hubie bảo trì: ${error.message}`);
             statusEl.innerText = "Gặp sự cố lỗi hệ thống";
             chatHistory.pop(); 
@@ -488,7 +490,7 @@
         
         const avatar = document.createElement('img');
         avatar.className = 'msg-avatar';
-        avatar.src = 'chatboiavt.png';
+        avatar.src = 'pictures/chatboiavt.png';
         avatar.onerror = function() { this.src = 'https://via.placeholder.com/26'; };
         
         const msgDiv = document.createElement('div');
@@ -529,7 +531,7 @@
         
         const avatar = document.createElement('img');
         avatar.className = 'msg-avatar';
-        avatar.src = 'chatboiavt.png';
+        avatar.src = 'pictures/chatboiavt.png';
         
         const bubble = document.createElement('div');
         bubble.className = 'typing-bubble';

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<link rel="icon" href="pictures/favicon.png" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="pictures/favicon.png">
+<link rel="apple-touch-icon" href="pictures/favicon.png">
+<meta name="theme-color" content="#1a73e8">
+<title>Phòng Học - LearnHub Platform</title>
+<meta name="description" content="Phòng học trực tuyến - LearnHub Platform">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://www.gstatic.com">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="lh-header-placeholder" data-active="phong-hoc"></div>
+<script>
+fetch('header.html').then(r=>r.text()).then(html=>{
+  document.getElementById('lh-header-placeholder').innerHTML = html;
+  const active = document.getElementById('lh-header-placeholder').dataset.active;
+  const map = {'home':'index.html','flash':'index.html#flash','forum':'index.html#forum','phong-hoc':'phong-hoc.html'};
+  document.querySelectorAll('.nav-link').forEach(a => {
+    if(a.getAttribute('href') === map[active]) a.classList.add('active');
+  });
+});
+</script>
+
+<div class="content" id="mainContent">
+  <div class="subject-tabs" id="subjectTabs">
+    <button class="subject-tab active" data-subject="ly" onclick="switchSubject('ly')">Vật Lý</button>
+    <button class="subject-tab" data-subject="sinh" onclick="switchSubject('sinh')">Sinh Học</button>
+    <button class="subject-tab" data-subject="tin" onclick="switchSubject('tin')">Tin Học</button>
+    <button class="subject-tab" data-subject="su" onclick="switchSubject('su')">Lịch Sử</button>
+    <button class="subject-tab" data-subject="hoa" onclick="switchSubject('hoa')">Hoá Học</button>
+    <button class="subject-tab" data-subject="anh" onclick="switchSubject('anh')">Anh Văn</button>
+  </div>
+
+  <div id="ly" class="subject-panel active">
+    <div class="subject-notice"><strong>📢 Thông Báo Môn Học: Đã thi xong</strong><span class="notice-content"></span></div>
+    <div class="grid">
+      <div class="card">
+        <h3>Trắc nghiệm</h3><div class="status done"></div>
+        <p>Bài ôn tập trắc nghiệm môn Vật Lý.</p>
+        <a class="btn" href="cauhoi/filetest.html?de=../vatli/tracnghiem.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../vatli/tracnghiem.json'); return false;">Làm bài</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="sinh" class="subject-panel">
+    <div class="subject-notice"><strong>📢 Thông Báo Môn Học:</strong><span class="notice-content"></span></div>
+    <div class="grid">
+      <div class="card">
+        <h3>Trắc nghiệm</h3><div class="status done"></div>
+        <p>Bài ôn tập trắc nghiệm môn Sinh Học.</p>
+        <a class="btn" href="cauhoi/filetest.html?de=../sinhhoc/tracnghiem.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../sinhhoc/tracnghiem.json'); return false;">Làm bài</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="tin" class="subject-panel">
+    <div class="subject-notice"><strong>📢 Thông Báo Môn Học: </strong><span class="notice-content"></span></div>
+    <div class="grid">
+      <div class="card">
+        <h3>Ôn Tập MOS</h3><div class="status done"></div>
+        <p>Ôn tập chứng chỉ MOS và các kỹ năng liên quan về Word, Excel, PowerPoint.</p>
+        <a class="btn" href="mos-video-hub.html" onclick="loadQuiz(this,'mos-video-hub.html'); return false;">Mở</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="su" class="subject-panel">
+    <div class="subject-notice"><strong>📢 Thông Báo Môn Học: Đã lược bớt chủ đề 7: Nội dung thi Chủ đề 8 và 9</strong><span class="notice-content"></span></div>
+    <div class="grid">
+      <div class="card">
+        <h3>Trắc nghiệm</h3><div class="status done"></div>
+        <p>Chủ đề 8. LỊCH SỬ ĐỐI NGOẠI CỦA VIỆT NAM THỜI CẬN – HIỆN ĐẠI</p>
+        <a class="btn" href="filetest.html?de=cauhoi/questions.json" onclick="loadQuiz(this,'filetest.html?de=cauhoi/questions.json'); return false;">Làm bài</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="hoa" class="subject-panel">
+    <div class="subject-notice"><strong>📢 Thông Báo Môn Học: CHỐT ĐÁP ÁN HOÁ LỜ 👊👊👊</strong><span class="notice-content"></span></div>
+    <div class="grid">
+      <div class="card">
+        <h3>Trắc nghiệm P1</h3><span class="status done"></span>
+        <p>Bài ôn tập trắc nghiệm môn Hoá Học.</p>
+        <a class="btn" href="cauhoi/filetest.html?de=../hoahoc/tracnghiem1.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../hoahoc/tracnghiem1.json'); return false;">Làm bài</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="anh" class="subject-panel">
+    <div class="subject-notice"><strong>📢 Thông Báo Môn Học:</strong><span class="notice-content"></span></div>
+    <div class="grid">
+      <div class="card">
+        <h3>Phần 1</h3><span class="status done"></span>
+        <p>Điền lỗ ngắn + Sắp xếp hội thoại</p>
+        <a class="btn" href="cauhoi/questionenglish.html?de=../cauhoi/english.json" onclick="loadQuiz(this,'cauhoi/questionenglish.html?de=../cauhoi/english.json'); return false;">Làm bài</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="quiz"></div>
+</div>
+
+<div id="lh-footer-placeholder"></div>
+<script>
+fetch('footer.html').then(r => r.text()).then(html => {
+  document.getElementById('lh-footer-placeholder').innerHTML = html;
+});
+</script>
+
+<div id="userPopup" style="display:none;">
+  <div class="popup-more-wrap">
+    <button id="popupMoreBtn" class="popup-more-btn" type="button" onclick="togglePopupActions(event)" aria-label="Mở tuỳ chọn" aria-expanded="false">⋯</button>
+    <div id="popupActionsMenu" class="popup-actions-menu" onclick="event.stopPropagation()">
+      <a href="profile.html">👤 Tài khoản</a>
+      <a href="https://learnhubpf.pages.dev/admin-dashboard.html" target="_blank" class="admin-link-btn">⚙️ Admin Panel</a>
+      <button id="logoutBtn" onclick="logout()">🚪 Đăng xuất</button>
+    </div>
+  </div>
+  <span class="popup-close" onclick="toggleUserPopup()">&times;</span>
+  <div class="popup-info">
+    <img id="popupAvatar">
+    <div id="greetingText"></div>
+    <h3 id="popupName"></h3>
+    <p id="popupEmail"></p>
+    <p id="popupQuote"></p>
+  </div>
+  <hr class="popup-divider">
+  <p style="text-align:center;font-size:13px;color:#888;margin-top:10px;">© 2026 LearnHub Platform</p>
+</div>
+
+<div id="lh-feedback-overlay" class="lh-popup-overlay" onclick="closeFeedbackModalByOverlay(event)">
+  <div class="lh-popup-content">
+    <button class="lh-popup-close" onclick="closeFeedbackModal()" title="Đóng">&times;</button>
+    <iframe src="gop-y.html" class="lh-popup-iframe"></iframe>
+  </div>
+</div>
+
+<script type="module">
+import { onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js"; 
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js"; 
+import { app, auth, db } from "./firebase-config.js";
+
+await setPersistence(auth, browserLocalPersistence);
+
+function updateTime() {
+  const now = new Date();
+  let hours = now.getHours();
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12;
+  const el = document.getElementById('currentTime');
+  if (el) el.innerText = `${hours}:${minutes} ${ampm}`;
+}
+updateTime();
+setInterval(updateTime, 30000);
+
+function applyUserToUI(user) {
+  const hour = new Date().getHours();
+  let greeting = "";
+  if (hour >= 5 && hour < 11) greeting = "☀️ Chào buổi sáng,";
+  else if (hour >= 11 && hour < 14) greeting = "🌤️ Nghỉ trưa thôi,";
+  else if (hour >= 14 && hour < 18) greeting = "☕ Chào buổi chiều,";
+  else greeting = "🌙 Chào buổi tối,";
+
+  const greetingEl = document.getElementById("greetingText");
+  if (greetingEl) greetingEl.innerText = greeting;
+  const nameEl = document.getElementById("popupName");
+  if (nameEl) nameEl.innerText = user.displayName || "Bạn";
+  const emailEl = document.getElementById("popupEmail");
+  if (emailEl) emailEl.innerText = user.email || "";
+  const quoteEl = document.getElementById("popupQuote");
+  if (quoteEl) quoteEl.innerText = "Học tập là chìa khóa thành công!";
+
+  document.getElementById("welcomeText").innerText = "Chúc bạn một ngày tốt lành,";
+  document.getElementById("userName").innerText = user.displayName || "User";
+
+  const avatar = user.photoURL || "https://i.imgur.com/6VBx3io.png";
+  const userAvatar = document.getElementById("userAvatar");
+  if (userAvatar) userAvatar.src = avatar;
+  const popupAvatar = document.getElementById("popupAvatar");
+  if (popupAvatar) popupAvatar.src = avatar;
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    applyUserToUI(user);
+  } else {
+    window.location.href = 'login.html';
+  }
+});
+
+window.logout = async function() {
+  const user = auth.currentUser;
+  if (user) {
+    await setDoc(doc(db, "users", user.uid), { online: false }, { merge: true });
+  }
+  signOut(auth).then(() => { window.location.href = 'login.html'; });
+};
+
+window.auth = auth;
+window.db = db;
+window.signOut = signOut;
+window.doc = doc;
+window.setDoc = setDoc;
+</script>
+
+<script>
+function switchSubject(id) {
+  document.querySelectorAll('.subject-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.subject-tab[data-subject="${id}"]`).classList.add('active');
+  document.querySelectorAll('.subject-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function loadQuiz(btn, link) {
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
+  const card = btn.closest(".card");
+  if (card) card.classList.add("active-card");
+
+  document.getElementById("quiz").innerHTML = `
+    <div class="quiz-box">
+      <div class="quiz-header">
+        <button class="quiz-btn close-btn" onclick="closeQuiz();" style="pointer-events: all !important;">Đóng bài</button>
+      </div>
+      <div class="loader" id="loader">
+        <div class="skel-quiz-topbar">
+          <div class="skel-bar" style="width:90px;height:24px;border-radius:8px;"></div>
+          <div class="skel-bar" style="width:60px;height:24px;border-radius:8px;"></div>
+        </div>
+        <div class="skel-bar" style="width:100%;height:16px;margin-bottom:8px;"></div>
+        <div class="skel-bar" style="width:70%;height:16px;margin-bottom:16px;"></div>
+        <div class="skel-bar skel-quiz-card"></div>
+        <div class="skel-quiz-row">
+          <div class="skel-bar" style="width:90px;height:42px;border-radius:12px;"></div>
+          <div class="skel-bar" style="width:90px;height:42px;border-radius:12px;"></div>
+          <div class="skel-bar" style="width:90px;height:42px;border-radius:12px;"></div>
+        </div>
+      </div>
+      <iframe id="quizFrame" src="${link}" style="display:none;"></iframe>
+    </div>
+  `;
+
+  setTimeout(() => {
+    const quizEl = document.getElementById("quiz");
+    if (quizEl) quizEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 50);
+
+  let iframe = document.getElementById("quizFrame");
+  let loader = document.getElementById("loader");
+
+  iframe.onload = function() {
+    loader.style.display = "none";
+    iframe.style.display = "block";
+    if (typeof window.sendUserToQuizFrame === "function") window.sendUserToQuizFrame();
+    document.getElementById("quiz").scrollIntoView({ behavior: "smooth", block: "start" });
+    iframe.style.boxShadow = "0 0 25px rgba(26,115,232,0.6)";
+    setTimeout(() => { iframe.style.boxShadow = "none"; }, 1000);
+  };
+}
+
+function closeQuiz() {
+  document.getElementById("quiz").innerHTML = "";
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
+  setTimeout(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, 100);
+}
+
+function toggleUserPopup() {
+  const pop = document.getElementById("userPopup");
+  if (!pop) return;
+  if (getComputedStyle(pop).display === "none") pop.style.display = "block";
+  else { pop.style.display = "none"; }
+}
+
+function togglePopupActions(e) {
+  e.stopPropagation();
+  const menu = document.getElementById("popupActionsMenu");
+  if (menu) menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+
+function closePopupActions() {
+  const menu = document.getElementById("popupActionsMenu");
+  if (menu) menu.style.display = "none";
+}
+
+document.addEventListener("click", function(e) {
+  const popup = document.getElementById("userPopup");
+  const avatarBox = document.querySelector(".avatar-box");
+  if (popup && !popup.contains(e.target) && (!avatarBox || !avatarBox.contains(e.target))) {
+    popup.style.display = "none";
+  }
+});
+
+function openFeedbackModal() {
+  const overlay = document.getElementById('lh-feedback-overlay');
+  if (overlay) { overlay.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+}
+function closeFeedbackModal() {
+  const overlay = document.getElementById('lh-feedback-overlay');
+  if (overlay) { overlay.style.display = 'none'; document.body.style.overflow = ''; }
+}
+function closeFeedbackModalByOverlay(event) {
+  if (event.target.id === 'lh-feedback-overlay') closeFeedbackModal();
+}
+</script>
+</body>
+</html>
