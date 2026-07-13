@@ -397,7 +397,9 @@
     <script type="module">
         import { db, auth } from "./firebase-config.js";
         import { doc, onSnapshot, setDoc, collection } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-        import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+        import { updatePassword, EmailAuthProvider, reauthenticateWithCredential, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+        await setPersistence(auth, browserLocalPersistence);
 
         const settingsModal = document.getElementById('settings-modal');
         let currentUserId = null;
@@ -787,7 +789,7 @@
             }
         }
 
-        auth.onAuthStateChanged(user => {
+        onAuthStateChanged(auth, user => {
             if (user) {
                 currentUserId = user.uid;
 
