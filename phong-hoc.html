@@ -15,21 +15,21 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="app-ready">
 
 <div id="lh-header-placeholder" data-active="phong-hoc"></div>
 <script>
 fetch('header.html').then(r=>r.text()).then(html=>{
   document.getElementById('lh-header-placeholder').innerHTML = html;
   const active = document.getElementById('lh-header-placeholder').dataset.active;
-  const map = {'home':'index.html','flash':'index.html#flash','forum':'index.html#forum','phong-hoc':'phong-hoc.html'};
+  const map = {'home':'index.html','flash':'flashcard/hub.html','forum':'forum.html','phong-hoc':'phong-hoc.html'};
   document.querySelectorAll('.nav-link').forEach(a => {
     if(a.getAttribute('href') === map[active]) a.classList.add('active');
   });
 });
 </script>
 
-<div class="content" id="mainContent">
+<div class="content show" id="mainContent">
   <div class="subject-tabs" id="subjectTabs">
     <button class="subject-tab active" data-subject="ly" onclick="switchSubject('ly')">Vật Lý</button>
     <button class="subject-tab" data-subject="sinh" onclick="switchSubject('sinh')">Sinh Học</button>

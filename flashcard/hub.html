@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LearnHub Flashcard</title>
+  <link rel="icon" href="../pictures/favicon.png" sizes="any">
+  <link rel="stylesheet" href="../style.css">
   <style>
     :root {
       --primary: #2563eb;
@@ -685,7 +687,8 @@
     }
   </style>
 </head>
-<body>
+<body class="app-ready">
+  <div id="lh-header-placeholder" data-active="flash"></div>
   <div class="wrap">
     <header class="hero">
       <h1>LearnHub Flashcard</h1>
@@ -1093,5 +1096,141 @@
       });
     });
   </script>
+
+<div id="lh-footer-placeholder"></div>
+<script>
+fetch('../footer.html').then(r => r.text()).then(html => {
+  document.getElementById('lh-footer-placeholder').innerHTML = html;
+});
+</script>
+
+<script type="module">
+import { onAuthStateChanged, setPersistence, browserLocalPersistence }
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import { doc, setDoc }
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { app, auth, db } from "../firebase-config.js";
+
+await setPersistence(auth, browserLocalPersistence);
+
+function updateTime() {
+  const now = new Date();
+  let hours = now.getHours();
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12;
+  const el = document.getElementById('currentTime');
+  if (el) el.innerText = `${hours}:${minutes} ${ampm}`;
+}
+updateTime();
+setInterval(updateTime, 30000);
+
+function applyUserToUI(user) {
+  const hour = new Date().getHours();
+  let greeting = "";
+  if (hour >= 5 && hour < 11) greeting = "☀️ Chào buổi sáng,";
+  else if (hour >= 11 && hour < 14) greeting = "🌤️ Nghỉ trưa thôi,";
+  else if (hour >= 14 && hour < 18) greeting = "☕ Chào buổi chiều,";
+  else greeting = "🌙 Chào buổi tối,";
+
+  const greetingEl = document.getElementById("greetingText");
+  if (greetingEl) greetingEl.innerText = greeting;
+  const nameEl = document.getElementById("popupName");
+  if (nameEl) nameEl.innerText = user.displayName || "Bạn";
+  const emailEl = document.getElementById("popupEmail");
+  if (emailEl) emailEl.innerText = user.email || "";
+  const quoteEl = document.getElementById("popupQuote");
+  if (quoteEl) quoteEl.innerText = "Học tập là chìa khóa thành công!";
+
+  const wt = document.getElementById("welcomeText");
+  if (wt) wt.innerText = "Chúc bạn một ngày tốt lành,";
+  const un = document.getElementById("userName");
+  if (un) un.innerText = user.displayName || "User";
+
+  const avatar = user.photoURL || "https://i.imgur.com/6VBx3io.png";
+  const userAvatar = document.getElementById("userAvatar");
+  if (userAvatar) userAvatar.src = avatar;
+  const popupAvatar = document.getElementById("popupAvatar");
+  if (popupAvatar) popupAvatar.src = avatar;
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    applyUserToUI(user);
+    try {
+      const userRef = doc(db, "users", user.uid);
+      await setDoc(userRef, { online: true, lastSeen: Date.now() }, { merge: true });
+      window.addEventListener("beforeunload", () => {
+        setDoc(userRef, { online: false, lastSeen: Date.now() }, { merge: true });
+      });
+    } catch(e) { console.error("Online status error:", e); }
+  } else {
+    window.location.href = '../login.html';
+  }
+});
+
+window.logout = async function() {
+  const user = auth.currentUser;
+  if (user) {
+    await setDoc(doc(db, "users", user.uid), { online: false, lastSeen: Date.now() }, { merge: true });
+  }
+  const m = await import("https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js");
+  await m.signOut(auth);
+  window.location.href = '../login.html';
+};
+
+window.auth = auth;
+</script>
+
+<script>
+fetch('../header.html').then(r=>r.text()).then(html=>{
+  document.getElementById('lh-header-placeholder').innerHTML = html;
+  const active = document.getElementById('lh-header-placeholder').dataset.active;
+  const map = {'home':'../index.html','flash':'../flashcard/hub.html','forum':'../forum.html','phong-hoc':'../phong-hoc.html'};
+  document.querySelectorAll('.nav-link').forEach(a => {
+    if(a.getAttribute('href') === map[active]) a.classList.add('active');
+  });
+});
+
+function toggleUserPopup(){
+  const pop = document.getElementById("userPopup");
+  if (!pop) return;
+  if (getComputedStyle(pop).display === "none") pop.style.display = "block";
+  else { pop.style.display = "none"; }
+}
+function togglePopupActions(e) {
+  e.stopPropagation();
+  const menu = document.getElementById("popupActionsMenu");
+  if (menu) menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+document.addEventListener("click", function(e) {
+  const popup = document.getElementById("userPopup");
+  const avatarBox = document.querySelector(".avatar-box");
+  if (popup && !popup.contains(e.target) && (!avatarBox || !avatarBox.contains(e.target))) {
+    popup.style.display = "none";
+  }
+});
+</script>
+
+<div id="userPopup" style="display:none;">
+  <div class="popup-more-wrap">
+    <button id="popupMoreBtn" class="popup-more-btn" type="button" onclick="togglePopupActions(event)" aria-label="Mở tuỳ chọn">⋯</button>
+    <div id="popupActionsMenu" class="popup-actions-menu" onclick="event.stopPropagation()">
+      <a href="../profile.html">👤 Tài khoản</a>
+      <a href="https://learnhubpf.pages.dev/admin-dashboard.html" target="_blank" class="admin-link-btn">⚙️ Admin Panel</a>
+      <button id="logoutBtn" onclick="logout()">🚪 Đăng xuất</button>
+    </div>
+  </div>
+  <span class="popup-close" onclick="toggleUserPopup()">&times;</span>
+  <div class="popup-info">
+    <img id="popupAvatar">
+    <div id="greetingText"></div>
+    <h3 id="popupName"></h3>
+    <p id="popupEmail"></p>
+    <p id="popupQuote"></p>
+  </div>
+  <hr class="popup-divider">
+  <p style="text-align:center;font-size:13px;color:#888;margin-top:10px;">© 2026 LearnHub Platform</p>
+</div>
 </body>
 </html>

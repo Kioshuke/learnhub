@@ -12,140 +12,8 @@ const collection = window.collection;
 const getDocs = window.getDocs;
 
 // Cache DOM elements
-let loadingStatus = document.getElementById("loadingText");
-let loadingStarted = false;
-let loadingTimer = null;
 let currentTab = "home";
-let loadingState = "loading";
 
-const messages = [
-    "✨ Đang kết nối dữ liệu...",
-    "⚙️ Sắp xếp bài học...",
-    "🔥 Đang tối ưu giao diện...",
-    "🌈 Khởi tạo không gian học!"
-];
-
-// Use requestAnimationFrame for smoother animations
-function startLoading(){
-const overlay = document.getElementById("loadingOverlay");
-if (!overlay || loadingStarted) return;
-if(typeof window.resetAppLoadingComplete === "function"){
-  window.resetAppLoadingComplete();
-}
-document.body.classList.add("no-scroll");
-document.body.classList.add("auth-locked");
-document.body.classList.remove("app-ready");
-loadingStarted = true;
-loadingState = "loading";
-overlay.style.display = "flex";
-overlay.classList.remove("hide");
-loadingStatus.innerText = "🧠 Đang chuẩn bị kiến thức...";
-document.getElementById("mainContent").classList.remove("show");
-
-const dotsContainer = document.querySelector(".loading-dots");
-const brandContainer = document.querySelector(".loading-brand");
-
-if (dotsContainer) {
-    dotsContainer.classList.remove(
-        "speed-up",
-        "fade-out",
-        "shrink-out",
-        "slide-apart",
-        "done",
-        "stop-animation"
-    );
-}
-
-if (brandContainer) {
-    brandContainer.classList.remove("emphasize");
-    brandContainer.classList.add("initially-hidden");
-}
-
-let msgIndex = 0;
-
-loadingTimer = setInterval(() => {
-    msgIndex++;
-
-    if (msgIndex < messages.length) {
-        loadingStatus.innerText = messages[msgIndex];
-
-    } else if (msgIndex === messages.length) {
-        loadingStatus.innerText = "✅ Done!";
-        loadingState = "done";
-
-    } else if (msgIndex === messages.length + 1) {
-        if (dotsContainer) {
-            dotsContainer.classList.add("done", "slide-apart");
-        }
-
-    } else if (msgIndex === messages.length + 2) {
-        if (brandContainer) {
-            brandContainer.classList.remove("initially-hidden");
-            brandContainer.classList.add("emphasize");
-        }
-
-    } else if (msgIndex === messages.length + 3) {
-        requestAnimationFrame(() => {
-            if (dotsContainer) {
-                dotsContainer.classList.add("shrink-out");
-            }
-        }, 200);
-
-    } else if (msgIndex === messages.length + 4) {
-        clearInterval(loadingTimer);
-        loadingTimer = null;
-
-        overlay.addEventListener("transitionend", () => {
-            overlay.style.display = "none";
-            document.body.classList.remove("auth-locked", "no-scroll");
-            document.body.classList.add("app-ready");
-            document.getElementById("mainContent").classList.add("show");
-            if(typeof window.markAppLoadingComplete === "function"){
-              window.markAppLoadingComplete();
-            }
-        }, { once: true });
-
-        setTimeout(() => {
-            overlay.classList.add("hide");
-        }, 400);
-    }
-
-}, msgIndex < messages.length ? 800 : 1200);
-
-}
-
-function resetLoadingState(){
-    const overlay = document.getElementById("loadingOverlay");
-    if (!overlay) return;
-
-    if(typeof window.resetAppLoadingComplete === "function"){
-      window.resetAppLoadingComplete();
-    }
-    document.body.classList.add("auth-locked");
-    document.body.classList.remove("app-ready", "no-scroll");
-    if (loadingTimer) {
-        clearInterval(loadingTimer);
-        loadingTimer = null;
-    }
-
-    loadingStarted = false;
-    loadingState = "loading";
-    overlay.classList.remove("hide");
-    overlay.style.display = "none";
-    loadingStatus.innerText = "🧠 Đang chuẩn bị kiến thức...";
-    document.getElementById("mainContent").classList.remove("show");
-    
-    // Reset dots and brand
-    const dotsContainer = document.querySelector(".loading-dots");
-    const brandContainer = document.querySelector(".loading-brand");
-    if (dotsContainer) {
-        dotsContainer.classList.remove("fade-out", "done", "slide-apart", "stop-animation");
-    }
-    if (brandContainer) {
-        brandContainer.classList.remove("emphasize");
-        brandContainer.classList.add("initially-hidden"); // 🔥 Reset to hidden
-    }
-}
 function loadQuiz(btn, link){
 
   // ❌ xoá active cũ
@@ -248,12 +116,12 @@ window.scrollTo({ top:0, behavior:"smooth" });
 }
 
 // Active nav link
-const navMap = {'home':'index.html','flash':'index.html#flash','bxh':'index.html#forum'};
+const navMap = {'home':'index.html','flash':'flashcard/hub.html','bxh':'forum.html'};
 document.querySelectorAll('.nav-link').forEach(a => {
   a.classList.toggle('active', a.getAttribute('href') === navMap[id]);
 });
 
-const tabs = ["home","flash","bxh"];
+const tabs = ["home"];
 
 tabs.forEach(t=>{
 let el = document.getElementById(t);
@@ -675,14 +543,7 @@ initAuthSlides();
 
 // Hiển thị tab mặc định khi trang load
 document.addEventListener("DOMContentLoaded", () => {
-  const hash = window.location.hash.replace('#','');
-  const validTabs = ['home','flash','bxh'];
-  show(validTabs.includes(hash) ? hash : 'home');
-});
-window.addEventListener('hashchange', () => {
-  const hash = window.location.hash.replace('#','');
-  const validTabs = ['home','flash','bxh'];
-  if(validTabs.includes(hash)) show(hash);
+  show('home');
 });
   const feedbackOverlay = document.getElementById('lh-feedback-overlay');
 
@@ -753,8 +614,6 @@ function updateProgress(percent){
     fill.classList.add("complete");
 
     setTimeout(() => {
-      document.getElementById("loadingOverlay").classList.add("hide");
-      document.body.classList.remove("no-scroll");
       document.getElementById("mainContent").classList.add("show");
     }, 800);
   }
