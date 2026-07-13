@@ -688,45 +688,6 @@
   </style>
 </head>
 <body class="app-ready">
-  <div class="menu" id="lhMenu">
-  <div class="menu-brand">
-    <img src="../pictures/logoweb.webp" width="60" height="60" alt="Logo LearnHub">
-  </div>
-  <button class="hamburger" id="hamburgerBtn" onclick="document.getElementById('lhMenu').classList.toggle('nav-open')" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
-  <div class="menu-buttons" id="menuButtons">
-    <a href="../index.html" class="nav-link" style="--accent:#2563eb">Home</a>
-    <a href="../flashcard/hub.html" class="nav-link active" style="--accent:#16a34a">FlashCard</a>
-    <a href="../forum.html" class="nav-link" style="--accent:#7c3aed">Forum</a>
-    <a href="../phong-hoc.html" class="nav-link" style="--accent:#ff6b35">Phòng học</a>
-  </div>
-  <div class="header-user">
-    <span class="header-location">📍 Tân Hồng - Đồng Tháp</span>
-    <span class="header-time" id="currentTime"></span>
-    <div class="user-right">
-      <div class="user-text">
-        <span id="welcomeText"></span>
-        <span id="userName"></span>
-      </div>
-      <div class="avatar-box" onclick="toggleUserPopup()">
-        <img id="userAvatar" alt="Ảnh đại diện người dùng">
-        <span id="onlineDot" class="online-pulse"></span>
-      </div>
-    </div>
-  </div>
-  </div>
-  <div class="ticker-container">
-  <div class="ticker-text">
-  LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.
-  </div>
-  </div>
-  <script>
-  document.addEventListener('click',function(e){
-    var m=document.getElementById('lhMenu');
-    if(m&&m.classList.contains('nav-open')&&!m.contains(e.target)) m.classList.remove('nav-open');
-  });
-  </script>
   <div class="wrap">
     <header class="hero">
       <h1>LearnHub Flashcard</h1>
@@ -1144,131 +1105,17 @@
     });
   </script>
 
-<div id="lh-footer-placeholder"></div>
 <script>
-fetch('../footer.html').then(r => r.text()).then(html => {
-  document.getElementById('lh-footer-placeholder').innerHTML = html;
-});
-</script>
-
-<script type="module">
-import { onAuthStateChanged, setPersistence, browserLocalPersistence }
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-import { doc, setDoc }
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { app, auth, db } from "../firebase-config.js";
-
-await setPersistence(auth, browserLocalPersistence);
-
-function updateTime() {
-  const now = new Date();
-  let hours = now.getHours();
-  const minutes = now.getMinutes().toString().padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12 || 12;
-  const el = document.getElementById('currentTime');
-  if (el) el.innerText = `${hours}:${minutes} ${ampm}`;
-}
-updateTime();
-setInterval(updateTime, 30000);
-
-function applyUserToUI(user) {
-  const hour = new Date().getHours();
-  let greeting = "";
-  if (hour >= 5 && hour < 11) greeting = "☀️ Chào buổi sáng,";
-  else if (hour >= 11 && hour < 14) greeting = "🌤️ Nghỉ trưa thôi,";
-  else if (hour >= 14 && hour < 18) greeting = "☕ Chào buổi chiều,";
-  else greeting = "🌙 Chào buổi tối,";
-
-  const greetingEl = document.getElementById("greetingText");
-  if (greetingEl) greetingEl.innerText = greeting;
-  const nameEl = document.getElementById("popupName");
-  if (nameEl) nameEl.innerText = user.displayName || "Bạn";
-  const emailEl = document.getElementById("popupEmail");
-  if (emailEl) emailEl.innerText = user.email || "";
-  const quoteEl = document.getElementById("popupQuote");
-  if (quoteEl) quoteEl.innerText = "Học tập là chìa khóa thành công!";
-
-  const wt = document.getElementById("welcomeText");
-  if (wt) wt.innerText = "Chúc bạn một ngày tốt lành,";
-  const un = document.getElementById("userName");
-  if (un) un.innerText = user.displayName || "User";
-
-  const avatar = user.photoURL || "https://i.imgur.com/6VBx3io.png";
-  const userAvatar = document.getElementById("userAvatar");
-  if (userAvatar) userAvatar.src = avatar;
-  const popupAvatar = document.getElementById("popupAvatar");
-  if (popupAvatar) popupAvatar.src = avatar;
-}
-
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    applyUserToUI(user);
-    try {
-      const userRef = doc(db, "users", user.uid);
-      await setDoc(userRef, { online: true, lastSeen: Date.now() }, { merge: true });
-      window.addEventListener("beforeunload", () => {
-        setDoc(userRef, { online: false, lastSeen: Date.now() }, { merge: true });
-      });
-    } catch(e) { console.error("Online status error:", e); }
-  } else {
-    window.location.href = '../login.html';
+window.learnHubUser = null;
+window.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'LEARNHUB_USER') {
+    window.learnHubUser = event.data.user;
   }
-});
-
-window.logout = async function() {
-  const user = auth.currentUser;
-  if (user) {
-    await setDoc(doc(db, "users", user.uid), { online: false, lastSeen: Date.now() }, { merge: true });
-  }
-  const m = await import("https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js");
-  await m.signOut(auth);
-  window.location.href = '../login.html';
-};
-
-window.auth = auth;
-</script>
-
-<script>
-function toggleUserPopup(){
-  const pop = document.getElementById("userPopup");
-  if (!pop) return;
-  if (getComputedStyle(pop).display === "none") pop.style.display = "block";
-  else { pop.style.display = "none"; }
-}
-function togglePopupActions(e) {
-  e.stopPropagation();
-  const menu = document.getElementById("popupActionsMenu");
-  if (menu) menu.style.display = menu.style.display === "block" ? "none" : "block";
-}
-document.addEventListener("click", function(e) {
-  const popup = document.getElementById("userPopup");
-  const avatarBox = document.querySelector(".avatar-box");
-  if (popup && !popup.contains(e.target) && (!avatarBox || !avatarBox.contains(e.target))) {
-    popup.style.display = "none";
+  if (event.data && event.data.type === 'DARK_MODE') {
+    if (event.data.value) document.body.classList.add('dark-mode');
+    else document.body.classList.remove('dark-mode');
   }
 });
 </script>
-
-<div id="userPopup" style="display:none;">
-  <div class="popup-more-wrap">
-    <button id="popupMoreBtn" class="popup-more-btn" type="button" onclick="togglePopupActions(event)" aria-label="Mở tuỳ chọn">⋯</button>
-    <div id="popupActionsMenu" class="popup-actions-menu" onclick="event.stopPropagation()">
-      <a href="../profile.html">👤 Tài khoản</a>
-      <a href="https://learnhubpf.pages.dev/admin-dashboard.html" target="_blank" class="admin-link-btn">⚙️ Admin Panel</a>
-      <button id="logoutBtn" onclick="logout()">🚪 Đăng xuất</button>
-    </div>
-  </div>
-  <span class="popup-close" onclick="toggleUserPopup()">&times;</span>
-  <div class="popup-info">
-    <img id="popupAvatar">
-    <div id="greetingText"></div>
-    <h3 id="popupName"></h3>
-    <p id="popupEmail"></p>
-    <p id="popupQuote"></p>
-  </div>
-  <hr class="popup-divider">
-  <p style="text-align:center;font-size:13px;color:#888;margin-top:10px;">© 2026 LearnHub Platform</p>
-</div>
 </body>
 </html>

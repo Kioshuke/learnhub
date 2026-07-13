@@ -734,6 +734,24 @@ body.dark-mode .ans-label:hover {
 </head>
 <body>
 
+<script>
+// If this page is loaded inside an iframe, remove outer paddings and hide its header
+if (window !== window.parent) {
+    try {
+        document.documentElement.style.height = '100%';
+        document.body.style.padding = '0';
+        document.body.style.margin = '0';
+        const hdr = document.querySelector('header');
+        if (hdr) hdr.style.display = 'none';
+        const cont = document.querySelector('.container');
+        if (cont) { cont.style.maxWidth = '100%'; cont.style.padding = '0'; }
+        // Make main layout occupy full viewport height if needed
+        const quizSection = document.getElementById('quiz-container');
+        if (quizSection) quizSection.style.minHeight = '100vh';
+    } catch(e){console.warn('embedded adjust failed', e)}
+}
+</script>
+
 <div class="container">
 <header style="
         display: flex; 

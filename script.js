@@ -50,7 +50,7 @@ function loadQuiz(btn, link){
       </div>
     </div>
 
-    <iframe id="quizFrame" src="${link}" style="display:none;"></iframe>
+    <iframe id="quizFrame" src="${link}" style="display:none;width:100%;height:100vh;border:none;"></iframe>
 
   </div>
   `;
@@ -105,65 +105,74 @@ function closeQuiz(){
     });
   }, 100); // delay nhẹ cho mượt
 }
+const allTabs = ["home", "flash", "forum", "phong-hoc"];
+const iframeTabIds = {"flash":"flashHubFrame","forum":"forumFrame","phong-hoc":"phongHocFrame"};
+const navMap = {'home':'index.html','flash':'flashcard/hub.html','forum':'forum.html','phong-hoc':'phong-hoc.html'};
+const reverseNavMap = {'index.html':'home','flashcard/hub.html':'flash','forum.html':'forum','phong-hoc.html':'phong-hoc'};
+
+function sendUserToFrame(frame){
+  if(!frame || !frame.contentWindow) return;
+  const u = window.currentLearnHubUser;
+  if(!u) return;
+  try {
+    frame.contentWindow.postMessage({ type:"LEARNHUB_USER", user:u }, "*");
+  } catch(e){}
+}
+
 function show(id){
 currentTab = id;
 
-// 🔥 XÓA bài + scroll
 const quizEl = document.getElementById("quiz");
 if(quizEl) quizEl.innerHTML = "";
-if(id !== "flash"){
-window.scrollTo({ top:0, behavior:"smooth" });
-}
 
-// Active nav link
-const navMap = {'home':'index.html','flash':'flashcard/hub.html','bxh':'forum.html'};
 document.querySelectorAll('.nav-link').forEach(a => {
   a.classList.toggle('active', a.getAttribute('href') === navMap[id]);
 });
 
-const tabs = ["home"];
-
-tabs.forEach(t=>{
-let el = document.getElementById(t);
-el.classList.remove("fade-in");
-el.classList.add("fade-out");
-
-setTimeout(()=>{
-el.style.display="none";
-},200);
+allTabs.forEach(t => {
+  const el = document.getElementById(t);
+  if(!el) return;
+  if(t === id){
+    el.style.display = "block";
+    if(iframeTabIds[t]){
+      const frame = document.getElementById(iframeTabIds[t]);
+      if(frame) sendUserToFrame(frame);
+    }
+  } else {
+    el.style.display = "none";
+  }
 });
 
-setTimeout(()=>{
-let active = document.getElementById(id);
-active.style.display="block";
-
-setTimeout(()=>{
-active.classList.remove("fade-out");
-active.classList.add("fade-in");
-},10);
-
-if(id === "flash"){
-  const flashSection = document.getElementById("flash");
-  const flashFrame = document.getElementById("flashHubFrame");
-  if(flashSection){
-    flashSection.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-  if(flashFrame){
-    setTimeout(() => {
-      try { flashFrame.focus(); } catch (e) {}
-    }, 450);
-  }
+if(id !== "home"){
+  setTimeout(function(){
+    var el = document.getElementById(id);
+    if(el) el.scrollIntoView({ behavior:"smooth", block:"start" });
+  }, 50);
+} else {
+  window.scrollTo({ top:0, behavior:"smooth" });
 }
 
-},200);
 updateTabScrollTopBtn();
 }
-// Nav links giờ là <a> tags, không cần JS handler
+
+/* === NAV LINK INTERCEPTION === */
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.nav-link').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var href = this.getAttribute('href');
+      var tab = reverseNavMap[href];
+      if(tab){
+        e.preventDefault();
+        show(tab);
+      }
+    });
+  });
+});
 
 function updateTabScrollTopBtn(){
   const btn = document.getElementById("tabScrollTopBtn");
   if(!btn) return;
-  const canShowOnTab = currentTab === "flash" || currentTab === "bxh";
+  const canShowOnTab = currentTab === "flash" || currentTab === "forum" || currentTab === "phong-hoc";
   if(!canShowOnTab){
     btn.style.display = "none";
     return;
@@ -189,8 +198,8 @@ window.addEventListener("scroll", updateTabScrollTopBtn, { passive: true });
 const tabScrollTopBtn = document.getElementById("tabScrollTopBtn");
 if(tabScrollTopBtn){
   tabScrollTopBtn.addEventListener("click", () => {
-    const frameId = currentTab === "flash" ? "flashHubFrame" : (currentTab === "bxh" ? "forumFrame" : "");
-    const frame = frameId ? document.getElementById(frameId) : null;
+  const frameId = iframeTabIds[currentTab] || "";
+  const frame = frameId ? document.getElementById(frameId) : null;
 
     if (frame && frame.contentWindow) {
       try {
@@ -224,6 +233,7 @@ function bindFrameScrollWatcher(frameId){
 
 bindFrameScrollWatcher("flashHubFrame");
 bindFrameScrollWatcher("forumFrame");
+bindFrameScrollWatcher("phongHocFrame");
 
 function attachFrameWheelHandoff(frameId){
   const frame = document.getElementById(frameId);
@@ -276,6 +286,7 @@ function attachFrameWheelHandoff(frameId){
 
 attachFrameWheelHandoff("forumFrame");
 attachFrameWheelHandoff("flashHubFrame");
+attachFrameWheelHandoff("phongHocFrame");
 
 const popup = document.getElementById("popup");
 const box = document.querySelector(".popup-box");
@@ -624,8 +635,9 @@ const toggle = document.getElementById("darkModeToggle");
 const darkModeFrames = [
     document.getElementById("forumFrame"),
     document.getElementById("flashHubFrame"),
+    document.getElementById("phongHocFrame"),
     document.getElementById("chatbotFrame")
-].filter(Boolean); // loại bỏ frame null nếu DOM chưa có
+].filter(Boolean);
 
 // Hàm gửi tín hiệu sang các iframe cần đồng bộ dark mode
 function sendDarkModeToIframe(isDark) {

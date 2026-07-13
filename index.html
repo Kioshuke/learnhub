@@ -150,7 +150,14 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 </div>
 
 <button id="tabScrollTopBtn" type="button" aria-label="Cuộn lên đầu">↑</button>
+
+<!-- ===== IFRAME TABS: flash, forum, phong-hoc ===== -->
+<div id="flash" style="display:none;width:100%;margin:0;padding:0;"><iframe id="flashHubFrame" src="flashcard/hub.html" style="width:100%;height:100vh;border:none;"></iframe></div>
+<div id="forum" style="display:none;width:100%;margin:0;padding:0;"><iframe id="forumFrame" src="forum.html" style="width:100%;height:100vh;border:none;"></iframe></div>
+<div id="phong-hoc" style="display:none;width:100%;margin:0;padding:0;"><iframe id="phongHocFrame" src="phong-hoc.html" style="width:100%;height:100vh;border:none;"></iframe></div>
+
 <div id="quiz"></div>
+
 </div>
 
 
@@ -570,35 +577,30 @@ if(user){
     console.log("Không thể lấy dữ liệu Firestore:", e);
   }
 
-  // ✅ GỬI USER SANG FORUM IFRAME
-  function sendUserToForum(user){
-    const forumIframe = document.getElementById("forumFrame");
-    if(!forumIframe) return;
-
-    const send = () => {
-      forumIframe.contentWindow.postMessage({
-        type: "USER_INFO",
-        user: {
-          uid: user.uid,
-          name: user.displayName || user.email,
-          role: user.role || "member"
-        }
-      }, "*");
+  // ✅ GỬI USER SANG IFRAME TABS
+  function sendUserToAllFrames(){
+    window.currentLearnHubUser = {
+      uid: userData.uid,
+      email: userData.email,
+      photo: userData.photoURL,
+      displayName: userData.displayName
     };
-
-    if(forumIframe.contentWindow){
-      send();
-    }
-
-    forumIframe.onload = send;
+    ["forumFrame","flashHubFrame","phongHocFrame"].forEach(function(id){
+      var f = document.getElementById(id);
+      if(f && f.contentWindow){
+        try { f.contentWindow.postMessage({ type:"LEARNHUB_USER", user:window.currentLearnHubUser }, "*"); } catch(e){}
+      }
+    });
+    if(typeof window.sendUserToQuizFrame === "function") window.sendUserToQuizFrame();
   }
+  sendUserToAllFrames();
 
-  // ✅ GỌI HÀM
-  sendUserToForum(userData);
+  // Re-send user when any iframe finishes loading
+  ["forumFrame","flashHubFrame","phongHocFrame"].forEach(function(id){
+    var f = document.getElementById(id);
+    if(f) f.onload = function(){ sendUserToAllFrames(); };
+  });
 
-  // 🆕 [LearnHub Test] Lưu lại user hiện tại để gửi sang quizFrame
-  // (quizFrame được tạo động mỗi lần bấm "Làm bài" qua loadQuiz(),
-  // nên cần lưu global để gửi lại mỗi khi iframe đó load/reload)
   window.currentLearnHubUser = {
     uid: userData.uid,
     email: userData.email,
@@ -800,8 +802,12 @@ window.addEventListener("beforeunload", () => {
   window.addEventListener("message", async (event) => {
   if (!event.data || event.data.type !== "LEARNHUB_TEST_RESULT") return;
 
-  const quizFrame = document.getElementById("quizFrame");
-  if (quizFrame && event.source !== quizFrame.contentWindow) return;
+  // Accept from direct quizFrame OR from phongHocFrame (relay)
+  var phocFrame = document.getElementById("phongHocFrame");
+  var quizFrame = document.getElementById("quizFrame");
+  var fromPhongHoc = (phocFrame && event.source === phocFrame.contentWindow);
+  var fromQuiz = (quizFrame && event.source === quizFrame.contentWindow);
+  if (!fromPhongHoc && !fromQuiz) return;
 
   const u = window.currentLearnHubUser;
   const score = Number(event.data.score);
