@@ -23,7 +23,7 @@ body.dark-mode{
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{width:100%;min-height:100vh;font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
-body{padding:16px 20px 28px;}
+body{padding:4px 6px 12px;}
 iframe{width:100%;border:none !important;outline:none !important;display:block;}
 
 /* Specific iframe sizing for quiz inserted into #quiz */
@@ -33,12 +33,14 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
   min-height: 420px;
   border: none !important;
   display: block;
+  margin: 0;
+  padding: 0;
 }
 
 /* ===== SUBJECT TABS ===== */
-.subject-tabs{display:flex;gap:6px;overflow-x:auto;padding:0 0 16px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}
+.subject-tabs{display:flex;gap:4px;overflow-x:auto;padding:0 0 8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}
 .subject-tabs::-webkit-scrollbar{display:none;}
-.subject-tab{flex:1 1 0;min-width:0;padding:10px 6px;border-radius:12px;font-size:13px;font-weight:600;border:1.5px solid var(--border);background:var(--card-bg);color:var(--text-sub);cursor:pointer;transition:all 0.2s;scroll-snap-align:start;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.subject-tab{flex:1 1 0;min-width:0;padding:8px 4px;border-radius:10px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--card-bg);color:var(--text-sub);cursor:pointer;transition:all 0.2s;scroll-snap-align:start;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .subject-tab:hover{border-color:var(--tab);color:var(--tab);}
 .subject-tab.active{color:#fff;border-color:transparent;}
 .subject-tab[data-subject="ly"]{--tab:#2563eb;}.subject-tab[data-subject="ly"].active{background:#2563eb;}
@@ -59,7 +61,7 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
 .subject-notice strong{color:var(--text);}
 
 /* ===== GRID ===== */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;width:100%;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;width:100%;}
 
 /* ===== CARD ===== */
 .card{
@@ -68,17 +70,23 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
   border-radius:16px;
   padding:0;
   display:flex;flex-direction:column;
-  transition:all 0.25s ease;
+  transition:transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   position:relative;overflow:hidden;
+  animation:cardFadeIn 0.28s ease both;
+  animation-delay:calc(var(--card-index, 0) * 0.06s);
+}
+@keyframes cardFadeIn{
+  from{opacity:0;transform:translateY(8px);}
+  to{opacity:1;transform:translateY(0);}
 }
 .card-color-bar{
   height:4px;width:100%;
   background:linear-gradient(90deg,var(--card-color),color-mix(in srgb,var(--card-color) 50%,white));
 }
-.card-body{padding:18px 20px 20px;display:flex;flex-direction:column;gap:8px;}
+.card-body{padding:12px 12px 14px;display:flex;flex-direction:column;gap:6px;}
 .card:hover{
-  transform:translateY(-3px);
-  box-shadow:0 8px 28px color-mix(in srgb,var(--card-color,#2563eb) 14%,transparent);
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px color-mix(in srgb,var(--card-color,#2563eb) 12%,transparent);
   border-color:color-mix(in srgb,var(--card-color,#2563eb) 35%,var(--card-border));
 }
 .card.active-card{
@@ -112,10 +120,33 @@ body.dark-mode .card:hover{box-shadow:0 8px 28px color-mix(in srgb,var(--card-co
 body.dark-mode .card-color-bar{background:linear-gradient(90deg,var(--card-color),color-mix(in srgb,var(--card-color) 60%,#0f172a));}
 body.dark-mode .subject-notice{border-color:var(--notice-border);}
 
+@media (max-width:768px){
+  body{padding:2px 4px 10px;}
+  .subject-tabs{gap:3px;padding-bottom:6px;}
+  .subject-tab{padding:8px 4px;font-size:11px;border-radius:9px;}
+  .grid{grid-template-columns:1fr;gap:8px;}
+  .card{border-radius:12px;box-shadow:none;animation:cardFadeInMobile 0.16s ease both;animation-delay:calc(var(--card-index, 0) * 0.04s);}
+  .card:hover{transform:none;box-shadow:none;}
+  .card-body{padding:10px 10px 12px;gap:6px;}
+  .card h3{font-size:14px;}
+  .card-desc{font-size:12px;line-height:1.4;}
+  .card .btn{padding:8px 14px;font-size:13px;}
+  .quiz-box{margin-top:4px;border-radius:6px;}
+  .quiz-header{padding:6px 6px 8px;}
+}
+@keyframes cardFadeInMobile{
+  from{opacity:0;transform:translateY(4px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .card,.card:hover,.subject-tab{transition:none !important;animation:none !important;}
+}
+
 /* ===== QUIZ ===== */
-.quiz-box{margin-top:16px;background:var(--quiz-bg);border:1px solid var(--quiz-border);border-radius:14px;overflow:hidden;}
-.quiz-header{padding:10px 14px;display:flex;justify-content:flex-start;border-bottom:1px solid var(--quiz-border);}
-.quiz-btn{padding:6px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:13px;}
+.quiz-box{margin-top:8px;background:var(--quiz-bg);border:1px solid var(--quiz-border);border-radius:10px;overflow:hidden;}
+.quiz-header{padding:8px 8px;display:flex;justify-content:flex-start;border-bottom:1px solid var(--quiz-border);}
+.quiz-btn{padding:6px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:13px;}
 .close-btn{background:#ef4444;color:#fff;}
 .skel-bar{background:var(--border);border-radius:8px;height:16px;margin-bottom:8px;}
 .skel-quiz-topbar{display:flex;gap:12px;margin-bottom:14px;}
@@ -152,7 +183,7 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
 <div id="sinh" class="subject-panel" style="--tab:#16a34a;--card-color:#16a34a;">
   <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Sinh Học:</strong> Chuẩn bị ôn tập</div>
   <div class="grid">
-    <div class="card">
+    <div class="card" style="--card-index:1">
       <div class="card-color-bar"></div>
       <div class="card-body">
         <div class="card-top"><div class="card-icon"><i class="fas fa-dna"></i></div><h3>Trắc nghiệm</h3><span class="status done"></span></div>
@@ -166,7 +197,7 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
 <div id="tin" class="subject-panel" style="--tab:#7c3aed;--card-color:#7c3aed;">
   <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Tin Học:</strong> Ôn tập chứng chỉ MOS</div>
   <div class="grid">
-    <div class="card">
+    <div class="card" style="--card-index:0">
       <div class="card-color-bar"></div>
       <div class="card-body">
         <div class="card-top"><div class="card-icon"><i class="fas fa-file-word"></i></div><h3>Ôn Tập MOS</h3><span class="status done"></span></div>
@@ -174,7 +205,7 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
         <div class="btn-row"><a class="btn" href="mos-video-hub.html" onclick="loadQuiz(this,'mos-video-hub.html'); return false;">Mở</a></div>
       </div>
     </div>
-    <div class="card">
+    <div class="card" style="--card-index:1">
       <div class="card-color-bar"></div>
       <div class="card-body">
         <div class="card-top"><div class="card-icon" style="background:#a78bfa;"><i class="fas fa-calculator"></i></div><h3>Luyện Tập Word</h3><span class="status pending"></span></div>
@@ -188,7 +219,7 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
 <div id="su" class="subject-panel" style="--tab:#ea580c;--card-color:#ea580c;">
   <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Lịch Sử:</strong> Chủ đề 8 & 9</div>
   <div class="grid">
-    <div class="card">
+    <div class="card" style="--card-index:0">
       <div class="card-color-bar"></div>
       <div class="card-body">
         <div class="card-top"><div class="card-icon"><i class="fas fa-scroll"></i></div><h3>Trắc nghiệm</h3><span class="status done"></span></div>
@@ -202,7 +233,7 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
 <div id="hoa" class="subject-panel" style="--tab:#dc2626;--card-color:#dc2626;">
   <div class="subject-notice"><i class="fas fa-fire"></i> <strong>Thông báo môn Hoá Học:</strong> CHỐT ĐÁP ÁN 👊</div>
   <div class="grid">
-    <div class="card">
+    <div class="card" style="--card-index:0">
       <div class="card-color-bar"></div>
       <div class="card-body">
         <div class="card-top"><div class="card-icon"><i class="fas fa-flask"></i></div><h3>Trắc nghiệm P1</h3><span class="status done"></span></div>
@@ -216,7 +247,7 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
 <div id="anh" class="subject-panel" style="--tab:#0891b2;--card-color:#0891b2;">
   <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Anh Văn:</strong> Phần 1</div>
   <div class="grid">
-    <div class="card">
+    <div class="card" style="--card-index:0">
       <div class="card-color-bar"></div>
       <div class="card-body">
         <div class="card-top"><div class="card-icon"><i class="fas fa-language"></i></div><h3>Phần 1</h3><span class="status done"></span></div>
@@ -230,15 +261,33 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
 <div id="quiz"></div>
 
 <script>
+function applyCardDominoEffect() {
+  document.querySelectorAll('.grid').forEach(function(grid) {
+    var cards = grid.querySelectorAll('.card');
+    if (cards.length <= 1) {
+      cards.forEach(function(card) {
+        card.style.removeProperty('--card-index');
+      });
+      return;
+    }
+    cards.forEach(function(card, index) {
+      card.style.setProperty('--card-index', index);
+    });
+  });
+}
+
 function switchSubject(id) {
   document.querySelectorAll('.subject-tab').forEach(t => t.classList.remove('active'));
   document.querySelector('.subject-tab[data-subject="' + id + '"]').classList.add('active');
   document.querySelectorAll('.subject-panel').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  applyCardDominoEffect();
 }
 
 window.learnHubUser = null;
 
+window.addEventListener('DOMContentLoaded', applyCardDominoEffect);
+window.addEventListener('load', applyCardDominoEffect);
 window.addEventListener('message', function(event) {
   if (!event.data) return;
   if (event.data.type === 'LEARNHUB_USER') {
@@ -260,9 +309,9 @@ function loadQuiz(btn, link) {
   if (card) card.classList.add("active-card");
 
   document.getElementById("quiz").innerHTML =
-    '<div class="quiz-box" style="position:relative; width:100%; height:100vh; max-height:100vh; overflow:hidden;">' +
-      '<iframe id="quizFrame" src="' + link + '" style="display:none; width:100%; height:100%; border:0; outline:0; "></iframe>' +
-      '<div class="quiz-header" style="position:absolute; top:12px; left:12px; right:auto; z-index:9999; pointer-events:auto;">' +
+    '<div class="quiz-box" style="position:relative; width:100%; height:100vh; max-height:100vh; overflow:hidden; margin:0; padding:0; border-left:0; border-right:0; border-radius:0;">' +
+      '<iframe id="quizFrame" src="' + link + '" style="display:none; width:100%; height:100%; border:0; outline:0; margin:0; padding:0;"></iframe>' +
+      '<div class="quiz-header" style="position:absolute; top:8px; left:8px; right:auto; z-index:9999; pointer-events:auto; padding:0;">' +
         '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng bài</button>' +
       '</div>' +
       '<div class="loader" id="loader" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:5000; background:rgba(255,255,255,0.85);">' +
