@@ -14,6 +14,10 @@
 <link rel="preconnect" href="https://www.gstatic.com">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="style.css">
+<style>
+#mainContent.content { max-width:100%; padding:15px 30px 30px; }
+@media(max-width:700px){ #mainContent.content { padding:10px 14px 20px; } }
+</style>
 </head>
 <body class="app-ready">
 
@@ -45,7 +49,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
       <div class="card">
         <h3>Trắc nghiệm</h3><div class="status done"></div>
         <p>Bài ôn tập trắc nghiệm môn Vật Lý.</p>
-        <a class="btn" href="cauhoi/filetest.html?de=../vatli/tracnghiem.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../vatli/tracnghiem.json'); return false;">Làm bài</a>
+        <a class="btn" href="filetest.html?de=cauhoi/vatli.json" onclick="loadQuiz(this,'filetest.html?de=cauhoi/vatli.json'); return false;">Làm bài</a>
       </div>
     </div>
   </div>
@@ -56,7 +60,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
       <div class="card">
         <h3>Trắc nghiệm</h3><div class="status done"></div>
         <p>Bài ôn tập trắc nghiệm môn Sinh Học.</p>
-        <a class="btn" href="cauhoi/filetest.html?de=../sinhhoc/tracnghiem.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../sinhhoc/tracnghiem.json'); return false;">Làm bài</a>
+        <a class="btn" href="filetest.html?de=cauhoi/sinhhoc.json" onclick="loadQuiz(this,'filetest.html?de=cauhoi/sinhhoc.json'); return false;">Làm bài</a>
       </div>
     </div>
   </div>
@@ -89,7 +93,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
       <div class="card">
         <h3>Trắc nghiệm P1</h3><span class="status done"></span>
         <p>Bài ôn tập trắc nghiệm môn Hoá Học.</p>
-        <a class="btn" href="cauhoi/filetest.html?de=../hoahoc/tracnghiem1.json" onclick="loadQuiz(this,'cauhoi/filetest.html?de=../hoahoc/tracnghiem1.json'); return false;">Làm bài</a>
+        <a class="btn" href="filetest.html?de=cauhoi/hoahoc.json" onclick="loadQuiz(this,'filetest.html?de=cauhoi/hoahoc.json'); return false;">Làm bài</a>
       </div>
     </div>
   </div>
@@ -100,7 +104,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
       <div class="card">
         <h3>Phần 1</h3><span class="status done"></span>
         <p>Điền lỗ ngắn + Sắp xếp hội thoại</p>
-        <a class="btn" href="cauhoi/questionenglish.html?de=../cauhoi/english.json" onclick="loadQuiz(this,'cauhoi/questionenglish.html?de=../cauhoi/english.json'); return false;">Làm bài</a>
+        <a class="btn" href="cauhoi/questionenglish.html?de=english.json" onclick="loadQuiz(this,'cauhoi/questionenglish.html?de=english.json'); return false;">Làm bài</a>
       </div>
     </div>
   </div>

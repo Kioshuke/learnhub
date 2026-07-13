@@ -1,0 +1,21 @@
+[
+  {
+    "sectionTitle": "PHẦN I. CÂU HỎI TRẮC NGHIỆM",
+    "sectionDesc": "Chọn <b>một</b> đáp án chính xác nhất:",
+    "timeLimit": 0.5,
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "Đơn vị của lực trong hệ SI là:",
+        "answers": ["Joule", "Newton", "Pascal", "Watt"],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Công thức tính vận tốc là:",
+        "answers": ["v = s/t", "v = s*t", "v = a*t", "v = s^2"],
+        "correct": 0
+      }
+    ]
+  }
+]

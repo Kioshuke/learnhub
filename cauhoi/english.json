@@ -1,0 +1,21 @@
+[
+  {
+    "sectionTitle": "PHẦN I. CÂU HỎI TRẮC NGHIỆM",
+    "sectionDesc": "Choose the <b>best</b> answer:",
+    "timeLimit": 0.5,
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "She ______ to school every day.",
+        "answers": ["go", "goes", "going", "gone"],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Which word is a noun?",
+        "answers": ["quickly", "beautiful", "teacher", "run"],
+        "correct": 2
+      }
+    ]
+  }
+]

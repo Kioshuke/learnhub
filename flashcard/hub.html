@@ -688,7 +688,45 @@
   </style>
 </head>
 <body class="app-ready">
-  <div id="lh-header-placeholder" data-active="flash"></div>
+  <div class="menu" id="lhMenu">
+  <div class="menu-brand">
+    <img src="../pictures/logoweb.webp" width="60" height="60" alt="Logo LearnHub">
+  </div>
+  <button class="hamburger" id="hamburgerBtn" onclick="document.getElementById('lhMenu').classList.toggle('nav-open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="menu-buttons" id="menuButtons">
+    <a href="../index.html" class="nav-link" style="--accent:#2563eb">Home</a>
+    <a href="../flashcard/hub.html" class="nav-link active" style="--accent:#16a34a">FlashCard</a>
+    <a href="../forum.html" class="nav-link" style="--accent:#7c3aed">Forum</a>
+    <a href="../phong-hoc.html" class="nav-link" style="--accent:#ff6b35">Phòng học</a>
+  </div>
+  <div class="header-user">
+    <span class="header-location">📍 Tân Hồng - Đồng Tháp</span>
+    <span class="header-time" id="currentTime"></span>
+    <div class="user-right">
+      <div class="user-text">
+        <span id="welcomeText"></span>
+        <span id="userName"></span>
+      </div>
+      <div class="avatar-box" onclick="toggleUserPopup()">
+        <img id="userAvatar" alt="Ảnh đại diện người dùng">
+        <span id="onlineDot" class="online-pulse"></span>
+      </div>
+    </div>
+  </div>
+  </div>
+  <div class="ticker-container">
+  <div class="ticker-text">
+  LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.
+  </div>
+  </div>
+  <script>
+  document.addEventListener('click',function(e){
+    var m=document.getElementById('lhMenu');
+    if(m&&m.classList.contains('nav-open')&&!m.contains(e.target)) m.classList.remove('nav-open');
+  });
+  </script>
   <div class="wrap">
     <header class="hero">
       <h1>LearnHub Flashcard</h1>
@@ -844,6 +882,7 @@
           glow: "rgba(96, 165, 250, 0.4)"
         },
         items: [
+          { name: "AI Chatbot - Hubie", description: "Chat với AI助手 Hubie để giải đáp thắc mắc và hỗ trợ học tập.", words: 0, level: "AI", icon: "🤖", href: "../AI.html", target: "_blank" },
           { name: "Environment", description: "Khí hậu, môi trường và phát triển bền vững.", words: 100, level: "Trung bình", icon: "🌍", href: "flash.html?data=environment.js" },
           { name: "Artificial Intelligence (AI) Part 1", description: "Trí tuệ nhân tạo và một số từ ngữ liên quan", words: 50, level: "Trung bình", icon: "🤖", href: "flash.html?data=AI.js" },
           { name: "Artificial Intelligence (AI) Part 2", description: "Trí tuệ nhân tạo và một số từ ngữ liên quan", words: 170, level: "Nâng cao", icon: "🤖", href: "flash.html?data=AI2.js" },
@@ -947,12 +986,20 @@
     function openLesson(topic) {
       if (isLoadingLesson) return;
       isLoadingLesson = true;
+
+      if (topic.target === "_blank") {
+        isLoadingLesson = false;
+        window.open(topic.href, "_blank");
+        return;
+      }
+
       loadingText.textContent = `Chuẩn bị bộ "${topic.name}"...`;
       loadingOverlay.classList.add("show");
       loadingOverlay.setAttribute("aria-hidden", "false");
 
       setTimeout(() => {
-        window.location.href = topic.href;
+        if (topic.target === "_blank") window.open(topic.href, "_blank");
+        else window.location.href = topic.href;
       }, 1500);
     }
 
@@ -1183,15 +1230,6 @@ window.auth = auth;
 </script>
 
 <script>
-fetch('../header.html').then(r=>r.text()).then(html=>{
-  document.getElementById('lh-header-placeholder').innerHTML = html;
-  const active = document.getElementById('lh-header-placeholder').dataset.active;
-  const map = {'home':'../index.html','flash':'../flashcard/hub.html','forum':'../forum.html','phong-hoc':'../phong-hoc.html'};
-  document.querySelectorAll('.nav-link').forEach(a => {
-    if(a.getAttribute('href') === map[active]) a.classList.add('active');
-  });
-});
-
 function toggleUserPopup(){
   const pop = document.getElementById("userPopup");
   if (!pop) return;

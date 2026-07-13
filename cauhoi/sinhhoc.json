@@ -1,0 +1,21 @@
+[
+  {
+    "sectionTitle": "PHẦN I. CÂU HỎI TRẮC NGHIỆM",
+    "sectionDesc": "Chọn <b>một</b> đáp án chính xác nhất:",
+    "timeLimit": 0.5,
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "Đơn vị cơ bản của di truyền học là:",
+        "answers": ["Nucleotide", "Gen", "Amino acid", "Ribosome"],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Quang hợp xảy ra ở bộ phận nào của thực vật?",
+        "answers": ["Rễ", "Thân", "Lá", "Hoa"],
+        "correct": 2
+      }
+    ]
+  }
+]
