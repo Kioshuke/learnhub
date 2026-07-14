@@ -72,8 +72,17 @@ fetch('header.html').then(r=>r.text()).then(html=>{
   document.getElementById('lh-header-placeholder').innerHTML = html;
   const active = document.getElementById('lh-header-placeholder').dataset.active;
   const map = {'home':'index.html','flash':'flashcard/hub.html','forum':'forum.html','phong-hoc':'phong-hoc.html'};
+  const reverseMap = {'index.html':'home','flashcard/hub.html':'flash','forum.html':'forum','phong-hoc.html':'phong-hoc'};
   document.querySelectorAll('.nav-link').forEach(a => {
     if(a.getAttribute('href') === map[active]) a.classList.add('active');
+    a.addEventListener('click', function(e){
+      var href = this.getAttribute('href');
+      var tab = reverseMap[href];
+      if(tab){
+        e.preventDefault();
+        if(typeof show === 'function') show(tab);
+      }
+    });
   });
 });
 </script>

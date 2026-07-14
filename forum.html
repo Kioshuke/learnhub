@@ -1795,16 +1795,7 @@ function applyHeaderUser(user) {
 
 <script>
 /* ===== COMPAT SDK: chỉ dùng cho Realtime Database online status ===== */
-var firebaseConfig = {
-  apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c",
-  authDomain: "onthi12-thpttanhong.firebaseapp.com",
-  projectId: "onthi12-thpttanhong",
-  storageBucket: "onthi12-thpttanhong.firebasestorage.app",
-  messagingSenderId: "109867981504",
-  appId: "1:109867981504:web:e116346b0efcfb140cd55f"
-};
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-var db = firebase.database();
+/* (firebaseConfig và db đã được define ở block trên, không cần khai báo lại) */
 
 /* online status khi nhận user từ parent */
 function setupOnlineStatus(user) {
