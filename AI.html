@@ -170,8 +170,8 @@
 </div>
 
 <script>
-// ĐÃ ĐỔI THÀNH CHUỖI NGUYÊN VẸN ĐỂ KIỂM TRA CHAT
-    const API_KEY = "AIzaSyD8yrrZ9YhW3DnYD_KzdlcoNBEVutoO_8E";
+// 🔒 API Key được ẩn trên Cloudflare Worker - không暴露 trên frontend
+    const WORKER_URL = "https://hubie-proxy.quanhao678.workers.dev";
     
     let chatHistory = JSON.parse(localStorage.getItem("hubie_chat_history")) || [];
     let selectedFileData = null;
@@ -318,12 +318,14 @@
         const statusEl = document.getElementById('status');
         statusEl.innerText = `Hubie đang kết nối với ${currentModel.name}...`;
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel.id}:generateContent?key=${API_KEY}`;
         try {
-            const response = await fetch(url, {
+            const response = await fetch(WORKER_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody)
+                body: JSON.stringify({
+                    model: currentModel.id,
+                    requestBody: requestBody
+                })
             });
             const data = await response.json();
             if (data.error && (data.error.code === 429 || data.error.code === 404)) {
