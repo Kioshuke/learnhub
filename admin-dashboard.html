@@ -550,10 +550,17 @@
       <div class="panel-head"><div><div class="panel-title">Popup chào mừng</div><div class="panel-desc" style="margin-bottom:0">Hiển thị sau khi user đăng nhập. Hỗ trợ HTML (&lt;b&gt;, &lt;br&gt;, &lt;i&gt;).</div></div></div>
       <div class="field-row" style="margin-top:0"><input id="welcomePopupTitleInput" class="input" type="text" placeholder="Tiêu đề popup"></div>
       <div class="field-row"><textarea id="welcomePopupMessageInput" class="input" rows="6" style="min-height:140px" placeholder="Nội dung popup..."></textarea></div>
-      <label style="display:flex;align-items:center;gap:8px;margin:8px 0 16px;font-weight:600;font-size:13px;cursor:pointer">
+      <label style="display:flex;align-items:center;gap:8px;margin:8px 0 12px;font-weight:600;font-size:13px;cursor:pointer">
         <input id="welcomePopupActiveInput" type="checkbox" checked style="accent-color:var(--blue);width:16px;height:16px">
         Bật popup (hiện sau khi user đăng nhập)
       </label>
+      <div class="radio-section" style="margin-bottom:16px">
+        <label class="radio-section-label">Tần suất hiển thị</label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="welcomePopupShowMode" value="every_time" checked><span>Mỗi lần vào web</span></label>
+          <label class="radio-option"><input type="radio" name="welcomePopupShowMode" value="daily"><span>Lần đầu trong ngày</span></label>
+        </div>
+      </div>
       <div style="display:flex;gap:8px">
         <button class="btn btn-primary" id="saveWelcomePopupBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Lưu popup</button>
         <button class="btn btn-soft" id="disableWelcomePopupBtn">Tắt popup</button>
@@ -978,18 +985,22 @@ document.getElementById("clearBroadcastBtn").addEventListener("click", async () 
 async function loadWelcomePopupForm() {
   try {
     const s = await getDoc(doc(db,"broadcasts","welcomePopup"));
-    if (!s.exists()) { welcomePopupTitleInput.value="📢 Thông báo"; welcomePopupMessageInput.value="CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM"; welcomePopupActiveInput.checked=true; welcomePopupMeta.textContent="Chưa có bản lưu. Lưu lần đầu để áp dụng."; return; }
+    if (!s.exists()) { welcomePopupTitleInput.value="📢 Thông báo"; welcomePopupMessageInput.value="CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM"; welcomePopupActiveInput.checked=true; document.querySelector('input[name="welcomePopupShowMode"][value="every_time"]').checked=true; welcomePopupMeta.textContent="Chưa có bản lưu. Lưu lần đầu để áp dụng."; return; }
     const d=s.data()||{}; welcomePopupTitleInput.value=d.title||"📢 Thông báo"; welcomePopupMessageInput.value=d.message||""; welcomePopupActiveInput.checked=d.active!==false;
+    const mode=d.showMode==="daily"?"daily":"every_time";
+    document.querySelector(`input[name="welcomePopupShowMode"][value="${mode}"]`).checked=true;
     welcomePopupMeta.textContent=d.updatedAt?`Cập nhật: ${formatDate(d.updatedAt)}${d.updatedBy?` · bởi ${d.updatedBy}`:""}`:"";
   } catch(e) { console.error(e); showNotice("Không tải được popup.", "error"); }
 }
 
 document.getElementById("saveWelcomePopupBtn").addEventListener("click", async () => {
   const title=String(welcomePopupTitleInput.value||"").trim(), message=String(welcomePopupMessageInput.value||"").trim(), active=welcomePopupActiveInput.checked;
+  const showModeRadio=document.querySelector('input[name="welcomePopupShowMode"]:checked');
+  const showMode=showModeRadio?showModeRadio.value:"every_time";
   if (!message) { showNotice("Vui lòng nhập nội dung popup.", "error"); return; }
   try {
     const now=new Date().toISOString();
-    await setDoc(doc(db,"broadcasts","welcomePopup"),{title:title||"📢 Thông báo",message,active,updatedAt:now,updatedBy:adminEmail},{merge:true});
+    await setDoc(doc(db,"broadcasts","welcomePopup"),{title:title||"📢 Thông báo",message,active,showMode,updatedAt:now,updatedBy:adminEmail},{merge:true});
     welcomePopupMeta.textContent=`Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`; showNotice("Đã lưu popup cố định.", "success");
   } catch(e) { console.error(e); showNotice("Lưu popup thất bại.", "error"); }
 });

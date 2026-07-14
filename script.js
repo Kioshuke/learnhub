@@ -298,8 +298,15 @@ function closeMainPopup(){
   if(popup){
     popup.style.display = "none";
   }
-  if(window.lastWelcomePopupVersion){
-    localStorage.setItem("learnhub_welcome_popup_seen", window.lastWelcomePopupVersion);
+  const mode = window.lastWelcomePopupShowMode;
+  if(mode === "daily"){
+    const now = new Date();
+    const todayStr = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0") + "-" + String(now.getDate()).padStart(2,"0");
+    localStorage.setItem("learnhub_welcome_popup_daily", todayStr);
+  } else {
+    if(window.lastWelcomePopupVersion){
+      localStorage.setItem("learnhub_welcome_popup_seen", window.lastWelcomePopupVersion);
+    }
   }
 }
 

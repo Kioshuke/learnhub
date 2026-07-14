@@ -51,9 +51,17 @@
 <audio id="realtimeSound" src="sound/realtimesound.mp3" preload="none" hidden></audio>
 <div id="popup">
 <div class="popup-box">
-<span class="close">&times;</span>
-<h3 id="mainPopupTitle">📢 Thông báo</h3>
-<p id="mainPopupMessage" style="text-align:left;"> <b>CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM</b> </p>
+  <button class="popup-close-btn" onclick="closeMainPopup()" title="Đóng">&times;</button>
+  <div class="popup-header">
+    <div class="popup-icon">📢</div>
+    <h3 id="mainPopupTitle">Thông báo</h3>
+  </div>
+  <div class="popup-body">
+    <p id="mainPopupMessage"><b>CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM</b></p>
+  </div>
+  <div class="popup-footer">
+    <button class="popup-confirm-btn" onclick="closeMainPopup()">Đã hiểu</button>
+  </div>
 </div>
 </div>
 <!-- loginBox đã được tách sang login.html -->
@@ -387,11 +395,21 @@ function maybeShowWelcomePopup(data){
   if(!payload || payload.active === false) return;
   if(!appLoadingComplete) return;
 
-  const version = String(payload.updatedAt || "default");
-  const seenKey = "learnhub_welcome_popup_seen";
-  if(localStorage.getItem(seenKey) === version) return;
+  const showMode = payload.showMode === "daily" ? "daily" : "every_time";
+  const now = new Date();
+  const todayStr = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0") + "-" + String(now.getDate()).padStart(2,"0");
 
-  window.lastWelcomePopupVersion = version;
+  if(showMode === "daily"){
+    const seenDate = localStorage.getItem("learnhub_welcome_popup_daily");
+    if(seenDate === todayStr) return;
+  } else {
+    const version = String(payload.updatedAt || "default");
+    const seenKey = "learnhub_welcome_popup_seen";
+    if(localStorage.getItem(seenKey) === version) return;
+    window.lastWelcomePopupVersion = version;
+  }
+
+  window.lastWelcomePopupShowMode = showMode;
   if(typeof window.showMainPopup === "function"){
     window.showMainPopup(
       payload.title || WELCOME_POPUP_DEFAULT.title,

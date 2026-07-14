@@ -90,8 +90,9 @@
         .input-area textarea { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 18px; outline: none; font-size: 14px; background: #f8f9fa; transition: all 0.2s; resize: none; max-height: 80px; font-family: inherit; line-height: 1.3; overflow-y: auto; }
         .input-area textarea:focus { background: #fff; border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.1); }
         
-        .input-area button.send-btn { padding: 0 16px; background: #28a745; color: white; border: none; border-radius: 18px; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s; height: 34px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .input-area button.send-btn { width: 34px; height: 34px; background: #28a745; color: white; border: none; border-radius: 50%; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
         .input-area button.send-btn:hover { background: #218838; }
+        .input-area button.send-btn svg { width: 16px; height: 16px; fill: white; }
 
         /* ℹ️ KHU VỰC CSS CỦA NÚT THÔNG TIN VÀ POPUP MODAL */
         .info-btn { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 4px; line-height: 1; transition: opacity 0.2s; }
@@ -147,7 +148,7 @@
             <button class="attach-btn" onclick="document.getElementById('fileInput').click()" title="Đính kèm ảnh chụp bài tập">📎</button>
             
             <textarea id="userInput" rows="1" placeholder="Hỏi Hubie hoặc paste ảnh (Ctrl+V)..." onkeydown="handleKeyDown(event)" oninput="autoResizeTextarea(this)"></textarea>
-            <button class="send-btn" onclick="sendMessage()">Gửi</button>
+            <button class="send-btn" onclick="sendMessage()" title="Gửi tin nhắn"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
         </div>
     </div>
 </div>
