@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>Chính Sách Bảo Mật - LearnHub Platform</title>
+  <link rel="icon" href="pictures/favicon.png" sizes="any">
+  <link rel="icon" type="image/png" sizes="48x48" href="pictures/favicon.png">
+  <link rel="apple-touch-icon" href="pictures/favicon.png">
+  <meta name="theme-color" content="#1a73e8">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ĐOẠN MỚI ĐÃ SỬA: */
+    html {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    *,*::before,*::after{box-sizing:inherit}
+    html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+    html,body{-ms-overflow-style:none;scrollbar-width:none}
+
+    body{background:#f4f6fa;min-height:100vh;padding-top:100px;color:#1e293b;font-family:system-ui, -apple-system, sans-serif}
+
+    /* ===== NAV HEADER GRADIENT CHUẨN ĐẸP ===== */
+    .doc-nav{background:linear-gradient(135deg, #1a73e8, #0d47a1);padding:14px 40px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(13,71,161,0.15);position:fixed;top:0;left:0;right:0;width:100%;z-index:1000;border-bottom:1px solid rgba(255,255,255,0.1)}
+    .doc-nav-brand{display:flex;align-items:center;gap:14px;text-decoration:none}
+    .doc-nav-brand img{border-radius:10px;padding:2px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+    .doc-nav-text{display:flex;flex-direction:column}
+    .doc-nav-title{font-size:19px;font-weight:700;color:#ffffff;letter-spacing:-0.3px}
+    .doc-nav-sub{font-size:12.5px;color:rgba(255,255,255,0.85);font-weight:500}
+    .doc-nav-actions{display:flex;gap:10px}
+    .doc-nav-btn{display:flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(255,255,255,0.12);color:#fff;text-decoration:none;border-radius:50px;font-weight:600;font-size:13.5px;transition:all 0.25s ease;border:1px solid rgba(255,255,255,0.25)}
+    .doc-nav-btn:hover{background:#ffffff;color:#1a73e8;transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,255,255,0.2);border-color:#ffffff}
+
+    @media(max-width:768px){
+      body{padding-top:150px}
+      .doc-nav{padding:14px 20px;flex-direction:column;gap:12px;text-align:center}
+      .doc-nav-brand{gap:10px}
+      .doc-nav-text{align-items:center}
+      .doc-nav-title{font-size:17px}
+      .doc-nav-actions{width:100%;justify-content:center}
+    }
+
+    /* ===== HERO ===== */
+    .doc-hero{text-align:center;padding:40px 24px 20px;width:100%}
+    .doc-hero-icon{width:54px;height:54px;margin:0 auto 16px;background:linear-gradient(135deg,#e0f2fe,#bae6fd);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#0284c7;box-shadow:0 4px 12px rgba(2,132,199,0.1)}
+    .doc-hero h1{font-size:clamp(26px,4.5vw,36px);font-weight:800;color:#0f172a;letter-spacing:-0.5px;margin-bottom:10px}
+    .doc-hero p{font-size:15px;color:#475569;max-width:800px;margin:0 auto 14px;line-height:1.6;word-wrap:break-word;overflow-wrap:break-word}
+    .doc-hero .badge{display:inline-flex;align-items:center;gap:6px;background:#e2e8f0;border-radius:999px;padding:6px 16px;font-size:12.5px;font-weight:600;color:#334155}
+    .doc-hero .badge i{color:#475569}
+
+    /* ===== LAYOUT GRID ===== */
+    .doc-container{max-width:1200px;margin:0 auto;padding:20px 24px 60px;padding-left:290px}
+
+    /* ===== FIXED SIDEBAR TOC ===== */
+    .toc-sidebar{position:fixed;top:80px;left:20px;width:250px;height:fit-content;max-height:calc(100vh - 160px);overflow-y:auto;padding:5px 20px 15px 0;z-index:100}
+    .toc-title{font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:#94a3b8;margin-bottom:16px}
+    .toc-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:4px}
+    .toc-link{display:block;padding:8px 16px;font-size:13.5px;color:#64748b;text-decoration:none;font-weight:500;transition:all 0.2s ease;border-left:3px solid transparent;margin-left:-23px;padding-left:22px}
+    .toc-link:hover{color:#0f172a;padding-left:25px}
+    
+    /* Mỗi mục lục có 1 màu active riêng */
+    .toc-list li:nth-child(1) .toc-link.active{color:#1a73e8;border-left-color:#1a73e8;background:linear-gradient(90deg,rgba(26,115,232,0.08) 0%,rgba(26,115,232,0) 100%)}
+    .toc-list li:nth-child(2) .toc-link.active{color:#7c3aed;border-left-color:#7c3aed;background:linear-gradient(90deg,rgba(124,58,237,0.08) 0%,rgba(124,58,237,0) 100%)}
+    .toc-list li:nth-child(3) .toc-link.active{color:#059669;border-left-color:#059669;background:linear-gradient(90deg,rgba(5,150,105,0.08) 0%,rgba(5,150,105,0) 100%)}
+    .toc-list li:nth-child(4) .toc-link.active{color:#ea580c;border-left-color:#ea580c;background:linear-gradient(90deg,rgba(234,88,12,0.08) 0%,rgba(234,88,12,0) 100%)}
+    .toc-list li:nth-child(5) .toc-link.active{color:#db2777;border-left-color:#db2777;background:linear-gradient(90deg,rgba(219,39,119,0.08) 0%,rgba(219,39,119,0) 100%)}
+    .toc-list li:nth-child(6) .toc-link.active{color:#0d9488;border-left-color:#0d9488;background:linear-gradient(90deg,rgba(13,148,136,0.08) 0%,rgba(13,148,136,0) 100%)}
+    .toc-list li:nth-child(7) .toc-link.active{color:#4f46e5;border-left-color:#4f46e5;background:linear-gradient(90deg,rgba(79,70,229,0.08) 0%,rgba(79,70,229,0) 100%)}
+    .toc-list li:nth-child(8) .toc-link.active{color:#e11d48;border-left-color:#e11d48;background:linear-gradient(90deg,rgba(225,29,72,0.08) 0%,rgba(225,29,72,0) 100%)}
+    .toc-list li:nth-child(9) .toc-link.active{color:#d97706;border-left-color:#d97706;background:linear-gradient(90deg,rgba(217,119,6,0.08) 0%,rgba(217,119,6,0) 100%)}
+    .toc-list li:nth-child(10) .toc-link.active{color:#0891b2;border-left-color:#0891b2;background:linear-gradient(90deg,rgba(8,145,178,0.08) 0%,rgba(8,145,178,0) 100%)}
+    .toc-list li:nth-child(11) .toc-link.active{color:#65a30d;border-left-color:#65a30d;background:linear-gradient(90deg,rgba(101,163,13,0.08) 0%,rgba(101,163,13,0) 100%)}
+
+    /* ===== CONTENT CARD ===== */
+    .doc-content{min-width:0}
+    .doc-section{background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:30px;margin-bottom:24px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01);scroll-margin-top:120px;transition:transform 0.2s, box-shadow 0.2s}
+    .doc-section:hover{transform:translateY(-2px);box-shadow:0 10px 15px -3px rgba(0,0,0,0.04), 0 4px 6px -2px rgba(0,0,0,0.02)}
+    
+    .doc-section-head{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #f1f5f9}
+    .doc-section-num{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg, #e0f2fe, #bae6fd);display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:800;color:#0369a1;flex-shrink:0}
+    .doc-section h2{font-size:18px;font-weight:700;color:#0f172a;margin:0}
+    
+    .doc-section p, .doc-section li{font-size:14.5px;color:#475569;line-height:1.8}
+    .doc-section p{margin-bottom:14px}
+    .doc-section ul, .doc-section ol{padding-left:22px;margin-bottom:14px}
+    .doc-section li{margin-bottom:10px;position:relative}
+    .doc-section li:last-child{margin-bottom:0}
+    .doc-section strong{color:#0f172a;font-weight:600}
+    .doc-section code{background:#f1f5f9;padding:2px 6px;border-radius:6px;font-size:13px;color:#d946ef;font-weight:600}
+    .doc-section a{color:#1a73e8;font-weight:600;text-decoration:none;border-bottom:1px dashed #1a73e8;transition:all 0.2s}
+    .doc-section a:hover{color:#0d47a1;border-bottom-style:solid}
+
+    .highlight-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:16px;padding:16px 20px;margin:20px 0;font-size:14px;color:#1e40af;line-height:1.7;display:flex;gap:14px;align-items:flex-start}
+    .highlight-box i{margin-top:3px;flex-shrink:0;font-size:17px;color:#2563eb}
+    
+    .warn-box{background:#fffbeb;border:1px solid #fde68a;border-radius:16px;padding:16px 20px;margin:20px 0;font-size:14px;color:#92400e;line-height:1.7;display:flex;gap:14px;align-items:flex-start}
+    .warn-box i{margin-top:3px;flex-shrink:0;font-size:17px;color:#d97706}
+
+    .doc-footer-wrap{width:100%}
+
+    /* Hamburger Menu - Mobile */
+    .toc-hamburger{display:none;position:fixed;top:18px;left:16px;z-index:1001;width:42px;height:42px;border-radius:12px;background:#fff;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.08);cursor:pointer;align-items:center;justify-content:center;font-size:18px;color:#334155}
+    .toc-hamburger:active{transform:scale(0.95)}
+    .toc-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:999;opacity:0;transition:opacity 0.3s}
+
+    /* Responsive cho Mobile & Tablet */
+    @media(max-width:1200px){
+      .doc-container{padding:10px 16px 40px;padding-left:16px}
+      .toc-sidebar{position:fixed;top:0;left:0;width:260px;height:100vh;max-height:100vh;border-right:none;background:#fff;box-shadow:4px 0 20px rgba(0,0,0,0.1);transform:translateX(-100%);transition:transform 0.3s ease;z-index:1000;padding:80px 20px 20px 20px;display:block}
+      .toc-sidebar.open{transform:translateX(0)}
+      .toc-hamburger{display:flex}
+      .toc-overlay.show{display:block;opacity:1}
+    }
+    @media(max-width:640px){
+      .doc-hero{padding:24px 16px 16px}
+      .doc-section{padding:22px 20px}
+    }
+
+    /* ===== FEEDBACK POPUP ===== */
+  /* Feedback Popup Styles */
+  .lh-popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .lh-popup-overlay.active {
+    display: flex;
+  }
+
+  .lh-popup-content {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: popupSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes popupSlideIn {
+    from {
+      transform: scale(0.9) translateY(-20px);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .lh-popup-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .lh-popup-close:hover {
+    background: rgba(0, 0, 0, 0.15);
+    color: #1e293b;
+    transform: rotate(90deg);
+  }
+
+  .lh-popup-iframe {
+    width: 100%;
+    height: 600px;
+    border: none;
+    display: block;
+  }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-nav">
+  <a href="index.html" class="doc-nav-brand">
+    <img src="pictures/logoweb.webp" width="46" height="46" alt="Logo LearnHub">
+    <div class="doc-nav-text">
+      <span class="doc-nav-title">LearnHub Platform</span>
+      <span class="doc-nav-sub">Chính Sách Bảo Mật</span>
+    </div>
+  </a>
+  <div class="doc-nav-actions">
+    <a href="index.html" class="doc-nav-btn"><i class="fa-solid fa-house"></i> Về trang chủ</a>
+  </div>
+</div>
+
+<!-- HAMBURGER (Mobile) -->
+<button class="toc-hamburger" id="tocHamburger" aria-label="Mục lục"><i class="fa-solid fa-bars"></i></button>
+<div class="toc-overlay" id="tocOverlay"></div>
+
+<!-- CONTAINER LAYOUT -->
+<div class="doc-container">
+  
+  <!-- HERO -->
+  <div class="doc-hero">
+    <div class="doc-hero-icon"><i class="fa-solid fa-user-shield"></i></div>
+    <h1>Chính Sách Bảo Mật</h1>
+    <p>Cách thức LearnHub thu thập, sử dụng và bảo vệ thông tin cá nhân của bạn khi sử dụng nền tảng</p>
+    <div class="badge"><i class="fa-regular fa-calendar-alt"></i> Cập nhật lần cuối: 14/07/2026</div>
+  </div>
+  
+  <!-- CONTENT -->
+  <main class="doc-content">
+    <div class="doc-section" id="s1">
+      <div class="doc-section-head"><span class="doc-section-num">1</span><h2>Tổng quan</h2></div>
+      <p><strong>LearnHub Platform</strong> ("Chúng tôi") tôn trọng và cam kết bảo vệ quyền riêng tư của người dùng. Chính Sách Bảo Mật này mô tả cách thức Chúng tôi thu thập, sử dụng, lưu trữ và bảo vệ thông tin cá nhân khi bạn truy cập và sử dụng Nền tảng.</p>
+      <p>Bằng việc đăng nhập hoặc sử dụng Nền tảng, bạn xác nhận đã đọc, hiểu và đồng ý với các nội dung được quy định trong Chính Sách Bảo Mật này.</p>
+    </div>
+
+    <div class="doc-section" id="s2">
+      <div class="doc-section-head"><span class="doc-section-num">2</span><h2>Thông tin được thu thập</h2></div>
+      <p>Chúng tôi thu thập các loại thông tin sau khi bạn sử dụng Nền tảng:</p>
+      <ul>
+        <li><strong>Thông tin tài khoản:</strong> Họ tên, email, ảnh đại diện — được xác thực qua Google OAuth hoặc đăng ký Email/Mật khẩu (whitelist). Mật khẩu được quản lý bảo mật bởi Firebase Authentication, <strong>chúng tôi không lưu trữ mật khẩu</strong> dưới dạng văn bản thuần.</li>
+        <li><strong>Dữ liệu hoạt động:</strong> Thời gian đăng nhập, trạng thái online/offline, lịch sử làm bài kiểm tra và xem tài liệu.</li>
+        <li><strong>Nội dung bạn gửi:</strong> Hình ảnh bài tập (khi sử dụng Hubie AI), bài viết diễn đàn, phản hồi/góp ý.</li>
+        <li><strong>Thông tin kỹ thuật:</strong> Loại trình duyệt, hệ điều hành, địa chỉ IP (một phần) — được thu thập tự động để tối ưu trải nghiệm.</li>
+      </ul>
+      <div class="highlight-box">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>LearnHub <strong>không thu thập</strong> thông tin thanh toán, thẻ tín dụng hay bất kỳ dữ liệu tài chính nào — Nền tảng hoàn toàn miễn phí.</span>
+      </div>
+    </div>
+
+    <div class="doc-section" id="s3">
+      <div class="doc-section-head"><span class="doc-section-num">3</span><h2>Mục đích sử dụng thông tin</h2></div>
+      <p>Thông tin được thu thập chỉ sử dụng cho các mục đích:</p>
+      <ul>
+        <li><strong>Quản lý tài khoản:</strong> Xác thực danh tính, kiểm soát quyền truy cập (whitelist), phân quyền người dùng.</li>
+        <li><strong>Cung cấp dịch vụ:</strong> Hiển thị nội dung học tập, chấm điểm, lưu tiến độ học tập.</li>
+        <li><strong>Cải thiện trải nghiệm:</strong> Thống kê hoạt động, tối ưu giao diện, phát hiện và khắc phục lỗi.</li>
+        <li><strong>Giao tiếp:</strong> Gửi thông báo về hoạt động hệ thống, thay đổi chính sách hoặc sự kiện quan trọng.</li>
+        <li><strong>Bảo mật:</strong> Phát hiện hành vi bất thường, ngăn chặn lạm dụng, bảo vệ quyền lợi người dùng.</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s4">
+      <div class="doc-section-head"><span class="doc-section-num">4</span><h2>Lưu trữ &amp; Bảo mật dữ liệu</h2></div>
+      <ul>
+        <li>Dữ liệu được lưu trữ trên <strong>Firebase Firestore</strong> — nền tảng đám mây của Google, tuân thủ tiêu chuẩn bảo mật quốc tế.</li>
+        <li>Thông tin cá nhân chỉ được giữ trong thời gian tài khoản còn hoạt động. Khi tài khoản bị xóa, dữ liệu liên quan sẽ được loại bỏ trong thời gian hợp lý.</li>
+        <li>Chúng tôi áp dụng: kiểm soát quyền truy cập cấp Admin, mã hóa truyền dữ liệu (HTTPS), và quy tắc bảo mật Firebase.</li>
+        <li>Tuy nhiên, không có phương thức truyền tải nào an toàn tuyệt đối. Bạn không nên chia sẻ thông tin đăng nhập với bất kỳ ai.</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s5">
+      <div class="doc-section-head"><span class="doc-section-num">5</span><h2>Chia sẻ thông tin với bên thứ ba</h2></div>
+      <p>Chúng tôi <strong>không bán, cho thuê hoặc trao đổi</strong> thông tin cá nhân với bất kỳ bên thứ ba nào vì mục đích thương mại.</p>
+      <p>Thông tin chỉ được chia sẻ trong các trường hợp:</p>
+      <ul>
+        <li><strong>Google Firebase:</strong> Nhà cung cấp hạ tầng cloud — xử lý dữ liệu theo <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">chính sách bảo mật của Google</a>.</li>
+        <li><strong>Người dùng khác trên nền tảng:</strong> Tên hiển thị, ảnh đại diện và trạng thái online/offline của bạn có thể hiển thị công khai với các người dùng đã đăng nhập khác thông qua Diễn đàn và Bảng xếp hạng.</li>
+        <li><strong>Yêu cầu pháp lý:</strong> Khi có yêu cầu từ cơ quan nhà nước có thẩm quyền.</li>
+        <li><strong>Bảo vệ quyền lợi:</strong> Khi cần thiết để ngăn chặn hành vi vi phạm pháp luật hoặc gây hại cho người dùng.</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s6">
+      <div class="doc-section-head"><span class="doc-section-num">6</span><h2>Cookie &amp; Công nghệ theo dõi</h2></div>
+      <ul>
+        <li>LearnHub sử dụng <strong>Cookie</strong> và <strong>LocalStorage</strong> để lưu trạng thái đăng nhập, tùy chỉnh giao diện (dark mode), ghi nhớ phiên làm việc.</li>
+        <li>Cookie từ Firebase Authentication duy trì phiên đăng nhập an toàn.</li>
+        <li>Chúng tôi <strong>không sử dụng</strong> cookie quảng cáo, cookie theo dõi đa nền tảng hay công cụ phân tích bên thứ ba.</li>
+        <li>Bạn có thể quản lý hoặc xóa Cookie qua cài đặt trình duyệt.</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s7">
+      <div class="doc-section-head"><span class="doc-section-num">7</span><h2>Quyền của người dùng</h2></div>
+      <p>Bạn có các quyền sau đối với thông tin cá nhân:</p>
+      <ul>
+        <li><strong>Quyền truy cập:</strong> Yêu cầu xem thông tin cá nhân mà Chúng tôi đang lưu trữ.</li>
+        <li><strong>Quyền chỉnh sửa:</strong> Cập nhật tên hiển thị hoặc thông tin bất kỳ lúc nào trên Nền tảng.</li>
+        <li><strong>Quyền xóa:</strong> Yêu cầu xóa toàn bộ dữ liệu và tài khoản — liên hệ Admin để thực hiện.</li>
+        <li><strong>Quyền rút lại đồng ý:</strong> Ngưng sử dụng Nền tảng bất kỳ lúc nào. Trạng thái online sẽ tự động gỡ khi đăng xuất.</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s8">
+      <div class="doc-section-head"><span class="doc-section-num">8</span><h2>Bảo vệ trẻ vị thành niên</h2></div>
+      <p>LearnHub phục vụ chủ yếu cho học sinh THPT (15-19 tuổi). Chúng tôi cam kết:</p>
+      <ul>
+        <li>Không thu thập thông tin cá nhân vượt quá mức cần thiết.</li>
+        <li>Không hiển thị quảng cáo hay liên kết đến trang web bên thứ ba không liên quan.</li>
+        <li>Không cho phép giao dịch thương mại hay thanh toán trực tuyến trên Nền tảng.</li>
+        <li>Nội dung AI (Hubie) được thiết kế phù hợp môi trường học đường, an toàn cho học sinh.</li>
+      </ul>
+      <div class="warn-box">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>Nếu bạn là phụ huynh và có thắc mắc về việc thu thập thông tin của con em mình, vui lòng liên hệ ngay với chúng tôi.</span>
+      </div>
+    </div>
+
+    <div class="doc-section" id="s9">
+      <div class="doc-section-head"><span class="doc-section-num">9</span><h2>Thời hạn lưu trữ dữ liệu</h2></div>
+      <p>Chúng tôi chỉ giữ dữ liệu cá nhân của bạn trong thời gian cần thiết để phục vụ các mục đích đã nêu:</p>
+      <ul>
+        <li><strong>Dữ liệu tài khoản:</strong> Được giữ trong suốt thời gian tài khoản còn hoạt động. Khi tài khoản bị xóa, toàn bộ dữ liệu liên quan sẽ bị xóa vĩnh viễn trong vòng <strong>30 ngày</strong>.</li>
+        <li><strong>Dữ liệu hoạt động:</strong> Lịch sử làm bài, xem tài liệu được lưu trong tối đa <strong>12 tháng</strong> kể từ lần hoạt động gần nhất, sau đó sẽ tự động xóa.</li>
+        <li><strong>Nội dung diễn đàn:</strong> Bài viết, bình luận được giữ vĩnh viễn cho đến khi người dùng yêu cầu xóa.</li>
+        <li><strong>Hình ảnh Hubie AI:</strong> Được tự động xóa sau <strong>24 giờ</strong> kể từ thời điểm gửi để bảo mật.</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s10">
+      <div class="doc-section-head"><span class="doc-section-num">10</span><h2>Dữ liệu vị trí</h2></div>
+      <p>LearnHub <strong>không thu thập</strong> dữ liệu vị trí GPS, địa chỉ IP đầy đủ hay bất kỳ thông tin định vị nào từ thiết bị của bạn.</p>
+      <ul>
+        <li>Địa chỉ IP chỉ được ghi nhận một phần (ẩn byte cuối) nhằm mục đích phát hiện hành vi bất thường và bảo mật hệ thống.</li>
+        <li>Không có yêu cầu quyền truy cập vị trí nào được thực hiện trên Nền tảng.</li>
+        <li>Thông tin "Địa chỉ: Xã Tân Hồng, Đồng Tháp" trong mục Liên hệ là trụ sở hành chính của LearnHub, không phải dữ liệu của người dùng.</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s11">
+      <div class="doc-section-head"><span class="doc-section-num">11</span><h2>Liên hệ &amp; Khiếu nại</h2></div>
+      <p>Mọi câu hỏi, thắc mắc hoặc khiếu nại liên quan đến Chính Sách Bảo Mật, vui lòng liên hệ:</p>
+      <ul>
+        <li><strong>Email:</strong> learnhubplatform@gmail.com</li>
+        <li><strong>Hotline:</strong> 0335 925 257 (8h00 - 21h00)</li>
+        <li><strong>Zalo:</strong> 0335 925 257 (gửi tin nhắn Zalo để được hỗ trợ nhanh nhất)</li>
+        <li><strong>Địa chỉ:</strong> Xã Tân Hồng, Đồng Tháp, Việt Nam</li>
+      </ul>
+      <p>Chúng tôi cam kết phản hồi mọi yêu cầu liên quan đến quyền riêng tư trong vòng <strong>7 ngày làm việc</strong>.</p>
+    </div>
+  </main>
+
+  <!-- SIDEBAR TOC (ĐÃ CỐ ĐỊNH HOÀN HẢO) -->
+  <aside class="toc-sidebar">
+    <div class="toc-title">Mục lục</div>
+    <ul class="toc-list" id="tocScroll">
+      <li><a class="toc-link active" href="#s1">1. Tổng quan</a></li>
+      <li><a class="toc-link" href="#s2">2. Thu thập thông tin</a></li>
+      <li><a class="toc-link" href="#s3">3. Mục đích sử dụng</a></li>
+      <li><a class="toc-link" href="#s4">4. Lưu trữ &amp; bảo mật</a></li>
+      <li><a class="toc-link" href="#s5">5. Chia sẻ bên thứ ba</a></li>
+      <li><a class="toc-link" href="#s6">6. Cookie</a></li>
+      <li><a class="toc-link" href="#s7">7. Quyền người dùng</a></li>
+      <li><a class="toc-link" href="#s8">8. Trẻ vị thành niên</a></li>
+      <li><a class="toc-link" href="#s9">9. Thời hạn lưu trữ</a></li>
+      <li><a class="toc-link" href="#s10">10. Dữ liệu vị trí</a></li>
+      <li><a class="toc-link" href="#s11">11. Liên hệ &amp; Khiếu nại</a></li>
+    </ul>
+  </aside>
+
+</div>
+
+<!-- FOOTER -->
+<div class="doc-footer-wrap">
+  <div id="lh-footer-placeholder"></div>
+</div>
+
+<script>
+// Đảm bảo các hàm feedback modal luôn có sẵn trong window trước khi load footer
+window.openFeedbackModal = function() {
+  const overlay = document.getElementById('lh-feedback-overlay');
+  if (overlay) {
+    overlay.classList.add('active');
+    document.body.classList.add('no-scroll');
+  }
+};
+
+window.closeFeedbackModal = function() {
+  const overlay = document.getElementById('lh-feedback-overlay');
+  if (overlay) {
+    overlay.classList.remove('active');
+    document.body.classList.remove('no-scroll');
+  }
+};
+
+window.closeFeedbackModalByOverlay = function(event) {
+  if (event.target.id === 'lh-feedback-overlay') {
+    window.closeFeedbackModal();
+  }
+};
+
+// Sau đó mới load footer
+fetch('footer.html').then(r=>r.text()).then(html=>{
+  document.getElementById('lh-footer-placeholder').innerHTML=html;
+});
+</script>
+
+<!-- Scroll Spy JavaScript (Cực Mượt) -->
+<script>
+(function(){
+  const links = document.querySelectorAll('.toc-link');
+  const sections = document.querySelectorAll('.doc-section');
+  const tocList = document.getElementById('tocScroll');
+
+  function activateMenu(){
+    let current = '';
+    
+    sections.forEach(s => {
+      const rect = s.getBoundingClientRect();
+      // Nhận diện phần đang đọc chính xác dựa trên tọa độ màn hình
+      if (rect.top <= 160) {
+        current = s.getAttribute('id');
+      }
+    });
+
+    // Nếu cuộn lên đầu trang, đặt mục active là mục 1
+    if (window.scrollY < 100) {
+      current = sections[0].getAttribute('id');
+    }
+
+    links.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + current) {
+        link.classList.add('active');
+        
+        // Trên mobile: tự động cuộn ngang thanh mục lục
+        if (window.innerWidth <= 1024 && tocList) {
+          const l = link.offsetLeft - tocList.offsetWidth / 2 + link.offsetWidth / 2;
+          tocList.scrollTo({left: l, behavior: 'smooth'});
+        }
+      }
+    });
+  }
+
+  window.addEventListener('scroll', activateMenu, {passive: true});
+  window.addEventListener('resize', activateMenu, {passive: true});
+  activateMenu();
+})();
+</script>
+
+<!-- Hamburger Toggle (Mobile) -->
+<script>
+(function(){
+  const hamburger = document.getElementById('tocHamburger');
+  const sidebar = document.querySelector('.toc-sidebar');
+  const overlay = document.getElementById('tocOverlay');
+  if(!hamburger||!sidebar||!overlay) return;
+
+  function openMenu(){ sidebar.classList.add('open'); overlay.classList.add('show'); hamburger.style.display='none'; }
+  function closeMenu(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); hamburger.style.display=''; }
+
+  hamburger.addEventListener('click', function(){
+    sidebar.classList.contains('open') ? closeMenu() : openMenu();
+  });
+  overlay.addEventListener('click', closeMenu);
+
+  sidebar.querySelectorAll('.toc-link').forEach(function(link){
+    link.addEventListener('click', function(){ closeMenu(); });
+  });
+})();
+</script>
+
+<!-- Chat Button -->
+<div id="chatOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9998; background: rgba(0,0,0,0.1);"></div>
+
+<div id="chatButton" style="
+  position:fixed;
+  width:65px;
+  height:65px;
+  border-radius:50%;
+  overflow:hidden;
+  cursor: pointer;
+  z-index:9999;
+  box-shadow:0 6px 18px rgba(0,0,0,0.25);
+  left: 20px;
+  bottom: 20px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+">
+  <img src="pictures/chatboiavt.png" style="width:100%; height:100%; object-fit:cover; pointer-events: none;">
+</div>
+
+<iframe id="chatbotFrame" src="AI.html" style="
+    display:none; 
+    position:fixed; 
+    bottom:95px; 
+    left:20px;
+    width:350px; 
+    height:500px; 
+    border:none; 
+    border-radius:12px; 
+    box-shadow:0 8px 25px rgba(0,0,0,0.2); 
+    z-index:9999;
+"></iframe>
+
+<!-- Feedback Popup -->
+<div id="lh-feedback-overlay" class="lh-popup-overlay" onclick="closeFeedbackModalByOverlay(event)">
+  <div class="lh-popup-content">
+    <button class="lh-popup-close" onclick="closeFeedbackModal()" title="Đóng">&times;</button>
+    <iframe src="gop-y.html" class="lh-popup-iframe"></iframe>
+  </div>
+</div>
+
+<script src="script.js" defer></script>
+<script>
+  // Logic Toggle Đóng / Mở Chatbot trực tiếp hoàn chỉnh
+  const chatButton = document.getElementById('chatButton');
+  const chatbotFrame = document.getElementById('chatbotFrame');
+  const chatOverlay = document.getElementById('chatOverlay');
+
+  if (chatButton && chatbotFrame) {
+    chatButton.addEventListener('click', () => {
+      if (chatbotFrame.style.display === 'none' || chatbotFrame.style.display === '') {
+        chatbotFrame.style.display = 'block';
+        if (chatOverlay) chatOverlay.style.display = 'block';
+      } else {
+        chatbotFrame.style.display = 'none';
+        if (chatOverlay) chatOverlay.style.display = 'none';
+      }
+    });
+  }
+
+  if (chatOverlay) {
+    chatOverlay.addEventListener('click', () => {
+      chatbotFrame.style.display = 'none';
+      chatOverlay.style.display = 'none';
+    });
+  }
+
+  // Feedback Modal Functions
+  function openFeedbackModal() {
+    const overlay = document.getElementById('lh-feedback-overlay');
+    if (overlay) {
+      overlay.classList.add('active');
+      document.body.classList.add('no-scroll');
+    }
+  }
+
+  function closeFeedbackModal() {
+    const overlay = document.getElementById('lh-feedback-overlay');
+    if (overlay) {
+      overlay.classList.remove('active');
+      document.body.classList.remove('no-scroll');
+    }
+  }
+
+  function closeFeedbackModalByOverlay(event) {
+    if (event.target.id === 'lh-feedback-overlay') {
+      closeFeedbackModal();
+    }
+  }
+
+  // Close modal on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeFeedbackModal();
+    }
+  });
+
+  // Gán hàm vào window để footer có thể gọi
+  window.openFeedbackModal = openFeedbackModal;
+  window.closeFeedbackModal = closeFeedbackModal;
+  window.closeFeedbackModalByOverlay = closeFeedbackModalByOverlay;
+</script>
+
+<!-- Scroll Spy -->
+<script>
+(function(){
+  const links = document.querySelectorAll('.toc-link');
+  const sections = document.querySelectorAll('.doc-section');
+  function activateMenu(){
+    let current = '';
+    sections.forEach(s => {
+      const rect = s.getBoundingClientRect();
+      if (rect.top <= 160) current = s.getAttribute('id');
+    });
+    if (window.scrollY < 100) current = sections[0].getAttribute('id');
+    links.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+    });
+  }
+  window.addEventListener('scroll', activateMenu, {passive: true});
+  activateMenu();
+})();
+</script>
+
+</body>
+</html>

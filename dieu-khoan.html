@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>Điều Khoản Sử Dụng - LearnHub Platform</title>
+  <link rel="icon" href="pictures/favicon.png" sizes="any">
+  <link rel="icon" type="image/png" sizes="48x48" href="pictures/favicon.png">
+  <link rel="apple-touch-icon" href="pictures/favicon.png">
+  <meta name="theme-color" content="#1a73e8">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    html{margin:0;padding:0;box-sizing:border-box;scroll-behavior:smooth}
+    body{margin:0;padding:0;box-sizing:border-box}
+    *,*::before,*::after{box-sizing:inherit}
+    html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+    html,body{-ms-overflow-style:none;scrollbar-width:none}
+
+    body{background:#f4f6fa;min-height:100vh;padding-top:100px;color:#1e293b;font-family:system-ui, -apple-system, sans-serif}
+
+    /* ===== NAV HEADER GRADIENT CHUẨN ĐẸP ===== */
+    .doc-nav{background:linear-gradient(135deg, #1a73e8, #0d47a1);padding:14px 40px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(13,71,161,0.15);position:fixed;top:0;left:0;right:0;width:100%;z-index:1000;border-bottom:1px solid rgba(255,255,255,0.1)}
+    .doc-nav-brand{display:flex;align-items:center;gap:14px;text-decoration:none}
+    .doc-nav-brand img{border-radius:10px;padding:2px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+    .doc-nav-text{display:flex;flex-direction:column}
+    .doc-nav-title{font-size:19px;font-weight:700;color:#ffffff;letter-spacing:-0.3px}
+    .doc-nav-sub{font-size:12.5px;color:rgba(255,255,255,0.85);font-weight:500}
+    .doc-nav-actions{display:flex;gap:10px}
+    .doc-nav-btn{display:flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(255,255,255,0.12);color:#fff;text-decoration:none;border-radius:50px;font-weight:600;font-size:13.5px;transition:all 0.25s ease;border:1px solid rgba(255,255,255,0.25)}
+    .doc-nav-btn:hover{background:#ffffff;color:#1a73e8;transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,255,255,0.2);border-color:#ffffff}
+
+    @media(max-width:768px){
+      body{padding-top:150px}
+      .doc-nav{padding:14px 20px;flex-direction:column;gap:12px;text-align:center}
+      .doc-nav-brand{gap:10px}
+      .doc-nav-text{align-items:center}
+      .doc-nav-title{font-size:17px}
+      .doc-nav-actions{width:100%;justify-content:center}
+    }
+
+    /* ===== HERO ===== */
+    .doc-hero{text-align:center;padding:40px 24px 20px;width:100%}
+    .doc-hero-icon{width:54px;height:54px;margin:0 auto 16px;background:linear-gradient(135deg,#e0f2fe,#bae6fd);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#0284c7;box-shadow:0 4px 12px rgba(2,132,199,0.1)}
+    .doc-hero h1{font-size:clamp(26px,4.5vw,36px);font-weight:800;color:#0f172a;letter-spacing:-0.5px;margin-bottom:10px}
+    .doc-hero p{font-size:15px;color:#475569;max-width:800px;margin:0 auto 14px;line-height:1.6;word-wrap:break-word;overflow-wrap:break-word}
+    .doc-hero .badge{display:inline-flex;align-items:center;gap:6px;background:#e2e8f0;border-radius:999px;padding:6px 16px;font-size:12.5px;font-weight:600;color:#334155}
+    .doc-hero .badge i{color:#475569}
+
+    /* ===== LAYOUT GRID ===== */
+    .doc-container{max-width:1200px;margin:0 auto;padding:20px 24px 60px;padding-left:290px}
+
+    /* ===== FIXED SIDEBAR TOC ===== */
+    .toc-sidebar{position:fixed;top:80px;left:20px;width:250px;height:fit-content;max-height:calc(100vh - 160px);overflow-y:auto;padding:5px 20px 15px 0;z-index:100}
+    .toc-title{font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:#94a3b8;margin-bottom:16px}
+    .toc-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:4px}
+    .toc-link{display:block;padding:8px 16px;font-size:13.5px;color:#64748b;text-decoration:none;font-weight:500;transition:all 0.2s ease;border-left:3px solid transparent;margin-left:-23px;padding-left:22px}
+    .toc-link:hover{color:#0f172a;padding-left:25px}
+    
+    /* Mỗi mục lục có 1 màu active riêng */
+    .toc-list li:nth-child(1) .toc-link.active{color:#1a73e8;border-left-color:#1a73e8;background:linear-gradient(90deg,rgba(26,115,232,0.08) 0%,rgba(26,115,232,0) 100%)}
+    .toc-list li:nth-child(2) .toc-link.active{color:#7c3aed;border-left-color:#7c3aed;background:linear-gradient(90deg,rgba(124,58,237,0.08) 0%,rgba(124,58,237,0) 100%)}
+    .toc-list li:nth-child(3) .toc-link.active{color:#059669;border-left-color:#059669;background:linear-gradient(90deg,rgba(5,150,105,0.08) 0%,rgba(5,150,105,0) 100%)}
+    .toc-list li:nth-child(4) .toc-link.active{color:#ea580c;border-left-color:#ea580c;background:linear-gradient(90deg,rgba(234,88,12,0.08) 0%,rgba(234,88,12,0) 100%)}
+    .toc-list li:nth-child(5) .toc-link.active{color:#db2777;border-left-color:#db2777;background:linear-gradient(90deg,rgba(219,39,119,0.08) 0%,rgba(219,39,119,0) 100%)}
+    .toc-list li:nth-child(6) .toc-link.active{color:#0d9488;border-left-color:#0d9488;background:linear-gradient(90deg,rgba(13,148,136,0.08) 0%,rgba(13,148,136,0) 100%)}
+    .toc-list li:nth-child(7) .toc-link.active{color:#4f46e5;border-left-color:#4f46e5;background:linear-gradient(90deg,rgba(79,70,229,0.08) 0%,rgba(79,70,229,0) 100%)}
+    .toc-list li:nth-child(8) .toc-link.active{color:#e11d48;border-left-color:#e11d48;background:linear-gradient(90deg,rgba(225,29,72,0.08) 0%,rgba(225,29,72,0) 100%)}
+    .toc-list li:nth-child(9) .toc-link.active{color:#d97706;border-left-color:#d97706;background:linear-gradient(90deg,rgba(217,119,6,0.08) 0%,rgba(217,119,6,0) 100%)}
+    .toc-list li:nth-child(10) .toc-link.active{color:#0891b2;border-left-color:#0891b2;background:linear-gradient(90deg,rgba(8,145,178,0.08) 0%,rgba(8,145,178,0) 100%)}
+
+    /* ===== CONTENT CARD ===== */
+    .doc-content{min-width:0}
+    .doc-section{background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:30px;margin-bottom:24px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01);scroll-margin-top:120px;transition:transform 0.2s, box-shadow 0.2s}
+    .doc-section:hover{transform:translateY(-2px);box-shadow:0 10px 15px -3px rgba(0,0,0,0.04), 0 4px 6px -2px rgba(0,0,0,0.02)}
+    
+    .doc-section-head{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #f1f5f9}
+    .doc-section-num{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg, #e0f2fe, #bae6fd);display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:800;color:#0369a1;flex-shrink:0}
+    .doc-section h2{font-size:18px;font-weight:700;color:#0f172a;margin:0}
+    
+    .doc-section p, .doc-section li{font-size:14.5px;color:#475569;line-height:1.8}
+    .doc-section p{margin-bottom:14px}
+    .doc-section ul, .doc-section ol{padding-left:22px;margin-bottom:14px}
+    .doc-section li{margin-bottom:10px;position:relative}
+    .doc-section li:last-child{margin-bottom:0}
+    .doc-section strong{color:#0f172a;font-weight:600}
+    .doc-section code{background:#f1f5f9;padding:2px 6px;border-radius:6px;font-size:13px;color:#d946ef;font-weight:600}
+    .doc-section a{color:#1a73e8;font-weight:600;text-decoration:none;border-bottom:1px dashed #1a73e8;transition:all 0.2s}
+    .doc-section a:hover{color:#0d47a1;border-bottom-style:solid}
+
+    .highlight-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:16px;padding:16px 20px;margin:20px 0;font-size:14px;color:#1e40af;line-height:1.7;display:flex;gap:14px;align-items:flex-start}
+    .highlight-box i{margin-top:3px;flex-shrink:0;font-size:17px;color:#2563eb}
+    
+    .warn-box{background:#fffbeb;border:1px solid #fde68a;border-radius:16px;padding:16px 20px;margin:20px 0;font-size:14px;color:#92400e;line-height:1.7;display:flex;gap:14px;align-items:flex-start}
+    .warn-box i{margin-top:3px;flex-shrink:0;font-size:17px;color:#d97706}
+
+    .doc-footer-wrap{width:100%}
+
+    /* Hamburger Menu - Mobile */
+    .toc-hamburger{display:none;position:fixed;top:18px;left:16px;z-index:1001;width:42px;height:42px;border-radius:12px;background:#fff;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.08);cursor:pointer;align-items:center;justify-content:center;font-size:18px;color:#334155}
+    .toc-hamburger:active{transform:scale(0.95)}
+    .toc-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:999;opacity:0;transition:opacity 0.3s}
+
+    /* Responsive cho Mobile & Tablet */
+    @media(max-width:1200px){
+      .doc-container{padding:10px 16px 40px;padding-left:16px}
+      .toc-sidebar{position:fixed;top:0;left:0;width:260px;height:100vh;max-height:100vh;border-right:none;background:#fff;box-shadow:4px 0 20px rgba(0,0,0,0.1);transform:translateX(-100%);transition:transform 0.3s ease;z-index:1000;padding:80px 20px 20px 20px;display:block}
+      .toc-sidebar.open{transform:translateX(0)}
+      .toc-hamburger{display:flex}
+      .toc-overlay.show{display:block;opacity:1}
+    }
+    @media(max-width:640px){
+      .doc-hero{padding:24px 16px 16px}
+      .doc-section{padding:22px 20px}
+    }
+
+    /* ===== FEEDBACK POPUP ===== */
+  /* Feedback Popup Styles */
+  .lh-popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .lh-popup-overlay.active {
+    display: flex;
+  }
+
+  .lh-popup-content {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: popupSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes popupSlideIn {
+    from {
+      transform: scale(0.9) translateY(-20px);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .lh-popup-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .lh-popup-close:hover {
+    background: rgba(0, 0, 0, 0.15);
+    color: #1e293b;
+    transform: rotate(90deg);
+  }
+
+  .lh-popup-iframe {
+    width: 100%;
+    height: 600px;
+    border: none;
+    display: block;
+  }
+
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-nav">
+  <a href="index.html" class="doc-nav-brand">
+    <img src="pictures/logoweb.webp" width="46" height="46" alt="Logo LearnHub">
+    <div class="doc-nav-text">
+      <span class="doc-nav-title">LearnHub Platform</span>
+      <span class="doc-nav-sub">Điều Khoản Sử Dụng</span>
+    </div>
+  </a>
+  <div class="doc-nav-actions">
+    <a href="index.html" class="doc-nav-btn"><i class="fa-solid fa-house"></i> Về trang chủ</a>
+  </div>
+</div>
+
+<!-- HAMBURGER (Mobile) -->
+<button class="toc-hamburger" id="tocHamburger" aria-label="Mục lục"><i class="fa-solid fa-bars"></i></button>
+<div class="toc-overlay" id="tocOverlay"></div>
+
+<!-- CONTAINER LAYOUT -->
+<div class="doc-container">
+  
+  <!-- HERO -->
+  <div class="doc-hero">
+    <div class="doc-hero-icon"><i class="fa-solid fa-file-signature"></i></div>
+    <h1>Điều Khoản Sử Dụng</h1>
+    <p>Quy định và điều kiện áp dụng khi bạn truy cập và sử dụng mọi dịch vụ trên hệ sinh thái LearnHub</p>
+    <div class="badge"><i class="fa-regular fa-calendar-check"></i> Có hiệu lực từ 14/07/2026</div>
+  </div>
+  
+  <!-- CONTENT -->
+  <main class="doc-content">
+    <div class="doc-section" id="s1">
+      <div class="doc-section-head"><span class="doc-section-num">1</span><h2>Giới thiệu chung</h2></div>
+      <p>Chào mừng bạn đến với <strong>LearnHub Platform</strong> ("Nền tảng"). Đây là hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên, cung cấp các công cụ hỗ trợ học tập bao gồm: tài liệu ôn tập, bài kiểm tra trực tuyến, flashcard, diễn đàn thảo luận và trợ lý ảo AI.</p>
+      <p>Khi truy cập hoặc sử dụng Nền tảng, bạn xác nhận rằng bạn đã đọc, hiểu và đồng ý tuân thủ các điều khoản được quy định trong tài liệu này. Nếu bạn không đồng ý với bất kỳ điều khoản nào, vui lòng ngưng sử dụng Nền tảng ngay lập tức.</p>
+    </div>
+
+    <div class="doc-section" id="s2">
+      <div class="doc-section-head"><span class="doc-section-num">2</span><h2>Điều kiện đăng ký &amp; tài khoản</h2></div>
+      <ul>
+        <li>Nền tảng hoạt động theo mô hình <strong>danh sách được phép (whitelist)</strong>. Chỉ những email đã được Admin cấp quyền mới có thể đăng ký/đăng nhập, dù bằng Google hay Email.</li>
+        <li>Bạn có thể đăng nhập bằng <strong>tài khoản Google</strong> hoặc <strong>Email &amp; Mật khẩu</strong> (mật khẩu tối thiểu 6 ký tự). Vui lòng dùng thông tin cá nhân chính xác khi đăng ký.</li>
+        <li>Bạn chịu toàn bộ trách nhiệm bảo mật tài khoản. Mọi hoạt động phát sinh từ tài khoản đều được xem là do bạn thực hiện.</li>
+        <li>Admin có quyền thu hồi quyền truy cập hoặc vô hiệu hóa tài khoản nếu phát hiện vi phạm mà không cần thông báo trước.</li>
+      </ul>
+      <div class="highlight-box">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>LearnHub hỗ trợ đăng nhập bằng Google OAuth hoặc Email/Mật khẩu, xác thực qua Firebase Authentication. Dù dùng phương thức nào, email vẫn phải nằm trong danh sách được Admin cấp quyền.</span>
+      </div>
+    </div>
+
+    <div class="doc-section" id="s3">
+      <div class="doc-section-head"><span class="doc-section-num">3</span><h2>Quy tắc sử dụng nền tảng</h2></div>
+      <p>Khi sử dụng LearnHub, bạn cam kết KHÔNG:</p>
+      <ul>
+        <li>Sử dụng Nền tảng cho bất kỳ mục đích bất hợp pháp, lạm dụng hoặc gây hại cho người khác.</li>
+        <li>Đăng tải nội dung phản động, xúc phạm, phân biệt đối xử, khiêu dâm hoặc vi phạm pháp luật hiện hành.</li>
+        <li>Cố gắng khai thác, tấn công, xâm nhập trái phép hoặc can thiệp vào hệ thống, cơ sở dữ liệu của Nền tảng.</li>
+        <li>Sao chép, phân phối lại, bán lại hoặc sử dụng thương mại nội dung học tập trên Nền tảng mà không có sự đồng ý bằng văn bản.</li>
+        <li>Sử dụng bot, script tự động hoặc bất kỳ công cụ tự động hóa nào để tương tác với Nền tảng.</li>
+        <li>Vi phạm quyền riêng tư và trải nghiệm của người dùng khác trên hệ thống.</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s4">
+      <div class="doc-section-head"><span class="doc-section-num">4</span><h2>Nội dung học tập &amp; Sở hữu trí tuệ</h2></div>
+      <p>Tất cả tài liệu học tập, bài kiểm tra, giao diện, mã nguồn và các tài nguyên khác thuộc quyền sở hữu của LearnHub hoặc các bên cấp phép hợp pháp, được bảo vệ bởi luật sở hữu trí tuệ hiện hành.</p>
+      <ul>
+        <li>Bạn được phép truy cập và sử dụng nội dung học tập cho mục đích <strong>học tập cá nhân, phi thương mại</strong>.</li>
+        <li>Để đóng góp tài liệu lên Nền tảng, bạn cần được Admin phê duyệt. Tài liệu sẽ chịu sự kiểm duyệt trước khi hiển thị công khai.</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s5">
+      <div class="doc-section-head"><span class="doc-section-num">5</span><h2>Tính năng AI (Hubie)</h2></div>
+      <p>LearnHub tích hợp trợ lý ảo <strong>Hubie</strong> được hỗ trợ bởi trí tuệ nhân tạo. Khi sử dụng tính năng này, bạn lưu ý:</p>
+      <ul>
+        <li>Phản hồi từ Hubie được tạo tự động và <strong>chỉ mang tính chất tham khảo</strong>. Bạn nên đối chiếu với giáo viên hoặc tài liệu chính thống.</li>
+        <li>Hubie hỗ trợ phân tích hình ảnh bài tập. Bạn không nên gửi thông tin nhạy cảm, cá nhân hoặc bất hợp pháp lên hệ thống.</li>
+        <li>LearnHub có quyền giới hạn hoặc vô hiệu hóa tính năng AI nếu phát hiện hành vi lạm dụng.</li>
+      </ul>
+      <div class="warn-box">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>Kết quả từ AI có thể không chính xác trong một số trường hợp. Luôn luôn đối chiếu chéo lại thông tin với giáo viên hoặc sách giáo khoa.</span>
+      </div>
+    </div>
+
+    <div class="doc-section" id="s6">
+      <div class="doc-section-head"><span class="doc-section-num">6</span><h2>Giới hạn trách nhiệm</h2></div>
+      <ul>
+        <li>Nền tảng được cung cấp trên cơ sở <strong>"có gì dùng nấy"</strong> và <strong>"nỗ lực tốt nhất"</strong>. LearnHub không đảm bảo Nền tảng luôn hoạt động không gián đoạn.</li>
+        <li>LearnHub không chịu trách nhiệm cho bất kỳ thiệt hại gián tiếp, ngẫu nhiên hay đặc biệt nào phát sinh từ việc sử dụng Nền tảng.</li>
+        <li>Kết quả học tập phụ thuộc vào nỗ lực cá nhân. Nền tảng là công cụ hỗ trợ, không thay thế việc học tập chính thức tại trường.</li>
+        <li>Trong trường hợp bảo trì hệ thống, Admin có quyền tạm ngưng truy cập mà không cần thông báo trước.</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s7">
+      <div class="doc-section-head"><span class="doc-section-num">7</span><h2>Đóng góp &amp; phản hồi</h2></div>
+      <p>Chúng tôi rất hoan nghênh mọi đóng góp ý kiến, đề xuất tính năng và báo lỗi từ người dùng.</p>
+      <ul>
+        <li>Nội dung đóng góp phải trung thực, xây dựng và phù hợp.</li>
+        <li>LearnHub có quyền sử dụng, chỉnh sửa hoặc từ chối đóng góp mà không bắt buộc thông báo.</li>
+        <li>Để gửi đóng góp, sử dụng mục <strong>Góp ý ý kiến</strong> trong trang web hoặc liên hệ trực tiếp qua email.</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s8">
+      <div class="doc-section-head"><span class="doc-section-num">8</span><h2>Sửa đổi điều khoản</h2></div>
+      <p>LearnHub có quyền cập nhật, sửa đổi các điều khoản sử dụng này vào bất kỳ lúc nào mà không cần thông báo trước. Phiên bản mới nhất sẽ luôn được hiển thị trên trang này kèm ngày cập nhật.</p>
+      <p>Sau khi điều khoản được cập nhật, việc tiếp tục sử dụng Nền tảng đồng nghĩa với việc bạn chấp nhận các thay đổi mới.</p>
+    </div>
+
+    <div class="doc-section" id="s9">
+      <div class="doc-section-head"><span class="doc-section-num">9</span><h2>Chính sách DMCA &amp; Bản quyền</h2></div>
+      <p>LearnHub tôn trọng quyền sở hữu trí tuệ của cá nhân và tổ chức. Nếu bạn cho rằng nội dung trên Nền tảng vi phạm bản quyền của mình, bạn có thể gửi khiếu nại theo quy trình sau:</p>
+      <ul>
+        <li>Gửi email đến <strong>learnhubplatform@gmail.com</strong> với tiêu đề "DMCA - Khiếu nại bản quyền".</li>
+        <li>Bao gồm: mô tả nội dung vi phạm, đường dẫn (URL) đến nội dung đó, thông tin liên hệ của bạn và bằng chứng bạn là chủ sở hữu bản quyền hợp pháp.</li>
+        <li>LearnHub sẽ xem xét và phản hồi trong vòng <strong>7 ngày làm việc</strong>. Nội dung bị khiếu nại có thể được gỡ bỏ tạm thời trong quá trình xử lý.</li>
+        <li>Nếu khiếu nại không hợp lệ hoặc có sự nhầm lẫn, LearnHub có quyền khôi phục nội dung mà không cần thông báo trước cho bên khiếu nại.</li>
+      </ul>
+      <div class="warn-box">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>Nếu bạn cố ý gửi khiếu nại DMCA giả mạo hoặc lạm dụng quy trình này, tài khoản của bạn có thể bị vô hiệu hóa vĩnh viễn.</span>
+      </div>
+    </div>
+
+    <div class="doc-section" id="s10">
+      <div class="doc-section-head"><span class="doc-section-num">10</span><h2>Luật áp dụng &amp; Giải quyết tranh chấp</h2></div>
+      <p>Các điều khoản sử dụng này được điều chỉnh và giải thích theo <strong>luật pháp Cộng hòa Xã hội Chủ nghĩa Việt Nam</strong>.</p>
+      <ul>
+        <li>Mọi tranh chấp phát sinh từ việc sử dụng Nền tảng sẽ được ưu tiên giải quyết bằng thương lượng, hòa giải thiện chí giữa các bên.</li>
+        <li>Nếu không thể giải quyết bằng thương lượng, tranh chấp sẽ được đưa ra <strong>Tòa án nhân dân có thẩm quyền</strong> tại địa phương nơi LearnHub đặt trụ sở (tỉnh Đồng Tháp) để giải quyết theo quy định pháp luật.</li>
+        <li>Trong quá trình giải quyết tranh chấp, việc sử dụng Nền tảng vẫn được tiếp tục trừ khi có yêu cầu khác từ cơ quan có thẩm quyền.</li>
+      </ul>
+    </div>
+  </main>
+
+  <!-- SIDEBAR TOC (ĐÃ CỐ ĐỊNH HOÀN HẢO) -->
+  <aside class="toc-sidebar">
+    <div class="toc-title">Mục lục</div>
+    <ul class="toc-list" id="tocScroll">
+      <li><a class="toc-link active" href="#s1">1. Giới thiệu</a></li>
+      <li><a class="toc-link" href="#s2">2. Tài khoản</a></li>
+      <li><a class="toc-link" href="#s3">3. Quy tắc sử dụng</a></li>
+      <li><a class="toc-link" href="#s4">4. Sở hữu trí tuệ</a></li>
+      <li><a class="toc-link" href="#s5">5. AI Hubie</a></li>
+      <li><a class="toc-link" href="#s6">6. Trách nhiệm</a></li>
+      <li><a class="toc-link" href="#s7">7. Đóng góp</a></li>
+      <li><a class="toc-link" href="#s8">8. Sửa đổi</a></li>
+      <li><a class="toc-link" href="#s9">9. DMCA &amp; Bản quyền</a></li>
+      <li><a class="toc-link" href="#s10">10. Luật áp dụng</a></li>
+    </ul>
+  </aside>
+
+</div>
+
+<!-- FOOTER -->
+<div class="doc-footer-wrap">
+  <div id="lh-footer-placeholder"></div>
+</div>
+
+<script>
+// Đảm bảo các hàm feedback modal luôn có sẵn trong window trước khi load footer
+window.openFeedbackModal = function() {
+  const overlay = document.getElementById('lh-feedback-overlay');
+  if (overlay) {
+    overlay.classList.add('active');
+    document.body.classList.add('no-scroll');
+  }
+};
+
+window.closeFeedbackModal = function() {
+  const overlay = document.getElementById('lh-feedback-overlay');
+  if (overlay) {
+    overlay.classList.remove('active');
+    document.body.classList.remove('no-scroll');
+  }
+};
+
+window.closeFeedbackModalByOverlay = function(event) {
+  if (event.target.id === 'lh-feedback-overlay') {
+    window.closeFeedbackModal();
+  }
+};
+
+// Sau đó mới load footer
+fetch('footer.html').then(r=>r.text()).then(html=>{
+  document.getElementById('lh-footer-placeholder').innerHTML=html;
+});
+</script>
+
+<!-- Scroll Spy JavaScript (Cực Mượt) -->
+<script>
+(function(){
+  const links = document.querySelectorAll('.toc-link');
+  const sections = document.querySelectorAll('.doc-section');
+  const tocList = document.getElementById('tocScroll');
+
+  function activateMenu(){
+    let current = '';
+    
+    sections.forEach(s => {
+      const rect = s.getBoundingClientRect();
+      // Nhận diện phần đang đọc chính xác dựa trên tọa độ màn hình
+      if (rect.top <= 160) {
+        current = s.getAttribute('id');
+      }
+    });
+
+    // Nếu cuộn lên đầu trang, đặt mục active là mục 1
+    if (window.scrollY < 100) {
+      current = sections[0].getAttribute('id');
+    }
+
+    links.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + current) {
+        link.classList.add('active');
+        
+        // Trên mobile: tự động cuộn ngang thanh mục lục
+        if (window.innerWidth <= 1024 && tocList) {
+          const l = link.offsetLeft - tocList.offsetWidth / 2 + link.offsetWidth / 2;
+          tocList.scrollTo({left: l, behavior: 'smooth'});
+        }
+      }
+    });
+  }
+
+  window.addEventListener('scroll', activateMenu, {passive: true});
+  window.addEventListener('resize', activateMenu, {passive: true});
+  activateMenu();
+})();
+</script>
+
+<!-- Hamburger Toggle (Mobile) -->
+<script>
+(function(){
+  const hamburger = document.getElementById('tocHamburger');
+  const sidebar = document.querySelector('.toc-sidebar');
+  const overlay = document.getElementById('tocOverlay');
+  if(!hamburger||!sidebar||!overlay) return;
+
+  function openMenu(){ sidebar.classList.add('open'); overlay.classList.add('show'); hamburger.style.display='none'; }
+  function closeMenu(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); hamburger.style.display=''; }
+
+  hamburger.addEventListener('click', function(){
+    sidebar.classList.contains('open') ? closeMenu() : openMenu();
+  });
+  overlay.addEventListener('click', closeMenu);
+
+  sidebar.querySelectorAll('.toc-link').forEach(function(link){
+    link.addEventListener('click', function(){ closeMenu(); });
+  });
+})();
+</script>
+
+<!-- Chat Button -->
+<div id="chatOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9998; background: rgba(0,0,0,0.1);"></div>
+
+<div id="chatButton" style="
+  position:fixed;
+  width:65px;
+  height:65px;
+  border-radius:50%;
+  overflow:hidden;
+  cursor: pointer;
+  z-index:9999;
+  box-shadow:0 6px 18px rgba(0,0,0,0.25);
+  left: 20px;
+  bottom: 20px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+">
+  <img src="pictures/chatboiavt.png" style="width:100%; height:100%; object-fit:cover; pointer-events: none;">
+</div>
+
+<iframe id="chatbotFrame" src="AI.html" style="
+    display:none; 
+    position:fixed; 
+    bottom:95px; 
+    left:20px;
+    width:350px; 
+    height:500px; 
+    border:none; 
+    border-radius:12px; 
+    box-shadow:0 8px 25px rgba(0,0,0,0.2); 
+    z-index:9999;
+"></iframe>
+
+<!-- Feedback Popup -->
+<div id="lh-feedback-overlay" class="lh-popup-overlay" onclick="closeFeedbackModalByOverlay(event)">
+  <div class="lh-popup-content">
+    <button class="lh-popup-close" onclick="closeFeedbackModal()" title="Đóng">&times;</button>
+    <iframe src="gop-y.html" class="lh-popup-iframe"></iframe>
+  </div>
+</div>
+
+<script src="script.js" defer></script>
+<script>
+  // Logic Toggle Đóng / Mở Chatbot trực tiếp hoàn chỉnh
+  const chatButton = document.getElementById('chatButton');
+  const chatbotFrame = document.getElementById('chatbotFrame');
+  const chatOverlay = document.getElementById('chatOverlay');
+
+  if (chatButton && chatbotFrame) {
+    chatButton.addEventListener('click', () => {
+      if (chatbotFrame.style.display === 'none' || chatbotFrame.style.display === '') {
+        chatbotFrame.style.display = 'block';
+        if (chatOverlay) chatOverlay.style.display = 'block';
+      } else {
+        chatbotFrame.style.display = 'none';
+        if (chatOverlay) chatOverlay.style.display = 'none';
+      }
+    });
+  }
+
+  if (chatOverlay) {
+    chatOverlay.addEventListener('click', () => {
+      chatbotFrame.style.display = 'none';
+      chatOverlay.style.display = 'none';
+    });
+  }
+
+  // Feedback Modal Functions
+  function openFeedbackModal() {
+    const overlay = document.getElementById('lh-feedback-overlay');
+    if (overlay) {
+      overlay.classList.add('active');
+      document.body.classList.add('no-scroll');
+    }
+  }
+
+  function closeFeedbackModal() {
+    const overlay = document.getElementById('lh-feedback-overlay');
+    if (overlay) {
+      overlay.classList.remove('active');
+      document.body.classList.remove('no-scroll');
+    }
+  }
+
+  function closeFeedbackModalByOverlay(event) {
+    if (event.target.id === 'lh-feedback-overlay') {
+      closeFeedbackModal();
+    }
+  }
+
+  // Close modal on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeFeedbackModal();
+    }
+  });
+
+  // Gán hàm vào window để footer có thể gọi
+  window.openFeedbackModal = openFeedbackModal;
+  window.closeFeedbackModal = closeFeedbackModal;
+  window.closeFeedbackModalByOverlay = closeFeedbackModalByOverlay;
+</script>
+
+<!-- Scroll Spy -->
+<script>
+(function(){
+  const links = document.querySelectorAll('.toc-link');
+  const sections = document.querySelectorAll('.doc-section');
+  function activateMenu(){
+    let current = '';
+    sections.forEach(s => {
+      const rect = s.getBoundingClientRect();
+      if (rect.top <= 160) current = s.getAttribute('id');
+    });
+    if (window.scrollY < 100) current = sections[0].getAttribute('id');
+    links.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+    });
+  }
+  window.addEventListener('scroll', activateMenu, {passive: true});
+  activateMenu();
+})();
+</script>
+
+</body>
+</html>

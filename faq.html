@@ -18,9 +18,11 @@
 <link rel="stylesheet" href="style.css">
 
 <style>
-  /* Ẩn thanh cuộn bên phải nhưng vẫn cho phép cuộn trang */
-  html, body {
-    overflow-x: hidden; /* Chống tràn chiều ngang tuyệt đối */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -41,50 +43,225 @@
 
   /* FAQ Page Specific Styles */
   body {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    background: #f4f6fa;
     min-height: 100vh;
-    padding-top: 110px; /* Thêm phần đệm để không bị header fixed che khuất nội dung trên desktop */
+    padding-top: 100px; /* Thêm phần đệm để không bị header fixed che khuất nội dung */
+    color: #1e293b;
+    font-family: system-ui, -apple-system, sans-serif;
   }
 
+  /* ===== NAV HEADER GRADIENT CHUẨN ĐỒNG BỘ ===== */
+  .doc-nav {
+    background: linear-gradient(135deg, #1a73e8, #0d47a1);
+    padding: 14px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(13, 71, 161, 0.15);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .doc-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+  }
+  .doc-nav-brand img {
+    border-radius: 10px;
+    padding: 2px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  .doc-nav-text {
+    display: flex;
+    flex-direction: column;
+  }
+  .doc-nav-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.3px;
+  }
+  .doc-nav-sub {
+    font-size: 12.5px;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+  }
+  .doc-nav-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .doc-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 13.5px;
+    transition: all 0.25s ease;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+  .doc-nav-btn:hover {
+    background: #ffffff;
+    color: #1a73e8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+    border-color: #ffffff;
+  }
+
+  @media(max-width:768px){
+    body {
+      padding-top: 150px;
+    }
+    .doc-nav {
+      padding: 14px 20px;
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+    }
+    .doc-nav-brand {
+      gap: 10px;
+    }
+    .doc-nav-text {
+      align-items: center;
+    }
+    .doc-nav-title {
+      font-size: 17px;
+    }
+    .doc-nav-actions {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  /* ===== HERO & LAYOUT ===== */
   .faq-container {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 0 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    padding-left: 290px;
+  }
+
+  /* ===== FIXED SIDEBAR TOC ===== */
+  .toc-sidebar{position:fixed;top:80px;left:20px;width:250px;height:fit-content;max-height:calc(100vh - 160px);overflow-y:auto;padding:5px 20px 15px 0;z-index:100}
+  .toc-title{font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:#94a3b8;margin-bottom:16px}
+  .toc-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:4px}
+  .toc-link{display:block;padding:8px 16px;font-size:13.5px;color:#64748b;text-decoration:none;font-weight:500;transition:all 0.2s ease;border-left:3px solid transparent;margin-left:-23px;padding-left:22px}
+  .toc-link:hover{color:#0f172a;padding-left:25px}
+  .toc-list li:nth-child(1) .toc-link.active{color:#1a73e8;border-left-color:#1a73e8;background:linear-gradient(90deg,rgba(26,115,232,0.08) 0%,rgba(26,115,232,0) 100%)}
+  .toc-list li:nth-child(2) .toc-link.active{color:#7c3aed;border-left-color:#7c3aed;background:linear-gradient(90deg,rgba(124,58,237,0.08) 0%,rgba(124,58,237,0) 100%)}
+  .toc-list li:nth-child(3) .toc-link.active{color:#059669;border-left-color:#059669;background:linear-gradient(90deg,rgba(5,150,105,0.08) 0%,rgba(5,150,105,0) 100%)}
+  .toc-list li:nth-child(4) .toc-link.active{color:#ea580c;border-left-color:#ea580c;background:linear-gradient(90deg,rgba(234,88,12,0.08) 0%,rgba(234,88,12,0) 100%)}
+  .toc-list li:nth-child(5) .toc-link.active{color:#db2777;border-left-color:#db2777;background:linear-gradient(90deg,rgba(219,39,119,0.08) 0%,rgba(219,39,119,0) 100%)}
+  .toc-list li:nth-child(6) .toc-link.active{color:#0d9488;border-left-color:#0d9488;background:linear-gradient(90deg,rgba(13,148,136,0.08) 0%,rgba(13,148,136,0) 100%)}
+  .toc-list li:nth-child(7) .toc-link.active{color:#4f46e5;border-left-color:#4f46e5;background:linear-gradient(90deg,rgba(79,70,229,0.08) 0%,rgba(79,70,229,0) 100%)}
+  .toc-list li:nth-child(8) .toc-link.active{color:#e11d48;border-left-color:#e11d48;background:linear-gradient(90deg,rgba(225,29,72,0.08) 0%,rgba(225,29,72,0) 100%)}
+
+  /* Hamburger Menu - Mobile */
+  .toc-hamburger{display:none;position:fixed;top:18px;left:16px;z-index:1001;width:42px;height:42px;border-radius:12px;background:#fff;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.08);cursor:pointer;align-items:center;justify-content:center;font-size:18px;color:#334155}
+  .toc-hamburger:active{transform:scale(0.95)}
+  .toc-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:999;opacity:0;transition:opacity 0.3s}
+
+  /* Responsive TOC */
+  @media(max-width:1200px){
+    .faq-container{padding:10px 16px 40px;padding-left:16px}
+    .toc-sidebar{position:fixed;top:0;left:0;width:260px;height:100vh;max-height:100vh;border-right:none;background:#fff;box-shadow:4px 0 20px rgba(0,0,0,0.1);transform:translateX(-100%);transition:transform 0.3s ease;z-index:1000;padding:80px 20px 20px 20px;display:block}
+    .toc-sidebar.open{transform:translateX(0)}
+    .toc-hamburger{display:flex}
+    .toc-overlay.show{display:block;opacity:1}
+  }
+
+  @media(max-width:768px){
+    .faq-header{padding:24px 16px 16px}
+    .faq-header h1{font-size:28px}
   }
 
   .faq-header {
     text-align: center;
-    margin-bottom: 40px;
+    padding: 40px 24px 20px;
+    width: 100%;
+  }
+
+  .faq-header-icon {
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #0284c7;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.1);
   }
 
   .faq-header h1 {
-    font-size: 36px;
-    color: #1a73e8;
+    font-size: clamp(26px, 4.5vw, 36px);
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.5px;
     margin-bottom: 10px;
   }
 
   .faq-header p {
-    color: #64748b;
-    font-size: 16px;
+    font-size: 15px;
+    color: #475569;
+    max-width: 600px;
+    margin: 0 auto 14px;
+    line-height: 1.6;
+  }
+
+  .faq-header .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #e2e8f0;
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #334155;
+  }
+
+  .faq-header .badge i {
+    color: #475569;
   }
 
   .faq-category {
-    margin-bottom: 30px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01);
+    scroll-margin-top: 80px;
   }
 
   .faq-category-title {
-    font-size: 22px;
-    color: #1a73e8;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
     margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
     display: flex;
     align-items: center;
     gap: 10px;
   }
 
   .faq-category-title i {
-    color: #3b82f6;
+    color: #1a73e8;
   }
 
   .faq-item {
@@ -97,8 +274,8 @@
   }
 
   .faq-item:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    border-color: #1a73e8;
   }
 
   .faq-question {
@@ -109,7 +286,7 @@
     align-items: center;
     font-weight: 600;
     color: #334155;
-    font-size: 16px;
+    font-size: 15px;
     background: #ffffff;
     transition: background 0.3s ease;
   }
@@ -119,7 +296,7 @@
   }
 
   .faq-question i {
-    color: #3b82f6;
+    color: #1a73e8;
     transition: transform 0.3s ease;
   }
 
@@ -133,130 +310,14 @@
     transition: max-height 0.3s ease, padding 0.3s ease;
     padding: 0 20px;
     background: #f8fafc;
-    color: #64748b;
-    line-height: 1.6;
+    color: #475569;
+    line-height: 1.8;
+    font-size: 14.5px;
   }
 
   .faq-item.active .faq-answer {
     max-height: 500px;
     padding: 20px;
-  }
-
-  /* Tối ưu hóa Header Navigation Style - CỐ ĐỊNH CỨNG FIXED PHẲNG ĐỀU */
-  .faq-header-nav {
-    background: linear-gradient(135deg, #1a73e8 0%, #2563eb 100%);
-    padding: 16px 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 20px rgba(26, 115, 232, 0.12);
-    position: fixed; 
-    top: 0;
-    left: 0;
-    right: 0; /* Căng đều sang mép phải */
-    width: 100%;
-    z-index: 1000;
-    backdrop-filter: blur(8px);
-  }
-
-  .faq-nav-brand {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    text-decoration: none;
-  }
-
-  .faq-nav-brand img {
-    border-radius: 10px;
-    background: #ffffff;
-    padding: 3px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .faq-nav-text {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .faq-nav-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: #ffffff;
-    letter-spacing: -0.3px;
-  }
-
-  .faq-nav-subtitle {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.85);
-  }
-
-  .faq-nav-actions {
-    display: flex;
-    align-items: center;
-  }
-
-  .faq-nav-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: rgba(255, 255, 255, 0.15);
-    color: #ffffff;
-    text-decoration: none;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.25s ease;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-  }
-
-  .faq-nav-btn:hover {
-    background: #ffffff;
-    color: #1a73e8;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  @media (max-width: 768px) {
-    body {
-      padding-top: 190px; /* Đẩy khoảng trống rộng hơn phù hợp với chiều cao header mobile */
-    }
-
-    .faq-header-nav {
-      padding: 20px;
-      flex-direction: column;
-      gap: 14px;
-      text-align: center;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .faq-nav-brand {
-      flex-direction: column;
-      gap: 8px;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .faq-nav-text {
-      align-items: center;
-      text-align: center;
-    }
-
-    .faq-nav-title {
-      font-size: 20px;
-    }
-
-    .faq-nav-actions {
-      width: 100%;
-      justify-content: center;
-    }
-
-    .faq-nav-btn {
-      width: auto;
-      min-width: 160px;
-      justify-content: center;
-    }
   }
 
   /* Feedback Popup Styles */
@@ -341,6 +402,9 @@
 
     .lh-popup-iframe {
       height: 550px;
+    }
+    .faq-category {
+      padding: 22px 20px;
     }
   }
 
@@ -516,32 +580,50 @@
 </head>
 <body>
 
-<!-- Header -->
-<div class="faq-header-nav">
-  <a href="https://learnhubpf.pages.dev" class="faq-nav-brand">
-    <img src="pictures/logoweb.webp" width="50" height="50" alt="Logo LearnHub">
-    <div class="faq-nav-text">
-      <span class="faq-nav-title">LearnHub Platform</span>
-      <span class="faq-nav-subtitle">Trung Tâm Trợ Giúp Kỹ Thuật</span>
+<!-- Header Đồng bộ Gradient -->
+<div class="doc-nav">
+  <a href="https://learnhubpf.pages.dev" class="doc-nav-brand">
+    <img src="pictures/logoweb.webp" width="46" height="46" alt="Logo LearnHub">
+    <div class="doc-nav-text">
+      <span class="doc-nav-title">LearnHub Platform</span>
+      <span class="doc-nav-sub">Trung Tâm Trợ Giúp Kỹ Thuật</span>
     </div>
   </a>
-  <div class="faq-nav-actions">
-    <a href="https://learnhubpf.pages.dev" class="faq-nav-btn">
-      <i class="fa-solid fa-home"></i>
-      <span>Về trang chủ</span>
-    </a>
+  <div class="doc-nav-actions">
+    <a href="https://learnhubpf.pages.dev" class="doc-nav-btn"><i class="fa-solid fa-house"></i> Về trang chủ</a>
   </div>
 </div>
+
+<!-- HAMBURGER (Mobile) -->
+<button class="toc-hamburger" id="tocHamburger" aria-label="Mục lục"><i class="fa-solid fa-bars"></i></button>
+<div class="toc-overlay" id="tocOverlay"></div>
+
+<!-- SIDEBAR TOC -->
+<aside class="toc-sidebar">
+  <div class="toc-title">Mục lục</div>
+  <ul class="toc-list" id="tocScroll">
+    <li><a class="toc-link active" href="#faq1">1. Tài khoản &amp; Đăng nhập</a></li>
+    <li><a class="toc-link" href="#faq2">2. Hệ thống kiểm tra</a></li>
+    <li><a class="toc-link" href="#faq3">3. Trợ lý ảo Chatbot</a></li>
+    <li><a class="toc-link" href="#faq4">4. Hạ tầng kỹ thuật</a></li>
+    <li><a class="toc-link" href="#faq5">5. Xử lý sự cố</a></li>
+    <li><a class="toc-link" href="#faq6">6. Quyền riêng tư &amp; Bảo mật</a></li>
+    <li><a class="toc-link" href="#faq7">7. Trách nhiệm pháp lý</a></li>
+    <li><a class="toc-link" href="#faq8">8. Quản trị Admin</a></li>
+  </ul>
+</aside>
 
 <!-- FAQ Content -->
 <div class="faq-container">
   <div class="faq-header">
-    <h1>Trung Tâm Trợ Giúp -❓Các Câu Hỏi Thường Gặp</h1>
+    <div class="faq-header-icon"><i class="fa-solid fa-circle-question"></i></div>
+    <h1>Trung Tâm Trợ Giúp - Các Câu Hỏi Thường Gặp</h1>
     <p>Tìm câu trả lời về tính năng, công nghệ và cách vận hành hệ thống LearnHub Platform</p>
+    <div class="badge"><i class="fa-regular fa-calendar-check"></i> Cập nhật lần cuối: 14/07/2026</div>
   </div>
 
   <!-- Category 1: Tài khoản & đăng nhập -->
-  <div class="faq-category">
+  <div class="faq-category" id="faq1">
     <div class="faq-category-title">
       <i class="fa-solid fa-user-circle"></i>
       <span>1. Tài khoản & Đăng nhập</span>
@@ -579,7 +661,7 @@
   </div>
 
   <!-- Category 2: Hệ thống kiểm tra & Quiz module -->
-  <div class="faq-category">
+  <div class="faq-category" id="faq2">
     <div class="faq-category-title">
       <i class="fa-solid fa-clipboard-list"></i>
       <span>2. Hệ thống kiểm tra & Quiz module</span>
@@ -622,7 +704,7 @@
   </div>
 
   <!-- Category 3: Trợ lý ảo Chatbot thông minh -->
-  <div class="faq-category">
+  <div class="faq-category" id="faq3">
     <div class="faq-category-title">
       <i class="fa-solid fa-robot"></i>
       <span>3. Trợ lý ảo Chatbot trực tuyến</span>
@@ -654,13 +736,13 @@
         <i class="fa-solid fa-chevron-down"></i>
       </div>
       <div class="faq-answer">
-        Lỗi này xảy ra khi tài nguyên file <code>chatbot.html</code> chưa được tải xuống đầy đủ do kết nối mạng yếu. Bạn chỉ cần tắt popup khung chat, đợi 5 giây rồi nhấn lại vào biểu tượng avatar chatbot ở góc màn hình.
+        Lỗi này xảy ra khi tài nguyên file <code>AI.html</code> chưa được tải xuống đầy đủ do kết nối mạng yếu. Bạn chỉ cần tắt popup khung chat, đợi 5 giây rồi nhấn lại vào biểu tượng avatar chatbot ở góc màn hình.
       </div>
     </div>
   </div>
 
   <!-- Category 4: Hạ tầng kỹ thuật & Giao tiếp mạng -->
-  <div class="faq-category">
+  <div class="faq-category" id="faq4">
     <div class="faq-category-title">
       <i class="fa-solid fa-cogs"></i>
       <span>4. Hạ tầng kỹ thuật & Giao tiếp mạng</span>
@@ -688,7 +770,7 @@
   </div>
 
   <!-- Category 5: Xử lý sự cố & Đóng góp ý kiến -->
-  <div class="faq-category">
+  <div class="faq-category" id="faq5">
     <div class="faq-category-title">
       <i class="fa-solid fa-life-ring"></i>
       <span>5. Xử lý sự cố & Đóng góp ý kiến</span>
@@ -711,6 +793,200 @@
       </div>
       <div class="faq-answer">
         Chúng tôi rất trân trọng mọi ý kiến đóng góp. Bạn có thể sử dụng tính năng <strong>"Góp ý ý kiến"</strong> tại menu chân trang để mở form phản hồi, hoặc gửi thông tin trực tiếp đến hòm thư hỗ trợ kỹ thuật ở phần Footer.
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 6: Quyền riêng tư & Bảo mật -->
+  <div class="faq-category" id="faq6">
+    <div class="faq-category-title">
+      <i class="fa-solid fa-shield-halved"></i>
+      <span>6. Quyền riêng tư & Bảo mật</span>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        LearnHub thu thập những thông tin gì về tôi?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        LearnHub thu thập: thông tin tài khoản (tên, email, avatar), dữ liệu hoạt động (lịch sử làm bài, thời gian đăng nhập), nội dung bạn gửi (hình ảnh bài tập, bài viết diễn đàn) và thông tin kỹ thuật cơ bản (trình duyệt, hệ điều hành). Chúng tôi <strong>không thu thập</strong> thông tin thanh toán hay dữ liệu tài chính.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Dữ liệu của tôi được lưu trữ trong bao lâu?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Dữ liệu tài khoản được giữ trong suốt thời gian tài khoản còn hoạt động. Lịch sử làm bài được lưu tối đa 12 tháng. Hình ảnh gửi cho AI Hubie tự động xóa sau 24 giờ. Khi tài khoản bị xóa, toàn bộ dữ liệu sẽ bị xóa vĩnh viễn trong vòng 30 ngày.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Tôi có thể yêu cầu xóa tài khoản và dữ liệu không?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Có. Bạn có quyền yêu cầu xóa toàn bộ dữ liệu và tài khoản bất kỳ lúc nào. Vui lòng liên hệ Admin qua email learnhubplatform@gmail.com hoặc Zalo 0335 925 257 để thực hiện yêu cầu này.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        LearnHub có sử dụng cookie không?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Có. LearnHub sử dụng Cookie và LocalStorage để lưu trạng thái đăng nhập, tùy chỉnh giao diện và ghi nhớ phiên làm việc. Chúng tôi <strong>không sử dụng</strong> cookie quảng cáo hay công cụ theo dõi đa nền tảng. Bạn có thể quản lý cookie qua cài đặt trình duyệt.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        LearnHub có bán thông tin cá nhân cho bên thứ ba không?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Không. LearnHub cam kết <strong>không bán, cho thuê hoặc trao đổi</strong> thông tin cá nhân với bất kỳ bên thứ ba nào vì mục đích thương mại. Thông tin chỉ được chia sẻ với Google Firebase (nhà cung cấp hạ tầng) hoặc khi có yêu cầu pháp lý từ cơ quan có thẩm quyền.
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 7: Quyền lợi & Trách nhiệm pháp lý -->
+  <div class="faq-category" id="faq7">
+    <div class="faq-category-title">
+      <i class="fa-solid fa-scale-balanced"></i>
+      <span>7. Quyền lợi & Trách nhiệm pháp lý</span>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        LearnHub có cam kết gì về độ ổn định hệ thống?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        LearnHub cung cấp dịch vụ trên cơ sở "có gì dùng nấy" và "nỗ lực tốt nhất". Chúng tôi không đảm bảo hệ thống luôn hoạt động không gián đoạn. Trong trường hợp bảo trì, Admin có quyền tạm ngưng truy cập mà không cần thông báo trước.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Nếu tôi vi phạm điều khoản sẽ bị xử lý thế nào?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Admin có quyền thu hồi quyền truy cập hoặc vô hiệu hóa tài khoản nếu phát hiện vi phạm mà không cần thông báo trước. Các hành vi vi phạm bao gồm: sử dụng bất hợp pháp, đăng tải nội dung vi phạm pháp luật, tấn công hệ thống, hoặc lạm dụng tính năng.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Tôi có thể khiếu nại về bản quyền không?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Có. Nếu bạn cho rằng nội dung trên LearnHub vi phạm bản quyền của mình, hãy gửi email đến learnhubplatform@gmail.com với tiêu đề "DMCA - Khiếu nại bản quyền", bao gồm mô tả nội dung vi phạm, đường dẫn URL và bằng chứng sở hữu. LearnHub sẽ phản hồi trong vòng 7 ngày làm việc.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Chính sách áp dụng luật pháp nào?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Các điều khoản sử dụng được điều chỉnh theo <strong>luật pháp Cộng hòa Xã hội Chủ nghĩa Việt Nam</strong>. Mọi tranh chấp sẽ được ưu tiên giải quyết bằng thương lượng, nếu không thành công sẽ đưa ra Tòa án nhân dân có thẩm quyền tại tỉnh Đồng Tháp.
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 8: Hệ thống quản trị Admin -->
+  <div class="faq-category" id="faq8">
+    <div class="faq-category-title">
+      <i class="fa-solid fa-user-shield"></i>
+      <span>8. Hệ thống quản trị Admin</span>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Whitelist là gì và tại sao cần có?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Whititelist là danh sách email được phép đăng ký và đăng nhập vào LearnHub. Chỉ những email có trong whitelist mới có thể truy cập hệ thống. Đây là cơ chế bảo mật để kiểm soát người dùng và ngăn chặn truy cập trái phép.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Admin có thể khóa tài khoản của tôi không?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Có. Admin có quyền khóa (disable) tài khoản nếu phát hiện vi phạm điều khoản sử dụng. Khi bị khóa, bạn sẽ không thể đăng nhập vào hệ thống. Để mở khóa, vui lòng liên hệ Admin qua email learnhubplatform@gmail.com hoặc Zalo 0335 925 257.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Tôi nhận được thông báo từ Admin là gì?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Admin có thể gửi thông báo realtime đến toàn bộ người dùng hoặc từng người cụ thể. Các thông báo có thể là: thông báo thường, chú ý, hoặc cảnh báo. Thông báo sẽ hiển thị trên màn hình trong thời gian từ 3-30 giây tùy loại.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Popup chào mừng là gì?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Popup chào mừng là thông báo hiển thị sau khi bạn đăng nhập thành công. Admin có thể tùy chỉnh nội dung popup để chào mừng, thông báo về tính năng mới hoặc các sự kiện quan trọng. Popup có thể hiển thị mỗi lần vào web hoặc chỉ lần đầu trong ngày.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Khi hệ thống bảo trì sẽ xảy ra gì?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Khi Admin bật chế độ bảo trì, toàn bộ người dùng đang đăng nhập sẽ bị đăng xuất tự động và mọi truy cập mới sẽ bị chặn. Một thông báo sẽ hiển thị giải thích lý do bảo trì. Chế độ này chỉ dùng trong trường hợp nâng cấp hệ thống hoặc sự cố nghiêm trọng.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Bảng xếp hạng và reset điểm tuần hoạt động thế nào?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        LearnHub có bảng xếp hạng học viên dựa trên điểm số tích lũy. Admin có thể reset điểm khi sang tuần mới để tạo sân chơi công bằng. Khi reset, toàn bộ điểm sẽ được xóa và bắt đầu tính lại từ đầu tuần mới.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Admin có thể thay đổi tên hiển thị của tôi không?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Có. Admin có quyền chỉnh sửa tên hiển thị của người dùng trong trường hợp tên không phù hợp hoặc theo yêu cầu của người dùng. Nếu bạn muốn đổi tên, vui lòng liên hệ Admin để thực hiện thay đổi.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Các vai trò người dùng trên LearnHub là gì?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        LearnHub có 3 vai trò chính: <strong>Admin</strong> (quản trị toàn bộ hệ thống), <strong>Giáo viên</strong> (có quyền quản lý nội dung học tập), và <strong>Thành viên</strong> (người dùng thông thường). Admin có quyền gán hoặc thay đổi vai trò cho từng người dùng.
       </div>
     </div>
   </div>
@@ -746,7 +1022,7 @@ fetch('footer.html').then(r => r.text()).then(html => {
   <img src="pictures/chatboiavt.png" style="width:100%; height:100%; object-fit:cover; pointer-events: none;">
 </div>
 
-<iframe id="chatbotFrame" src="chatbot.html" style="
+<iframe id="chatbotFrame" src="AI.html" style="
     display:none; 
     position:fixed; 
     bottom:95px; 
@@ -842,5 +1118,42 @@ fetch('footer.html').then(r => r.text()).then(html => {
   });
 </script>
 
+<!-- Scroll Spy -->
+<script>
+(function(){
+  const links = document.querySelectorAll('.toc-link');
+  const sections = document.querySelectorAll('.faq-category');
+  function activateMenu(){
+    let current = '';
+    sections.forEach(s => {
+      const rect = s.getBoundingClientRect();
+      if (rect.top <= 160) current = s.getAttribute('id');
+    });
+    if (window.scrollY < 100) current = sections[0].getAttribute('id');
+    links.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+    });
+  }
+  window.addEventListener('scroll', activateMenu, {passive: true});
+  activateMenu();
+})();
+</script>
+
+<!-- Hamburger Toggle (Mobile) -->
+<script>
+(function(){
+  const hamburger = document.getElementById('tocHamburger');
+  const sidebar = document.querySelector('.toc-sidebar');
+  const overlay = document.getElementById('tocOverlay');
+  if(!hamburger||!sidebar||!overlay) return;
+  function openMenu(){ sidebar.classList.add('open'); overlay.classList.add('show'); hamburger.style.display='none'; }
+  function closeMenu(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); hamburger.style.display=''; }
+  hamburger.addEventListener('click', function(){ sidebar.classList.contains('open') ? closeMenu() : openMenu(); });
+  overlay.addEventListener('click', closeMenu);
+  sidebar.querySelectorAll('.toc-link').forEach(function(link){ link.addEventListener('click', function(){ closeMenu(); }); });
+})();
+</script>
+
 </body>
-</html> 
+</html>
