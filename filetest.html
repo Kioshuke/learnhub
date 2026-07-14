@@ -910,7 +910,7 @@ if (window !== window.parent) {
 <!-- 🆕 [Refactor] filetest.html không còn tự thao tác Firestore nữa.
      Toàn bộ logic (tạo hồ sơ, reset tuần, lưu điểm) đã được chuyển sang
      learnhub-stats.js. Ở đây chỉ import và gọi API, giữ nguyên tên các hàm
-     window.* cũ (ensureTestStatsProfile, saveTestResult, checkAndResetWeeklyScore)
+     window.* cũ (ensureTestStatsProfile, saveTestResult)
      để không phải sửa các nơi đang gọi chúng (listener message, handleFinalSubmit). -->
 <script>
 window.ensureTestStatsProfile = async function(user){
@@ -943,7 +943,7 @@ function showSaveStatus(success){
     el.style.color = success ? "var(--success, #16a34a)" : "var(--danger, #c81515)";
 }
 
-window.checkAndResetWeeklyScore = async function(user){};
+
 </script>
 
 <script>
@@ -971,13 +971,7 @@ window.addEventListener('message', (event) => {
 
         // Đồng bộ hồ sơ testStats/{uid} trên Firestore (tạo nếu chưa có, không ghi đè nếu đã có)
         if (typeof window.ensureTestStatsProfile === "function") {
-            window.ensureTestStatsProfile(window.learnHubUser).then(() => {
-                // 🆕 [LearnHub Test - Giai đoạn 3] Sau khi đã chắc chắn có hồ sơ testStats,
-                // kiểm tra currentWeek trong config/system để tự động reset weekScore nếu sang tuần mới.
-                if (typeof window.checkAndResetWeeklyScore === "function") {
-                    window.checkAndResetWeeklyScore(window.learnHubUser);
-                }
-            });
+            window.ensureTestStatsProfile(window.learnHubUser);
         }
     }
 });

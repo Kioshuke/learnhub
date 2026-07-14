@@ -10,11 +10,14 @@ import {
   collection, getDocs, query, orderBy, limit
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-async function getCurrentWeekFromConfig() {
-  const configRef = doc(db, "config", "system");
-  const configSnap = await getDoc(configRef);
-  if (!configSnap.exists()) return null;
-  return configSnap.data().currentWeek ?? null;
+function getCurrentWeekKey() {
+  const now = new Date();
+  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNum = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  return `${d.getUTCFullYear()}-W${String(weekNum).padStart(2, '0')}`;
 }
 
 
@@ -24,11 +27,11 @@ export async function createUserStats(user) {
   try {
     const statsRef = doc(db, "testStats", user.uid);
     const statsSnap = await getDoc(statsRef);
-    const currentWeek = await getCurrentWeekFromConfig();
+    const currentWeek = getCurrentWeekKey();
 
     if (statsSnap.exists()) {
       const existingData = statsSnap.data();
-      const isNewWeek = existingData.weekKey && currentWeek && existingData.weekKey !== currentWeek;
+      const isNewWeek = existingData.weekKey && existingData.weekKey !== currentWeek;
       
       const payload = {
         totalTests: isNewWeek ? 0 : Number(existingData.totalTests || 0),
@@ -59,32 +62,7 @@ export async function createUserStats(user) {
   }
 }
 
-export async function resetWeekIfNeeded(uid) {
-  if (!uid) return;
 
-  try {
-    const currentWeek = await getCurrentWeekFromConfig();
-    if (!currentWeek) return;
-
-    const statsRef = doc(db, "testStats", uid);
-    const statsSnap = await getDoc(statsRef);
-    if (!statsSnap.exists()) return;
-
-    const statsData = statsSnap.data();
-    if (statsData.weekKey !== currentWeek) {
-      await setDoc(statsRef, {
-        totalTests: 0,
-        totalScore: 0,
-        bestScore: 0,
-        weekKey: currentWeek,
-        updatedAt: serverTimestamp()
-      }, { merge: true });
-    }
-  } catch (e) {
-    console.log("[learnhub-stats] resetWeekIfNeeded lỗi:", e);
-    throw e;
-  }
-}
 
 export async function updateUserStats(uid, score) {
   if (!uid) {
@@ -101,13 +79,12 @@ export async function updateUserStats(uid, score) {
   try {
     const statsRef = doc(db, "testStats", uid);
     const statsSnap = await getDoc(statsRef);
-    const currentWeek = await getCurrentWeekFromConfig();
+    const currentWeek = getCurrentWeekKey();
     const currentData = statsSnap.exists() ? statsSnap.data() : {};
+    const isNewWeek = currentData.weekKey && currentData.weekKey !== currentWeek;
 
-    const isNewWeek = currentData.weekKey && currentWeek && currentData.weekKey !== currentWeek;
-    
-    const totalTests = isNewWeek ? 1 : Number(currentData.totalTests || 0) + 1;
-    const totalScore = isNewWeek ? numericScore : Number(currentData.totalScore || 0) + numericScore;
+    const totalTests = (isNewWeek ? 0 : Number(currentData.totalTests || 0)) + 1;
+    const totalScore = (isNewWeek ? 0 : Number(currentData.totalScore || 0)) + numericScore;
     const bestScore = isNewWeek ? numericScore : Math.max(Number(currentData.bestScore || 0), numericScore);
 
     const payload = {

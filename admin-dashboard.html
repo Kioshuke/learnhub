@@ -345,6 +345,7 @@
 
     /* ================= ANIMATIONS ================= */
     @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 
     /* ================= RESPONSIVE ================= */
     @media(max-width:900px){
@@ -354,6 +355,7 @@
       .mobile-toggle{display:flex!important}
       .stats{grid-template-columns:repeat(2,1fr)}
       .broadcast-layout{grid-template-columns:1fr}
+      #weeklyResetTabPanel > div:last-child{grid-template-columns:1fr!important}
     }
     @media(max-width:640px){
       .main{padding:16px 14px 32px}
@@ -467,6 +469,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Bảo trì hệ thống
       </button>
+      <button class="sidebar-link" data-admin-tab="weeklyReset">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 6 9 6 9z"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 18 9 18 9z"/><path d="M4 22h16"/><path d="M10 22V8h4v14"/><path d="M6 22V6h4v16"/></svg>
+        BXH &amp; Reset tuần
+      </button>
       <div class="sidebar-label">Hệ thống</div>
       <button class="sidebar-link" onclick="location.href='index.html'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -487,7 +493,6 @@
 
   <!-- MAIN CONTENT -->
   <div class="main">
-    <div id="notice" class="notice info"></div>
 
     <div class="main-header">
       <div>
@@ -567,6 +572,47 @@
         <button class="btn btn-soft" id="refreshMaintenanceBtn">Làm mới</button>
       </div>
       <p class="panel-desc" id="maintenanceMeta" style="margin-top:12px;margin-bottom:0"></p>
+    </section>
+
+    <!-- WEEKLY RESET + LEADERBOARD TAB -->
+    <section class="panel tab-panel hidden" id="weeklyResetTabPanel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Bảng xếp hạng &amp; Reset điểm tuần</div>
+          <div class="panel-desc" style="margin-bottom:0">Xem top học viên và reset điểm khi sang tuần mới.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:20px;align-items:start">
+        <!-- TRÁI: Reset controls -->
+        <div>
+          <div id="weeklyResetStatusBanner" style="border-radius:var(--r-sm);padding:10px 14px;margin-bottom:14px;font-weight:600;font-size:12.5px">Đang tải...</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+            <div style="padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm)">
+              <div style="font-size:10.5px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Tuần hiện tại</div>
+              <div id="weeklyResetCurrentWeek" style="font-size:16px;font-weight:800;color:var(--blue)">—</div>
+            </div>
+            <div style="padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm)">
+              <div style="font-size:10.5px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Lần reset cuối</div>
+              <div id="weeklyResetLastTime" style="font-size:13px;font-weight:600;color:var(--text)">—</div>
+            </div>
+            <div style="padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm)">
+              <div style="font-size:10.5px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Thực hiện bởi</div>
+              <div id="weeklyResetLastBy" style="font-size:13px;font-weight:600;color:var(--text)">—</div>
+            </div>
+          </div>
+          <button class="btn btn-danger" id="manualResetBtn" style="width:100%;justify-content:center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Reset ngay bây giờ
+          </button>
+          <p style="margin-top:10px;color:var(--text-3);font-size:11.5px;line-height:1.5;text-align:center">Reset thủ công sẽ xóa toàn bộ điểm và bắt đầu tuần mới.</p>
+        </div>
+
+        <!-- PHẢI: Leaderboard iframe -->
+        <div>
+          <iframe src="leaderboard.html" style="width:100%;height:520px;border:none;border-radius:var(--r-sm);border:1px solid var(--border)" loading="lazy"></iframe>
+        </div>
+      </div>
     </section>
 
     <!-- USERS TABLE -->
@@ -685,6 +731,11 @@ const maintenanceMeta = document.getElementById("maintenanceMeta");
 const renameTabPanel = document.getElementById("renameTabPanel");
 const renameSearchInput = document.getElementById("renameSearchInput");
 const renameListBody = document.getElementById("renameListBody");
+const weeklyResetTabPanel = document.getElementById("weeklyResetTabPanel");
+const weeklyResetCurrentWeek = document.getElementById("weeklyResetCurrentWeek");
+const weeklyResetLastTime = document.getElementById("weeklyResetLastTime");
+const weeklyResetLastBy = document.getElementById("weeklyResetLastBy");
+const weeklyResetStatusBanner = document.getElementById("weeklyResetStatusBanner");
 const pageTitle = document.getElementById("pageTitle");
 const pageSubtitle = document.getElementById("pageSubtitle");
 
@@ -693,7 +744,8 @@ const pageTitles = {
   rename: ["Tên hiển thị", "Đổi tên hiển thị cho từng user đã có tài khoản."],
   broadcasts: ["Gửi thông báo", "Gửi thông báo realtime đến toàn bộ user hoặc từng người."],
   welcomePopup: ["Popup chào mừng", "Chỉnh popup hiển thị sau khi user đăng nhập."],
-  maintenance: ["Bảo trì hệ thống", "Bật/tắt chế độ bảo trì toàn hệ thống."]
+  maintenance: ["Bảo trì hệ thống", "Bật/tắt chế độ bảo trì toàn hệ thống."],
+  weeklyReset: ["BXH & Reset tuần", "Bảng xếp hạng học viên và reset điểm theo tuần."]
 };
 
 function switchAdminTab(tab) {
@@ -703,12 +755,14 @@ function switchAdminTab(tab) {
   broadcastsTabPanel.classList.toggle("hidden", tab !== "broadcasts");
   welcomePopupTabPanel.classList.toggle("hidden", tab !== "welcomePopup");
   maintenanceTabPanel.classList.toggle("hidden", tab !== "maintenance");
+  weeklyResetTabPanel.classList.toggle("hidden", tab !== "weeklyReset");
   const t = pageTitles[tab] || ["", ""];
   pageTitle.textContent = t[0];
   pageSubtitle.textContent = t[1];
   if (tab === "welcomePopup") loadWelcomePopupForm();
   if (tab === "maintenance") loadMaintenanceForm();
   if (tab === "rename") renderRenameList();
+  if (tab === "weeklyReset") loadWeeklyResetForm();
   // close mobile sidebar
   document.querySelector('.sidebar').classList.remove('open');
   document.querySelector('.sidebar-overlay').classList.remove('active');
@@ -1092,6 +1146,116 @@ window.deleteUserData = async (uid, email) => {
   showNotice(has?"Đã xóa hồ sơ user và gỡ whitelist.":"Đã xóa email khỏi whitelist.", "success");
 };
 
+// ================= WEEKLY RESET =================
+function getCurrentWeekKey() {
+  const now = new Date();
+  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNum = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  return `${d.getUTCFullYear()}-W${String(weekNum).padStart(2, '0')}`;
+}
+
+async function loadWeeklyResetForm() {
+  const currentWeek = getCurrentWeekKey();
+  weeklyResetCurrentWeek.textContent = currentWeek;
+  try {
+    const snap = await getDoc(doc(db, "settings", "weeklyReset"));
+    if (snap.exists()) {
+      const d = snap.data();
+      weeklyResetLastTime.textContent = d.lastResetAt ? formatDate(d.lastResetAt) : "Chưa từng reset thủ công";
+      weeklyResetLastBy.textContent = d.lastResetBy || "—";
+      weeklyResetStatusBanner.textContent = `Tuần ${currentWeek} · Đã reset ${d.resetCount || 0} lần`;
+      weeklyResetStatusBanner.style.background = "#eff6ff";
+      weeklyResetStatusBanner.style.color = "#1e40af";
+      weeklyResetStatusBanner.style.border = "1px solid #bfdbfe";
+    } else {
+      weeklyResetLastTime.textContent = "Chưa từng reset thủ công";
+      weeklyResetLastBy.textContent = "—";
+      weeklyResetStatusBanner.textContent = `Tuần ${currentWeek} · Chưa có lần reset thủ công nào`;
+      weeklyResetStatusBanner.style.background = "#f8fafc";
+      weeklyResetStatusBanner.style.color = "#64748b";
+      weeklyResetStatusBanner.style.border = "1px solid #e2e8f0";
+    }
+  } catch (e) {
+    console.error(e);
+    weeklyResetStatusBanner.textContent = "Không tải được thông tin reset.";
+    weeklyResetStatusBanner.style.background = "#fef2f2";
+    weeklyResetStatusBanner.style.color = "#b91c1c";
+    weeklyResetStatusBanner.style.border = "1px solid #fecaca";
+  }
+}
+
+document.getElementById("manualResetBtn").addEventListener("click", async () => {
+  const modal = document.getElementById("confirmModal");
+  const mI = document.getElementById("confirmModalIcon");
+  const mT = document.getElementById("confirmModalTitle");
+  const mM = document.getElementById("confirmModalMessage");
+  const cB = document.getElementById("confirmModalConfirm");
+
+  mI.textContent = "⚠️";
+  mT.textContent = "Reset toàn bộ điểm?";
+  mM.textContent = "Hành động này sẽ đặt totalScore, totalTests, bestScore của TẤT CẢ user về 0. Điểm sẽ bắt đầu tích lũy lại từ đầu. Bạn có chắc?";
+  modal.classList.add("active");
+
+  const onConfirm = async () => {
+    modal.classList.remove("active");
+    cB.removeEventListener("click", onConfirm);
+    document.getElementById("confirmModalCancel").removeEventListener("click", onCancel);
+
+    const btn = document.getElementById("manualResetBtn");
+    btn.disabled = true;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Đang reset...';
+
+    try {
+      const currentWeek = getCurrentWeekKey();
+      const statsSnap = await getDocs(collection(db, "testStats"));
+      let count = 0;
+
+      for (const d of statsSnap.docs) {
+        await setDoc(doc(db, "testStats", d.id), {
+          totalTests: 0,
+          totalScore: 0,
+          bestScore: 0,
+          weekKey: currentWeek,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+        count++;
+      }
+
+      const now = new Date().toISOString();
+      const resetSnap = await getDoc(doc(db, "settings", "weeklyReset"));
+      const prevCount = resetSnap.exists() ? (resetSnap.data().resetCount || 0) : 0;
+
+      await setDoc(doc(db, "settings", "weeklyReset"), {
+        lastResetAt: now,
+        lastResetBy: adminEmail,
+        resetCount: prevCount + 1,
+        usersReset: count
+      }, { merge: true });
+
+      showNotice(`Đã reset điểm thành công cho ${count} user.`, "success");
+      await loadWeeklyResetForm();
+    } catch (e) {
+      console.error(e);
+      showNotice("Reset điểm thất bại.", "error");
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Reset ngay bây giờ';
+  };
+
+  const onCancel = () => {
+    modal.classList.remove("active");
+    cB.removeEventListener("click", onConfirm);
+    document.getElementById("confirmModalCancel").removeEventListener("click", onCancel);
+  };
+
+  cB.addEventListener("click", onConfirm);
+  document.getElementById("confirmModalCancel").addEventListener("click", onCancel);
+});
+
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     if (unsubscribeAllow) unsubscribeAllow(); if (unsubscribeUsers) unsubscribeUsers();
@@ -1103,5 +1267,6 @@ onAuthStateChanged(auth, async (user) => {
   await refreshCollections(); startRealtime();
 });
 </script>
+<div id="notice" class="notice info"></div>
 </body>
 </html>

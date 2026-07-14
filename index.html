@@ -178,7 +178,7 @@ from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 // 🆕 [Refactor] Dùng chung app/auth/db từ firebase-config.js, không tự initializeApp() nữa.
 // Hành vi và giá trị của auth/db hoàn toàn không đổi so với trước (cùng firebaseConfig, cùng project).
 import { app, auth, db } from "./firebase-config.js";
-import { createUserStats, resetWeekIfNeeded, updateUserStats } from "./learnhub-stats.js";
+import { createUserStats, updateUserStats } from "./learnhub-stats.js";
 await setPersistence(auth, browserLocalPersistence); 
 const provider = new GoogleAuthProvider();
 
@@ -642,7 +642,6 @@ if(user){
 
   try {
     await createUserStats(window.currentLearnHubUser);
-    await resetWeekIfNeeded(userData.uid);
   } catch (e) {
     console.log("Không thể đồng bộ hồ sơ gamification khi đăng nhập:", e);
   }
@@ -847,7 +846,6 @@ window.addEventListener("beforeunload", () => {
   if (u && u.uid && Number.isFinite(score)) {
     try {
       await createUserStats(u);
-      await resetWeekIfNeeded(u.uid);
       await updateUserStats(u.uid, score);
     } catch (e) {
       console.log("Không thể lưu kết quả từ iframe:", e);
