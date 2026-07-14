@@ -822,6 +822,11 @@ window.addEventListener("beforeunload", () => {
     }
   }
 });
+window.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "CLOSE_QUIZ_SCROLL_TOP") {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+});
 </script>
 <div id="lh-footer-placeholder"></div>
 <script>

@@ -22,7 +22,8 @@ body.dark-mode{
   --quiz-bg:#1e293b;--quiz-border:#334155;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{width:100%;min-height:100vh;font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+html,body{width:100%;min-height:100vh;font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;}
+html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;}
 body{padding:4px 6px 12px;}
 iframe{width:100%;border:none !important;outline:none !important;display:block;}
 
@@ -131,7 +132,7 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
   .card h3{font-size:14px;}
   .card-desc{font-size:12px;line-height:1.4;}
   .card .btn{padding:8px 14px;font-size:13px;}
-  .quiz-box{margin-top:4px;border-radius:6px;}
+  .quiz-box{margin-top:12px;border-radius:6px;}
   .quiz-header{padding:6px 6px 8px;}
 }
 @keyframes cardFadeInMobile{
@@ -144,7 +145,7 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
 }
 
 /* ===== QUIZ ===== */
-.quiz-box{margin-top:8px;background:var(--quiz-bg);border:1px solid var(--quiz-border);border-radius:10px;overflow:hidden;}
+.quiz-box{margin-top:20px;background:var(--quiz-bg);border:1px solid var(--quiz-border);border-radius:10px;overflow:hidden;}
 .quiz-header{padding:8px 8px;display:flex;justify-content:flex-start;border-bottom:1px solid var(--quiz-border);}
 .quiz-btn{padding:6px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:13px;}
 .close-btn{background:#ef4444;color:#fff;}
@@ -277,6 +278,10 @@ function applyCardDominoEffect() {
 }
 
 function switchSubject(id) {
+  var quizEl = document.getElementById("quiz");
+  if (quizEl && quizEl.innerHTML.trim() !== "") {
+    closeQuiz();
+  }
   document.querySelectorAll('.subject-tab').forEach(t => t.classList.remove('active'));
   document.querySelector('.subject-tab[data-subject="' + id + '"]').classList.add('active');
   document.querySelectorAll('.subject-panel').forEach(p => p.classList.remove('active'));
@@ -346,7 +351,9 @@ function loadQuiz(btn, link) {
 function closeQuiz() {
   document.getElementById("quiz").innerHTML = "";
   document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
-  setTimeout(function() { window.scrollTo({ top: 0, behavior: "smooth" }); }, 100);
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "CLOSE_QUIZ_SCROLL_TOP" }, "*");
+  }
 }
 </script>
 </body>

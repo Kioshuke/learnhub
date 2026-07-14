@@ -25,9 +25,9 @@
 
 html, body {
   width: 100%;
-  overflow-x: hidden; /* Tuyệt chiêu cuối: Cấm kéo ngang */
+  overflow-x: hidden;
   position: relative;
-  background: transparent !important;
+  background-color: #eff6ff;
 }
 /* ===== GLOBAL - Tối ưu font và nền ===== */
 body {
@@ -78,7 +78,7 @@ body::before {
     position: fixed;
     top: 16px;
     left: 16px;
-    z-index: 1200;
+    z-index: 1000;
     border: none;
     border-radius: 12px;
     padding: 10px 14px;
@@ -1897,8 +1897,8 @@ body {
     radial-gradient(circle at 12% 10%, rgba(236, 72, 153, 0.18), transparent 26%),
     radial-gradient(circle at 84% 14%, rgba(37, 99, 235, 0.18), transparent 30%),
     radial-gradient(circle at 68% 86%, rgba(245, 158, 11, 0.15), transparent 34%),
-    linear-gradient(135deg, #f8fbff 0%, #fff7fb 44%, #f5fffb 100%) !important;
-  background-attachment: fixed !important;
+    linear-gradient(135deg, #f8fbff 0%, #fff7fb 44%, #f5fffb 100%);
+  background-attachment: fixed;
 }
 
 body {
@@ -2106,83 +2106,6 @@ body::after {
 #intro-screen button:hover {
   transform: translateY(-3px) scale(1.03);
   box-shadow: 0 20px 40px rgba(236, 72, 153, 0.22);
-}
-
-/* ===== SKELETON LOADING ===== */
-@keyframes skeletonShimmer {
-  0% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.skel {
-  background: linear-gradient(90deg, #e2e9f5 25%, #f2f6fc 37%, #e2e9f5 63%);
-  background-size: 400% 100%;
-  animation: skeletonShimmer 1.4s ease infinite;
-  border-radius: 12px;
-}
-
-#appSkeleton {
-  position: fixed;
-  inset: 0;
-  z-index: 900;
-  background: var(--bg-1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 24px;
-  gap: 14px;
-  opacity: 1;
-  transition: opacity 0.4s ease;
-}
-
-#appSkeleton.hide {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.skel-menu {
-  display: flex;
-  gap: 8px;
-  padding: 6px 10px;
-  background: var(--panel);
-  border-radius: 16px;
-  border: 1px solid var(--line);
-}
-
-.skel-pill { width: 70px; height: 26px; }
-.skel-gear { width: 30px; height: 26px; }
-
-.skel-banner {
-  width: 90%;
-  max-width: 500px;
-  height: 32px;
-}
-
-.skel-progress {
-  width: 90%;
-  max-width: 500px;
-  height: 46px;
-}
-
-.skel-card-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 12px;
-}
-
-.skel-arrow {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.skel-card {
-  width: 400px;
-  max-width: 78vw;
-  height: 240px;
-  border-radius: 32px;
 }
 
 /* ===== COMPLETION POPUP REFRESH ===== */
@@ -2449,32 +2372,154 @@ body::after {
     font-size: 14px;
   }
 }
+
+/* ===== DARK MODE ===== */
+body.dark-mode {
+  --bg-1: #0f172a;
+  --bg-2: #1e293b;
+  --bg-3: #334155;
+  --panel: rgba(30, 41, 59, 0.88);
+  --panel-strong: rgba(30, 41, 59, 0.92);
+  --line: rgba(100, 116, 139, 0.3);
+  --text-main: #f1f5f9;
+  --text-sub: #94a3b8;
+}
+
+body.dark-mode {
+  background:
+    radial-gradient(circle at 12% 10%, rgba(236, 72, 153, 0.08), transparent 26%),
+    radial-gradient(circle at 84% 14%, rgba(37, 99, 235, 0.08), transparent 30%),
+    radial-gradient(circle at 68% 86%, rgba(245, 158, 11, 0.06), transparent 34%),
+    linear-gradient(135deg, #0f172a 0%, #1a1a2e 44%, #0f172a 100%);
+  background-attachment: fixed;
+}
+
+body.dark-mode body::before { opacity: 0.03; }
+body.dark-mode body::after { opacity: 0.05; }
+
+body.dark-mode #menu {
+  background: rgba(30, 41, 59, 0.92);
+  border-color: rgba(100, 116, 139, 0.3);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.35);
+}
+body.dark-mode #menu button { color: #94a3b8; }
+body.dark-mode #menu button:hover:not(.active-nav) { background: rgba(59, 130, 246, 0.12); color: #60a5fa; }
+body.dark-mode #menu button.active-nav { background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important; }
+
+body.dark-mode #backToHubBtn { box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+
+body.dark-mode #progressContainer {
+  background: rgba(30, 41, 59, 0.92);
+  border-color: #334155;
+}
+body.dark-mode #progressText { color: #60a5fa; }
+body.dark-mode #progressOuter { background: #1e293b; }
+
+body.dark-mode #topicBanner {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(59, 130, 246, 0.2);
+  color: #94a3b8;
+}
+body.dark-mode #topicBanner span { color: #e2e8f0; }
+
+body.dark-mode .flash-front,
+body.dark-mode .flash-back {
+  background: rgba(30, 41, 59, 0.92) !important;
+  box-shadow: 0 18px 35px rgba(0,0,0,0.35) !important;
+  border-color: rgba(100, 116, 139, 0.2);
+}
+body.dark-mode .flash-front { color: #f1f5f9; }
+body.dark-mode .flash-back {
+  background: linear-gradient(140deg, rgba(30, 41, 59, 0.96), rgba(37, 99, 235, 0.12)) !important;
+  color: #93c5fd;
+}
+
+body.dark-mode .speaker-icon { background: rgba(59, 130, 246, 0.12); color: #60a5fa; }
+body.dark-mode .speaker-icon:hover { background: #4f46e5; color: white; }
+
+body.dark-mode .nav-arrow { background: #1e293b; color: #60a5fa; }
+
+body.dark-mode .game-shell {
+  background: rgba(30, 41, 59, 0.74);
+  border-color: rgba(100, 116, 139, 0.25);
+}
+body.dark-mode .game-start-card {
+  background: linear-gradient(160deg, rgba(30, 41, 59, 0.95), rgba(30, 41, 59, 0.88));
+  border-color: #334155;
+}
+body.dark-mode .game-start-card h2 { color: #a5b4fc; }
+body.dark-mode .game-start-card p { color: #94a3b8; }
+
+body.dark-mode .match-card {
+  background: rgba(30, 41, 59, 0.9);
+  color: #e2e8f0;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+body.dark-mode .match-card:hover { background: rgba(30, 41, 59, 0.95); border-color: #6366f1; color: #a5b4fc; }
+body.dark-mode .match-card.selected { background: rgba(99, 102, 241, 0.12); border-color: #6366f1; }
+
+body.dark-mode .blast-box {
+  background: rgba(30, 41, 59, 0.88);
+  border-color: #334155;
+}
+body.dark-mode .question { color: #f1f5f9; }
+body.dark-mode .options button {
+  background: #1e293b;
+  color: #94a3b8;
+  border-color: #334155;
+}
+body.dark-mode .options button:hover { background: #2d3a4e; border-color: #6366f1; color: #a5b4fc; }
+
+body.dark-mode .popup { background: rgba(0,0,0,0.6); }
+body.dark-mode .popup-box {
+  background: linear-gradient(150deg, rgba(30, 41, 59, 0.96), rgba(30, 41, 59, 0.92));
+  box-shadow: 0 18px 32px rgba(0,0,0,0.4);
+}
+body.dark-mode .popup-box h2 { color: #a5b4fc; }
+body.dark-mode .popup-box p { color: #94a3b8; }
+
+body.dark-mode .settings-modal { background: rgba(0,0,0,0.5); }
+body.dark-mode .settings-box {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+body.dark-mode .settings-header h3 { color: #60a5fa; }
+body.dark-mode .settings-close { background: #334155; color: #94a3b8; }
+body.dark-mode .settings-close:hover { background: #475569; }
+body.dark-mode .setting-item { border-bottom-color: #334155; }
+body.dark-mode .setting-label { color: #e2e8f0; }
+body.dark-mode .setting-desc { color: #64748b; }
+body.dark-mode .toggle-slider { background-color: #475569; }
+
+body.dark-mode #music-control { background: #1e293b; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+
+body.dark-mode #score,
+body.dark-mode .streak-badge { color: #f1f5f9; }
 </style>
 </head>
 
 <body>
+<div id="loadPopup" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,0.55);backdrop-filter:blur(20px);transition:opacity .4s ease;">
+  <div style="text-align:center;">
+    <div style="font-size:44px;margin-bottom:12px;animation:lbounce .8s ease-in-out infinite alternate;">⚡</div>
+    <p style="color:#f1f5f9;font-size:17px;font-weight:700;margin:0 0 4px;">Đang tải bộ từ vựng</p>
+    <p style="color:#94a3b8;font-size:13px;margin:0 0 14px;"> Chuẩn bị flashcard cho bạn...</p>
+    <div style="display:flex;gap:6px;justify-content:center;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#3b82f6;animation:dp 1.2s ease-in-out infinite;"></span>
+      <span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;animation:dp 1.2s ease-in-out .15s infinite;"></span>
+      <span style="width:8px;height:8px;border-radius:50%;background:#ec4899;animation:dp 1.2s ease-in-out .3s infinite;"></span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes lbounce{from{transform:translateY(0) scale(1)}to{transform:translateY(-8px) scale(1.06)}}
+@keyframes dp{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+</style>
 <button id="backToHubBtn" type="button" onclick="window.location.href='hub.html'">← Về Hub</button>
 <div id="intro-screen">
     <h1>LearnHub Flashcard</h1>
     <button onclick="enterApp()">Tham gia</button>
-</div>
-<!-- SKELETON LOADING (hiện trong lúc data.js + game.js đang tải) -->
-<div id="appSkeleton">
-  <div class="skel-menu">
-    <div class="skel skel-pill"></div>
-    <div class="skel skel-pill"></div>
-    <div class="skel skel-pill"></div>
-    <div class="skel skel-pill"></div>
-    <div class="skel skel-pill"></div>
-    <div class="skel skel-gear"></div>
-  </div>
-  <div class="skel skel-banner"></div>
-  <div class="skel skel-progress"></div>
-  <div class="skel-card-row">
-    <div class="skel skel-arrow"></div>
-    <div class="skel skel-card"></div>
-    <div class="skel skel-arrow"></div>
-  </div>
 </div>
 <!-- MENU -->
 <div id="menu">
@@ -2674,26 +2719,33 @@ function setTopicNameLabel(topicName) {
 
 function enterApp() {
     const intro = document.getElementById("intro-screen");
+    if (!intro || intro.style.display === "none") return;
 
-    // fade mờ
     intro.style.opacity = "0";
     intro.style.pointerEvents = "none";
 
-    // sau khi fade xong thì ẩn luôn
     setTimeout(() => {
         intro.style.display = "none";
     }, 500);
 }
-// ===== SKELETON LOADING helpers =====
-function hideAppSkeleton() {
-    const skel = document.getElementById("appSkeleton");
-    if (!skel) return;
-    skel.classList.add("hide");
-    setTimeout(() => skel.remove(), 450);
-}
 
-// Phòng khi mạng lag/đơ quá lâu thì vẫn tự ẩn skeleton, tránh kẹt mãi
-const skeletonSafetyTimeout = setTimeout(hideAppSkeleton, 12000);
+// Auto-skip intro screen if opened from hub (has data param)
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("data")) {
+        const intro = document.getElementById("intro-screen");
+        if (intro) {
+            intro.style.display = "none";
+        }
+    }
+})();
+
+function hideLoadPopup() {
+    const p = document.getElementById("loadPopup");
+    if (!p) return;
+    p.style.opacity = "0";
+    setTimeout(() => p.remove(), 400);
+}
 
 function loadDataScript() {
     const params = new URLSearchParams(window.location.search);
@@ -2712,17 +2764,14 @@ function loadDataScript() {
         gameScript.src = "game.js";
 
         gameScript.onload = () => {
-            // 👉 CHÍNH CHỖ NÀY
             if (typeof setTotal === 'function') {
                 setTotal();
             }
-            clearTimeout(skeletonSafetyTimeout);
-            hideAppSkeleton();
+            hideLoadPopup();
         };
 
         gameScript.onerror = () => {
-            clearTimeout(skeletonSafetyTimeout);
-            hideAppSkeleton();
+            hideLoadPopup();
             alert("Không tải được game.js");
         };
 
@@ -2730,8 +2779,7 @@ function loadDataScript() {
     };
 
     script.onerror = () => {
-        clearTimeout(skeletonSafetyTimeout);
-        hideAppSkeleton();
+        hideLoadPopup();
         alert("Không tải được dữ liệu: " + dataFile);
     };
 
@@ -2840,6 +2888,21 @@ document.getElementById("speechToggle").addEventListener("change", () => {
 
 // Load settings on page load
 loadSettings();
+</script>
+<script>
+window.learnHubUser = null;
+window.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'LEARNHUB_USER') {
+    window.learnHubUser = event.data.user;
+  }
+  if (event.data && event.data.type === 'DARK_MODE') {
+    if (event.data.value) document.body.classList.add('dark-mode');
+    else document.body.classList.remove('dark-mode');
+  }
+});
+if (localStorage.getItem("darkMode") === "on") {
+  document.body.classList.add("dark-mode");
+}
 </script>
 </body>
 </html>

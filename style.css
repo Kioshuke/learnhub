@@ -46,7 +46,12 @@ html, body {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE/Edge */
 }
+#quiz, .quiz-box, .quiz-box iframe {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
 html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+#quiz::-webkit-scrollbar, .quiz-box::-webkit-scrollbar, .quiz-box iframe::-webkit-scrollbar { display: none; }
 
 body.dark-mode {
   --bg-main: #0f172a;
@@ -870,7 +875,7 @@ box-shadow:0 12px 28px color-mix(in srgb, var(--card-color) 30%, transparent);
 /* QUIZ */
 
 .quiz-box {
-    margin-top: 30px;
+    margin-top: 50px;
     background: white;
     padding: 0;                /* Đổi từ 12px về 0 để iframe sát mép */
     border-radius: 0;          /* Nếu muốn phẳng hoàn toàn, còn không cứ để 12px nếu thích bo góc */
@@ -878,7 +883,7 @@ box-shadow:0 12px 28px color-mix(in srgb, var(--card-color) 30%, transparent);
     border: none;              /* Đảm bảo không có border ẩn */
     position: relative;
     height: 100vh;
-    overflow: visible;         /* Không cắt iframe, để iframe tự chiếm đủ 100vh như bên flashcard */
+    overflow: hidden;          /* Không cho iframe tràn ra gây scrollbar */
 }
 body.dark-mode .quiz-box{
     background:#020617;
@@ -2937,9 +2942,6 @@ bottom:84px !important;
 }
 
 /* Tablet adjustments */
-.close-btn{
-margin-left: -5px;
-}
 
 }
 
@@ -3071,7 +3073,6 @@ animation: pulse-green 2s infinite;
   pointer-events: none; /* 🔥 cho click xuyên */
 }
 
-/* nút đóng - Đã tinh chỉnh nhỏ lại */
 .quiz-btn {
     display: inline-flex;
     align-items: center;
@@ -3086,55 +3087,39 @@ animation: pulse-green 2s infinite;
     color: #1f2937;
     cursor: pointer;
     transition: all 0.2s ease;
-    /* Thêm dòng này để chắc chắn nhận diện cảm ứng */
-    touch-action: manipulation; 
+    touch-action: manipulation;
     position: relative;
     z-index: 10;
 }
 
-/* Nút đóng - Bản Premium UI */
 .close-btn {
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    
-    padding: 0 12px !important; 
+    padding: 0 12px !important;
     min-width: 70px !important;
     height: 32px !important;
-    
     font-size: 13px !important;
     font-weight: 700 !important;
-    border-radius: 8px !important; /* Bo góc sắc sảo hơn */
-    
+    border-radius: 8px !important;
     color: #ffffff !important;
-    background: linear-gradient(135deg, #ff4b2b, #ff416c) !important; /* Gradient đỏ cam rực rỡ */
+    background: linear-gradient(135deg, #ff4b2b, #ff416c) !important;
     border: none !important;
-    
-    /* Đổ bóng mặc định nhẹ nhàng */
     box-shadow: 0 3px 6px rgba(255, 65, 108, 0.2) !important;
-    
     cursor: pointer !important;
     position: relative;
-    overflow: hidden; /* Để làm hiệu ứng lướt sáng */
+    overflow: hidden;
     transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1) !important;
     z-index: 101 !important;
     pointer-events: all !important;
 }
 
-/* Hiệu ứng HOVER XỊN */
 .close-btn:hover {
-    /* 1. Đẩy nút nổi hẳn lên */
-    transform: translateY(-2px) scale(1.03); 
-    
-    /* 2. Đổ bóng phát sáng (Glow effect) */
-    box-shadow: 0 6px 15px rgba(255, 65, 108, 0.4), 
-                0 0 10px rgba(255, 75, 43, 0.2) !important;
-    
-    /* 3. Làm màu tươi hơn một chút */
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 15px rgba(255, 65, 108, 0.4), 0 0 10px rgba(255, 75, 43, 0.2) !important;
     filter: brightness(1.1);
 }
 
-/* Hiệu ứng lướt sáng ngang qua nút khi hover (tùy chọn) */
 .close-btn::after {
     content: "";
     position: absolute;
@@ -3148,14 +3133,12 @@ animation: pulse-green 2s infinite;
     left: 100%;
 }
 
-/* Hiệu ứng ACTIVE - Nhấn lún */
 .close-btn:active {
     transform: translateY(1px) scale(0.97);
     box-shadow: 0 2px 4px rgba(255, 65, 108, 0.3) !important;
     filter: brightness(0.9);
 }
 
-/* click */
 .quiz-btn:active{
   transform: scale(0.96);
 }

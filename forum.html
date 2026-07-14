@@ -6,7 +6,6 @@
   <title>LearnHub Forum</title>
   <link rel="icon" href="pictures/favicon.png" sizes="any">
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -42,7 +41,9 @@ body {
   overflow-x: hidden;
   margin: 0;
   color: var(--text);
-  font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.86), rgba(244,247,251,0.96)),
     radial-gradient(circle at 18% 0%, rgba(37,99,235,0.12), transparent 26%),
@@ -95,7 +96,7 @@ body {
   align-items: center;
   gap: 8px;
   font-size: 16px;
-  font-weight: 550;
+  font-weight: 600;
   letter-spacing: 0;
 }
 
@@ -114,7 +115,7 @@ body {
   border: 1px solid rgba(255,255,255,0.28);
   border-radius: 999px;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 500;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
   overflow: hidden;
   white-space: nowrap;
@@ -172,7 +173,7 @@ textarea {
   outline: none;
   resize: none;
   overflow: hidden;
-  font: 400 14px/1.45 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+  font: 500 14px/1.5 'Be Vietnam Pro', 'Inter', 'Segoe UI', sans-serif;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
 }
 
@@ -189,7 +190,7 @@ textarea::placeholder { color: #98a2b3; font-style: normal; }
   color: var(--muted);
   text-align: right;
   font-size: 12px;
-  font-weight: 550;
+  font-weight: 500;
 }
 
 button {
@@ -201,7 +202,7 @@ button {
   background: linear-gradient(135deg, var(--primary), #0f766e);
   box-shadow: 0 8px 18px rgba(37,99,235,0.22);
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 500;
   transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
 }
 
@@ -214,11 +215,11 @@ button:active { transform: translateY(0); }
 
 .post {
   position: relative;
-  margin-bottom: 9px;
-  padding: 11px 12px 10px;
+  margin-bottom: 8px;
+  padding: 10px 12px 8px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 12px;
   box-shadow: var(--shadow-soft);
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
   overflow: visible;
@@ -246,7 +247,7 @@ button:active { transform: translateY(0); }
   border: 1px solid #b2ddff;
   border-radius: 999px;
   font-size: 11px;
-  font-weight: 550;
+  font-weight: 500;
 }
 
 /* ================= CSS HIỂN THỊ NỔI BẬT ADMIN ================= */
@@ -272,7 +273,7 @@ button:active { transform: translateY(0); }
   background: #fee2e2 !important;
   color: #dc2626 !important;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   padding: 2px 8px;
   border-radius: 999px;
   margin-left: 6px;
@@ -285,30 +286,38 @@ button:active { transform: translateY(0); }
   flex-wrap: wrap;
   gap: 7px;
   min-height: 20px;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
   padding-right: 72px;
   color: var(--sub);
-  font-size: 13px;
-  font-weight: 550;
+  font-size: 12.5px;
+  font-weight: 500;
 }
 
 .meta b {
   color: #175cd3;
-  font-weight: 800;
+  font-weight: 700;
+  font-size: 13.5px;
 }
 
 .meta b.admin-name {
   color: #dc2626 !important;
-  font-weight: 850 !important;
+  font-weight: 800 !important;
+}
+
+.meta b.admin-name {
+  color: #dc2626 !important;
+  font-weight: 800 !important;
+  font-size: 13.5px;
 }
 
 .meta .current-user-name {
   color: #fff;
   background: linear-gradient(135deg, var(--primary), #0f766e);
-  padding: 3px 9px;
+  padding: 2px 8px;
   border-radius: 999px;
-  font-weight: 850;
-  box-shadow: 0 5px 12px rgba(37,99,235,0.16);
+  font-weight: 650;
+  font-size: 12.5px;
+  box-shadow: 0 2px 6px rgba(37,99,235,0.18);
 }
 
 .meta .current-user-name.admin-name {
@@ -323,7 +332,7 @@ button:active { transform: translateY(0); }
   border-radius: 999px;
   cursor: pointer;
   font-size: 12px;
-  font-weight: 650;
+  font-weight: 500;
   transition: background 0.18s ease, color 0.18s ease;
 }
 .edit-btn { color: #027a48; background: #ecfdf3; }
@@ -333,7 +342,7 @@ button:active { transform: translateY(0); }
 
 .post div[style*="white-space: pre-wrap;"],
 .reply div[style*="white-space: pre-wrap;"] {
-  margin-top: 8px;
+  margin-top: 4px;
   color: #27364a;
   font-size: 14px;
   line-height: 1.45;
@@ -346,8 +355,8 @@ button:active { transform: translateY(0); }
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 8px;
-  padding-top: 7px;
+  margin-top: 6px;
+  padding-top: 5px;
   border-top: 1px solid #eef2f6;
 }
 
@@ -359,7 +368,7 @@ button:active { transform: translateY(0); }
   border-radius: 999px;
   color: #667085;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   user-select: none;
   transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
@@ -375,7 +384,7 @@ button:active { transform: translateY(0); }
   text-decoration: none;
 }
 
-.replies-wrapper { margin-top: 6px; }
+.replies-wrapper { margin-top: 4px; }
 
 .reply-thread-toggle {
   display: inline-flex;
@@ -386,7 +395,7 @@ button:active { transform: translateY(0); }
   color: #667085;
   border-radius: 999px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   user-select: none;
 }
@@ -406,9 +415,9 @@ button:active { transform: translateY(0); }
 
 .reply {
   position: relative;
-  margin-top: 10px;
+  margin-top: 7px;
   margin-left: 20px;
-  padding: 7px 9px 7px 11px;
+  padding: 6px 9px 6px 11px;
   background: #f8fafc;
   border-left: 3px solid #dbeafe;
   border-radius: 0 10px 10px 0;
@@ -419,7 +428,7 @@ button:active { transform: translateY(0); }
   background: #fffcfc !important;
 }
 
-.reply .actions { margin-top: 8px; padding-top: 8px; gap: 7px; }
+.reply .actions { margin-top: 5px; padding-top: 5px; gap: 7px; }
 
 .reply-status-container {
   display: flex;
@@ -435,7 +444,7 @@ button:active { transform: translateY(0); }
   animation: slideIn 0.25s ease;
 }
 
-.replying-text { font-size: 13px; font-weight: 800; }
+.replying-text { font-size: 13px; font-weight: 600; }
 .replying-text b { color: #0f766e; background: rgba(20,184,166,0.10); padding: 2px 7px; border-radius: 999px; }
 .cancel-reply { color: #667085; cursor: pointer; font-size: 20px; line-height: 1; transition: color 0.18s ease; }
 .cancel-reply:hover { color: var(--danger); }
@@ -451,7 +460,7 @@ button:active { transform: translateY(0); }
 }
 
 .reaction-trigger { display: inline-flex; align-items: center; gap: 5px; }
-.reaction-total { color: #98a2b3; font-size: 12px; font-weight: 900; }
+.reaction-total { color: #98a2b3; font-size: 12px; font-weight: 600; }
 .reaction-detail-btn { display: inline-flex; align-items: center; }
 
 .reaction-detail-layout {
@@ -472,19 +481,19 @@ button:active { transform: translateY(0); }
   margin-bottom: 6px;
   color: #667085;
   font-size: 12px;
-  font-weight: 750;
+  font-weight: 600;
 }
 .reaction-detail-author {
   color: #175cd3;
-  font-weight: 850;
+  font-weight: 700;
   margin-bottom: 5px;
 }
 .reaction-detail-text {
   max-height: 160px;
   overflow: auto;
   color: #27364a;
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 13.5px;
+  line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -499,8 +508,8 @@ button:active { transform: translateY(0); }
   border: 1px solid var(--line);
   border-radius: 13px;
 }
-.reaction-detail-user { min-width: 0; color: #172033; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.reaction-detail-type { display: inline-flex; align-items: center; gap: 7px; color: #475467; font-size: 13px; font-weight: 850; flex: 0 0 auto; }
+.reaction-detail-user { min-width: 0; color: #172033; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reaction-detail-type { display: inline-flex; align-items: center; gap: 7px; color: #475467; font-size: 13px; font-weight: 500; flex: 0 0 auto; }
 
 .reaction-bar {
   position: absolute;
@@ -598,7 +607,7 @@ button:active { transform: translateY(0); }
 
 @keyframes popIn { from { transform: translateY(8px) scale(0.98); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
 
-.modal-content h3 { margin: 0 0 8px; color: var(--text); font-size: 18px; }
+.modal-content h3 { margin: 0 0 8px; color: var(--text); font-size: 18px; font-weight: 600; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 
 #modalInput {
@@ -607,7 +616,7 @@ button:active { transform: translateY(0); }
   padding: 12px;
   border: 1px solid var(--line-strong);
   border-radius: 14px;
-  font-family: inherit;
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
 
 .btn-secondary { background: #eef2f6; color: #475467; box-shadow: none; }
@@ -672,6 +681,95 @@ button:active { transform: translateY(0); }
 .skel-actions-row { display: flex; gap: 10px; margin-top: 10px; }
 .skel-pill { width: 70px; height: 22px; border-radius: 999px; }
 .skel-reply { width: 50px; height: 22px; border-radius: 999px; }
+
+/* ================= DARK MODE ================= */
+body.dark-mode {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface-soft: #1a2332;
+  --text: #f1f5f9;
+  --sub: #94a3b8;
+  --muted: #64748b;
+  --line: #334155;
+  --line-strong: #475569;
+  --shadow: 0 6px 18px rgba(0,0,0,0.3);
+  --shadow-soft: 0 2px 9px rgba(0,0,0,0.25);
+}
+
+body.dark-mode { background: linear-gradient(180deg, #0f172a, #1a2332); }
+body.dark-mode .container { background: transparent; }
+body.dark-mode .header { background: linear-gradient(135deg, #1e3a5f, #0c4a4e); box-shadow: 0 8px 22px rgba(0,0,0,0.3); }
+body.dark-mode .logo { color: #f1f5f9; }
+body.dark-mode .header-meta { color: #94a3b8; }
+body.dark-mode .user-box { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.15); }
+
+body.dark-mode .post-box { background: #1e293b; border-color: #334155; }
+body.dark-mode .post-box .char-counter { color: #64748b; }
+
+body.dark-mode .post {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 2px 9px rgba(0,0,0,0.25);
+}
+body.dark-mode .post:hover { border-color: #475569; box-shadow: 0 8px 18px rgba(0,0,0,0.3); }
+body.dark-mode .post.current-user-post { border-color: rgba(59,130,246,0.4); box-shadow: 0 4px 14px rgba(59,130,246,0.15); }
+body.dark-mode .post.admin-post-card { border-color: rgba(239,68,68,0.4) !important; background: linear-gradient(180deg, #2a1515, #1e293b) !important; }
+
+body.dark-mode .meta { color: #94a3b8; }
+body.dark-mode .meta b { color: #60a5fa; }
+body.dark-mode .meta b.admin-name { color: #f87171 !important; }
+body.dark-mode .meta .admin-badge { background: rgba(239,68,68,0.15) !important; color: #f87171 !important; border-color: rgba(239,68,68,0.3); }
+body.dark-mode .meta .current-user-name { background: linear-gradient(135deg, #3b82f6, #0d9488); }
+
+body.dark-mode .post div[style*="white-space: pre-wrap;"],
+body.dark-mode .reply div[style*="white-space: pre-wrap;"] { color: #e2e8f0; }
+
+body.dark-mode .actions { border-top-color: #334155; }
+body.dark-mode .reply-btn, body.dark-mode .reaction-trigger, body.dark-mode .reaction-detail-btn { color: #94a3b8; }
+body.dark-mode .reply-btn:hover, body.dark-mode .reaction-trigger:hover, body.dark-mode .reaction-detail-btn:hover { color: #60a5fa; background: rgba(59,130,246,0.1); }
+
+body.dark-mode .replies-wrapper { color: #94a3b8; }
+body.dark-mode .reply-thread-toggle { color: #94a3b8; }
+body.dark-mode .reply-thread-toggle:hover { color: #60a5fa; }
+
+body.dark-mode .reply {
+  background: rgba(255,255,255,0.03);
+  border-left-color: #3b82f6;
+}
+body.dark-mode .reply.admin-reply-card { border-left-color: #ef4444 !important; background: rgba(239,68,68,0.05) !important; }
+
+body.dark-mode .reply-status-container { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.2); }
+
+body.dark-mode textarea {
+  background: rgba(255,255,255,0.05);
+  color: #e2e8f0;
+  border-color: #334155;
+}
+body.dark-mode textarea:focus { border-color: #3b82f6; }
+body.dark-mode textarea::placeholder { color: #64748b; }
+
+body.dark-mode .edit-btn { color: #34d399; background: rgba(16,185,129,0.1); }
+body.dark-mode .delete-btn { color: #f87171; background: rgba(239,68,68,0.1); }
+body.dark-mode .edit-btn:hover { background: rgba(16,185,129,0.2); }
+body.dark-mode .delete-btn:hover { background: rgba(239,68,68,0.2); }
+
+body.dark-mode .post.current-user-post::before { color: #60a5fa; background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); }
+
+body.dark-mode .reaction-detail-text { color: #e2e8f0; }
+body.dark-mode .reaction-detail-user { color: #e2e8f0; }
+body.dark-mode .reaction-detail-type { color: #94a3b8; }
+
+body.dark-mode #posts .skel-bar { background: rgba(255,255,255,0.06); }
+
+body.dark-mode .mute-btn { background: rgba(255,255,255,0.08); color: #94a3b8; border-color: #334155; }
+body.dark-mode .mute-btn:hover { background: rgba(255,255,255,0.12); color: #e2e8f0; }
+
+body.dark-mode .modal-overlay { background: rgba(0,0,0,0.6); }
+body.dark-mode .modal-content { background: #1e293b; border-color: #334155; }
+body.dark-mode .modal-content h3 { color: #f1f5f9; }
+body.dark-mode .modal-content p { color: #94a3b8; }
+body.dark-mode .modal-close { color: #94a3b8; }
+body.dark-mode .modal-close:hover { color: #f87171; }
 </style>
 </head>
 <body class="app-ready">
@@ -954,9 +1052,7 @@ function renderPosts(snapshot){
 function createPostElement(post, allPosts){
   const div = document.createElement("div");
   const isOwner = currentUser && post.uid === currentUser.uid;
-  
-  // LOGIC NHẬN DIỆN MÀU SẮC ADMIN LINH HOẠT
-  const isAdmin = post.role === "admin" || (currentUser && currentUser.role === "admin" && post.uid === currentUser.uid);
+  const isAdmin = post.user === "Admin LearnHub";
 
   let postClasses = [];
   if (isOwner) postClasses.push("current-user-post");
@@ -968,7 +1064,7 @@ function createPostElement(post, allPosts){
     <span class="delete-btn" onclick="deletePost('${post.id}')">🗑 Xóa</span>
   ` : "";
 
-  const nameClass = isOwner ? "current-user-name" : "";
+  const nameClass = isOwner && !isAdmin ? "current-user-name" : "";
   const adminNameClass = isAdmin ? "admin-name" : "";
   const adminBadge = isAdmin ? `<span class="admin-badge">🛡 Admin</span>` : "";
 
@@ -1023,8 +1119,7 @@ function renderReplies(parentId, container, allPosts, level){
     replies.forEach(rep => {
       const repDiv = document.createElement("div");
       const isOwner = currentUser && rep.uid === currentUser.uid;
-      
-      const isAdminReply = rep.role === "admin" || (currentUser && currentUser.role === "admin" && rep.uid === currentUser.uid);
+      const isAdminReply = rep.user === "Admin LearnHub";
 
       let replyClasses = ["reply"];
       if (isAdminReply) replyClasses.push("admin-reply-card");
@@ -1036,7 +1131,7 @@ function renderReplies(parentId, container, allPosts, level){
         <span class="delete-btn" onclick="deletePost('${rep.id}')">🗑</span>
       ` : "";
 
-      const nameClass = isOwner ? "current-user-name" : "";
+      const nameClass = isOwner && !isAdminReply ? "current-user-name" : "";
       const adminNameClass = isAdminReply ? "admin-name" : "";
       const adminBadge = isAdminReply ? `<span class="admin-badge">🛡 Admin</span>` : "";
 
@@ -1302,6 +1397,11 @@ window.addEventListener('message', function(event) {
     else document.body.classList.remove('dark-mode');
   }
 });
+
+// Fallback: đọc dark mode từ localStorage khi mở standalone
+if (localStorage.getItem("darkMode") === "on") {
+  document.body.classList.add("dark-mode");
+}
 </script>
 
 <script>
