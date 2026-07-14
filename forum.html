@@ -193,8 +193,32 @@ textarea::placeholder { color: #98a2b3; font-style: normal; }
   font-weight: 500;
 }
 
+.post-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.actions-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.actions-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: flex-end;
+}
+
 button {
-  margin-top: 10px;
+  margin-top: 0;
   padding: 8px 13px;
   border: 0;
   border-radius: 999px;
@@ -209,8 +233,8 @@ button {
 button:hover { transform: translateY(-1px); filter: brightness(1.03); box-shadow: 0 12px 22px rgba(37,99,235,0.26); }
 button:active { transform: translateY(0); }
 
-.post-submit { min-width: 92px; }
-.mute-btn { margin-left: 6px; min-width: 140px; background: #475467 !important; box-shadow: 0 8px 18px rgba(71,84,103,0.18); }
+.post-submit { min-width: 80px; padding: 7px 14px; font-size: 13px; }
+.mute-btn { margin-left: 0; min-width: auto; padding: 7px 12px; font-size: 12px; background: #475467 !important; box-shadow: 0 6px 14px rgba(71,84,103,0.18); white-space: nowrap; }
 .mute-btn:hover { background: #344054 !important; }
 
 .post {
@@ -770,6 +794,178 @@ body.dark-mode .modal-content h3 { color: #f1f5f9; }
 body.dark-mode .modal-content p { color: #94a3b8; }
 body.dark-mode .modal-close { color: #94a3b8; }
 body.dark-mode .modal-close:hover { color: #f87171; }
+
+/* ===== SEARCH & SORT (trong post-actions-bar) ===== */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  background: #f4f7fb;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 220px;
+}
+.search-box:focus-within {
+  border-color: rgba(37,99,235,0.58);
+  box-shadow: 0 0 0 4px rgba(37,99,235,0.11);
+}
+.search-icon { font-size: 14px; opacity: 0.6; flex-shrink: 0; }
+.search-box input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+.search-box input::placeholder { color: var(--muted); }
+
+.actions-right select {
+  padding: 6px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: #f4f7fb;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.18s ease;
+  flex-shrink: 0;
+}
+.actions-right select:focus { border-color: rgba(37,99,235,0.58); }
+
+/* ===== PINNED POST ===== */
+.post.pinned-post {
+  border: 1.5px solid rgba(245,158,11,0.45) !important;
+  background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%) !important;
+  box-shadow: 0 4px 16px rgba(245,158,11,0.1) !important;
+}
+.post.pinned-post::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 4px;
+  background: #f59e0b;
+  border-radius: 0 4px 4px 0;
+}
+.pin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #fef3c7 !important;
+  color: #b45309 !important;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-left: 6px;
+  border: 1px solid rgba(245,158,11,0.25);
+}
+.pin-btn {
+  margin-left: 2px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: #b45309;
+  background: #fef3c7;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.pin-btn:hover { background: #fde68a; }
+
+/* ===== PAGINATION ===== */
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 0;
+  flex-wrap: wrap;
+}
+.pagination-bar button {
+  min-width: 36px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.pagination-bar button:hover:not(.active):not(:disabled) {
+  background: #eff8ff;
+  border-color: #b2ddff;
+  color: #175cd3;
+}
+.pagination-bar button.active {
+  background: linear-gradient(135deg, var(--primary), #0f766e);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 10px rgba(37,99,235,0.2);
+}
+.pagination-bar button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.pagination-info {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ===== DARK MODE: TOOLBAR & PAGINATION ===== */
+body.dark-mode .search-box { background: rgba(255,255,255,0.05); border-color: #475569; }
+body.dark-mode .search-box input { color: #e2e8f0; }
+body.dark-mode .search-box input::placeholder { color: #64748b; }
+body.dark-mode .actions-right select { background: rgba(255,255,255,0.05); border-color: #475569; color: #e2e8f0; }
+
+body.dark-mode .post.pinned-post { border-color: rgba(245,158,11,0.4) !important; background: linear-gradient(180deg, #2a2008, #1e293b) !important; }
+body.dark-mode .pin-badge { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; border-color: rgba(245,158,11,0.3); }
+body.dark-mode .pin-btn { background: rgba(245,158,11,0.12); color: #fbbf24; }
+body.dark-mode .pin-btn:hover { background: rgba(245,158,11,0.22); }
+
+body.dark-mode .pagination-bar button { background: #1e293b; border-color: #475569; color: #e2e8f0; }
+body.dark-mode .pagination-bar button:hover:not(.active):not(:disabled) { background: rgba(59,130,246,0.15); border-color: #3b82f6; color: #60a5fa; }
+body.dark-mode .pagination-info { color: #64748b; }
+
+@media (max-width: 560px) {
+  .post-actions-bar {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .actions-left {
+    flex: 1 1 auto;
+  }
+  .actions-right {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+  }
+  .search-box {
+    max-width: none;
+    flex: 1 1 auto;
+  }
+  .mute-btn {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+  .pagination-bar { gap: 4px; }
+  .pagination-bar button { min-width: 32px; height: 30px; font-size: 12px; }
+}
 </style>
 </head>
 <body class="app-ready">
@@ -781,11 +977,25 @@ body.dark-mode .modal-close:hover { color: #f87171; }
     <div id="replyingTo"></div>
     <textarea id="content" placeholder="Bạn muốn trao đổi điều gì?" maxlength="500"></textarea>
     <div class="char-counter"><span id="charCount">0</span>/500</div>
-    
-    <button class="post-submit" onclick="sendPost()">Đăng</button>
-    <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
-      🔊 Âm thanh: Bật
-    </button>
+    <div class="post-actions-bar">
+      <div class="actions-left">
+        <button class="post-submit" onclick="sendPost()">Đăng</button>
+        <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
+          🔊 Âm thanh: Bật
+        </button>
+      </div>
+      <div class="actions-right">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Tìm bài viết..." oninput="applyFilters()">
+        </div>
+        <select id="sortSelect" onchange="applyFilters()">
+          <option value="newest">Mới nhất</option>
+          <option value="oldest">Cũ nhất</option>
+          <option value="replies">Nhiều phản hồi</option>
+        </select>
+      </div>
+    </div>
   </div>
 
   <div id="posts">
@@ -796,6 +1006,9 @@ body.dark-mode .modal-close:hover { color: #f87171; }
       <div class="skel-actions-row"><div class="skel-bar skel-pill"></div><div class="skel-bar skel-reply"></div></div>
     </div>
   </div>
+
+  <div class="pagination-info" id="paginationInfo"></div>
+  <div class="pagination-bar" id="paginationBar"></div>
 </div>
 
 <script>
@@ -846,6 +1059,11 @@ let isFirstLoad = true;
 let isMuted = localStorage.getItem("forum_muted") === "true";
 let modalAction = null; 
 let userDirectoryCache = null;
+
+const POSTS_PER_PAGE = 10;
+let currentPage = 1;
+let filteredParents = [];
+let lastAllPosts = [];
 
 /* ================= HỆ THỐNG MODAL (POPUP) ================= */
 function showModal(title, msg, isInput, currentText, onConfirm, isHtml = false) {
@@ -1037,26 +1255,122 @@ function renderPosts(snapshot){
   const scrollPos = window.scrollY;
   container.innerHTML = "";
   
-  if(!data) return;
+  if(!data) {
+    document.getElementById("paginationBar").innerHTML = "";
+    document.getElementById("paginationInfo").innerHTML = "";
+    return;
+  }
 
-  const allPosts = Object.entries(data).map(([id, val]) => ({ id, ...val }));
-  const parents = allPosts.filter(p => !p.parentId).sort((a, b) => b.time - a.time);
+  lastAllPosts = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+  applyFilters();
+  window.scrollTo(0, scrollPos);
+}
 
-  parents.forEach(post => {
-    container.appendChild(createPostElement(post, allPosts));
+function applyFilters(){
+  const container = document.getElementById("posts");
+  if(!container) return;
+  container.innerHTML = "";
+
+  const searchVal = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
+  const sortVal = document.getElementById("sortSelect")?.value || "newest";
+
+  let parents = lastAllPosts.filter(p => !p.parentId);
+
+  if(searchVal){
+    parents = parents.filter(p =>
+      (p.text || "").toLowerCase().includes(searchVal) ||
+      (p.user || "").toLowerCase().includes(searchVal)
+    );
+  }
+
+  const pinned = parents.filter(p => p.pinned);
+  const unpinned = parents.filter(p => !p.pinned);
+
+  if(sortVal === "newest"){
+    unpinned.sort((a, b) => b.time - a.time);
+  } else if(sortVal === "oldest"){
+    unpinned.sort((a, b) => a.time - b.time);
+  } else if(sortVal === "replies"){
+    unpinned.sort((a, b) => {
+      const countA = lastAllPosts.filter(p => p.parentId === a.id).length;
+      const countB = lastAllPosts.filter(p => p.parentId === b.id).length;
+      return countB - countA;
+    });
+  }
+
+  filteredParents = [...pinned, ...unpinned];
+
+  const total = filteredParents.length;
+  const totalPages = Math.max(1, Math.ceil(total / POSTS_PER_PAGE));
+  if(currentPage > totalPages) currentPage = totalPages;
+
+  const startIdx = (currentPage - 1) * POSTS_PER_PAGE;
+  const pageItems = filteredParents.slice(startIdx, startIdx + POSTS_PER_PAGE);
+
+  pageItems.forEach(post => {
+    container.appendChild(createPostElement(post, lastAllPosts));
   });
 
-  window.scrollTo(0, scrollPos);
+  renderPagination(total, totalPages);
+}
+
+function renderPagination(total, totalPages){
+  const bar = document.getElementById("paginationBar");
+  const info = document.getElementById("paginationInfo");
+  if(!bar || !info) return;
+
+  if(total <= POSTS_PER_PAGE){
+    bar.innerHTML = "";
+    info.innerHTML = total > 0 ? `Hiển thị ${total} bài viết` : "";
+    return;
+  }
+
+  const start = (currentPage - 1) * POSTS_PER_PAGE + 1;
+  const end = Math.min(currentPage * POSTS_PER_PAGE, total);
+  info.innerHTML = `Hiển thị ${start}-${end} trong ${total} bài viết`;
+
+  let html = "";
+  html += `<button ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">‹</button>`;
+
+  const maxVisible = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+  if(endPage - startPage < maxVisible - 1) startPage = Math.max(1, endPage - maxVisible + 1);
+
+  if(startPage > 1){
+    html += `<button onclick="goToPage(1)">1</button>`;
+    if(startPage > 2) html += `<button disabled>…</button>`;
+  }
+
+  for(let i = startPage; i <= endPage; i++){
+    html += `<button class="${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+  }
+
+  if(endPage < totalPages){
+    if(endPage < totalPages - 1) html += `<button disabled>…</button>`;
+    html += `<button onclick="goToPage(${totalPages})">${totalPages}</button>`;
+  }
+
+  html += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">›</button>`;
+  bar.innerHTML = html;
+}
+
+function goToPage(page){
+  currentPage = page;
+  applyFilters();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function createPostElement(post, allPosts){
   const div = document.createElement("div");
   const isOwner = currentUser && post.uid === currentUser.uid;
   const isAdmin = post.user === "Admin LearnHub";
+  const isAdminUser = currentUser && (currentUser.role === 'admin' || currentUser.role === 'Admin');
 
   let postClasses = [];
   if (isOwner) postClasses.push("current-user-post");
   if (isAdmin) postClasses.push("admin-post-card");
+  if (post.pinned) postClasses.push("pinned-post");
   div.className = "post " + postClasses.join(" ");
 
   const ownerActions = isOwner ? `
@@ -1064,15 +1378,22 @@ function createPostElement(post, allPosts){
     <span class="delete-btn" onclick="deletePost('${post.id}')">🗑 Xóa</span>
   ` : "";
 
+  const pinAction = isAdminUser ? (
+    post.pinned
+      ? `<span class="pin-btn" onclick="unpinPost('${post.id}')">📌 Bỏ ghim</span>`
+      : `<span class="pin-btn" onclick="pinPost('${post.id}')">📌 Ghim bài</span>`
+  ) : "";
+
+  const pinBadge = post.pinned ? `<span class="pin-badge">📌 Đã ghim</span>` : "";
   const nameClass = isOwner && !isAdmin ? "current-user-name" : "";
   const adminNameClass = isAdmin ? "admin-name" : "";
   const adminBadge = isAdmin ? `<span class="admin-badge">🛡 Admin</span>` : "";
 
   div.innerHTML = `
     <div class="meta">
-      <b class="${nameClass} ${adminNameClass}">${post.user}</b>${adminBadge} • ${formatTime(post.time)} 
+      <b class="${nameClass} ${adminNameClass}">${post.user}</b>${adminBadge}${pinBadge} • ${formatTime(post.time)} 
       ${post.isEdited ? '<i style="font-size:10px">(đã chỉnh sửa)</i>' : ''}
-      ${ownerActions}
+      ${ownerActions}${pinAction}
     </div>
     <div style="white-space: pre-wrap;">${post.text}</div>
     <div class="actions">
@@ -1352,6 +1673,16 @@ function editPost(postId, oldText) {
   });
 }
 
+function pinPost(postId) {
+  if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'Admin')) return;
+  db.ref("posts/" + postId).update({ pinned: true, pinTime: Date.now() });
+}
+
+function unpinPost(postId) {
+  if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'Admin')) return;
+  db.ref("posts/" + postId).update({ pinned: false, pinTime: null });
+}
+
 function toggleReaction(postId, type){
   if(!currentUser) return;
   const ref = db.ref("posts/" + postId);
@@ -1387,10 +1718,42 @@ db.ref("events").limitToLast(1).on("child_added", (snap) => {
 <script>
 /* ===== POSTMESSAGE: nhận user từ parent (index.html) ===== */
 window.learnHubUser = null;
-window.addEventListener('message', function(event) {
+window.addEventListener('message', async function(event) {
   if (event.data && event.data.type === 'LEARNHUB_USER') {
-    window.learnHubUser = event.data.user;
-    applyHeaderUser(event.data.user);
+    const receivedUser = event.data.user;
+    window.learnHubUser = receivedUser;
+    applyHeaderUser(receivedUser);
+
+    if (receivedUser && receivedUser.uid) {
+      try {
+        const userDoc = await firestoreDb.collection("users").doc(receivedUser.uid).get();
+        if (userDoc.exists) {
+          const userData = userDoc.data();
+          currentUser = {
+            uid: receivedUser.uid,
+            name: userData.name || receivedUser.displayName || receivedUser.name || "Người dùng",
+            role: userData.role || "member"
+          };
+        } else {
+          currentUser = {
+            uid: receivedUser.uid,
+            name: receivedUser.displayName || receivedUser.name || "Người dùng",
+            role: receivedUser.role || "member"
+          };
+        }
+      } catch (err) {
+        console.error("Lỗi kiểm tra quyền hạn user từ Firestore:", err);
+        currentUser = {
+          uid: receivedUser.uid,
+          name: receivedUser.displayName || receivedUser.name || "Người dùng",
+          role: receivedUser.role || "member"
+        };
+      }
+      updateUserBox();
+      db.ref("posts").once("value", (snapshot) => {
+        renderPosts(snapshot);
+      });
+    }
   }
   if (event.data && event.data.type === 'DARK_MODE') {
     if (event.data.value) document.body.classList.add('dark-mode');

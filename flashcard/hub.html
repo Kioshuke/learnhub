@@ -356,6 +356,34 @@
       color: white;
     }
 
+    .card-updating-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      animation: badgePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes badgePulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .open-btn.updating {
+      background: linear-gradient(135deg, #94a3b8, #64748b) !important;
+      box-shadow: 0 8px 16px rgba(100, 116, 139, 0.3) !important;
+      cursor: not-allowed;
+    }
+
+    .open-btn.updating:hover {
+      transform: none;
+    }
+
     .topic-title {
       margin: 0;
       font-size: 22px;
@@ -787,6 +815,10 @@
       box-shadow: 0 8px 16px rgba(0,0,0,0.3);
     }
 
+    body.dark-mode .card-updating-badge {
+      background: linear-gradient(135deg, #f59e0b, #b45309);
+    }
+
     body.dark-mode .popup-overlay { background: rgba(0,0,0,0.6); }
 
     body.dark-mode .popup-box {
@@ -1160,26 +1192,29 @@
           grid.className = "topic-grid";
 
           section.items.forEach((topic) => {
+            const isUnavailable = !topic.href || topic.href === "#";
             const card = document.createElement("article");
             card.className = "topic-card";
             card.innerHTML = `
               <div class="card-top">
                 <span class="emoji">${topic.icon || "📘"}</span>
-                <span class="chip">${topic.level || "Cơ bản"}</span>
+                ${isUnavailable
+                  ? '<span class="card-updating-badge">⏳ Đang cập nhật</span>'
+                  : `<span class="chip">${topic.level || "Cơ bản"}</span>`}
               </div>
               <h3 class="topic-title">${topic.name}</h3>
               <p class="topic-desc">${topic.description || ""}</p>
               <div class="meta">
                 <span class="count">${topic.words || 0} mục</span>
-                <button class="open-btn" type="button">Vào học</button>
+                <button class="open-btn${isUnavailable ? ' updating' : ''}" type="button">${isUnavailable ? '⏳ Chờ cập nhật' : 'Vào học'}</button>
               </div>
             `;
 
             card.querySelector(".open-btn").addEventListener("click", () => {
-              if (topic.href && topic.href !== "#") {
-                openLesson(topic);
-              } else {
+              if (isUnavailable) {
                 showPopup("Nội dung đang được cập nhật. Vui lòng quay lại sau!");
+              } else {
+                openLesson(topic);
               }
             });
 
