@@ -199,6 +199,40 @@ function isAllowedEmail(email) {
 }
 
 let authNoticeTimer = null;
+let countdownInterval = null;
+
+function showLoginSuccess(message, redirectMs = 3000) {
+  if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+  const notice = document.getElementById("authNotice");
+  const noticeTitle = document.getElementById("authNoticeTitle");
+  const noticeMessage = document.getElementById("authNoticeMessage");
+  const noticeIcon = document.getElementById("authNoticeIcon");
+  if (!notice || !noticeTitle || !noticeMessage || !noticeIcon) {
+    window.location.href = 'index.html';
+    return;
+  }
+  if (authNoticeTimer) { clearTimeout(authNoticeTimer); authNoticeTimer = null; }
+  notice.classList.remove("hide", "show", "notice-error", "notice-info", "notice-success", "notice-warning");
+  notice.classList.add("notice-success");
+  noticeIcon.innerText = "✓";
+  noticeTitle.innerText = "Thành công";
+  let remaining = Math.ceil(redirectMs / 1000);
+  noticeMessage.textContent = `${message} Chuyển hướng sau ${remaining}s...`;
+  notice.style.display = "flex";
+  void notice.offsetWidth;
+  notice.classList.add("show");
+  playNotificationSound("thongbaoSound");
+  countdownInterval = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+      window.location.href = 'index.html';
+    } else {
+      noticeMessage.textContent = `${message} Chuyển hướng sau ${remaining}s...`;
+    }
+  }, 1000);
+}
 
 function playNotificationSound(soundId = "thongbaoSound") {
   const audio = document.getElementById(soundId);
@@ -323,6 +357,11 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
   document.getElementById("loginBox").style.display = "flex";
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("loggedout") === "1") {
+    showAuthNotice("Đăng xuất thành công!", "success", "Thành công");
+    window.history.replaceState({}, '', 'login.html');
+  }
 });
 
 window.googleLogin = async function() {
@@ -351,12 +390,12 @@ window.googleLogin = async function() {
       lastActive: Date.now(),
       online: true
     }, { merge: true });
-    showAuthNotice("Đăng nhập thành công!", "success", "Thành công");
     const isApp = navigator.userAgent.includes("Android");
     if (isApp) {
+      showAuthNotice("Đăng nhập thành công!", "success", "Thành công");
       setTimeout(() => { window.location.href = "myapp://auth"; }, 1000);
     } else {
-      setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+      showLoginSuccess("Đăng nhập thành công!");
     }
   } catch(error) {
     console.error("Lỗi Google Login:", error);
@@ -399,7 +438,7 @@ window.emailLogin = async function() {
       lastActive: Date.now(),
       online: true
     }, { merge: true });
-    showAuthNotice("Đăng nhập thành công!", "success", "Thành công");
+    showLoginSuccess("Đăng nhập thành công!");
   } catch(error) {
     console.error("Lỗi đăng nhập:", error);
     let message = "Đăng nhập thất bại";

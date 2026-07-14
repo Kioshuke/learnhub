@@ -755,7 +755,7 @@ unsubscribeUsers = null;
 
 // logout
 signOut(auth).then(()=>{
-location.reload();
+window.location.href = 'login.html?loggedout=1';
 });
 }
 document.addEventListener("click", function(e){
