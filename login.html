@@ -200,6 +200,7 @@ function isAllowedEmail(email) {
 
 let authNoticeTimer = null;
 let countdownInterval = null;
+let processingLogin = false;
 
 function showLoginSuccess(message, redirectMs = 3000) {
   if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
@@ -352,34 +353,39 @@ window.authComingSoon = authComingSoon;
 window.showAuthNotice = showAuthNotice;
 
 onAuthStateChanged(auth, async (user) => {
-  if (user) {
+  if (user && !processingLogin) {
     window.location.href = 'index.html';
     return;
   }
-  document.getElementById("loginBox").style.display = "flex";
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("loggedout") === "1") {
-    showAuthNotice("Đăng xuất thành công!", "success", "Thành công");
-    window.history.replaceState({}, '', 'login.html');
+  if (!user) {
+    document.getElementById("loginBox").style.display = "flex";
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("loggedout") === "1") {
+      showAuthNotice("Đăng xuất thành công!", "success", "Thành công");
+      window.history.replaceState({}, '', 'login.html');
+    }
   }
 });
 
 window.googleLogin = async function() {
   if (maintenanceState.enabled) { window.location.replace('maintenance.html'); return; }
+  processingLogin = true;
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
     await loadAllowList();
     if (!isAllowedEmail(user.email)) {
-      showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập");
+      showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập", 4500);
       await signOut(auth);
+      processingLogin = false;
       return;
     }
     const userRef = doc(db, "users", user.uid);
     const userSnap = await getDoc(userRef);
     if (userSnap.exists() && userSnap.data().disabled) {
-      showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa");
+      showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa", 4500);
       await signOut(auth);
+      processingLogin = false;
       return;
     }
     await setDoc(userRef, {
@@ -399,6 +405,7 @@ window.googleLogin = async function() {
     }
   } catch(error) {
     console.error("Lỗi Google Login:", error);
+    processingLogin = false;
     if (error.code === 'auth/popup-blocked') {
       showAuthNotice("Vui lòng cho phép cửa sổ popup của trình duyệt để tiếp tục đăng nhập Google.", "error", "Popup đang bị chặn");
     } else {
@@ -416,19 +423,22 @@ window.emailLogin = async function() {
     showAuthNotice("Vui lòng nhập email và mật khẩu", "error", "Thiếu thông tin");
     return;
   }
+  processingLogin = true;
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);
     const user = result.user;
     if (!isAllowedEmail(user.email)) {
-      showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập");
+      showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập", 4500);
       await signOut(auth);
+      processingLogin = false;
       return;
     }
     const userRef = doc(db, "users", user.uid);
     const userSnap = await getDoc(userRef);
     if (userSnap.exists() && userSnap.data().disabled) {
-      showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa");
+      showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa", 4500);
       await signOut(auth);
+      processingLogin = false;
       return;
     }
     await setDoc(userRef, {
@@ -441,6 +451,7 @@ window.emailLogin = async function() {
     showLoginSuccess("Đăng nhập thành công!");
   } catch(error) {
     console.error("Lỗi đăng nhập:", error);
+    processingLogin = false;
     let message = "Đăng nhập thất bại";
     switch (error.code) {
       case 'auth/user-not-found': message = "Email này chưa được đăng ký"; break;
