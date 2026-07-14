@@ -429,20 +429,47 @@ function stopAccessGuards(){
   authGuardTriggered = false;
 }
 
-async function forceLogoutNow(message, title = "Phiên đăng nhập đã hết hiệu lực"){
+function forceLogoutWithCountdown(message, title, redirectMs = 5000){
   if(authGuardTriggered) return;
   authGuardTriggered = true;
 
-  showAuthNotice(message, "error", title);
+  const notice = document.getElementById("authNotice");
+  const noticeTitle = document.getElementById("authNoticeTitle");
+  const noticeMessage = document.getElementById("authNoticeMessage");
+  const noticeIcon = document.getElementById("authNoticeIcon");
+  if(!notice || !noticeTitle || !noticeMessage || !noticeIcon){
+    signOut(auth).catch(()=>{});
+    return;
+  }
 
-  try {
-    await updateStatus(false);
-  } catch (e) {}
+  if(authNoticeTimer){ clearTimeout(authNoticeTimer); authNoticeTimer = null; }
+  notice.classList.remove("hide", "show", "notice-error", "notice-info", "notice-success", "notice-warning");
+  notice.classList.add("notice-error");
+  noticeIcon.innerText = "✕";
+  noticeTitle.innerText = title || "Phiên đăng nhập đã hết hiệu lực";
+  let remaining = Math.ceil(redirectMs / 1000);
+  noticeMessage.textContent = `${message} Đang đăng xuất sau ${remaining}s...`;
+  notice.style.display = "flex";
+  void notice.offsetWidth;
+  notice.classList.add("show");
+  playNotificationSound("thongbaoSound");
 
-  try {
-    console.trace("SIGN OUT");
-    await signOut(auth);
-  } catch (e) {}
+  const countdownTimer = setInterval(() => {
+    remaining--;
+    if(remaining <= 0){
+      clearInterval(countdownTimer);
+      notice.classList.remove("show");
+      notice.classList.add("hide");
+      updateStatus(false).catch(()=>{});
+      signOut(auth).catch(()=>{});
+    } else {
+      noticeMessage.textContent = `${message} Đang đăng xuất sau ${remaining}s...`;
+    }
+  }, 1000);
+}
+
+async function forceLogoutNow(message, title = "Phiên đăng nhập đã hết hiệu lực"){
+  forceLogoutWithCountdown(message, title, 5000);
 }
 
 function startAccessGuards(user){
@@ -542,13 +569,11 @@ if(user){
 
   await loadAllowList();
   if (!isAllowedEmail(user.email)) {
-    showAuthNotice(
+    forceLogoutWithCountdown(
       "Tài khoản này không nằm trong whitelist hiện tại.",
-      "error",
-      "Không có quyền truy cập"
+      "Không có quyền truy cập",
+      5000
     );
-    console.trace("SIGN OUT");
-    await signOut(auth);
     return;
   }
 
@@ -562,13 +587,11 @@ if(user){
     if (userSnap.exists()) {
       const firestoreData = userSnap.data();
       if (firestoreData.disabled) {
-        showAuthNotice(
+        forceLogoutWithCountdown(
           "Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.",
-          "error",
-          "Tài khoản bị khóa"
+          "Tài khoản bị khóa",
+          5000
         );
-        console.trace("SIGN OUT");
-        await signOut(auth);
         return;
       }
       // Merge Firestore data (ưu tiên displayName từ Firestore nếu có)
