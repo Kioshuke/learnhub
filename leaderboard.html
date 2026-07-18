@@ -335,18 +335,8 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c",
-            authDomain: "onthi12-thpttanhong.firebaseapp.com",
-            projectId: "onthi12-thpttanhong",
-            storageBucket: "onthi12-thpttanhong.appspot.com"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        import { app, db } from "./firebase-config.js";
+        import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
         function getWeekKey() {
             const now = new Date();
@@ -467,26 +457,29 @@
                 }).join('');
 
             } catch (e) {
-                console.error(e);
-                document.getElementById("table-body").innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu từ hệ thống.</td></tr>`;
+                console.error("[load-score]", e);
+                document.getElementById("table-body").innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu xếp hạng điểm.</td></tr>`;
             }
         }
 
         // ===== LOAD ONLINE TIME RANKING =====
         async function loadOnlineTime() {
             try {
-                const snap = await getDocs(collection(db, "users"));
+                const snap = await getDocs(collection(db, "testStats"));
                 const rows = [];
                 for (const d of snap.docs) {
-                    const u = d.data();
-                    const timer = Number(u.onlinetimer || 0);
-                    if (timer <= 0) continue;
-                    rows.push({
-                        uid: d.id,
-                        name: u.name || u.email || "Ẩn danh",
-                        photo: u.photo || "",
-                        timer: timer
-                    });
+                    try {
+                        const u = await getDoc(doc(db, "users", d.id));
+                        const ud = u.exists() ? u.data() : {};
+                        const timer = Number(ud.onlinetimer || 0);
+                        if (timer <= 0) continue;
+                        rows.push({
+                            uid: d.id,
+                            name: ud.name || ud.email || "Ẩn danh",
+                            photo: ud.photo || "",
+                            timer: timer
+                        });
+                    } catch(e) {}
                 }
                 rows.sort((a, b) => b.timer - a.timer);
 
@@ -550,16 +543,14 @@
                 }).join('');
 
             } catch (e) {
-                console.error(e);
-                document.getElementById("table-body-time").innerHTML = `<tr><td colspan="3" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu từ hệ thống.</td></tr>`;
+                console.error("[load-online-time]", e);
+                document.getElementById("table-body-time").innerHTML = `<tr><td colspan="3" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu xếp hạng thời gian.</td></tr>`;
             }
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            if (new URLSearchParams(location.search).get("compact") === "1") document.body.classList.add("compact");
-            load();
-            loadOnlineTime();
-        });
+        if (new URLSearchParams(location.search).get("compact") === "1") document.body.classList.add("compact");
+        load();
+        loadOnlineTime();
     </script>
 </body>
 </html>
