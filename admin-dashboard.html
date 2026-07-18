@@ -694,7 +694,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { initializeAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import { initializeAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import { getFirestore, collection, getDocs, onSnapshot, doc, setDoc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -718,7 +718,7 @@ const defaultAllowList = [
 const adminEmail = "learnhubadmin@gmail.com";
 
 const app = initializeApp(firebaseConfig, "learnhub-admin-dashboard");
-const auth = initializeAuth(app, { persistence: inMemoryPersistence });
+const auth = initializeAuth(app, { persistence: browserLocalPersistence });
 const db = getFirestore(app);
 let allowDocs = [];
 let userDocs = [];
