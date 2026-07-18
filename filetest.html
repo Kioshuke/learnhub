@@ -523,6 +523,7 @@ body.dark-mode .ans-label:hover {
             border: 1px solid rgba(0,0,0,0.05);
             overflow: hidden;
         }
+        .lb-mobile-only { display: none; }
         
         /* Mobile responsive - stack vertically */
         @media (max-width: 768px) {
@@ -536,13 +537,38 @@ body.dark-mode .ans-label:hover {
             }
             
             .result-right {
-                min-width: auto;
-                order: 2; /* Move to bottom on mobile */
+                display: none;
             }
-            
+
             .leaderboard-embed {
                 min-height: 250px;
             }
+
+            .lb-popup-overlay {
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(15, 23, 42, 0.7); display: none;
+                justify-content: center; align-items: center; z-index: 2100;
+                backdrop-filter: blur(6px);
+            }
+            .lb-popup-box {
+                background: var(--card); border-radius: 20px; padding: 16px;
+                width: 92%; max-width: 420px; max-height: 80vh;
+                display: flex; flex-direction: column; overflow: hidden;
+            }
+            .lb-popup-box .lb-header {
+                display: flex; justify-content: space-between; align-items: center;
+                margin-bottom: 10px;
+            }
+            .lb-popup-box .lb-header h3 { margin: 0; font-size: 1rem; font-weight: 700; color: var(--text); }
+            .lb-popup-box .lb-close {
+                width: 30px; height: 30px; border-radius: 50%; border: none;
+                background: var(--danger, #ef4444); color: #fff; font-size: 16px;
+                cursor: pointer; display: flex; align-items: center; justify-content: center;
+            }
+            .lb-popup-box iframe {
+                width: 100%; flex: 1; min-height: 350px; border: none; border-radius: 12px;
+            }
+            .lb-mobile-only { display: inline-flex; }
         }
 
         .score-circle {
@@ -888,6 +914,7 @@ if (window !== window.parent) {
             <p>Để xem chi tiết vui lòng bấm vào mục lục nhé!</p>
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 25px;">
                 <button class="btn btn-primary" style="justify-content: center;" onclick="reviewMode()">👁️ Xem bài làm</button>
+                <button class="btn lb-mobile-only" style="justify-content: center; background: #7c3aed;" onclick="openLeaderboard()">🏆 Bảng xếp hạng</button>
                 <button class="btn" style="justify-content: center; background: #c81515" onclick="openModal('restartModal')">🔄 Làm lại</button>
             </div>
         </div>
@@ -906,6 +933,16 @@ if (window !== window.parent) {
             <button class="btn" style="flex:1; background: #c81515; color: white;" onclick="closeModal('restartModal')">↩️ Quay lại</button>
             <button class="btn btn-primary" style="flex:1" onclick="confirmRestart()">👍 Đồng ý</button>
         </div>
+    </div>
+</div>
+
+<div id="leaderboardPopup" class="lb-popup-overlay" onclick="closeLeaderboard(event)">
+    <div class="lb-popup-box" onclick="event.stopPropagation()">
+        <div class="lb-header">
+            <h3>🏆 Bảng xếp hạng</h3>
+            <button class="lb-close" onclick="closeLeaderboard()">&times;</button>
+        </div>
+        <iframe src="leaderboard.html" frameborder="0"></iframe>
     </div>
 </div>
 
@@ -1513,6 +1550,8 @@ scoreCircle.style.animation = feedback.animation + " 0.6s ease";
     }
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function openLeaderboard() { document.getElementById('leaderboardPopup').style.display = 'flex'; }
+    function closeLeaderboard(e) { if(!e || e.target === document.getElementById('leaderboardPopup')) document.getElementById('leaderboardPopup').style.display = 'none'; }
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebarNav');
         const overlay = document.getElementById('sidebarOverlay');

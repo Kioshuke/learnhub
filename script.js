@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function(){
 function updateTabScrollTopBtn(){
   const btn = document.getElementById("tabScrollTopBtn");
   if(!btn) return;
-  const canShowOnTab = currentTab === "flash" || currentTab === "forum" || currentTab === "phong-hoc";
+  const canShowOnTab = currentTab === "flash" || currentTab === "forum";
   if(!canShowOnTab){
     btn.style.display = "none";
     return;
@@ -699,12 +699,6 @@ function playSound(id) {
 document.addEventListener('click', function(e) {
     const target = e.target;
 
-    // Nút Menu môn học
-    if (target.closest('.menu button')) playSound("clickSound");
-    
-    // Nút Làm bài
-    if (target.closest('.btn')) playSound("dotest");
-    
     // Nút Đóng bài (Check chữ hoặc class)
     if (target.classList.contains('close-btn') || target.innerText === "Đóng bài") playSound("offtest");
     

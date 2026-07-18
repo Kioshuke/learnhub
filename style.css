@@ -541,6 +541,7 @@ body.dark-mode .header-time { color:#fff; background:rgba(255,255,255,0.08); }
     .header-user .header-location,
     .header-user .header-time { display:none; }
     .header-user { gap:6px; }
+    #tabScrollTopBtn { right:20px; left:auto; }
 }
 /* ===== HAMBURGER ===== */
 .hamburger {
