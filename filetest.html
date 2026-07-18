@@ -172,76 +172,78 @@
             color: #f87171 !important;
         }
 
-        @media (max-width: 480px) {
-            .timer-box { font-size: 0.8rem; padding: 6px 10px; }
-        }
-
-        /* --- Xử lý riêng cho Mobile --- */
         @media (max-width: 1024px) {
             header {
-                /* Nhích toàn bộ nội dung sang phải 70px để né nút Đóng bài */
-                padding-left: 70px !important; 
-                padding-right: 14px;
+                padding: 10px 12px;
+                margin-bottom: 15px;
                 gap: 8px;
-                justify-content: flex-end; /* Vì logo sẽ tự co giãn, nhóm nút luôn neo bên phải */
             }
 
             .logo-area {
                 flex: 1;
-                justify-content: flex-start; /* Logo dạt về sát phần padding-left, không trôi giữa khoảng hở */
                 min-width: 0;
             }
-            
+
             .logo-area h2 {
-                font-size: 0.95rem; /* Thu nhỏ chữ một chút để cân đối */
+                font-size: 0.9rem;
             }
 
             #action-button-container {
-                gap: 8px;
+                gap: 6px;
                 flex-shrink: 0;
             }
 
             #action-button-container .btn span {
-                display: none; /* Ẩn icon 📤 trong nút, giữ lại chữ */
-            }
-
-            #action-button-container .btn {
-                padding: 8px 14px;
-                font-size: 0.82rem;
-                white-space: nowrap;
-            }
-
-            .timer-box {
-                padding: 7px 11px;
-                font-size: 0.88rem;
-                gap: 5px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            header {
-                padding-left: 64px !important; /* Vẫn né nút mục lục tròn nhưng không cần chừa quá rộng vì logo đã ẩn */
-                padding-right: 10px;
-                gap: 6px;
-            }
-
-            .logo-area {
-                display: none; /* Hết chỗ: ẩn tên web, ưu tiên đồng hồ + nút nộp bài */
-            }
-
-            #action-button-container {
-                width: 100%;
-                justify-content: space-between; /* Đồng hồ bám trái, nút Nộp bài bám phải -> cân đối 2 đầu */
-            }
-
-            .timer-box {
-                font-size: 0.85rem;
-                padding: 7px 10px;
-                gap: 4px;
+                display: none;
             }
 
             #action-button-container .btn {
                 padding: 7px 12px;
+                font-size: 0.8rem;
+                white-space: nowrap;
+            }
+
+            .timer-box {
+                padding: 6px 10px;
+                font-size: 0.82rem;
+                gap: 4px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 6px 10px;
+                margin-bottom: 10px;
+                gap: 0;
+                flex-wrap: nowrap;
+                position: relative;
+            }
+
+            .logo-area {
+                display: none !important;
+            }
+
+            #action-button-container {
+                width: 100%;
+                display: flex;
+                justify-content: flex-end;
+                gap: 8px;
+            }
+
+            #timerBox {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .timer-box {
+                font-size: 0.8rem;
+                padding: 5px 10px;
+                gap: 4px;
+            }
+
+            #action-button-container .btn {
+                padding: 6px 12px;
                 font-size: 0.78rem;
             }
         }
@@ -760,18 +762,18 @@ if (window !== window.parent) {
         align-items: center; 
         justify-content: space-between; 
         background: var(--card); 
-        padding: 15px 20px; 
-        border-radius: 16px; 
+        padding: 10px 16px; 
+        border-radius: 14px; 
         box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-        margin-bottom: 25px; 
+        margin-bottom: 20px; 
         position: sticky; 
         top: 10px; 
         z-index: 1000; 
-        gap: 15px; 
+        gap: 10px; 
         flex-wrap: wrap;
     ">
-        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 200px;">
-            <h2 style="margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--primary); letter-spacing: 0.3px;">
+        <div class="logo-area" style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 200px;">
+            <h2 style="margin: 0; font-size: 1rem; font-weight: 800; color: var(--primary); letter-spacing: 0.3px;">
                 LearnHub Test 📝
             </h2>
             <div id="learnHubUserBadge" style="display: none; font-size: 0.85rem; font-weight: 500; color: var(--text-sub);">

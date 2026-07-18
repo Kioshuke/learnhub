@@ -121,9 +121,12 @@ body.dark-mode .card:hover{box-shadow:0 8px 28px color-mix(in srgb,var(--card-co
 body.dark-mode .card-color-bar{background:linear-gradient(90deg,var(--card-color),color-mix(in srgb,var(--card-color) 60%,#0f172a));}
 body.dark-mode .subject-notice{border-color:var(--notice-border);}
 
+.tab-short{display:none;}
 @media (max-width:768px){
+  .tab-full{display:none;}
+  .tab-short{display:inline;}
   body{padding:2px 4px 10px;}
-  .subject-tabs{gap:3px;padding-bottom:6px;}
+  .subject-tabs{gap:6px;padding-bottom:6px;}
   .subject-tab{padding:8px 4px;font-size:11px;border-radius:9px;}
   .grid{grid-template-columns:1fr;gap:8px;}
   .card{border-radius:12px;box-shadow:none;animation:cardFadeInMobile 0.16s ease both;animation-delay:calc(var(--card-index, 0) * 0.04s);}
@@ -159,12 +162,12 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
 <body>
 
 <div class="subject-tabs" id="subjectTabs">
-  <button class="subject-tab active" data-subject="ly" onclick="switchSubject('ly')"><i class="fas fa-atom"></i> Vật Lý</button>
-  <button class="subject-tab" data-subject="sinh" onclick="switchSubject('sinh')"><i class="fas fa-leaf"></i> Sinh Học</button>
-  <button class="subject-tab" data-subject="tin" onclick="switchSubject('tin')"><i class="fas fa-laptop-code"></i> Tin Học</button>
-  <button class="subject-tab" data-subject="su" onclick="switchSubject('su')"><i class="fas fa-landmark"></i> Lịch Sử</button>
-  <button class="subject-tab" data-subject="hoa" onclick="switchSubject('hoa')"><i class="fas fa-flask"></i> Hoá Học</button>
-  <button class="subject-tab" data-subject="anh" onclick="switchSubject('anh')"><i class="fas fa-language"></i> Anh Văn</button>
+  <button class="subject-tab active" data-subject="ly" onclick="switchSubject('ly')"><i class="fas fa-atom"></i> <span class="tab-full">Vật Lý</span><span class="tab-short">Lý</span></button>
+  <button class="subject-tab" data-subject="sinh" onclick="switchSubject('sinh')"><i class="fas fa-leaf"></i> <span class="tab-full">Sinh Học</span><span class="tab-short">Sinh</span></button>
+  <button class="subject-tab" data-subject="tin" onclick="switchSubject('tin')"><i class="fas fa-laptop-code"></i> <span class="tab-full">Tin Học</span><span class="tab-short">Tin</span></button>
+  <button class="subject-tab" data-subject="su" onclick="switchSubject('su')"><i class="fas fa-landmark"></i> <span class="tab-full">Lịch Sử</span><span class="tab-short">Sử</span></button>
+  <button class="subject-tab" data-subject="hoa" onclick="switchSubject('hoa')"><i class="fas fa-flask"></i> <span class="tab-full">Hoá Học</span><span class="tab-short">Hoá</span></button>
+  <button class="subject-tab" data-subject="anh" onclick="switchSubject('anh')"><i class="fas fa-language"></i> <span class="tab-full">Anh Văn</span><span class="tab-short">Anh</span></button>
 </div>
 
 <div id="ly" class="subject-panel active" style="--tab:#2563eb;--card-color:#3b82f6;">
