@@ -2,9 +2,6 @@
 <div class="menu-brand">
   <img src="pictures/logoweb.webp" width="60" height="60" alt="Logo LearnHub">
 </div>
-<button class="hamburger" id="hamburgerBtn" onclick="toggleNavDropdown()" aria-label="Menu">
-  <span></span><span></span><span></span>
-</button>
 <div class="menu-buttons" id="menuButtons">
   <a href="index.html" class="nav-link" style="--accent:#2563eb">Home</a>
   <a href="flashcard/hub.html" class="nav-link" style="--accent:#16a34a">FlashCard</a>
@@ -32,14 +29,8 @@ LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và s
 </div>
 </div>
 <script>
-function toggleNavDropdown(){
-  var m=document.getElementById('lhMenu');
-  if(!m)return;
-  m.classList.toggle('nav-open');
-}
 document.addEventListener('click',function(e){
   var m=document.getElementById('lhMenu');
-  var b=document.getElementById('hamburgerBtn');
   if(m&&m.classList.contains('nav-open')&&!m.contains(e.target)){
     m.classList.remove('nav-open');
   }
