@@ -214,11 +214,16 @@
                     </div>
 
                     <div class="space-y-3 bg-indigo-100/70 border border-indigo-200 rounded-xl p-4 shadow-sm">
-                        <h3 class="text-xs font-bold uppercase tracking-widest text-lh-textSub flex items-center gap-1.5">
-                            <i class="fas fa-trophy text-xs"></i> Bảng Xếp Hạng Tuần
-                        </h3>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-lh-textSub flex items-center gap-1.5">
+                                <i class="fas fa-trophy text-xs"></i> Bảng Xếp Hạng Tuần
+                            </h3>
+                            <button onclick="openLeaderboardModal()" class="text-indigo-400 hover:text-indigo-600 transition-colors" title="Xem đầy đủ">
+                                <i class="fas fa-expand-alt text-xs"></i>
+                            </button>
+                        </div>
                         <div class="w-full rounded-xl border border-gray-200/70 overflow-hidden shadow-sm bg-white h-[280px]">
-                            <iframe src="leaderboard.html" class="w-full h-full border-0" scrolling="no"></iframe>
+                            <iframe src="leaderboard.html?compact=1" class="w-full h-full border-0" scrolling="no"></iframe>
                         </div>
                     </div>
                 </div>
@@ -229,6 +234,46 @@
 
         </div>
     </div>
+
+    <style>
+        .no-scrollbar::-webkit-scrollbar{width:0;height:0}
+        .no-scrollbar{scrollbar-width:none}
+    </style>
+    <!-- LEADERBOARD FULL MODAL -->
+    <div id="lb-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white rounded-2xl w-full max-w-4xl mx-4 shadow-2xl transform scale-95 transition-transform duration-300 relative border border-gray-100 flex flex-col" style="height:80vh">
+            <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+                <h3 class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+                    <i class="fas fa-trophy text-amber-500"></i> Bảng Xếp Hạng Tuần
+                </h3>
+                <button onclick="closeLeaderboardModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fas fa-times text-base"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-hidden">
+                <iframe id="lb-full-frame" src="" class="w-full h-full border-0 no-scrollbar"></iframe>
+            </div>
+        </div>
+    </div>
+    <script>
+        function openLeaderboardModal() {
+            const m = document.getElementById('lb-modal');
+            document.getElementById('lb-full-frame').src = 'leaderboard.html?t=' + Date.now();
+            m.classList.remove('opacity-0','pointer-events-none');
+            m.classList.add('opacity-100');
+            m.querySelector('div').classList.remove('scale-95');
+            m.querySelector('div').classList.add('scale-100');
+        }
+        function closeLeaderboardModal() {
+            const m = document.getElementById('lb-modal');
+            m.classList.add('opacity-0','pointer-events-none');
+            m.classList.remove('opacity-100');
+            m.querySelector('div').classList.add('scale-95');
+            m.querySelector('div').classList.remove('scale-100');
+            setTimeout(() => { document.getElementById('lb-full-frame').src = ''; }, 300);
+        }
+        document.getElementById('lb-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeLeaderboardModal(); });
+    </script>
 
     <div id="settings-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
         <div class="bg-white rounded-lh w-full max-w-sm p-5 shadow-2xl transform scale-95 transition-transform duration-300 relative border border-gray-100 max-h-[90vh] overflow-y-auto">
