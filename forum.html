@@ -1131,7 +1131,7 @@ window.addEventListener("message", async (event) => {
 });
 
 function escapeHTML(value){
-  return String(value || "").replace(/[&<>"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[char]));
+  return String(value || "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
 }
 
 function getInitials(name){
@@ -1374,7 +1374,7 @@ function createPostElement(post, allPosts){
   div.className = "post " + postClasses.join(" ");
 
   const ownerActions = isOwner ? `
-    <span class="edit-btn" onclick="editPost('${post.id}', '${post.text.replace(/'/g, "\\'")}')">✎ Sửa</span>
+    <span class="edit-btn" onclick="editPost('${post.id}', ${JSON.stringify(post.text)})">✎ Sửa</span>
     <span class="delete-btn" onclick="deletePost('${post.id}')">🗑 Xóa</span>
   ` : "";
 
@@ -1391,14 +1391,14 @@ function createPostElement(post, allPosts){
 
   div.innerHTML = `
     <div class="meta">
-      <b class="${nameClass} ${adminNameClass}">${post.user}</b>${adminBadge}${pinBadge} • ${formatTime(post.time)} 
+      <b class="${nameClass} ${adminNameClass}">${escapeHTML(post.user)}</b>${adminBadge}${pinBadge} • ${formatTime(post.time)} 
       ${post.isEdited ? '<i style="font-size:10px">(đã chỉnh sửa)</i>' : ''}
       ${ownerActions}${pinAction}
     </div>
-    <div style="white-space: pre-wrap;">${post.text}</div>
+    <div style="white-space: pre-wrap;">${escapeHTML(post.text)}</div>
     <div class="actions">
       ${renderReactionButtons(post)}
-      <span class="reply-btn" onclick="setReply('${post.id}', '${post.user}')">Trả lời</span>
+      <span class="reply-btn" onclick="setReply('${post.id}', ${JSON.stringify(post.user)})">Trả lời</span>
     </div>
   `;
 
@@ -1448,7 +1448,7 @@ function renderReplies(parentId, container, allPosts, level){
       repDiv.style.marginLeft = Math.min(level * 12, 36) + "px";
       
       const ownerActions = isOwner ? `
-        <span class="edit-btn" onclick="editPost('${rep.id}', '${rep.text.replace(/'/g, "\\'")}')">✎</span>
+        <span class="edit-btn" onclick="editPost('${rep.id}', ${JSON.stringify(rep.text)})">✎</span>
         <span class="delete-btn" onclick="deletePost('${rep.id}')">🗑</span>
       ` : "";
 
@@ -1458,12 +1458,12 @@ function renderReplies(parentId, container, allPosts, level){
 
       repDiv.innerHTML = `
         <div class="meta">
-          <b class="${nameClass} ${adminNameClass}">${rep.user}</b>${adminBadge} • ${formatTime(rep.time)} ${ownerActions}
+          <b class="${nameClass} ${adminNameClass}">${escapeHTML(rep.user)}</b>${adminBadge} • ${formatTime(rep.time)} ${ownerActions}
         </div>
-        <div style="white-space: pre-wrap;">${rep.text}</div>
+        <div style="white-space: pre-wrap;">${escapeHTML(rep.text)}</div>
         <div class="actions">
           ${renderReactionButtons(rep)}
-          <span class="reply-btn" onclick="setReply('${rep.id}', '${rep.user}')">Trả lời</span>
+          <span class="reply-btn" onclick="setReply('${rep.id}', ${JSON.stringify(rep.user)})">Trả lời</span>
         </div>
       `;
       
@@ -1624,7 +1624,7 @@ function setReply(id, user) {
   replyBox.innerHTML = `
     <div class="reply-status-container">
       <div class="replying-text">
-        <span>↳ Đang trả lời <b>@${user}</b></span>
+        <span>↳ Đang trả lời <b>@${escapeHTML(user)}</b></span>
       </div>
       <div class="cancel-reply" onclick="cancelReply()" title="Hủy trả lời">×</div>
     </div>
