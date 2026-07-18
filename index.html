@@ -190,6 +190,7 @@ const provider = new GoogleAuthProvider();
 
 let allowList = [];
 let activeInterval = null;
+let onlineTimerInterval = null;
 const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
 
 // ================= MAINTENANCE MODE (realtime, đọc từ Firestore settings/maintenance) =================
@@ -680,6 +681,27 @@ if(user){
     }, 5000);
   }
 
+  // ✅ ONLINE TIMER - khi login thì bắt đầu đếm + khôi phục timer cũ nếu có
+  try {
+    const u = auth.currentUser;
+    if(u){
+      const uSnap = await getDoc(doc(db,"users",u.uid));
+      const uData = uSnap.exists() ? uSnap.data() : {};
+      const startTime = uData.onlineStartTime || 0;
+      const currentTimer = Number(uData.onlinetimer || 0);
+      if(startTime > 0){
+        // Có timer cũ chưa được lưu → cộng dồn
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        setDoc(doc(db,"users",u.uid),{
+          onlinetimer: currentTimer + elapsed,
+          onlineStartTime: Date.now()
+        },{ merge:true });
+      } else {
+        setDoc(doc(db,"users",u.uid),{ onlineStartTime: Date.now() },{ merge:true });
+      }
+    }
+  } catch(e){}
+
   // ✅ START LISTENER
   startListening();
   startAccessGuards(user);
@@ -703,11 +725,30 @@ if(user){
 const updateStatus = (isOnline) => {
 const user = auth.currentUser;
 if (user) {
-// Sử dụng return để đảm bảo promise được xử lý
-return setDoc(doc(db, "users", user.uid), { 
-online: isOnline,
-lastSeen: new Date().toISOString() 
-}, { merge: true });
+  if(isOnline){
+    return setDoc(doc(db, "users", user.uid), { 
+      online: true,
+      lastSeen: new Date().toISOString(),
+      onlineStartTime: Date.now()
+    }, { merge: true });
+  } else {
+    // Tính thời gian online trước khi dừng
+    getDoc(doc(db,"users",user.uid)).then(snap => {
+      const uData = snap.exists() ? snap.data() : {};
+      const startTime = uData.onlineStartTime || 0;
+      const currentTimer = Number(uData.onlinetimer || 0);
+      let newTimer = currentTimer;
+      if(startTime > 0){
+        newTimer += Math.floor((Date.now() - startTime) / 1000);
+      }
+      setDoc(doc(db, "users", user.uid), { 
+        online: false,
+        lastSeen: new Date().toISOString(),
+        onlinetimer: newTimer,
+        onlineStartTime: 0
+      }, { merge: true });
+    });
+  }
 }
 };
 
@@ -772,11 +813,27 @@ label.textContent = `Đang trực tuyến (${onlineCount})`;
 window.logout = async function(){
 const user = auth.currentUser;
 
-// cập nhật offline
+// cập nhật offline + lưu timer
 if(user){
-await setDoc(doc(db, "users", user.uid), {
-online: false
-}, { merge: true });
+  try {
+    const uSnap = await getDoc(doc(db,"users",user.uid));
+    const uData = uSnap.exists() ? uSnap.data() : {};
+    const startTime = uData.onlineStartTime || 0;
+    const currentTimer = Number(uData.onlinetimer || 0);
+    let newTimer = currentTimer;
+    if(startTime > 0){
+      newTimer += Math.floor((Date.now() - startTime) / 1000);
+    }
+    await setDoc(doc(db, "users", user.uid), {
+      online: false,
+      onlinetimer: newTimer,
+      onlineStartTime: 0
+    }, { merge: true });
+  } catch(e){
+    await setDoc(doc(db, "users", user.uid), {
+      online: false
+    }, { merge: true });
+  }
 }
 
 // 🔥 TẮT interval (THÊM Ở ĐÂY)

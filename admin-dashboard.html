@@ -608,11 +608,21 @@
               <div id="weeklyResetLastBy" style="font-size:13px;font-weight:600;color:var(--text)">—</div>
             </div>
           </div>
+          <div style="display:flex;gap:8px;margin-bottom:14px">
+            <label style="display:flex;align-items:center;gap:6px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text);flex:1;user-select:none">
+              <input type="checkbox" id="resetScoreCheck" checked style="accent-color:var(--blue);width:15px;height:15px">
+              Điểm số
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text);flex:1;user-select:none">
+              <input type="checkbox" id="resetTimeCheck" checked style="accent-color:var(--blue);width:15px;height:15px">
+              Thời gian online
+            </label>
+          </div>
           <button class="btn btn-danger" id="manualResetBtn" style="width:100%;justify-content:center">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
             Reset ngay bây giờ
           </button>
-          <p style="margin-top:10px;color:var(--text-3);font-size:11.5px;line-height:1.5;text-align:center">Reset thủ công sẽ xóa toàn bộ điểm và bắt đầu tuần mới.</p>
+          <p style="margin-top:10px;color:var(--text-3);font-size:11.5px;line-height:1.5;text-align:center">Chọn mục cần reset trước khi nhấn nút. Điểm sẽ bắt đầu tích lũy lại từ đầu.</p>
         </div>
 
         <!-- PHẢI: Leaderboard iframe -->
@@ -1208,15 +1218,27 @@ async function loadWeeklyResetForm() {
 }
 
 document.getElementById("manualResetBtn").addEventListener("click", async () => {
+  const resetScore = document.getElementById("resetScoreCheck").checked;
+  const resetTime = document.getElementById("resetTimeCheck").checked;
+
+  if(!resetScore && !resetTime){
+    showNotice("Vui lòng chọn ít nhất một mục cần reset.", "warning");
+    return;
+  }
+
   const modal = document.getElementById("confirmModal");
   const mI = document.getElementById("confirmModalIcon");
   const mT = document.getElementById("confirmModalTitle");
   const mM = document.getElementById("confirmModalMessage");
   const cB = document.getElementById("confirmModalConfirm");
 
+  const targets = [];
+  if(resetScore) targets.push("điểm số");
+  if(resetTime) targets.push("thời gian online");
+
   mI.textContent = "⚠️";
-  mT.textContent = "Reset toàn bộ điểm?";
-  mM.textContent = "Hành động này sẽ đặt totalScore, totalTests, bestScore của TẤT CẢ user về 0. Điểm sẽ bắt đầu tích lũy lại từ đầu. Bạn có chắc?";
+  mT.textContent = `Reset ${targets.join(" & ")}?`;
+  mM.textContent = `Hành động này sẽ reset ${targets.join(" và ")}. Bạn có chắc?`;
   modal.classList.add("active");
 
   const onConfirm = async () => {
@@ -1230,18 +1252,33 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
 
     try {
       const currentWeek = getCurrentWeekKey();
-      const statsSnap = await getDocs(collection(db, "testStats"));
       let count = 0;
 
-      for (const d of statsSnap.docs) {
-        await setDoc(doc(db, "testStats", d.id), {
-          totalTests: 0,
-          totalScore: 0,
-          bestScore: 0,
-          weekKey: currentWeek,
-          updatedAt: new Date().toISOString()
-        }, { merge: true });
-        count++;
+      // Reset điểm số
+      if(resetScore){
+        const statsSnap = await getDocs(collection(db, "testStats"));
+        for (const d of statsSnap.docs) {
+          await setDoc(doc(db, "testStats", d.id), {
+            totalTests: 0,
+            totalScore: 0,
+            bestScore: 0,
+            weekKey: currentWeek,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+          count++;
+        }
+      }
+
+      // Reset thời gian online
+      if(resetTime){
+        const usersSnap = await getDocs(collection(db, "users"));
+        for (const d of usersSnap.docs) {
+          await setDoc(doc(db, "users", d.id), {
+            onlinetimer: 0,
+            onlineStartTime: 0
+          }, { merge: true });
+          if(!resetScore) count++;
+        }
       }
 
       const now = new Date().toISOString();
@@ -1252,14 +1289,15 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
         lastResetAt: now,
         lastResetBy: adminEmail,
         resetCount: prevCount + 1,
-        usersReset: count
+        usersReset: count,
+        resetTargets: targets.join(", ")
       }, { merge: true });
 
-      showNotice(`Đã reset điểm thành công cho ${count} user.`, "success");
+      showNotice(`Đã reset ${targets.join(" & ")} thành công cho ${count} user.`, "success");
       await loadWeeklyResetForm();
     } catch (e) {
       console.error(e);
-      showNotice("Reset điểm thất bại.", "error");
+      showNotice("Reset thất bại.", "error");
     }
 
     btn.disabled = false;

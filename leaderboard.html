@@ -37,7 +37,7 @@
         .hdr-stars::before{top:-8px;left:-20px;color:#f59e0b}
         .hdr-stars::after{top:-8px;right:-20px;color:#4f46e5;animation-delay:1s}
         @keyframes twinkle{0%{opacity:.15;transform:scale(.8)}100%{opacity:.4;transform:scale(1.2)}}
-        .week-tag{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:6px 16px;background:#fff;border-radius:99px;font-size:12px;font-weight:600;color:#475569;box-shadow:0 2px 12px rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.1)}
+        .week-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;background:#fff;border-radius:99px;font-size:12px;font-weight:600;color:#475569;box-shadow:0 2px 12px rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.1)}
         .week-dot{width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,.4)}
 
         /* LAYOUT GRID CHUẨN AZOTA */
@@ -224,7 +224,8 @@
         /* COMPACT MODE (profile embed) */
         body.compact .hdr,
         body.compact .podium-side,
-        body.compact .bg-shapes{display:none!important}
+        body.compact .bg-shapes,
+        body.compact .mode-select{display:none!important}
         body.compact .wrap{min-height:auto;padding-top:8px}
         body.compact .lb-layout{padding-bottom:0}
         body.compact .list-side{box-shadow:none;border:none;padding:4px}
@@ -234,6 +235,19 @@
             .lb-layout { grid-template-columns: 380px 1fr; }
             .podium-side { display: block; position: sticky; top: 20px; }
         }
+
+        /* TAB DROPDOWN */
+        .hdr-meta{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+        .week-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;background:#fff;border-radius:99px;font-size:12px;font-weight:600;color:#475569;box-shadow:0 2px 12px rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.1)}
+        .week-dot{width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,.4)}
+        .mode-select{padding:6px 14px;border-radius:99px;border:1.5px solid rgba(99,102,241,.15);background:#fff;font-size:12px;font-weight:600;color:#475569;cursor:pointer;outline:none;box-shadow:0 2px 12px rgba(99,102,241,.08);appearance:auto;-webkit-appearance:auto}
+        .mode-select:focus{border-color:rgba(99,102,241,.35)}
+        .tab-panel{display:none}
+        .tab-panel.active{display:block}
+
+        /* ONLINE TIME CELL */
+        .time-cell{color:#4f46e5;font-weight:700;font-family:'Inter',monospace;font-size:13px;letter-spacing:.02em}
+        .t3-time{font-size:14px;font-weight:800;color:#10b981}
     </style>
 </head>
 <body>
@@ -242,9 +256,17 @@
         <div class="hdr">
             <div class="hdr-stars"><h1>BẢNG XẾP HẠNG</h1></div>
             <p>Hệ thống vinh danh học viên xuất sắc</p>
-            <div class="week-tag"><span class="week-dot"></span><span id="week-label">—</span></div>
+            <div class="hdr-meta">
+                <div class="week-tag"><span class="week-dot"></span><span id="week-label">—</span></div>
+                <select class="mode-select" id="modeSelect" onchange="switchTab(this.value)">
+                    <option value="score">Điểm số</option>
+                    <option value="time">Thời gian online</option>
+                </select>
+            </div>
         </div>
 
+        <!-- TAB: ĐIỂM SỐ -->
+        <div class="tab-panel active" id="tab-score">
         <div class="lb-layout">
             
             <!-- TRÁI: BỤC VINH QUANG TỰ ĐỘNG ẨN/HIỆN THEO IFRAME -->
@@ -276,6 +298,40 @@
             </div>
 
         </div>
+        </div>
+
+        <!-- TAB: THỜI GIAN ONLINE -->
+        <div class="tab-panel" id="tab-time">
+        <div class="lb-layout">
+            
+            <!-- TRÁI: BỤC VINH QUANG -->
+            <div class="podium-side">
+                <div class="podium-title">⏰ Vinh danh Top 3 Online</div>
+                <div class="top3" id="podium-time"></div>
+            </div>
+
+            <!-- PHẢI: BẢNG DỮ LIỆU -->
+            <div class="list-side">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">Thứ tự</th>
+                                <th>Hạng tên</th>
+                                <th style="width: 120px; text-align: right;">Thời gian online</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body-time">
+                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:60%"></div></td><td><div class="sk" style="width:80px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:45%"></div></td><td><div class="sk" style="width:80px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:50%"></div></td><td><div class="sk" style="width:80px; margin-left:auto"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+        </div>
     </div>
 
     <script type="module">
@@ -304,6 +360,14 @@
 
         function esc(t) { return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+        function formatTimer(totalSeconds) {
+            totalSeconds = Math.max(0, Math.floor(totalSeconds));
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+        }
+
         function ringAva(photo, name, size, ringCls) {
             const fs = Math.round(size * .38);
             const inner = photo
@@ -317,6 +381,12 @@
             return `<div class="row-ava-fb">${esc(name.charAt(0))}</div>`;
         }
 
+        // ===== TAB SWITCHING =====
+        window.switchTab = function(tab) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + tab));
+        };
+
+        // ===== LOAD SCORE RANKING =====
         async function load() {
             document.getElementById("week-label").textContent = getWeekKey();
 
@@ -346,7 +416,6 @@
 
                 const top3 = rows.slice(0, 3);
 
-                // RENDER BỤC TRÁI
                 function buildPodium(items, layout) {
                     return layout.map(({ idx, ring, bar, avSz, barH, rank, medal }) => {
                         const u = items[idx];
@@ -378,7 +447,6 @@
                     ]);
                 }
 
-                // RENDER TRONG TABLE BODY
                 const medals = ['🥇', '🥈', '🥉'];
                 tbodyEl.innerHTML = rows.map((u, i) => {
                     const rankNum = i + 1;
@@ -404,9 +472,93 @@
             }
         }
 
+        // ===== LOAD ONLINE TIME RANKING =====
+        async function loadOnlineTime() {
+            try {
+                const snap = await getDocs(collection(db, "users"));
+                const rows = [];
+                for (const d of snap.docs) {
+                    const u = d.data();
+                    const timer = Number(u.onlinetimer || 0);
+                    if (timer <= 0) continue;
+                    rows.push({
+                        uid: d.id,
+                        name: u.name || u.email || "Ẩn danh",
+                        photo: u.photo || "",
+                        timer: timer
+                    });
+                }
+                rows.sort((a, b) => b.timer - a.timer);
+
+                const podiumEl = document.getElementById("podium-time");
+                const tbodyEl = document.getElementById("table-body-time");
+
+                if (!rows.length) {
+                    tbodyEl.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:40px; color:#94a3b8">Chưa có dữ liệu xếp hạng</td></tr>`;
+                    return;
+                }
+
+                const top3 = rows.slice(0, 3);
+
+                function buildTimePodium(items, layout) {
+                    return layout.map(({ idx, ring, bar, avSz, barH, rank, medal }) => {
+                        const u = items[idx];
+                        if (!u) return '';
+                        return `<div class="top3-item">
+                            <div class="rank-num rank-${rank}">${rank}</div>
+                            ${ringAva(u.photo, u.name, avSz, ring)}
+                            <div class="t3-medal">${medal}</div>
+                            <div class="t3-name" title="${esc(u.name)}">${esc(u.name)}</div>
+                            <div class="t3-time">${formatTimer(u.timer)}</div>
+                            <div class="t3-meta">online</div>
+                            <div class="t3-bar ${bar}" style="height:${barH}px"><span class="bar-rank">#${rank}</span></div>
+                        </div>`;
+                    }).join('');
+                }
+
+                if (top3.length === 1) {
+                    podiumEl.innerHTML = buildTimePodium(top3, [{ idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' }]);
+                } else if (top3.length === 2) {
+                    podiumEl.innerHTML = buildTimePodium(top3, [
+                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '🥈' },
+                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' }
+                    ]);
+                } else {
+                    podiumEl.innerHTML = buildTimePodium(top3, [
+                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '🥈' },
+                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' },
+                        { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: '🥉' }
+                    ]);
+                }
+
+                const medals = ['🥇', '🥈', '🥉'];
+                tbodyEl.innerHTML = rows.map((u, i) => {
+                    const rankNum = i + 1;
+                    const specialClass = rankNum <= 3 ? `row-rank-${rankNum}` : '';
+                    const rankDisplay = rankNum <= 3 ? `<span class="rank-badge-medal">${medals[rankNum - 1]}</span>` : `<span class="rank-badge">${rankNum}</span>`;
+
+                    return `<tr class="${specialClass}">
+                        <td>${rankDisplay}</td>
+                        <td>
+                            <div class="name-cell">
+                                ${rowAva(u.photo, u.name)}
+                                <span title="${esc(u.name)}">${esc(u.name)}</span>
+                            </div>
+                        </td>
+                        <td class="time-cell" style="text-align: right;">${formatTimer(u.timer)}</td>
+                    </tr>`;
+                }).join('');
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById("table-body-time").innerHTML = `<tr><td colspan="3" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu từ hệ thống.</td></tr>`;
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             if (new URLSearchParams(location.search).get("compact") === "1") document.body.classList.add("compact");
             load();
+            loadOnlineTime();
         });
     </script>
 </body>

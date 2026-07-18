@@ -444,7 +444,7 @@
 
     <script type="module">
         import { db, auth } from "./firebase-config.js";
-        import { doc, onSnapshot, setDoc, collection } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+        import { doc, onSnapshot, setDoc, collection, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
         import { updatePassword, EmailAuthProvider, reauthenticateWithCredential, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
         await setPersistence(auth, browserLocalPersistence);
@@ -462,11 +462,32 @@
         function updateOnlineStatus(isOnline) {
             const user = auth.currentUser;
             if (user) {
-                return setDoc(doc(db, "users", user.uid), {
-                    online: isOnline,
-                    lastActive: Date.now(),
-                    lastSeen: new Date().toISOString()
-                }, { merge: true });
+                if(isOnline){
+                    return setDoc(doc(db, "users", user.uid), {
+                        online: true,
+                        lastActive: Date.now(),
+                        lastSeen: new Date().toISOString(),
+                        onlineStartTime: Date.now()
+                    }, { merge: true });
+                } else {
+                    // Tính thời gian online trước khi dừng
+                    return getDoc(doc(db,"users",user.uid)).then(snap => {
+                        const uData = snap.exists() ? snap.data() : {};
+                        const startTime = uData.onlineStartTime || 0;
+                        const currentTimer = Number(uData.onlinetimer || 0);
+                        let newTimer = currentTimer;
+                        if(startTime > 0){
+                            newTimer += Math.floor((Date.now() - startTime) / 1000);
+                        }
+                        return setDoc(doc(db, "users", user.uid), {
+                            online: false,
+                            lastActive: Date.now(),
+                            lastSeen: new Date().toISOString(),
+                            onlinetimer: newTimer,
+                            onlineStartTime: 0
+                        }, { merge: true });
+                    });
+                }
             }
         }
 
@@ -837,9 +858,26 @@
             }
         }
 
-        onAuthStateChanged(auth, user => {
+        onAuthStateChanged(auth, async user => {
             if (user) {
                 currentUserId = user.uid;
+
+                // ✅ ONLINE TIMER - khôi phục timer cũ nếu có
+                try {
+                    const uSnap = await getDoc(doc(db,"users",user.uid));
+                    const uData = uSnap.exists() ? uSnap.data() : {};
+                    const startTime = uData.onlineStartTime || 0;
+                    const currentTimer = Number(uData.onlinetimer || 0);
+                    if(startTime > 0){
+                        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                        setDoc(doc(db,"users",user.uid),{
+                            onlinetimer: currentTimer + elapsed,
+                            onlineStartTime: Date.now()
+                        },{ merge:true });
+                    } else {
+                        setDoc(doc(db,"users",user.uid),{ onlineStartTime: Date.now() },{ merge:true });
+                    }
+                } catch(e){}
 
                 // Bắt đầu cập nhật online status và listener users
                 startOnlineInterval();
