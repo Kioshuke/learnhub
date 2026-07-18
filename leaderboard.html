@@ -335,8 +335,16 @@
     </div>
 
     <script type="module">
-        import { app, db } from "./firebase-config.js";
+        import { app, db, auth } from "./firebase-config.js";
         import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+        import { signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+        await new Promise((resolve) => {
+            if(auth.currentUser){ resolve(); return; }
+            const unsub = onAuthStateChanged(auth, (u) => { if(u){ unsub(); resolve(); } });
+            signInAnonymously(auth).catch(()=>{});
+            setTimeout(() => { unsub(); resolve(); }, 5000);
+        });
 
         function getWeekKey() {
             const now = new Date();
@@ -549,8 +557,13 @@
         }
 
         if (new URLSearchParams(location.search).get("compact") === "1") document.body.classList.add("compact");
-        load();
-        loadOnlineTime();
+        if(!auth.currentUser){
+            document.getElementById("table-body").innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#94a3b8">Vui lòng đăng nhập để xem bảng xếp hạng.</td></tr>`;
+            document.getElementById("table-body-time").innerHTML = `<tr><td colspan="3" style="text-align:center; padding:40px; color:#94a3b8">Vui lòng đăng nhập để xem bảng xếp hạng.</td></tr>`;
+        } else {
+            load();
+            loadOnlineTime();
+        }
     </script>
 </body>
 </html>
