@@ -7,151 +7,268 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        /* RESET & BASE STYLES */
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;min-height:100vh;-webkit-font-smoothing:antialiased;color:#1e293b}
-        ::-webkit-scrollbar{width:5px}
-        ::-webkit-scrollbar-track{background:transparent}
-        ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(135deg,#eef2ff 0%,#f0f9ff 50%,#fdf4ff 100%);min-height:100vh;-webkit-font-smoothing:antialiased;color:#1e293b;overflow-x:hidden;position:relative}
+        
+        /* FLOATING DECORATIVE SHAPES */
+        .bg-shapes{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+        .bg-shapes span{position:absolute;border-radius:50%;opacity:.12;animation:floatUp linear infinite}
+        .bg-shapes span:nth-child(1){width:60px;height:60px;background:#4f46e5;left:10%;animation-duration:18s;animation-delay:0s}
+        .bg-shapes span:nth-child(2){width:40px;height:40px;background:#f59e0b;left:25%;animation-duration:22s;animation-delay:3s}
+        .bg-shapes span:nth-child(3){width:80px;height:80px;background:#ec4899;left:50%;animation-duration:25s;animation-delay:1s}
+        .bg-shapes span:nth-child(4){width:35px;height:35px;background:#10b981;left:70%;animation-duration:20s;animation-delay:5s}
+        .bg-shapes span:nth-child(5){width:50px;height:50px;background:#8b5cf6;left:85%;animation-duration:24s;animation-delay:2s}
+        .bg-shapes span:nth-child(6){width:25px;height:25px;background:#06b6d4;left:40%;animation-duration:16s;animation-delay:4s}
+        @keyframes floatUp{0%{bottom:-80px;transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.1)}100%{bottom:110vh;transform:rotate(360deg) scale(1)}}
+        
+        .wrap{max-width:1000px;margin:0 auto;min-height:100vh;padding:0 24px;container-type:inline-size;container-name:lb;position:relative;z-index:1}
 
-        .wrap{max-width:860px;margin:0 auto;min-height:100vh;padding:0 24px}
-
-        /* HEADER */
+        /* HEADER MODERN */
         .hdr{text-align:center;padding:36px 0 28px;position:relative}
-        .hdr::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:400px;height:300px;background:radial-gradient(ellipse,rgba(99,102,241,.08),transparent 65%);pointer-events:none}
-        .hdr-icon{font-size:44px;margin-bottom:6px;filter:drop-shadow(0 2px 8px rgba(251,191,36,.3))}
-        .hdr h1{font-size:26px;font-weight:900;color:#0f172a;letter-spacing:-.03em}
-        .hdr p{font-size:13px;color:#64748b;font-weight:500;margin-top:3px}
-        .week-tag{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:5px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:999px;font-size:11.5px;font-weight:600;color:#64748b}
-        .week-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.4)}
+        .hdr::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:500px;height:300px;background:radial-gradient(ellipse,rgba(99,102,241,.12),rgba(251,191,36,.06),transparent 65%);pointer-events:none}
+        .hdr-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:99px;font-size:11px;font-weight:700;color:#fff;letter-spacing:.04em;text-transform:uppercase;margin-bottom:12px;box-shadow:0 4px 12px rgba(99,102,241,.25)}
+        .hdr h1{font-size:30px;font-weight:900;color:#0f172a;letter-spacing:-.01em;text-transform:uppercase;line-height:1.2}
+        .hdr p{font-size:13px;color:#64748b;font-weight:500;margin-top:6px}
+        .hdr-stars{position:relative;display:inline-block}
+        .hdr-stars::before,.hdr-stars::after{content:'✦';position:absolute;font-size:14px;opacity:.25;animation:twinkle 2s ease-in-out infinite alternate}
+        .hdr-stars::before{top:-8px;left:-20px;color:#f59e0b}
+        .hdr-stars::after{top:-8px;right:-20px;color:#4f46e5;animation-delay:1s}
+        @keyframes twinkle{0%{opacity:.15;transform:scale(.8)}100%{opacity:.4;transform:scale(1.2)}}
+        .week-tag{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:6px 16px;background:#fff;border-radius:99px;font-size:12px;font-weight:600;color:#475569;box-shadow:0 2px 12px rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.1)}
+        .week-dot{width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 6px rgba(16,185,129,.4)}
 
-        /* TOP 3 */
-        .top3{display:flex;justify-content:center;align-items:flex-end;gap:14px}
-        .top3-item{display:flex;flex-direction:column;align-items:center;flex:1;max-width:220px}
+        /* LAYOUT GRID CHUẨN AZOTA */
+        .lb-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            align-items: flex-start;
+            padding-bottom: 40px;
+        }
 
-        /* RING AVATAR — no absolute, uses padding as ring thickness */
-        .ava-ring{display:inline-block;border-radius:50%;padding:3px;line-height:0}
-        .ring-gold{background:linear-gradient(135deg,#fbbf24,#f59e0b)}
+        /* BỤC VINH QUANG TRÁI (ẨN KHI IFRAME NHỎ) */
+        .podium-side {
+            display: none;
+            background: #fff;
+            padding: 32px 24px 24px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(99,102,241,.06),0 2px 8px rgba(0,0,0,.03);
+            border: 1px solid rgba(99,102,241,.08);
+            position: relative;
+            overflow: hidden;
+        }
+        .podium-side::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image: radial-gradient(circle at 10% 15%, rgba(99,102,241,.08) 0%, transparent 50%),
+                              radial-gradient(circle at 90% 85%, rgba(251,191,36,.07) 0%, transparent 50%),
+                              radial-gradient(circle at 50% 50%, rgba(236,72,153,.04) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .podium-title {
+            font-size: 13px;
+            font-weight: 800;
+            background: linear-gradient(135deg,#4f46e5,#7c3aed);
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+            text-align: center;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            position: relative;
+        }
+
+        /* KHUNG BỤC */
+        .top3{display:flex;justify-content:center;align-items:flex-end;gap:16px;padding:0 8px}
+        .top3-item{display:flex;flex-direction:column;align-items:center;width:100px;min-height:280px;justify-content:flex-end;position:relative}
+        .ava-ring{display:inline-block;border-radius:50%;padding:4px;line-height:0;position:relative}
+        .ring-gold{background:linear-gradient(135deg,#fbbf24,#f59e0b);box-shadow:0 0 20px rgba(251,191,36,.3),0 0 40px rgba(251,191,36,.1);animation:goldGlow 2s ease-in-out infinite alternate}
         .ring-silver{background:linear-gradient(135deg,#cbd5e1,#94a3b8)}
         .ring-bronze{background:linear-gradient(135deg,#f59e0b,#d97706)}
-        .ava-inner{border-radius:50%;overflow:hidden;background:#e2e8f0;display:flex;align-items:center;justify-content:center}
+        @keyframes goldGlow{from{box-shadow:0 0 15px rgba(251,191,36,.25),0 0 30px rgba(251,191,36,.08)}to{box-shadow:0 0 25px rgba(251,191,36,.45),0 0 50px rgba(251,191,36,.15)}}
+        .ava-inner{border-radius:50%;overflow:hidden;background:#f1f5f9;display:flex;align-items:center;justify-content:center}
         .ava-inner img{width:100%;height:100%;object-fit:cover;display:block}
-        .ava-initial{font-weight:900;color:#64748b}
-
-        .t3-badge{width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:11px;font-weight:800;margin-bottom:8px}
-        .badge-gold{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#451a03;box-shadow:0 2px 8px rgba(251,191,36,.3)}
-        .badge-silver{background:linear-gradient(135deg,#e2e8f0,#94a3b8);color:#1e293b;box-shadow:0 2px 8px rgba(148,163,184,.25)}
-        .badge-bronze{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;box-shadow:0 2px 8px rgba(245,158,11,.25)}
-
-        .t3-name{font-size:13px;font-weight:700;color:#1e293b;margin-top:10px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-        .t3-score{font-size:18px;font-weight:900;margin-top:3px;letter-spacing:-.02em}
+        .ava-initial{font-weight:800;color:#64748b}
+        .t3-medal{font-size:20px;margin-top:5px;line-height:1}
+        .rank-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;margin-bottom:6px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+        .rank-1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#451a03}
+        .rank-2{background:linear-gradient(135deg,#e2e8f0,#94a3b8);color:#1e293b}
+        .rank-3{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+        .t3-name{font-size:13px;font-weight:700;color:#1e293b;margin-top:6px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+        .t3-score{font-size:16px;font-weight:900;margin-top:2px;color:#4f46e5}
         .t3-meta{font-size:10.5px;color:#94a3b8;font-weight:500;margin-top:1px}
+        .t3-bar{width:100%;border-radius:8px 8px 0 0;margin-top:8px;position:relative;overflow:hidden}
+        .bar-rank{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:26px;font-weight:900;opacity:.06;pointer-events:none}
+        .bar-gold{background:linear-gradient(180deg,rgba(251,191,36,.22),rgba(251,191,36,.04))}
+        .bar-silver{background:linear-gradient(180deg,rgba(148,163,184,.16),rgba(148,163,184,.03))}
+        .bar-bronze{background:linear-gradient(180deg,rgba(245,158,11,.14),rgba(245,158,11,.02))}
 
-        .t3-bar{width:100%;border-radius:10px 10px 0 0;margin-top:10px}
-        .bar-gold{background:linear-gradient(180deg,rgba(251,191,36,.18),rgba(251,191,36,.04))}
-        .bar-silver{background:linear-gradient(180deg,rgba(148,163,184,.14),rgba(148,163,184,.03))}
-        .bar-bronze{background:linear-gradient(180deg,rgba(245,158,11,.14),rgba(245,158,11,.03))}
+        /* KHU VỰC BẢNG BÊN PHẢI */
+        .list-side {
+            background: #fff;
+            padding: 8px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(99,102,241,.05),0 2px 8px rgba(0,0,0,.02);
+            border: 1px solid rgba(99,102,241,.08);
+            overflow: hidden;
+        }
 
-        /* DIVIDER */
-        .divider{height:1px;background:#e2e8f0;margin:24px 0}
+        /* WRAPPER */
+        .table-responsive {
+            width: 100%;
+            overflow: hidden;
+        }
 
-        /* TABLE */
-        .tbl-hdr{display:grid;grid-template-columns:44px 40px 1fr 80px 90px;align-items:center;padding:0 14px 10px;border-bottom:1px solid #e2e8f0}
-        .tbl-th{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em}
-        .tbl-row{display:grid;grid-template-columns:44px 40px 1fr 80px 90px;align-items:center;padding:10px 14px;border-radius:8px;margin:1px 0;transition:background .12s}
-        .tbl-row:hover{background:#e8edf3}
-        .td-rank{font-size:13px;font-weight:700;color:#94a3b8}
-        .td-name{font-size:13px;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px}
-        .td-tests{font-size:11.5px;color:#94a3b8;font-weight:500}
-        .td-score{font-size:15px;font-weight:800;color:#6366f1;text-align:right;letter-spacing:-.01em}
+        /* ĐỊNH DẠNG TABLE CHUẨN XỊN */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            table-layout: fixed;
+        }
 
-        /* ROW AVATAR */
-        .row-ava{width:36px;height:36px;border-radius:50%;object-fit:cover;display:block;background:#e2e8f0}
-        .row-ava-fb{width:36px;height:36px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#94a3b8;flex-shrink:0}
+        th, td {
+            padding: 8px 10px;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+        th:first-child, td:first-child { width: 50px; }
+        th:nth-child(3), td:nth-child(3) { width: 80px; }
+        th:nth-child(4), td:nth-child(4) { width: 70px; text-align: right; }
 
-        /* EMPTY */
-        .empty{text-align:center;padding:56px 16px}
-        .empty-icon{font-size:44px;margin-bottom:10px;opacity:.5}
-        .empty-text{color:#94a3b8;font-size:13px;font-weight:500}
+        th {
+            background: linear-gradient(135deg,#eef2ff,#f5f3ff);
+            color: #4f46e5;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid rgba(99,102,241,.12);
+        }
 
-        /* SKELETON */
-        .sk{border-radius:8px;background:linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 37%,#e2e8f0 63%);background-size:400% 100%;animation:sh 1.4s ease infinite}
-        @keyframes sh{0%{background-position:100% 50%}100%{background-position:0% 50%}}
-        .sk-c{border-radius:50%}
-        .sk-row{display:grid;grid-template-columns:44px 40px 1fr 80px 90px;align-items:center;padding:10px 14px}
+        tr {
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+        }
+        tr:last-child { border-bottom: none; }
+        tr:hover { background: #f8f7ff; }
 
-        /* RESPONSIVE */
-        @media(max-width:600px){
-            .wrap{padding:0 12px}
-            .hdr{padding:24px 0 18px}
-            .hdr h1{font-size:20px}
-            .top3{gap:8px}
-            .t3-name{font-size:12px}
-            .t3-score{font-size:15px}
-            .tbl-hdr,.tbl-row,.sk-row{grid-template-columns:36px 34px 1fr 60px 72px;padding:8px 8px}
+        /* Style nổi bật dòng của Top 1, 2, 3 trong Table giống Azota */
+        tr.row-rank-1 { background: linear-gradient(90deg,#fef9c3,#fffbeb); }
+        tr.row-rank-2 { background-color: #f1f5f9; }
+        tr.row-rank-3 { background-color: #fff7ed; }
+
+        /* Số thứ hạng cột 1 */
+        .rank-badge {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 800;
+            color: #64748b;
+            background: #e2e8f0;
+        }
+        tr.row-rank-1 .rank-badge { background: #fef3c7; color: #b45309; }
+        tr.row-rank-2 .rank-badge { background: #cbd5e1; color: #334155; }
+        tr.row-rank-3 .rank-badge { background: #ffedd5; color: #c2410c; }
+        .rank-badge-medal{font-size:16px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+
+        /* Cột Tên + Avatar */
+        .name-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #0f172a;
+            overflow: hidden;
+        }
+        .name-cell span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .row-ava {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #e2e8f0;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08);
+        }
+        .row-ava-fb {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#e0e7ff,#f3e8ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: #6366f1;
+        }
+
+        /* Cột Số bài & Cột Điểm */
+        .count-cell { color: #475569; font-weight: 500; }
+        .score-cell { background: linear-gradient(135deg,#4f46e5,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; font-weight: 800; font-size: 13.5px; }
+
+        /* LOADING SKELETON TRONG TABLE */
+        .sk { height: 16px; border-radius: 4px; background: linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 37%,#e2e8f0 63%); background-size: 400% 100%; animation: sh 1.4s ease infinite; }
+        @keyframes sh { 0%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+        /* FOOTER */
+        .footer{text-align:center;padding:24px 0 32px;font-size:11px;color:#94a3b8;font-weight:500}
+        .footer span{color:#4f46e5;font-weight:700}
+
+        /* RESPONSIVE CONTAINER CONTAINER */
+        @container lb (min-width: 760px) {
+            .lb-layout { grid-template-columns: 380px 1fr; }
+            .podium-side { display: block; position: sticky; top: 20px; }
         }
     </style>
 </head>
 <body>
+    <div class="bg-shapes"><span></span><span></span><span></span><span></span><span></span><span></span></div>
     <div class="wrap">
         <div class="hdr">
-            <div class="hdr-icon">🏆</div>
-            <h1>BẢNG XẾP HẠNG</h1>
+            <div class="hdr-stars"><h1>BẢNG XẾP HẠNG</h1></div>
             <p>Hệ thống vinh danh học viên xuất sắc</p>
             <div class="week-tag"><span class="week-dot"></span><span id="week-label">—</span></div>
         </div>
 
-        <!-- LOADING -->
-        <div id="ld">
-            <div class="top3">
-                <div class="top3-item" style="align-self:flex-end">
-                    <div class="sk sk-c" style="width:72px;height:72px"></div>
-                    <div class="sk" style="width:60px;height:10px;margin-top:10px"></div>
-                    <div class="sk" style="width:36px;height:12px;margin-top:5px"></div>
-                    <div class="sk bar-silver" style="width:100%;height:44px;margin-top:10px;border-radius:10px 10px 0 0"></div>
-                </div>
-                <div class="top3-item">
-                    <div class="sk sk-c" style="width:92px;height:92px"></div>
-                    <div class="sk" style="width:70px;height:10px;margin-top:10px"></div>
-                    <div class="sk" style="width:44px;height:12px;margin-top:5px"></div>
-                    <div class="sk bar-gold" style="width:100%;height:64px;margin-top:10px;border-radius:10px 10px 0 0"></div>
-                </div>
-                <div class="top3-item" style="align-self:flex-end">
-                    <div class="sk sk-c" style="width:62px;height:62px"></div>
-                    <div class="sk" style="width:50px;height:10px;margin-top:10px"></div>
-                    <div class="sk" style="width:32px;height:12px;margin-top:5px"></div>
-                    <div class="sk bar-bronze" style="width:100%;height:32px;margin-top:10px;border-radius:10px 10px 0 0"></div>
-                </div>
+        <div class="lb-layout">
+            
+            <!-- TRÁI: BỤC VINH QUANG TỰ ĐỘNG ẨN/HIỆN THEO IFRAME -->
+            <div class="podium-side">
+                <div class="podium-title">🏆 Vinh danh Top 3 Tuần</div>
+                <div class="top3" id="podium"></div>
             </div>
-            <div class="divider"></div>
-            <div>
-                <div class="sk-row"><div class="sk" style="width:24px;height:10px"></div><div class="sk sk-c" style="width:36px;height:36px"></div><div class="sk" style="height:10px"></div><div class="sk" style="width:40px;height:10px"></div><div class="sk" style="width:44px;height:12px"></div></div>
-                <div class="sk-row"><div class="sk" style="width:24px;height:10px"></div><div class="sk sk-c" style="width:36px;height:36px"></div><div class="sk" style="height:10px"></div><div class="sk" style="width:40px;height:10px"></div><div class="sk" style="width:44px;height:12px"></div></div>
-                <div class="sk-row"><div class="sk" style="width:24px;height:10px"></div><div class="sk sk-c" style="width:36px;height:36px"></div><div class="sk" style="height:10px"></div><div class="sk" style="width:40px;height:10px"></div><div class="sk" style="width:44px;height:12px"></div></div>
-            </div>
-        </div>
 
-        <!-- CONTENT -->
-        <div id="ct" style="display:none">
-            <div class="top3" id="podium"></div>
-            <div class="divider"></div>
-            <div>
-                <div class="tbl-hdr">
-                    <div class="tbl-th">Hạng</div>
-                    <div></div>
-                    <div class="tbl-th">Học viên</div>
-                    <div class="tbl-th">Bài thi</div>
-                    <div class="tbl-th" style="text-align:right">Điểm</div>
+            <!-- PHẢI: BẢNG DỮ LIỆU CHUẨN ĐẸP -->
+            <div class="list-side">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">Thứ tự</th>
+                                <th>Hạng tên</th>
+                                <th style="width: 90px;">Bài đã làm</th>
+                                <th style="width: 80px; text-align: right;">Điểm</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- LOADING SKELETON DÒNG -->
+                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:60%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:45%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:50%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
+                        </tbody>
+                    </table>
                 </div>
-                <div id="list"></div>
             </div>
-        </div>
 
-        <!-- EMPTY -->
-        <div id="em" style="display:none">
-            <div class="empty">
-                <div class="empty-icon">📊</div>
-                <div class="empty-text">Chưa có dữ liệu xếp hạng</div>
-            </div>
         </div>
     </div>
 
@@ -209,67 +326,75 @@
                         const u = await getDoc(doc(db, "users", d.id));
                         if (u.exists()) { const ud = u.data(); name = ud.name || ud.email || name; photo = ud.photo || ""; }
                     } catch(e) {}
-                    rows.push({ name, photo, score, tests: Number(s.totalTests||0), best: Number(s.bestScore||0) });
+                    rows.push({ name, photo, score, tests: Number(s.totalTests||0) });
                 }
                 rows.sort((a, b) => b.score - a.score);
 
+                const podiumEl = document.getElementById("podium");
+                const tbodyEl = document.getElementById("table-body");
+
                 if (!rows.length) {
-                    document.getElementById("ld").style.display = "none";
-                    document.getElementById("em").style.display = "block";
+                    tbodyEl.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#94a3b8">Chưa có dữ liệu xếp hạng</td></tr>`;
                     return;
                 }
 
-                const podiumEl = document.getElementById("podium");
-                const listEl = document.getElementById("list");
                 const top3 = rows.slice(0, 3);
 
+                // RENDER BỤC TRÁI
                 function buildPodium(items, layout) {
-                    return layout.map(({ idx, rank, ring, bar, avSz, barH, align }) => {
+                    return layout.map(({ idx, ring, bar, avSz, barH, rank, medal }) => {
                         const u = items[idx];
-                        return `<div class="top3-item" ${align ? 'style="align-self:flex-end"' : ''}>
-                            <div class="t3-badge ${rank.cls}">${rank.num}</div>
+                        if (!u) return '';
+                        return `<div class="top3-item">
+                            <div class="rank-num rank-${rank}">${rank}</div>
                             ${ringAva(u.photo, u.name, avSz, ring)}
-                            <div class="t3-name">${esc(u.name)}</div>
-                            <div class="t3-score" style="color:${rank.color}">${u.score}đ</div>
-                            <div class="t3-meta">${u.tests} bài · Cao nhất ${u.best}đ</div>
-                            <div class="t3-bar ${bar}" style="height:${barH}px"></div>
+                            <div class="t3-medal">${medal}</div>
+                            <div class="t3-name" title="${esc(u.name)}">${esc(u.name)}</div>
+                            <div class="t3-score">${u.score}đ</div>
+                            <div class="t3-meta">${u.tests} bài thi</div>
+                            <div class="t3-bar ${bar}" style="height:${barH}px"><span class="bar-rank">#${rank}</span></div>
                         </div>`;
                     }).join('');
                 }
 
                 if (top3.length === 1) {
-                    podiumEl.innerHTML = buildPodium(top3, [{
-                        idx: 0, rank: { num: 1, cls: 'badge-gold', color: '#d97706' },
-                        ring: 'ring-gold', bar: 'bar-gold', avSz: 84, barH: 56, align: false
-                    }]);
+                    podiumEl.innerHTML = buildPodium(top3, [{ idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' }]);
                 } else if (top3.length === 2) {
                     podiumEl.innerHTML = buildPodium(top3, [
-                        { idx: 1, rank: { num: 2, cls: 'badge-silver', color: '#64748b' }, ring: 'ring-silver', bar: 'bar-silver', avSz: 68, barH: 38, align: true },
-                        { idx: 0, rank: { num: 1, cls: 'badge-gold', color: '#d97706' }, ring: 'ring-gold', bar: 'bar-gold', avSz: 90, barH: 60, align: false }
+                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '🥈' },
+                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' }
                     ]);
                 } else {
                     podiumEl.innerHTML = buildPodium(top3, [
-                        { idx: 1, rank: { num: 2, cls: 'badge-silver', color: '#64748b' }, ring: 'ring-silver', bar: 'bar-silver', avSz: 72, barH: 42, align: true },
-                        { idx: 0, rank: { num: 1, cls: 'badge-gold', color: '#d97706' }, ring: 'ring-gold', bar: 'bar-gold', avSz: 96, barH: 64, align: false },
-                        { idx: 2, rank: { num: 3, cls: 'badge-bronze', color: '#b45309' }, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 62, barH: 28, align: true }
+                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '🥈' },
+                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' },
+                        { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: '🥉' }
                     ]);
                 }
 
-                const rest = rows.slice(3);
-                listEl.innerHTML = rest.length ? rest.map((u, i) => `<div class="tbl-row">
-                    <div class="td-rank">#${i + 4}</div>
-                    ${rowAva(u.photo, u.name)}
-                    <div class="td-name" title="${esc(u.name)}">${esc(u.name)}</div>
-                    <div class="td-tests">${u.tests} bài</div>
-                    <div class="td-score">${u.score}đ</div>
-                </div>`).join('') : '';
-
-                document.getElementById("ld").style.display = "none";
-                document.getElementById("ct").style.display = "block";
+                // RENDER TRONG TABLE BODY
+                const medals = ['🥇', '🥈', '🥉'];
+                tbodyEl.innerHTML = rows.map((u, i) => {
+                    const rankNum = i + 1;
+                    const specialClass = rankNum <= 3 ? `row-rank-${rankNum}` : '';
+                    const rankDisplay = rankNum <= 3 ? `<span class="rank-badge-medal">${medals[rankNum - 1]}</span>` : `<span class="rank-badge">${rankNum}</span>`;
+                    
+                    return `<tr class="${specialClass}">
+                        <td>${rankDisplay}</td>
+                        <td>
+                            <div class="name-cell">
+                                ${rowAva(u.photo, u.name)}
+                                <span title="${esc(u.name)}">${esc(u.name)}</span>
+                            </div>
+                        </td>
+                        <td class="count-cell">${u.tests} bài</td>
+                        <td class="score-cell" style="text-align: right;">${u.score}đ</td>
+                    </tr>`;
+                }).join('');
 
             } catch (e) {
                 console.error(e);
-                document.getElementById("ld").innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Lỗi tải dữ liệu</div></div>`;
+                document.getElementById("table-body").innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu từ hệ thống.</td></tr>`;
             }
         }
 

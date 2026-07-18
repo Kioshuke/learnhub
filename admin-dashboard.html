@@ -374,21 +374,6 @@
 
     #dashboardView{width:100%}
 
-    .sev-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:999px;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-    .sev-critical{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
-    .sev-high{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
-    .sev-medium{background:#fffbeb;color:#a16207;border:1px solid #fde68a}
-    .sev-low{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
-    .error-message-cell{max-width:360px;word-break:break-word;font-size:12.5px;line-height:1.5;font-family:monospace}
-    .error-file-cell{font-size:11.5px;font-family:monospace;word-break:break-all}
-    .error-view-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;color:var(--text-2);transition:all var(--tr)}
-    .error-view-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
-    .error-view-btn.resolved{background:#f0fdf4;color:#166534;border-color:#bbf7d0}
-    .error-stack-popup{display:none;position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px}
-    .error-stack-popup.active{display:flex}
-    .error-stack-card{background:var(--surface);border-radius:16px;padding:24px;max-width:700px;width:100%;max-height:80vh;overflow:auto;box-shadow:0 24px 64px rgba(0,0,0,.2)}
-    .error-stack-card pre{background:#0f172a;color:#e2e8f0;padding:16px;border-radius:10px;font-size:12px;line-height:1.6;overflow:auto;max-height:400px;white-space:pre-wrap;word-break:break-all;margin-top:12px}
-
     .mobile-toggle{
       display:none;position:fixed;top:14px;left:14px;z-index:200;
       width:40px;height:40px;border-radius:10px;background:var(--surface);
@@ -487,11 +472,6 @@
       <button class="sidebar-link" data-admin-tab="weeklyReset">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 6 9 6 9z"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 18 9 18 9z"/><path d="M4 22h16"/><path d="M10 22V8h4v14"/><path d="M6 22V6h4v16"/></svg>
         BXH &amp; Reset tuần
-      </button>
-      <div class="sidebar-label">Giám sát</div>
-      <button class="sidebar-link" data-admin-tab="errorLogs">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        Error Logs
       </button>
       <div class="sidebar-label">Hệ thống</div>
       <button class="sidebar-link" onclick="location.href='index.html'">
@@ -637,57 +617,14 @@
 
         <!-- PHẢI: Leaderboard iframe -->
         <div>
-          <iframe src="leaderboard.html" style="width:100%;height:520px;border:none;border-radius:var(--r-sm);border:1px solid var(--border)" loading="lazy"></iframe>
-        </div>
-      </div>
-    </section>
-
-    <!-- ERROR LOGS TAB -->
-    <section class="panel tab-panel hidden" id="errorLogsTabPanel">
-      <div class="panel-head">
-        <div>
-          <div class="panel-title">Error Logs</div>
-          <div class="panel-desc" style="margin-bottom:0">Theo dõi lỗi thời gian thực từ client. Phân loại theo mức độ ảnh hưởng.</div>
-        </div>
-        <div class="header-actions">
-          <button class="btn btn-soft" id="errorLogsRefreshBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-            Làm mới
-          </button>
-          <button class="btn btn-danger" id="errorLogsClearBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            Xóa tất cả
-          </button>
-        </div>
-      </div>
-      <div class="stats" style="margin-bottom:16px">
-        <div class="stat"><div class="stat-icon" style="background:#fef2f2;color:#dc2626"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="stat-info"><div class="label">Critical</div><div class="value" id="errorCriticalCount" style="color:#dc2626">0</div></div></div>
-        <div class="stat"><div class="stat-icon" style="background:#fff7ed;color:#f97316"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="stat-info"><div class="label">High</div><div class="value" id="errorHighCount" style="color:#f97316">0</div></div></div>
-        <div class="stat"><div class="stat-icon" style="background:#fffbeb;color:#eab308"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="stat-info"><div class="label">Medium</div><div class="value" id="errorMediumCount" style="color:#eab308">0</div></div></div>
-        <div class="stat"><div class="stat-icon" style="background:#f0fdf4;color:#22c55e"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div class="stat-info"><div class="label">Low</div><div class="value" id="errorLowCount" style="color:#22c55e">0</div></div></div>
-      </div>
-      <div class="toolbar">
-        <select id="errorLogSeverityFilter" class="select" style="max-width:140px">
-          <option value="all">Tất cả mức độ</option>
-          <option value="critical">Critical</option>
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
-        </select>
-        <select id="errorLogResolvedFilter" class="select" style="max-width:160px">
-          <option value="all">Tất cả trạng thái</option>
-          <option value="unresolved">Chưa xử lý</option>
-          <option value="resolved">Đã xử lý</option>
-        </select>
-        <input id="errorLogSearchInput" class="input" type="search" placeholder="Tìm theo message, file, email..." style="max-width:300px">
-        <div class="pagination" id="errorLogPagination"></div>
-      </div>
-      <div class="sheet-wrap">
-        <div class="sheet-scroll" style="max-height:600px">
-          <table class="sheet-table" style="min-width:900px">
-            <thead><tr><th style="width:60px">Mức</th><th style="width:100px">File</th><th>Message</th><th style="width:80px">Line</th><th style="width:160px">User</th><th style="width:150px">Thời gian</th><th style="width:90px">Trạng thái</th></tr></thead>
-            <tbody id="errorLogTableBody"></tbody>
-          </table>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em">Bảng xếp hạng tuần</span>
+            <button class="btn btn-soft" onclick="document.getElementById('leaderboardFrame').src='leaderboard.html?t='+Date.now()" style="padding:4px 10px;font-size:11px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Làm mới
+            </button>
+          </div>
+          <iframe id="leaderboardFrame" src="leaderboard.html" style="width:100%;height:520px;border:none;border-radius:var(--r-sm);border:1px solid var(--border)" loading="lazy"></iframe>
         </div>
       </div>
     </section>
@@ -729,17 +666,6 @@
       </div>
       <div id="renameListBody"></div>
     </section>
-  </div>
-</div>
-
-<!-- ERROR STACK POPUP -->
-<div id="errorStackPopup" class="error-stack-popup" onclick="if(event.target===this)this.classList.remove('active')">
-  <div class="error-stack-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h3 style="font-size:16px;font-weight:700">Stack Trace</h3>
-      <button class="btn btn-soft" style="padding:4px 12px;font-size:12px" onclick="document.getElementById('errorStackPopup').classList.remove('active')">Đóng</button>
-    </div>
-    <pre id="errorStackContent">No stack trace</pre>
   </div>
 </div>
 
@@ -804,7 +730,6 @@ const PAGE_SIZE = 15;
 let currentPage = 1;
 const adminTabButtons = document.querySelectorAll("[data-admin-tab]");
 const usersTabPanel = document.getElementById("usersTabPanel");
-const errorLogsTabPanel = document.getElementById("errorLogsTabPanel");
 const broadcastsTabPanel = document.getElementById("broadcastsTabPanel");
 const welcomePopupTabPanel = document.getElementById("welcomePopupTabPanel");
 const broadcastTargetEmailInput = document.getElementById("broadcastTargetEmailInput");
@@ -834,14 +759,12 @@ const pageTitles = {
   broadcasts: ["Gửi thông báo", "Gửi thông báo realtime đến toàn bộ user hoặc từng người."],
   welcomePopup: ["Popup chào mừng", "Chỉnh popup hiển thị sau khi user đăng nhập."],
   maintenance: ["Bảo trì hệ thống", "Bật/tắt chế độ bảo trì toàn hệ thống."],
-  weeklyReset: ["BXH & Reset tuần", "Bảng xếp hạng học viên và reset điểm theo tuần."],
-  errorLogs: ["Error Logs", "Theo dõi lỗi thời gian thực từ client."]
+  weeklyReset: ["BXH & Reset tuần", "Bảng xếp hạng học viên và reset điểm theo tuần."]
 };
 
 function switchAdminTab(tab) {
   adminTabButtons.forEach(b => b.classList.toggle("active", b.dataset.adminTab === tab));
   usersTabPanel.classList.toggle("hidden", tab !== "users");
-  errorLogsTabPanel.classList.toggle("hidden", tab !== "errorLogs");
   renameTabPanel.classList.toggle("hidden", tab !== "rename");
   broadcastsTabPanel.classList.toggle("hidden", tab !== "broadcasts");
   welcomePopupTabPanel.classList.toggle("hidden", tab !== "welcomePopup");
@@ -854,7 +777,6 @@ function switchAdminTab(tab) {
   if (tab === "maintenance") loadMaintenanceForm();
   if (tab === "rename") renderRenameList();
   if (tab === "weeklyReset") loadWeeklyResetForm();
-  if (tab === "errorLogs") { loadErrorLogs(); startErrorLogRealtime(); }
   // close mobile sidebar
   document.querySelector('.sidebar').classList.remove('open');
   document.querySelector('.sidebar-overlay').classList.remove('active');
@@ -1000,6 +922,8 @@ async function refreshCollections() {
   allowDocs = as.docs.map(d => ({id:d.id,...d.data()})).sort((a,b)=>normalizeEmail(a.email).localeCompare(normalizeEmail(b.email)));
   userDocs = us.docs.map(d => ({uid:d.id,...d.data()})).sort((a,b)=>normalizeEmail(a.name||a.email).localeCompare(normalizeEmail(b.name||b.email)));
   updateStats(); renderDirectory(); renderRenameList();
+  const lf = document.getElementById("leaderboardFrame");
+  if (lf) lf.src = "leaderboard.html?t=" + Date.now();
 }
 
 function startRealtime() {
@@ -1352,205 +1276,9 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
   document.getElementById("confirmModalCancel").addEventListener("click", onCancel);
 });
 
-// ================= ERROR LOGS =================
-const errorLogTableBody = document.getElementById("errorLogTableBody");
-const errorLogSeverityFilter = document.getElementById("errorLogSeverityFilter");
-const errorLogResolvedFilter = document.getElementById("errorLogResolvedFilter");
-const errorLogSearchInput = document.getElementById("errorLogSearchInput");
-const errorLogPagination = document.getElementById("errorLogPagination");
-const errorCriticalCount = document.getElementById("errorCriticalCount");
-const errorHighCount = document.getElementById("errorHighCount");
-const errorMediumCount = document.getElementById("errorMediumCount");
-const errorLowCount = document.getElementById("errorLowCount");
-let errorLogsData = [];
-let errorLogPage = 1;
-const ERROR_LOG_PAGE_SIZE = 20;
-let _errorLogInterval = null;
-
-function _fmtTime(ts) {
-  if (!ts) return "";
-  const d = typeof ts === "number" ? new Date(ts) : (ts?.toDate ? ts.toDate() : new Date(ts));
-  if (isNaN(d.getTime())) return String(ts).substring(0, 16);
-  return d.toLocaleString("vi-VN");
-}
-
-function _sevBadge(s) {
-  const cls = s === "critical" ? "sev-critical" : s === "high" ? "sev-high" : s === "medium" ? "sev-medium" : "sev-low";
-  const label = s === "critical" ? "CRIT" : s === "high" ? "HIGH" : s === "medium" ? "MED" : "LOW";
-  return `<span class="sev-badge ${cls}">${label}</span>`;
-}
-
-function _updErrStats(logs) {
-  errorCriticalCount.textContent = logs.filter(l => l.severity === "critical").length;
-  errorHighCount.textContent = logs.filter(l => l.severity === "high").length;
-  errorMediumCount.textContent = logs.filter(l => l.severity === "medium").length;
-  errorLowCount.textContent = logs.filter(l => l.severity === "low" || !l.severity).length;
-}
-
-function renderErrorLogs() {
-  const kw = normalizeEmail(errorLogSearchInput.value);
-  const sv = errorLogSeverityFilter.value;
-  const rv = errorLogResolvedFilter.value;
-
-  let filtered = errorLogsData.filter(i => {
-    if (sv !== "all" && i.severity !== sv) return false;
-    if (rv === "unresolved" && i.resolved) return false;
-    if (rv === "resolved" && !i.resolved) return false;
-    if (kw) {
-      const h = [i.message, i.file, i.email, i.displayName].map(v => normalizeEmail(v)).join(" ");
-      if (!h.includes(kw)) return false;
-    }
-    return true;
-  });
-
-  filtered.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-  const total = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(total / ERROR_LOG_PAGE_SIZE));
-  if (errorLogPage > totalPages) errorLogPage = totalPages;
-  const start = (errorLogPage - 1) * ERROR_LOG_PAGE_SIZE;
-  const paged = filtered.slice(start, start + ERROR_LOG_PAGE_SIZE);
-
-  _updErrStats(filtered);
-
-  if (!paged.length) {
-    errorLogTableBody.innerHTML = `<tr><td colspan="7"><div class="empty">${total ? "Trang này trống." : "Chưa có error log nào."}</div></td></tr>`;
-    _renderErrPagination(total, totalPages);
-    return;
-  }
-
-  errorLogTableBody.innerHTML = paged.map(i => {
-    const msg = escapeHtml((i.message || "").substring(0, 200));
-    const file = escapeHtml(i.file || "unknown");
-    const line = i.line || 0;
-    const em = escapeHtml(i.email || "");
-    const dn = escapeHtml(i.displayName || "");
-    const sev = i.severity || "low";
-    const ts = i.timestamp || 0;
-    const resolved = Boolean(i.resolved);
-    const id = i._id || "";
-
-    return `<tr>
-      <td>${_sevBadge(sev)}</td>
-      <td><div class="error-file-cell" title="${file}">${file}</div></td>
-      <td><div class="error-message-cell">${msg}${i.stack ? `<br><button class="error-view-btn" onclick="showErrorStack('${escapeHtml(i.stack.replace(/'/g, "\\'"))}')">View stack</button>` : ""}</div></td>
-      <td style="font-family:monospace;font-size:12px;color:var(--text-3)">${line}</td>
-      <td style="font-size:12px"><div>${dn || "—"}</div><div style="color:var(--text-3);font-size:11px">${em || ""}</div></td>
-      <td style="font-size:11.5px;color:var(--text-3);white-space:nowrap">${_fmtTime(ts)}</td>
-      <td><button class="error-view-btn ${resolved ? 'resolved' : ''}" onclick="toggleErrorResolved('${escapeHtml(id)}', ${resolved})">${resolved ? "✅ Done" : "⏳ Pending"}</button></td>
-    </tr>`;
-  }).join("");
-
-  _renderErrPagination(total, totalPages);
-}
-
-function _renderErrPagination(total, totalPages) {
-  if (totalPages <= 1) {
-    errorLogPagination.innerHTML = `<div class="pagination-info">Tổng: ${total} lỗi</div>`;
-    return;
-  }
-  const from = (errorLogPage - 1) * ERROR_LOG_PAGE_SIZE + 1;
-  const to = Math.min(errorLogPage * ERROR_LOG_PAGE_SIZE, total);
-  let btns = `<button class="page-btn" onclick="errorLogGoPage(${errorLogPage-1})" ${errorLogPage===1?"disabled":""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>`;
-  for (let p = 1; p <= totalPages; p++) {
-    if (p === 1 || p === totalPages || (p >= errorLogPage - 1 && p <= errorLogPage + 1)) {
-      btns += `<button class="page-btn${p===errorLogPage?' active':''}" onclick="errorLogGoPage(${p})">${p}</button>`;
-    } else if (p === errorLogPage - 2 || p === errorLogPage + 2) {
-      btns += `<span class="page-ellipsis">...</span>`;
-    }
-  }
-  btns += `<button class="page-btn" onclick="errorLogGoPage(${errorLogPage+1})" ${errorLogPage===totalPages?"disabled":""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>`;
-  errorLogPagination.innerHTML = `<div class="pagination-info">${from}–${to} / ${total}</div><div class="pagination-controls">${btns}</div>`;
-}
-
-window.errorLogGoPage = function(p) { errorLogPage = p; renderErrorLogs(); };
-
-window.showErrorStack = function(stack) {
-  const popup = document.getElementById("errorStackPopup");
-  const pre = document.getElementById("errorStackContent");
-  if (popup && pre) {
-    pre.textContent = stack || "No stack trace";
-    popup.classList.add("active");
-  }
-};
-
-window.toggleErrorResolved = async function(id, cur) {
-  if (!id) return;
-  try {
-    const url = `https://firestore.googleapis.com/v1/projects/onthi12-thpttanhong/databases/(default)/documents/errorLogs/${id}?updateMask.fieldPaths=resolved&updateMask.fieldPaths=viewed`;
-    await fetch(url, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fields: { resolved: { booleanValue: !cur }, viewed: { booleanValue: true } } })
-    });
-    renderErrorLogs();
-  } catch(e) { console.error("Toggle error log failed", e); }
-};
-
-function loadErrorLogs() { errorLogPage = 1; fetchErrorLogs(); }
-
-async function fetchErrorLogs() {
-  try {
-    const url = `https://firestore.googleapis.com/v1/projects/onthi12-thpttanhong/databases/(default)/documents/errorLogs?orderBy=timestamp%20desc&pageSize=500`;
-    const res = await fetch(url);
-    const data = await res.json();
-    errorLogsData = (data.documents || []).map(d => {
-      const f = d.fields || {};
-      return {
-        _id: d.name ? d.name.split("/").pop() : "",
-        message: f.message?.stringValue || "",
-        severity: f.severity?.stringValue || "low",
-        file: f.file?.stringValue || "",
-        line: f.line?.integerValue || 0,
-        stack: f.stack?.stringValue || "",
-        url: f.url?.stringValue || "",
-        uid: f.uid?.stringValue || "",
-        email: f.email?.stringValue || "",
-        displayName: f.displayName?.stringValue || "",
-        timestamp: f.timestamp?.integerValue || 0,
-        resolved: f.resolved?.booleanValue || false
-      };
-    });
-    renderErrorLogs();
-  } catch(e) { console.error("Fetch error logs failed", e); }
-}
-
-function startErrorLogRealtime() {
-  if (_errorLogInterval) return;
-  _errorLogInterval = setInterval(fetchErrorLogs, 10000);
-}
-
-function stopErrorLogRealtime() {
-  if (_errorLogInterval) { clearInterval(_errorLogInterval); _errorLogInterval = null; }
-}
-
-async function clearAllErrorLogs() {
-  if (!confirm("Xóa tất cả error logs? Hành động này không thể hoàn tác.")) return;
-  try {
-    const url = `https://firestore.googleapis.com/v1/projects/onthi12-thpttanhong/databases/(default)/documents/errorLogs?pageSize=500`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const docs = data.documents || [];
-    for (const d of docs) {
-      const id = d.name.split("/").pop();
-      if (id) await fetch(`https://firestore.googleapis.com/v1/projects/onthi12-thpttanhong/databases/(default)/documents/errorLogs/${id}`, { method: "DELETE" });
-    }
-    errorLogsData = [];
-    renderErrorLogs();
-    showNotice(`Đã xóa ${docs.length} error logs.`, "success");
-  } catch(e) { console.error("Clear error logs failed", e); showNotice("Xóa thất bại.", "error"); }
-}
-
-document.getElementById("errorLogsRefreshBtn").addEventListener("click", loadErrorLogs);
-document.getElementById("errorLogsClearBtn").addEventListener("click", clearAllErrorLogs);
-errorLogSeverityFilter.addEventListener("change", () => { errorLogPage = 1; renderErrorLogs(); });
-errorLogResolvedFilter.addEventListener("change", () => { errorLogPage = 1; renderErrorLogs(); });
-errorLogSearchInput.addEventListener("input", () => { errorLogPage = 1; renderErrorLogs(); });
-
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     if (unsubscribeAllow) unsubscribeAllow(); if (unsubscribeUsers) unsubscribeUsers();
-    stopErrorLogRealtime();
     loginView.style.display="flex"; dashboardView.classList.add("hidden"); return;
   }
   const ok = await ensureAdmin(user); if (!ok) return;
