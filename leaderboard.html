@@ -335,15 +335,22 @@
     </div>
 
     <script type="module">
-        import { app, db, auth } from "./firebase-config.js";
-        import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+        import { initializeApp, getApps, getApp }
+          from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, getDoc }
+          from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-        await new Promise((resolve) => {
-            if(auth.currentUser){ resolve(); return; }
-            const unsub = onAuthStateChanged(auth, (u) => { unsub(); resolve(); });
-            setTimeout(() => { unsub(); resolve(); }, 3000);
-        });
+        const lbApp = getApps().find(a => a.name === "leaderboard-lb")
+          || initializeApp({
+            apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c",
+            authDomain: "onthi12-thpttanhong.firebaseapp.com",
+            projectId: "onthi12-thpttanhong",
+            storageBucket: "onthi12-thpttanhong.firebasestorage.app",
+            messagingSenderId: "109867981504",
+            appId: "1:109867981504:web:e116346b0efcfb140cd55f",
+            measurementId: "G-6EX7SBMF1K"
+          }, "leaderboard-lb");
+        const db = getFirestore(lbApp);
 
         function getWeekKey() {
             const now = new Date();
@@ -562,13 +569,8 @@
         }
 
         if (new URLSearchParams(location.search).get("compact") === "1") document.body.classList.add("compact");
-        if(!auth.currentUser){
-            document.getElementById("table-body").innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#94a3b8">Vui lòng đăng nhập để xem bảng xếp hạng.</td></tr>`;
-            document.getElementById("table-body-time").innerHTML = `<tr><td colspan="3" style="text-align:center; padding:40px; color:#94a3b8">Vui lòng đăng nhập để xem bảng xếp hạng.</td></tr>`;
-        } else {
-            load();
-            loadOnlineTime();
-        }
+        load();
+        loadOnlineTime();
     </script>
 </body>
 </html>
