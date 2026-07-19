@@ -339,8 +339,6 @@
           from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, getDoc }
           from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged }
-          from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
         const LB_NAME = "leaderboard-lb";
         const lbApp = getApps().find(a => a.name === LB_NAME)
@@ -354,14 +352,6 @@
             measurementId: "G-6EX7SBMF1K"
           }, LB_NAME);
         const db = getFirestore(lbApp);
-        const lbAuth = getAuth(lbApp);
-
-        await new Promise((resolve) => {
-            if(lbAuth.currentUser){ resolve(); return; }
-            const unsub = onAuthStateChanged(lbAuth, (u) => { if(u){ unsub(); resolve(); } });
-            signInAnonymously(lbAuth).catch(()=>{});
-            setTimeout(() => { unsub(); resolve(); }, 5000);
-        });
 
         function getWeekKey() {
             const now = new Date();
@@ -580,13 +570,8 @@
         }
 
         if (new URLSearchParams(location.search).get("compact") === "1") document.body.classList.add("compact");
-        if(!lbAuth.currentUser){
-            document.getElementById("table-body").innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#94a3b8">Vui lòng đăng nhập để xem bảng xếp hạng.</td></tr>`;
-            document.getElementById("table-body-time").innerHTML = `<tr><td colspan="3" style="text-align:center; padding:40px; color:#94a3b8">Vui lòng đăng nhập để xem bảng xếp hạng.</td></tr>`;
-        } else {
-            load();
-            loadOnlineTime();
-        }
+        load();
+        loadOnlineTime();
     </script>
 </body>
 </html>
