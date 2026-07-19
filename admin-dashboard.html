@@ -504,6 +504,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           Nạp whitelist
         </button>
+        <input type="file" id="whitelistFileInput" accept=".txt,.csv,.text" style="display:none">
         <button class="btn btn-primary" id="refreshBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
           Làm mới
@@ -710,15 +711,6 @@ const firebaseConfig = {
   appId: "1:922115936320:web:67b86c06af9149ff584fa5"
 };
 
-const defaultAllowList = [
-  "quanhao678@gmail.com","huunhan170908@gmail.com","thanhcong0976888@gmail.com",
-  "duchieu0383377967@gmail.com","tanphat131008@gmail.com","lebaonguyen3003@gmail.com",
-  "lamhuynhanh456@gmail.com","nguyenquyenthdt2021@gmail.com","baonhiho.n2008@gmail.com",
-  "baotran150308@gmail.com","leducanh2022jojo@gmail.com","quynhnhu07052020@gmail.com",
-  "nguyenthimynhan202011@gmail.com","kienquoc2021dt@gmail.com","pnpthuy.2811@gmail.com",
-  "bangbang4951@gmail.com","xmai9839@gmail.com","learnhubadmin@gmail.com"
-];
-
 const adminEmail = "learnhubadmin@gmail.com";
 
 const app = initializeApp(firebaseConfig, "learnhub-admin-dashboard");
@@ -830,11 +822,24 @@ function escapeHtml(t) {
   return String(t || "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
 }
 
-async function seedDefaultAllowList() {
+async function importWhitelistFromFile(file) {
+  const text = await file.text();
+  const emails = [...new Set(
+    text.split(/[\n,;]+/)
+      .map(e => normalizeEmail(e))
+      .filter(e => e && e.includes("@") && e.includes("."))
+  )];
+  if (!emails.length) { showNotice("File không có email hợp lệ.", "error"); return; }
   const snap = await getDocs(collection(db, "accessList"));
-  if (!snap.empty) { showNotice("Whitelist Firestore đã có dữ liệu rồi.", "info"); return; }
-  await Promise.all(defaultAllowList.map(e => setDoc(doc(db, "accessList", emailDocId(e)), { email: normalizeEmail(e), enabled: true, addedAt: new Date().toISOString(), source: "default-seed" }, { merge: true })));
-  showNotice("Đã nạp whitelist mặc định lên Firestore.", "success");
+  const existing = new Set(snap.docs.map(d => normalizeEmail(d.data().email)));
+  const newEmails = emails.filter(e => !existing.has(e));
+  if (!newEmails.length) { showNotice(`Tất cả ${emails.length} email đã có trong whitelist.`, "info"); return; }
+  let added = 0;
+  for (const e of newEmails) {
+    await setDoc(doc(db, "accessList", emailDocId(e)), { email: e, enabled: true, addedAt: new Date().toISOString(), source: "file-import" }, { merge: true });
+    added++;
+  }
+  showNotice(`Đã nạp ${added} email mới từ file (bỏ qua ${emails.length - added} email đã tồn tại).`, "success");
 }
 
 function updateStats() {
@@ -979,7 +984,13 @@ document.getElementById("adminLoginBtn").addEventListener("click", async () => {
 });
 
 document.getElementById("logoutBtn").addEventListener("click", async () => { await signOut(auth); });
-document.getElementById("seedBtn").addEventListener("click", seedDefaultAllowList);
+document.getElementById("seedBtn").addEventListener("click", () => document.getElementById("whitelistFileInput").click());
+document.getElementById("whitelistFileInput").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  await importWhitelistFromFile(file);
+  e.target.value = "";
+});
 document.getElementById("refreshBtn").addEventListener("click", refreshCollections);
 
 document.getElementById("sendBroadcastBtn").addEventListener("click", async () => {
