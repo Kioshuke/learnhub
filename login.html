@@ -422,7 +422,6 @@ window.emailLogin = async function() {
   if (maintenanceState.enabled) { window.location.replace('maintenance.html'); return; }
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
-  await loadAllowList();
   if (!email || !password) {
     showAuthNotice("Vui lòng nhập email và mật khẩu", "error", "Thiếu thông tin");
     return;
@@ -431,6 +430,7 @@ window.emailLogin = async function() {
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);
     const user = result.user;
+    await loadAllowList();
     if (!isAllowedEmail(user.email)) {
       showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập", 4500);
       await signOut(auth);
