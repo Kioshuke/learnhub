@@ -480,27 +480,25 @@
         // ===== LOAD ONLINE TIME RANKING =====
         async function loadOnlineTime() {
             try {
-                const snap = await getDocs(collection(db, "testStats"));
+                const snap = await getDocs(collection(db, "users"));
                 const rows = [];
                 const now = Date.now();
                 const THRESHOLD = 45000;
                 for (const d of snap.docs) {
-                    try {
-                        const u = await getDoc(doc(db, "users", d.id));
-                        const ud = u.exists() ? u.data() : {};
-                        const baseTimer = Number(ud.onlinetimer || 0);
-                        let effectiveTimer = baseTimer;
-                        if (ud.online && ud.lastActive && (now - ud.lastActive) < THRESHOLD && ud.onlineStartTime > 0) {
-                            effectiveTimer += Math.floor((now - ud.onlineStartTime) / 1000);
-                        }
-                        if (effectiveTimer <= 0) continue;
-                        rows.push({
-                            uid: d.id,
-                            name: ud.name || ud.email || "Ẩn danh",
-                            photo: ud.photo || "",
-                            timer: effectiveTimer
-                        });
-                    } catch(e) {}
+                    const ud = d.data();
+                    if (ud.disabled) continue;
+                    const baseTimer = Number(ud.onlinetimer || 0);
+                    let effectiveTimer = baseTimer;
+                    if (ud.online && ud.lastActive && (now - ud.lastActive) < THRESHOLD && ud.onlineStartTime > 0) {
+                        effectiveTimer += Math.floor((now - ud.onlineStartTime) / 1000);
+                    }
+                    if (effectiveTimer <= 0) continue;
+                    rows.push({
+                        uid: d.id,
+                        name: ud.name || ud.email || "Ẩn danh",
+                        photo: ud.photo || "",
+                        timer: effectiveTimer
+                    });
                 }
                 rows.sort((a, b) => b.timer - a.timer);
 
