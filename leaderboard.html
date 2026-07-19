@@ -337,19 +337,12 @@
     <script type="module">
         import { app, db, auth } from "./firebase-config.js";
         import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-        import { signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
-        const isInIframe = window.self !== window.top;
         await new Promise((resolve) => {
             if(auth.currentUser){ resolve(); return; }
-            if(isInIframe){
-                const unsub = onAuthStateChanged(auth, () => { unsub(); resolve(); });
-                setTimeout(() => { unsub(); resolve(); }, 3000);
-                return;
-            }
-            const unsub = onAuthStateChanged(auth, (u) => { if(u){ unsub(); resolve(); } });
-            signInAnonymously(auth).catch(()=>{});
-            setTimeout(() => { unsub(); resolve(); }, 5000);
+            const unsub = onAuthStateChanged(auth, (u) => { unsub(); resolve(); });
+            setTimeout(() => { unsub(); resolve(); }, 3000);
         });
 
         function getWeekKey() {
