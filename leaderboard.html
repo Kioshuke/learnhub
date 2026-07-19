@@ -339,8 +339,14 @@
         import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
         import { signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
+        const isInIframe = window.self !== window.top;
         await new Promise((resolve) => {
             if(auth.currentUser){ resolve(); return; }
+            if(isInIframe){
+                const unsub = onAuthStateChanged(auth, () => { unsub(); resolve(); });
+                setTimeout(() => { unsub(); resolve(); }, 3000);
+                return;
+            }
             const unsub = onAuthStateChanged(auth, (u) => { if(u){ unsub(); resolve(); } });
             signInAnonymously(auth).catch(()=>{});
             setTimeout(() => { unsub(); resolve(); }, 5000);
@@ -475,17 +481,23 @@
             try {
                 const snap = await getDocs(collection(db, "testStats"));
                 const rows = [];
+                const now = Date.now();
+                const THRESHOLD = 45000;
                 for (const d of snap.docs) {
                     try {
                         const u = await getDoc(doc(db, "users", d.id));
                         const ud = u.exists() ? u.data() : {};
-                        const timer = Number(ud.onlinetimer || 0);
-                        if (timer <= 0) continue;
+                        const baseTimer = Number(ud.onlinetimer || 0);
+                        let effectiveTimer = baseTimer;
+                        if (ud.online && ud.lastActive && (now - ud.lastActive) < THRESHOLD && ud.onlineStartTime > 0) {
+                            effectiveTimer += Math.floor((now - ud.onlineStartTime) / 1000);
+                        }
+                        if (effectiveTimer <= 0) continue;
                         rows.push({
                             uid: d.id,
                             name: ud.name || ud.email || "Ẩn danh",
                             photo: ud.photo || "",
-                            timer: timer
+                            timer: effectiveTimer
                         });
                     } catch(e) {}
                 }

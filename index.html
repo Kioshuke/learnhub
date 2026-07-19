@@ -728,6 +728,7 @@ if (user) {
   if(isOnline){
     return setDoc(doc(db, "users", user.uid), { 
       online: true,
+      lastActive: Date.now(),
       lastSeen: new Date().toISOString(),
       onlineStartTime: Date.now()
     }, { merge: true });
@@ -754,9 +755,21 @@ if (user) {
 
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") {
+    if(activeInterval){ clearInterval(activeInterval); activeInterval = null; }
     updateStatus(false);
   } else {
     updateStatus(true);
+    if(!activeInterval){
+      activeInterval = setInterval(()=>{
+        const u = auth.currentUser;
+        if(u){
+          setDoc(doc(db,"users",u.uid),{
+            lastActive: Date.now(),
+            online: true
+          },{ merge:true });
+        }
+      }, 5000);
+    }
   }
 });
 

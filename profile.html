@@ -494,9 +494,21 @@
         // Theo dõi visibility change để cập nhật online status
         document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "hidden") {
+                if(activeInterval){ clearInterval(activeInterval); activeInterval = null; }
                 updateOnlineStatus(false);
             } else {
                 updateOnlineStatus(true);
+                if(!activeInterval){
+                    activeInterval = setInterval(() => {
+                        const u = auth.currentUser;
+                        if (u) {
+                            setDoc(doc(db, "users", u.uid), {
+                                lastActive: Date.now(),
+                                online: true
+                            }, { merge: true });
+                        }
+                    }, 5000);
+                }
             }
         });
 
