@@ -620,8 +620,10 @@ window.sendOTP = async function() {
   otpExpiry = Date.now() + OTP_EXPIRE_MS;
 
   try {
+    const expireTime = new Date(otpExpiry).toLocaleTimeString("vi-VN", {hour:"2-digit",minute:"2-digit"});
     await emailjs.send("service_7ku42kd", "template_m4uscl8", {
-      code: otpGenerated,
+      passcode: otpGenerated,
+      time: expireTime,
       email: email
     });
     document.getElementById("otpSection").style.display = "block";
@@ -646,8 +648,10 @@ window.resendOTP = async function() {
   otpExpiry = Date.now() + OTP_EXPIRE_MS;
 
   try {
+    const expireTime = new Date(otpExpiry).toLocaleTimeString("vi-VN", {hour:"2-digit",minute:"2-digit"});
     await emailjs.send("service_7ku42kd", "template_m4uscl8", {
-      code: otpGenerated,
+      passcode: otpGenerated,
+      time: expireTime,
       email: email
     });
     startOTPCountdown();
