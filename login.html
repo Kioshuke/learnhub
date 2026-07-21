@@ -465,7 +465,7 @@ try {
   }
 } catch(e) { console.error("Maintenance check error:", e); }
 
-// Lắng nghe realtime: bật → redirect maintenance.html, tắt → redirect index.html
+// Lắng nghe realtime: bật → redirect maintenance.html, tắt → redirect login.html
 try {
   onSnapshot(doc(db, "settings", "maintenance"), (snap) => {
     const data = snap.exists() ? (snap.data() || {}) : {};
@@ -474,7 +474,10 @@ try {
     if (maintenanceState.enabled && !wasEnabled) {
       window.location.replace('maintenance.html');
     } else if (!maintenanceState.enabled && wasEnabled) {
-      window.location.replace('login.html');
+      // Chỉ redirect về login nếu không phải đang ở login.html
+      if (!location.pathname.endsWith('/login.html') && !location.pathname.endsWith('login.html')) {
+        window.location.replace('login.html');
+      }
     }
   });
 } catch(e) { console.error("Maintenance listener error:", e); }
