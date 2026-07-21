@@ -119,20 +119,68 @@
   }
 
   .auth-otp-btn{
-    width:100%;
-    padding:11px;
-    margin-top:8px;
-    border:2px dashed #2563eb;
+    width:auto;
+    padding:11px 18px;
+    margin-top:0;
+    border:2px solid #2563eb;
     border-radius:12px;
     background:#eff6ff;
     color:#2563eb;
     font-weight:700;
-    font-size:14px;
+    font-size:13px;
     cursor:pointer;
     transition:all .2s ease;
+    white-space:nowrap;
+    align-self:stretch;
   }
   .auth-otp-btn:hover{background:#dbeafe;border-color:#1d4ed8}
   .auth-otp-btn:disabled{opacity:.5;cursor:not-allowed;border-style:solid;color:#94a3b8;background:#f1f5f9}
+
+  .auth-email-row{
+    display:flex;
+    gap:8px;
+    align-items:stretch;
+    margin-bottom:12px;
+  }
+  .auth-email-row .auth-input-group{
+    flex:1;
+    min-width:0;
+    margin-bottom:0!important;
+  }
+
+  .auth-otp-row{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    margin-bottom:12px;
+  }
+  .auth-otp-row input{
+    flex:0 1 160px;
+    min-width:0;
+    padding:11px 14px;
+    border-radius:12px;
+    border:1.5px solid #e2e8f0;
+    font-size:13px;
+    font-family:inherit;
+    letter-spacing:2px;
+    text-align:center;
+    outline:none;
+    transition:border-color .25s,box-shadow .25s;
+  }
+  .auth-otp-row input:focus{
+    border-color:#2563eb;
+    box-shadow:0 0 0 3px rgba(37,99,235,0.1);
+  }
+  .otp-timer-label{
+    font-size:12px;
+    font-family:inherit;
+    color:#94a3b8;
+    white-space:nowrap;
+  }
+  .otp-timer-label b{
+    font-weight:700;
+    color:#64748b;
+  }
 
   .auth-otp-resend{
     background:none;
@@ -311,29 +359,25 @@
         <label>Tên hiển thị <span class="req-star">*</span></label>
       </div>
 
-      <div class="auth-input-group">
-        <input type="email" id="registerEmail" required>
-        <label>Email <span class="req-star">*</span></label>
+      <div class="auth-email-row">
+        <div class="auth-input-group">
+          <input type="email" id="registerEmail" required>
+          <label>Email <span class="req-star">*</span></label>
+        </div>
+        <button type="button" class="auth-otp-btn" id="sendOtpBtn" onclick="sendOTP()">Nhận mã</button>
       </div>
 
-      <!-- Ô mật khẩu đã đưa lên trên nút Nhận mã -->
+      <div id="otpSection" style="display:none">
+        <div class="auth-otp-row">
+          <input type="text" id="otpCode" maxlength="6" inputmode="numeric" placeholder="Mã 6 chữ số" required>
+          <span class="otp-timer-label">Hiệu lực mã <b id="otpCountdown">15:00</b></span>
+          <button type="button" id="otpResendBtn" onclick="resendOTP()" disabled class="auth-otp-resend">Gửi lại</button>
+        </div>
+      </div>
+
       <div class="auth-input-group">
         <input type="password" id="registerPassword" required>
         <label>Mật khẩu <span class="req-star">*</span></label>
-      </div>
-
-      <!-- Nút nhận mã dính liền ngay dưới ô mật khẩu -->
-      <button type="button" class="auth-otp-btn" id="sendOtpBtn" onclick="sendOTP()" style="margin-top: -4px; margin-bottom: 12px;">Nhận mã</button>
-
-      <div id="otpSection" style="display:none;margin-top:10px">
-        <div class="auth-input-group">
-          <input type="text" id="otpCode" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" required>
-          <label>Mã xác nhận (6 chữ số) <span class="req-star">*</span></label>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;margin-bottom:12px">
-          <span id="otpExpireText" style="font-size:12px;color:#94a3b8">Mã hết hạn sau <b id="otpCountdown">5:00</b></span>
-          <button type="button" id="otpResendBtn" onclick="resendOTP()" disabled class="auth-otp-resend">Gửi lại mã</button>
-        </div>
       </div>
 
       <div class="auth-input-group">
@@ -344,7 +388,7 @@
       <!-- Ô Ảnh đại diện đồng bộ hiệu ứng floating label -->
       <div class="auth-input-group">
         <input type="url" id="registerPhoto" placeholder=" ">
-        <label>Ảnh đại diện (tuỳ chọn)</label>
+        <label>Link ảnh đại diện (tuỳ chọn)</label>
       </div>
 
       <button type="submit" class="auth-submit">Đăng ký</button>
@@ -523,7 +567,7 @@ let otpGenerated = "";
 let otpExpiry = 0;
 let otpCountdownInterval = null;
 let otpResendCooldown = null;
-const OTP_EXPIRE_MS = 5 * 60 * 1000;
+const OTP_EXPIRE_MS = 15 * 60 * 1000;
 
 function generateOTP() {
   return String(Math.floor(100000 + Math.random() * 900000));
@@ -629,7 +673,7 @@ function resetOTPState() {
   if (otpSection) otpSection.style.display = "none";
   if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = "Nhận mã"; }
   if (resendBtn) { resendBtn.disabled = false; resendBtn.textContent = "Gửi lại mã"; }
-  if (countdownEl) countdownEl.textContent = "5:00";
+  if (countdownEl) countdownEl.textContent = "15:00";
   const otpInput = document.getElementById("otpCode");
   if (otpInput) otpInput.value = "";
 }

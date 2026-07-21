@@ -769,7 +769,7 @@ function startDefenderGame() {
 
     // Tắt nhạc các trò khác, bật nhạc Defender
     Object.values(bgm).forEach(s => { s.pause(); s.currentTime = 0; });
-    if (settings.bgmEnabled && bgm.defender) bgm.defender.play().catch(() => {});
+    if (settings.bgmEnabled) playBGM("defender");
 
     // RESET TIẾN ĐỘ RIÊNG CHO TRÒ 4
     gameProgress.defender = 0;
@@ -943,7 +943,7 @@ function resumeGame() {
     isPaused = false;
     const pauseOverlay = document.getElementById("pause-overlay");
     if (pauseOverlay) pauseOverlay.style.display = "none";
-    if (settings.bgmEnabled && bgm.defender) bgm.defender.play().catch(() => {});
+    if (settings.bgmEnabled) playBGM("defender");
     if (currentMode === "defender" && defenderHP > 0 && gameProgress.defender < total && !currentMonsterNode) {
         spawnMonster();
     }
