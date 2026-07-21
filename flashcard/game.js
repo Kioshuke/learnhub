@@ -84,22 +84,28 @@ let shuffledCards = [];
 
 function playBGM(mode) {
     if (!settings.bgmEnabled) return;
-    // tắt hết nhạc trước
     Object.values(bgm).forEach(s => {
         s.pause();
         s.currentTime = 0;
     });
 
-    // bật đúng nhạc của mode
     const current = bgm[mode];
     if (current) {
         current.currentTime = 0;
         current.play().catch(()=>{
-            // Nếu bị chặn autoplay, thử lại sau 500ms
-            setTimeout(() => {
-                if (settings.bgmEnabled && !current.paused) return;
-                current.play().catch(()=>{});
-            }, 500);
+            // Retry nhiều lần vì file lớn (14MB) có thể chưa load xong
+            let retries = 0;
+            const maxRetries = 5;
+            const tryPlay = () => {
+                retries++;
+                if (retries > maxRetries) return;
+                if (!settings.bgmEnabled) return;
+                if (!current.paused) return;
+                current.play().catch(()=>{
+                    setTimeout(tryPlay, retries === 1 ? 500 : 1000);
+                });
+            };
+            setTimeout(tryPlay, 500);
         });
     }
 }
@@ -753,6 +759,7 @@ function startConfetti() {
 function initDefender() {
     stopAllSounds();
     setGlobalProgressVisible(false);
+    if (bgm.defender) { bgm.defender.preload = "auto"; bgm.defender.load(); }
     const startScreen = document.getElementById("defender-start-screen");
     const battle = document.getElementById("battle-container");
     if (startScreen) startScreen.style.display = "flex";
@@ -767,8 +774,7 @@ function startDefenderGame() {
     if (startScreen) startScreen.style.display = "none";
     if (battle) battle.style.display = "block";
 
-    // Tắt nhạc các trò khác, bật nhạc Defender
-    Object.values(bgm).forEach(s => { s.pause(); s.currentTime = 0; });
+    // Bật nhạc Defender (playBGM tự pause nhạc cũ)
     if (settings.bgmEnabled) playBGM("defender");
 
     // RESET TIẾN ĐỘ RIÊNG CHO TRÒ 4

@@ -711,7 +711,11 @@ if(user){
   applyUserToUI(userData);
 
 } else {
-  window.location.href = 'login.html';
+  if (maintenanceState.initialized && maintenanceState.enabled) {
+    window.location.replace('maintenance.html');
+  } else {
+    window.location.href = 'login.html';
+  }
 }
 });
 // chỉ giữ login trong tab hiện tại
