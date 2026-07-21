@@ -1201,7 +1201,17 @@ border:none;
 }
 
 #loginBox .auth-left{
-width:42%;
+width:50%;
+min-width:0;
+background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%);
+padding:60px;
+display:flex;
+flex-direction:column;
+justify-content:center;
+}
+
+#loginBox .auth-right-form{
+width:50%;
 min-width:0;
 background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%);
 padding:60px;
@@ -1405,7 +1415,7 @@ color:#94a3b8;
 }
 
 #loginBox .auth-right{
-width:58%;
+width:50%;
 position:relative;
 overflow:hidden;
 background:#0f172a;

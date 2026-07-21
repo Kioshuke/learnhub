@@ -8,7 +8,6 @@ const soundclick = new Audio("https://www.myinstants.com/media/sounds/clicksound
 const soundGame2 = new Audio("bgm_match.mp3");     // Match
 const soundGame3 = new Audio("bgm_blast.mp3");     // Blast
 const soundGame4 = new Audio("bgm_defender.mp3");  // Defender
-const soundGame1 = new Audio("bgm_flashcard.mp3"); // Flashcard
 let SFX_VOLUME = 0.5;
 let BGM_VOLUME = 1.0;
 let audioUnlocked = false;
@@ -50,7 +49,6 @@ window.reloadGameSettings = reloadGameSettings;
 window.applyBGMSetting = applyBGMSetting;
 
 const bgm = {
-    flashcard: soundGame1,
     match: soundGame2,
     blast: soundGame3,
     defender: soundGame4
@@ -96,29 +94,54 @@ function playBGM(mode) {
     const current = bgm[mode];
     if (current) {
         current.currentTime = 0;
-        current.play().catch(()=>{});
+        current.play().catch(()=>{
+            // Nếu bị chặn autoplay, thử lại sau 500ms
+            setTimeout(() => {
+                if (settings.bgmEnabled && !current.paused) return;
+                current.play().catch(()=>{});
+            }, 500);
+        });
     }
 }
-document.addEventListener("click", () => {
-    if (!audioUnlocked) {
-        allSounds.forEach(a => {
-            a.volume = 0;
-            a.play().then(() => {
-                a.pause();
-                a.currentTime = 0;
 
-                // 🔥 FIX QUAN TRỌNG: trả lại volume
-                if (Object.values(bgm).includes(a)) {
-                    a.volume = BGM_VOLUME; // nhạc nền
-                } else {
-                    a.volume = SFX_VOLUME; // hiệu ứng
-                }
+function unlockAudio() {
+    if (audioUnlocked) return;
+    let unlocked = false;
 
-            }).catch(() => {});
-        });
+    // Thử unlock bằng 1 file BGM trước (quan trọng nhất)
+    const tryBgm = Object.values(bgm).map(a => {
+        a.volume = 0.01;
+        return a.play().then(() => {
+            a.pause();
+            a.currentTime = 0;
+            a.volume = BGM_VOLUME;
+            unlocked = true;
+        }).catch(() => {});
+    });
+
+    // Thử unlock bằng SFX
+    const trySfx = [soundCorrect, soundWrong, soundHappy, soundclick].map(a => {
+        a.volume = 0.01;
+        return a.play().then(() => {
+            a.pause();
+            a.currentTime = 0;
+            a.volume = SFX_VOLUME;
+            unlocked = true;
+        }).catch(() => {});
+    });
+
+    // Đợi tất cả xong, nếu 1 trong số đó thành công thì unlock
+    Promise.allSettled([...tryBgm, ...trySfx]).then(() => {
         audioUnlocked = true;
-    }
-});
+        // Sau khi unlock thành công, play lại BGM cho mode hiện tại
+        if (unlocked && settings.bgmEnabled && currentMode) {
+            playBGM(currentMode);
+        }
+    });
+}
+
+document.addEventListener("click", unlockAudio);
+document.addEventListener("touchstart", unlockAudio);
 function stopAllSounds() {
     Object.values(bgm).forEach(s => {
         s.pause();
@@ -305,7 +328,7 @@ function markFlashcardViewed(index) {
 }
 
 function initFlashcard() {
-    playBGM("flashcard");
+    stopAllSounds();
     current = 0;
     viewedFlashcards = new Set();
     markFlashcardViewed(current);
@@ -489,7 +512,7 @@ function selectMatch(card, el) {
 ////////////////////////////////////////////////////////////////////////////////
 // 🔴 BLAST - PHIÊN BẢN SMOOTH & ANTI-LAG (DÀNH CHO ĐIỆN THOẠI)
 ////////////////////////////////////////////////////////////////////////////////
-let blastPool = [], blastIndex = 0, streak = 0, currentQuestion = null;
+let blastPool = [], blastIndex = 0, streak = 0, currentQuestion = null, hardcoreMode = false;
 
 function initBlast() {
     stopAllSounds();
@@ -509,6 +532,9 @@ function startBlastGame() {
     const content = document.getElementById("blast-content");
     if (startScreen) startScreen.style.display = "none";
     if (content) content.style.display = "block";
+
+    const hcToggle = document.getElementById("hardcore-toggle");
+    hardcoreMode = hcToggle ? hcToggle.checked : false;
 
     gameProgress.blast = 0;
     updateProgress();
@@ -598,10 +624,24 @@ function answerBlast(choice, btn) {
             setTimeout(() => scoreEl.classList.remove("streak-reset"), 320);
         }
         
-        setTimeout(() => {
-            btn.classList.remove("wrong");
-            btn.style.animation = "";
-        }, 300);
+        if (hardcoreMode) {
+            buttons.forEach(b => b.disabled = true);
+            setTimeout(() => {
+                btn.classList.remove("wrong");
+                btn.style.animation = "";
+                const dataSource = (typeof activeCards !== 'undefined' && activeCards.length > 0) ? activeCards : cards;
+                blastPool = shuffle([...dataSource]);
+                blastIndex = 0;
+                gameProgress.blast = 0;
+                updateProgress();
+                nextQuestion();
+            }, 600);
+        } else {
+            setTimeout(() => {
+                btn.classList.remove("wrong");
+                btn.style.animation = "";
+            }, 300);
+        }
         return;
     }
 

@@ -15,27 +15,186 @@
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>emailjs.init("Opbj2MlP6Dvp9ZsG5");</script>
+
+<style>
+  /* --- LAYOUT OVERLAY SLIDING CỐ ĐỊNH 2 FORM --- */
+  .auth-shell {
+    position: relative;
+    display: flex;
+    width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  /* 2 Form nằm cố định 2 bên (Trái: Login 50% | Phải: Register 50%) */
+  .auth-left, .auth-right-form {
+    flex-shrink: 0 !important;
+    box-sizing: border-box;
+    transition: opacity 0.5s ease, filter 0.5s ease;
+  }
+
+  /* Khi bị che -> Tự làm mờ và chặn tương tác chuột */
+  .form-disabled {
+    pointer-events: none !important;
+    user-select: none !important;
+    opacity: 0.3 !important;
+    filter: blur(2px);
+  }
+
+  /* Màn che Slideshow (Overlay Panel) nằm tuyệt đối đè lên các form */
+  .auth-overlay-panel {
+    position: absolute;
+    top: 0;
+    left: 50%; /* Trạng thái mặc định: Che bên phải (Form Đăng ký - 50%) */
+    width: 50%;
+    height: 100%;
+    z-index: 20;
+    transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+    will-change: transform;
+    overflow: hidden;
+  }
+
+  /* Khi chuyển sang TAB ĐĂNG KÝ: Màn che Slider trượt sang TRÁI che Form Đăng nhập */
+  .auth-shell.active-register .auth-overlay-panel {
+    transform: translateX(-100%);
+  }
+
+  .auth-right {
+    width: 100% !important;
+    height: 100% !important;
+    clip-path: none !important;
+  }
+
+  /* ===== ENTRANCE ANIMATION (Desktop) ===== */
+  @keyframes authFadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (min-width: 901px) {
+    .auth-anim-item {
+      opacity: 0;
+      animation: authFadeUp 0.45s ease forwards;
+    }
+    .auth-anim-item:nth-child(1) { animation-delay: 0.05s; }
+    .auth-anim-item:nth-child(2) { animation-delay: 0.12s; }
+    .auth-anim-item:nth-child(3) { animation-delay: 0.19s; }
+    .auth-anim-item:nth-child(4) { animation-delay: 0.26s; }
+    .auth-anim-item:nth-child(5) { animation-delay: 0.33s; }
+    .auth-anim-item:nth-child(6) { animation-delay: 0.40s; }
+  }
+
+  /* ===== MOBILE (≤900px) ===== */
+  @media (max-width: 900px) {
+    .auth-shell {
+      flex-direction: column !important;
+      overflow-y: auto !important;
+    }
+    .auth-left, .auth-right-form {
+      width: 100% !important;
+      min-height: auto !important;
+      padding: 24px 20px !important;
+    }
+    .auth-overlay-panel {
+      display: none !important;
+    }
+    .form-disabled {
+      display: none !important;
+    }
+    .auth-right-form.form-disabled {
+      display: none !important;
+    }
+    #loginBox .auth-brand {
+      margin-bottom: 12px !important;
+    }
+    #loginBox .auth-brand img {
+      width: 40px !important;
+      height: 40px !important;
+    }
+    #loginBox .auth-brand span {
+      font-size: 17px !important;
+    }
+  }
+
+  .auth-otp-btn{
+    width:100%;
+    padding:11px;
+    margin-top:8px;
+    border:2px dashed #2563eb;
+    border-radius:12px;
+    background:#eff6ff;
+    color:#2563eb;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    transition:all .2s ease;
+  }
+  .auth-otp-btn:hover{background:#dbeafe;border-color:#1d4ed8}
+  .auth-otp-btn:disabled{opacity:.5;cursor:not-allowed;border-style:solid;color:#94a3b8;background:#f1f5f9}
+
+  .auth-otp-resend{
+    background:none;
+    border:none;
+    color:#2563eb;
+    font-weight:600;
+    font-size:13px;
+    cursor:pointer;
+    padding:4px 8px;
+    border-radius:8px;
+    transition:background .2s;
+  }
+  .auth-otp-resend:hover:not(:disabled){background:#eff6ff}
+  .auth-otp-resend:disabled{color:#cbd5e1;cursor:not-allowed}
+
+  .req-star{color:#ef4444;margin-left:2px;font-weight:700}
+
+  /* Label tĩnh — không float */
+  .auth-static-group label{
+    position:relative!important;
+    top:auto!important;
+    transform:none!important;
+    font-size:13px!important;
+    color:#64748b!important;
+    background:none!important;
+    padding:0!important;
+    margin-bottom:6px;
+    display:block;
+    pointer-events:auto;
+  }
+
+  /* Register form: spacing chặt hơn */
+  #authRegisterPanel .auth-input-group{
+    margin-bottom:12px;
+  }
+
+  /* Ảnh đại diện: optional nhưng hiệu ứng float y hệt required */
+  #loginBox .auth-input-group #registerPhoto:valid + label{
+    top:50%!important;font-size:14px!important;color:#94a3b8!important;
+    background:transparent!important;padding:0 6px!important;border-radius:0!important;
+    transform:translateY(-50%)!important;
+  }
+  #loginBox .auth-input-group #registerPhoto:not(:placeholder-shown) + label,
+  #loginBox .auth-input-group #registerPhoto:focus + label{
+    top:-8px!important;font-size:12px!important;color:#2563eb!important;
+    background:#fff!important;padding:0 4px!important;border-radius:4px!important;
+    transform:none!important;
+  }
+</style>
 </head>
 <body>
 
 <audio id="thongbaoSound" src="sound/thongbao.mp3" preload="none"></audio>
 
 <div id="loginBox">
-<div class="auth-shell">
-  <div class="auth-left">
-    <div class="auth-brand">
-      <img src="pictures/newlogo.png" alt="Logo LearnHub" loading="lazy" width="55" height="55">
-      <span>LearnHub Platform - With Hubie AI</span>
-    </div>
+<div class="auth-shell" id="authShell">
 
-    <div class="auth-tabs">
-      <div class="auth-tab active" data-auth-tab="login" onclick="switchAuthTab('login')">Đăng nhập</div>
-      <div class="auth-tab" data-auth-tab="register" onclick="switchAuthTab('register')">Đăng ký</div>
-    </div>
-
-    <div class="auth-title">Chào mừng trở lại!</div>
+  <!-- FORM BÊN TRÁI: ĐĂNG NHẬP (CỐ ĐỊNH) -->
+  <div class="auth-left" id="loginFormContainer">
+    <!-- Mobile Slideshow -->
     <div class="auth-mobile-showcase">
-      <div class="auth-mobile-slide">
+      <div class="auth-mobile-slide active">
         <div class="auth-mobile-blur" style="background-image:url('pictures/loading1.jpg')"></div>
         <div class="auth-mobile-main" style="background-image:url('pictures/loading1.jpg')"></div>
       </div>
@@ -52,11 +211,25 @@
         <div class="auth-mobile-main" style="background-image:url('pictures/loading4.jpg')"></div>
       </div>
       <div class="auth-mobile-caption">
-        <strong id="authMobileTitle">LearnHub trên di động</strong>
-        <span id="authMobileDesc">Ôn thi nhanh, gọn và dễ dùng ngay trên điện thoại</span>
+        <strong>LearnHub – Nâng cấp cách bạn học</strong>
+        <span>Ôn thi nhanh • Giao diện hiện đại • Tối ưu trải nghiệm</span>
       </div>
     </div>
-    <div id="authLoginPanel" class="auth-panel">
+    <!-- End Mobile Slideshow -->
+
+    <div class="auth-brand auth-anim-item">
+      <img src="pictures/newlogo.png" alt="Logo LearnHub" loading="lazy" width="55" height="55">
+      <span>LearnHub Platform - With Hubie AI</span>
+    </div>
+
+    <div class="auth-tabs auth-anim-item">
+      <div class="auth-tab active" data-auth-tab="login" onclick="switchAuthTab('login')">Đăng nhập</div>
+      <div class="auth-tab" data-auth-tab="register" onclick="switchAuthTab('register')">Đăng ký</div>
+    </div>
+
+    <div class="auth-title auth-anim-item">Chào mừng trở lại!</div>
+
+    <div id="authLoginPanel" class="auth-panel auth-anim-item">
       <button class="auth-login-btn" onclick="googleLogin()">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" height="18" loading="lazy">
         <span>Tiếp tục với Google</span>
@@ -77,38 +250,101 @@
       <form onsubmit="event.preventDefault();emailLogin()">
       <div class="auth-input-group">
         <input type="email" id="loginEmail" required>
-        <label>Email</label>
+        <label>Email <span class="req-star">*</span></label>
       </div>
 
       <div class="auth-input-group">
         <input type="password" id="loginPassword" required>
-        <label>Mật khẩu</label>
+        <label>Mật khẩu <span class="req-star">*</span></label>
       </div>
 
       <button type="submit" class="auth-submit">Đăng nhập</button>
       </form>
     </div>
 
-    <div id="authRegisterPanel" class="auth-panel" style="display:none;">
+    <div class="auth-footer auth-anim-item">© 2026 LearnHub Platform | All rights reserved!</div>
+  </div>
+
+  <!-- FORM BÊN PHẢI: ĐĂNG KÝ (CỐ ĐỊNH) -->
+  <div class="auth-right-form form-disabled" id="registerFormContainer">
+    <!-- Mobile Slideshow -->
+    <div class="auth-mobile-showcase">
+      <div class="auth-mobile-slide active">
+        <div class="auth-mobile-blur" style="background-image:url('pictures/loading1.jpg')"></div>
+        <div class="auth-mobile-main" style="background-image:url('pictures/loading1.jpg')"></div>
+      </div>
+      <div class="auth-mobile-slide">
+        <div class="auth-mobile-blur" style="background-image:url('pictures/loading2.jpg')"></div>
+        <div class="auth-mobile-main" style="background-image:url('pictures/loading2.jpg')"></div>
+      </div>
+      <div class="auth-mobile-slide">
+        <div class="auth-mobile-blur" style="background-image:url('pictures/loading3.jpg')"></div>
+        <div class="auth-mobile-main" style="background-image:url('pictures/loading3.jpg')"></div>
+      </div>
+      <div class="auth-mobile-slide">
+        <div class="auth-mobile-blur" style="background-image:url('pictures/loading4.jpg')"></div>
+        <div class="auth-mobile-main" style="background-image:url('pictures/loading4.jpg')"></div>
+      </div>
+      <div class="auth-mobile-caption">
+        <strong>LearnHub – Nâng cấp cách bạn học</strong>
+        <span>Ôn thi nhanh • Giao diện hiện đại • Tối ưu trải nghiệm</span>
+      </div>
+    </div>
+    <!-- End Mobile Slideshow -->
+
+    <div class="auth-brand auth-anim-item">
+      <img src="pictures/newlogo.png" alt="Logo LearnHub" loading="lazy" width="55" height="55">
+      <span>LearnHub Platform - With Hubie AI</span>
+    </div>
+
+    <div class="auth-tabs auth-anim-item">
+      <div class="auth-tab" data-auth-tab="login" onclick="switchAuthTab('login')">Đăng nhập</div>
+      <div class="auth-tab active" data-auth-tab="register" onclick="switchAuthTab('register')">Đăng ký</div>
+    </div>
+
+    <div class="auth-title auth-anim-item">Tạo tài khoản mới</div>
+
+<div id="authRegisterPanel" class="auth-panel auth-anim-item">
       <form onsubmit="event.preventDefault();emailRegister()">
       <div class="auth-input-group">
         <input type="text" id="registerName" required>
-        <label>Tên của bạn</label>
+        <label>Tên hiển thị <span class="req-star">*</span></label>
       </div>
 
       <div class="auth-input-group">
         <input type="email" id="registerEmail" required>
-        <label>Email</label>
+        <label>Email <span class="req-star">*</span></label>
       </div>
 
+      <!-- Ô mật khẩu đã đưa lên trên nút Nhận mã -->
       <div class="auth-input-group">
         <input type="password" id="registerPassword" required>
-        <label>Mật khẩu</label>
+        <label>Mật khẩu <span class="req-star">*</span></label>
+      </div>
+
+      <!-- Nút nhận mã dính liền ngay dưới ô mật khẩu -->
+      <button type="button" class="auth-otp-btn" id="sendOtpBtn" onclick="sendOTP()" style="margin-top: -4px; margin-bottom: 12px;">Nhận mã</button>
+
+      <div id="otpSection" style="display:none;margin-top:10px">
+        <div class="auth-input-group">
+          <input type="text" id="otpCode" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" required>
+          <label>Mã xác nhận (6 chữ số) <span class="req-star">*</span></label>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;margin-bottom:12px">
+          <span id="otpExpireText" style="font-size:12px;color:#94a3b8">Mã hết hạn sau <b id="otpCountdown">5:00</b></span>
+          <button type="button" id="otpResendBtn" onclick="resendOTP()" disabled class="auth-otp-resend">Gửi lại mã</button>
+        </div>
       </div>
 
       <div class="auth-input-group">
         <input type="password" id="registerConfirmPassword" required>
-        <label>Nhập lại mật khẩu</label>
+        <label>Nhập lại mật khẩu <span class="req-star">*</span></label>
+      </div>
+
+      <!-- Ô Ảnh đại diện đồng bộ hiệu ứng floating label -->
+      <div class="auth-input-group">
+        <input type="url" id="registerPhoto" placeholder=" ">
+        <label>Ảnh đại diện (tuỳ chọn)</label>
       </div>
 
       <button type="submit" class="auth-submit">Đăng ký</button>
@@ -118,35 +354,39 @@
     <div class="auth-footer">© 2026 LearnHub Platform | All rights reserved!</div>
   </div>
 
-  <div class="auth-right">
-    <div class="auth-header-bar">
-      <span>LearnHub News</span>
-    </div>
-    <div class="auth-slide">
-      <div class="auth-bg-blur" style="background-image:url('pictures/loading1.jpg')"></div>
-      <div class="auth-bg-main" style="background-image:url('pictures/loading1.jpg')"></div>
-    </div>
+  <!-- KHUNG SLIDESHOW DÙNG LÀM MÀN CHE TRƯỢT OVERLAY (TRƯỢT QUA TRƯỢT LẠI ĐỂ CHE/HÉ LỘ 2 FORM) -->
+  <div class="auth-overlay-panel" id="overlayPanel">
+    <div class="auth-right">
+      <div class="auth-header-bar">
+        <span>LearnHub News</span>
+      </div>
+      <div class="auth-slide active">
+        <div class="auth-bg-blur" style="background-image:url('pictures/loading1.jpg')"></div>
+        <div class="auth-bg-main" style="background-image:url('pictures/loading1.jpg')"></div>
+      </div>
 
-    <div class="auth-slide">
-      <div class="auth-bg-blur" style="background-image:url('pictures/loading2.jpg')"></div>
-      <div class="auth-bg-main" style="background-image:url('pictures/loading2.jpg')"></div>
-    </div>
+      <div class="auth-slide">
+        <div class="auth-bg-blur" style="background-image:url('pictures/loading2.jpg')"></div>
+        <div class="auth-bg-main" style="background-image:url('pictures/loading2.jpg')"></div>
+      </div>
 
-    <div class="auth-slide">
-      <div class="auth-bg-blur" style="background-image:url('pictures/loading3.jpg')"></div>
-      <div class="auth-bg-main" style="background-image:url('pictures/loading3.jpg')"></div>
-    </div>
+      <div class="auth-slide">
+        <div class="auth-bg-blur" style="background-image:url('pictures/loading3.jpg')"></div>
+        <div class="auth-bg-main" style="background-image:url('pictures/loading3.jpg')"></div>
+      </div>
 
-    <div class="auth-slide">
-      <div class="auth-bg-blur" style="background-image:url('pictures/loading4.jpg')"></div>
-      <div class="auth-bg-main" style="background-image:url('pictures/loading4.jpg')"></div>
-    </div>
+      <div class="auth-slide">
+        <div class="auth-bg-blur" style="background-image:url('pictures/loading4.jpg')"></div>
+        <div class="auth-bg-main" style="background-image:url('pictures/loading4.jpg')"></div>
+      </div>
 
-    <div class="auth-overlay">
-      <h1 id="authSlideTitle">LearnHub - Nang cap cach ban hoc</h1>
-      <p id="authSlideDesc">On thi nhanh • Giao dien hien dai • Toi uu trai nghiem</p>
+      <div class="auth-overlay">
+        <h1 id="authSlideTitle">LearnHub - Nang cap cach ban hoc</h1>
+        <p id="authSlideDesc">On thi nhanh • Giao dien hien dai • Toi uu trai nghiem</p>
+      </div>
     </div>
-</div>
+  </div>
+
 </div>
 </div>
 
@@ -278,20 +518,148 @@ function showAuthNotice(message, type = "info", title = "", durationMs = 2600, s
   }, Math.max(1200, Number(durationMs) || 2600));
 }
 
-function switchAuthTab(type) {
-  const login = document.getElementById("authLoginPanel");
-  const register = document.getElementById("authRegisterPanel");
-  const tabs = document.querySelectorAll("#loginBox .auth-tab");
-  tabs.forEach(tab => tab.classList.remove("active"));
-  if (type === "login") {
-    if (login) login.style.display = "block";
-    if (register) register.style.display = "none";
-  } else {
-    if (login) login.style.display = "none";
-    if (register) register.style.display = "block";
+/* --- OTP STATE --- */
+let otpGenerated = "";
+let otpExpiry = 0;
+let otpCountdownInterval = null;
+let otpResendCooldown = null;
+const OTP_EXPIRE_MS = 5 * 60 * 1000;
+
+function generateOTP() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+function startOTPCountdown() {
+  clearInterval(otpCountdownInterval);
+  const countdownEl = document.getElementById("otpCountdown");
+  otpCountdownInterval = setInterval(() => {
+    const remaining = Math.max(0, otpExpiry - Date.now());
+    if (remaining <= 0) {
+      clearInterval(otpCountdownInterval);
+      if (countdownEl) countdownEl.textContent = "0:00";
+      return;
+    }
+    const m = Math.floor(remaining / 60000);
+    const s = Math.floor((remaining % 60000) / 1000);
+    if (countdownEl) countdownEl.textContent = m + ":" + String(s).padStart(2, "0");
+  }, 1000);
+}
+
+function startResendCooldown() {
+  const btn = document.getElementById("otpResendBtn");
+  let sec = 60;
+  btn.disabled = true;
+  btn.textContent = "Gửi lại mã (" + sec + "s)";
+  otpResendCooldown = setInterval(() => {
+    sec--;
+    if (sec <= 0) {
+      clearInterval(otpResendCooldown);
+      btn.disabled = false;
+      btn.textContent = "Gửi lại mã";
+      return;
+    }
+    btn.textContent = "Gửi lại mã (" + sec + "s)";
+  }, 1000);
+}
+
+window.sendOTP = async function() {
+  const email = document.getElementById("registerEmail").value.trim();
+  if (!email) {
+    showAuthNotice("Vui lòng nhập email trước", "error", "Thiếu email");
+    return;
   }
-  const activeTab = document.querySelector(`#loginBox .auth-tab[data-auth-tab="${type}"]`);
-  if (activeTab) activeTab.classList.add("active");
+  const btn = document.getElementById("sendOtpBtn");
+  btn.disabled = true;
+  btn.textContent = "Đang gửi...";
+
+  otpGenerated = generateOTP();
+  otpExpiry = Date.now() + OTP_EXPIRE_MS;
+
+  try {
+    await emailjs.send("service_7ku42kd", "template_m4uscl8", {
+      code: otpGenerated,
+      email: email
+    });
+    document.getElementById("otpSection").style.display = "block";
+    btn.textContent = "Đã gửi mã ✓";
+    startOTPCountdown();
+    startResendCooldown();
+  } catch(err) {
+    console.error("OTP send error:", err);
+    showAuthNotice("Gửi mã thất bại. Vui lòng thử lại.", "error", "Lỗi gửi mã");
+    btn.disabled = false;
+    btn.textContent = "Nhận mã";
+  }
+};
+
+window.resendOTP = async function() {
+  const email = document.getElementById("registerEmail").value.trim();
+  if (!email) return;
+  const btn = document.getElementById("otpResendBtn");
+  btn.disabled = true;
+
+  otpGenerated = generateOTP();
+  otpExpiry = Date.now() + OTP_EXPIRE_MS;
+
+  try {
+    await emailjs.send("service_7ku42kd", "template_m4uscl8", {
+      code: otpGenerated,
+      email: email
+    });
+    startOTPCountdown();
+    startResendCooldown();
+    showAuthNotice("Mã mới đã gửi đến email của bạn", "success", "Gửi lại thành công");
+  } catch(err) {
+    console.error("OTP resend error:", err);
+    showAuthNotice("Gửi lại mã thất bại", "error", "Lỗi");
+    btn.disabled = false;
+    btn.textContent = "Gửi lại mã";
+  }
+};
+
+function resetOTPState() {
+  otpGenerated = "";
+  otpExpiry = 0;
+  clearInterval(otpCountdownInterval);
+  clearInterval(otpResendCooldown);
+  const otpSection = document.getElementById("otpSection");
+  const sendBtn = document.getElementById("sendOtpBtn");
+  const resendBtn = document.getElementById("otpResendBtn");
+  const countdownEl = document.getElementById("otpCountdown");
+  if (otpSection) otpSection.style.display = "none";
+  if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = "Nhận mã"; }
+  if (resendBtn) { resendBtn.disabled = false; resendBtn.textContent = "Gửi lại mã"; }
+  if (countdownEl) countdownEl.textContent = "5:00";
+  const otpInput = document.getElementById("otpCode");
+  if (otpInput) otpInput.value = "";
+}
+function retriggerAnim(container) {
+  const items = container.querySelectorAll('.auth-anim-item');
+  items.forEach(el => {
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = '';
+  });
+}
+
+function switchAuthTab(type) {
+  const authShell = document.getElementById("authShell");
+  const loginFormContainer = document.getElementById("loginFormContainer");
+  const registerFormContainer = document.getElementById("registerFormContainer");
+  
+  if (type === "login") {
+    authShell.classList.remove("active-register");
+    loginFormContainer.classList.remove("form-disabled");
+    registerFormContainer.classList.add("form-disabled");
+    retriggerAnim(loginFormContainer);
+    resetOTPState();
+  } else {
+    authShell.classList.add("active-register");
+    loginFormContainer.classList.add("form-disabled");
+    registerFormContainer.classList.remove("form-disabled");
+    retriggerAnim(registerFormContainer);
+    resetOTPState();
+  }
 }
 
 function authComingSoon() {
@@ -310,8 +678,6 @@ let authSlideTimer = null;
 function updateAuthSlideText(index) {
   const titleEl = document.getElementById("authSlideTitle");
   const descEl = document.getElementById("authSlideDesc");
-  const mobileTitleEl = document.getElementById("authMobileTitle");
-  const mobileDescEl = document.getElementById("authMobileDesc");
   if (!titleEl || !descEl) return;
   const title = authSlideData[index].title;
   const desc = authSlideData[index].desc;
@@ -328,30 +694,43 @@ function updateAuthSlideText(index) {
   descSpan.className = 'desc-reveal';
   descSpan.textContent = desc;
   descEl.appendChild(descSpan);
-  if (mobileTitleEl) { mobileTitleEl.style.opacity = "0"; setTimeout(() => { mobileTitleEl.textContent = title; mobileTitleEl.style.opacity = "1"; }, 150); }
-  if (mobileDescEl) { mobileDescEl.style.opacity = "0"; setTimeout(() => { mobileDescEl.textContent = desc; mobileDescEl.style.opacity = "1"; }, 250); }
 }
 
 function initAuthSlides() {
   const desktopSlides = document.querySelectorAll("#loginBox .auth-right .auth-slide");
-  const mobileSlides = document.querySelectorAll("#loginBox .auth-mobile-slide");
-  if (!desktopSlides.length && !mobileSlides.length) return;
-  if (desktopSlides.length) desktopSlides[0].classList.add("active");
-  if (mobileSlides.length) mobileSlides[0].classList.add("active");
+  if (!desktopSlides.length) return;
+  desktopSlides[0].classList.add("active");
   updateAuthSlideText(0);
   if (authSlideTimer) clearInterval(authSlideTimer);
   authSlideTimer = setInterval(() => {
-    const totalSlides = desktopSlides.length || mobileSlides.length;
+    const totalSlides = desktopSlides.length;
     if (!totalSlides) return;
     const prevIndex = authSlideIndex;
     authSlideIndex = (authSlideIndex + 1) % totalSlides;
-    if (desktopSlides.length) { desktopSlides[prevIndex].classList.remove("active"); desktopSlides[authSlideIndex].classList.add("active"); }
-    if (mobileSlides.length) { mobileSlides[prevIndex].classList.remove("active"); mobileSlides[authSlideIndex].classList.add("active"); }
+    desktopSlides[prevIndex].classList.remove("active");
+    desktopSlides[authSlideIndex].classList.add("active");
     updateAuthSlideText(authSlideIndex);
   }, 4000);
 }
 
 initAuthSlides();
+
+function initMobileSlides() {
+  const mobileShowcases = document.querySelectorAll(".auth-mobile-showcase");
+  if (!mobileShowcases.length) return;
+  mobileShowcases.forEach(showcase => {
+    const slides = showcase.querySelectorAll(".auth-mobile-slide");
+    if (slides.length <= 1) return;
+    let idx = 0;
+    setInterval(() => {
+      slides[idx].classList.remove("active");
+      idx = (idx + 1) % slides.length;
+      slides[idx].classList.add("active");
+    }, 4000);
+  });
+}
+initMobileSlides();
+
 window.switchAuthTab = switchAuthTab;
 window.authComingSoon = authComingSoon;
 window.showAuthNotice = showAuthNotice;
@@ -472,6 +851,9 @@ window.emailRegister = async function() {
   const email = document.getElementById("registerEmail").value.trim();
   const password = document.getElementById("registerPassword").value;
   const confirmPassword = document.getElementById("registerConfirmPassword").value;
+  const otpInput = document.getElementById("otpCode");
+  const otpSection = document.getElementById("otpSection");
+
   await loadAllowList();
   if (!name || !email || !password || !confirmPassword) {
     showAuthNotice("Vui lòng điền đầy đủ thông tin", "error", "Thiếu thông tin");
@@ -484,11 +866,32 @@ window.emailRegister = async function() {
     showAuthNotice("Email này không nằm trong danh sách được cấp quyền. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập");
     return;
   }
+
+  if (otpSection.style.display === "none" || !otpSection.style.display) {
+    showAuthNotice("Vui lòng nhấn 'Nhận mã' để xác minh email trước", "error", "Chưa xác minh email");
+    return;
+  }
+
+  const code = otpInput.value.trim();
+  if (!code || code.length !== 6) {
+    showAuthNotice("Vui lòng nhập mã xác nhận 6 chữ số", "error", "Thiếu mã xác nhận");
+    return;
+  }
+  if (Date.now() > otpExpiry) {
+    showAuthNotice("Mã xác nhận đã hết hạn. Vui lòng nhấn 'Gửi lại mã'", "error", "Mã hết hạn");
+    return;
+  }
+  if (code !== otpGenerated) {
+    showAuthNotice("Mã xác nhận không đúng. Vui lòng kiểm tra lại", "error", "Sai mã");
+    return;
+  }
+
   try {
     const result = await createUserWithEmailAndPassword(auth, email, password);
     const user = result.user;
+    const photoUrl = document.getElementById("registerPhoto").value.trim() || "https://i.imgur.com/6VBx3io.png";
     await setDoc(doc(db, "users", user.uid), {
-      name: name, email: user.email, photo: "https://i.imgur.com/6VBx3io.png",
+      name: name, email: user.email, photo: photoUrl,
       lastLogin: new Date().toISOString(), lastActive: Date.now(), online: true, createdAt: new Date().toISOString()
     });
     showAuthNotice("Đăng ký thành công! Vui lòng đăng nhập.", "success", "Thành công");
@@ -496,6 +899,8 @@ window.emailRegister = async function() {
     document.getElementById("registerEmail").value = "";
     document.getElementById("registerPassword").value = "";
     document.getElementById("registerConfirmPassword").value = "";
+    document.getElementById("registerPhoto").value = "";
+    resetOTPState();
     await signOut(auth);
     switchAuthTab('login');
     document.getElementById("loginEmail").value = email;

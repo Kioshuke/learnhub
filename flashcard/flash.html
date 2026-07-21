@@ -2579,6 +2579,16 @@ body.dark-mode .streak-badge { color: #f1f5f9; }
     <div class="game-start-card">
       <h2>Quiz nhanh</h2>
       <p>Chọn đáp án đúng liên tục để giữ chuỗi streak. Càng đúng liên tiếp càng bùng nổ điểm số.</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#f8fafc;border-radius:14px;margin-bottom:16px;border:1px solid #e2e8f0;">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#1e293b;">💀 Hardcore</div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px;">Sai = mất streak + làm lại từ đầu</div>
+        </div>
+        <label class="toggle-switch" style="margin:0;">
+          <input type="checkbox" id="hardcore-toggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
       <button onclick="startBlastGame()">Bắt đầu Quiz</button>
     </div>
   </div>
