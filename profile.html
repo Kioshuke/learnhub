@@ -153,6 +153,10 @@
                                     <i class="fas fa-school text-emerald-500 w-4 mt-0.5 text-center"></i>
                                     <span>Trường: <span id="profile-school-display" class="font-semibold text-gray-900"><span class="skeleton inline-block rounded" style="width:100px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
                                 </div>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-clock text-cyan-500 w-4 text-center"></i>
+                                    <span>Thời gian online tuần: <span id="profile-online-display" class="font-semibold text-cyan-600"><span class="skeleton inline-block rounded" style="width:80px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
+                                </div>
                             </div>
 
                         </div>
@@ -696,6 +700,14 @@
                     document.getElementById('profile-gender-display').innerText = data.gender || "Chưa cập nhật";
                     document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
 
+                    const now = Date.now();
+                    const baseTimer = Number(data.onlinetimer || 0);
+                    let effectiveTimer = baseTimer;
+                    if (data.online && data.lastActive && (now - data.lastActive) < 45000 && data.onlineStartTime > 0) {
+                        effectiveTimer += Math.floor((now - data.onlineStartTime) / 1000);
+                    }
+                    document.getElementById('profile-online-display').innerText = formatTimer(effectiveTimer);
+
                     const finalRole = data.role || "Thành viên";
                     document.getElementById('profile-role-display').innerText = finalRole;
                     applyRoleBadgeStyle(finalRole);
@@ -745,6 +757,14 @@
                     document.getElementById('profile-birth-display').innerText = formatDate(data.birthdate);
                     document.getElementById('profile-gender-display').innerText = data.gender || "Chưa cập nhật";
                     document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
+
+                    const now = Date.now();
+                    const baseTimer = Number(data.onlinetimer || 0);
+                    let effectiveTimer = baseTimer;
+                    if (data.online && data.lastActive && (now - data.lastActive) < 45000 && data.onlineStartTime > 0) {
+                        effectiveTimer += Math.floor((now - data.onlineStartTime) / 1000);
+                    }
+                    document.getElementById('profile-online-display').innerText = formatTimer(effectiveTimer);
 
                     const finalRole = data.role || "Thành viên";
                     document.getElementById('profile-role-display').innerText = finalRole;
@@ -834,6 +854,14 @@
             document.getElementById('input-old-password').value = "";
             document.getElementById('input-new-password').value = "";
             document.getElementById('input-confirm-password').value = "";
+        }
+
+        function formatTimer(totalSeconds) {
+            totalSeconds = Math.max(0, Math.floor(totalSeconds || 0));
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
         }
 
         // SỬA LẠI: Hàm format đảm bảo hiển thị đúng cấu trúc DD/MM/YYYY chuẩn chỉnh lên giao diện
