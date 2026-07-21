@@ -10,14 +10,14 @@
 <style>
   @keyframes maintenanceSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
   @keyframes maintenanceSpinReverse{0%{transform:rotate(360deg)}100%{transform:rotate(0deg)}}
-  @keyframes maintenanceBar{0%{width:5%}50%{width:85%}100%{width:5%}}
+  @keyframes maintenanceBar{0%{width:0%}40%{width:50%}45%{width:50%}70%{width:80%}75%{width:80%}90%{width:100%}95%{width:100%}100%{width:0%}}
   @keyframes maintenancePulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(0,102,204,0.3)}50%{transform:scale(1.03);box-shadow:0 0 20px 8px rgba(0,102,204,0.1)}}
   @keyframes maintenanceGlow{0%,100%{filter:drop-shadow(0 0 6px rgba(0,102,204,0.4))}50%{filter:drop-shadow(0 0 18px rgba(0,102,204,0.7))}}
   @keyframes maintenanceFadeSlideUp{0%{opacity:0;transform:translateY(30px)}100%{opacity:1;transform:translateY(0)}}
   @keyframes statusBlink{0%,100%{opacity:1}50%{opacity:0.5}}
   @keyframes bgDotFloat{0%{background-position:0 0}100%{background-position:32px 32px}}
 
-  .maintenance-spin-slow{animation:maintenanceSpin 16s linear infinite}
+  .maintenance-spin-slow{animation:maintenanceSpin 4s linear infinite}
   .maintenance-spin-reverse{animation:maintenanceSpinReverse 20s linear infinite}
   .maintenance-bar{animation:maintenanceBar 2.5s ease-in-out infinite}
   .maintenance-pulse{animation:maintenancePulse 2.5s ease-in-out infinite}
@@ -94,7 +94,7 @@
     <!-- Header -->
     <header class="w-full max-w-5xl flex justify-between items-center py-3 sm:py-4 z-10 maintenance-fade-up">
       <div class="flex items-center gap-2 text-lg sm:text-xl font-bold text-[#0066cc]">
-        LearnHub <span class="text-[10px] sm:text-xs font-medium text-slate-400 border-l border-slate-300 pl-2 hidden sm:inline">Nâng cấp cách bạn học</span>
+        LearnHub <span class="text-[10px] sm:text-xs font-medium text-slate-400 border-l border-slate-300 pl-2">Nâng cấp cách bạn học</span>
       </div>
     </header>
 
