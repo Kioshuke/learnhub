@@ -463,7 +463,14 @@ try {
       window.location.replace('maintenance.html');
     }
   });
-} catch(e) {}
+} catch(e) { console.error("Maintenance listener error:", e); }
+
+// Fallback: check lại mỗi 2s以防 onSnapshot miss
+setInterval(() => {
+  if (maintenanceState.initialized && maintenanceState.enabled) {
+    window.location.replace('maintenance.html');
+  }
+}, 2000);
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
