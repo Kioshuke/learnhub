@@ -162,14 +162,19 @@
   import { db } from "./firebase-config.js";
 
   try{
+    console.log("[MAINTENANCE PAGE] Starting maintenance listener...");
     onSnapshot(doc(db, "settings", "maintenance"), (snap) => {
       const data = snap.exists() ? (snap.data() || {}) : {};
       const enabled = !!data.enabled;
       const message = String(data.message || "");
       const statusEl = document.getElementById('maintenanceStatusText');
+      console.log("[MAINTENANCE PAGE] Realtime update - enabled:", enabled, "message:", message);
       if(statusEl) statusEl.textContent = message ? message : 'Đang cập nhật...';
       if(!enabled){
+        console.log("[MAINTENANCE PAGE] Maintenance disabled, redirecting to login.html");
         try { window.location.replace('login.html'); } catch(e){ window.location.href = 'login.html'; }
+      } else {
+        console.log("[MAINTENANCE PAGE] Maintenance still enabled, staying on maintenance page");
       }
     });
   } catch(e){

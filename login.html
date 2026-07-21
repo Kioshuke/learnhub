@@ -457,11 +457,16 @@ let maintenanceState = { enabled: false, message: "", initialized: false };
 
 // Check ngay khi load trang (await — nếu bật thì redirect ngay, không chạy tiếp)
 try {
+  console.log("[MAINTENANCE] Checking maintenance status on load...");
   const _snap = await getDoc(doc(db, "settings", "maintenance"));
   const _data = _snap.exists() ? (_snap.data() || {}) : {};
   maintenanceState = { enabled: !!_data.enabled, message: String(_data.message || ""), initialized: true };
+  console.log("[MAINTENANCE] Initial check result:", maintenanceState);
   if (maintenanceState.enabled) {
+    console.log("[MAINTENANCE] Maintenance is enabled, redirecting to maintenance.html");
     window.location.replace('maintenance.html');
+  } else {
+    console.log("[MAINTENANCE] Maintenance is disabled, staying on login.html");
   }
 } catch(e) { console.error("Maintenance check error:", e); }
 
@@ -471,12 +476,18 @@ try {
     const data = snap.exists() ? (snap.data() || {}) : {};
     const wasEnabled = maintenanceState.enabled;
     maintenanceState = { enabled: !!data.enabled, message: String(data.message || ""), initialized: true };
+    console.log("[MAINTENANCE] Realtime update - wasEnabled:", wasEnabled, "enabled:", maintenanceState.enabled, "pathname:", location.pathname);
     if (maintenanceState.enabled && !wasEnabled) {
+      console.log("[MAINTENANCE] Maintenance just turned ON, redirecting to maintenance.html");
       window.location.replace('maintenance.html');
     } else if (!maintenanceState.enabled && wasEnabled) {
+      console.log("[MAINTENANCE] Maintenance just turned OFF");
       // Chỉ redirect về login nếu không phải đang ở login.html
       if (!location.pathname.endsWith('/login.html') && !location.pathname.endsWith('login.html')) {
+        console.log("[MAINTENANCE] Redirecting to login.html");
         window.location.replace('login.html');
+      } else {
+        console.log("[MAINTENANCE] Already on login.html, no redirect needed");
       }
     }
   });
