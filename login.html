@@ -449,28 +449,35 @@ import { doc, setDoc, getDoc, collection, getDocs, onSnapshot }
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js"; 
 import { app, auth, db } from "./firebase-config.js";
 
-await setPersistence(auth, browserLocalPersistence); 
+try { await setPersistence(auth, browserLocalPersistence); } catch(e) { console.error("setPersistence error:", e); }
 const provider = new GoogleAuthProvider();
 
 let allowList = [];
 let maintenanceState = { enabled: false, message: "", initialized: false };
 
+// Check ngay khi load trang (await — nếu bật thì redirect ngay, không chạy tiếp)
+try {
+  const _snap = await getDoc(doc(db, "settings", "maintenance"));
+  const _data = _snap.exists() ? (_snap.data() || {}) : {};
+  maintenanceState = { enabled: !!_data.enabled, message: String(_data.message || ""), initialized: true };
+  if (maintenanceState.enabled) {
+    window.location.replace('maintenance.html');
+  }
+} catch(e) { console.error("Maintenance check error:", e); }
+
+// Lắng nghe realtime: bật → redirect maintenance.html, tắt → redirect index.html
 try {
   onSnapshot(doc(db, "settings", "maintenance"), (snap) => {
     const data = snap.exists() ? (snap.data() || {}) : {};
+    const wasEnabled = maintenanceState.enabled;
     maintenanceState = { enabled: !!data.enabled, message: String(data.message || ""), initialized: true };
-    if (maintenanceState.enabled) {
+    if (maintenanceState.enabled && !wasEnabled) {
       window.location.replace('maintenance.html');
+    } else if (!maintenanceState.enabled && wasEnabled) {
+      window.location.replace('login.html');
     }
   });
 } catch(e) { console.error("Maintenance listener error:", e); }
-
-// Fallback: check lại mỗi 2s以防 onSnapshot miss
-setInterval(() => {
-  if (maintenanceState.initialized && maintenanceState.enabled) {
-    window.location.replace('maintenance.html');
-  }
-}, 2000);
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();

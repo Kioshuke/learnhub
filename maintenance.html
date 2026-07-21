@@ -169,7 +169,7 @@
       const statusEl = document.getElementById('maintenanceStatusText');
       if(statusEl) statusEl.textContent = message ? message : 'Đang cập nhật...';
       if(!enabled){
-        try { window.location.replace('index.html'); } catch(e){ window.location.href = 'index.html'; }
+        try { window.location.replace('login.html'); } catch(e){ window.location.href = 'login.html'; }
       }
     });
   } catch(e){
