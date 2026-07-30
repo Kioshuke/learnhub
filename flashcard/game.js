@@ -15,8 +15,11 @@ let audioUnlocked = false;
 // Settings from localStorage
 let settings = {
   bgmEnabled: true,
+  bgmVolume: 1,
   sfxEnabled: true,
-  speechEnabled: true
+  sfxVolume: 0.5,
+  speechEnabled: true,
+  speechVolume: 1
 };
 
 // Load settings from localStorage
@@ -33,6 +36,8 @@ loadGameSettings();
 // Reload settings when called (for realtime updates)
 function reloadGameSettings() {
   loadGameSettings();
+  BGM_VOLUME = settings.bgmVolume ?? 1;
+  SFX_VOLUME = settings.sfxVolume ?? 0.5;
 }
 
 // Apply BGM setting immediately (toggle on/off based on setting)
@@ -47,6 +52,22 @@ function applyBGMSetting() {
 // Expose to window so flash.html can call it
 window.reloadGameSettings = reloadGameSettings;
 window.applyBGMSetting = applyBGMSetting;
+window.bgmDemo = (function() {
+    let demoIndex = 0;
+    const demoKeys = ['match', 'blast', 'defender'];
+    return function() {
+        if (!settings.bgmEnabled) return;
+        const key = demoKeys[demoIndex % demoKeys.length];
+        demoIndex++;
+        const s = bgm[key];
+        if (s) {
+            s.volume = settings.bgmVolume;
+            s.currentTime = 0;
+            s.play().catch(()=>{});
+            setTimeout(() => { s.pause(); s.currentTime = 0; }, 3000);
+        }
+    };
+})();
 
 const bgm = {
     match: soundGame2,
@@ -696,6 +717,7 @@ function speak(text) {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-GB';
         utterance.rate = 0.9;
+        utterance.volume = settings.speechVolume || 1;
         window.speechSynthesis.speak(utterance);
     }
 }
