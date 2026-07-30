@@ -521,6 +521,22 @@ button:hover {
     text-align: center;
 }
 
+.dict-popup-box {
+  max-width: 600px !important;
+  padding: 20px !important;
+}
+
+@media (max-width: 768px) {
+  .dict-popup-box {
+    max-width: 94% !important;
+    padding: 14px !important;
+  }
+  #dictContent {
+    max-height: 40vh !important;
+    font-size: 14px !important;
+  }
+}
+
 .popup-box p {
   font-size: 18px;
  color: #475569;
@@ -660,6 +676,30 @@ button:hover {
   background: #4f46e5;
   color: white;
 }
+
+.dict-icon {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 24px;
+  background: #eef2ff;
+  color: #4f46e5;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+  z-index: 100;
+  cursor: pointer;
+}
+
+.dict-icon:hover {
+  background: #4f46e5;
+  color: white;
+}
+
 @media (max-width: 768px) {
     /* 1. HIỆU ỨNG CHUYỂN TAB TỐI ƯU (GIẢM LAG) */
     .mode {
@@ -824,6 +864,14 @@ button:hover {
     .speaker-icon {
         top: 12px;
         right: 12px;
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .dict-icon {
+        top: 12px;
+        left: 12px;
         width: 40px;
         height: 40px;
         font-size: 20px;
@@ -2437,6 +2485,8 @@ body.dark-mode .flash-back {
 
 body.dark-mode .speaker-icon { background: rgba(59, 130, 246, 0.12); color: #60a5fa; }
 body.dark-mode .speaker-icon:hover { background: #4f46e5; color: white; }
+body.dark-mode .dict-icon { background: rgba(59, 130, 246, 0.12); color: #60a5fa; }
+body.dark-mode .dict-icon:hover { background: #4f46e5; color: white; }
 
 body.dark-mode .nav-arrow { background: #1e293b; color: #60a5fa; }
 
@@ -2550,6 +2600,7 @@ body.dark-mode .streak-badge { color: #f1f5f9; }
         <div class="flash-front">
            <span id="front">Loading...</span>
            <div class="speaker-icon" onclick="event.stopPropagation(); speak(document.getElementById('front').innerText)">🔊</div>
+           <div class="dict-icon" onclick="event.stopPropagation(); openDictionary(document.getElementById('front').innerText)" title="Tra Cambridge">📖</div>
         </div>
         
         <div class="flash-back" id="back">...</div>
@@ -2692,6 +2743,22 @@ body.dark-mode .streak-badge { color: #f1f5f9; }
         </div>
     </div>
 </div>
+<!-- DICTIONARY POPUP -->
+<div id="dictPopup" class="popup" onclick="closeDictPopup(event)">
+  <div class="popup-box dict-popup-box" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <h2 style="margin:0;font-size:22px;">
+        <span id="dictWordDisplay" style="color:#1d4ed8;"></span>
+      </h2>
+      <button onclick="closeDictPopup()" style="width:36px;height:36px;border:none;background:#ef4444;color:#fff;border-radius:8px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div id="dictContent" style="max-height:50vh;overflow-y:auto;text-align:left;padding:12px;background:#f8fafc;border-radius:12px;font-size:15px;line-height:1.6;color:#334155;min-height:80px;">
+      <div style="text-align:center;padding:30px 0;color:#94a3b8;">🔍 Đang tra từ...</div>
+    </div>
+    <a id="dictDirectLink" href="#" target="_blank" style="display:block;margin-top:10px;padding:12px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-radius:12px;text-align:center;font-weight:700;text-decoration:none;font-size:15px;">📖 Xem đầy đủ trên Cambridge Dictionary →</a>
+  </div>
+</div>
+
 <!-- POPUP -->
 <div id="popup" class="popup">
   <div class="popup-box">
@@ -2906,6 +2973,53 @@ document.getElementById("speechVolume").addEventListener("input", () => {
 
 // Load settings on page load
 loadSettings();
+
+function openDictionary(word) {
+  const cleanWord = word.trim().split(/\s+/)[0].toLowerCase();
+  if (!cleanWord) return;
+  const url = `https://dictionary.cambridge.org/vi/dictionary/english/${encodeURIComponent(cleanWord)}`;
+  document.getElementById('dictWordDisplay').textContent = cleanWord;
+  document.getElementById('dictDirectLink').href = url;
+  document.getElementById('dictContent').innerHTML = '<div style="text-align:center;padding:30px 0;color:#94a3b8;">🔍 Đang tra từ...</div>';
+  document.getElementById('dictPopup').classList.add('show');
+  fetchDictInfo(cleanWord);
+}
+
+function closeDictPopup(e) {
+  if (e && e.target !== document.getElementById('dictPopup')) return;
+  document.getElementById('dictPopup').classList.remove('show');
+}
+
+async function fetchDictInfo(word) {
+  const el = document.getElementById('dictContent');
+  try {
+    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+    if (!res.ok) throw new Error('Not found');
+    const data = await res.json();
+    const entry = data[0];
+    let html = '';
+    if (entry.phonetic) {
+      html += `<div style="margin-bottom:12px;"><span style="font-weight:700;color:#475569;font-size:13px;">🔤 Phiên âm:</span> <span style="color:#6366f1;font-size:16px;">/${entry.phonetic}/</span></div>`;
+    }
+    entry.meanings.slice(0, 3).forEach(m => {
+      html += `<div style="margin-bottom:14px;"><span style="display:inline-block;background:#eef2ff;color:#4f46e5;padding:2px 10px;border-radius:6px;font-size:12px;font-weight:700;text-transform:uppercase;">${m.partOfSpeech}</span>`;
+      m.definitions.slice(0, 2).forEach(d => {
+        html += `<div style="margin-top:8px;padding-left:10px;border-left:3px solid #6366f1;">
+          <div><span style="font-weight:700;color:#475569;font-size:13px;">📖 Định nghĩa:</span> <span style="color:#1e293b;">${d.definition}</span></div>`;
+        if (d.example) html += `<div style="color:#64748b;font-size:13px;margin-top:4px;"><span style="font-weight:700;color:#475569;">✏️ Ví dụ:</span> <span style="font-style:italic;">${d.example}</span></div>`;
+        html += `</div>`;
+      });
+      html += `</div>`;
+    });
+    el.innerHTML = html;
+  } catch {
+    el.innerHTML = `<div style="text-align:center;padding:20px 0;">
+      <div style="font-size:40px;margin-bottom:10px;">🤷</div>
+      <div style="font-weight:700;color:#64748b;">Không tìm thấy từ "${word}"</div>
+      <div style="font-size:13px;color:#94a3b8;margin-top:4px;">Bấm nút bên dưới để tra trên Cambridge</div>
+    </div>`;
+  }
+}
 </script>
 <script>
 window.learnHubUser = null;
