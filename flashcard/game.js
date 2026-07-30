@@ -8,6 +8,7 @@ const soundclick = new Audio("https://www.myinstants.com/media/sounds/clicksound
 const soundGame2 = new Audio("bgm_match.mp3");     // Match
 const soundGame3 = new Audio("bgm_blast.mp3");     // Blast
 const soundGame4 = new Audio("bgm_defender.mp3");  // Defender
+const soundGameFill = new Audio("bgm_form.mp3");    // Fill in the blank
 let SFX_VOLUME = 0.5;
 let BGM_VOLUME = 1.0;
 let audioUnlocked = false;
@@ -72,7 +73,8 @@ window.bgmDemo = (function() {
 const bgm = {
     match: soundGame2,
     blast: soundGame3,
-    defender: soundGame4
+    defender: soundGame4,
+    fillblank: soundGameFill
 };
 
 const allSounds = [...Object.values(bgm), soundCorrect, soundWrong, soundHappy, soundlazer, soundwaring, soundclick];
@@ -988,21 +990,7 @@ function restartDefenderGame() {
 // 🟡 FILL IN THE BLANK
 ////////////////////////////////////////////////////////////////////////////////
 let fillPool = [], fillIndex = 0, currentFillCard = null;
-let fillLangDirection = 'en_to_vn'; // 'en_to_vn' or 'vn_to_en'
 let fillHintEnabled = false;
-
-// Hàm bỏ dấu tiếng Việt
-function removeVietnameseDiacritics(str) {
-    str = str.toLowerCase();
-    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
-    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
-    str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
-    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
-    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
-    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
-    str = str.replace(/đ/g, "d");
-    return str;
-}
 
 function initFillBlank() {
     stopAllSounds();
@@ -1016,7 +1004,7 @@ function initFillBlank() {
 }
 
 function startFillBlankGame() {
-    playBGM("blast");
+    playBGM("fillblank");
     setGlobalProgressVisible(true);
     const startScreen = document.getElementById("fillblank-start-screen");
     const content = document.getElementById("fillblank-content");
@@ -1031,24 +1019,13 @@ function startFillBlankGame() {
     fillIndex = 0;
 
     // Reset UI
-    document.getElementById("fillInput").value = "";
+    document.getElementById("fillSlotsContainer").innerHTML = "";
     document.getElementById("fillFeedback").innerText = "";
     document.getElementById("hintDisplay").innerText = "";
-    fillLangDirection = 'en_to_vn';
     fillHintEnabled = false;
-    document.getElementById("langToggle").innerText = "EN → VN";
     document.getElementById("hintToggle").innerText = "Tắt";
 
     loadNextFillQuestion();
-}
-
-function toggleLanguage() {
-    fillLangDirection = fillLangDirection === 'en_to_vn' ? 'vn_to_en' : 'en_to_vn';
-    document.getElementById("langToggle").innerText = fillLangDirection === 'en_to_vn' ? "EN → VN" : "VN → EN";
-    // Reload current question with new direction
-    if (currentFillCard) {
-        showFillQuestion(currentFillCard);
-    }
 }
 
 function toggleHint() {
@@ -1067,15 +1044,8 @@ function showHint() {
         return;
     }
 
-    if (fillLangDirection === 'en_to_vn') {
-        // Show word count for Vietnamese
-        const wordCount = currentFillCard.back.split(' ').length;
-        document.getElementById("hintDisplay").innerText = `Gợi ý: ${wordCount} từ`;
-    } else {
-        // Show first letter for English
-        const firstLetter = currentFillCard.front.charAt(0).toUpperCase();
-        document.getElementById("hintDisplay").innerText = `Gợi ý: Bắt đầu bằng "${firstLetter}"`;
-    }
+    const firstLetter = currentFillCard.front.charAt(0).toUpperCase();
+    document.getElementById("hintDisplay").innerText = `Gợi ý: Bắt đầu bằng "${firstLetter}"`;
 }
 
 function loadNextFillQuestion() {
@@ -1089,21 +1059,84 @@ function loadNextFillQuestion() {
     showFillQuestion(currentFillCard);
 }
 
+function renderFillSlots(card) {
+    const container = document.getElementById("fillSlotsContainer");
+    container.innerHTML = '';
+
+    const words = card.front.split(' ');
+
+    words.forEach((word, wi) => {
+        if (wi > 0) {
+            const space = document.createElement("span");
+            space.className = "slot-space";
+            container.appendChild(space);
+        }
+
+        for (let i = 0; i < word.length; i++) {
+            const input = document.createElement("input");
+            input.type = "text";
+            input.maxLength = 1;
+            input.className = "char-slot";
+            input.dataset.word = wi;
+            input.autocomplete = "off";
+            input.spellcheck = false;
+
+            input.addEventListener("input", function () {
+                if (this.value) {
+                    let el = this.nextElementSibling;
+                    while (el && el.tagName !== "INPUT") el = el.nextElementSibling;
+                    if (el) el.focus();
+                }
+
+                const slots = container.querySelectorAll(".char-slot");
+                const allFilled = Array.from(slots).every(s => s.value);
+                if (allFilled) {
+                    setTimeout(checkFillAnswer, 250);
+                }
+            });
+
+            input.addEventListener("keydown", function (e) {
+                if (e.key === "Backspace" && !this.value) {
+                    e.preventDefault();
+                    let el = this.previousElementSibling;
+                    while (el && el.tagName !== "INPUT") el = el.previousElementSibling;
+                    if (el) el.focus();
+                }
+                if (e.key === "Enter") {
+                    checkFillAnswer();
+                }
+            });
+
+            container.appendChild(input);
+        }
+    });
+
+    const first = container.querySelector("input");
+    if (first) first.focus();
+}
+
+function collectSlotsValue() {
+    const slots = document.querySelectorAll("#fillSlotsContainer .char-slot");
+    if (!slots.length) return '';
+
+    let result = slots[0].value || '';
+    for (let i = 1; i < slots.length; i++) {
+        if (slots[i].dataset.word !== slots[i - 1].dataset.word) {
+            result += ' ';
+        }
+        result += slots[i].value || '';
+    }
+    return result.toLowerCase();
+}
+
 function showFillQuestion(card) {
     const questionEl = document.getElementById("fillQuestion");
-    const inputEl = document.getElementById("fillInput");
     const feedbackEl = document.getElementById("fillFeedback");
 
-    if (fillLangDirection === 'en_to_vn') {
-        questionEl.innerText = card.front;
-        inputEl.placeholder = "Nhập nghĩa tiếng Việt (không dấu)...";
-    } else {
-        questionEl.innerText = card.back;
-        inputEl.placeholder = "Nhập từ tiếng Anh...";
-    }
-
-    inputEl.value = "";
+    questionEl.innerText = card.back;
     feedbackEl.innerText = "";
+
+    renderFillSlots(card);
 
     if (fillHintEnabled) {
         showHint();
@@ -1115,24 +1148,14 @@ function showFillQuestion(card) {
 function checkFillAnswer() {
     if (!currentFillCard) return;
 
-    const inputEl = document.getElementById("fillInput");
     const feedbackEl = document.getElementById("fillFeedback");
-    const userAnswer = inputEl.value.trim().toLowerCase();
+    const userAnswer = collectSlotsValue();
 
-    const correctAnswer = fillLangDirection === 'en_to_vn' ? currentFillCard.back.toLowerCase() : currentFillCard.front.toLowerCase();
+    const correctAnswer = currentFillCard.front.toLowerCase();
 
-    // For Vietnamese answers, compare without diacritics
-    let isCorrect = false;
-    if (fillLangDirection === 'en_to_vn') {
-        // Vietnamese answer - compare without diacritics
-        isCorrect = removeVietnameseDiacritics(userAnswer) === removeVietnameseDiacritics(correctAnswer);
-    } else {
-        // English answer - exact match
-        isCorrect = userAnswer === correctAnswer;
-    }
+    let isCorrect = userAnswer === correctAnswer;
 
     if (isCorrect) {
-        // Correct
         playSound(soundCorrect);
         gameProgress.fillblank = Math.min(gameProgress.fillblank + 1, total);
         updateProgress();
@@ -1144,19 +1167,19 @@ function checkFillAnswer() {
             loadNextFillQuestion();
         }, 800);
     } else {
-        // Wrong
         playSound(soundWrong);
-        feedbackEl.innerText = `Sai! Đáp án đúng: ${fillLangDirection === 'en_to_vn' ? currentFillCard.back : currentFillCard.front}`;
+        feedbackEl.innerText = `Sai! Đáp án đúng: ${currentFillCard.front}`;
         feedbackEl.style.color = "#ef4444";
-        inputEl.style.animation = "shake 0.3s";
+
+        const slots = document.querySelectorAll("#fillSlotsContainer .char-slot");
+        slots.forEach(s => {
+            s.style.borderBottomColor = "#ef4444";
+        });
         setTimeout(() => {
-            inputEl.style.animation = "";
+            slots.forEach(s => {
+                s.style.borderBottomColor = "";
+            });
         }, 300);
     }
 }
 
-function handleFillKeypress(event) {
-    if (event.key === "Enter") {
-        checkFillAnswer();
-    }
-}
