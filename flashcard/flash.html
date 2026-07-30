@@ -1439,11 +1439,32 @@ button:hover {
     display: block; /* Tắt flex để các con tự nhảy theo vị trí tuyệt đối */
     box-shadow: inset 0 0 60px rgba(56, 189, 248, 0.1), 0 20px 45px rgba(15, 23, 42, 0.45);
 }   
-
 #match-content,
+
 #blast-content {
-    width: 100% !important;
-    max-width: none !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+#match-content {
+  position: relative;
+  overflow: hidden;
+}
+
+.match-bg {
+  position: absolute;
+  inset: -10px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 0.6s ease;
+  z-index: 0;
+  filter: blur(6px) brightness(0.45);
+}
+
+#matchGrid {
+  position: relative;
+  z-index: 1;
 }
 
 #battle-container::before {
@@ -2650,6 +2671,7 @@ body.dark-mode .streak-badge { color: #f1f5f9; }
     </div>
 
     <div id="match-content" class="game-shell" style="display: none;">
+        <div id="match-bg" class="match-bg"></div>
         <div id="matchGrid" class="match-grid"></div>
     </div>
 </div>

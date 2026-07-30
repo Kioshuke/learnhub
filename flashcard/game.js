@@ -255,12 +255,12 @@ function updateProgress() {
 }
 
 function checkComplete() {
-    // Check theo mode hiện tại
     if (gameProgress[currentMode] >= total && total > 0) {
         const popup = document.getElementById("popup");
         if (popup) {
             popup.classList.add("show");
             playSound(soundHappy);
+            startConfetti();
         }
     }
 }
@@ -454,6 +454,13 @@ function loadNextBatch() {
     grid.innerHTML = ""; 
     selected = []; 
     isChecking = false;
+
+    // Random background cho mỗi mẻ
+    const bg = document.getElementById("match-bg");
+    if (bg) {
+        const rand = Math.floor(Math.random() * 1000);
+        bg.style.backgroundImage = `url(https://picsum.photos/1920/1080?random=${rand})`;
+    }
 
     const batchCards = matchPool.slice(matchIndex, matchIndex + 10);
     matchIndex += 10;
