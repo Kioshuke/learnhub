@@ -706,6 +706,7 @@ document.addEventListener('keydown', (e) => {
         if (e.key === "ArrowLeft") prevCard();
         if (e.key === "ArrowRight") nextCard();
         if (e.key === " " || e.key === "ArrowUp") flipCard();
+        if (e.key === "Enter") speak(document.getElementById('front').innerText);
     }
 });
 
