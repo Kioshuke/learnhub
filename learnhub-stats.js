@@ -1,7 +1,7 @@
 // ============================================================================
 // LearnHub Stats Module (learnhub-stats.js)
 // ----------------------------------------------------------------------------
-// Module thao tác Supabase cho thống kê cơ bản (thay thế Firestore).
+// Module thao tác Supabase cho thống kê cơ bản.
 // Giữ nguyên tên hàm và kiểu trả về để index.html / filetest.html không đổi.
 // ============================================================================
 

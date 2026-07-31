@@ -910,7 +910,7 @@ if (window !== window.parent) {
                 <span>⏱️</span><span id="timeSpentText"></span>
             </div>
             <p id="feedbackText" style="font-weight:700; font-size:1.1rem; margin-top:8px;"></p>
-            <!-- 🆕 [LearnHub Test - Giai đoạn 2] Trạng thái lưu kết quả lên Firestore -->
+            <!-- 🆕 [LearnHub Test - Giai đoạn 2] Trạng thái lưu kết quả lên Supabase -->
             <p id="saveStatsStatus" style="display:none; font-size:0.85rem; font-weight:600; margin-top:4px;"></p>
             <p>Để xem chi tiết vui lòng bấm vào mục lục nhé!</p>
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 25px;">
@@ -947,7 +947,7 @@ if (window !== window.parent) {
     </div>
 </div>
 
-<!-- 🆕 [Refactor] filetest.html không còn tự thao tác Firestore nữa.
+<!-- 🆕 [Refactor] filetest.html không còn tự thao tác Supabase nữa.
      Toàn bộ logic (tạo hồ sơ, reset tuần, lưu điểm) đã được chuyển sang
      learnhub-stats.js. Ở đây chỉ import và gọi API, giữ nguyên tên các hàm
      window.* cũ (ensureTestStatsProfile, saveTestResult)
@@ -1009,7 +1009,7 @@ window.addEventListener('message', (event) => {
             renderLearnHubUserBadge(window.learnHubUser);
         }
 
-        // Đồng bộ hồ sơ testStats/{uid} trên Firestore (tạo nếu chưa có, không ghi đè nếu đã có)
+        // Đồng bộ hồ sơ testStats/{uid} trên Supabase (tạo nếu chưa có, không ghi đè nếu đã có)
         if (typeof window.ensureTestStatsProfile === "function") {
             window.ensureTestStatsProfile(window.learnHubUser);
         }

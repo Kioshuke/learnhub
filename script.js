@@ -1,5 +1,5 @@
 // --- Performance optimized script.js ---
-// (Firebase globals đã bị thay bằng Supabase — mọi logic realtime dùng window.supabaseClient)
+// (mọi logic realtime dùng window.supabaseClient)
 
 // Cache DOM elements
 let currentTab = "home";

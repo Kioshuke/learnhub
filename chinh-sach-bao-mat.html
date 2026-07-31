@@ -246,7 +246,7 @@
       <div class="doc-section-head"><span class="doc-section-num">2</span><h2>Thông tin được thu thập</h2></div>
       <p>Chúng tôi thu thập các loại thông tin sau khi bạn sử dụng Nền tảng:</p>
       <ul>
-        <li><strong>Thông tin tài khoản:</strong> Họ tên, email, ảnh đại diện — được xác thực qua Google OAuth hoặc đăng ký Email/Mật khẩu (whitelist). Mật khẩu được quản lý bảo mật bởi Firebase Authentication, <strong>chúng tôi không lưu trữ mật khẩu</strong> dưới dạng văn bản thuần.</li>
+        <li><strong>Thông tin tài khoản:</strong> Họ tên, email, ảnh đại diện — được xác thực qua Google OAuth hoặc đăng ký Email/Mật khẩu (whitelist). Mật khẩu được quản lý bảo mật bởi Supabase Authentication, <strong>chúng tôi không lưu trữ mật khẩu</strong> dưới dạng văn bản thuần.</li>
         <li><strong>Dữ liệu hoạt động:</strong> Thời gian đăng nhập, trạng thái online/offline, lịch sử làm bài kiểm tra và xem tài liệu.</li>
         <li><strong>Nội dung bạn gửi:</strong> Hình ảnh bài tập (khi sử dụng Hubie AI), bài viết diễn đàn, phản hồi/góp ý.</li>
         <li><strong>Thông tin kỹ thuật:</strong> Loại trình duyệt, hệ điều hành, địa chỉ IP (một phần) — được thu thập tự động để tối ưu trải nghiệm.</li>
@@ -272,9 +272,9 @@
     <div class="doc-section" id="s4">
       <div class="doc-section-head"><span class="doc-section-num">4</span><h2>Lưu trữ &amp; Bảo mật dữ liệu</h2></div>
       <ul>
-        <li>Dữ liệu được lưu trữ trên <strong>Firebase Firestore</strong> — nền tảng đám mây của Google, tuân thủ tiêu chuẩn bảo mật quốc tế.</li>
+        <li>Dữ liệu được lưu trữ trên <strong>Supabase</strong> — nền tảng cơ sở dữ liệu đám mây mã nguồn mở, tuân thủ tiêu chuẩn bảo mật quốc tế.</li>
         <li>Thông tin cá nhân chỉ được giữ trong thời gian tài khoản còn hoạt động. Khi tài khoản bị xóa, dữ liệu liên quan sẽ được loại bỏ trong thời gian hợp lý.</li>
-        <li>Chúng tôi áp dụng: kiểm soát quyền truy cập cấp Admin, mã hóa truyền dữ liệu (HTTPS), và quy tắc bảo mật Firebase.</li>
+        <li>Chúng tôi áp dụng: kiểm soát quyền truy cập cấp Admin, mã hóa truyền dữ liệu (HTTPS), và quy tắc bảo mật Row Level Security (RLS) trên từng dữ liệu.</li>
         <li>Tuy nhiên, không có phương thức truyền tải nào an toàn tuyệt đối. Bạn không nên chia sẻ thông tin đăng nhập với bất kỳ ai.</li>
       </ul>
     </div>
@@ -284,7 +284,7 @@
       <p>Chúng tôi <strong>không bán, cho thuê hoặc trao đổi</strong> thông tin cá nhân với bất kỳ bên thứ ba nào vì mục đích thương mại.</p>
       <p>Thông tin chỉ được chia sẻ trong các trường hợp:</p>
       <ul>
-        <li><strong>Google Firebase:</strong> Nhà cung cấp hạ tầng cloud — xử lý dữ liệu theo <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">chính sách bảo mật của Google</a>.</li>
+        <li><strong>Supabase:</strong> Nhà cung cấp hạ tầng cơ sở dữ liệu &amp; xác thực đám mây — xử lý dữ liệu theo <a href="https://supabase.com/privacy" target="_blank" rel="noopener">chính sách bảo mật của Supabase</a>.</li>
         <li><strong>Người dùng khác trên nền tảng:</strong> Tên hiển thị, ảnh đại diện và trạng thái online/offline của bạn có thể hiển thị công khai với các người dùng đã đăng nhập khác thông qua Diễn đàn và Bảng xếp hạng.</li>
         <li><strong>Yêu cầu pháp lý:</strong> Khi có yêu cầu từ cơ quan nhà nước có thẩm quyền.</li>
         <li><strong>Bảo vệ quyền lợi:</strong> Khi cần thiết để ngăn chặn hành vi vi phạm pháp luật hoặc gây hại cho người dùng.</li>
@@ -295,7 +295,7 @@
       <div class="doc-section-head"><span class="doc-section-num">6</span><h2>Cookie &amp; Công nghệ theo dõi</h2></div>
       <ul>
         <li>LearnHub sử dụng <strong>Cookie</strong> và <strong>LocalStorage</strong> để lưu trạng thái đăng nhập, tùy chỉnh giao diện (dark mode), ghi nhớ phiên làm việc.</li>
-        <li>Cookie từ Firebase Authentication duy trì phiên đăng nhập an toàn.</li>
+        <li>Cookie từ Supabase Authentication duy trì phiên đăng nhập an toàn.</li>
         <li>Chúng tôi <strong>không sử dụng</strong> cookie quảng cáo, cookie theo dõi đa nền tảng hay công cụ phân tích bên thứ ba.</li>
         <li>Bạn có thể quản lý hoặc xóa Cookie qua cài đặt trình duyệt.</li>
       </ul>

@@ -95,7 +95,7 @@ export async function getUserRow(uid) {
   }
 }
 
-// Sau khi đăng nhập: nhận lại dữ liệu Firebase cũ (nếu có) + cập nhật hồ sơ.
+// Sau khi đăng nhập: nhận lại dữ liệu cũ từ migration (nếu có) + cập nhật hồ sơ.
 export async function finalizeSession(user) {
   if (!user || !user.id) return null;
   const email = user.email;
