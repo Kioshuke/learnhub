@@ -804,13 +804,7 @@ onAuthChange(async (event, session) => {
       }
       // Nhận lại dữ liệu cũ (claim_legacy_data) + cập nhật hồ sơ
       await finalizeSession(user);
-      const isApp = navigator.userAgent.includes("Android");
-      if (isApp) {
-        showAuthNotice("Đăng nhập thành công!", "success", "Thành công");
-        setTimeout(() => { window.location.href = "myapp://auth"; }, 1000);
-      } else {
-        showLoginSuccess("Đăng nhập thành công!");
-      }
+      showLoginSuccess("Đăng nhập thành công!");
     } catch(e) {
       console.error("Finalize login lỗi:", e);
       processingLogin = false;
