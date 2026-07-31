@@ -265,6 +265,52 @@ try {
   console.warn("Không thể lắng nghe trạng thái bảo trì:", e);
 }
 
+// ================= DÒNG CHỮ CHẠY (ticker, đọc realtime từ ticker_settings) =================
+let tickerApplied = false;
+
+function applyTicker(text, speedSeconds) {
+  const el = document.querySelector(".ticker-text");
+  if (!el) return false;
+  if (typeof text === "string" && text.trim() !== "") el.textContent = text;
+  el.style.animationDuration = (Number(speedSeconds) || 18) + "s";
+  tickerApplied = true;
+  return true;
+}
+
+async function initTicker() {
+  let tries = 0;
+  const attempt = async () => {
+    if (tickerApplied) return;
+    if (!document.querySelector(".ticker-text")) {
+      if (tries++ < 40) setTimeout(attempt, 300);
+      return;
+    }
+    try {
+      const { data } = await supabase.from("ticker_settings").select("*").eq("id", true).maybeSingle();
+      if (data) {
+        applyTicker(data.text, data.speed_seconds);
+      } else {
+        applyTicker(null, 18);
+      }
+    } catch (e) {
+      if (tries++ < 40) setTimeout(attempt, 300);
+    }
+  };
+  attempt();
+}
+initTicker();
+
+try {
+  supabase.channel("ticker-realtime")
+    .on("postgres_changes", { event: "*", schema: "public", table: "ticker_settings" }, (payload) => {
+      const d = payload.new || {};
+      applyTicker(d.text, d.speed_seconds);
+    })
+    .subscribe();
+} catch (e) {
+  console.warn("Không thể lắng nghe dòng chữ chạy:", e);
+}
+
 function applyUserToUI(user){
 const hour = new Date().getHours();
 let greeting = "";

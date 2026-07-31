@@ -2771,6 +2771,11 @@ animation:scrollText 18s linear infinite;
 will-change:transform;
 }
 
+/* Dừng lại khi di chuột lên dòng chữ chạy */
+.ticker-container:hover .ticker-text{
+animation-play-state:paused;
+}
+
 @keyframes scrollText{
 from{
 transform:translateX(0);
@@ -2780,14 +2785,7 @@ transform:translateX(-100%);
 }
 }
 
-/* Mobile: nhanh hơn desktop */
-@media (max-width:768px){
-  .ticker-text{
-    animation-duration:12s !important;
-    animation-timing-function:linear !important;
-  }
-}
-
+/* Mobile: tốc độ lấy từ cấu hình admin (set inline qua JS), không override nữa */
 @media (prefers-reduced-motion:reduce){
   .ticker-text{
     animation:none;

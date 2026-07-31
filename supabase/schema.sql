@@ -94,6 +94,15 @@ create table if not exists public.broadcast_welcome (
   updated_by text
 );
 
+-- Cấu hình dòng chữ chạy trên cùng web chính (nội dung + tốc độ).
+create table if not exists public.ticker_settings (
+  id            boolean primary key default true check (id),
+  text          text not null default '',
+  speed_seconds int not null default 18,
+  updated_at    timestamptz,
+  updated_by    text
+);
+
 create table if not exists public.weekly_winners (
   week_key   text primary key,
   top        jsonb,
@@ -143,6 +152,7 @@ alter table public.maintenance_settings enable row level security;
 alter table public.weekly_reset enable row level security;
 alter table public.broadcast_current enable row level security;
 alter table public.broadcast_welcome enable row level security;
+alter table public.ticker_settings enable row level security;
 alter table public.weekly_winners enable row level security;
 alter table public.forum_posts enable row level security;
 alter table public.forum_events enable row level security;
@@ -368,6 +378,18 @@ drop policy if exists broadcast_welcome_write_admin on public.broadcast_welcome;
 create policy broadcast_welcome_write_admin on public.broadcast_welcome
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
+drop policy if exists ticker_select on public.ticker_settings;
+create policy ticker_select on public.ticker_settings
+  for select to authenticated using (true);
+
+drop policy if exists ticker_select_anon on public.ticker_settings;
+create policy ticker_select_anon on public.ticker_settings
+  for select to anon using (true);
+
+drop policy if exists ticker_write_admin on public.ticker_settings;
+create policy ticker_write_admin on public.ticker_settings
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
 drop policy if exists weekly_winners_select on public.weekly_winners;
 create policy weekly_winners_select on public.weekly_winners
   for select to authenticated using (true);
@@ -441,6 +463,7 @@ begin
     'public.broadcast_current',
     'public.broadcast_welcome',
     'public.maintenance_settings',
+    'public.ticker_settings',
     'public.weekly_winners'
   ] loop
     if not exists (
