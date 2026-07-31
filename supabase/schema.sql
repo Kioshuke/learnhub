@@ -166,7 +166,9 @@ as $$
   );
 $$;
 
-grant execute on function public.is_admin() to anon, authenticated;
+-- is_admin: chỉ authenticated cần dùng (trong policy). anon/PUBLIC bị chặn.
+revoke execute on function public.is_admin() from public;
+grant execute on function public.is_admin() to authenticated;
 
 -- Kiểm tra email có trong whitelist không (dùng trước khi đăng ký, không lộ bảng access_list).
 create or replace function public.is_email_allowed(p_email text)
@@ -181,6 +183,9 @@ as $$
   );
 $$;
 
+-- is_email_allowed: anon cần gọi lúc đăng ký (kiểm tra whitelist trước khi tạo tài khoản),
+-- authenticated cần cho guard whitelist.
+revoke execute on function public.is_email_allowed(text) from public;
 grant execute on function public.is_email_allowed(text) to anon, authenticated;
 
 -- Tự tạo dòng users khi có user Supabase mới (Google / email) đăng nhập lần đầu.
@@ -216,6 +221,9 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- handle_new_user chỉ là trigger function, không cho ai gọi trực tiếp qua RPC.
+revoke execute on function public.handle_new_user() from public;
 
 -- Nhận lại dữ liệu cũ: khi user cũ đăng nhập lại lần đầu (cùng email),
 -- chuyển hồ sơ + điểm + bài viết forum từ uid Firebase cũ sang uid Supabase mới.
@@ -290,6 +298,8 @@ begin
 end;
 $$;
 
+-- claim_legacy_data: chỉ authenticated dùng (sau khi đăng nhập). anon/PUBLIC bị chặn.
+revoke execute on function public.claim_legacy_data(text) from public;
 grant execute on function public.claim_legacy_data(text) to authenticated;
 
 -- ============================== POLICIES ==============================
