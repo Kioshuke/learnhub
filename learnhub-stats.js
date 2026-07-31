@@ -1,14 +1,11 @@
 // ============================================================================
 // LearnHub Stats Module (learnhub-stats.js)
 // ----------------------------------------------------------------------------
-// Module thao tác Firestore cho thống kê cơ bản.
+// Module thao tác Supabase cho thống kê cơ bản (thay thế Firestore).
+// Giữ nguyên tên hàm và kiểu trả về để index.html / filetest.html không đổi.
 // ============================================================================
 
-import { db } from "./firebase-config.js";
-import {
-  doc, getDoc, setDoc, serverTimestamp,
-  collection, getDocs, query, orderBy, limit
-} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { supabase } from "./supabase-config.js";
 
 function getCurrentWeekKey() {
   const now = new Date();
@@ -20,49 +17,68 @@ function getCurrentWeekKey() {
   return `${d.getUTCFullYear()}-W${String(weekNum).padStart(2, '0')}`;
 }
 
+function nowIso() {
+  return new Date().toISOString();
+}
+
+function camelStats(row) {
+  if (!row) return null;
+  return {
+    uid: row.user_id,
+    totalTests: Number(row.total_tests || 0),
+    totalScore: Number(row.total_score || 0),
+    bestScore: Number(row.best_score || 0),
+    weekKey: row.week_key ?? null,
+    createdAt: row.created_at,
+    lastPlayed: row.last_played,
+    updatedAt: row.updated_at
+  };
+}
 
 export async function createUserStats(user) {
   if (!user || !user.uid) return null;
 
   try {
-    const statsRef = doc(db, "testStats", user.uid);
-    const statsSnap = await getDoc(statsRef);
+    const uid = user.uid;
     const currentWeek = getCurrentWeekKey();
 
-    if (statsSnap.exists()) {
-      const existingData = statsSnap.data();
-      const isNewWeek = existingData.weekKey && existingData.weekKey !== currentWeek;
-      
+    const { data: existing } = await supabase
+      .from("test_stats")
+      .select("*")
+      .eq("user_id", uid)
+      .maybeSingle();
+
+    if (existing) {
+      const isNewWeek = existing.week_key && existing.week_key !== currentWeek;
       const payload = {
-        totalTests: isNewWeek ? 0 : Number(existingData.totalTests || 0),
-        totalScore: isNewWeek ? 0 : Number(existingData.totalScore || 0),
-        bestScore: isNewWeek ? 0 : Number(existingData.bestScore || 0),
-        weekKey: currentWeek,
-        updatedAt: serverTimestamp()
+        total_tests: isNewWeek ? 0 : Number(existing.total_tests || 0),
+        total_score: isNewWeek ? 0 : Number(existing.total_score || 0),
+        best_score: isNewWeek ? 0 : Number(existing.best_score || 0),
+        week_key: currentWeek,
+        updated_at: nowIso()
       };
-      await setDoc(statsRef, payload, { merge: true });
-      return { ...existingData, ...payload };
+      await supabase.from("test_stats").update(payload).eq("user_id", uid);
+      return { ...camelStats(existing), ...payload };
     }
 
     const defaultStats = {
-      totalTests: 0,
-      totalScore: 0,
-      bestScore: 0,
-      weekKey: currentWeek,
-      createdAt: serverTimestamp(),
-      lastPlayed: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      user_id: uid,
+      total_tests: 0,
+      total_score: 0,
+      best_score: 0,
+      week_key: currentWeek,
+      created_at: nowIso(),
+      last_played: nowIso(),
+      updated_at: nowIso()
     };
 
-    await setDoc(statsRef, defaultStats);
-    return defaultStats;
+    await supabase.from("test_stats").insert(defaultStats);
+    return camelStats(defaultStats);
   } catch (e) {
     console.log("[learnhub-stats] createUserStats lỗi:", e);
     throw e;
   }
 }
-
-
 
 export async function updateUserStats(uid, score) {
   if (!uid) {
@@ -77,30 +93,36 @@ export async function updateUserStats(uid, score) {
   }
 
   try {
-    const statsRef = doc(db, "testStats", uid);
-    const statsSnap = await getDoc(statsRef);
     const currentWeek = getCurrentWeekKey();
-    const currentData = statsSnap.exists() ? statsSnap.data() : {};
-    const isNewWeek = currentData.weekKey && currentData.weekKey !== currentWeek;
 
-    const totalTests = (isNewWeek ? 0 : Number(currentData.totalTests || 0)) + 1;
-    const totalScore = (isNewWeek ? 0 : Number(currentData.totalScore || 0)) + numericScore;
-    const bestScore = isNewWeek ? numericScore : Math.max(Number(currentData.bestScore || 0), numericScore);
+    const { data: existing } = await supabase
+      .from("test_stats")
+      .select("*")
+      .eq("user_id", uid)
+      .maybeSingle();
+
+    const currentData = existing || {};
+    const isNewWeek = currentData.week_key && currentData.week_key !== currentWeek;
+
+    const totalTests = (isNewWeek ? 0 : Number(currentData.total_tests || 0)) + 1;
+    const totalScore = (isNewWeek ? 0 : Number(currentData.total_score || 0)) + numericScore;
+    const bestScore = isNewWeek ? numericScore : Math.max(Number(currentData.best_score || 0), numericScore);
 
     const payload = {
-      totalTests,
-      totalScore,
-      bestScore,
-      weekKey: currentWeek,
-      lastPlayed: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      total_tests: totalTests,
+      total_score: totalScore,
+      best_score: bestScore,
+      week_key: currentWeek,
+      last_played: nowIso(),
+      updated_at: nowIso()
     };
 
-    if (!statsSnap.exists()) {
-      payload.createdAt = serverTimestamp();
+    if (!existing) {
+      payload.created_at = nowIso();
+      await supabase.from("test_stats").insert({ user_id: uid, ...payload });
+    } else {
+      await supabase.from("test_stats").update(payload).eq("user_id", uid);
     }
-
-    await setDoc(statsRef, payload, { merge: true });
     return true;
   } catch (e) {
     console.log("[learnhub-stats] updateUserStats lỗi:", e);
@@ -112,31 +134,33 @@ export async function loadUserStats(uid, fallbackUser = null) {
   if (!uid) return null;
 
   try {
-    const userRef = doc(db, "users", uid);
-    const statsRef = doc(db, "testStats", uid);
+    const { data: userRow } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", uid)
+      .maybeSingle();
+    const { data: statsRow } = await supabase
+      .from("test_stats")
+      .select("*")
+      .eq("user_id", uid)
+      .maybeSingle();
 
-    const [userSnap, statsSnap] = await Promise.all([
-      getDoc(userRef),
-      getDoc(statsRef)
-    ]);
-
-    if (!userSnap.exists() && !statsSnap.exists() && !fallbackUser) {
+    if (!userRow && !statsRow && !fallbackUser) {
       return null;
     }
 
-    const userData = userSnap.exists() ? userSnap.data() : {};
-    const statsData = statsSnap.exists() ? statsSnap.data() : {};
+    const u = userRow || {};
     const fb = fallbackUser || {};
 
     return {
       uid,
-      name: userData.name ?? userData.displayName ?? fb.displayName ?? fb.name ?? null,
-      email: userData.email ?? fb.email ?? null,
-      photo: userData.photo ?? fb.photoURL ?? fb.photo ?? null,
-      totalTests: statsData.totalTests ?? 0,
-      totalScore: statsData.totalScore ?? 0,
-      bestScore: statsData.bestScore ?? 0,
-      weekKey: statsData.weekKey ?? null
+      name: u.name ?? fb.name ?? fb.displayName ?? null,
+      email: u.email ?? fb.email ?? null,
+      photo: u.photo ?? fb.photo ?? fb.photoURL ?? null,
+      totalTests: statsRow ? Number(statsRow.total_tests || 0) : 0,
+      totalScore: statsRow ? Number(statsRow.total_score || 0) : 0,
+      bestScore: statsRow ? Number(statsRow.best_score || 0) : 0,
+      weekKey: statsRow ? (statsRow.week_key ?? null) : null
     };
   } catch (e) {
     console.log("[learnhub-stats] loadUserStats lỗi:", e);
@@ -159,29 +183,30 @@ export async function loadLeaderboard(options = {}) {
         return [];
       }
 
-      const winnersRef = doc(db, "weeklyWinners", weekKey);
-      const winnersSnap = await getDoc(winnersRef);
-      if (!winnersSnap.exists()) return [];
+      const { data: winnersRow } = await supabase
+        .from("weekly_winners")
+        .select("top")
+        .eq("week_key", weekKey)
+        .maybeSingle();
+      if (!winnersRow) return [];
 
-      const winnersData = winnersSnap.data();
-      return Array.isArray(winnersData.top) ? winnersData.top : [];
+      return Array.isArray(winnersRow.top) ? winnersRow.top : [];
     }
 
-    const statsCol = collection(db, "testStats");
-    const leaderboardQuery = query(
-      statsCol,
-      orderBy(orderByField, "desc"),
-      limit(limitCount)
-    );
+    const fieldMap = {
+      totalScore: "total_score",
+      totalTests: "total_tests",
+      bestScore: "best_score"
+    };
+    const orderField = fieldMap[orderByField] || "total_score";
 
-    const snap = await getDocs(leaderboardQuery);
-    const results = [];
+    const { data } = await supabase
+      .from("test_stats")
+      .select("*")
+      .order(orderField, { ascending: false })
+      .limit(limitCount);
 
-    snap.forEach((docSnap) => {
-      results.push({ uid: docSnap.id, ...docSnap.data() });
-    });
-
-    return results;
+    return (data || []).map(camelStats);
   } catch (e) {
     console.log("[learnhub-stats] loadLeaderboard lỗi:", e);
     throw e;

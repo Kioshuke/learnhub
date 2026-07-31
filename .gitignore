@@ -1,0 +1,5 @@
+node_modules/
+migrate/export/
+migrate/.env
+migrate/*-service-account.json
+*.service-account.json

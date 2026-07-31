@@ -335,23 +335,7 @@
     </div>
 
     <script type="module">
-        import { initializeApp, getApps }
-          from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, getDoc }
-          from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
-        const LB_NAME = "leaderboard-lb";
-        const lbApp = getApps().find(a => a.name === LB_NAME)
-          || initializeApp({
-            apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c",
-            authDomain: "onthi12-thpttanhong.firebaseapp.com",
-            projectId: "onthi12-thpttanhong",
-            storageBucket: "onthi12-thpttanhong.firebasestorage.app",
-            messagingSenderId: "109867981504",
-            appId: "1:109867981504:web:e116346b0efcfb140cd55f",
-            measurementId: "G-6EX7SBMF1K"
-          }, LB_NAME);
-        const db = getFirestore(lbApp);
+        import { supabase } from "./supabase-config.js";
 
         function getWeekKey() {
             const now = new Date();
@@ -396,18 +380,23 @@
             document.getElementById("week-label").textContent = getWeekKey();
 
             try {
-                const snap = await getDocs(collection(db, "testStats"));
+                const [{ data: stats }, { data: users }] = await Promise.all([
+                    supabase.from("test_stats").select("user_id, total_score, total_tests"),
+                    supabase.from("users").select("id, name, email, photo")
+                ]);
+
+                const userMap = new Map((users || []).map(u => [u.id, u]));
                 const rows = [];
-                for (const d of snap.docs) {
-                    const s = d.data();
-                    const score = Number(s.totalScore || 0);
+                for (const s of (stats || [])) {
+                    const score = Number(s.total_score || 0);
                     if (score <= 0) continue;
-                    let name = "Ẩn danh", photo = "";
-                    try {
-                        const u = await getDoc(doc(db, "users", d.id));
-                        if (u.exists()) { const ud = u.data(); name = ud.name || ud.email || name; photo = ud.photo || ""; }
-                    } catch(e) {}
-                    rows.push({ name, photo, score, tests: Number(s.totalTests||0) });
+                    const ud = userMap.get(s.user_id) || {};
+                    rows.push({
+                        name: ud.name || ud.email || "Ẩn danh",
+                        photo: ud.photo || "",
+                        score,
+                        tests: Number(s.total_tests || 0)
+                    });
                 }
                 rows.sort((a, b) => b.score - a.score);
 
@@ -448,7 +437,7 @@
                     podiumEl.innerHTML = buildPodium(top3, [
                         { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '🥈' },
                         { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' },
-                        { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: '🥉' }
+                        { idx: 2, ring: 'ring-bronze', bar: 'ring-bronze', avSz: 56, barH: 40, rank: 3, medal: '🥉' }
                     ]);
                 }
 
@@ -480,21 +469,21 @@
         // ===== LOAD ONLINE TIME RANKING =====
         async function loadOnlineTime() {
             try {
-                const snap = await getDocs(collection(db, "users"));
+                const { data: allUsers } = await supabase.from("users")
+                    .select("id, name, email, photo, online, online_timer, online_start_time, last_active, disabled");
                 const rows = [];
                 const now = Date.now();
                 const THRESHOLD = 45000;
-                for (const d of snap.docs) {
-                    const ud = d.data();
+                for (const ud of (allUsers || [])) {
                     if (ud.disabled) continue;
-                    const baseTimer = Number(ud.onlinetimer || 0);
+                    const baseTimer = Number(ud.online_timer || 0);
                     let effectiveTimer = baseTimer;
-                    if (ud.online && ud.lastActive && (now - ud.lastActive) < THRESHOLD && ud.onlineStartTime > 0) {
-                        effectiveTimer += Math.floor((now - ud.onlineStartTime) / 1000);
+                    if (ud.online && ud.last_active && (now - ud.last_active) < THRESHOLD && ud.online_start_time > 0) {
+                        effectiveTimer += Math.floor((now - ud.online_start_time) / 1000);
                     }
                     if (effectiveTimer <= 0) continue;
                     rows.push({
-                        uid: d.id,
+                        uid: ud.id,
                         name: ud.name || ud.email || "Ẩn danh",
                         photo: ud.photo || "",
                         timer: effectiveTimer

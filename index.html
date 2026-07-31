@@ -177,32 +177,25 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 
 
 <script type="module">
-import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, setPersistence, browserLocalPersistence } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js"; 
-import { doc, setDoc, getDoc, collection, getDocs } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js"; 
-// 🆕 [Refactor] Dùng chung app/auth/db từ firebase-config.js, không tự initializeApp() nữa.
-// Hành vi và giá trị của auth/db hoàn toàn không đổi so với trước (cùng firebaseConfig, cùng project).
-import { app, auth, db } from "./firebase-config.js";
+import { supabase } from "./supabase-config.js";
+import { getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange } from "./supabase-helpers.js";
 import { createUserStats, updateUserStats } from "./learnhub-stats.js";
-await setPersistence(auth, browserLocalPersistence); 
-const provider = new GoogleAuthProvider();
 
-let allowList = [];
+let currentSupabaseUser = null;
 let activeInterval = null;
 let onlineTimerInterval = null;
 const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
 
-// ================= MAINTENANCE MODE (realtime, đọc từ Firestore settings/maintenance) =================
+// ================= MAINTENANCE MODE (realtime, đọc từ Supabase maintenance_settings) =================
 let maintenanceState = { enabled: false, message: "", initialized: false };
 let previousMaintenanceEnabled = false;
 
 function handleMaintenanceTransition(newEnabled){
   // Only sign out when maintenance is newly enabled (transition false -> true)
   try {
-    if(newEnabled && !previousMaintenanceEnabled && auth && auth.currentUser){
+    if(newEnabled && !previousMaintenanceEnabled && currentSupabaseUser){
       console.trace("SIGN OUT (maintenance mode - transition)");
-      signOut(auth).catch(()=>{});
+      supabase.auth.signOut().catch(()=>{});
       // ensure UI stays on maintenance after sign out
       setTimeout(() => applyMaintenanceUI(), 100);
     }
@@ -238,10 +231,21 @@ applyMaintenanceUI();
 // Lắng nghe realtime để: (1) chặn ngay lập tức mọi truy cập mới, (2) đá văng
 // (signOut) tất cả user đang đăng nhập ngay khi admin bật bảo trì lên.
 try {
-  onSnapshot(doc(db, "settings", "maintenance"), async (snap) => {
-    const data = snap.exists() ? (snap.data() || {}) : {};
-    const newEnabled = !!data.enabled;
-    maintenanceState = { enabled: newEnabled, message: String(data.message || ""), initialized: true };
+  getMaintenance().then((_m) => {
+    maintenanceState = { enabled: _m.enabled, message: _m.message, initialized: true };
+    handleMaintenanceTransition(maintenanceState.enabled);
+    applyMaintenanceUI();
+  }).catch(() => {});
+} catch (e) {
+  maintenanceState = { enabled: true, message: "", initialized: true };
+  applyMaintenanceUI();
+  console.warn("Không thể lắng nghe trạng thái bảo trì:", e);
+}
+
+try {
+  subscribeMaintenance((data) => {
+    const newEnabled = data.enabled;
+    maintenanceState = { enabled: newEnabled, message: data.message, initialized: true };
     // handle transition-based sign out (only when it turns on)
     handleMaintenanceTransition(newEnabled);
     applyMaintenanceUI();
@@ -259,35 +263,6 @@ try {
   maintenanceState = { enabled: true, message: "", initialized: true };
   applyMaintenanceUI();
   console.warn("Không thể lắng nghe trạng thái bảo trì:", e);
-}
-
-function normalizeEmail(email){
-  return String(email || "").trim().toLowerCase();
-}
-
-function accessDocId(email){
-  return encodeURIComponent(normalizeEmail(email));
-}
-
-async function loadAllowList(){
-  try {
-    const snap = await getDocs(collection(db, "accessList"));
-    allowList = snap.docs
-      .map((item) => item.data())
-      .filter((item) => item && item.email && item.enabled !== false)
-      .map((item) => normalizeEmail(item.email));
-  } catch (error) {
-    console.warn("Không thể tải accessList từ Firestore.", error);
-    allowList = [];
-  }
-
-  return allowList;
-}
-
-const allowListReady = loadAllowList();
-
-function isAllowedEmail(email){
-  return allowList.includes(normalizeEmail(email));
 }
 
 function applyUserToUI(user){
@@ -375,10 +350,10 @@ function enterPreviewMode(){
   showContent();
 }
 
-let unsubscribeAccessGuard = null;
-let unsubscribeUserGuard = null;
-let unsubscribeBroadcastGuard = null;
-let unsubscribeWelcomePopup = null;
+let accessGuardInterval = null;
+let userGuardChannel = null;
+let broadcastGuardChannel = null;
+let welcomeGuardChannel = null;
 let authGuardTriggered = false;
 let welcomePopupCache = null;
 let appLoadingComplete = false;
@@ -427,21 +402,21 @@ window.resetAppLoadingComplete = function(){
 };
 
 function stopAccessGuards(){
-  if(unsubscribeAccessGuard){
-    unsubscribeAccessGuard();
-    unsubscribeAccessGuard = null;
+  if(accessGuardInterval){
+    clearInterval(accessGuardInterval);
+    accessGuardInterval = null;
   }
-  if(unsubscribeUserGuard){
-    unsubscribeUserGuard();
-    unsubscribeUserGuard = null;
+  if(userGuardChannel){
+    supabase.removeChannel(userGuardChannel);
+    userGuardChannel = null;
   }
-  if(unsubscribeBroadcastGuard){
-    unsubscribeBroadcastGuard();
-    unsubscribeBroadcastGuard = null;
+  if(broadcastGuardChannel){
+    supabase.removeChannel(broadcastGuardChannel);
+    broadcastGuardChannel = null;
   }
-  if(unsubscribeWelcomePopup){
-    unsubscribeWelcomePopup();
-    unsubscribeWelcomePopup = null;
+  if(welcomeGuardChannel){
+    supabase.removeChannel(welcomeGuardChannel);
+    welcomeGuardChannel = null;
   }
   authGuardTriggered = false;
 }
@@ -455,7 +430,7 @@ function forceLogoutWithCountdown(message, title, redirectMs = 5000){
   const noticeMessage = document.getElementById("authNoticeMessage");
   const noticeIcon = document.getElementById("authNoticeIcon");
   if(!notice || !noticeTitle || !noticeMessage || !noticeIcon){
-    signOut(auth).catch(()=>{});
+    supabase.auth.signOut().catch(()=>{});
     return;
   }
 
@@ -478,7 +453,7 @@ function forceLogoutWithCountdown(message, title, redirectMs = 5000){
       notice.classList.remove("show");
       notice.classList.add("hide");
       updateStatus(false).catch(()=>{});
-      signOut(auth).catch(()=>{});
+      supabase.auth.signOut().catch(()=>{});
     } else {
       noticeMessage.textContent = `${message} Đang đăng xuất sau ${remaining}s...`;
     }
@@ -493,85 +468,102 @@ function startAccessGuards(user){
   stopAccessGuards();
   if(!user || !user.uid || !user.email) return;
 
+  // Whitelist guard: không có realtime trên access_list (RLS chỉ admin đọc),
+  // nên poll RPC is_email_allowed định kỳ để phát hiện bị gỡ quyền.
   try {
-    unsubscribeAccessGuard = onSnapshot(doc(db, "accessList", accessDocId(user.email)), (snap) => {
+    accessGuardInterval = setInterval(async () => {
       if(authGuardTriggered) return;
-      if(!snap.exists() || snap.data()?.enabled === false){
+      const ok = await emailAllowed(user.email);
+      if(!ok){
         forceLogoutNow(
           "Quyền truy cập của bạn vừa bị thu hồi. Vui lòng liên hệ admin nếu cần hỗ trợ.",
           "Đã bị gỡ whitelist"
         );
       }
-    });
+    }, 30000);
   } catch (e) {}
 
+  // User guard: realtime theo dõi hồ sơ của chính user (disabled / bị xóa).
   try {
-    unsubscribeUserGuard = onSnapshot(doc(db, "users", user.uid), (snap) => {
-      if(authGuardTriggered) return;
-      if(!snap.exists()){
+    userGuardChannel = supabase.channel("guard-user-" + user.uid)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "users", filter: "id=eq." + user.uid }, (payload) => {
+        if(authGuardTriggered) return;
+        const data = payload.new || {};
+        if(data.disabled){
+          forceLogoutNow(
+            "Tài khoản của bạn vừa bị vô hiệu hóa. Vui lòng liên hệ admin.",
+            "Tài khoản bị khóa"
+          );
+        }
+      })
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "users", filter: "id=eq." + user.uid }, () => {
+        if(authGuardTriggered) return;
         forceLogoutNow(
           "Hồ sơ người dùng của bạn vừa bị xóa khỏi hệ thống.",
           "Hồ sơ đã bị xóa"
         );
-        return;
-      }
-
-      const data = snap.data() || {};
-      if(data.disabled){
-        forceLogoutNow(
-          "Tài khoản của bạn vừa bị vô hiệu hóa. Vui lòng liên hệ admin.",
-          "Tài khoản bị khóa"
-        );
-      }
-    });
+      })
+      .subscribe();
   } catch (e) {}
 
+  // Broadcast guard: thông báo hiện tại.
   try {
-    unsubscribeBroadcastGuard = onSnapshot(doc(db, "broadcasts", "current"), (snap) => {
-      if(!snap.exists()) return;
+    broadcastGuardChannel = supabase.channel("guard-broadcast")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "broadcast_current" }, (payload) => {
+        if(authGuardTriggered) return;
+        const data = payload.new || {};
+        if(data.active === false) return;
 
-      const data = snap.data() || {};
-      if(data.active === false) return;
+        const broadcastId = String(data.broadcast_id || data.updated_at || "");
+        if(!broadcastId) return;
 
-      const broadcastId = String(data.id || data.updatedAt || "");
-      if(!broadcastId) return;
+        const seenKey = "learnhub_last_broadcast_seen";
+        const lastSeen = localStorage.getItem(seenKey);
+        if(lastSeen === broadcastId) return;
 
-      const seenKey = "learnhub_last_broadcast_seen";
-      const lastSeen = localStorage.getItem(seenKey);
-      if(lastSeen === broadcastId) return;
+        const title = data.title ? `${data.title}` : "Thông báo";
+        const safeMessage = String(data.message || "").trim();
+        if(!safeMessage) return;
 
-      const title = data.title ? `${data.title}` : "Thông báo";
-      const safeMessage = String(data.message || "").trim();
-      if(!safeMessage) return;
+        const targetMode = String(data.target_mode || "all");
+        const targetEmail = String(data.target_email || "").trim().toLowerCase();
+        if(targetMode === "single" && targetEmail && targetEmail !== String(user.email || "").trim().toLowerCase()){
+          return;
+        }
 
-      const targetMode = String(data.targetMode || "all");
-      const targetEmail = normalizeEmail(data.targetEmail || "");
-      if(targetMode === "single" && targetEmail && targetEmail !== normalizeEmail(user.email)){
-        return;
-      }
-
-      localStorage.setItem(seenKey, broadcastId);
-      const noticeType = ["info", "warning", "error", "success"].includes(String(data.type || "info"))
-        ? String(data.type || "info")
-        : "info";
-      const durationMs = Number(data.durationMs || 3000);
-      showAuthNotice(safeMessage, noticeType, title, durationMs, "realtimeSound");
-    });
+        localStorage.setItem(seenKey, broadcastId);
+        const noticeType = ["info", "warning", "error", "success"].includes(String(data.type || "info"))
+          ? String(data.type || "info")
+          : "info";
+        const durationMs = Number(data.duration_ms || 3000);
+        showAuthNotice(safeMessage, noticeType, title, durationMs, "realtimeSound");
+      })
+      .subscribe();
   } catch (e) {}
 
+  // Welcome popup guard.
   try {
-    unsubscribeWelcomePopup = onSnapshot(doc(db, "broadcasts", "welcomePopup"), (snap) => {
-      if(!snap.exists()){
-        welcomePopupCache = { ...WELCOME_POPUP_DEFAULT, updatedAt: "default" };
-      } else {
-        welcomePopupCache = snap.data() || {};
-      }
-      maybeShowWelcomePopup(welcomePopupCache);
-    });
+    welcomeGuardChannel = supabase.channel("guard-welcome")
+      .on("postgres_changes", { event: "*", schema: "public", table: "broadcast_welcome" }, (payload) => {
+        const data = payload.new || {};
+        welcomePopupCache = {
+          ...WELCOME_POPUP_DEFAULT,
+          title: data.title ?? welcomePopupCache?.title,
+          message: data.message ?? welcomePopupCache?.message,
+          active: data.active ?? welcomePopupCache?.active,
+          showMode: data.show_mode ?? welcomePopupCache?.showMode,
+          updatedAt: data.updated_at ?? welcomePopupCache?.updatedAt
+        };
+        maybeShowWelcomePopup(welcomePopupCache);
+      })
+      .subscribe();
   } catch (e) {}
 }
 
-onAuthStateChanged(auth, async (user)=>{
+onAuthChange(async (event, session) => {
+const user = session?.user ?? null;
+currentSupabaseUser = user ? { id: user.id, email: user.email } : null;
+
 if(previewMode){
   enterPreviewMode();
   return;
@@ -580,12 +572,11 @@ if(previewMode){
 if(user){
   if (maintenanceState.initialized && maintenanceState.enabled) {
     applyMaintenanceUI();
-    try { console.trace("SIGN OUT (maintenance mode)"); await signOut(auth); } catch (e) {}
+    try { console.trace("SIGN OUT (maintenance mode)"); await supabase.auth.signOut(); } catch (e) {}
     return;
   }
 
-  await loadAllowList();
-  if (!isAllowedEmail(user.email)) {
+  if (!await emailAllowed(user.email)) {
     forceLogoutWithCountdown(
       "Tài khoản này không nằm trong whitelist hiện tại.",
       "Không có quyền truy cập",
@@ -596,14 +587,17 @@ if(user){
 
   showContent();
 
-  // ✅ LẤY DỮ LIỆU USER TỪ FIRESTORE (để có tên cho email/password user)
-  let userData = { ...user };
+  // ✅ LẤY DỮ LIỆU USER TỪ SUPABASE (để có tên cho email/password user)
+  let userData = {
+    uid: user.id,
+    email: user.email,
+    displayName: user.user_metadata?.name || user.user_metadata?.full_name || String(user.email || "").split("@")[0] || "User",
+    photoURL: user.user_metadata?.avatar_url || user.user_metadata?.picture || "https://i.imgur.com/6VBx3io.png"
+  };
   try {
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
-    if (userSnap.exists()) {
-      const firestoreData = userSnap.data();
-      if (firestoreData.disabled) {
+    const supabaseRow = await getUserRow(user.id);
+    if (supabaseRow) {
+      if (supabaseRow.disabled) {
         forceLogoutWithCountdown(
           "Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.",
           "Tài khoản bị khóa",
@@ -611,19 +605,21 @@ if(user){
         );
         return;
       }
-      // Merge Firestore data (ưu tiên displayName từ Firestore nếu có)
-      if (firestoreData.name) {
-        userData.displayName = firestoreData.name;
+      // Merge Supabase data (ưu tiên name/photo/role từ bảng users)
+      if (supabaseRow.name) {
+        userData.displayName = supabaseRow.name;
       }
-      if (firestoreData.photo) {
-        userData.photoURL = firestoreData.photo;
+      if (supabaseRow.photo) {
+        userData.photoURL = supabaseRow.photo;
       }
-      if (firestoreData.role) {
-        userData.role = firestoreData.role;
+      if (supabaseRow.role) {
+        userData.role = supabaseRow.role;
       }
+      userData.onlineStartTime = supabaseRow.online_start_time || 0;
+      userData.onlineTimer = Number(supabaseRow.online_timer || 0);
     }
   } catch (e) {
-    console.log("Không thể lấy dữ liệu Firestore:", e);
+    console.log("Không thể lấy dữ liệu Supabase:", e);
   }
 
   // ✅ GỬI USER SANG IFRAME TABS
@@ -671,40 +667,37 @@ if(user){
   // ✅ UPDATE ONLINE STATUS
   if(!activeInterval){
     activeInterval = setInterval(()=>{
-      const u = auth.currentUser;
+      const u = currentSupabaseUser;
       if(u){
-        setDoc(doc(db,"users",u.uid),{
-          lastActive: Date.now(),
+        supabase.from("users").update({
+          last_active: Date.now(),
           online: true
-        },{ merge:true });
+        }).eq("id", u.id).then(()=>{}).catch(()=>{});
       }
     }, 5000);
   }
 
   // ✅ ONLINE TIMER - khi login thì bắt đầu đếm + khôi phục timer cũ nếu có
   try {
-    const u = auth.currentUser;
-    if(u){
-      const uSnap = await getDoc(doc(db,"users",u.uid));
-      const uData = uSnap.exists() ? uSnap.data() : {};
-      const startTime = uData.onlineStartTime || 0;
-      const currentTimer = Number(uData.onlinetimer || 0);
+    if(user.id){
+      const startTime = userData.onlineStartTime || 0;
+      const currentTimer = userData.onlineTimer || 0;
       if(startTime > 0){
         // Có timer cũ chưa được lưu → cộng dồn
         const elapsed = Math.floor((Date.now() - startTime) / 1000);
-        setDoc(doc(db,"users",u.uid),{
-          onlinetimer: currentTimer + elapsed,
-          onlineStartTime: Date.now()
-        },{ merge:true });
+        await supabase.from("users").update({
+          online_timer: currentTimer + elapsed,
+          online_start_time: Date.now()
+        }).eq("id", user.id);
       } else {
-        setDoc(doc(db,"users",u.uid),{ onlineStartTime: Date.now() },{ merge:true });
+        await supabase.from("users").update({ online_start_time: Date.now() }).eq("id", user.id);
       }
     }
   } catch(e){}
 
   // ✅ START LISTENER
   startListening();
-  startAccessGuards(user);
+  startAccessGuards({ uid: user.id, email: user.email });
 
   // vì bên trong đã có:
 
@@ -727,32 +720,29 @@ if(user){
 
 // Xử lý khi ẩn tab hoặc đóng trình duyệt
 const updateStatus = (isOnline) => {
-const user = auth.currentUser;
+const user = currentSupabaseUser;
 if (user) {
   if(isOnline){
-    return setDoc(doc(db, "users", user.uid), { 
+    return supabase.from("users").update({ 
       online: true,
-      lastActive: Date.now(),
-      lastSeen: new Date().toISOString(),
-      onlineStartTime: Date.now()
-    }, { merge: true });
+      last_active: Date.now(),
+      online_start_time: Date.now()
+    }).eq("id", user.id);
   } else {
     // Tính thời gian online trước khi dừng
-    getDoc(doc(db,"users",user.uid)).then(snap => {
-      const uData = snap.exists() ? snap.data() : {};
-      const startTime = uData.onlineStartTime || 0;
-      const currentTimer = Number(uData.onlinetimer || 0);
+    getUserRow(user.id).then(uData => {
+      const startTime = uData?.online_start_time || 0;
+      const currentTimer = Number(uData?.online_timer || 0);
       let newTimer = currentTimer;
       if(startTime > 0){
         newTimer += Math.floor((Date.now() - startTime) / 1000);
       }
-      setDoc(doc(db, "users", user.uid), { 
+      supabase.from("users").update({ 
         online: false,
-        lastSeen: new Date().toISOString(),
-        onlinetimer: newTimer,
-        onlineStartTime: 0
-      }, { merge: true });
-    });
+        online_timer: newTimer,
+        online_start_time: 0
+      }).eq("id", user.id).then(()=>{}).catch(()=>{});
+    }).catch(()=>{});
   }
 }
 };
@@ -765,12 +755,12 @@ document.addEventListener("visibilitychange", () => {
     updateStatus(true);
     if(!activeInterval){
       activeInterval = setInterval(()=>{
-        const u = auth.currentUser;
+        const u = currentSupabaseUser;
         if(u){
-          setDoc(doc(db,"users",u.uid),{
-            lastActive: Date.now(),
+          supabase.from("users").update({
+            last_active: Date.now(),
             online: true
-          },{ merge:true });
+          }).eq("id", u.id).then(()=>{}).catch(()=>{});
         }
       }, 5000);
     }
@@ -778,35 +768,30 @@ document.addEventListener("visibilitychange", () => {
 });
 
 // Trick để ép trình duyệt gửi dữ liệu cuối cùng trước khi đóng
-import {
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-let unsubscribeUsers = null;
+let usersChannel = null;
 
-function startListening(){
-if(unsubscribeUsers) unsubscribeUsers();
+async function refreshOnlineList(){
+  const list = document.getElementById("onlineList");
+  if (!list) return;
 
-unsubscribeUsers = onSnapshot(collection(db,"users"), (snap)=>{
-const list = document.getElementById("onlineList");
-if (!list) return;
+  let onlineCount = 0;
+  try {
+    const { data } = await supabase
+      .from("users")
+      .select("id,name,photo,online,last_active")
+      .order("last_active", { ascending: false });
 
-list.innerHTML = ""; // ← THIẾU DÒNG NÀY
+    const now = Date.now();
+    const ACTIVE_THRESHOLD = 45000;
 
-let onlineCount = 0;
+    list.innerHTML = "";
+    for (const u of data || []) {
+      if (!u.last_active || now - u.last_active > ACTIVE_THRESHOLD) continue;
+      if (!u.online) continue;
 
-snap.forEach(doc => {
-const u = doc.data();
-const now = Date.now();
-
-const ACTIVE_THRESHOLD = 45000;
-
-if (!u.lastActive || now - u.lastActive > ACTIVE_THRESHOLD) return;
-if (!u.online) return;
-
-const div = document.createElement("div");
-
-div.innerHTML = `
+      const div = document.createElement("div");
+      div.innerHTML = `
 <div style="display:flex; align-items:center; gap:10px; padding:6px 8px;">
 <img src="${u.photo || 'https://i.imgur.com/6VBx3io.png'}"
 style="width:26px;height:26px;border-radius:50%;">
@@ -817,39 +802,49 @@ style="width:8px;height:8px;background:#22c55e;border-radius:50%;">
 </div>
 `;
 
-onlineCount++;
-list.appendChild(div);
-});
+      onlineCount++;
+      list.appendChild(div);
+    }
+  } catch(e) {}
 
-const label = document.querySelector(".online-count-label");
-if (label) {
-label.textContent = `Đang trực tuyến (${onlineCount})`;
+  const label = document.querySelector(".online-count-label");
+  if (label) {
+    label.textContent = `Đang trực tuyến (${onlineCount})`;
+  }
 }
-});
+
+function startListening(){
+  if (usersChannel) { supabase.removeChannel(usersChannel); usersChannel = null; }
+  refreshOnlineList();
+  usersChannel = supabase.channel("users-online")
+    .on("postgres_changes", { event: "*", schema: "public", table: "users" }, () => {
+      refreshOnlineList();
+    })
+    .subscribe();
 }
+
 window.logout = async function(){
-const user = auth.currentUser;
+const user = currentSupabaseUser;
 
 // cập nhật offline + lưu timer
 if(user){
   try {
-    const uSnap = await getDoc(doc(db,"users",user.uid));
-    const uData = uSnap.exists() ? uSnap.data() : {};
-    const startTime = uData.onlineStartTime || 0;
-    const currentTimer = Number(uData.onlinetimer || 0);
+    const row = await getUserRow(user.id);
+    const startTime = row?.online_start_time || 0;
+    const currentTimer = Number(row?.online_timer || 0);
     let newTimer = currentTimer;
     if(startTime > 0){
       newTimer += Math.floor((Date.now() - startTime) / 1000);
     }
-    await setDoc(doc(db, "users", user.uid), {
+    await supabase.from("users").update({
       online: false,
-      onlinetimer: newTimer,
-      onlineStartTime: 0
-    }, { merge: true });
+      online_timer: newTimer,
+      online_start_time: 0
+    }).eq("id", user.id);
   } catch(e){
-    await setDoc(doc(db, "users", user.uid), {
+    await supabase.from("users").update({
       online: false
-    }, { merge: true });
+    }).eq("id", user.id);
   }
 }
 
@@ -860,13 +855,13 @@ if(activeInterval){
 }
 
 // 🔥 tắt realtime listener
-if(unsubscribeUsers){
-unsubscribeUsers();
-unsubscribeUsers = null;
+if(usersChannel){
+  supabase.removeChannel(usersChannel);
+  usersChannel = null;
 }
 
 // logout
-signOut(auth).then(()=>{
+supabase.auth.signOut().then(()=>{
 window.location.href = 'login.html?loggedout=1';
 });
 }
@@ -890,17 +885,8 @@ window.addEventListener("beforeunload", () => {
   updateStatus(false);
 });
 // --- Dán đoạn này vào CUỐI thẻ <script type="module"> trong index.html ---
-  window.auth = auth;
-  window.db = db;
-  window.provider = provider;
-  window.onAuthStateChanged = onAuthStateChanged;
-  window.signInWithPopup = signInWithPopup;
-  window.signOut = signOut;
-  window.doc = doc;
-  window.getDoc = getDoc;
-  window.setDoc = setDoc;
-  window.collection = collection;
-  window.getDocs = getDocs;
+  window.supabaseClient = supabase;
+  window.getCurrentLearnHubUser = () => window.currentLearnHubUser || null;
 
   // 🆕 [LearnHub Test - Giai đoạn 1] Gửi thông tin user sang iframe #quizFrame (filetest.html)
   // - Chỉ gửi khi quizFrame đã load xong và đã có user đăng nhập (window.currentLearnHubUser).

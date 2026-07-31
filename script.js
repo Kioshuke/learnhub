@@ -1,15 +1,5 @@
 // --- Performance optimized script.js ---
-const auth = window.auth;
-const db = window.db;
-const provider = window.provider;
-const onAuthStateChanged = window.onAuthStateChanged;
-const signInWithPopup = window.signInWithPopup;
-const signOut = window.signOut;
-const doc = window.doc;
-const getDoc = window.getDoc;
-const setDoc = window.setDoc;
-const collection = window.collection;
-const getDocs = window.getDocs;
+// (Firebase globals đã bị thay bằng Supabase — mọi logic realtime dùng window.supabaseClient)
 
 // Cache DOM elements
 let currentTab = "home";
@@ -706,20 +696,30 @@ document.addEventListener('click', function(e) {
     if (target.closest('.avatar-box')) playSound("openpopup");
 });
 
-// Nghe sự kiện Firebase (Chặn tiếng kêu lúc mới load)
-if (typeof db !== 'undefined') {
-    db.ref("events").limitToLast(1).on("child_added", (snap) => {
+// Nghe sự kiện Supabase realtime (forum_events) — Chặn tiếng kêu lúc mới load
+if (typeof window.supabaseClient !== 'undefined') {
+  let isFirstLoad = true;
+  const supabaseEvents = window.supabaseClient.channel('events-sound');
+  let _evtBound = false;
+  const _bindEvt = () => {
+    if (_evtBound) return;
+    _evtBound = true;
+    supabaseEvents
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "forum_events" }, (payload) => {
         if (isFirstLoad) {
-            isFirstLoad = false;
-            return;
+          isFirstLoad = false;
+          return;
         }
-        
-        const ev = snap.val();
-        if (ev && (Date.now() - ev.time < 5000)) { // Chỉ phát nếu sự kiện mới trong 5s
-            let sId = ev.type === "post" ? "soundPost" : (ev.type === "like" ? "soundLike" : "soundDislike");
-            playSound(sId);
+        const ev = payload.new;
+        if (ev && ev.time && (Date.now() - ev.time < 5000)) { // Chỉ phát nếu sự kiện mới trong 5s
+          let sId = ev.type === "post" ? "soundPost" : (ev.type === "like" ? "soundLike" : "soundDislike");
+          playSound(sId);
         }
-    });
+      })
+      .subscribe();
+  };
+  document.addEventListener('DOMContentLoaded', _bindEvt);
+  _bindEvt();
 }
 const chatBtn = document.getElementById("chatButton");
 const frame = document.getElementById("chatbotFrame");

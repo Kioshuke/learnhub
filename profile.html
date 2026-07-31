@@ -447,51 +447,49 @@
     </script>
 
     <script type="module">
-        import { db, auth } from "./firebase-config.js";
-        import { doc, onSnapshot, setDoc, collection, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-        import { updatePassword, EmailAuthProvider, reauthenticateWithCredential, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-
-        await setPersistence(auth, browserLocalPersistence);
+        import { supabase } from "./supabase-config.js";
+        import { onAuthChange } from "./supabase-helpers.js";
 
         const settingsModal = document.getElementById('settings-modal');
         let currentUserId = null;
         let activeInterval = null;
-        let unsubscribeUsers = null;
-        let unsubscribeViewUser = null; // Listener cho profile người khác
-        let unsubscribeOwnProfile = null; // Listener cho profile của mình
-        let unsubscribeStats = null; // Listener cho stats
+        let usersChannel = null;
+        let viewUserChannel = null; // Channel cho profile người khác
+        let ownProfileChannel = null; // Channel cho profile của mình
+        let statsChannel = null; // Channel cho stats
         let currentViewUserId = null; // Track user đang xem
 
         // ===== UPDATE ONLINE STATUS =====
-        function updateOnlineStatus(isOnline) {
-            const user = auth.currentUser;
-            if (user) {
-                if(isOnline){
-                    return setDoc(doc(db, "users", user.uid), {
-                        online: true,
-                        lastActive: Date.now(),
-                        lastSeen: new Date().toISOString(),
-                        onlineStartTime: Date.now()
-                    }, { merge: true });
-                } else {
-                    // Tính thời gian online trước khi dừng
-                    return getDoc(doc(db,"users",user.uid)).then(snap => {
-                        const uData = snap.exists() ? snap.data() : {};
-                        const startTime = uData.onlineStartTime || 0;
-                        const currentTimer = Number(uData.onlinetimer || 0);
-                        let newTimer = currentTimer;
-                        if(startTime > 0){
-                            newTimer += Math.floor((Date.now() - startTime) / 1000);
-                        }
-                        return setDoc(doc(db, "users", user.uid), {
-                            online: false,
-                            lastActive: Date.now(),
-                            lastSeen: new Date().toISOString(),
-                            onlinetimer: newTimer,
-                            onlineStartTime: 0
-                        }, { merge: true });
-                    });
+        async function updateOnlineStatus(isOnline) {
+            if (!currentUserId) return;
+            const now = Date.now();
+            if (isOnline) {
+                return supabase.from("users").update({
+                    online: true,
+                    last_active: now,
+                    updated_at: new Date().toISOString()
+                }).eq("id", currentUserId);
+            } else {
+                // Tính thời gian online trước khi dừng
+                const { data } = await supabase.from("users")
+                    .select("online_start_time, online_timer")
+                    .eq("id", currentUserId)
+                    .single()
+                    .catch(() => ({ data: null }));
+                const uData = data || {};
+                const startTime = uData.online_start_time || 0;
+                const currentTimer = Number(uData.online_timer || 0);
+                let newTimer = currentTimer;
+                if (startTime > 0) {
+                    newTimer += Math.floor((now - startTime) / 1000);
                 }
+                return supabase.from("users").update({
+                    online: false,
+                    last_active: now,
+                    online_timer: newTimer,
+                    online_start_time: 0,
+                    updated_at: new Date().toISOString()
+                }).eq("id", currentUserId);
             }
         }
 
@@ -504,12 +502,11 @@
                 updateOnlineStatus(true);
                 if(!activeInterval){
                     activeInterval = setInterval(() => {
-                        const u = auth.currentUser;
-                        if (u) {
-                            setDoc(doc(db, "users", u.uid), {
-                                lastActive: Date.now(),
+                        if (currentUserId) {
+                            supabase.from("users").update({
+                                last_active: Date.now(),
                                 online: true
-                            }, { merge: true });
+                            }).eq("id", currentUserId);
                         }
                     }, 5000);
                 }
@@ -520,81 +517,84 @@
         function startOnlineInterval() {
             if (!activeInterval) {
                 activeInterval = setInterval(() => {
-                    const u = auth.currentUser;
-                    if (u) {
-                        setDoc(doc(db, "users", u.uid), {
-                            lastActive: Date.now(),
+                    if (currentUserId) {
+                        supabase.from("users").update({
+                            last_active: Date.now(),
                             online: true
-                        }, { merge: true });
+                        }).eq("id", currentUserId);
                     }
                 }, 5000);
             }
         }
 
-        // ===== LISTEN TO USERS COLLECTION =====
-        function startUsersListener() {
-            if (unsubscribeUsers) unsubscribeUsers();
+        // ===== LISTEN TO USERS TABLE =====
+        async function renderUsers() {
+            const usersContainer = document.getElementById('users-grid');
+            if (!usersContainer) return;
 
-            unsubscribeUsers = onSnapshot(collection(db, "users"), (snap) => {
-                const usersContainer = document.getElementById('users-grid');
-                if (!usersContainer) return;
+            const { data } = await supabase.from("users")
+                .select("id, name, photo, online, last_active");
 
-                const users = [];
-                snap.forEach(doc => {
-                    users.push({ id: doc.id, ...doc.data() });
-                });
+            const users = data || [];
 
-                // Sắp xếp: online trước (theo bảng chữ cái), offline sau (theo bảng chữ cái)
-                const now = Date.now();
-                const ACTIVE_THRESHOLD = 45000;
+            // Sắp xếp: online trước (theo bảng chữ cái), offline sau (theo bảng chữ cái)
+            const now = Date.now();
+            const ACTIVE_THRESHOLD = 45000;
 
-                users.sort((a, b) => {
-                    const aOnline = a.online && a.lastActive && (now - a.lastActive) < ACTIVE_THRESHOLD;
-                    const bOnline = b.online && b.lastActive && (now - b.lastActive) < ACTIVE_THRESHOLD;
+            users.sort((a, b) => {
+                const aOnline = a.online && a.last_active && (now - a.last_active) < ACTIVE_THRESHOLD;
+                const bOnline = b.online && b.last_active && (now - b.last_active) < ACTIVE_THRESHOLD;
 
-                    // Online trước, offline sau
-                    if (aOnline && !bOnline) return -1;
-                    if (!aOnline && bOnline) return 1;
+                // Online trước, offline sau
+                if (aOnline && !bOnline) return -1;
+                if (!aOnline && bOnline) return 1;
 
-                    // Cùng trạng thái, sắp xếp theo bảng chữ cái
-                    const nameA = (a.name || '').toLowerCase();
-                    const nameB = (b.name || '').toLowerCase();
-                    return nameA.localeCompare(nameB, 'vi');
-                });
-
-                // Hiển thị 11 người đầu tiên
-                const displayUsers = users.slice(0, 11);
-                const hasMore = users.length > 11;
-
-                let html = '';
-                displayUsers.forEach(u => {
-                    const isOnline = u.online && u.lastActive && (now - u.lastActive) < ACTIVE_THRESHOLD;
-                    const statusColor = isOnline ? 'bg-green-500' : 'bg-red-500';
-                    const statusPulse = isOnline ? 'animate-pulse' : '';
-
-                    html += `
-                        <div class="flex flex-col items-center text-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group" onclick="viewUserProfile('${u.id}')">
-                            <div class="relative">
-                                <img src="${u.photo || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
-                                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 ${statusColor} border-2 border-white rounded-full ${statusPulse}"></span>
-                            </div>
-                            <span class="text-[10px] font-medium mt-1.5 text-gray-700 truncate w-full px-0.5">${u.name || 'User'}</span>
-                        </div>
-                    `;
-                });
-
-                // Nút xem thêm
-                if (hasMore) {
-                    html += `
-                        <div class="flex flex-col items-center justify-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-dashed border-blue-200 bg-blue-50/30 h-[68px]" onclick="viewAllUsers()">
-                            <i class="fas fa-ellipsis-h text-xs text-lh-primary"></i>
-                            <span class="text-[10px] font-bold text-lh-primary mt-1">Xem thêm</span>
-                        </div>
-                    `;
-                }
-
-                usersContainer.innerHTML = html;
+                // Cùng trạng thái, sắp xếp theo bảng chữ cái
+                const nameA = (a.name || '').toLowerCase();
+                const nameB = (b.name || '').toLowerCase();
+                return nameA.localeCompare(nameB, 'vi');
             });
+
+            // Hiển thị 11 người đầu tiên
+            const displayUsers = users.slice(0, 11);
+            const hasMore = users.length > 11;
+
+            let html = '';
+            displayUsers.forEach(u => {
+                const isOnline = u.online && u.last_active && (now - u.last_active) < ACTIVE_THRESHOLD;
+                const statusColor = isOnline ? 'bg-green-500' : 'bg-red-500';
+                const statusPulse = isOnline ? 'animate-pulse' : '';
+
+                html += `
+                    <div class="flex flex-col items-center text-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group" onclick="viewUserProfile('${u.id}')">
+                        <div class="relative">
+                            <img src="${u.photo || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
+                            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 ${statusColor} border-2 border-white rounded-full ${statusPulse}"></span>
+                        </div>
+                        <span class="text-[10px] font-medium mt-1.5 text-gray-700 truncate w-full px-0.5">${u.name || 'User'}</span>
+                    </div>
+                `;
+            });
+
+            // Nút xem thêm
+            if (hasMore) {
+                html += `
+                    <div class="flex flex-col items-center justify-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-dashed border-blue-200 bg-blue-50/30 h-[68px]" onclick="viewAllUsers()">
+                        <i class="fas fa-ellipsis-h text-xs text-lh-primary"></i>
+                        <span class="text-[10px] font-bold text-lh-primary mt-1">Xem thêm</span>
+                    </div>
+                `;
+            }
+
+            usersContainer.innerHTML = html;
+        }
+
+        function startUsersListener() {
+            if (usersChannel) supabase.removeChannel(usersChannel);
+            renderUsers();
+            usersChannel = supabase.channel("profile-users")
+                .on("postgres_changes", { event: "*", schema: "public", table: "users" }, () => renderUsers())
+                .subscribe();
         }
 
         // Xem profile người khác
@@ -627,58 +627,69 @@
                 clearInterval(activeInterval);
                 activeInterval = null;
             }
-            if (unsubscribeUsers) {
-                unsubscribeUsers();
-                unsubscribeUsers = null;
+            if (usersChannel) {
+                supabase.removeChannel(usersChannel);
+                usersChannel = null;
             }
-            if (unsubscribeViewUser) {
-                unsubscribeViewUser();
-                unsubscribeViewUser = null;
+            if (viewUserChannel) {
+                supabase.removeChannel(viewUserChannel);
+                viewUserChannel = null;
             }
-            if (unsubscribeOwnProfile) {
-                unsubscribeOwnProfile();
-                unsubscribeOwnProfile = null;
+            if (ownProfileChannel) {
+                supabase.removeChannel(ownProfileChannel);
+                ownProfileChannel = null;
+            }
+            if (statsChannel) {
+                supabase.removeChannel(statsChannel);
+                statsChannel = null;
             }
         }
 
         // Load stats theo UID
-        function loadStatsForUser(uid) {
-            if (unsubscribeStats) {
-                unsubscribeStats();
-                unsubscribeStats = null;
-            }
+        async function fetchStats(uid) {
+            const { data } = await supabase.from("test_stats")
+                .select("total_tests, total_score, best_score")
+                .eq("user_id", uid)
+                .maybeSingle();
 
-            const statsDocRef = doc(db, 'testStats', uid);
-            unsubscribeStats = onSnapshot(statsDocRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    const stats = snapshot.data();
-                    document.getElementById('stat-total-tests').innerText = stats.totalTests || 0;
-                    document.getElementById('stat-total-score').innerText = parseFloat(stats.totalScore || 0).toFixed(2);
-                    document.getElementById('stat-best-score').innerText = parseFloat(stats.bestScore || 0).toFixed(2);
-                    
-                    const avg = stats.totalTests ? (stats.totalScore / stats.totalTests) : 0;
-                    document.getElementById('stat-avg-score').innerText = avg.toFixed(2);
-                } else {
-                    document.getElementById('stat-total-tests').innerText = 0;
-                    document.getElementById('stat-total-score').innerText = "0.00";
-                    document.getElementById('stat-best-score').innerText = "0.00";
-                    document.getElementById('stat-avg-score').innerText = "0.00";
-                }
-            });
+            if (data) {
+                document.getElementById('stat-total-tests').innerText = data.total_tests || 0;
+                document.getElementById('stat-total-score').innerText = parseFloat(data.total_score || 0).toFixed(2);
+                document.getElementById('stat-best-score').innerText = parseFloat(data.best_score || 0).toFixed(2);
+
+                const avg = data.total_tests ? (data.total_score / data.total_tests) : 0;
+                document.getElementById('stat-avg-score').innerText = avg.toFixed(2);
+            } else {
+                document.getElementById('stat-total-tests').innerText = 0;
+                document.getElementById('stat-total-score').innerText = "0.00";
+                document.getElementById('stat-best-score').innerText = "0.00";
+                document.getElementById('stat-avg-score').innerText = "0.00";
+            }
+        }
+
+        function loadStatsForUser(uid) {
+            if (statsChannel) {
+                supabase.removeChannel(statsChannel);
+                statsChannel = null;
+            }
+            fetchStats(uid);
+            statsChannel = supabase.channel("profile-stats-" + uid)
+                .on("postgres_changes", { event: "*", schema: "public", table: "test_stats", filter: "user_id=eq." + uid }, () => fetchStats(uid))
+                .subscribe();
         }
 
         // Load profile người khác
         function loadViewUserProfile(userId) {
-            // Unsubscribe listener của profile mình trước
-            if (unsubscribeOwnProfile) {
-                unsubscribeOwnProfile();
-                unsubscribeOwnProfile = null;
+            // Hủy listener profile của mình trước
+            if (ownProfileChannel) {
+                supabase.removeChannel(ownProfileChannel);
+                ownProfileChannel = null;
             }
 
-            // Unsubscribe listener người khác cũ nếu có
-            if (unsubscribeViewUser) {
-                unsubscribeViewUser();
-                unsubscribeViewUser = null;
+            // Hủy listener người khác cũ nếu có
+            if (viewUserChannel) {
+                supabase.removeChannel(viewUserChannel);
+                viewUserChannel = null;
             }
 
             currentViewUserId = userId;
@@ -687,10 +698,12 @@
             const usersSection = document.getElementById('users-section');
             if (usersSection) usersSection.style.display = 'none';
 
-            const viewUserDocRef = doc(db, 'users', userId);
-            unsubscribeViewUser = onSnapshot(viewUserDocRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.data();
+            const renderViewUser = async () => {
+                const { data } = await supabase.from("users")
+                    .select("*")
+                    .eq("id", userId)
+                    .maybeSingle();
+                if (data) {
                     document.getElementById('profile-name-display').innerText = data.name || "Người dùng";
                     document.getElementById('profile-email-display').innerText = data.email || "N/A";
                     document.getElementById('profile-avatar-display').src = data.photo || "https://lh3.googleusercontent.com/a/default-user=s120-c";
@@ -701,10 +714,10 @@
                     document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
 
                     const now = Date.now();
-                    const baseTimer = Number(data.onlinetimer || 0);
+                    const baseTimer = Number(data.online_timer || 0);
                     let effectiveTimer = baseTimer;
-                    if (data.online && data.lastActive && (now - data.lastActive) < 45000 && data.onlineStartTime > 0) {
-                        effectiveTimer += Math.floor((now - data.onlineStartTime) / 1000);
+                    if (data.online && data.last_active && (now - data.last_active) < 45000 && data.online_start_time > 0) {
+                        effectiveTimer += Math.floor((now - data.online_start_time) / 1000);
                     }
                     document.getElementById('profile-online-display').innerText = formatTimer(effectiveTimer);
 
@@ -719,21 +732,26 @@
                     // Load stats của user đang xem
                     loadStatsForUser(userId);
                 }
-            });
+            };
+
+            renderViewUser();
+            viewUserChannel = supabase.channel("profile-view-" + userId)
+                .on("postgres_changes", { event: "*", schema: "public", table: "users", filter: "id=eq." + userId }, () => renderViewUser())
+                .subscribe();
         }
 
         // Load profile của chính mình
         function loadOwnProfile() {
-            // Unsubscribe listener người khác trước
-            if (unsubscribeViewUser) {
-                unsubscribeViewUser();
-                unsubscribeViewUser = null;
+            // Hủy listener người khác trước
+            if (viewUserChannel) {
+                supabase.removeChannel(viewUserChannel);
+                viewUserChannel = null;
             }
 
-            // Unsubscribe listener profile mình cũ nếu có
-            if (unsubscribeOwnProfile) {
-                unsubscribeOwnProfile();
-                unsubscribeOwnProfile = null;
+            // Hủy listener profile mình cũ nếu có
+            if (ownProfileChannel) {
+                supabase.removeChannel(ownProfileChannel);
+                ownProfileChannel = null;
             }
 
             currentViewUserId = null;
@@ -742,13 +760,14 @@
             const usersSection = document.getElementById('users-section');
             if (usersSection) usersSection.style.display = 'block';
 
-            const userDocRef = doc(db, 'users', currentUserId);
-            unsubscribeOwnProfile = onSnapshot(userDocRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.data();
-
+            const renderOwnProfile = async () => {
+                const { data } = await supabase.from("users")
+                    .select("*")
+                    .eq("id", currentUserId)
+                    .maybeSingle();
+                if (data) {
                     document.getElementById('profile-name-display').innerText = data.name || "Chưa cập nhật";
-                    document.getElementById('profile-email-display').innerText = data.email || auth.currentUser?.email;
+                    document.getElementById('profile-email-display').innerText = data.email || "";
                     document.getElementById('profile-avatar-display').src = data.photo || "https://lh3.googleusercontent.com/a/default-user=s120-c";
 
                     document.getElementById('profile-bio-display').innerText = data.bio ? `"${data.bio}"` : `"Chưa có tiểu sử"`;
@@ -759,10 +778,10 @@
                     document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
 
                     const now = Date.now();
-                    const baseTimer = Number(data.onlinetimer || 0);
+                    const baseTimer = Number(data.online_timer || 0);
                     let effectiveTimer = baseTimer;
-                    if (data.online && data.lastActive && (now - data.lastActive) < 45000 && data.onlineStartTime > 0) {
-                        effectiveTimer += Math.floor((now - data.onlineStartTime) / 1000);
+                    if (data.online && data.last_active && (now - data.last_active) < 45000 && data.online_start_time > 0) {
+                        effectiveTimer += Math.floor((now - data.online_start_time) / 1000);
                     }
                     document.getElementById('profile-online-display').innerText = formatTimer(effectiveTimer);
 
@@ -788,19 +807,26 @@
                 } else {
                     // Tạo profile mặc định nếu chưa có
                     const defaultData = {
-                        name: auth.currentUser?.displayName || "Học viên",
-                        email: auth.currentUser?.email || "",
-                        photo: auth.currentUser?.photoURL || "",
+                        id: currentUserId,
+                        name: "",
+                        photo: "",
                         bio: "",
                         phone: "",
                         birthdate: "",
                         gender: "",
                         school: "",
-                        role: "Thành viên"
+                        role: "Thành viên",
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
                     };
-                    setDoc(userDocRef, defaultData, { merge: true });
+                    supabase.from("users").upsert(defaultData, { onConflict: "id" }).then(() => renderOwnProfile());
                 }
-            });
+            };
+
+            renderOwnProfile();
+            ownProfileChannel = supabase.channel("profile-own")
+                .on("postgres_changes", { event: "*", schema: "public", table: "users", filter: "id=eq." + currentUserId }, () => renderOwnProfile())
+                .subscribe();
         }
 
         // Theo dõi thay đổi URL để load profile tương ứng
@@ -898,24 +924,29 @@
             }
         }
 
-        onAuthStateChanged(auth, async user => {
+        onAuthChange(async (event, session) => {
+            const user = session?.user ?? null;
             if (user) {
-                currentUserId = user.uid;
+                currentUserId = user.id;
 
                 // ✅ ONLINE TIMER - khôi phục timer cũ nếu có
                 try {
-                    const uSnap = await getDoc(doc(db,"users",user.uid));
-                    const uData = uSnap.exists() ? uSnap.data() : {};
-                    const startTime = uData.onlineStartTime || 0;
-                    const currentTimer = Number(uData.onlinetimer || 0);
-                    if(startTime > 0){
+                    const { data: uData } = await supabase.from("users")
+                        .select("online_start_time, online_timer")
+                        .eq("id", user.id)
+                        .maybeSingle();
+                    const startTime = (uData && uData.online_start_time) || 0;
+                    const currentTimer = Number((uData && uData.online_timer) || 0);
+                    if (startTime > 0) {
                         const elapsed = Math.floor((Date.now() - startTime) / 1000);
-                        setDoc(doc(db,"users",user.uid),{
-                            onlinetimer: currentTimer + elapsed,
-                            onlineStartTime: Date.now()
-                        },{ merge:true });
+                        await supabase.from("users").update({
+                            online_timer: currentTimer + elapsed,
+                            online_start_time: Date.now()
+                        }).eq("id", user.id);
                     } else {
-                        setDoc(doc(db,"users",user.uid),{ onlineStartTime: Date.now() },{ merge:true });
+                        await supabase.from("users").update({
+                            online_start_time: Date.now()
+                        }).eq("id", user.id);
                     }
                 } catch(e){}
 
@@ -936,6 +967,7 @@
             } else {
                 console.log("Học viên chưa đăng nhập!");
                 cleanup();
+                window.location.href = "login.html";
             }
         });
 
@@ -950,14 +982,13 @@
                 photo: document.getElementById('input-avatar').value,
                 bio: document.getElementById('input-bio').value,
                 phone: document.getElementById('input-phone').value,
-                birthdate: inputBirthVal, 
+                birthdate: inputBirthVal,
                 gender: document.getElementById('input-gender').value,
                 school: document.getElementById('school-name-display').value,
-                updatedAt: new Date().toISOString()
+                updated_at: new Date().toISOString()
             };
 
-            const userDocRef = doc(db, 'users', currentUserId);
-            setDoc(userDocRef, updatedProfile, { merge: true })
+            supabase.from("users").update(updatedProfile).eq("id", currentUserId)
                 .then(() => {
                     document.getElementById('profile-birth-display').innerText = formatDate(inputBirthVal);
                     window.showToast("Cài đặt hồ sơ của bạn đã được lưu lại thành công!", "success");
@@ -980,18 +1011,25 @@
             if (textNewPassword !== confirmPassword) return window.showToast("Mật khẩu mới không trùng khớp!", "error");
             if (textNewPassword.length < 6) return window.showToast("Mật khẩu mới phải từ 6 ký tự trở lên!", "warning");
 
-            const user = auth.currentUser;
-            const credential = EmailAuthProvider.credential(user.email, oldPassword);
-
-            reauthenticateWithCredential(user, credential).then(() => {
-                updatePassword(user, textNewPassword).then(() => {
-                    window.showToast("Đổi mật khẩu tài khoản thành công!", "success");
-                    document.getElementById('input-old-password').value = "";
-                    document.getElementById('input-new-password').value = "";
-                    document.getElementById('input-confirm-password').value = "";
-                }).catch(err => window.showToast("Lỗi đổi mật khẩu: " + err.message, "error"));
-            }).catch(() => window.showToast("Mật khẩu cũ không chính xác!", "error"));
+            // Xác minh mật khẩu cũ bằng signInWithPassword
+            const email = supabase.auth.getUser().then(({ data }) => data.user?.email).catch(() => null);
+            email.then((userEmail) => {
+                if (!userEmail) return window.showToast("Không tìm thấy email tài khoản!", "error");
+                supabase.auth.signInWithPassword({ email: userEmail, password: oldPassword })
+                    .then(({ error }) => {
+                        if (error) return window.showToast("Mật khẩu cũ không chính xác!", "error");
+                        supabase.auth.updateUser({ password: textNewPassword })
+                            .then(() => {
+                                window.showToast("Đổi mật khẩu tài khoản thành công!", "success");
+                                document.getElementById('input-old-password').value = "";
+                                document.getElementById('input-new-password').value = "";
+                                document.getElementById('input-confirm-password').value = "";
+                            })
+                            .catch(err => window.showToast("Lỗi đổi mật khẩu: " + err.message, "error"));
+                    });
+            });
         }
     </script>
+
 </body>
 </html>

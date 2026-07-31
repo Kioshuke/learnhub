@@ -443,24 +443,16 @@
 </div>
 
 <script type="module">
-import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js"; 
-import { doc, setDoc, getDoc, collection, getDocs, onSnapshot } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js"; 
-import { app, auth, db } from "./firebase-config.js";
+import { supabase } from "./supabase-config.js";
+import { getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, finalizeSession } from "./supabase-helpers.js";
 
-try { await setPersistence(auth, browserLocalPersistence); } catch(e) { console.error("setPersistence error:", e); }
-const provider = new GoogleAuthProvider();
-
-let allowList = [];
 let maintenanceState = { enabled: false, message: "", initialized: false };
 
 // Check ngay khi load trang (await — nếu bật thì redirect ngay, không chạy tiếp)
 try {
   console.log("[MAINTENANCE] Checking maintenance status on load...");
-  const _snap = await getDoc(doc(db, "settings", "maintenance"));
-  const _data = _snap.exists() ? (_snap.data() || {}) : {};
-  maintenanceState = { enabled: !!_data.enabled, message: String(_data.message || ""), initialized: true };
+  const _m = await getMaintenance();
+  maintenanceState = { enabled: _m.enabled, message: _m.message, initialized: true };
   console.log("[MAINTENANCE] Initial check result:", maintenanceState);
   if (maintenanceState.enabled) {
     console.log("[MAINTENANCE] Maintenance is enabled, redirecting to maintenance.html");
@@ -472,10 +464,9 @@ try {
 
 // Lắng nghe realtime: bật → redirect maintenance.html, tắt → redirect login.html
 try {
-  onSnapshot(doc(db, "settings", "maintenance"), (snap) => {
-    const data = snap.exists() ? (snap.data() || {}) : {};
+  subscribeMaintenance((data) => {
     const wasEnabled = maintenanceState.enabled;
-    maintenanceState = { enabled: !!data.enabled, message: String(data.message || ""), initialized: true };
+    maintenanceState = { enabled: data.enabled, message: data.message, initialized: true };
     console.log("[MAINTENANCE] Realtime update - wasEnabled:", wasEnabled, "enabled:", maintenanceState.enabled, "pathname:", location.pathname);
     if (maintenanceState.enabled && !wasEnabled) {
       console.log("[MAINTENANCE] Maintenance just turned ON, redirecting to maintenance.html");
@@ -492,27 +483,6 @@ try {
     }
   });
 } catch(e) { console.error("Maintenance listener error:", e); }
-
-function normalizeEmail(email) {
-  return String(email || "").trim().toLowerCase();
-}
-
-async function loadAllowList() {
-  try {
-    const snap = await getDocs(collection(db, "accessList"));
-    allowList = snap.docs
-      .map(item => item.data())
-      .filter(item => item && item.email && item.enabled !== false)
-      .map(item => normalizeEmail(item.email));
-  } catch(e) {
-    allowList = [];
-  }
-  return allowList;
-}
-
-function isAllowedEmail(email) {
-  return allowList.includes(normalizeEmail(email));
-}
 
 let authNoticeTimer = null;
 let countdownInterval = null;
@@ -811,9 +781,40 @@ window.switchAuthTab = switchAuthTab;
 window.authComingSoon = authComingSoon;
 window.showAuthNotice = showAuthNotice;
 
-onAuthStateChanged(auth, async (user) => {
+onAuthChange(async (event, session) => {
+  const user = session?.user ?? null;
   if (user && !processingLogin) {
-    window.location.href = 'index.html';
+    processingLogin = true;
+    try {
+      // Kiểm tra whitelist
+      const allowed = await emailAllowed(user.email);
+      if (!allowed) {
+        showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập", 4500);
+        await supabase.auth.signOut();
+        processingLogin = false;
+        return;
+      }
+      // Kiểm tra tài khoản bị khóa
+      const row = await getUserRow(user.id);
+      if (row && row.disabled) {
+        showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa", 4500);
+        await supabase.auth.signOut();
+        processingLogin = false;
+        return;
+      }
+      // Nhận lại dữ liệu cũ (claim_legacy_data) + cập nhật hồ sơ
+      await finalizeSession(user);
+      const isApp = navigator.userAgent.includes("Android");
+      if (isApp) {
+        showAuthNotice("Đăng nhập thành công!", "success", "Thành công");
+        setTimeout(() => { window.location.href = "myapp://auth"; }, 1000);
+      } else {
+        showLoginSuccess("Đăng nhập thành công!");
+      }
+    } catch(e) {
+      console.error("Finalize login lỗi:", e);
+      processingLogin = false;
+    }
     return;
   }
   if (!user) {
@@ -830,46 +831,15 @@ window.googleLogin = async function() {
   if (maintenanceState.enabled) { window.location.replace('maintenance.html'); return; }
   processingLogin = true;
   try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-    await loadAllowList();
-    if (!isAllowedEmail(user.email)) {
-      showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập", 4500);
-      await signOut(auth);
-      processingLogin = false;
-      return;
-    }
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
-    if (userSnap.exists() && userSnap.data().disabled) {
-      showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa", 4500);
-      await signOut(auth);
-      processingLogin = false;
-      return;
-    }
-    await setDoc(userRef, {
-      name: user.displayName,
-      email: user.email,
-      photo: user.photoURL,
-      lastLogin: new Date().toISOString(),
-      lastActive: Date.now(),
-      online: true
-    }, { merge: true });
-    const isApp = navigator.userAgent.includes("Android");
-    if (isApp) {
-      showAuthNotice("Đăng nhập thành công!", "success", "Thành công");
-      setTimeout(() => { window.location.href = "myapp://auth"; }, 1000);
-    } else {
-      showLoginSuccess("Đăng nhập thành công!");
-    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + window.location.pathname }
+    });
+    if (error) throw error;
   } catch(error) {
     console.error("Lỗi Google Login:", error);
     processingLogin = false;
-    if (error.code === 'auth/popup-blocked') {
-      showAuthNotice("Vui lòng cho phép cửa sổ popup của trình duyệt để tiếp tục đăng nhập Google.", "error", "Popup đang bị chặn");
-    } else {
-      showAuthNotice("Đăng nhập chưa thành công: " + error.message, "error", "Đã xảy ra lỗi");
-    }
+    showAuthNotice("Đăng nhập chưa thành công: " + error.message, "error", "Đã xảy ra lỗi");
   }
 };
 
@@ -883,40 +853,37 @@ window.emailLogin = async function() {
   }
   processingLogin = true;
   try {
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    const user = result.user;
-    await loadAllowList();
-    if (!isAllowedEmail(user.email)) {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    const user = data.user;
+    if (!await emailAllowed(user.email)) {
       showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập", 4500);
-      await signOut(auth);
+      await supabase.auth.signOut();
       processingLogin = false;
       return;
     }
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
-    if (userSnap.exists() && userSnap.data().disabled) {
+    const row = await getUserRow(user.id);
+    if (row && row.disabled) {
       showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa", 4500);
-      await signOut(auth);
+      await supabase.auth.signOut();
       processingLogin = false;
       return;
     }
-    await setDoc(userRef, {
-      email: user.email,
-      photo: user.photoURL || "https://i.imgur.com/6VBx3io.png",
-      lastLogin: new Date().toISOString(),
-      lastActive: Date.now(),
-      online: true
-    }, { merge: true });
+    await finalizeSession(user);
     showLoginSuccess("Đăng nhập thành công!");
   } catch(error) {
     console.error("Lỗi đăng nhập:", error);
     processingLogin = false;
     let message = "Đăng nhập thất bại";
-    switch (error.code) {
-      case 'auth/user-not-found': message = "Email này chưa được đăng ký"; break;
-      case 'auth/wrong-password': message = "Mật khẩu không đúng"; break;
-      case 'auth/invalid-email': message = "Email không hợp lệ"; break;
-      case 'auth/too-many-requests': message = "Đăng nhập quá nhiều lần. Vui lòng thử lại sau"; break;
+    const msg = String(error.message || "");
+    if (error.code === 'invalid_credentials' || /invalid login credentials/i.test(msg)) {
+      message = "Email hoặc mật khẩu không đúng";
+    } else if (error.code === 'invalid_email' || /invalid email/i.test(msg)) {
+      message = "Email không hợp lệ";
+    } else if (error.code === 'email_not_confirmed') {
+      message = "Email chưa được xác nhận";
+    } else if (error.code === 'rate_limit_exceeded' || /too many requests|rate limit/i.test(msg)) {
+      message = "Đăng nhập quá nhiều lần. Vui lòng thử lại sau";
     }
     showAuthNotice(message, "error", "Đăng nhập thất bại");
   }
@@ -930,7 +897,6 @@ window.emailRegister = async function() {
   const otpInput = document.getElementById("otpCode");
   const otpSection = document.getElementById("otpSection");
 
-  await loadAllowList();
   if (!name || !email || !password || !confirmPassword) {
     showAuthNotice("Vui lòng điền đầy đủ thông tin", "error", "Thiếu thông tin");
     return;
@@ -938,7 +904,7 @@ window.emailRegister = async function() {
   if (name.length < 2) { showAuthNotice("Tên phải có ít nhất 2 ký tự", "error", "Tên quá ngắn"); return; }
   if (password !== confirmPassword) { showAuthNotice("Mật khẩu nhập lại không khớp", "error", "Lỗi xác nhận"); return; }
   if (password.length < 6) { showAuthNotice("Mật khẩu phải có ít nhất 6 ký tự", "error", "Mật khẩu quá ngắn"); return; }
-  if (!isAllowedEmail(email)) {
+  if (!await emailAllowed(email)) {
     showAuthNotice("Email này không nằm trong danh sách được cấp quyền. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập");
     return;
   }
@@ -962,14 +928,17 @@ window.emailRegister = async function() {
     return;
   }
 
+  processingLogin = true;
   try {
-    const result = await createUserWithEmailAndPassword(auth, email, password);
-    const user = result.user;
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) throw error;
+    const user = data.user;
+    const nowIso = new Date().toISOString();
     const photoUrl = document.getElementById("registerPhoto").value.trim() || "https://i.imgur.com/6VBx3io.png";
-    await setDoc(doc(db, "users", user.uid), {
-      name: name, email: user.email, photo: photoUrl,
-      lastLogin: new Date().toISOString(), lastActive: Date.now(), online: true, createdAt: new Date().toISOString()
-    });
+    await supabase.from("users").upsert({
+      id: user.id, email: user.email, name: name, photo: photoUrl,
+      last_login: nowIso, last_active: Date.now(), online: true, created_at: nowIso
+    }, { onConflict: "id" });
     showAuthNotice("Đăng ký thành công! Vui lòng đăng nhập.", "success", "Thành công");
     document.getElementById("registerName").value = "";
     document.getElementById("registerEmail").value = "";
@@ -977,16 +946,21 @@ window.emailRegister = async function() {
     document.getElementById("registerConfirmPassword").value = "";
     document.getElementById("registerPhoto").value = "";
     resetOTPState();
-    await signOut(auth);
+    await supabase.auth.signOut();
+    processingLogin = false;
     switchAuthTab('login');
     document.getElementById("loginEmail").value = email;
   } catch(error) {
     console.error("Lỗi đăng ký:", error);
+    processingLogin = false;
     let message = "Đăng ký thất bại";
-    switch (error.code) {
-      case 'auth/email-already-in-use': message = "Email này đã được đăng ký"; break;
-      case 'auth/invalid-email': message = "Email không hợp lệ"; break;
-      case 'auth/weak-password': message = "Mật khẩu quá yếu (cần ít nhất 6 ký tự)"; break;
+    const msg = String(error.message || "");
+    if (error.code === 'user_already_exists' || /already registered|already been registered/i.test(msg)) {
+      message = "Email này đã được đăng ký";
+    } else if (error.code === 'invalid_email' || /invalid email/i.test(msg)) {
+      message = "Email không hợp lệ";
+    } else if (error.code === 'weak_password' || /password should be at least|weak password/i.test(msg)) {
+      message = "Mật khẩu quá yếu (cần ít nhất 6 ký tự)";
     }
     showAuthNotice(message, "error", "Đăng ký thất bại");
   }

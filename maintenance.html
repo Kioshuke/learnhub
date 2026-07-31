@@ -158,15 +158,13 @@
   </div>
 
   <script type="module">
-  import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-  import { db } from "./firebase-config.js";
+  import { subscribeMaintenance } from "./supabase-helpers.js";
 
   try{
     console.log("[MAINTENANCE PAGE] Starting maintenance listener...");
-    onSnapshot(doc(db, "settings", "maintenance"), (snap) => {
-      const data = snap.exists() ? (snap.data() || {}) : {};
-      const enabled = !!data.enabled;
-      const message = String(data.message || "");
+    subscribeMaintenance((data) => {
+      const enabled = data.enabled;
+      const message = data.message;
       const statusEl = document.getElementById('maintenanceStatusText');
       console.log("[MAINTENANCE PAGE] Realtime update - enabled:", enabled, "message:", message);
       if(statusEl) statusEl.textContent = message ? message : 'Đang cập nhật...';

@@ -8,10 +8,6 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
 <style>
 :root{
   --primary:#2563eb;
@@ -1038,32 +1034,24 @@ body.dark-mode .pagination-info { color: #64748b; }
 <audio id="soundLike" src="sound/like.mp3" preload="auto"></audio>
 <audio id="soundDislike" src="sound/dislike.mp3" preload="auto"></audio>
 
-<script>
-/* ================= FIREBASE CONFIG ================= */
-const firebaseConfig = {
-  apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c",
-  authDomain: "onthi12-thpttanhong.firebaseapp.com",
-  databaseURL: "https://onthi12-thpttanhong-default-rtdb.asia-southeast1.firebasedatabase.app/",
-  projectId: "onthi12-thpttanhong",
-  storageBucket: "onthi12-thpttanhong.appspot.com"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const firestoreDb = firebase.firestore();
+<script type="module">
+/* ================= SUPABASE CONFIG ================= */
+import { supabase } from "./supabase-config.js";
 
 /* ================= BIẾN TOÀN CỤC ================= */
 let currentUser = null;
 let replyTo = null;
 let isFirstLoad = true;
 let isMuted = localStorage.getItem("forum_muted") === "true";
-let modalAction = null; 
+let modalAction = null;
 let userDirectoryCache = null;
 
 const POSTS_PER_PAGE = 10;
 let currentPage = 1;
 let filteredParents = [];
 let lastAllPosts = [];
+let postsChannel = null;
+let eventsChannel = null;
 
 /* ================= HỆ THỐNG MODAL (POPUP) ================= */
 function showModal(title, msg, isInput, currentText, onConfirm, isHtml = false) {
@@ -1075,8 +1063,8 @@ function showModal(title, msg, isInput, currentText, onConfirm, isHtml = false) 
   modalTitle.innerText = title;
   if(isHtml) modalMsg.innerHTML = msg;
   else modalMsg.innerText = msg;
-  modalAction = onConfirm; 
-  
+  modalAction = onConfirm;
+
   if (isInput) {
     modalInput.style.display = "block";
     modalInput.value = currentText;
@@ -1088,47 +1076,47 @@ function showModal(title, msg, isInput, currentText, onConfirm, isHtml = false) 
   modal.style.display = "flex";
 }
 
-/* ================= CƠ CHẾ MỚI: XÁC THỰC LẠI QUA FIRESTORE TỪ WEB CHÍNH ================= */
-window.addEventListener("message", async (event) => {
-  if (event.data && event.data.type === "USER_INFO") {
-    const receivedUser = event.data.user;
-    
-    if (receivedUser && receivedUser.uid) {
-      try {
-        // Chạy trực tiếp vào Firestore lấy thông tin mới nhất và an toàn nhất
-        const userDoc = await firestoreDb.collection("users").doc(receivedUser.uid).get();
-        
-        if (userDoc.exists) {
-          const userData = userDoc.data();
-          currentUser = {
-            uid: receivedUser.uid,
-            name: userData.name || receivedUser.name || "Người dùng",
-            role: userData.role || "member" // Nhận role trực tiếp từ database
-          };
-        } else {
-          // Fallback phòng khi user chưa kịp sync qua firestore
-          currentUser = {
-            uid: receivedUser.uid,
-            name: receivedUser.name || "Người dùng",
-            role: receivedUser.role || "member"
-          };
-        }
-      } catch (err) {
-        console.error("Lỗi kiểm tra quyền hạn user từ Firestore:", err);
-        currentUser = receivedUser; // fallback giữ nguyên data nhận được
+/* ================= XÁC THỰC LẠI QUYỀN HẠN USER QUA SUPABASE ================= */
+async function applyReceivedUser(receivedUser) {
+  if (receivedUser && receivedUser.uid) {
+    try {
+      const { data: row } = await supabase.from("users")
+        .select("name, role")
+        .eq("id", receivedUser.uid)
+        .maybeSingle();
+      if (row) {
+        currentUser = {
+          uid: receivedUser.uid,
+          name: row.name || receivedUser.displayName || receivedUser.name || "Người dùng",
+          role: row.role || "member"
+        };
+      } else {
+        currentUser = {
+          uid: receivedUser.uid,
+          name: receivedUser.displayName || receivedUser.name || "Người dùng",
+          role: receivedUser.role || "member"
+        };
       }
-    } else {
+    } catch (err) {
+      console.error("Lỗi kiểm tra quyền hạn user từ Supabase:", err);
       currentUser = receivedUser;
     }
-    
-    updateUserBox();
-    
-    // Ép làm mới lại danh sách bài đăng sau khi xác thực vai trò hoàn tất
-    db.ref("posts").once("value", (snapshot) => {
-      renderPosts(snapshot);
-    });
+  } else {
+    currentUser = receivedUser;
+  }
+
+  updateUserBox();
+
+  // Ép làm mới lại danh sách bài đăng sau khi xác thực vai trò hoàn tất
+  await loadPosts();
+}
+
+window.addEventListener("message", async (event) => {
+  if (event.data && event.data.type === "USER_INFO") {
+    await applyReceivedUser(event.data.user);
   }
 });
+
 
 function escapeHTML(value){
   return String(value || "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
@@ -1209,7 +1197,7 @@ function playSound(type){
 }
 
 /* ================= GỬI BÀI VIẾT / PHẢN HỒI ================= */
-function sendPost(){
+async function sendPost(){
   const contentArea = document.getElementById("content");
   const text = contentArea.value.trim();
 
@@ -1219,51 +1207,62 @@ function sendPost(){
     return;
   }
 
-  const newPost = {
-    text: text,
-    user: currentUser.name,
-    uid: currentUser.uid || null,
-    role: currentUser.role || "member", 
-    parentId: replyTo || null,
-    time: Date.now()
-  };
+  try {
+    await supabase.from("forum_posts").insert({
+      user_id: currentUser.uid || null,
+      user_name: currentUser.name,
+      role: currentUser.role || "member",
+      text: text,
+      parent_id: replyTo || null,
+      time: Date.now()
+    });
+    await supabase.from("forum_events").insert({ type: "post", time: Date.now() });
+  } catch (e) {
+    console.error("Lỗi gửi bài viết:", e);
+    return;
+  }
 
-  db.ref("posts").push(newPost);
-  db.ref("events").push({ type: "post", time: Date.now() });
+  contentArea.value = "";
+  contentArea.style.height = "80px";
+  document.getElementById("charCount").innerText = "0";
+  document.getElementById("charCount").style.color = "#64748b";
 
-  contentArea.value = ""; 
-  contentArea.style.height = "80px"; 
-  document.getElementById("charCount").innerText = "0"; 
-  document.getElementById("charCount").style.color = "#64748b"; 
-  
   replyTo = null;
   document.getElementById("replyingTo").innerHTML = "";
   contentArea.focus();
 }
 
 /* ================= HIỂN THỊ BÀI VIẾT (RENDER) ================= */
-db.ref("posts").on("value", (snapshot) => {
-  renderPosts(snapshot);
-});
-
-function renderPosts(snapshot){
+async function loadPosts(){
   clearTimeout(window.__forumSkeletonTimeout);
-  const data = snapshot.val();
   const container = document.getElementById("posts");
   if(!container) return;
-  
+
   const scrollPos = window.scrollY;
   container.innerHTML = "";
-  
-  if(!data) {
-    document.getElementById("paginationBar").innerHTML = "";
-    document.getElementById("paginationInfo").innerHTML = "";
-    return;
+
+  try {
+    const { data } = await supabase.from("forum_posts").select("*");
+    lastAllPosts = data || [];
+  } catch (e) {
+    console.error("Lỗi tải bài viết:", e);
+    lastAllPosts = [];
   }
 
-  lastAllPosts = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+  if(lastAllPosts.length === 0) {
+    document.getElementById("paginationBar").innerHTML = "";
+    document.getElementById("paginationInfo").innerHTML = "";
+  }
+
   applyFilters();
   window.scrollTo(0, scrollPos);
+}
+
+function subscribePosts(){
+  if (postsChannel) supabase.removeChannel(postsChannel);
+  postsChannel = supabase.channel("forum-posts")
+    .on("postgres_changes", { event: "*", schema: "public", table: "forum_posts" }, () => loadPosts())
+    .subscribe();
 }
 
 function applyFilters(){
@@ -1274,12 +1273,12 @@ function applyFilters(){
   const searchVal = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
   const sortVal = document.getElementById("sortSelect")?.value || "newest";
 
-  let parents = lastAllPosts.filter(p => !p.parentId);
+  let parents = lastAllPosts.filter(p => !p.parent_id);
 
   if(searchVal){
     parents = parents.filter(p =>
       (p.text || "").toLowerCase().includes(searchVal) ||
-      (p.user || "").toLowerCase().includes(searchVal)
+      (p.user_name || "").toLowerCase().includes(searchVal)
     );
   }
 
@@ -1292,8 +1291,8 @@ function applyFilters(){
     unpinned.sort((a, b) => a.time - b.time);
   } else if(sortVal === "replies"){
     unpinned.sort((a, b) => {
-      const countA = lastAllPosts.filter(p => p.parentId === a.id).length;
-      const countB = lastAllPosts.filter(p => p.parentId === b.id).length;
+      const countA = lastAllPosts.filter(p => p.parent_id === a.id).length;
+      const countB = lastAllPosts.filter(p => p.parent_id === b.id).length;
       return countB - countA;
     });
   }
@@ -1363,8 +1362,8 @@ function goToPage(page){
 
 function createPostElement(post, allPosts){
   const div = document.createElement("div");
-  const isOwner = currentUser && post.uid === currentUser.uid;
-  const isAdmin = post.user === "Admin LearnHub";
+  const isOwner = currentUser && post.user_id === currentUser.uid;
+  const isAdmin = post.user_name === "Admin LearnHub";
   const isAdminUser = currentUser && (currentUser.role === 'admin' || currentUser.role === 'Admin');
 
   let postClasses = [];
@@ -1391,14 +1390,14 @@ function createPostElement(post, allPosts){
 
   div.innerHTML = `
     <div class="meta">
-      <b class="${nameClass} ${adminNameClass}">${escapeHTML(post.user)}</b>${adminBadge}${pinBadge} • ${formatTime(post.time)} 
-      ${post.isEdited ? '<i style="font-size:10px">(đã chỉnh sửa)</i>' : ''}
+      <b class="${nameClass} ${adminNameClass}">${escapeHTML(post.user_name)}</b>${adminBadge}${pinBadge} • ${formatTime(post.time)} 
+      ${post.is_edited ? '<i style="font-size:10px">(đã chỉnh sửa)</i>' : ''}
       ${ownerActions}${pinAction}
     </div>
     <div style="white-space: pre-wrap;">${escapeHTML(post.text)}</div>
     <div class="actions">
       ${renderReactionButtons(post)}
-      <span class="reply-btn" onclick="setReply('${post.id}', ${JSON.stringify(post.user)})">Trả lời</span>
+      <span class="reply-btn" onclick="setReply('${post.id}', ${JSON.stringify(post.user_name)})">Trả lời</span>
     </div>
   `;
 
@@ -1411,7 +1410,7 @@ function createPostElement(post, allPosts){
 
 function renderReplies(parentId, container, allPosts, level){
   const replies = allPosts
-    .filter(p => p.parentId === parentId)
+    .filter(p => p.parent_id === parentId)
     .sort((a, b) => a.time - b.time);
   if(replies.length === 0) return;
 
@@ -1439,8 +1438,8 @@ function renderReplies(parentId, container, allPosts, level){
 
     replies.forEach(rep => {
       const repDiv = document.createElement("div");
-      const isOwner = currentUser && rep.uid === currentUser.uid;
-      const isAdminReply = rep.user === "Admin LearnHub";
+      const isOwner = currentUser && rep.user_id === currentUser.uid;
+      const isAdminReply = rep.user_name === "Admin LearnHub";
 
       let replyClasses = ["reply"];
       if (isAdminReply) replyClasses.push("admin-reply-card");
@@ -1458,12 +1457,12 @@ function renderReplies(parentId, container, allPosts, level){
 
       repDiv.innerHTML = `
         <div class="meta">
-          <b class="${nameClass} ${adminNameClass}">${escapeHTML(rep.user)}</b>${adminBadge} • ${formatTime(rep.time)} ${ownerActions}
+          <b class="${nameClass} ${adminNameClass}">${escapeHTML(rep.user_name)}</b>${adminBadge} • ${formatTime(rep.time)} ${ownerActions}
         </div>
         <div style="white-space: pre-wrap;">${escapeHTML(rep.text)}</div>
         <div class="actions">
           ${renderReactionButtons(rep)}
-          <span class="reply-btn" onclick="setReply('${rep.id}', ${JSON.stringify(rep.user)})">Trả lời</span>
+          <span class="reply-btn" onclick="setReply('${rep.id}', ${JSON.stringify(rep.user_name)})">Trả lời</span>
         </div>
       `;
       
@@ -1574,10 +1573,9 @@ async function getUserDirectory(){
   if(userDirectoryCache) return userDirectoryCache;
   const directory = new Map();
   try {
-    const snap = await firestoreDb.collection("users").get();
-    snap.forEach(doc => {
-      const data = doc.data() || {};
-      directory.set(doc.id, data.name || data.email || doc.id);
+    const { data } = await supabase.from("users").select("id, name, email");
+    (data || []).forEach(row => {
+      directory.set(row.id, row.name || row.email || row.id);
     });
   } catch (error) {
     console.warn("Không tải được danh sách user:", error);
@@ -1587,8 +1585,7 @@ async function getUserDirectory(){
 }
 
 async function showReactionDetails(postId){
-  const snap = await db.ref("posts/" + postId).once("value");
-  const post = snap.val();
+  const { data: post } = await supabase.from("forum_posts").select("*").eq("id", postId).maybeSingle();
   if(!post) return showModal("Chi tiết cảm xúc", "Không tìm thấy bài viết này.", false, "", null);
 
   const entries = collectReactionEntries(post);
@@ -1605,11 +1602,11 @@ async function showReactionDetails(postId){
       </div>
     `;
   }).join("");
-  const postTitle = post.parentId ? "Bình luận đang xem" : "Bài viết đang xem";
+  const postTitle = post.parent_id ? "Bình luận đang xem" : "Bài viết đang xem";
   const preview = `
     <div class="reaction-detail-preview">
       <div class="reaction-detail-label">${postTitle}</div>
-      <div class="reaction-detail-author">${escapeHTML(post.user || "Người dùng")}</div>
+      <div class="reaction-detail-author">${escapeHTML(post.user_name || "Người dùng")}</div>
       <div class="reaction-detail-text">${escapeHTML(post.text || "")}</div>
     </div>
   `;
@@ -1642,21 +1639,20 @@ function cancelReply() {
 
 async function deletePost(postId) {
   showModal("Xác nhận xóa", "Bạn có chắc muốn xóa bài này và các phản hồi liên quan?", false, "", async () => {
-    const snapshot = await db.ref("posts").once("value");
-    const allData = snapshot.val();
-    if (!allData) return;
-    
-    function getAllChildIds(id, data) {
+    const { data } = await supabase.from("forum_posts").select("id, parent_id");
+    if (!data) return;
+
+    function getAllChildIds(id, rows) {
       let ids = [id];
-      for (let key in data) {
-        if (data[key].parentId === id) ids = ids.concat(getAllChildIds(key, data));
+      for (const row of rows) {
+        if (row.parent_id === id) ids = ids.concat(getAllChildIds(row.id, rows));
       }
       return ids;
     }
 
-    const updates = {};
-    getAllChildIds(postId, allData).forEach(id => { updates["posts/" + id] = null; });
-    await db.ref().update(updates);
+    const ids = getAllChildIds(postId, data);
+    const { error } = await supabase.from("forum_posts").delete().in("id", ids);
+    if (error) console.error("Lỗi xóa bài viết:", error.message);
   });
 }
 
@@ -1664,55 +1660,102 @@ function editPost(postId, oldText) {
   showModal("Chỉnh sửa bài viết", "", true, oldText, () => {
     const newText = document.getElementById("modalInput").value.trim();
     if (newText && newText !== oldText) {
-      db.ref("posts/" + postId).update({
+      supabase.from("forum_posts").update({
         text: newText,
-        isEdited: true,
-        editTime: Date.now()
-      });
+        is_edited: true,
+        edit_time: Date.now()
+      }).eq("id", postId).catch(e => console.error("Lỗi chỉnh sửa bài viết:", e.message));
     }
   });
 }
 
 function pinPost(postId) {
   if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'Admin')) return;
-  db.ref("posts/" + postId).update({ pinned: true, pinTime: Date.now() });
+  supabase.from("forum_posts").update({ pinned: true, pin_time: Date.now() }).eq("id", postId);
 }
 
 function unpinPost(postId) {
   if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'Admin')) return;
-  db.ref("posts/" + postId).update({ pinned: false, pinTime: null });
+  supabase.from("forum_posts").update({ pinned: false, pin_time: null }).eq("id", postId);
 }
 
-function toggleReaction(postId, type){
+async function toggleReaction(postId, type){
   if(!currentUser) return;
-  const ref = db.ref("posts/" + postId);
-  ref.once("value").then(snap => {
-    const post = snap.val() || {};
-    const uid = currentUser.uid;
-    let reactions = post.reactions || {};
-    let likes = post.likes || {};
-    let dislikes = post.dislikes || {};
+  const { data: post } = await supabase.from("forum_posts")
+    .select("reactions, likes, dislikes")
+    .eq("id", postId)
+    .maybeSingle();
+  if(!post) return;
 
-    if(reactions[uid] === type) delete reactions[uid];
-    else reactions[uid] = type;
+  const uid = currentUser.uid;
+  let reactions = post.reactions || {};
+  let likes = post.likes || {};
+  let dislikes = post.dislikes || {};
 
-    delete likes[uid];
-    delete dislikes[uid];
+  if(reactions[uid] === type) delete reactions[uid];
+  else reactions[uid] = type;
 
-    ref.update({ reactions, likes, dislikes });
-    db.ref("events").push({ type: "like", reactionType: type, time: Date.now() });
-  });
+  delete likes[uid];
+  delete dislikes[uid];
+
+  await supabase.from("forum_posts").update({ reactions, likes, dislikes }).eq("id", postId);
+  await supabase.from("forum_events").insert({ type: "like", reaction_type: type, time: Date.now() });
 }
 
 function toggleLike(postId, isLike){
   toggleReaction(postId, isLike ? "like" : "sad");
 }
 
-db.ref("events").limitToLast(1).on("child_added", (snap) => {
-  if (isFirstLoad) { isFirstLoad = false; return; }
-  const ev = snap.val();
-  if(ev) playSound(ev.type);
+/* ================= NGHE SỰ KIỆN REAL-TIME (ÂM THANH) ================= */
+function subscribeEvents(){
+  if (eventsChannel) supabase.removeChannel(eventsChannel);
+  eventsChannel = supabase.channel("forum-events-sound")
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "forum_events" }, (payload) => {
+      if (isFirstLoad) { isFirstLoad = false; return; }
+      const ev = payload.new;
+      if (ev && ev.time && (Date.now() - ev.time < 5000)) {
+        playSound(ev.type);
+      }
+    })
+    .subscribe();
+}
+
+/* ================= KHỞI ĐỘNG ================= */
+subscribePosts();
+subscribeEvents();
+
+supabase.auth.getSession().then(({ data: { session } }) => {
+  if (session && session.user) {
+    applyReceivedUser({
+      uid: session.user.id,
+      name: session.user.user_metadata?.name || session.user.email || "",
+      email: session.user.email,
+      displayName: session.user.user_metadata?.name || session.user.email || ""
+    }).catch(() => loadPosts());
+  } else {
+    loadPosts();
+  }
 });
+
+/* Các hàm dùng trong onclick trực tiếp trên HTML */
+window.sendPost = sendPost;
+window.toggleMute = toggleMute;
+window.applyFilters = applyFilters;
+window.goToPage = goToPage;
+window.editPost = editPost;
+window.deletePost = deletePost;
+window.pinPost = pinPost;
+window.unpinPost = unpinPost;
+window.setReply = setReply;
+window.cancelReply = cancelReply;
+window.toggleReaction = toggleReaction;
+window.showReactionDetails = showReactionDetails;
+window.loadPosts = loadPosts;
+window.__forumSetUser = applyReceivedUser;
+window.__forumSetupOnline = async function(user){
+  if (!user || !user.uid) return;
+  await supabase.from("users").update({ online: true, last_active: Date.now() }).eq("id", user.uid).catch(() => {});
+};
 </script>
 
 <script>
@@ -1722,38 +1765,8 @@ window.addEventListener('message', async function(event) {
   if (event.data && event.data.type === 'LEARNHUB_USER') {
     const receivedUser = event.data.user;
     window.learnHubUser = receivedUser;
-    applyHeaderUser(receivedUser);
-
-    if (receivedUser && receivedUser.uid) {
-      try {
-        const userDoc = await firestoreDb.collection("users").doc(receivedUser.uid).get();
-        if (userDoc.exists) {
-          const userData = userDoc.data();
-          currentUser = {
-            uid: receivedUser.uid,
-            name: userData.name || receivedUser.displayName || receivedUser.name || "Người dùng",
-            role: userData.role || "member"
-          };
-        } else {
-          currentUser = {
-            uid: receivedUser.uid,
-            name: receivedUser.displayName || receivedUser.name || "Người dùng",
-            role: receivedUser.role || "member"
-          };
-        }
-      } catch (err) {
-        console.error("Lỗi kiểm tra quyền hạn user từ Firestore:", err);
-        currentUser = {
-          uid: receivedUser.uid,
-          name: receivedUser.displayName || receivedUser.name || "Người dùng",
-          role: receivedUser.role || "member"
-        };
-      }
-      updateUserBox();
-      db.ref("posts").once("value", (snapshot) => {
-        renderPosts(snapshot);
-      });
-    }
+    if (typeof window.__forumApplyHeaderUser === 'function') window.__forumApplyHeaderUser(receivedUser);
+    if (typeof window.__forumSetUser === 'function') await window.__forumSetUser(receivedUser);
   }
   if (event.data && event.data.type === 'DARK_MODE') {
     if (event.data.value) document.body.classList.add('dark-mode');
@@ -1782,33 +1795,16 @@ updateTime();
 setInterval(updateTime, 30000);
 
 function applyHeaderUser(user) {
-  const avatar = user.photoURL || "https://i.imgur.com/6VBx3io.png";
+  const avatar = user.photo || user.photoURL || "https://i.imgur.com/6VBx3io.png";
   const wt = document.getElementById("welcomeText");
   if (wt) wt.innerText = "";
   const un = document.getElementById("userName");
-  if (un) un.innerText = user.displayName || user.email || "";
+  if (un) un.innerText = user.displayName || user.name || user.email || "";
   const userAvatar = document.getElementById("userAvatar");
   if (userAvatar) userAvatar.src = avatar;
-  if (window.learnHubUser && window.learnHubUser.uid) setupOnlineStatus(user);
+  if (window.learnHubUser && window.learnHubUser.uid && typeof window.__forumSetupOnline === 'function') window.__forumSetupOnline(user);
 }
-</script>
-
-<script>
-/* ===== COMPAT SDK: chỉ dùng cho Realtime Database online status ===== */
-/* (firebaseConfig và db đã được define ở block trên, không cần khai báo lại) */
-
-/* online status khi nhận user từ parent */
-function setupOnlineStatus(user) {
-  if (!user || !user.uid) return;
-  var userStatusRef = db.ref("users/" + user.uid + "/status");
-  var connectedRef = db.ref(".info/connected");
-  connectedRef.on("value", function(snap) {
-    if (snap.val() === true) {
-      userStatusRef.set("online");
-      userStatusRef.onDisconnect().set("offline");
-    }
-  });
-}
+window.__forumApplyHeaderUser = applyHeaderUser;
 </script>
 </body>
 </html>

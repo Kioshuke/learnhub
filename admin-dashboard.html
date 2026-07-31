@@ -698,28 +698,12 @@
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { initializeAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-import { getFirestore, collection, getDocs, onSnapshot, doc, setDoc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c",
-  authDomain: "onthi12-thpttanhong.firebaseapp.com",
-  projectId: "onthi12-thpttanhong",
-  storageBucket: "onthi12-thpttanhong.firebasestorage.app",
-  messagingSenderId: "922115936320",
-  appId: "1:922115936320:web:67b86c06af9149ff584fa5"
-};
+import { supabase } from "./supabase-config.js";
 
 const adminEmail = "learnhubadmin@gmail.com";
-
-const app = initializeApp(firebaseConfig, "learnhub-admin-dashboard");
-const auth = initializeAuth(app, { persistence: browserLocalPersistence });
-const db = getFirestore(app);
 let allowDocs = [];
 let userDocs = [];
-let unsubscribeAllow = null;
-let unsubscribeUsers = null;
+let adminChannel = null;
 
 const noticeEl = document.getElementById("notice");
 const loginView = document.getElementById("loginView");
@@ -787,6 +771,7 @@ function switchAdminTab(tab) {
   document.querySelector('.sidebar').classList.remove('open');
   document.querySelector('.sidebar-overlay').classList.remove('active');
 }
+window.switchAdminTab = switchAdminTab;
 
 adminTabButtons.forEach(b => b.addEventListener("click", () => switchAdminTab(b.dataset.adminTab)));
 
@@ -809,11 +794,10 @@ function showNotice(message, type = "info") {
 }
 
 function normalizeEmail(e) { return String(e || "").trim().toLowerCase(); }
-function emailDocId(e) { return encodeURIComponent(normalizeEmail(e)); }
 
 function formatDate(v) {
   if (!v) return "Chưa có";
-  let d = typeof v === "number" ? new Date(v) : v?.toDate ? v.toDate() : new Date(v);
+  let d = typeof v === "number" ? new Date(v) : new Date(v);
   if (Number.isNaN(d.getTime())) return "Chưa có";
   return d.toLocaleString("vi-VN");
 }
@@ -830,13 +814,13 @@ async function importWhitelistFromFile(file) {
       .filter(e => e && e.includes("@") && e.includes("."))
   )];
   if (!emails.length) { showNotice("File không có email hợp lệ.", "error"); return; }
-  const snap = await getDocs(collection(db, "accessList"));
-  const existing = new Set(snap.docs.map(d => normalizeEmail(d.data().email)));
+  const { data } = await supabase.from("access_list").select("email");
+  const existing = new Set((data || []).map(d => normalizeEmail(d.email)));
   const newEmails = emails.filter(e => !existing.has(e));
   if (!newEmails.length) { showNotice(`Tất cả ${emails.length} email đã có trong whitelist.`, "info"); return; }
   let added = 0;
   for (const e of newEmails) {
-    await setDoc(doc(db, "accessList", emailDocId(e)), { email: e, enabled: true, addedAt: new Date().toISOString(), source: "file-import" }, { merge: true });
+    await supabase.from("access_list").upsert({ email: e, enabled: true, source: "file-import", added_at: new Date().toISOString() }, { onConflict: "email" });
     added++;
   }
   showNotice(`Đã nạp ${added} email mới từ file (bỏ qua ${emails.length - added} email đã tồn tại).`, "success");
@@ -847,7 +831,7 @@ function updateStats() {
   const THRESHOLD = 45000;
   totalUsersEl.textContent = String(userDocs.length);
   totalWhitelistEl.textContent = String(allowDocs.length);
-  onlineUsersEl.textContent = String(userDocs.filter(i => i.online && i.lastActive && (now - i.lastActive) < THRESHOLD).length);
+  onlineUsersEl.textContent = String(userDocs.filter(i => i.online && i.last_active && (now - i.last_active) < THRESHOLD).length);
   disabledUsersEl.textContent = String(userDocs.filter(i => i.disabled).length);
 }
 
@@ -861,12 +845,12 @@ function buildDirectoryRows() {
   all.forEach(email => {
     const a = aMap.get(email), u = uMap.get(email);
     rows.push({
-      email, uid: u?.uid || "", name: u?.name || u?.email || a?.email || "Chưa có tên",
+      email, uid: u?.id || "", name: u?.name || u?.email || a?.email || "Chưa có tên",
       photo: u?.photo || "https://i.imgur.com/6VBx3io.png", role: u?.role || "Thành viên",
-      online: Boolean(u?.online) && u?.lastActive && (now - u.lastActive) < THRESHOLD, disabled: Boolean(u?.disabled),
-      whitelisted: a ? a.enabled !== false : false, allowId: a?.id || emailDocId(email),
-      lastLogin: u?.lastLogin || "", lastActive: u?.lastActive || "",
-      createdAt: u?.createdAt || "", updatedAt: u?.updatedAt || a?.updatedAt || "",
+      online: Boolean(u?.online) && u?.last_active && (now - u.last_active) < THRESHOLD, disabled: Boolean(u?.disabled),
+      whitelisted: a ? a.enabled !== false : false, allowId: a?.email || email,
+      lastLogin: u?.last_login || "", lastActive: u?.last_active || "",
+      createdAt: u?.created_at || "", updatedAt: u?.updated_at || a?.updated_at || "",
       hasUserDoc: Boolean(u)
     });
   });
@@ -941,28 +925,27 @@ function renderRenameList() {
 renameSearchInput.addEventListener("input", renderRenameList);
 
 async function refreshCollections() {
-  const [as, us] = await Promise.all([getDocs(collection(db, "accessList")), getDocs(collection(db, "users"))]);
-  allowDocs = as.docs.map(d => ({id:d.id,...d.data()})).sort((a,b)=>normalizeEmail(a.email).localeCompare(normalizeEmail(b.email)));
-  userDocs = us.docs.map(d => ({uid:d.id,...d.data()})).sort((a,b)=>normalizeEmail(a.name||a.email).localeCompare(normalizeEmail(b.name||b.email)));
+  const [aRes, uRes] = await Promise.all([
+    supabase.from("access_list").select("*"),
+    supabase.from("users").select("*")
+  ]);
+  allowDocs = (aRes.data || []).map(d => ({ id: d.email, ...d })).sort((a,b)=>normalizeEmail(a.email).localeCompare(normalizeEmail(b.email)));
+  userDocs = (uRes.data || []).map(d => ({ uid: d.id, ...d })).sort((a,b)=>normalizeEmail(a.name||a.email).localeCompare(normalizeEmail(b.name||b.email)));
   updateStats(); renderDirectory(); renderRenameList();
 }
 
 function startRealtime() {
-  if (unsubscribeAllow) unsubscribeAllow(); if (unsubscribeUsers) unsubscribeUsers();
-  unsubscribeAllow = onSnapshot(collection(db, "accessList"), s => {
-    allowDocs = s.docs.map(d => ({id:d.id,...d.data()})).sort((a,b)=>normalizeEmail(a.email).localeCompare(normalizeEmail(b.email)));
-    updateStats(); renderDirectory(); renderRenameList();
-  });
-  unsubscribeUsers = onSnapshot(collection(db, "users"), s => {
-    userDocs = s.docs.map(d => ({uid:d.id,...d.data()})).sort((a,b)=>normalizeEmail(a.name||a.email).localeCompare(normalizeEmail(b.name||b.email)));
-    updateStats(); renderDirectory(); renderRenameList();
-  });
+  if (adminChannel) supabase.removeChannel(adminChannel);
+  adminChannel = supabase.channel("admin-realtime")
+    .on("postgres_changes", { event: "*", schema: "public", table: "access_list" }, () => refreshCollections())
+    .on("postgres_changes", { event: "*", schema: "public", table: "users" }, () => refreshCollections())
+    .subscribe();
 }
 
 async function ensureAdmin(user) {
   if (!user?.email || normalizeEmail(user.email) !== adminEmail) {
     showNotice("Email này không có quyền vào dashboard admin.", "error");
-    await signOut(auth); return false;
+    await supabase.auth.signOut(); return false;
   }
   return true;
 }
@@ -973,17 +956,19 @@ document.getElementById("adminLoginBtn").addEventListener("click", async () => {
     const password = document.getElementById("adminPasswordInput").value;
     if (email !== adminEmail) { showNotice("Chỉ được đăng nhập bằng learnhubadmin@gmail.com", "error"); return; }
     if (!password) { showNotice("Vui lòng nhập mật khẩu admin.", "error"); return; }
-    await signInWithEmailAndPassword(auth, email, password);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
   } catch (error) {
     console.error(error);
     let message = "Đăng nhập admin thất bại.";
-    if (error.code==="auth/invalid-credential"||error.code==="auth/wrong-password") message="Sai mật khẩu hoặc tài khoản admin không hợp lệ.";
-    else if (error.code==="auth/too-many-requests") message="Đăng nhập quá nhiều lần. Vui lòng thử lại sau.";
+    const em = String(error?.message || "");
+    if (em.includes("Invalid login credentials")) message = "Sai mật khẩu hoặc tài khoản admin không hợp lệ.";
+    else if (em.includes("rate limit")) message = "Đăng nhập quá nhiều lần. Vui lòng thử lại sau.";
     showNotice(message, "error");
   }
 });
 
-document.getElementById("logoutBtn").addEventListener("click", async () => { await signOut(auth); });
+document.getElementById("logoutBtn").addEventListener("click", async () => { await supabase.auth.signOut(); });
 document.getElementById("seedBtn").addEventListener("click", () => document.getElementById("whitelistFileInput").click());
 document.getElementById("whitelistFileInput").addEventListener("change", async (e) => {
   const file = e.target.files[0];
@@ -1003,7 +988,19 @@ document.getElementById("sendBroadcastBtn").addEventListener("click", async () =
   if (tm==="single"&&(!te||!te.includes("@"))) { showNotice("Vui lòng nhập email hợp lệ.", "error"); return; }
   try {
     const now = new Date().toISOString();
-    await setDoc(doc(db,"broadcasts","current"),{id:now,title:title||"Thông báo",message,type:tp?tp.value:"info",durationMs:Number(dp?dp.value:3000),targetMode:tm,targetEmail:tm==="single"?te:"",active:true,updatedAt:now,sender:adminEmail},{merge:true});
+    await supabase.from("broadcast_current").upsert({
+      id: true,
+      broadcast_id: now,
+      title: title||"Thông báo",
+      message,
+      type: tp?tp.value:"info",
+      duration_ms: Number(dp?dp.value:3000),
+      target_mode: tm,
+      target_email: tm==="single"?te:"",
+      active: true,
+      sender: adminEmail,
+      updated_at: now
+    }, { onConflict: "id" });
     ti.value=""; mi.value="";
     document.querySelector('input[name="broadcastType"][value="info"]').checked=true;
     document.querySelector('input[name="broadcastDuration"][value="3000"]').checked=true;
@@ -1014,18 +1011,18 @@ document.getElementById("sendBroadcastBtn").addEventListener("click", async () =
 });
 
 document.getElementById("clearBroadcastBtn").addEventListener("click", async () => {
-  try { await setDoc(doc(db,"broadcasts","current"),{active:false,updatedAt:new Date().toISOString(),sender:adminEmail},{merge:true}); showNotice("Đã tắt thông báo hiện tại.", "success"); }
+  try { await supabase.from("broadcast_current").upsert({ id: true, active: false, updated_at: new Date().toISOString(), sender: adminEmail }, { onConflict: "id" }); showNotice("Đã tắt thông báo hiện tại.", "success"); }
   catch(e) { console.error(e); showNotice("Không tắt được thông báo.", "error"); }
 });
 
 async function loadWelcomePopupForm() {
   try {
-    const s = await getDoc(doc(db,"broadcasts","welcomePopup"));
-    if (!s.exists()) { welcomePopupTitleInput.value="📢 Thông báo"; welcomePopupMessageInput.value="CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM"; welcomePopupActiveInput.checked=true; document.querySelector('input[name="welcomePopupShowMode"][value="every_time"]').checked=true; welcomePopupMeta.textContent="Chưa có bản lưu. Lưu lần đầu để áp dụng."; return; }
-    const d=s.data()||{}; welcomePopupTitleInput.value=d.title||"📢 Thông báo"; welcomePopupMessageInput.value=d.message||""; welcomePopupActiveInput.checked=d.active!==false;
-    const mode=d.showMode==="daily"?"daily":"every_time";
+    const { data: d } = await supabase.from("broadcast_welcome").select("*").eq("id", true).maybeSingle();
+    if (!d) { welcomePopupTitleInput.value="📢 Thông báo"; welcomePopupMessageInput.value="CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM"; welcomePopupActiveInput.checked=true; document.querySelector('input[name="welcomePopupShowMode"][value="every_time"]').checked=true; welcomePopupMeta.textContent="Chưa có bản lưu. Lưu lần đầu để áp dụng."; return; }
+    welcomePopupTitleInput.value=d.title||"📢 Thông báo"; welcomePopupMessageInput.value=d.message||""; welcomePopupActiveInput.checked=d.active!==false;
+    const mode=d.show_mode==="daily"?"daily":"every_time";
     document.querySelector(`input[name="welcomePopupShowMode"][value="${mode}"]`).checked=true;
-    welcomePopupMeta.textContent=d.updatedAt?`Cập nhật: ${formatDate(d.updatedAt)}${d.updatedBy?` · bởi ${d.updatedBy}`:""}`:"";
+    welcomePopupMeta.textContent=d.updated_at?`Cập nhật: ${formatDate(d.updated_at)}${d.updated_by?` · bởi ${d.updated_by}`:""}`:"";
   } catch(e) { console.error(e); showNotice("Không tải được popup.", "error"); }
 }
 
@@ -1036,7 +1033,7 @@ document.getElementById("saveWelcomePopupBtn").addEventListener("click", async (
   if (!message) { showNotice("Vui lòng nhập nội dung popup.", "error"); return; }
   try {
     const now=new Date().toISOString();
-    await setDoc(doc(db,"broadcasts","welcomePopup"),{title:title||"📢 Thông báo",message,active,showMode,updatedAt:now,updatedBy:adminEmail},{merge:true});
+    await supabase.from("broadcast_welcome").upsert({ id: true, title: title||"📢 Thông báo", message, active, show_mode: showMode, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
     welcomePopupMeta.textContent=`Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`; showNotice("Đã lưu popup cố định.", "success");
   } catch(e) { console.error(e); showNotice("Lưu popup thất bại.", "error"); }
 });
@@ -1044,7 +1041,7 @@ document.getElementById("saveWelcomePopupBtn").addEventListener("click", async (
 document.getElementById("disableWelcomePopupBtn").addEventListener("click", async () => {
   try {
     const now=new Date().toISOString();
-    await setDoc(doc(db,"broadcasts","welcomePopup"),{active:false,updatedAt:now,updatedBy:adminEmail},{merge:true});
+    await supabase.from("broadcast_welcome").upsert({ id: true, active: false, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
     welcomePopupActiveInput.checked=false; welcomePopupMeta.textContent=`Đã tắt popup · ${formatDate(now)}`; showNotice("Đã tắt popup cố định.", "success");
   } catch(e) { console.error(e); showNotice("Không tắt được popup.", "error"); }
 });
@@ -1058,9 +1055,9 @@ function renderMaintenanceBanner(d) {
 
 async function loadMaintenanceForm() {
   try {
-    const s=await getDoc(doc(db,"settings","maintenance")), d=s.exists()?(s.data()||{}):{};
-    maintenanceEnabledInput.checked=Boolean(d.enabled); maintenanceMessageInput.value=d.message||""; renderMaintenanceBanner(d);
-    maintenanceMeta.textContent=d.updatedAt?`Cập nhật: ${formatDate(d.updatedAt)}${d.updatedBy?` · bởi ${d.updatedBy}`:""}`:"Chưa từng bật bảo trì.";
+    const { data: d } = await supabase.from("maintenance_settings").select("*").eq("id", true).maybeSingle();
+    maintenanceEnabledInput.checked=Boolean(d && d.enabled); maintenanceMessageInput.value=(d && d.message)||""; renderMaintenanceBanner(d||{});
+    maintenanceMeta.textContent=d && d.updated_at ? `Cập nhật: ${formatDate(d.updated_at)}${d.updated_by?` · bởi ${d.updated_by}`:""}`:"Chưa từng bật bảo trì.";
   } catch(e) { console.error(e); showNotice("Không tải được trạng thái bảo trì.", "error"); }
 }
 
@@ -1075,7 +1072,7 @@ document.getElementById("saveMaintenanceBtn").addEventListener("click", async ()
     modal.classList.remove("active"); cB.removeEventListener("click",onConfirm); document.getElementById("confirmModalCancel").removeEventListener("click",onCancel);
     try {
       const now=new Date().toISOString();
-      await setDoc(doc(db,"settings","maintenance"),{enabled,message,updatedAt:now,updatedBy:adminEmail},{merge:true});
+      await supabase.from("maintenance_settings").upsert({ id: true, enabled, message, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
       renderMaintenanceBanner({enabled}); maintenanceMeta.textContent=`Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
       showNotice(enabled?"Đã BẬT bảo trì.":"Đã TẮT bảo trì.","success"); await loadMaintenanceForm();
     } catch(e) { console.error(e); showNotice("Cập nhật bảo trì thất bại.", "error"); }
@@ -1089,32 +1086,32 @@ document.getElementById("refreshMaintenanceBtn").addEventListener("click", loadM
 document.getElementById("addWhitelistBtn").addEventListener("click", async () => {
   const input=document.getElementById("allowEmailInput"), email=normalizeEmail(input.value);
   if (!email||!email.includes("@")) { showNotice("Vui lòng nhập email hợp lệ.", "error"); return; }
-  await setDoc(doc(db,"accessList",emailDocId(email)),{email,enabled:true,addedAt:new Date().toISOString(),updatedAt:new Date().toISOString()},{merge:true});
+  await supabase.from("access_list").upsert({ email, enabled: true, added_at: new Date().toISOString(), updated_at: new Date().toISOString() }, { onConflict: "email" });
   input.value=""; showNotice("Đã thêm email vào whitelist.", "success");
 });
 
 directorySearchInput.addEventListener("input", () => { currentPage = 1; renderDirectory(); });
 directoryFilterSelect.addEventListener("change", () => { currentPage = 1; renderDirectory(); });
 
-window.toggleWhitelist = async (docId, cur) => {
-  await setDoc(doc(db,"accessList",docId),{email:normalizeEmail(decodeURIComponent(docId)),enabled:!cur,updatedAt:new Date().toISOString()},{merge:true});
+window.toggleWhitelist = async (email, cur) => {
+  await supabase.from("access_list").upsert({ email, enabled: !cur, updated_at: new Date().toISOString() }, { onConflict: "email" });
   showNotice(cur?"Đã tắt quyền email này.":"Đã bật lại quyền email này.", "success");
 };
-window.removeWhitelist = async (docId) => {
+window.removeWhitelist = async (email) => {
   if (!confirm("Xóa email này khỏi whitelist?")) return;
-  await deleteDoc(doc(db,"accessList",docId)); showNotice("Đã xóa email khỏi whitelist.", "success");
+  await supabase.from("access_list").delete().eq("email", email); showNotice("Đã xóa email khỏi whitelist.", "success");
 };
 window.renameUser = async (uid) => {
   const input=document.getElementById(`rename-${uid}`), name=String(input?.value||"").trim();
   if (name.length<2) { showNotice("Tên phải có ít nhất 2 ký tự.", "error"); return; }
-  await updateDoc(doc(db,"users",uid),{name,updatedAt:new Date().toISOString()}); showNotice("Đã cập nhật tên user.", "success");
+  await supabase.from("users").update({ name, updated_at: new Date().toISOString() }).eq("id", uid); showNotice("Đã cập nhật tên user.", "success");
 };
 window.toggleDisable = async (uid, cur) => {
-  if (!uid) return; await updateDoc(doc(db,"users",uid),{disabled:!cur,online:false,updatedAt:new Date().toISOString()});
+  if (!uid) return; await supabase.from("users").update({ disabled: !cur, online: false, updated_at: new Date().toISOString() }).eq("id", uid);
   showNotice(cur?"Đã mở khóa user.":"Đã disable user.", "success");
 };
 window.changeUserRole = async (uid, role) => {
-  if (!uid) return; try { await updateDoc(doc(db,"users",uid),{role,updatedAt:new Date().toISOString()}); showNotice(`Đã chuyển quyền thành: ${role}`, "success"); }
+  if (!uid) return; try { await supabase.from("users").update({ role, updated_at: new Date().toISOString() }).eq("id", uid); showNotice(`Đã chuyển quyền thành: ${role}`, "success"); }
   catch(e) { console.error(e); showNotice("Không thể cập nhật quyền.", "error"); }
 };
 function openRoleDropdown(trigger) {
@@ -1186,10 +1183,10 @@ document.addEventListener("click", (e) => {
 });
 window.deleteUserData = async (uid, email) => {
   const has=Boolean(uid);
-  if (!confirm(has?"Xóa hồ sơ Firestore và gỡ khỏi whitelist?":"Xóa email khỏi whitelist?")) return;
-  if (has) await deleteDoc(doc(db,"users",uid));
+  if (!confirm(has?"Xóa hồ sơ và gỡ khỏi whitelist?":"Xóa email khỏi whitelist?")) return;
+  if (has) await supabase.from("users").delete().eq("id", uid);
   const ne=normalizeEmail(email);
-  if (ne) { const r=doc(db,"accessList",emailDocId(ne)), s=await getDoc(r); if (s.exists()) await deleteDoc(r); }
+  if (ne) { const { data } = await supabase.from("access_list").select("email").eq("email", ne).maybeSingle(); if (data) await supabase.from("access_list").delete().eq("email", ne); }
   showNotice(has?"Đã xóa hồ sơ user và gỡ whitelist.":"Đã xóa email khỏi whitelist.", "success");
 };
 
@@ -1208,12 +1205,11 @@ async function loadWeeklyResetForm() {
   const currentWeek = getCurrentWeekKey();
   weeklyResetCurrentWeek.textContent = currentWeek;
   try {
-    const snap = await getDoc(doc(db, "settings", "weeklyReset"));
-    if (snap.exists()) {
-      const d = snap.data();
-      weeklyResetLastTime.textContent = d.lastResetAt ? formatDate(d.lastResetAt) : "Chưa từng reset thủ công";
-      weeklyResetLastBy.textContent = d.lastResetBy || "—";
-      weeklyResetStatusBanner.textContent = `Tuần ${currentWeek} · Đã reset ${d.resetCount || 0} lần`;
+    const { data: d } = await supabase.from("weekly_reset").select("*").eq("id", true).maybeSingle();
+    if (d) {
+      weeklyResetLastTime.textContent = d.last_reset_at ? formatDate(d.last_reset_at) : "Chưa từng reset thủ công";
+      weeklyResetLastBy.textContent = d.last_reset_by || "—";
+      weeklyResetStatusBanner.textContent = `Tuần ${currentWeek} · Đã reset ${d.reset_count || 0} lần`;
       weeklyResetStatusBanner.style.background = "#eff6ff";
       weeklyResetStatusBanner.style.color = "#1e40af";
       weeklyResetStatusBanner.style.border = "1px solid #bfdbfe";
@@ -1273,42 +1269,43 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
 
       // Reset điểm số
       if(resetScore){
-        const statsSnap = await getDocs(collection(db, "testStats"));
-        for (const d of statsSnap.docs) {
-          await setDoc(doc(db, "testStats", d.id), {
-            totalTests: 0,
-            totalScore: 0,
-            bestScore: 0,
-            weekKey: currentWeek,
-            updatedAt: new Date().toISOString()
-          }, { merge: true });
+        const { data: stats } = await supabase.from("test_stats").select("user_id");
+        for (const s of (stats || [])) {
+          await supabase.from("test_stats").update({
+            total_tests: 0,
+            total_score: 0,
+            best_score: 0,
+            week_key: currentWeek,
+            updated_at: new Date().toISOString()
+          }).eq("user_id", s.user_id);
           count++;
         }
       }
 
       // Reset thời gian online
       if(resetTime){
-        const usersSnap = await getDocs(collection(db, "users"));
-        for (const d of usersSnap.docs) {
-          await setDoc(doc(db, "users", d.id), {
-            onlinetimer: 0,
-            onlineStartTime: 0
-          }, { merge: true });
+        const { data: users } = await supabase.from("users").select("id");
+        for (const s of (users || [])) {
+          await supabase.from("users").update({
+            online_timer: 0,
+            online_start_time: 0
+          }).eq("id", s.id);
           if(!resetScore) count++;
         }
       }
 
       const now = new Date().toISOString();
-      const resetSnap = await getDoc(doc(db, "settings", "weeklyReset"));
-      const prevCount = resetSnap.exists() ? (resetSnap.data().resetCount || 0) : 0;
+      const { data: resetDoc } = await supabase.from("weekly_reset").select("reset_count").eq("id", true).maybeSingle();
+      const prevCount = resetDoc ? (resetDoc.reset_count || 0) : 0;
 
-      await setDoc(doc(db, "settings", "weeklyReset"), {
-        lastResetAt: now,
-        lastResetBy: adminEmail,
-        resetCount: prevCount + 1,
-        usersReset: count,
-        resetTargets: targets.join(", ")
-      }, { merge: true });
+      await supabase.from("weekly_reset").upsert({
+        id: true,
+        last_reset_at: now,
+        last_reset_by: adminEmail,
+        reset_count: prevCount + 1,
+        users_reset: count,
+        reset_targets: targets.join(", ")
+      }, { onConflict: "id" });
 
       showNotice(`Đã reset ${targets.join(" & ")} thành công cho ${count} user.`, "success");
       await loadWeeklyResetForm();
@@ -1332,7 +1329,7 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
 });
 
 document.getElementById("logoutAllBtn").addEventListener("click", async () => {
-  const onlineCount = userDocs.filter(i => i.online && i.lastActive && (Date.now() - i.lastActive) < 45000).length;
+  const onlineCount = userDocs.filter(i => i.online && i.last_active && (Date.now() - i.last_active) < 45000).length;
   if(onlineCount === 0){ showNotice("Không có user nào đang online.", "info"); return; }
 
   const modal = document.getElementById("confirmModal");
@@ -1356,15 +1353,11 @@ document.getElementById("logoutAllBtn").addEventListener("click", async () => {
     btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Đang xử lý...';
 
     try {
-      const usersSnap = await getDocs(collection(db, "users"));
+      const { data: users } = await supabase.from("users").select("id, online");
       let count = 0;
-      for (const d of usersSnap.docs) {
-        const u = d.data();
+      for (const u of (users || [])) {
         if(u.online){
-          await setDoc(doc(db, "users", d.id), {
-            online: false,
-            onlineStartTime: 0
-          }, { merge: true });
+          await supabase.from("users").update({ online: false, online_start_time: 0 }).eq("id", u.id);
           count++;
         }
       }
@@ -1388,9 +1381,11 @@ document.getElementById("logoutAllBtn").addEventListener("click", async () => {
   document.getElementById("confirmModalCancel").addEventListener("click", onCancel);
 });
 
-onAuthStateChanged(auth, async (user) => {
+supabase.auth.onAuthStateChange(async (event, session) => {
+  const user = session?.user ?? null;
   if (!user) {
-    if (unsubscribeAllow) unsubscribeAllow(); if (unsubscribeUsers) unsubscribeUsers();
+    if (adminChannel) supabase.removeChannel(adminChannel);
+    adminChannel = null;
     loginView.style.display="flex"; dashboardView.classList.add("hidden"); return;
   }
   const ok = await ensureAdmin(user); if (!ok) return;
