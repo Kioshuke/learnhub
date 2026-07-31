@@ -859,7 +859,7 @@ async function importWhitelistFromFile(file) {
 
 function updateStats() {
   const now = Date.now();
-  const THRESHOLD = 45000;
+  const THRESHOLD = 10000; // presence theo heartbeat: quá 10s không có tín hiệu = offline
   totalUsersEl.textContent = String(userDocs.length);
   totalWhitelistEl.textContent = String(allowDocs.length);
   onlineUsersEl.textContent = String(userDocs.filter(i => i.online && i.last_active && (now - i.last_active) < THRESHOLD).length);
@@ -872,7 +872,7 @@ function buildDirectoryRows() {
   const all = new Set([...aMap.keys(), ...uMap.keys()]);
   const rows = [];
   const now = Date.now();
-  const THRESHOLD = 45000;
+  const THRESHOLD = 10000; // presence theo heartbeat: quá 10s không có tín hiệu = offline
   all.forEach(email => {
     const a = aMap.get(email), u = uMap.get(email);
     rows.push({
@@ -1394,7 +1394,7 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
 });
 
 document.getElementById("logoutAllBtn").addEventListener("click", async () => {
-  const onlineCount = userDocs.filter(i => i.online && i.last_active && (Date.now() - i.last_active) < 45000).length;
+  const onlineCount = userDocs.filter(i => i.online && i.last_active && (Date.now() - i.last_active) < 10000).length;
   if(onlineCount === 0){ showNotice("Không có user nào đang online.", "info"); return; }
 
   const modal = document.getElementById("confirmModal");

@@ -829,7 +829,8 @@ async function refreshOnlineList(){
       .order("last_active", { ascending: false });
 
     const now = Date.now();
-    const ACTIVE_THRESHOLD = 45000;
+    // Presence theo heartbeat: off nếu quá 10s (2 nhịp 5s) chưa có tín hiệu
+    const ACTIVE_THRESHOLD = 10000;
 
     list.innerHTML = "";
     for (const u of data || []) {

@@ -539,7 +539,7 @@
 
             // Sắp xếp: online trước (theo bảng chữ cái), offline sau (theo bảng chữ cái)
             const now = Date.now();
-            const ACTIVE_THRESHOLD = 45000;
+            const ACTIVE_THRESHOLD = 10000; // presence theo heartbeat: quá 10s không có tín hiệu = offline
 
             users.sort((a, b) => {
                 const aOnline = a.online && a.last_active && (now - a.last_active) < ACTIVE_THRESHOLD;
@@ -716,7 +716,7 @@
                     const now = Date.now();
                     const baseTimer = Number(data.online_timer || 0);
                     let effectiveTimer = baseTimer;
-                    if (data.online && data.last_active && (now - data.last_active) < 45000 && data.online_start_time > 0) {
+                    if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
                         effectiveTimer += Math.floor((now - data.online_start_time) / 1000);
                     }
                     document.getElementById('profile-online-display').innerText = formatTimer(effectiveTimer);
@@ -780,7 +780,7 @@
                     const now = Date.now();
                     const baseTimer = Number(data.online_timer || 0);
                     let effectiveTimer = baseTimer;
-                    if (data.online && data.last_active && (now - data.last_active) < 45000 && data.online_start_time > 0) {
+                    if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
                         effectiveTimer += Math.floor((now - data.online_start_time) / 1000);
                     }
                     document.getElementById('profile-online-display').innerText = formatTimer(effectiveTimer);

@@ -473,7 +473,7 @@
                     .select("id, name, email, photo, online, online_timer, online_start_time, last_active, disabled");
                 const rows = [];
                 const now = Date.now();
-                const THRESHOLD = 45000;
+                const THRESHOLD = 10000; // presence theo heartbeat: quá 10s không có tín hiệu = offline
                 for (const ud of (allUsers || [])) {
                     if (ud.disabled) continue;
                     const baseTimer = Number(ud.online_timer || 0);
