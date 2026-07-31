@@ -240,11 +240,6 @@ button:active { transform: translateY(0); }
 .icon-btn:hover { background: #f2f6fc; transform: translateY(-1px); }
 .icon-btn:active { transform: translateY(0); }
 
-.icon-lib-panel { display: none; position: absolute; right: 0; bottom: 44px; width: 264px; max-height: 240px; overflow-y: auto; background: #fff; border: 1px solid var(--line-strong); border-radius: 12px; box-shadow: 0 16px 40px rgba(16,24,40,0.18); padding: 10px; grid-template-columns: repeat(6, 1fr); gap: 6px; z-index: 10; }
-.icon-lib-panel.open { display: grid; }
-.icon-lib-item { aspect-ratio: 1; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: transparent; color: #475467; font-size: 17px; cursor: pointer; transition: background 0.15s ease, color 0.15s ease; }
-.icon-lib-item:hover { background: #eef4ff; color: var(--primary); }
-
 .image-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 .image-preview-item { position: relative; width: 84px; height: 84px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line-strong); }
 .image-preview-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -994,11 +989,9 @@ body.dark-mode .pagination-info { color: #64748b; }
     <div class="composer-input-wrap">
       <textarea id="content" placeholder="Bạn muốn trao đổi điều gì? (dán ảnh bằng Ctrl+V)" maxlength="500"></textarea>
       <div class="composer-tools">
-        <button class="icon-btn" id="openIconLib" type="button" onclick="toggleIconLib()" title="Chèn icon">😊</button>
         <button class="icon-btn" type="button" onclick="attachImage()" title="Đính kèm ảnh (tối đa 5MB)">📷</button>
         <input type="file" id="imageInput" accept="image/png,image/jpeg,image/gif,image/webp" hidden onchange="onImageSelected(event)">
       </div>
-      <div id="iconLibPanel" class="icon-lib-panel"></div>
     </div>
     <div class="char-counter"><span id="charCount">0</span>/500</div>
     <div id="imagePreview" class="image-preview"></div>
@@ -1107,7 +1100,21 @@ function showModal(title, msg, isInput, currentText, onConfirm, isHtml = false) 
 }
 
 /* ================= XÁC THỰC LẠI QUYỀN HẠN USER QUA SUPABASE ================= */
+let lastApplyUid = null;
+let lastApplyTime = 0;
+
 async function applyReceivedUser(receivedUser) {
+  const uid = receivedUser && receivedUser.uid;
+  const now = Date.now();
+  if (uid && uid === lastApplyUid && now - lastApplyTime < 3000) {
+    lastApplyTime = now;
+    return;
+  }
+  if (uid) {
+    lastApplyUid = uid;
+    lastApplyTime = now;
+  }
+
   if (receivedUser && receivedUser.uid) {
     try {
       const { data: row } = await supabase.from("users")
@@ -1252,45 +1259,6 @@ function attachImage(){
     renderImagePreview();
   });
 })();
-
-const ICON_LIBRARY = [
-  "heart","star","fire","trophy","medal","award","brain","lightbulb","rocket",
-  "book","book-open","pen","pencil","graduation-cap","school","calculator","laptop",
-  "check","check-double","xmark","question","exclamation","clock","calendar","bell",
-  "gift","envelope","paper-plane","camera","image","music","headphones","gamepad",
-  "globe","flag","thumbs-up","thumbs-down","smile","laugh","face-smile","face-grin",
-  "handshake","shield-halved","user","users","house","heart-pulse","dumbbell","mug-hot"
-];
-
-function toggleIconLib(force){
-  const panel = document.getElementById("iconLibPanel");
-  if (!panel) return;
-  const show = typeof force === "boolean" ? force : !panel.classList.contains("open");
-  panel.classList.toggle("open", show);
-  if (show && panel.dataset.built !== "1") {
-    panel.dataset.built = "1";
-    panel.innerHTML = ICON_LIBRARY.map(name =>
-      `<button type="button" class="icon-lib-item" title="${name}" onclick="insertIcon('${name}')"><i class="fa-solid fa-${name}"></i></button>`
-    ).join("");
-  }
-}
-
-function insertIcon(name){
-  const ta = document.getElementById("content");
-  if (!ta) return;
-  const token = "[icon:" + name + "]";
-  const start = ta.selectionStart ?? ta.value.length;
-  const end = ta.selectionEnd ?? ta.value.length;
-  ta.value = ta.value.slice(0, start) + token + ta.value.slice(end);
-  ta.selectionStart = ta.selectionEnd = start + token.length;
-  ta.dispatchEvent(new Event("input"));
-  toggleIconLib(false);
-  ta.focus();
-}
-
-function renderPostText(t){
-  return escapeHTML(t).replace(/\[icon:([a-z0-9-]+)\]/g, (m, name) => `<i class="fa-solid fa-${name}"></i>`);
-}
 
 function onImageSelected(e){
   const file = e.target.files && e.target.files[0];
@@ -1560,7 +1528,7 @@ function createPostElement(post, allPosts){
       ${post.is_edited ? '<i style="font-size:10px">(đã chỉnh sửa)</i>' : ''}
       ${ownerActions}${pinAction}
     </div>
-    <div style="white-space: pre-wrap;">${renderPostText(post.text)}</div>
+    <div style="white-space: pre-wrap;">${escapeHTML(post.text)}</div>
     ${postImageHtml}
     <div class="actions">
       ${renderReactionButtons(post)}
@@ -1629,7 +1597,7 @@ function renderReplies(parentId, container, allPosts, level){
         <div class="meta">
           <b class="${nameClass} ${adminNameClass}">${escapeHTML(rep.user_name)}</b>${adminBadge} • ${formatTime(rep.time)} ${ownerActions}
         </div>
-        <div style="white-space: pre-wrap;">${renderPostText(rep.text)}</div>
+        <div style="white-space: pre-wrap;">${escapeHTML(rep.text)}</div>
         ${replyImageHtml}
         <div class="actions">
           ${renderReactionButtons(rep)}
@@ -1778,7 +1746,7 @@ async function showReactionDetails(postId){
     <div class="reaction-detail-preview">
       <div class="reaction-detail-label">${postTitle}</div>
       <div class="reaction-detail-author">${escapeHTML(post.user_name || "Người dùng")}</div>
-      <div class="reaction-detail-text">${renderPostText(post.text || "")}</div>
+      <div class="reaction-detail-text">${escapeHTML(post.text || "")}</div>
     </div>
   `;
 
@@ -1922,8 +1890,6 @@ window.sendPost = sendPost;
 window.attachImage = attachImage;
 window.onImageSelected = onImageSelected;
 window.removePendingImage = removePendingImage;
-window.toggleIconLib = toggleIconLib;
-window.insertIcon = insertIcon;
 window.toggleMute = toggleMute;
 window.applyFilters = applyFilters;
 window.goToPage = goToPage;
