@@ -233,6 +233,17 @@ button:active { transform: translateY(0); }
 .mute-btn { margin-left: 0; min-width: auto; padding: 7px 12px; font-size: 12px; background: #475467 !important; box-shadow: 0 6px 14px rgba(71,84,103,0.18); white-space: nowrap; }
 .mute-btn:hover { background: #344054 !important; }
 
+.attach-img-btn { padding: 7px 12px; font-size: 13px; background: #344054 !important; box-shadow: 0 6px 14px rgba(52,64,84,0.18); }
+.attach-img-btn:hover { background: #1d2939 !important; }
+
+.image-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.image-preview-item { position: relative; width: 84px; height: 84px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line-strong); }
+.image-preview-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.image-preview-remove { position: absolute; top: 3px; right: 3px; width: 20px; height: 20px; border-radius: 50%; background: rgba(15,23,42,.65); color: #fff; font-size: 11px; line-height: 20px; text-align: center; cursor: pointer; }
+
+.post-image-wrap { margin-top: 8px; }
+.post-image { max-width: 100%; max-height: 480px; border-radius: 10px; border: 1px solid var(--line); cursor: zoom-in; display: block; }
+
 .post {
   position: relative;
   margin-bottom: 8px;
@@ -973,9 +984,12 @@ body.dark-mode .pagination-info { color: #64748b; }
     <div id="replyingTo"></div>
     <textarea id="content" placeholder="Bạn muốn trao đổi điều gì?" maxlength="500"></textarea>
     <div class="char-counter"><span id="charCount">0</span>/500</div>
+    <div id="imagePreview" class="image-preview"></div>
     <div class="post-actions-bar">
       <div class="actions-left">
         <button class="post-submit" onclick="sendPost()">Đăng</button>
+        <button class="attach-img-btn" type="button" onclick="attachImage()" title="Đính kèm ảnh (tối đa 5MB)">📷 Ảnh</button>
+        <input type="file" id="imageInput" accept="image/png,image/jpeg,image/gif,image/webp" hidden onchange="onImageSelected(event)">
         <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
           🔊 Âm thanh: Bật
         </button>
@@ -1045,6 +1059,7 @@ let isFirstLoad = true;
 let isMuted = localStorage.getItem("forum_muted") === "true";
 let modalAction = null;
 let userDirectoryCache = null;
+let pendingImageFile = null;
 
 const POSTS_PER_PAGE = 10;
 let currentPage = 1;
@@ -1197,28 +1212,101 @@ function playSound(type){
 }
 
 /* ================= GỬI BÀI VIẾT / PHẢN HỒI ================= */
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/gif", "image/webp"];
+
+function attachImage(){
+  const input = document.getElementById("imageInput");
+  if (input) input.click();
+}
+
+function onImageSelected(e){
+  const file = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)){
+    showModal("Lỗi", "Chỉ chấp nhận ảnh PNG, JPG, GIF hoặc WEBP.", false, "", null);
+    return;
+  }
+  if (file.size > MAX_IMAGE_SIZE){
+    showModal("Lỗi", "Ảnh quá lớn (tối đa 5MB). Vui lòng chọn ảnh khác.", false, "", null);
+    return;
+  }
+  pendingImageFile = file;
+  renderImagePreview();
+}
+
+function renderImagePreview(){
+  const wrap = document.getElementById("imagePreview");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+  if (!pendingImageFile) return;
+  const url = URL.createObjectURL(pendingImageFile);
+  const div = document.createElement("div");
+  div.className = "image-preview-item";
+  div.innerHTML = `<img src="${url}" alt="Ảnh đang chọn"><span class="image-preview-remove" onclick="removePendingImage()">✕</span>`;
+  wrap.appendChild(div);
+}
+
+function removePendingImage(){
+  pendingImageFile = null;
+  renderImagePreview();
+}
+
+function getFileExt(type){
+  return ({"image/png":"png","image/jpeg":"jpg","image/gif":"gif","image/webp":"webp"})[type] || "img";
+}
+
+async function uploadPendingImage(){
+  const file = pendingImageFile;
+  if (!file || !currentUser) return null;
+  const path = `${currentUser.uid}/${crypto.randomUUID()}.${getFileExt(file.type)}`;
+  const { error } = await supabase.storage.from("forum-images").upload(path, file);
+  if (error) throw error;
+  const { data } = supabase.storage.from("forum-images").getPublicUrl(path);
+  return data?.publicUrl || null;
+}
+
+function runCleanup(){
+  supabase.rpc("cleanup_expired_forum_images")
+    .then(() => {})
+    .catch(e => console.log("[forum] cleanup lỗi:", e));
+}
+
 async function sendPost(){
   const contentArea = document.getElementById("content");
   const text = contentArea.value.trim();
+  const hasImage = !!pendingImageFile;
 
-  if(!text) return;
-  if(!currentUser) {
+  if (!text && !hasImage) return;
+  if (!currentUser) {
     alert("Vui lòng chờ ứng dụng xác thực thông tin người dùng...");
     return;
   }
 
+  const submitBtn = document.querySelector(".post-submit");
+  const originalHtml = submitBtn ? submitBtn.innerHTML : "";
+
   try {
+    if (submitBtn){ submitBtn.disabled = true; submitBtn.innerHTML = "Đang tải..."; }
+    let imageUrl = null;
+    if (hasImage) imageUrl = await uploadPendingImage();
+
     await supabase.from("forum_posts").insert({
       user_id: currentUser.uid || null,
       user_name: currentUser.name,
       role: currentUser.role || "member",
       text: text,
+      image_url: imageUrl,
       parent_id: replyTo || null,
       time: Date.now()
     });
     await supabase.from("forum_events").insert({ type: "post", time: Date.now() });
+    runCleanup();
   } catch (e) {
     console.error("Lỗi gửi bài viết:", e);
+    showModal("Lỗi", "Gửi bài viết thất bại. Vui lòng thử lại.", false, "", null);
+    if (submitBtn){ submitBtn.disabled = false; submitBtn.innerHTML = originalHtml; }
     return;
   }
 
@@ -1226,9 +1314,12 @@ async function sendPost(){
   contentArea.style.height = "80px";
   document.getElementById("charCount").innerText = "0";
   document.getElementById("charCount").style.color = "#64748b";
+  pendingImageFile = null;
+  renderImagePreview();
 
   replyTo = null;
   document.getElementById("replyingTo").innerHTML = "";
+  if (submitBtn){ submitBtn.disabled = false; submitBtn.innerHTML = originalHtml; }
   contentArea.focus();
 }
 
@@ -1387,6 +1478,9 @@ function createPostElement(post, allPosts){
   const nameClass = isOwner && !isAdmin ? "current-user-name" : "";
   const adminNameClass = isAdmin ? "admin-name" : "";
   const adminBadge = isAdmin ? `<span class="admin-badge">🛡 Admin</span>` : "";
+  const postImageHtml = post.image_url
+    ? `<div class="post-image-wrap"><img class="post-image" src="${escapeHTML(post.image_url)}" loading="lazy" referrerpolicy="no-referrer" onclick="window.open(this.src)" onerror="this.remove()" alt="Ảnh bài viết"></div>`
+    : "";
 
   div.innerHTML = `
     <div class="meta">
@@ -1395,6 +1489,7 @@ function createPostElement(post, allPosts){
       ${ownerActions}${pinAction}
     </div>
     <div style="white-space: pre-wrap;">${escapeHTML(post.text)}</div>
+    ${postImageHtml}
     <div class="actions">
       ${renderReactionButtons(post)}
       <span class="reply-btn" onclick="setReply('${post.id}', ${JSON.stringify(post.user_name)})">Trả lời</span>
@@ -1454,12 +1549,16 @@ function renderReplies(parentId, container, allPosts, level){
       const nameClass = isOwner && !isAdminReply ? "current-user-name" : "";
       const adminNameClass = isAdminReply ? "admin-name" : "";
       const adminBadge = isAdminReply ? `<span class="admin-badge">🛡 Admin</span>` : "";
+      const replyImageHtml = rep.image_url
+        ? `<div class="post-image-wrap"><img class="post-image" src="${escapeHTML(rep.image_url)}" loading="lazy" referrerpolicy="no-referrer" onclick="window.open(this.src)" onerror="this.remove()" alt="Ảnh phản hồi"></div>`
+        : "";
 
       repDiv.innerHTML = `
         <div class="meta">
           <b class="${nameClass} ${adminNameClass}">${escapeHTML(rep.user_name)}</b>${adminBadge} • ${formatTime(rep.time)} ${ownerActions}
         </div>
         <div style="white-space: pre-wrap;">${escapeHTML(rep.text)}</div>
+        ${replyImageHtml}
         <div class="actions">
           ${renderReactionButtons(rep)}
           <span class="reply-btn" onclick="setReply('${rep.id}', ${JSON.stringify(rep.user_name)})">Trả lời</span>
@@ -1639,7 +1738,7 @@ function cancelReply() {
 
 async function deletePost(postId) {
   showModal("Xác nhận xóa", "Bạn có chắc muốn xóa bài này và các phản hồi liên quan?", false, "", async () => {
-    const { data } = await supabase.from("forum_posts").select("id, parent_id");
+    const { data } = await supabase.from("forum_posts").select("id, parent_id, image_url");
     if (!data) return;
 
     function getAllChildIds(id, rows) {
@@ -1651,8 +1750,12 @@ async function deletePost(postId) {
     }
 
     const ids = getAllChildIds(postId, data);
+    const urls = (data || []).filter(r => ids.includes(r.id) && r.image_url).map(r => r.image_url);
     const { error } = await supabase.from("forum_posts").delete().in("id", ids);
     if (error) console.error("Lỗi xóa bài viết:", error.message);
+    urls.forEach(url => {
+      supabase.rpc("remove_forum_image", { p_image_url: url }).catch(e => console.error("Lỗi xóa ảnh:", e.message));
+    });
   });
 }
 
@@ -1737,8 +1840,16 @@ supabase.auth.getSession().then(({ data: { session } }) => {
   }
 });
 
+if (!sessionStorage.getItem("forum_cleanup_done")) {
+  sessionStorage.setItem("forum_cleanup_done", "1");
+  runCleanup();
+}
+
 /* Các hàm dùng trong onclick trực tiếp trên HTML */
 window.sendPost = sendPost;
+window.attachImage = attachImage;
+window.onImageSelected = onImageSelected;
+window.removePendingImage = removePendingImage;
 window.toggleMute = toggleMute;
 window.applyFilters = applyFilters;
 window.goToPage = goToPage;

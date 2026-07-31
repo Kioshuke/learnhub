@@ -111,6 +111,7 @@ create table if not exists public.forum_posts (
   user_name  text,
   role       text not null default 'member',
   text       text not null,
+  image_url  text,
   parent_id  uuid,
   time       bigint,
   pinned     boolean not null default false,
@@ -121,6 +122,8 @@ create table if not exists public.forum_posts (
   likes      jsonb not null default '{}'::jsonb,
   dislikes   jsonb not null default '{}'::jsonb
 );
+
+alter table public.forum_posts add column if not exists image_url text;
 
 create index if not exists forum_posts_user_id_idx on public.forum_posts (user_id);
 create index if not exists forum_posts_time_idx on public.forum_posts (time desc);
@@ -302,6 +305,90 @@ $$;
 -- claim_legacy_data: chỉ authenticated dùng (sau khi đăng nhập). anon/PUBLIC bị chặn.
 revoke execute on function public.claim_legacy_data(text) from public;
 grant execute on function public.claim_legacy_data(text) to authenticated;
+
+-- ============================== STORAGE (ảnh forum) ==============================
+
+-- Bucket ảnh forum: public, giới hạn 5MB, chỉ ảnh. Path upload bắt buộc {uid}/...
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('forum-images', 'forum-images', true, 5242880,
+        array['image/png', 'image/jpeg', 'image/gif', 'image/webp'])
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists forum_images_insert on storage.objects;
+create policy forum_images_insert on storage.objects
+  for insert to authenticated
+  with check (
+    bucket_id = 'forum-images'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists forum_images_select on storage.objects;
+create policy forum_images_select on storage.objects
+  for select to anon, authenticated
+  using (bucket_id = 'forum-images');
+
+-- Xóa ảnh ngay khi bài bị xóa (user sở hữu bài hoặc admin). Security definer để vượt
+-- storage RLS (user không có quyền delete object trực tiếp).
+create or replace function public.remove_forum_image(p_image_url text)
+returns void
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  v_path text;
+begin
+  if p_image_url is null or btrim(p_image_url) = '' then
+    return;
+  end if;
+  -- Path là phần sau "/object/public/forum-images/" trong URL public
+  v_path := regexp_replace(
+    p_image_url,
+    '^.*/object/public/forum-images/',
+    '',
+    'g'
+  );
+  if v_path = p_image_url then
+    return; -- không phải URL của bucket forum-images
+  end if;
+  delete from storage.objects
+   where bucket_id = 'forum-images' and name = v_path;
+  update public.forum_posts set image_url = null where image_url = p_image_url;
+end;
+$$;
+
+revoke execute on function public.remove_forum_image(text) from public;
+grant execute on function public.remove_forum_image(text) to authenticated;
+
+-- Dọn ảnh quá 7 ngày tuổi (giải phóng storage + null cột image_url giữ DB sạch).
+-- Gọi "cơ hội": mỗi lần mở forum / sau khi upload. Security definer để vượt storage RLS.
+create or replace function public.cleanup_expired_forum_images()
+returns void
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  v_name text;
+begin
+  for v_name in
+    select o.name
+      from storage.objects o
+     where o.bucket_id = 'forum-images'
+       and o.created_at < now() - interval '7 days'
+  loop
+    delete from storage.objects
+     where bucket_id = 'forum-images' and name = v_name;
+    update public.forum_posts
+       set image_url = null
+     where image_url like '%/forum-images/' || v_name;
+  end loop;
+end;
+$$;
+
+revoke execute on function public.cleanup_expired_forum_images() from public;
+grant execute on function public.cleanup_expired_forum_images() to authenticated;
 
 -- ============================== POLICIES ==============================
 
