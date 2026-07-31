@@ -181,6 +181,9 @@ $$;
 grant execute on function public.is_email_allowed(text) to anon, authenticated;
 
 -- Tự tạo dòng users khi có user Supabase mới (Google / email) đăng nhập lần đầu.
+-- Dùng `on conflict do nothing` (không chỉ định cột) để bỏ qua cả trường hợp trùng
+-- email với dữ liệu Firebase cũ (unique index users_email_lower_idx). Khi đó auth vẫn
+-- tạo user thành công, dữ liệu cũ sẽ được chuyển bởi claim_legacy_data() sau đó.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql security definer
@@ -201,7 +204,7 @@ begin
     now(),
     now()
   )
-  on conflict (id) do nothing;
+  on conflict do nothing;
   return new;
 end;
 $$;
@@ -213,6 +216,9 @@ create trigger on_auth_user_created
 
 -- Nhận lại dữ liệu cũ: khi user cũ đăng nhập lại lần đầu (cùng email),
 -- chuyển hồ sơ + điểm + bài viết forum từ uid Firebase cũ sang uid Supabase mới.
+-- Xóa dòng cũ trước (giải phóng email để khỏi trùng unique index), rồi upsert
+-- dòng mới theo auth uid — kể cả khi trigger handle_new_user đã bỏ qua insert
+-- vì trùng email.
 create or replace function public.claim_legacy_data(p_email text)
 returns text
 language plpgsql security definer
@@ -237,23 +243,40 @@ begin
   end if;
 
   select * into v_legacy from public.users where id = v_old_uid;
-
-  update public.users set
-    email         = lower(btrim(p_email)),
-    name          = coalesce(users.name, v_legacy.name),
-    photo         = coalesce(users.photo, v_legacy.photo),
-    role          = coalesce(nullif(v_legacy.role, ''), users.role),
-    bio           = coalesce(users.bio, v_legacy.bio),
-    phone         = coalesce(users.phone, v_legacy.phone),
-    birthdate     = coalesce(users.birthdate, v_legacy.birthdate),
-    gender        = coalesce(users.gender, v_legacy.gender),
-    school        = coalesce(users.school, v_legacy.school),
-    created_at    = coalesce(users.created_at, v_legacy.created_at),
-    last_login    = coalesce(users.last_login, v_legacy.last_login),
-    updated_at    = now()
-  where id = v_new_uid;
+  if v_legacy.id is null then
+    return null;
+  end if;
 
   delete from public.users where id = v_old_uid;
+
+  insert into public.users (
+    id, email, name, photo, role, bio, phone, birthdate, gender, school,
+    created_at, last_login, updated_at
+  )
+  values (
+    v_new_uid,
+    lower(btrim(p_email)),
+    coalesce(nullif(btrim(coalesce(v_legacy.name, '')), ''), split_part(lower(btrim(p_email)), '@', 1)),
+    v_legacy.photo,
+    coalesce(nullif(v_legacy.role, ''), 'Thành viên'),
+    v_legacy.bio, v_legacy.phone, v_legacy.birthdate, v_legacy.gender, v_legacy.school,
+    coalesce(v_legacy.created_at, now()),
+    coalesce(v_legacy.last_login, now()),
+    now()
+  )
+  on conflict (id) do update set
+    email       = excluded.email,
+    name        = coalesce(nullif(btrim(coalesce(public.users.name, '')), ''), excluded.name),
+    photo       = coalesce(public.users.photo, excluded.photo),
+    role        = coalesce(nullif(excluded.role, ''), public.users.role),
+    bio         = coalesce(public.users.bio, excluded.bio),
+    phone       = coalesce(public.users.phone, excluded.phone),
+    birthdate   = coalesce(public.users.birthdate, excluded.birthdate),
+    gender      = coalesce(public.users.gender, excluded.gender),
+    school      = coalesce(public.users.school, excluded.school),
+    created_at  = coalesce(public.users.created_at, excluded.created_at),
+    last_login  = coalesce(public.users.last_login, excluded.last_login),
+    updated_at  = now();
 
   update public.test_stats set user_id = v_new_uid where user_id = v_old_uid;
   update public.forum_posts set user_id = v_new_uid where user_id = v_old_uid;

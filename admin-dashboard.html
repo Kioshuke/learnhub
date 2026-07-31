@@ -698,7 +698,10 @@
 </div>
 
 <script type="module">
-import { supabase } from "./supabase-config.js";
+import { createLearnHubClient } from "./supabase-config.js";
+
+// Admin dùng client với storage key riêng để không đánh lộn account với web chính
+const supabase = createLearnHubClient({ storageKey: "learnhub-admin-auth" });
 
 const adminEmail = "learnhubadmin@gmail.com";
 let allowDocs = [];
