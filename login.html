@@ -804,7 +804,11 @@ onAuthChange(async (event, session) => {
       }
       // Nhận lại dữ liệu cũ (claim_legacy_data) + cập nhật hồ sơ
       await finalizeSession(user);
-      showLoginSuccess("Đăng nhập thành công!");
+      // Nhánh này chỉ chạy khi trang vừa load đã có sẵn session (Google OAuth quay về
+      // hoặc mở login.html khi đã đăng nhập) → chuyển thẳng vào trang chủ, tránh màn hình
+      // trống + popup (loginBox vốn ẩn khi đã có session). Đăng nhập email/mật khẩu thì
+      // gọi showLoginSuccess trực tiếp trong emailLogin() nên không ảnh hưởng.
+      window.location.replace("index.html");
     } catch(e) {
       console.error("Finalize login lỗi:", e);
       processingLogin = false;
