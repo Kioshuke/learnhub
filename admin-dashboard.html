@@ -1272,16 +1272,16 @@ async function loadWeeklyResetForm() {
   try {
     const { data: d } = await supabase.from("weekly_reset").select("*").eq("id", true).maybeSingle();
     if (d) {
-      weeklyResetLastTime.textContent = d.last_reset_at ? formatDate(d.last_reset_at) : "Chưa từng reset thủ công";
+      weeklyResetLastTime.textContent = d.last_reset_at ? formatDate(d.last_reset_at) : "Chưa từng reset";
       weeklyResetLastBy.textContent = d.last_reset_by || "—";
       weeklyResetStatusBanner.textContent = `Tuần ${currentWeek} · Đã reset ${d.reset_count || 0} lần`;
       weeklyResetStatusBanner.style.background = "#eff6ff";
       weeklyResetStatusBanner.style.color = "#1e40af";
       weeklyResetStatusBanner.style.border = "1px solid #bfdbfe";
     } else {
-      weeklyResetLastTime.textContent = "Chưa từng reset thủ công";
+      weeklyResetLastTime.textContent = "Chưa từng reset";
       weeklyResetLastBy.textContent = "—";
-      weeklyResetStatusBanner.textContent = `Tuần ${currentWeek} · Chưa có lần reset thủ công nào`;
+      weeklyResetStatusBanner.textContent = `Tuần ${currentWeek} · Chưa từng reset`;
       weeklyResetStatusBanner.style.background = "#f8fafc";
       weeklyResetStatusBanner.style.color = "#64748b";
       weeklyResetStatusBanner.style.border = "1px solid #e2e8f0";
@@ -1367,6 +1367,7 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
         id: true,
         last_reset_at: now,
         last_reset_by: adminEmail,
+        week_key: currentWeek,
         reset_count: prevCount + 1,
         users_reset: count,
         reset_targets: targets.join(", ")

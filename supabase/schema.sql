@@ -65,6 +65,7 @@ create table if not exists public.weekly_reset (
   id            boolean primary key default true check (id),
   last_reset_at timestamptz,
   last_reset_by text,
+  week_key      text,
   reset_count   int not null default 0,
   users_reset   int,
   reset_targets text
@@ -364,6 +365,38 @@ create policy weekly_reset_select on public.weekly_reset
 drop policy if exists weekly_reset_write_admin on public.weekly_reset;
 create policy weekly_reset_write_admin on public.weekly_reset
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+-- Ghi nhận lần reset tự động của tuần mới (kích hoạt bởi user đầu tiên đăng nhập/làm bài
+-- trong tuần mới — điểm cũ tự reset qua week_key). Chỉ ghi 1 lần/tuần: nếu week_key đã
+-- khớp tuần hiện tại thì bỏ qua. Security definer để user thường ghi được dù RLS chỉ cho admin.
+create or replace function public.record_auto_weekly_reset(p_week_key text)
+returns void
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  v_count int;
+begin
+  select reset_count into v_count from public.weekly_reset where id = true;
+  if v_count is null then
+    insert into public.weekly_reset (id, last_reset_at, last_reset_by, week_key, reset_count, users_reset, reset_targets)
+    values (true, now(), 'Hệ thống', p_week_key, 1, 1, 'Điểm số (tự động theo tuần)');
+    return;
+  end if;
+  update public.weekly_reset
+     set last_reset_at = now(),
+         last_reset_by = 'Hệ thống',
+         week_key      = p_week_key,
+         reset_count   = v_count + 1,
+         users_reset   = coalesce(users_reset, 0) + 1,
+         reset_targets = 'Điểm số (tự động theo tuần)'
+   where id = true
+     and (week_key is distinct from p_week_key);
+end;
+$$;
+
+revoke execute on function public.record_auto_weekly_reset(text) from public;
+grant execute on function public.record_auto_weekly_reset(text) to authenticated;
 
 drop policy if exists broadcast_current_select on public.broadcast_current;
 create policy broadcast_current_select on public.broadcast_current

@@ -21,6 +21,13 @@ function nowIso() {
   return new Date().toISOString();
 }
 
+// Ghi nhận lần reset tự động đầu tiên của tuần mới (lần reset thứ 2+ trong tuần sẽ bị bỏ qua ở DB)
+function recordAutoWeeklyReset(weekKey) {
+  supabase.rpc("record_auto_weekly_reset", { p_week_key: weekKey })
+    .then(() => {})
+    .catch((e) => console.log("[learnhub-stats] Ghi nhận auto reset lỗi:", e));
+}
+
 function camelStats(row) {
   if (!row) return null;
   return {
@@ -50,6 +57,7 @@ export async function createUserStats(user) {
 
     if (existing) {
       const isNewWeek = existing.week_key && existing.week_key !== currentWeek;
+      if (isNewWeek) recordAutoWeeklyReset(currentWeek);
       const payload = {
         total_tests: isNewWeek ? 0 : Number(existing.total_tests || 0),
         total_score: isNewWeek ? 0 : Number(existing.total_score || 0),
@@ -103,6 +111,7 @@ export async function updateUserStats(uid, score) {
 
     const currentData = existing || {};
     const isNewWeek = currentData.week_key && currentData.week_key !== currentWeek;
+    if (isNewWeek) recordAutoWeeklyReset(currentWeek);
 
     const totalTests = (isNewWeek ? 0 : Number(currentData.total_tests || 0)) + 1;
     const totalScore = (isNewWeek ? 0 : Number(currentData.total_score || 0)) + numericScore;
