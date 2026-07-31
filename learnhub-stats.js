@@ -199,10 +199,12 @@ export async function loadLeaderboard(options = {}) {
       bestScore: "best_score"
     };
     const orderField = fieldMap[orderByField] || "total_score";
+    const currentWeek = getCurrentWeekKey();
 
     const { data } = await supabase
       .from("test_stats")
       .select("*")
+      .eq("week_key", currentWeek)
       .order(orderField, { ascending: false })
       .limit(limitCount);
 
