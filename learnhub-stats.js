@@ -170,29 +170,11 @@ export async function loadUserStats(uid, fallbackUser = null) {
 
 export async function loadLeaderboard(options = {}) {
   const {
-    mode = "current",
     orderByField = "totalScore",
-    limitCount = 10,
-    weekKey = null
+    limitCount = 10
   } = options;
 
   try {
-    if (mode === "history") {
-      if (!weekKey) {
-        console.log("[learnhub-stats] loadLeaderboard(history): thiếu weekKey");
-        return [];
-      }
-
-      const { data: winnersRow } = await supabase
-        .from("weekly_winners")
-        .select("top")
-        .eq("week_key", weekKey)
-        .maybeSingle();
-      if (!winnersRow) return [];
-
-      return Array.isArray(winnersRow.top) ? winnersRow.top : [];
-    }
-
     const fieldMap = {
       totalScore: "total_score",
       totalTests: "total_tests",

@@ -103,12 +103,6 @@ create table if not exists public.ticker_settings (
   updated_by    text
 );
 
-create table if not exists public.weekly_winners (
-  week_key   text primary key,
-  top        jsonb,
-  updated_at timestamptz
-);
-
 create table if not exists public.forum_posts (
   id         uuid primary key default gen_random_uuid(),
   legacy_id  text,
@@ -153,7 +147,6 @@ alter table public.weekly_reset enable row level security;
 alter table public.broadcast_current enable row level security;
 alter table public.broadcast_welcome enable row level security;
 alter table public.ticker_settings enable row level security;
-alter table public.weekly_winners enable row level security;
 alter table public.forum_posts enable row level security;
 alter table public.forum_events enable row level security;
 alter table public.legacy_uid_map enable row level security;
@@ -390,14 +383,6 @@ drop policy if exists ticker_write_admin on public.ticker_settings;
 create policy ticker_write_admin on public.ticker_settings
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
-drop policy if exists weekly_winners_select on public.weekly_winners;
-create policy weekly_winners_select on public.weekly_winners
-  for select to authenticated using (true);
-
-drop policy if exists weekly_winners_write_admin on public.weekly_winners;
-create policy weekly_winners_write_admin on public.weekly_winners
-  for all to authenticated using (public.is_admin()) with check (public.is_admin());
-
 drop policy if exists forum_posts_select on public.forum_posts;
 create policy forum_posts_select on public.forum_posts
   for select to authenticated using (true);
@@ -463,8 +448,7 @@ begin
     'public.broadcast_current',
     'public.broadcast_welcome',
     'public.maintenance_settings',
-    'public.ticker_settings',
-    'public.weekly_winners'
+    'public.ticker_settings'
   ] loop
     if not exists (
       select 1 from pg_publication_tables

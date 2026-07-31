@@ -196,25 +196,6 @@ function mapBroadcastWelcome(rows) {
   }];
 }
 
-function mapWeeklyWinners(docs) {
-  return docs.map((doc) => {
-    const d = doc.data || {};
-    let top = Array.isArray(d.top) ? d.top : [];
-    if (!top.length && (d.top1 || d.top2 || d.top3)) {
-      top = [
-        { rank: 1, name: d.top1 },
-        { rank: 2, name: d.top2 },
-        { rank: 3, name: d.top3 }
-      ].filter((x) => x.name);
-    }
-    return {
-      week_key: doc.id,
-      top,
-      updated_at: ts(d.updatedAt)
-    };
-  });
-}
-
 function mapPost(doc) {
   const d = doc.data || {};
   return {
@@ -250,7 +231,6 @@ async function main() {
   const users = readJson("users.json");
   const accessList = readJson("accessList.json");
   const testStats = readJson("testStats.json");
-  const weeklyWinners = readJson("weeklyWinners.json");
   const maintenance = readJson("settings-maintenance.json");
   const weeklyReset = readJson("settings-weeklyReset.json");
   const broadcastCurrent = readJson("broadcasts-current.json");
@@ -258,12 +238,12 @@ async function main() {
   const posts = readJson("posts.json");
   const events = readJson("events.json");
 
-  console.log(`Đọc dữ liệu: users=${users.length} accessList=${accessList.length} testStats=${testStats.length} winners=${weeklyWinners.length} posts=${posts.length} events=${events.length}`);
+  console.log(`Đọc dữ liệu: users=${users.length} accessList=${accessList.length} testStats=${testStats.length} posts=${posts.length} events=${events.length}`);
 
   if (FRESH) {
     console.log("=== --fresh: XÓA SẠCH dữ liệu cũ trong các bảng ===");
     for (const t of [
-      "forum_posts", "forum_events", "test_stats", "weekly_winners",
+      "forum_posts", "forum_events", "test_stats",
       "broadcast_welcome", "broadcast_current", "maintenance_settings",
       "weekly_reset", "access_list", "users", "legacy_uid_map"
     ]) {
@@ -297,10 +277,6 @@ async function main() {
 
   await upsert("broadcast_welcome", mapBroadcastWelcome(broadcastWelcome), "id");
   console.log("  broadcast_welcome: 1");
-
-  const winnerRows = mapWeeklyWinners(weeklyWinners);
-  await upsert("weekly_winners", winnerRows, "week_key");
-  console.log(`  weekly_winners: ${winnerRows.length}`);
 
   const postRows = posts.map(mapPost);
   const insertedPosts = await insertReturning("forum_posts", postRows, "id, legacy_id");
@@ -342,7 +318,7 @@ async function main() {
   console.log("=== KIỂM TRA SỐ LIỆU ===");
   for (const t of [
     "users", "access_list", "test_stats", "maintenance_settings", "weekly_reset",
-    "broadcast_current", "broadcast_welcome", "weekly_winners",
+    "broadcast_current", "broadcast_welcome",
     "forum_posts", "forum_events", "legacy_uid_map"
   ]) {
     console.log(`  ${t}: ${await countTable(t)}`);

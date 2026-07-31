@@ -87,9 +87,6 @@ async function main() {
   const testStats = await dumpCollection(db, "testStats");
   writeJson("testStats.json", testStats);
 
-  const weeklyWinners = await dumpCollection(db, "weeklyWinners");
-  writeJson("weeklyWinners.json", weeklyWinners);
-
   const maintenance = await dumpDoc(db, "settings", "maintenance");
   writeJson("settings-maintenance.json", maintenance);
 
