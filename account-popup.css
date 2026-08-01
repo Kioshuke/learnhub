@@ -238,6 +238,10 @@ body.cc-glass-off {
   padding-right: 30px;
 }
 
+.cc-home-info {
+  min-width: 0;
+}
+
 .cc-avatar-wrap {
   position: relative;
   flex: none;
@@ -277,10 +281,11 @@ body.cc-glass-off {
   font-size: 16px;
   font-weight: 700;
   color: var(--text-main);
+  overflow-wrap: anywhere;
 }
 
 .cc-email {
-  margin: 2px 0 0;
+  margin: 6px 0 0;
   font-size: 12px;
   color: var(--text-sub);
   word-break: break-all;
@@ -295,7 +300,7 @@ body.cc-glass-off {
   font-style: italic;
   font-weight: 600;
   line-height: 1.5;
-  text-align: left;
+  text-align: center;
   color: color-mix(in srgb, var(--text-main) 72%, var(--cc-accent));
 }
 
