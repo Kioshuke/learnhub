@@ -124,6 +124,13 @@ create table if not exists public.forum_posts (
 );
 
 alter table public.forum_posts add column if not exists image_url text;
+alter table public.forum_posts add column if not exists pinned boolean not null default false;
+alter table public.forum_posts add column if not exists pin_time bigint;
+alter table public.forum_posts add column if not exists is_edited boolean not null default false;
+alter table public.forum_posts add column if not exists edit_time bigint;
+alter table public.forum_posts add column if not exists reactions jsonb not null default '{}'::jsonb;
+alter table public.forum_posts add column if not exists likes jsonb not null default '{}'::jsonb;
+alter table public.forum_posts add column if not exists dislikes jsonb not null default '{}'::jsonb;
 
 create index if not exists forum_posts_user_id_idx on public.forum_posts (user_id);
 create index if not exists forum_posts_time_idx on public.forum_posts (time desc);
@@ -166,7 +173,7 @@ as $$
   select exists (
     select 1 from public.users
     where id = auth.uid()::text
-      and (role = 'Admin' or email = 'learnhubadmin@gmail.com')
+      and (lower(role) = 'admin' or email = 'learnhubadmin@gmail.com')
   );
 $$;
 
@@ -635,6 +642,32 @@ $$;
 
 revoke execute on function public.create_forum_post(text, text, uuid) from public;
 grant execute on function public.create_forum_post(text, text, uuid) to authenticated;
+
+-- Ghim / bỏ ghim bài viết (chỉ admin). Security definer nên không phụ thuộc vào
+-- RLS update từng dòng — đúng admin (is_admin) mới chạy được. Cùng pattern với
+-- create_forum_post / toggle_forum_reaction.
+create or replace function public.set_forum_post_pinned(p_post_id uuid, p_pinned boolean)
+returns void
+language plpgsql security definer
+set search_path = public
+as $$
+begin
+  if p_post_id is null or not public.is_admin() then
+    return;
+  end if;
+  update public.forum_posts
+     set pinned   = coalesce(p_pinned, false),
+         pin_time = case
+                      when coalesce(p_pinned, false)
+                      then extract(epoch from now())::bigint * 1000
+                      else null
+                    end
+   where id = p_post_id;
+end;
+$$;
+
+revoke execute on function public.set_forum_post_pinned(uuid, boolean) from public;
+grant execute on function public.set_forum_post_pinned(uuid, boolean) to authenticated;
 
 drop policy if exists legacy_uid_map_deny on public.legacy_uid_map;
 create policy legacy_uid_map_deny on public.legacy_uid_map

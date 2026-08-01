@@ -1842,14 +1842,28 @@ function editPost(postId) {
   });
 }
 
-function pinPost(postId) {
+async function pinPost(postId) {
   if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'Admin')) return;
-  supabase.from("forum_posts").update({ pinned: true, pin_time: Date.now() }).eq("id", postId);
+  try {
+    const { error } = await supabase.rpc("set_forum_post_pinned", { p_post_id: postId, p_pinned: true });
+    if (error) throw error;
+    scheduleLoadPosts();
+  } catch (e) {
+    console.error("Lỗi ghim bài:", e);
+    showModal("Lỗi", "Không ghim được bài viết. Vui lòng thử lại.", false, "", null);
+  }
 }
 
-function unpinPost(postId) {
+async function unpinPost(postId) {
   if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'Admin')) return;
-  supabase.from("forum_posts").update({ pinned: false, pin_time: null }).eq("id", postId);
+  try {
+    const { error } = await supabase.rpc("set_forum_post_pinned", { p_post_id: postId, p_pinned: false });
+    if (error) throw error;
+    scheduleLoadPosts();
+  } catch (e) {
+    console.error("Lỗi bỏ ghim bài:", e);
+    showModal("Lỗi", "Không bỏ ghim được bài viết. Vui lòng thử lại.", false, "", null);
+  }
 }
 
 async function toggleReaction(postId, type){
