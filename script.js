@@ -159,24 +159,47 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 });
 
+/* === FEATURE CARD INTERCEPTION (chuyển tab / mở chat / mở leaderboard, không nhảy trang) === */
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.feature-card[data-open]').forEach(function(card){
+    card.addEventListener('click', function(e){
+      e.preventDefault();
+      var open = card.getAttribute('data-open');
+      if(open === 'chat'){
+        if(typeof toggleHubieChat === 'function') toggleHubieChat();
+        return;
+      }
+      if(open === 'leaderboard'){
+        if(typeof openLeaderboardModal === 'function') openLeaderboardModal();
+        return;
+      }
+      if(open === 'phong-hoc' || open === 'flash' || open === 'forum'){
+        if(typeof show === 'function') show(open);
+      }
+    });
+  });
+});
+
 function updateTabScrollTopBtn(){
   const btn = document.getElementById("tabScrollTopBtn");
   if(!btn) return;
-  const canShowOnTab = currentTab === "flash" || currentTab === "forum";
-  if(!canShowOnTab){
+  const isHome = currentTab === "home";
+  if(!isHome && currentTab !== "flash" && currentTab !== "forum"){
     btn.style.display = "none";
     return;
   }
 
-  const frameId = currentTab === "flash" ? "flashHubFrame" : "forumFrame";
-  const frame = document.getElementById(frameId);
-  let scrolled = window.scrollY > 20;
+  let scrolled = isHome ? window.scrollY > 200 : window.scrollY > 20;
 
-  if(frame && frame.contentWindow){
-    try {
-      scrolled = frame.contentWindow.scrollY > 20 || window.scrollY > 20;
-    } catch (e) {
-      scrolled = window.scrollY > 20;
+  if(!isHome){
+    const frameId = currentTab === "flash" ? "flashHubFrame" : "forumFrame";
+    const frame = document.getElementById(frameId);
+    if(frame && frame.contentWindow){
+      try {
+        scrolled = frame.contentWindow.scrollY > 20 || window.scrollY > 20;
+      } catch (e) {
+        scrolled = window.scrollY > 20;
+      }
     }
   }
 

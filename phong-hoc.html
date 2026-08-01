@@ -40,6 +40,8 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
 
 /* ===== SUBJECT TABS ===== */
 .subject-tabs{display:flex;gap:4px;overflow-x:auto;padding:0 0 8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}
+.subject-title{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:var(--text);margin:12px 2px 8px;}
+.subject-title i{color:var(--text-sub);font-size:13px;}
 .subject-tabs::-webkit-scrollbar{display:none;}
 .subject-tab{flex:1 1 0;min-width:0;padding:8px 4px;border-radius:10px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--card-bg);color:var(--text-sub);cursor:pointer;transition:all 0.2s;scroll-snap-align:start;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .subject-tab:hover{border-color:var(--tab);color:var(--tab);}
@@ -60,6 +62,47 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
 .subject-notice{background:var(--notice-bg);border:1px solid var(--notice-border);border-left:4px solid var(--tab,var(--blue,#2563eb));border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:14px;color:var(--text-sub);display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
 .subject-notice i{font-size:15px;flex-shrink:0;color:var(--tab,var(--blue,#2563eb));}
 .subject-notice strong{color:var(--text);}
+
+/* ===== LỊCH HỌC & LỊCH THI ===== */
+.schedule{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;margin-bottom:14px;overflow:hidden;}
+.schedule-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;cursor:pointer;user-select:none;background:linear-gradient(90deg,color-mix(in srgb,var(--sc,#2563eb) 12%,transparent),transparent);}
+.schedule-head-left{display:flex;align-items:center;gap:10px;min-width:0;}
+.schedule-head-left>i{font-size:16px;color:var(--sc,#2563eb);flex-shrink:0;}
+.schedule-title{font-size:14px;font-weight:700;color:var(--text);}
+.schedule-sub{font-size:11.5px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.schedule-badge{flex-shrink:0;display:inline-flex;align-items:center;gap:4px;background:color-mix(in srgb,var(--sc,#2563eb) 15%,transparent);color:var(--sc,#2563eb);font-weight:700;font-size:12px;border-radius:999px;padding:3px 10px;}
+.schedule-badge-label{font-size:10.5px;font-weight:600;opacity:.78;}
+.schedule-chevron{flex-shrink:0;color:var(--text-sub);transition:transform .25s ease;}
+.schedule.closed .schedule-chevron{transform:rotate(180deg);}
+.schedule-body{padding:10px 14px 14px;border-top:1px dashed var(--card-border);}
+.schedule.closed .schedule-body{display:none;}
+.schedule-week-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;}
+.schedule-week-nav button{border:1px solid var(--card-border);background:var(--notice-bg);color:var(--text);border-radius:8px;padding:6px 9px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;}
+.schedule-week-controls{display:flex;gap:8px;}
+.schedule-week-label{text-align:center;font-size:12px;font-weight:800;color:var(--text);}
+.schedule-week-label small{display:block;color:var(--text-sub);font-size:10.5px;font-weight:500;margin-top:1px;}
+.schedule-week-grid{display:grid;grid-template-columns:repeat(7,minmax(140px,1fr));gap:8px;overflow-x:auto;padding-bottom:4px;}
+.schedule-day{min-height:150px;padding:8px;border:1px solid var(--card-border);border-radius:10px;background:var(--notice-bg);}
+.schedule-day.today{border-color:var(--sc,#0d9488);box-shadow:0 0 0 2px color-mix(in srgb,var(--sc,#0d9488) 30%,transparent);background:color-mix(in srgb,var(--sc,#0d9488) 7%,transparent);}
+.schedule-day.today .schedule-day-name{color:var(--sc,#0d9488);}
+.schedule-day.sunday{background:#fff8df;border-color:#f5c451;}
+.schedule-day-head{display:flex;align-items:baseline;justify-content:space-between;gap:6px;padding-bottom:7px;margin-bottom:7px;border-bottom:1px solid var(--card-border);}
+.schedule-day-name{font-size:12.5px;font-weight:800;color:var(--text);}.schedule-day-date{font-size:12px;font-weight:700;color:var(--text-sub);}
+.schedule-item{display:block;padding:8px;margin-bottom:6px;border:1px solid var(--card-border);border-left:3px solid var(--si-color,#2563eb);border-radius:8px;background:var(--card-bg);}
+.schedule-item-top{display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
+.schedule-item-type{flex-shrink:0;font-size:10.5px;font-weight:700;border-radius:999px;padding:3px 9px;text-transform:uppercase;letter-spacing:.03em;}
+.schedule-item-type.hoc{background:rgba(37,99,235,.12);color:#2563eb;}
+.schedule-item-type.thi{background:rgba(220,38,38,.12);color:#dc2626;}
+.schedule-item-session{flex-shrink:0;display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;border-radius:999px;padding:3px 7px;}
+.schedule-item-session.morning{background:#fff3c4;color:#b45309}.schedule-item-session.noon{background:#fee2e2;color:#dc2626}.schedule-item-session.afternoon{background:#dbeafe;color:#2563eb}.schedule-item-session.evening{background:#ede9fe;color:#6d28d9}
+.schedule-item-info{min-width:0;}.schedule-item-title{font-size:12px;font-weight:700;color:var(--text);margin-top:5px;}.schedule-item-meta{font-size:10.5px;color:var(--text-sub);margin-top:2px;}
+.schedule-item-time{color:var(--si-color,#2563eb);font-weight:800;font-size:11px;}
+.schedule-item-subj{margin-left:auto;flex-shrink:0;font-size:10px;font-weight:700;color:#fff;background:var(--si-color,#2563eb);border-radius:999px;padding:3px 7px;}
+.schedule-empty{padding:14px 6px;text-align:center;color:var(--text-sub);font-size:11px;}
+.schedule-item.past{filter:grayscale(1);opacity:.62;}
+.schedule-item.past .schedule-item-title{color:var(--text-sub);}
+.schedule-item.past .schedule-item-meta{opacity:.8;}
+@media(max-width:640px){.schedule-week-grid{grid-template-columns:repeat(7,minmax(128px,1fr))}.schedule-week-nav button{padding:6px 7px;font-size:11px}}
 
 /* ===== GRID ===== */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;width:100%;}
@@ -120,6 +163,11 @@ body.dark-mode .card{box-shadow:0 2px 8px rgba(0,0,0,0.25);}
 body.dark-mode .card:hover{box-shadow:0 8px 28px color-mix(in srgb,var(--card-color,#2563eb) 20%,rgba(0,0,0,0.3));}
 body.dark-mode .card-color-bar{background:linear-gradient(90deg,var(--card-color),color-mix(in srgb,var(--card-color) 60%,#0f172a));}
 body.dark-mode .subject-notice{border-color:var(--notice-border);}
+body.dark-mode .schedule-day.sunday{background:#31290f;border-color:#6b5316;}
+body.dark-mode .schedule-item-session.morning{background:#3a2f12;color:#fcd34d;}
+body.dark-mode .schedule-item-session.noon{background:#3b1a1a;color:#fca5a5;}
+body.dark-mode .schedule-item-session.afternoon{background:#17233f;color:#93c5fd;}
+body.dark-mode .schedule-item-session.evening{background:#241a3d;color:#c4b5fd;}
 
 .tab-short{display:none;}
 @media (max-width:768px){
@@ -161,8 +209,25 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
 </head>
 <body>
 
+<div class="schedule" id="scheduleBox" style="--sc:#0d9488;">
+  <div class="schedule-head" onclick="toggleSchedule()">
+    <div class="schedule-head-left"><i class="fas fa-calendar-days"></i>
+      <div>
+        <div class="schedule-title">Lịch Học &amp; Lịch Thi</div>
+        <div class="schedule-sub" id="scheduleMeta">Đang tải lịch...</div>
+      </div>
+    </div>
+    <span class="schedule-badge"><span class="schedule-badge-label">Số buổi trong tuần:</span><span id="scheduleCount">0</span></span>
+    <i class="fas fa-chevron-up schedule-chevron"></i>
+  </div>
+  <div class="schedule-body" id="scheduleBody">
+    <div class="schedule-empty">Đang tải lịch học &amp; lịch thi...</div>
+  </div>
+</div>
+
+<div class="subject-title"><i class="fas fa-book-open"></i> Danh sách môn học</div>
 <div class="subject-tabs" id="subjectTabs">
-  <button class="subject-tab active" data-subject="ly" onclick="switchSubject('ly')"><i class="fas fa-atom"></i> <span class="tab-full">Vật Lý</span><span class="tab-short">Lý</span></button>
+  <button class="subject-tab" data-subject="ly" onclick="switchSubject('ly')"><i class="fas fa-atom"></i> <span class="tab-full">Vật Lý</span><span class="tab-short">Lý</span></button>
   <button class="subject-tab" data-subject="sinh" onclick="switchSubject('sinh')"><i class="fas fa-leaf"></i> <span class="tab-full">Sinh Học</span><span class="tab-short">Sinh</span></button>
   <button class="subject-tab" data-subject="tin" onclick="switchSubject('tin')"><i class="fas fa-laptop-code"></i> <span class="tab-full">Tin Học</span><span class="tab-short">Tin</span></button>
   <button class="subject-tab" data-subject="su" onclick="switchSubject('su')"><i class="fas fa-landmark"></i> <span class="tab-full">Lịch Sử</span><span class="tab-short">Sử</span></button>
@@ -170,7 +235,7 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
   <button class="subject-tab" data-subject="anh" onclick="switchSubject('anh')"><i class="fas fa-language"></i> <span class="tab-full">Anh Văn</span><span class="tab-short">Anh</span></button>
 </div>
 
-<div id="ly" class="subject-panel active" style="--tab:#2563eb;--card-color:#3b82f6;">
+<div id="ly" class="subject-panel" style="--tab:#2563eb;--card-color:#3b82f6;">
   <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Vật Lý:</strong> Đã thi xong</div>
   <div class="grid">
     <div class="card">
@@ -281,6 +346,8 @@ function applyCardDominoEffect() {
 }
 
 function switchSubject(id) {
+  var sb = document.getElementById("scheduleBox");
+  if (sb) sb.classList.add("closed");
   var quizEl = document.getElementById("quiz");
   if (quizEl && quizEl.innerHTML.trim() !== "") {
     closeQuiz();
@@ -357,6 +424,126 @@ function closeQuiz() {
   if (window.parent && window.parent !== window) {
     window.parent.postMessage({ type: "CLOSE_QUIZ_SCROLL_TOP" }, "*");
   }
+}
+</script>
+
+<script type="module">
+import { supabase } from "./supabase-config.js";
+
+const SUBJECTS = {
+  ly:   { short: "Lý",   color: "#2563eb" },
+  sinh: { short: "Sinh", color: "#16a34a" },
+  tin:  { short: "Tin",  color: "#7c3aed" },
+  su:   { short: "Sử",   color: "#ea580c" },
+  hoa:  { short: "Hoá",  color: "#dc2626" },
+  anh:  { short: "Anh",  color: "#0891b2" }
+};
+
+let scheduleChannel = null;
+let scheduleWeekStart = getScheduleMonday(new Date());
+
+function escHtml(t) {
+  return String(t == null ? "" : t)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function fmtDate(d) {
+  if (!d) return "";
+  const p = String(d).split("-");
+  return p.length === 3 ? p[2] + "/" + p[1] + "/" + p[0] : String(d);
+}
+
+function scheduleIsoDate(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function addScheduleDays(d, days) { const next = new Date(d); next.setDate(next.getDate() + days); return next; }
+function getScheduleMonday(d) { const date = new Date(d.getFullYear(), d.getMonth(), d.getDate()); date.setDate(date.getDate() - ((date.getDay() + 6) % 7)); return date; }
+function scheduleWeekRange() { const first = scheduleIsoDate(scheduleWeekStart); const last = scheduleIsoDate(addScheduleDays(scheduleWeekStart, 6)); return fmtDate(first) + " – " + fmtDate(last); }
+
+function scheduleEventPast(e) {
+  const now = new Date();
+  const date = String(e.date || "");
+  if (!date) return false;
+  if (date < scheduleIsoDate(now)) return true;
+  if (date > scheduleIsoDate(now)) return false;
+  const end = String(e.endTime || e.time || "");
+  const parts = end.split(":").map(Number);
+  if (parts.length < 2 || Number.isNaN(parts[0])) return false;
+  return now.getHours() * 60 + now.getMinutes() > parts[0] * 60 + parts[1];
+}
+
+function renderSchedule() {
+  const box = document.getElementById("scheduleBox");
+  if (!box) return;
+  const body = document.getElementById("scheduleBody");
+  const meta = document.getElementById("scheduleMeta");
+  const count = document.getElementById("scheduleCount");
+
+  const list = (Array.isArray(window.__scheduleEvents) ? window.__scheduleEvents : [])
+    .filter(e => e && e.title)
+    .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")) || String(a.time || "").localeCompare(String(b.time || "")));
+
+  const weekDates = Array.from({ length: 7 }, (_, i) => scheduleIsoDate(addScheduleDays(scheduleWeekStart, i)));
+  const weekEvents = list.filter(e => weekDates.includes(e.date));
+  count.textContent = String(weekEvents.length);
+  meta.textContent = weekEvents.length ? `${weekEvents.length} lịch trong tuần đang xem` : "Chưa có lịch trong tuần này";
+
+  const weekdayNames = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
+  const today = scheduleIsoDate(new Date());
+  body.innerHTML = '<div class="schedule-week-nav" onclick="event.stopPropagation()"><div class="schedule-week-controls"><button type="button" onclick="changeScheduleWeek(-1)">← Tuần trước</button><button type="button" onclick="changeScheduleWeekToday()">Tuần này</button></div><div class="schedule-week-label">Lịch tuần<small>' + scheduleWeekRange() + '</small></div><button type="button" onclick="changeScheduleWeek(1)">Tuần sau →</button></div><div class="schedule-week-grid">' + weekDates.map((date, index) => {
+    const events = weekEvents.filter(e => e.date === date);
+    const dayClass = "schedule-day" + (date === today ? " today" : "") + (index === 6 ? " sunday" : "");
+    const cards = events.length ? events.map(e => {
+      const s = SUBJECTS[e.subject] || { short: String(e.subject || ""), color: "#2563eb" };
+      const type = e.type === "thi" ? "thi" : "hoc";
+      const session = e.session || (Number(String(e.time || "08:00").split(":")[0]) < 11 ? "morning" : Number(String(e.time || "08:00").split(":")[0]) < 14 ? "noon" : Number(String(e.time || "08:00").split(":")[0]) < 18 ? "afternoon" : "evening");
+      const sessionInfo = { morning: ["🌅", "Sáng"], noon: ["☀️", "Trưa"], afternoon: ["🌤️", "Chiều"], evening: ["🌙", "Tối"] }[session] || ["🕒", "Buổi học"];
+      const timeText = [e.time, e.endTime].filter(v => v).join(" – ");
+      const metaParts = [];
+      if (timeText) metaParts.push('<strong class="schedule-item-time">' + escHtml(timeText) + '</strong>');
+      if (e.note) metaParts.push(escHtml(e.note));
+      const metaText = metaParts.join(" · ");
+      return '<div class="schedule-item' + (scheduleEventPast(e) ? " past" : "") + '" style="--si-color:' + s.color + '"><div class="schedule-item-top"><span class="schedule-item-type ' + type + '">' + (type === "thi" ? "Thi" : "Học") + '</span><span class="schedule-item-session ' + session + '">' + sessionInfo[0] + ' ' + sessionInfo[1] + '</span><span class="schedule-item-subj">' + escHtml(s.short) + '</span></div><div class="schedule-item-info"><div class="schedule-item-title">' + escHtml(e.title) + '</div><div class="schedule-item-meta">' + metaText + '</div></div></div>';
+    }).join("") : '<div class="schedule-empty">Trống</div>';
+    return '<div class="' + dayClass + '"><div class="schedule-day-head"><span class="schedule-day-name">' + weekdayNames[index] + '</span><span class="schedule-day-date">' + fmtDate(date) + '</span></div>' + cards + '</div>';
+  }).join("") + "</div>";
+}
+
+function changeScheduleWeek(direction) { scheduleWeekStart = addScheduleDays(scheduleWeekStart, direction * 7); renderSchedule(); }
+window.changeScheduleWeek = changeScheduleWeek;
+
+function changeScheduleWeekToday() { scheduleWeekStart = getScheduleMonday(new Date()); renderSchedule(); }
+window.changeScheduleWeekToday = changeScheduleWeekToday;
+
+async function loadSchedule() {
+  try {
+    const { data, error } = await supabase
+      .from("schedule_settings")
+      .select("active, events")
+      .eq("id", true)
+      .maybeSingle();
+    if (error) throw error;
+    window.__scheduleEvents = (data && data.active !== false && Array.isArray(data.events)) ? data.events : [];
+  } catch (e) {
+    console.error("[phong-hoc] load schedule lỗi:", e);
+    window.__scheduleEvents = [];
+  }
+  renderSchedule();
+}
+
+function toggleSchedule() {
+  document.getElementById("scheduleBox").classList.toggle("closed");
+}
+window.toggleSchedule = toggleSchedule;
+
+loadSchedule();
+
+if (typeof supabase.channel === "function") {
+  scheduleChannel = supabase
+    .channel("phong-hoc-schedule")
+    .on("postgres_changes", { event: "*", schema: "public", table: "schedule_settings" }, () => loadSchedule())
+    .subscribe();
 }
 </script>
 </body>

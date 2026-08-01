@@ -287,6 +287,347 @@
     border-color:#2563eb;
     box-shadow:0 0 0 4px rgba(37,99,235,0.12);
   }
+
+  /* ===== AUTH BELOW: TỔNG QUAN + TÍNH NĂNG NỔI BẬT (CUỘN XUỐNG) ===== */
+  .auth-below{
+    position:relative;
+    width:100%;
+    background:linear-gradient(180deg,#f8fafc 0%,#ffffff 26%);
+    padding:80px 20px 88px;
+    box-sizing:border-box;
+    overflow:hidden;
+  }
+  /* Nền trang trí: grid mờ + blob xanh hai góc */
+  .auth-below-gridbg{
+    position:absolute;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background-image:
+      linear-gradient(to right, rgba(37,99,235,.055) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(37,99,235,.055) 1px, transparent 1px);
+    background-size:56px 56px;
+    -webkit-mask-image:radial-gradient(ellipse 85% 75% at 50% 22%, #000 25%, transparent 72%);
+    mask-image:radial-gradient(ellipse 85% 75% at 50% 22%, #000 25%, transparent 72%);
+  }
+  .auth-below-blob{
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+    z-index:0;
+    filter:blur(70px);
+    opacity:.55;
+  }
+  .auth-below-blob--tl{
+    width:440px;height:440px;
+    top:-160px;left:-140px;
+    background:radial-gradient(circle at 32% 30%, #dbeafe 0%, rgba(219,234,254,0) 68%);
+  }
+  .auth-below-blob--br{
+    width:480px;height:480px;
+    bottom:-180px;right:-160px;
+    background:radial-gradient(circle at 68% 70%, #e0f2fe 0%, rgba(224,242,254,0) 70%);
+  }
+  .auth-below-inner{
+    position:relative;
+    z-index:1;
+    max-width:1080px;
+    margin:0 auto;
+  }
+  .auth-below-head{
+    text-align:center;
+    margin-bottom:34px;
+  }
+  .auth-below-head h2{
+    margin:0 0 14px;
+    font-size:30px;
+    font-weight:800;
+    color:#0f172a;
+    letter-spacing:-0.6px;
+    line-height:1.25;
+  }
+  .auth-below-head h2 span{
+    background:linear-gradient(120deg,#2563eb 0%,#1d4ed8 55%,#60a5fa 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .auth-below-head p{
+    margin:0 auto;
+    max-width:640px;
+    font-size:15px;
+    line-height:1.75;
+    color:#64748b;
+  }
+  .auth-below-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:18px;
+  }
+  .auth-below-points{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:12px;
+    margin-bottom:38px;
+  }
+  .auth-below-point{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:11px 18px;
+    background:#fff;
+    border:1px solid #e2e8f0;
+    border-radius:14px;
+    font-size:13px;
+    font-weight:700;
+    color:#334155;
+    box-shadow:0 1px 2px rgba(16,24,40,.04), 0 6px 16px -6px rgba(16,24,40,.08);
+    transition:transform .3s cubic-bezier(.2,.7,.3,1), border-color .3s ease, box-shadow .3s ease, background .3s ease;
+  }
+  .auth-below-point i{
+    font-style:normal;
+    font-size:15px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:24px;height:24px;
+    border-radius:8px;
+    background:color-mix(in srgb,#2563eb 10%,#f1f5f9);
+    transition:transform .3s cubic-bezier(.2,.7,.3,1), background .3s ease;
+  }
+  .auth-below-point:hover{
+    transform:translateY(-4px);
+    border-color:#2563eb;
+    background:#fff;
+    box-shadow:0 2px 4px rgba(16,24,40,.05), 0 14px 28px -10px rgba(37,99,235,.28);
+  }
+  .auth-below-point:hover i{
+    transform:scale(1.12);
+    background:color-mix(in srgb,#2563eb 18%,#fff);
+  }
+  .auth-below-card{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    padding:26px 24px 28px;
+    background:#fff;
+    border:1px solid #eef2f7;
+    border-top:3px solid var(--fc,#2563eb);
+    border-radius:20px;
+    box-shadow:
+      0 1px 2px rgba(16,24,40,.05),
+      0 8px 20px -6px rgba(16,24,40,.08);
+    box-sizing:border-box;
+    transition:transform .28s cubic-bezier(.2,.7,.3,1), box-shadow .28s cubic-bezier(.2,.7,.3,1), border-color .28s ease, background .28s ease;
+  }
+  .auth-below-card:hover{
+    transform:translateY(-8px) scale(1.02);
+    animation-play-state:paused;
+    box-shadow:
+      0 2px 4px rgba(16,24,40,.05),
+      0 28px 56px -14px color-mix(in srgb,var(--fc,#2563eb) 28%,rgba(16,24,40,.16));
+    border-color:color-mix(in srgb,var(--fc,#2563eb) 40%,#e2e8f0);
+  }
+  .auth-below-icon{
+    width:50px;height:50px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:24px;
+    border-radius:14px;
+    background:color-mix(in srgb,var(--fc,#2563eb) 10%,#fff);
+    border:1px solid color-mix(in srgb,var(--fc,#2563eb) 22%,transparent);
+    animation:authFloat 4s ease-in-out infinite;
+    transition:scale .28s cubic-bezier(.2,.7,.3,1), background .28s ease, border-color .28s ease;
+  }
+  .auth-below-card:nth-child(even) .auth-below-icon{animation-delay:.7s;}
+  .auth-below-card:nth-child(3n) .auth-below-icon{animation-delay:1.3s;}
+  @keyframes authFloat{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-3px)}
+  }
+  .auth-below-card:hover .auth-below-icon{
+    scale:1.1;
+    background:color-mix(in srgb,var(--fc,#2563eb) 16%,#fff);
+    border-color:color-mix(in srgb,var(--fc,#2563eb) 42%,transparent);
+  }
+  .auth-below-name{
+    font-size:15.5px;
+    font-weight:800;
+    color:#0f172a;
+    letter-spacing:-0.2px;
+  }
+  .auth-below-desc{
+    font-size:12.8px;
+    line-height:1.6;
+    color:#64748b;
+  }
+
+  /* ===== REVEAL KHI SCROLL VÀO VIEWPORT (Intersection Observer thêm class .auth-below--show) ===== */
+  .auth-below:not(.auth-below--show) .auth-below-head,
+  .auth-below:not(.auth-below--show) .auth-below-point,
+  .auth-below:not(.auth-below--show) .auth-below-card{
+    opacity:0;
+    transform:translateY(24px);
+  }
+  @keyframes authFadeUp{
+    from{opacity:0;transform:translateY(24px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  .auth-below--show .auth-below-head{ animation:authFadeUp .6s cubic-bezier(.2,.7,.3,1) backwards; animation-delay:.05s; }
+  .auth-below--show .auth-below-point{ animation:authFadeUp .5s cubic-bezier(.2,.7,.3,1) backwards; }
+  .auth-below--show .auth-below-point:nth-child(1){animation-delay:.10s}
+  .auth-below--show .auth-below-point:nth-child(2){animation-delay:.16s}
+  .auth-below--show .auth-below-point:nth-child(3){animation-delay:.22s}
+  .auth-below--show .auth-below-point:nth-child(4){animation-delay:.28s}
+  .auth-below--show .auth-below-card{
+    animation:
+      authFadeUp .55s cubic-bezier(.2,.7,.3,1) backwards,
+      authCardSpot 14s linear infinite;
+    animation-delay:0s, 0s;
+  }
+  .auth-below--show .auth-below-card:nth-child(1){animation-delay:.12s, 0s}
+  .auth-below--show .auth-below-card:nth-child(2){animation-delay:.21s, 2s}
+  .auth-below--show .auth-below-card:nth-child(3){animation-delay:.30s, 4s}
+  .auth-below--show .auth-below-card:nth-child(4){animation-delay:.39s, 6s}
+  .auth-below--show .auth-below-card:nth-child(5){animation-delay:.48s, 8s}
+  .auth-below--show .auth-below-card:nth-child(6){animation-delay:.57s, 10s}
+  .auth-below--show .auth-below-card:nth-child(7){animation-delay:.66s, 12s}
+  @keyframes authCardSpot{
+    0%{scale:1;box-shadow:0 1px 2px rgba(16,24,40,.05), 0 8px 20px -6px rgba(16,24,40,.08)}
+    7%{scale:1.045;box-shadow:0 2px 4px rgba(16,24,40,.05), 0 22px 44px -12px color-mix(in srgb,var(--fc,#2563eb) 26%,rgba(16,24,40,.16))}
+    13.5%{scale:1;box-shadow:0 1px 2px rgba(16,24,40,.05), 0 8px 20px -6px rgba(16,24,40,.08)}
+    100%{scale:1;box-shadow:0 1px 2px rgba(16,24,40,.05), 0 8px 20px -6px rgba(16,24,40,.08)}
+  }
+  .auth-below-note{
+    text-align:center;
+    margin-top:34px;
+    font-size:13px;
+    color:#94a3b8;
+  }
+  .auth-below-up{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin:34px auto 0;
+    padding:14px 26px;
+    border-radius:999px;
+    border:1.5px solid #e2e8f0;
+    background:#fff;
+    color:#334155;
+    font-family:inherit;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 3px 12px rgba(15,23,42,.05);
+    transition:all .3s ease;
+  }
+  .auth-below-up-icon{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    background:#e2e8f0;
+    color:#334155;
+    font-size:15px;
+    line-height:1;
+    transition:all .3s ease;
+  }
+  .auth-below-up.active{
+    border-color:#2563eb;
+    background:#2563eb;
+    color:#fff;
+    box-shadow:0 10px 28px rgba(37,99,235,.35);
+  }
+  .auth-below-up.active .auth-below-up-icon{
+    background:#fff;
+    color:#2563eb;
+    animation:authUpBob 1s ease-in-out infinite;
+  }
+  @keyframes authUpBob{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-4px)}
+  }
+
+  /* Nút mũi tên cuộn xuống (hiện khi ở đầu trang) */
+  .auth-scroll-down{
+    position:fixed;
+    left:50%;
+    bottom:22px;
+    transform:translateX(-50%);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 18px;
+    border-radius:999px;
+    border:1.5px solid #2563eb;
+    background:#fff;
+    color:#2563eb;
+    font-family:inherit;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    z-index:60;
+    box-shadow:0 8px 24px rgba(37,99,235,.22);
+    transition:opacity .3s ease, transform .3s ease;
+  }
+  .auth-scroll-down-arrow{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    background:#2563eb;
+    color:#fff;
+    font-size:13px;
+    line-height:1;
+    animation:authDownBob 1.2s ease-in-out infinite;
+  }
+  @keyframes authDownBob{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(4px)}
+  }
+  .auth-scroll-down.hidden{
+    opacity:0;
+    pointer-events:none;
+    transform:translateX(-50%) translateY(10px);
+  }
+  @media (max-width:900px){
+    .auth-scroll-down{
+      bottom:14px;
+      width:46px;
+      height:46px;
+      padding:0;
+      border-radius:50%;
+      justify-content:center;
+      box-shadow:0 6px 18px rgba(37,99,235,.35);
+    }
+    .auth-scroll-down span:first-child{display:none;}
+    .auth-scroll-down-arrow{font-size:18px; margin:0;}
+  }
+  @media (max-width:560px){
+    .auth-below{padding:44px 16px 60px;}
+    .auth-below-head h2{font-size:22px;}
+    .auth-below-grid{grid-template-columns:1fr;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .auth-below--show .auth-below-head,
+    .auth-below--show .auth-below-point,
+    .auth-below--show .auth-below-card{animation:none;opacity:1;transform:none;}
+    .auth-below:not(.auth-below--show) .auth-below-head,
+    .auth-below:not(.auth-below--show) .auth-below-point,
+    .auth-below:not(.auth-below--show) .auth-below-card{opacity:1;transform:none;}
+    .auth-below-card{transition:none;}
+    .auth-below-card:hover{transform:none;}
+    .auth-below-point{transition:none;}
+    .auth-below-point:hover{transform:none;}
+    .auth-below-icon{animation:none;}
+    .auth-below-up.active .auth-below-up-icon{animation:none;}
+    .auth-scroll-down-arrow{animation:none;}
+  }
 </style>
 </head>
 <body>
@@ -294,6 +635,10 @@
 <audio id="thongbaoSound" src="sound/thongbao.mp3" preload="none"></audio>
 
 <div id="loginBox">
+<button type="button" class="auth-scroll-down" id="authScrollDown" aria-label="Khám phá các tính năng">
+  <span>Khám phá ngay</span>
+  <span class="auth-scroll-down-arrow">↓</span>
+</button>
 <div class="auth-shell" id="authShell">
 
   <!-- FORM BÊN TRÁI: ĐĂNG NHẬP (CỐ ĐỊNH) -->
@@ -492,6 +837,114 @@
   </div>
 
 </div>
+
+<div class="auth-below">
+  <div class="auth-below-gridbg" aria-hidden="true"></div>
+  <div class="auth-below-blob auth-below-blob--tl" aria-hidden="true"></div>
+  <div class="auth-below-blob auth-below-blob--br" aria-hidden="true"></div>
+  <div class="auth-below-inner">
+    <div class="auth-below-head">
+      <h2>Khám phá <span>LearnHub Platform</span></h2>
+      <p>Nền tảng học tập toàn diện dành riêng cho bạn — 7 công cụ đồng hành giúp việc ôn thi nhanh hơn, vui hơn và hiệu quả hơn mỗi ngày.</p>
+    </div>
+    <div class="auth-below-points">
+      <span class="auth-below-point"><i>⚡</i> Chấm điểm &amp; lưu kết quả tự động</span>
+      <span class="auth-below-point"><i>🔄</i> Cập nhật realtime từ ban quản trị</span>
+      <span class="auth-below-point"><i>🛡️</i> Tài khoản được kiểm duyệt, bảo mật</span>
+      <span class="auth-below-point"><i>📱</i> Mượt mà trên mọi thiết bị</span>
+    </div>
+    <div class="auth-below-grid">
+      <div class="auth-below-card" style="--fc:#2563eb">
+        <span class="auth-below-icon">📝</span>
+        <span class="auth-below-name">LearnHub Test</span>
+        <span class="auth-below-desc">Kiểm tra trực tuyến bấm giờ, chấm điểm tự động và lưu kết quả để theo dõi tiến bộ.</span>
+      </div>
+      <div class="auth-below-card" style="--fc:#f59e0b">
+        <span class="auth-below-icon">🃏</span>
+        <span class="auth-below-name">Smart Flashcard</span>
+        <span class="auth-below-desc">Học từ vựng siêu tốc với 4 chế độ lật thẻ và kho từ vựng đa dạng.</span>
+      </div>
+      <div class="auth-below-card" style="--fc:#16a34a">
+        <span class="auth-below-icon">💬</span>
+        <span class="auth-below-name">Forum học tập</span>
+        <span class="auth-below-desc">Hỏi đáp, thảo luận bài tập và chia sẻ tài liệu cùng bạn bè như một mạng xã hội nội bộ.</span>
+      </div>
+      <div class="auth-below-card" style="--fc:#7c3aed">
+        <span class="auth-below-icon">🏫</span>
+        <span class="auth-below-name">Phòng học ảo</span>
+        <span class="auth-below-desc">Ôn tập kiến thức theo từng môn học kết hợp cùng hệ thống LearnHub Test.</span>
+      </div>
+      <div class="auth-below-card" style="--fc:#0d9488">
+        <span class="auth-below-icon">📅</span>
+        <span class="auth-below-name">Lịch học &amp; thi</span>
+        <span class="auth-below-desc">Lịch học và lịch thi cập nhật trực tiếp từ ban quản trị, hiển thị ngay đầu trang Phòng Học.</span>
+      </div>
+      <div class="auth-below-card" style="--fc:#0891b2">
+        <span class="auth-below-icon">🤖</span>
+        <span class="auth-below-name">Trợ lý ảo Hubie</span>
+        <span class="auth-below-desc">Trợ lý AI luôn sẵn sàng 24/7, giải đáp thắc mắc kiến thức mọi lúc.</span>
+      </div>
+      <div class="auth-below-card" style="--fc:#d97706">
+        <span class="auth-below-icon">🏆</span>
+        <span class="auth-below-name">Bảng xếp hạng</span>
+        <span class="auth-below-desc">Thi đua cùng bạn bè, theo dõi điểm số và vị trí học tập của bạn.</span>
+      </div>
+    </div>
+    <button type="button" class="auth-below-up" id="authBelowUp" aria-label="Cuộn lên đầu trang">
+      <span class="auth-below-up-icon">↑</span>
+      <span class="auth-below-up-text">Cuộn lên để đăng nhập và bắt đầu trải nghiệm.</span>
+    </button>
+  </div>
+</div>
+
+<footer class="lh-footer">
+  <div class="lh-footer-main">
+
+    <div class="lh-footer-brand">
+      <div class="lh-footer-brand-logo">
+        <img src="pictures/favicon.png" alt="LearnHub Logo">
+        <h3>LearnHub Platform</h3>
+      </div>
+      <p>Nền tảng học tập trực tuyến đột phá, đồng hành cùng học sinh và sinh viên trên con đường chinh phục tri thức.</p>
+    </div>
+
+    <div class="lh-footer-col">
+      <h4>Kết nối</h4>
+      <div class="lh-social-icons">
+        <a href="https://www.facebook.com" class="fb" target="_blank" rel="noopener" title="Facebook Fanpage"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="https://www.youtube.com" class="yt" target="_blank" rel="noopener" title="Kênh Youtube"><i class="fa-brands fa-youtube"></i></a>
+        <a href="https://www.tiktok.com" class="tk" target="_blank" rel="noopener" title="Kênh TikTok"><i class="fa-brands fa-tiktok"></i></a>
+        <a href="https://learnhubpf.pages.dev/forum.html" class="cm" target="_blank" rel="noopener" title="Cộng đồng học tập"><i class="fa-solid fa-users"></i></a>
+      </div>
+    </div>
+
+    <div class="lh-footer-col">
+      <h4>Hỗ trợ</h4>
+      <ul class="lh-footer-links">
+        <li><a href="https://learnhubpf.pages.dev/faq.html">Trung tâm trợ giúp</a></li>
+      </ul>
+    </div>
+
+    <div class="lh-footer-col">
+      <h4>Liên hệ</h4>
+      <ul class="lh-footer-links lh-contact-info">
+        <li><strong>Email:</strong> learnhubplatform@gmail.com</li>
+        <li><strong>Hotline:</strong> 0335 925 257 (8h00 - 21h00)</li>
+        <li><strong>Địa chỉ:</strong> Xã Tân Hồng, Đồng Tháp, Việt Nam</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="lh-footer-bottom">
+    <span>© 2026 LearnHub Platform. Tất cả quyền được bảo lưu.</span>
+    <div class="lh-footer-bottom-links">
+      <a href="dieu-khoan.html">Điều khoản sử dụng</a>
+      <a href="chinh-sach-bao-mat.html">Chính sách bảo mật</a>
+      <span>Phiên bản v1.27.2</span>
+    </div>
+  </div>
+</footer>
 </div>
 
 <div id="authNotice" class="notice-info" role="status" aria-live="polite">
@@ -798,7 +1251,7 @@ function authComingSoon() {
 
 const authSlideData = [
   { title: "LearnHub – Nâng cấp cách bạn học", desc: "Ôn thi nhanh • Giao diện hiện đại • Tối ưu trải nghiệm" },
-  { title: "Giao diện chính - Hubie AI", desc: "Trợ lý AI thông minh hỗ trợ học tập" },
+  { title: "Giao diện chính - Hubie AI", desc: "Trợ lý AI thông minh hỗ trợ học tập cùng giao diện trực quan đầy đủ tính năng" },
   { title: "LearnHub Forum", desc: "Trao đổi • Hỏi đáp • Kết nối học sinh như một trang MXH" },
   { title: "Tính năng Smart FlashCard", desc: "Học từ vựng thông minh với nhiều thể loại học tập, từ vựng đa dạng" }
 ];
@@ -1124,6 +1577,49 @@ window.emailRegister = async function() {
     showAuthNotice(message, "error", "Đăng ký thất bại");
   }
 };
+
+/* ---------- REVEAL SECTION GIỚI THIỆU KHI CUỘN VÀO VIEWPORT ---------- */
+(function initAuthBelowReveal() {
+  const below = document.querySelector(".auth-below");
+  if (!below) return;
+  if (!("IntersectionObserver" in window)) { below.classList.add("auth-below--show"); return; }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (en.isIntersecting) {
+        en.target.classList.add("auth-below--show");
+        io.disconnect();
+      }
+    });
+  }, { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
+  io.observe(below);
+})();
+
+/* ---------- NÚT CUỘN XUỐNG KHU TÍNH NĂNG (hiện khi ở đầu trang) ---------- */
+(function initAuthScrollDown() {
+  const btn = document.getElementById("authScrollDown");
+  const below = document.querySelector(".auth-below");
+  if (!btn || !below) return;
+  const onScroll = () => btn.classList.toggle("hidden", window.scrollY > 60);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
+  onScroll();
+  btn.addEventListener("click", () => below.scrollIntoView({ behavior: "smooth" }));
+})();
+
+/* ---------- NÚT CUỘN LÊN ĐẦU TRANG (khu giới thiệu bên dưới) ---------- */
+(function initAuthBelowUp() {
+  const btn = document.getElementById("authBelowUp");
+  const below = document.querySelector(".auth-below");
+  if (!btn) return;
+  const onScroll = () => {
+    const passedFeatures = !below || below.getBoundingClientRect().bottom < window.innerHeight - 40;
+    btn.classList.toggle("active", passedFeatures);
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
+  onScroll();
+  btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+})();
 </script>
 </body>
 </html>

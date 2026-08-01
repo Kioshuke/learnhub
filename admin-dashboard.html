@@ -19,6 +19,7 @@
       --sidebar-border: #1e293b;
       --bg: #f1f5f9;
       --surface: #ffffff;
+      --surface-2: #f8fafc;
       --border: #e2e8f0;
       --text: #0f172a;
       --text-2: #475569;
@@ -172,6 +173,34 @@
     .field-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     .field-row+.field-row{margin-top:12px}
     .field-row .input{min-width:180px;flex:1 1 180px}
+
+    /* ================= SCHEDULE EVENTS ================= */
+    .schedule-week-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 14px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm)}
+    #scheduleTabPanel{overflow:hidden}
+    .schedule-week-label{text-align:center;font-weight:800;color:var(--text);font-size:14px}
+    .schedule-week-label small{display:block;margin-top:2px;color:var(--text-3);font-size:11px;font-weight:600}
+    .schedule-week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;max-width:100%;overflow:hidden;padding-bottom:6px}
+    .schedule-day-column{min-height:280px;padding:10px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface-2)}
+    .schedule-day-column.is-today{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,235,.1)}
+    .schedule-day-column.is-sunday{background:#fff8e5;border-color:#f5c451}
+    .schedule-day-head{display:flex;align-items:center;justify-content:space-between;gap:6px;padding-bottom:9px;margin-bottom:9px;border-bottom:1px solid var(--border)}
+    .schedule-day-name{font-size:12px;font-weight:800;color:var(--text)}
+    .schedule-day-date{font-size:11px;color:var(--text-3);font-weight:600}
+    .schedule-day-add{border:0;background:transparent;color:var(--blue);font-size:18px;font-weight:800;cursor:pointer;line-height:1;padding:0 3px}
+    .schedule-day-empty{padding:18px 4px;text-align:center;color:var(--text-3);font-size:12px}
+    .schedule-event-row{position:relative;display:block;padding:9px;margin-bottom:8px;border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:10px;background:var(--surface);animation:fadeUp .2s ease;cursor:pointer}
+    .schedule-event-row.type-thi{border-left-color:#dc2626}
+    .schedule-event-row .se-delete{position:absolute;top:7px;right:7px;width:22px;height:22px;padding:0;border:0;border-radius:6px;background:#fee2e2;color:#dc2626;cursor:pointer;font-weight:800}
+    .admin-schedule-tag{display:inline-block;font-size:10px;font-weight:800;border-radius:999px;padding:3px 7px;background:#dbeafe;color:#2563eb}.admin-schedule-tag.thi{background:#fee2e2;color:#dc2626}
+    .admin-schedule-top{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-right:24px}
+    .admin-schedule-session{flex-shrink:0;display:inline-block;font-size:10px;font-weight:800;border-radius:999px;padding:3px 7px}.admin-schedule-session.morning{background:#fff3c4;color:#b45309}.admin-schedule-session.noon{background:#fee2e2;color:#dc2626}.admin-schedule-session.afternoon{background:#dbeafe;color:#2563eb}.admin-schedule-session.evening{background:#ede9fe;color:#6d28d9}
+    .admin-schedule-subj{margin-left:auto;flex-shrink:0;font-size:10px;font-weight:700;color:#fff;border-radius:999px;padding:3px 7px}
+    .admin-schedule-title{margin:6px 0 3px;font-size:12px;font-weight:800;color:var(--text)}.admin-schedule-time{font-size:11px;color:var(--text-3)}.admin-schedule-note{margin-top:4px;font-size:11px;color:var(--text-2)}
+    .schedule-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.56);backdrop-filter:blur(4px)}.schedule-modal.show{display:flex}
+    .schedule-modal-card{width:min(100%,520px);max-height:calc(100vh - 36px);overflow:auto;background:var(--surface);border-radius:20px;box-shadow:0 24px 70px rgba(15,23,42,.3)}
+    .schedule-modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;color:#fff;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:20px 20px 0 0}.schedule-modal-head h3{margin:0;font-size:18px}.schedule-modal-close{width:32px;height:32px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:22px;cursor:pointer}
+    .schedule-modal-body{padding:18px 20px}.schedule-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.schedule-modal-field label{display:block;margin:0 0 6px;font-size:12px;font-weight:800;color:var(--text-2)}.schedule-modal-field.full{grid-column:1/-1}.schedule-modal-actions{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border)}
+    @media(max-width:700px){.schedule-week-grid{grid-template-columns:repeat(7,minmax(150px,1fr));overflow-x:auto}.schedule-week-nav .btn{padding:8px 10px;font-size:12px}.schedule-modal-grid{grid-template-columns:1fr}}
 
     /* ================= TABLE ================= */
     .sheet-wrap{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--surface)}
@@ -469,6 +498,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="14" y2="15"/><line x1="16" y1="21" x2="16" y2="3"/></svg>
         Dòng chữ chạy
       </button>
+      <button class="sidebar-link" data-admin-tab="schedule">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="8 14 11 17 16 12"/></svg>
+        Lịch học &amp; thi
+      </button>
       <button class="sidebar-link" data-admin-tab="maintenance">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Bảo trì hệ thống
@@ -592,6 +625,40 @@
       </div>
       <p class="panel-desc" id="tickerMeta" style="margin-top:12px;margin-bottom:0"></p>
     </section>
+
+    <!-- SCHEDULE TAB -->
+    <section class="panel tab-panel hidden" id="scheduleTabPanel">
+      <div class="panel-head"><div><div class="panel-title">Lịch học &amp; lịch thi</div><div class="panel-desc" style="margin-bottom:0">Hiển thị đầu trang Phòng Học. Người dùng bấm chọn môn thì lịch tự thu lại. Áp dụng realtime ngay khi lưu.</div></div></div>
+      <div class="schedule-week-nav">
+        <button class="btn btn-soft" id="schedulePrevWeekBtn">← Tuần trước</button>
+        <div class="schedule-week-label" id="scheduleWeekLabel">Đang tải tuần...</div>
+        <div style="display:flex;gap:8px"><button class="btn btn-soft" id="scheduleTodayBtn">Tuần này</button><button class="btn btn-soft" id="scheduleNextWeekBtn">Tuần sau →</button></div>
+      </div>
+      <div id="scheduleEventsList"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+        <button class="btn btn-soft" id="addScheduleEventBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Thêm lịch đầu tuần</button>
+        <button class="btn btn-primary" id="saveScheduleBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Lưu &amp; áp dụng</button>
+        <button class="btn btn-soft" id="refreshScheduleBtn">Làm mới</button>
+      </div>
+      <p class="panel-desc" id="scheduleMeta" style="margin-top:12px;margin-bottom:0"></p>
+    </section>
+
+    <div class="schedule-modal" id="scheduleEventModal" role="dialog" aria-modal="true" aria-labelledby="scheduleModalTitle">
+      <div class="schedule-modal-card">
+        <div class="schedule-modal-head"><h3 id="scheduleModalTitle">📅 Thêm lịch học / lịch thi</h3><button class="schedule-modal-close" type="button" onclick="closeScheduleModal()" aria-label="Đóng">×</button></div>
+        <div class="schedule-modal-body"><div class="schedule-modal-grid">
+          <div class="schedule-modal-field"><label for="scheduleModalDate">Ngày</label><input class="input" id="scheduleModalDate" type="date"></div>
+          <div class="schedule-modal-field"><label for="scheduleModalSubject">Môn học</label><select class="select" id="scheduleModalSubject"></select></div>
+          <div class="schedule-modal-field"><label for="scheduleModalType">Loại lịch</label><select class="select" id="scheduleModalType"><option value="hoc">📚 Lịch học</option><option value="thi">📝 Lịch thi</option></select></div>
+          <div class="schedule-modal-field"><label for="scheduleModalSession">Buổi học</label><select class="select" id="scheduleModalSession"><option value="morning">🌅 Sáng</option><option value="noon">☀️ Trưa</option><option value="afternoon">🌤️ Chiều</option><option value="evening">🌙 Tối</option></select></div>
+          <div class="schedule-modal-field"><label for="scheduleModalStart">Bắt đầu</label><input class="input" id="scheduleModalStart" type="time" value="08:00"></div>
+          <div class="schedule-modal-field"><label for="scheduleModalEnd">Kết thúc</label><input class="input" id="scheduleModalEnd" type="time" value="10:00"></div>
+          <div class="schedule-modal-field full"><label for="scheduleModalTitleInput">Nội dung</label><input class="input" id="scheduleModalTitleInput" type="text" placeholder="VD: Ôn tập chương 1"></div>
+          <div class="schedule-modal-field full"><label for="scheduleModalNote">Ghi chú (tùy chọn)</label><input class="input" id="scheduleModalNote" type="text" placeholder="VD: Phòng A1 / Mang máy tính"></div>
+        </div></div>
+        <div class="schedule-modal-actions"><button class="btn btn-soft" type="button" onclick="closeScheduleModal()">Hủy</button><button class="btn btn-primary" type="button" id="saveScheduleModalBtn">Thêm vào lịch</button></div>
+      </div>
+    </div>
 
     <!-- MAINTENANCE TAB -->
     <section class="panel tab-panel hidden" id="maintenanceTabPanel">
@@ -770,6 +837,12 @@ const weeklyResetLastBy = document.getElementById("weeklyResetLastBy");
 const weeklyResetStatusBanner = document.getElementById("weeklyResetStatusBanner");
 const pageTitle = document.getElementById("pageTitle");
 const pageSubtitle = document.getElementById("pageSubtitle");
+const scheduleTabPanel = document.getElementById("scheduleTabPanel");
+const scheduleEventsList = document.getElementById("scheduleEventsList");
+const scheduleMeta = document.getElementById("scheduleMeta");
+let scheduleEvents = [];
+let scheduleWeekStart = getMonday(new Date());
+let scheduleEditingEventId = null;
 
 const pageTitles = {
   users: ["Quản lý user", "Quản lý whitelist, khóa/mở khóa user."],
@@ -778,7 +851,8 @@ const pageTitles = {
   welcomePopup: ["Popup chào mừng", "Chỉnh popup hiển thị sau khi user đăng nhập."],
   ticker: ["Dòng chữ chạy", "Chỉnh nội dung và tốc độ dòng chữ chạy trên cùng web chính."],
   maintenance: ["Bảo trì hệ thống", "Bật/tắt chế độ bảo trì toàn hệ thống."],
-  weeklyReset: ["BXH & Reset tuần", "Bảng xếp hạng học viên và reset điểm theo tuần."]
+  weeklyReset: ["BXH & Reset tuần", "Bảng xếp hạng học viên và reset điểm theo tuần."],
+  schedule: ["Lịch học & thi", "Chỉnh lịch học và lịch thi hiển thị trên trang Phòng Học."]
 };
 
 function switchAdminTab(tab) {
@@ -790,6 +864,7 @@ function switchAdminTab(tab) {
   tickerTabPanel.classList.toggle("hidden", tab !== "ticker");
   maintenanceTabPanel.classList.toggle("hidden", tab !== "maintenance");
   weeklyResetTabPanel.classList.toggle("hidden", tab !== "weeklyReset");
+  scheduleTabPanel.classList.toggle("hidden", tab !== "schedule");
   const t = pageTitles[tab] || ["", ""];
   pageTitle.textContent = t[0];
   pageSubtitle.textContent = t[1];
@@ -798,6 +873,7 @@ function switchAdminTab(tab) {
   if (tab === "maintenance") loadMaintenanceForm();
   if (tab === "rename") renderRenameList();
   if (tab === "weeklyReset") loadWeeklyResetForm();
+  if (tab === "schedule") loadScheduleForm();
   // close mobile sidebar
   document.querySelector('.sidebar').classList.remove('open');
   document.querySelector('.sidebar-overlay').classList.remove('active');
@@ -815,6 +891,7 @@ document.querySelectorAll('input[name="broadcastTargetMode"]').forEach(r => {
 });
 
 function showNotice(message, type = "info") {
+  if (type === "warning") type = "warn";
   const ns = new Audio('sound/realtimesound.mp3');
   ns.volume = 0.5;
   ns.play().catch(() => {});
@@ -1110,6 +1187,134 @@ document.getElementById("saveTickerBtn").addEventListener("click", async () => {
 });
 
 document.getElementById("refreshTickerBtn").addEventListener("click", loadTickerForm);
+
+// ================= SCHEDULE (LỊCH HỌC & THI) =================
+const SCHEDULE_SUBJECTS = [
+  { value: "ly", label: "Vật Lý" },
+  { value: "sinh", label: "Sinh Học" },
+  { value: "tin", label: "Tin Học" },
+  { value: "su", label: "Lịch Sử" },
+  { value: "hoa", label: "Hoá Học" },
+  { value: "anh", label: "Anh Văn" }
+];
+
+function scheduleSubjectOptions(sel) {
+  return SCHEDULE_SUBJECTS.map(s => `<option value="${s.value}"${s.value === sel ? " selected" : ""}>${s.label}</option>`).join("");
+}
+
+function pad2(n) { return String(n).padStart(2, "0"); }
+function toIsoDate(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+function addDays(d, days) { const next = new Date(d); next.setDate(next.getDate() + days); return next; }
+function getMonday(d) { const date = new Date(d.getFullYear(), d.getMonth(), d.getDate()); date.setDate(date.getDate() - ((date.getDay() + 6) % 7)); return date; }
+function scheduleEventId() { return crypto.randomUUID ? crypto.randomUUID() : "e" + Date.now() + Math.random().toString(16).slice(2); }
+
+function scheduleEditorCard(e) {
+  const id = e.id || scheduleEventId();
+  const session = e.session || guessScheduleSession(e.time);
+  const sessionInfo = { morning: ["🌅", "Sáng"], noon: ["☀️", "Trưa"], afternoon: ["🌤️", "Chiều"], evening: ["🌙", "Tối"] }[session] || ["🕒", "Buổi học"];
+  const time = [e.time, e.endTime].filter(Boolean).join(" – ") || "Chưa chọn giờ";
+  const subjInfo = { ly: ["Lý", "#2563eb"], sinh: ["Sinh", "#16a34a"], tin: ["Tin", "#7c3aed"], su: ["Sử", "#ea580c"], hoa: ["Hoá", "#dc2626"], anh: ["Anh", "#0891b2"] }[e.subject] || [String(e.subject || "Môn"), "#2563eb"];
+  return `<div class="schedule-event-row ${e.type === "thi" ? "type-thi" : ""}" style="border-left-color:${subjInfo[1]}" data-id="${escapeHtml(id)}" data-date="${escapeHtml(e.date)}">
+    <button class="se-delete" type="button" title="Xóa lịch" onclick="removeScheduleEvent('${escapeHtml(id)}')">×</button>
+    <div onclick="editScheduleEvent('${escapeHtml(id)}')"><div class="admin-schedule-top"><span class="admin-schedule-tag ${e.type === "thi" ? "thi" : ""}">${e.type === "thi" ? "Thi" : "Học"}</span><span class="admin-schedule-session ${session}">${sessionInfo[0]} ${sessionInfo[1]}</span><span class="admin-schedule-subj" style="background:${subjInfo[1]}">${escapeHtml(subjInfo[0])}</span></div><div class="admin-schedule-title">${escapeHtml(e.title || "")}</div><div class="admin-schedule-time">🕒 ${escapeHtml(time)}</div>${e.note ? `<div class="admin-schedule-note">${escapeHtml(e.note)}</div>` : ""}</div>
+  </div>`;
+}
+
+function renderScheduleEvents() {
+  if (!scheduleEventsList) return;
+  const weekdays = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+  const today = toIsoDate(new Date());
+  const weekDates = Array.from({ length: 7 }, (_, i) => toIsoDate(addDays(scheduleWeekStart, i)));
+  const label = document.getElementById("scheduleWeekLabel");
+  if (label) label.innerHTML = `Tuần đang chỉnh<small>${weekDates[0].split("-").reverse().join("/")} – ${weekDates[6].split("-").reverse().join("/")}</small>`;
+  scheduleEventsList.innerHTML = '<div class="schedule-week-grid">' + weekDates.map((date, i) => {
+    const dayEvents = scheduleEvents.filter(e => e && e.date === date);
+    const classes = "schedule-day-column" + (date === today ? " is-today" : "") + (i === 6 ? " is-sunday" : "");
+    return `<div class="${classes}"><div class="schedule-day-head"><div><div class="schedule-day-name">${weekdays[i]}</div><div class="schedule-day-date">${date.split("-").reverse().slice(0, 2).join("/")}</div></div><button class="schedule-day-add" type="button" title="Thêm lịch ngày này" onclick="addScheduleEvent('${date}')">+</button></div>${dayEvents.length ? dayEvents.map(scheduleEditorCard).join("") : '<div class="schedule-day-empty">Chưa có lịch</div>'}</div>`;
+  }).join("") + "</div>";
+}
+
+window.removeScheduleEvent = (id) => { scheduleEvents = scheduleEvents.filter(e => e.id !== id); renderScheduleEvents(); };
+function guessScheduleSession(time) {
+  const hour = Number(String(time || "08:00").split(":")[0]);
+  if (hour < 11) return "morning";
+  if (hour < 14) return "noon";
+  if (hour < 18) return "afternoon";
+  return "evening";
+}
+function openScheduleModal(date, eventId) {
+  const event = eventId ? scheduleEvents.find(e => e.id === eventId) : null;
+  scheduleEditingEventId = event ? event.id : null;
+  document.getElementById("scheduleModalTitle").textContent = event ? "✏️ Chỉnh sửa lịch" : "📅 Thêm lịch học / lịch thi";
+  document.getElementById("scheduleModalDate").value = event ? event.date : (date || toIsoDate(scheduleWeekStart));
+  document.getElementById("scheduleModalSubject").innerHTML = scheduleSubjectOptions(event ? event.subject : "ly");
+  document.getElementById("scheduleModalType").value = event ? event.type : "hoc";
+  document.getElementById("scheduleModalSession").value = event ? (event.session || guessScheduleSession(event.time)) : "morning";
+  document.getElementById("scheduleModalStart").value = event ? (event.time || "") : "08:00";
+  document.getElementById("scheduleModalEnd").value = event ? (event.endTime || "") : "10:00";
+  document.getElementById("scheduleModalTitleInput").value = event ? event.title : "";
+  document.getElementById("scheduleModalNote").value = event ? (event.note || "") : "";
+  document.getElementById("scheduleEventModal").classList.add("show");
+  document.getElementById("scheduleModalTitleInput").focus();
+}
+function closeScheduleModal() { document.getElementById("scheduleEventModal").classList.remove("show"); }
+window.addScheduleEvent = openScheduleModal;
+window.editScheduleEvent = (id) => { const event = scheduleEvents.find(e => e.id === id); if (event) openScheduleModal(event.date, id); };
+window.closeScheduleModal = closeScheduleModal;
+document.getElementById("saveScheduleModalBtn").addEventListener("click", () => {
+  const date = document.getElementById("scheduleModalDate").value;
+  const title = document.getElementById("scheduleModalTitleInput").value.trim();
+  if (!date || !title) { showNotice("Vui lòng chọn ngày và nhập nội dung lịch.", "warning"); return; }
+  const time = document.getElementById("scheduleModalStart").value;
+  const nextEvent = { id: scheduleEditingEventId || scheduleEventId(), date, subject: document.getElementById("scheduleModalSubject").value, type: document.getElementById("scheduleModalType").value, session: document.getElementById("scheduleModalSession").value || guessScheduleSession(time), time, endTime: document.getElementById("scheduleModalEnd").value, title, note: document.getElementById("scheduleModalNote").value.trim() };
+  if (scheduleEditingEventId) scheduleEvents = scheduleEvents.map(e => e.id === scheduleEditingEventId ? nextEvent : e); else scheduleEvents.push(nextEvent);
+  closeScheduleModal();
+  scheduleWeekStart = getMonday(new Date(date + "T00:00:00"));
+  renderScheduleEvents();
+});
+
+document.getElementById("addScheduleEventBtn").addEventListener("click", () => window.addScheduleEvent(toIsoDate(scheduleWeekStart)));
+document.getElementById("schedulePrevWeekBtn").addEventListener("click", () => { scheduleWeekStart = addDays(scheduleWeekStart, -7); renderScheduleEvents(); });
+document.getElementById("scheduleNextWeekBtn").addEventListener("click", () => { scheduleWeekStart = addDays(scheduleWeekStart, 7); renderScheduleEvents(); });
+document.getElementById("scheduleTodayBtn").addEventListener("click", () => { scheduleWeekStart = getMonday(new Date()); renderScheduleEvents(); });
+
+async function loadScheduleForm() {
+  try {
+    const { data: d } = await supabase.from("schedule_settings").select("*").eq("id", true).maybeSingle();
+    scheduleEvents = (d && Array.isArray(d.events)) ? d.events.map(e => ({ id: e.id || scheduleEventId(), ...e })) : [];
+    renderScheduleEvents();
+    scheduleMeta.textContent = d && d.updated_at ? `Cập nhật: ${formatDate(d.updated_at)}${d.updated_by ? ` · bởi ${d.updated_by}` : ""}` : "Chưa có bản lưu. Lưu lần đầu để áp dụng.";
+  } catch (e) {
+    console.error(e);
+    showNotice("Không tải được lịch học & thi.", "error");
+  }
+}
+
+document.getElementById("saveScheduleBtn").addEventListener("click", async () => {
+  const dropped = scheduleEvents.filter(Boolean).filter(e => !e.date || !String(e.title || "").trim()).length;
+  const events = scheduleEvents.filter(e => e && e.date && String(e.title || "").trim());
+  if (dropped > 0) showNotice(`Có ${dropped} lịch thiếu ngày/tiêu đề sẽ bị bỏ qua khi lưu.`, "warning");
+
+  try {
+    const now = new Date().toISOString();
+    await supabase.from("schedule_settings").upsert({
+      id: true,
+      active: true,
+      events,
+      updated_at: now,
+      updated_by: adminEmail
+    }, { onConflict: "id" });
+    scheduleEvents = events;
+    renderScheduleEvents();
+    scheduleMeta.textContent = `Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
+    showNotice("Đã lưu lịch học & thi.", "success");
+  } catch (e) {
+    console.error(e);
+    showNotice("Lưu lịch thất bại. Kiểm tra lại bảng schedule_settings đã tạo chưa.", "error");
+  }
+});
+
+document.getElementById("refreshScheduleBtn").addEventListener("click", loadScheduleForm);
 
 function renderMaintenanceBanner(d) {
   const on=Boolean(d&&d.enabled);

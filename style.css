@@ -266,9 +266,6 @@ overflow-x:hidden;
 overflow-y:auto;
 overscroll-behavior-x:none;
 }
-body.auth-locked > *:not(#loginBox):not(#loadingOverlay):not(#authNotice){
-display:none !important;
-}
 
 /* Maintenance overlay CSS removed from main stylesheet.
    `maintenance.html` uses the shared `style.css` and can include
@@ -1176,15 +1173,13 @@ to{
 }
 
 #loginBox{
-position:fixed;
-inset:0;
+position:relative;
 display:none;
+flex-direction:column;
 align-items:stretch;
 justify-content:stretch;
 background:#f9fafb;
 z-index:1000001;
-padding:0;
-overflow:hidden;
 }
 
 #loginBox .auth-shell{
@@ -3593,6 +3588,259 @@ animation: pulse-green 2s infinite;
   10%, 30% { transform: rotate(14deg) }
   20% { transform: rotate(-8deg) }
   40% { transform: rotate(-4deg) }
+}
+
+/* ==================== TÍNH NĂNG NỔI BẬT (FEATURED FEATURES) ==================== */
+.featured-section {
+  margin-bottom: 18px;
+  padding: 22px 0 18px;
+  background: var(--card-bg);
+  border: 1px solid var(--footer-border);
+  border-radius: 20px;
+  box-shadow: 0 10px 28px var(--footer-shadow);
+  overflow: hidden;
+}
+
+.featured-header {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.featured-header h2 {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--blue-accent);
+}
+
+.featured-header p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-sub);
+}
+
+.feature-grid {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 26px 20px 18px;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.feature-grid::-webkit-scrollbar {
+  height: 0;
+}
+
+.feature-card {
+  position: relative;
+  flex: 0 0 258px;
+  width: 258px;
+  height: 220px;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  background: var(--card-bg);
+  border: 1px solid var(--footer-border);
+  border-radius: 16px;
+  padding: 20px 20px 18px;
+  box-sizing: border-box;
+  overflow: hidden;
+  transform: scale(0.93);
+  opacity: 0.8;
+  transition: transform 0.35s ease, opacity 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.feature-card.active {
+  transform: scale(1.05) translateY(-4px);
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--feat-color, #2563eb) 60%, var(--footer-border));
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--feat-color, #2563eb) 35%, transparent),
+    0 12px 22px color-mix(in srgb, var(--feat-color, #2563eb) 25%, transparent);
+}
+
+.feature-card:hover:not(.active) {
+  transform: scale(0.98);
+  opacity: 0.95;
+}
+
+.feature-card:hover .feature-link {
+  gap: 10px;
+}
+
+.feature-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--feat-color, #2563eb);
+  border-radius: 16px 16px 0 0;
+}
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  background: color-mix(in srgb, var(--feat-color, #2563eb) 13%, transparent);
+  border: 1px solid color-mix(in srgb, var(--feat-color, #2563eb) 26%, transparent);
+  margin-bottom: 12px;
+  transition: background 0.35s ease, box-shadow 0.35s ease;
+}
+
+.feature-card.active .feature-icon {
+  background: color-mix(in srgb, var(--feat-color, #2563eb) 22%, transparent);
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--feat-color, #2563eb) 28%, transparent);
+}
+
+.feature-card h3 {
+  margin: 0 0 6px 0;
+  font-size: 16.5px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.feature-card p {
+  margin: 0 0 12px 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text-sub);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.feature-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--feat-color, #2563eb);
+  transition: gap 0.25s ease;
+}
+
+.feature-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.feature-dots .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--footer-border);
+  transition: width 0.3s ease, background 0.3s ease;
+  cursor: pointer;
+}
+
+.feature-dots .dot.active {
+  width: 24px;
+  background: var(--feat-dot, #2563eb);
+}
+
+@media (min-width: 1201px) {
+  .feature-grid {
+    /* The card strip is wider than its viewport: centering it creates an
+       unreachable negative scroll offset and clips the first/last cards. */
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 900px) {
+  .feature-grid {
+    gap: 14px;
+  }
+  .feature-card {
+    flex-basis: 245px;
+  }
+}
+
+@media (max-width: 600px) {
+  .featured-section {
+    padding: 18px 0 14px;
+    border-radius: 18px;
+  }
+
+  .feature-grid {
+    gap: 12px;
+    padding: 32px 10px 12px;
+  }
+  .feature-card {
+    flex-basis: 84%;
+    transform: scale(0.96);
+  }
+  .feature-card.active {
+    transform: scale(1.02) translateY(-2px);
+  }
+  .featured-header h2 {
+    font-size: 18px;
+  }
+  .reveal-item {
+    transform: translateY(14px);
+    transition-duration: 0.4s;
+  }
+}
+
+@media (hover: none) {
+  .feature-card:hover:not(.active) {
+    transform: scale(0.96);
+    opacity: 0.8;
+  }
+}
+
+/* ==================== HIỆU ỨNG HIỂN THỊ (REVEAL ON SCROLL) ==================== */
+.reveal-item {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.reveal-item.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-item,
+  .reveal-item.in-view {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .feature-card,
+  .feature-card.active {
+    transform: none !important;
+    opacity: 1 !important;
+    box-shadow: none !important;
+    border-color: var(--footer-border) !important;
+  }
+  .feature-grid {
+    scroll-behavior: auto;
+  }
+  .feature-card,
+  .feature-card::before,
+  .feature-icon,
+  .feature-link,
+  .featured-header h2,
+  .hubie-avatar,
+  .slide-img {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 @media (max-width: 800px) {

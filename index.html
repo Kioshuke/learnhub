@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -97,7 +97,58 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 </div>
 
 <div id="home">
-  <div class="slideshow-wrapper">
+  <section class="featured-section reveal-item" id="featuredFeatures">
+    <div class="featured-header">
+      <h2>🚀 Tính Năng Nổi Bật</h2>
+      <p>Khám phá những công cụ giúp việc học của bạn trở nên hiệu quả và thú vị hơn</p>
+    </div>
+    <div class="feature-grid">
+      <a class="feature-card" href="phong-hoc.html" data-open="phong-hoc" style="--feat-color:#2563eb;">
+        <div class="feature-icon">📝</div>
+        <h3>LearnHub Test</h3>
+        <p>Hệ thống kiểm tra trực tuyến với bấm giờ, chấm điểm tự động và lưu kết quả để theo dõi tiến bộ của bạn.</p>
+        <span class="feature-link">Khám phá ngay <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
+      <a class="feature-card" href="flashcard/hub.html" data-open="flash" style="--feat-color:#f59e0b;">
+        <div class="feature-icon">🃏</div>
+        <h3>Smart Flashcard</h3>
+        <p>Học từ vựng siêu tốc với 4 chế độ: Ghép Thẻ, Blast, Điền từ và Chiến Thần cùng kho từ vựng đa dạng.</p>
+        <span class="feature-link">Khám phá ngay <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
+      <a class="feature-card" href="forum.html" data-open="forum" style="--feat-color:#16a34a;">
+        <div class="feature-icon">💬</div>
+        <h3>LearnHub Forum</h3>
+        <p>Mạng xã hội học tập nội bộ: hỏi đáp, thảo luận bài tập và chia sẻ tài liệu cùng bạn bè.</p>
+        <span class="feature-link">Khám phá ngay <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
+      <a class="feature-card" href="phong-hoc.html" data-open="phong-hoc" style="--feat-color:#7c3aed;">
+        <div class="feature-icon">🏫</div>
+        <h3>Phòng học ảo</h3>
+        <p>Ôn tập kiến thức theo môn học kết hợp cùng nền tảng LearnHub Test ngay trên nền tảng.</p>
+        <span class="feature-link">Khám phá ngay <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
+      <a class="feature-card" href="phong-hoc.html" data-open="phong-hoc" style="--feat-color:#0d9488;">
+        <div class="feature-icon">📅</div>
+        <h3>Lịch học &amp; Thi</h3>
+        <p>Lịch học và lịch thi cập nhật trực tiếp từ ban quản trị, hiển thị ngay đầu trang Phòng Học.</p>
+        <span class="feature-link">Xem lịch <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
+      <a class="feature-card" href="AI.html" data-open="chat" style="--feat-color:#0891b2;">
+        <div class="feature-icon">🤖</div>
+        <h3>Trợ lý ảo Hubie</h3>
+        <p>Trợ lý AI luôn sẵn sàng 24/7, giải đáp thắc mắc kiến thức và đồng hành trong mọi lúc học tập.</p>
+        <span class="feature-link">Khám phá ngay <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
+      <a class="feature-card" href="leaderboard.html" data-open="leaderboard" style="--feat-color:#d97706;">
+        <div class="feature-icon">🏆</div>
+        <h3>Bảng xếp hạng</h3>
+        <p>Thi đua cùng bạn bè, theo dõi điểm số và vị trí của bạn trên bảng xếp hạng học tập.</p>
+        <span class="feature-link">Khám phá ngay <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
+    </div>
+  </section>
+
+  <div class="slideshow-wrapper reveal-item">
     <div class="slide-media-side">
       <img class="slide-img active" src="pictures/loading1.jpg" alt="Slide 1">
       <img class="slide-img" src="pictures/loading2.jpg" alt="Slide 2">
@@ -126,10 +177,10 @@ fetch('header.html').then(r=>r.text()).then(html=>{
     </div>
   </div>
 
-  <div class="home-welcome-box">
+  <div class="home-welcome-box reveal-item">
     <h1>Chào mừng bạn đến với LearnHub Platform!</h1>
     <p class="subtitle">Hệ sinh thái học tập và rèn luyện trực tuyến tích hợp công nghệ thông minh, được xây dựng nhằm mang lại không gian tự học linh hoạt, cá nhân hóa và tối ưu nhất cho học sinh - sinh viên.</p>
-    
+
     <div class="hubie-introduce">
       <div class="hubie-avatar">🤖</div>
       <div class="hubie-content">
@@ -140,7 +191,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
   </div>
 
   <div class="home-details-full">
-    <div class="info-card">
+    <div class="info-card reveal-item">
       <h3>📌 Mục Đích & Ý Nghĩa Hệ Thống</h3>
       <p>LearnHub là một nền tảng hỗ trợ học tập trực tuyến, được xây dựng nhằm cung cấp không gian tự học và ôn luyện tập trung. Hệ thống cung cấp các công cụ thiết thực giúp học sinh tối ưu hóa quy trình chuẩn bị cho kỳ thi, ôn tập:</p>
       <ul class="purpose-list">
@@ -150,7 +201,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
       </ul>
     </div>
 
-    <div class="info-card">
+    <div class="info-card reveal-item">
       <h3>👨‍💻 Thông Tin Website</h3>
       <p>Đây là một dự án công nghệ cá nhân phi lợi nhuận, được nghiên cứu, thiết kế giao diện và phát triển mã nguồn có sự kết hợp cùng AI. Nền tảng sử dụng các công nghệ web hiện đại kết hợp cơ sở dữ liệu đám mây Supabase.</p>
       <p>Hệ sinh thái này được lập ra với mục tiêu cốt lõi là phục vụ riêng cho hoạt động học tập, chia sẻ tài liệu. Toàn bộ tính năng đều miễn phí, bảo mật cao thông qua cổng kiểm soát danh sách thành viên nghiêm ngặt.</p>
@@ -1086,6 +1137,155 @@ margin-bottom: 10px;">© 2026 LearnHub Platform | All rights reserved!</p>
 ">
   <img src="pictures/chatboiavt.png" style="width:100%; height:100%; object-fit:cover; pointer-events: none;" loading="lazy" width="65" height="65">
 </div>
+<!-- LEADERBOARD FULL MODAL -->
+<div id="lb-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl w-full max-w-4xl mx-4 shadow-2xl transform scale-95 transition-transform duration-300 relative border border-gray-100 flex flex-col" style="height:80vh">
+        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+            <h3 class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+                <i class="fas fa-trophy text-amber-500"></i> Bảng Xếp Hạng
+            </h3>
+            <button onclick="closeLeaderboardModal()" class="text-gray-400 hover:text-gray-600 transition-colors" aria-label="Đóng">
+                <i class="fas fa-times text-base"></i>
+            </button>
+        </div>
+        <div class="flex-1 overflow-hidden">
+            <iframe id="lb-full-frame" src="" class="w-full h-full border-0 no-scrollbar"></iframe>
+        </div>
+    </div>
+</div>
+<style>
+    .no-scrollbar::-webkit-scrollbar{width:0;height:0}
+    .no-scrollbar{scrollbar-width:none}
+</style>
+<script>
+    function openLeaderboardModal() {
+        const m = document.getElementById('lb-modal');
+        document.getElementById('lb-full-frame').src = 'leaderboard.html?t=' + Date.now();
+        m.classList.remove('opacity-0','pointer-events-none');
+        m.classList.add('opacity-100');
+        m.querySelector('div').classList.remove('scale-95');
+        m.querySelector('div').classList.add('scale-100');
+    }
+    function closeLeaderboardModal() {
+        const m = document.getElementById('lb-modal');
+        m.classList.add('opacity-0','pointer-events-none');
+        m.classList.remove('opacity-100');
+        m.querySelector('div').classList.add('scale-95');
+        m.querySelector('div').classList.remove('scale-100');
+        setTimeout(() => { document.getElementById('lb-full-frame').src = ''; }, 300);
+    }
+    document.getElementById('lb-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeLeaderboardModal(); });
+</script>
+
+<script>
+// ==================== HIỆU ỨNG REVEAL KHI CUỘN (tối ưu hiệu năng mobile) ====================
+(function () {
+  var items = document.querySelectorAll('.reveal-item');
+  if (!items.length) return;
+
+  var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var observerSupported = 'IntersectionObserver' in window;
+
+  if (prefersReduced || !observerSupported) {
+    items.forEach(function (el) { el.classList.add('in-view'); });
+    return;
+  }
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('in-view');
+      observer.unobserve(entry.target);
+    });
+  }, { rootMargin: '0px 0px -40px 0px', threshold: 0.12 });
+
+  items.forEach(function (el) { observer.observe(el); });
+})();
+</script>
+
+<script>
+// ==================== CAROUSEL TÍNH NĂNG NỔI BẬT (tự động phóng to từng card, màu nổi quanh card active) ====================
+(function () {
+  var section = document.getElementById('featuredFeatures');
+  var grid = section ? section.querySelector('.feature-grid') : null;
+  if (!grid) return;
+  var cards = grid.querySelectorAll('.feature-card');
+  if (cards.length < 2) return;
+
+  var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Tạo dấu chấm điều hướng (dot indicator)
+  var dotsWrap = document.createElement('div');
+  dotsWrap.className = 'feature-dots';
+  for (var d = 0; d < cards.length; d++) {
+    (function (idx) {
+      var dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.setAttribute('role', 'button');
+      dot.setAttribute('tabindex', '0');
+      dot.addEventListener('click', function () { setActive(idx); start(); });
+      dotsWrap.appendChild(dot);
+    })(d);
+  }
+  section.appendChild(dotsWrap);
+  var dots = dotsWrap.querySelectorAll('.dot');
+
+  if (prefersReduced) return;
+
+  var current = -1;
+  var timer = null;
+  var paused = false;
+
+  function getColor(card) {
+    var c = card.style.getPropertyValue('--feat-color');
+    return (c || '#2563eb').trim();
+  }
+
+  function setActive(index) {
+    index = (index + cards.length) % cards.length;
+    current = index;
+    for (var i = 0; i < cards.length; i++) {
+      cards[i].classList.toggle('active', i === index);
+      dots[i].classList.toggle('active', i === index);
+    }
+    dotsWrap.style.setProperty('--feat-dot', getColor(cards[index]));
+    if (!prefersReduced) {
+      var target = cards[index].offsetLeft - (grid.clientWidth - cards[index].offsetWidth) / 2;
+      grid.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
+    }
+  }
+
+  function start() {
+    stop();
+    timer = setInterval(function () {
+      if (paused || document.hidden) return;
+      setActive(current + 1);
+    }, 2000);
+  }
+
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  setActive(0);
+  start();
+
+  grid.addEventListener('mouseenter', function () { paused = true; });
+  grid.addEventListener('mouseleave', function () { paused = false; });
+  grid.addEventListener('touchstart', function () { paused = true; }, { passive: true });
+  grid.addEventListener('touchend', function () { paused = false; }, { passive: true });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { stop(); } else { start(); }
+  });
+
+  cards.forEach(function (card) {
+    card.addEventListener('click', function () {
+      setActive(Array.prototype.indexOf.call(cards, card));
+      start();
+    });
+  });
+})();
+</script>
 <script src="script.js" defer></script>
 </body>
 </html>
