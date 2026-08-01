@@ -793,7 +793,6 @@ const supabase = createLearnHubClient({ storageKey: "learnhub-admin-auth" });
 const adminEmail = "learnhubadmin@gmail.com";
 let allowDocs = [];
 let userDocs = [];
-let adminChannel = null;
 
 const noticeEl = document.getElementById("notice");
 const loginView = document.getElementById("loginView");
@@ -1040,21 +1039,6 @@ async function refreshCollections() {
   allowDocs = (aRes.data || []).map(d => ({ id: d.email, ...d })).sort((a,b)=>normalizeEmail(a.email).localeCompare(normalizeEmail(b.email)));
   userDocs = (uRes.data || []).map(d => ({ uid: d.id, ...d })).sort((a,b)=>normalizeEmail(a.name||a.email).localeCompare(normalizeEmail(b.name||b.email)));
   updateStats(); renderDirectory(); renderRenameList();
-}
-
-function startRealtime() {
-  if (adminChannel) supabase.removeChannel(adminChannel);
-  const HEARTBEAT_FIELDS = ["online", "last_active", "online_start_time", "online_timer"];
-  adminChannel = supabase.channel("admin-realtime")
-    .on("postgres_changes", { event: "*", schema: "public", table: "access_list" }, () => refreshCollections())
-    .on("postgres_changes", { event: "*", schema: "public", table: "users" }, (payload) => {
-      if (payload.eventType === "UPDATE") {
-        const changed = payload.old ? Object.keys(payload.old) : [];
-        if (changed.length && changed.every(k => HEARTBEAT_FIELDS.includes(k))) return;
-      }
-      refreshCollections();
-    })
-    .subscribe();
 }
 
 async function ensureAdmin(user) {
@@ -1662,14 +1646,12 @@ document.getElementById("logoutAllBtn").addEventListener("click", async () => {
 supabase.auth.onAuthStateChange(async (event, session) => {
   const user = session?.user ?? null;
   if (!user) {
-    if (adminChannel) supabase.removeChannel(adminChannel);
-    adminChannel = null;
     loginView.style.display="flex"; dashboardView.classList.add("hidden"); return;
   }
   const ok = await ensureAdmin(user); if (!ok) return;
   document.getElementById("adminPasswordInput").value="";
   loginView.style.display="none"; dashboardView.classList.remove("hidden"); dashboardView.style.display="flex";
-  await refreshCollections(); startRealtime();
+  await refreshCollections();
 });
 </script>
 <div id="notice" class="notice info"></div>
