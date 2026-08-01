@@ -1,0 +1,21 @@
+[
+  {
+    "sectionTitle": "PHẦN I. CÂU HỎI TRẮC NGHIỆM",
+    "sectionDesc": "Chọn <b>một</b> đáp án chính xác nhất:",
+    "timeLimit": 0.5,
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "Nghiệm của phương trình 2x + 4 = 0 là:",
+        "answers": ["x = 2", "x = -2", "x = 4", "x = -4"],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Đạo hàm của hàm số y = x^2 là:",
+        "answers": ["y' = x", "y' = 2x", "y' = x^2", "y' = 2"],
+        "correct": 1
+      }
+    ]
+  }
+]

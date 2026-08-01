@@ -27,12 +27,24 @@ html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;}
 body{padding:4px 6px 12px;}
 iframe{width:100%;border:none !important;outline:none !important;display:block;}
 
-/* Specific iframe sizing for quiz inserted into #quiz */
-#quiz iframe, .quiz-box iframe {
+/* Chỉ áp cho iframe làm bài nhúng trong card (không phải khung full màn hình #quizFrame) */
+.quiz-box iframe {
   width: 100%;
   height: 60vh;
   min-height: 350px;
   max-height: 700px;
+  border: none !important;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+/* #quizFrame chạy full màn hình (quiz-box bao ngoài đã set height:100vh) nên không giới hạn chiều cao */
+#quizFrame {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
   border: none !important;
   display: block;
   margin: 0;
@@ -53,6 +65,7 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
 .subject-tab[data-subject="su"]{--tab:#ea580c;}.subject-tab[data-subject="su"].active{background:#ea580c;}
 .subject-tab[data-subject="hoa"]{--tab:#dc2626;}.subject-tab[data-subject="hoa"].active{background:#dc2626;}
 .subject-tab[data-subject="anh"]{--tab:#0891b2;}.subject-tab[data-subject="anh"].active{background:#0891b2;}
+.subject-tab[data-subject="toan"]{--tab:#4f46e5;}.subject-tab[data-subject="toan"].active{background:#4f46e5;}
 .subject-tab[data-subject].active{box-shadow:0 4px 12px color-mix(in srgb,var(--tab) 35%,transparent);}
 
 /* ===== PANELS ===== */
@@ -207,35 +220,38 @@ body.dark-mode .schedule-item-session.evening{background:#241a3d;color:#c4b5fd;}
 .skel-quiz-row{display:flex;gap:10px;}
 .loader{padding:20px;}
 
-/* ===== CUSTOM VIDEO PLAYER ===== */
-.video-box{background:var(--quiz-bg);border:1px solid var(--quiz-border);border-radius:12px;overflow:hidden;width:100%;max-width:800px;margin:16px auto 0;}
-.video-stage{position:relative;width:100%;padding-bottom:56.25%;height:0;background:#000;}
-.video-stage iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;outline:none;display:block;pointer-events:none;}
-.video-stage iframe::after{content:"";position:absolute;inset:0;z-index:10;background:transparent;}
-.video-poster{position:absolute;inset:0;background:#000 center/cover no-repeat;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;}
-.video-poster.hidden{display:none;}
-.video-poster .video-big-play,.video-center-play .video-big-play{width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,0.92);color:#dc2626;display:flex;align-items:center;justify-content:center;font-size:30px;padding-left:6px;transition:transform .2s ease,background .2s ease;box-shadow:0 6px 24px rgba(0,0,0,.35);}
-.video-poster:hover .video-big-play{transform:scale(1.08);background:#fff;}
-.video-cover{position:absolute;inset:0;z-index:3;cursor:pointer;}
-.video-center-play{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.35));pointer-events:none;transition:opacity .2s ease;}
-.video-center-play.hidden{opacity:0;visibility:hidden;}
-.video-center-play .video-big-play{transform:scale(.92);}
-.video-center-play .video-big-play:hover{transform:scale(1);}
-.video-controls{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#0f172a;color:#f1f5f9;}
-.video-controls button{border:none;background:transparent;color:#f1f5f9;font-size:16px;width:34px;height:34px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.video-controls button:hover{background:rgba(255,255,255,.12);}
-.video-controls .vtime{font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap;color:#cbd5e1;min-width:40px;text-align:center;flex-shrink:0;}
-.video-controls .vtime-dur{color:#64748b;min-width:auto;}
-.video-controls input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:999px;background:#334155;outline:none;cursor:pointer;}
-.video-controls input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;border:none;box-shadow:0 1px 4px rgba(0,0,0,.4);}
-.video-controls input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#fff;border:none;}
-.video-controls .vseek{flex:1 1 auto;width:100%;min-width:60px;}
-.video-controls .vvol{width:70px;}
-.video-controls .vspacer{flex:0 0 auto;}
-@media (max-width:640px){
-  .video-controls{padding:6px 8px;gap:6px;}
-  .video-controls button{width:30px;height:30px;font-size:14px;}
-  .video-controls .vvol{width:46px;}
+/* ===== YOUTUBE VIDEO PLAYER (MOS-STYLE) ===== */
+.video-box{width:100%;margin:16px auto 0;}
+.video-box .video-topbar{display:flex;justify-content:flex-end;margin-bottom:8px;}
+.video-frame{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #111827;
+  box-shadow: 0 12px 28px rgba(17, 24, 39, 0.14);
+}
+.video-frame iframe{
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* ===== GRAMMAR PLAYER (video 16:9 + mục lục bên cạnh) ===== */
+.grammar-player-content{display:flex;align-items:flex-start;gap:14px;width:100%;}
+.grammar-player-content .video-frame{flex:1 1 68%;min-width:0;margin:0;align-self:flex-start;}
+.grammar-sidebar{flex:0 0 260px;align-self:stretch;display:flex;flex-direction:column;min-height:0;background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;overflow:hidden;}
+.grammar-sidebar-header{flex-shrink:0;padding:10px 14px;font-size:12.5px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--text-sub);background:var(--notice-bg);border-bottom:1px solid var(--card-border);}
+.grammar-sidebar-list{list-style:none;margin:0;padding:6px;overflow-y:auto;flex:1 1 auto;min-height:0;}
+.grammar-sidebar-item{display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:4px;border-radius:10px;font-size:13px;font-weight:600;line-height:1.3;color:var(--text-sub);cursor:pointer;transition:background .18s,color .18s;}
+.grammar-sidebar-item i{flex-shrink:0;font-size:11px;}
+.grammar-sidebar-item:hover{background:var(--notice-bg);color:var(--text);}
+.grammar-sidebar-item.active{background:var(--tab,#0891b2);color:#fff;}
+@media (max-width:768px){
+  .grammar-player-content{flex-direction:column;}
+  .grammar-sidebar{flex:0 0 auto;align-self:stretch;border-radius:12px;}
 }
 </style>
 </head>
@@ -265,6 +281,7 @@ body.dark-mode .schedule-item-session.evening{background:#241a3d;color:#c4b5fd;}
   <button class="subject-tab" data-subject="su" onclick="switchSubject('su')"><i class="fas fa-landmark"></i> <span class="tab-full">Lịch Sử</span><span class="tab-short">Sử</span></button>
   <button class="subject-tab" data-subject="hoa" onclick="switchSubject('hoa')"><i class="fas fa-flask"></i> <span class="tab-full">Hoá Học</span><span class="tab-short">Hoá</span></button>
   <button class="subject-tab" data-subject="anh" onclick="switchSubject('anh')"><i class="fas fa-language"></i> <span class="tab-full">Anh Văn</span><span class="tab-short">Anh</span></button>
+  <button class="subject-tab" data-subject="toan" onclick="switchSubject('toan')"><i class="fas fa-square-root-variable"></i> <span class="tab-full">Toán Học</span><span class="tab-short">Toán</span></button>
 </div>
 
 <div id="ly" class="subject-panel" style="--tab:#2563eb;--card-color:#3b82f6;">
@@ -346,7 +363,7 @@ body.dark-mode .schedule-item-session.evening{background:#241a3d;color:#c4b5fd;}
 </div>
 
 <div id="anh" class="subject-panel" style="--tab:#0891b2;--card-color:#0891b2;">
-  <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Anh Văn:</strong> Phần 1</div>
+  <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Anh Văn:</strong> Tổng ôn ngữ pháp</div>
   <div class="grid">
     <div class="card" style="--card-index:0">
       <div class="card-color-bar"></div>
@@ -359,9 +376,23 @@ body.dark-mode .schedule-item-session.evening{background:#241a3d;color:#c4b5fd;}
     <div class="card" style="--card-index:1">
       <div class="card-color-bar"></div>
       <div class="card-body">
-        <div class="card-top"><div class="card-icon"><i class="fas fa-play"></i></div><h3>TỔNG ÔN NGỮ PHÁP SO SÁNH</h3><span class="status done"></span></div>
-        <p class="card-desc">Video tổng ôn ngữ pháp so sánh.</p>
-        <div class="btn-row"><a class="btn" href="#" onclick="loadVideo(this,'https://www.youtube.com/watch?v=H8Fcn9XpDic'); return false;">Xem video</a></div>
+        <div class="card-top"><div class="card-icon"><i class="fas fa-play"></i></div><h3>TỔNG ÔN NGỮ PHÁP</h3><span class="status done"></span></div>
+        <p class="card-desc">Video tổng ôn ngữ pháp tiếng Anh.</p>
+        <div class="btn-row"><a class="btn" href="#" onclick="loadGrammarPlayer(); return false;">Xem video</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toan" class="subject-panel" style="--tab:#4f46e5;--card-color:#4f46e5;">
+  <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Toán Học:</strong> Chuẩn bị ôn tập</div>
+  <div class="grid">
+    <div class="card" style="--card-index:0">
+      <div class="card-color-bar"></div>
+      <div class="card-body">
+        <div class="card-top"><div class="card-icon"><i class="fas fa-square-root-variable"></i></div><h3>Trắc nghiệm</h3><span class="status pending"></span></div>
+        <p class="card-desc">Bài ôn tập trắc nghiệm môn Toán Học.</p>
+        <div class="btn-row"><a class="btn" href="filetest.html?de=cauhoi/toanhoc.json" onclick="loadQuiz(this,'filetest.html?de=cauhoi/toanhoc.json'); return false;">Làm bài</a></div>
       </div>
     </div>
   </div>
@@ -459,13 +490,6 @@ function loadQuiz(btn, link) {
 }
 
 function closeQuiz() {
-  if (window.videoPlayer && window.videoPlayer.destroy) {
-    window.videoPlayer.destroy();
-  }
-  window.videoPlayer = null;
-  if (window.videoTicker) { clearInterval(window.videoTicker); window.videoTicker = null; }
-  if (window.videoInitTimer) { clearTimeout(window.videoInitTimer); window.videoInitTimer = null; }
-  window.videoLoadTarget = null;
   document.getElementById("quiz").innerHTML = "";
   document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
   if (window.parent && window.parent !== window) {
@@ -473,120 +497,57 @@ function closeQuiz() {
   }
 }
 
-/* ===== CUSTOM YOUTUBE VIDEO PLAYER ===== */
-window.videoPlayer = null;
-window.videoApiReady = false;
-window.videoInitTimer = null;
-window.videoTicker = null;
-window.videoSeeking = false;
-window.videoLoadTarget = null;
-
-function getYoutubeVideoId(url) {
+/* ===== YOUTUBE VIDEO PLAYER ===== */
+function getYoutubeEmbedUrl(url) {
   try {
-    var parsed = new URL(url);
+    const parsed = new URL(url);
+    let videoId = "";
+
     if (parsed.hostname.includes("youtu.be")) {
-      return parsed.pathname.slice(1).split(/[?#&]/)[0];
+      videoId = parsed.pathname.slice(1);
+    } else if (parsed.hostname.includes("youtube.com")) {
+      if (parsed.pathname.startsWith("/shorts/")) {
+        videoId = parsed.pathname.split("/")[2] || "";
+      } else if (parsed.pathname.startsWith("/embed/")) {
+        videoId = parsed.pathname.split("/")[2] || "";
+      } else {
+        videoId = parsed.searchParams.get("v") || "";
+      }
     }
-    if (parsed.hostname.includes("youtube.com")) {
-      if (parsed.pathname.indexOf("/shorts/") === 0) return parsed.pathname.split("/")[2] || "";
-      if (parsed.pathname.indexOf("/embed/") === 0) return parsed.pathname.split("/")[2] || "";
-      return parsed.searchParams.get("v") || "";
+
+    if (!videoId) {
+      return "";
     }
-  } catch (e) {}
+
+    return `https://www.youtube.com/embed/${videoId}`;
+  } catch {
+    return "";
+  }
+}
+
+function getYoutubeIframeHtml(embedUrl) {
+  return `
+    <iframe
+      src="${embedUrl}"
+      title="Video"
+      frameborder="0"
+      allowfullscreen="true"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share">
+    </iframe>
+  `;
+}
+
+function getVideoEmbedHtml(url) {
+  if (!url) {
+    return "";
+  }
+
+  const youtubeEmbedUrl = getYoutubeEmbedUrl(url);
+  if (youtubeEmbedUrl) {
+    return getYoutubeIframeHtml(youtubeEmbedUrl);
+  }
+
   return "";
-}
-
-function loadYoutubeApi() {
-  if (window.YT && window.YT.Player) { window.videoApiReady = true; return; }
-  if (document.getElementById("youtube-iframe-api")) return;
-  var tag = document.createElement("script");
-  tag.id = "youtube-iframe-api";
-  tag.src = "https://www.youtube.com/iframe_api";
-  document.head.appendChild(tag);
-}
-
-window.onYouTubeIframeAPIReady = function() {
-  window.videoApiReady = true;
-  initVideoPlayer();
-};
-
-function fmtVideoTime(sec) {
-  sec = Math.max(0, Math.floor(sec || 0));
-  return Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0");
-}
-
-function initVideoPlayer() {
-  if (!window.videoLoadTarget || !window.YT || !window.YT.Player) return;
-  if (window.videoPlayer) return;
-  var el = document.getElementById("videoPlayerEl");
-  if (!el) return;
-  window.videoPlayer = new YT.Player("videoPlayerEl", {
-    videoId: window.videoLoadTarget.videoId,
-    playerVars: {
-      controls: 0,
-      disablekb: 1,
-      fs: 0,
-      rel: 0,
-      modestbranding: 1,
-      playsinline: 1,
-      showinfo: 0,
-      iv_load_policy: 3,
-      cc_load_policy: 0,
-      annotations: 0
-    },
-    events: {
-      onReady: onVideoReady,
-      onStateChange: onVideoStateChange,
-      onError: onVideoError
-    }
-  });
-}
-
-function onVideoReady() {
-  if (window.videoInitTimer) { clearTimeout(window.videoInitTimer); window.videoInitTimer = null; }
-  var durEl = document.getElementById("vpDur");
-  var seek = document.getElementById("vpSeek");
-  if (window.videoPlayer && durEl) durEl.textContent = fmtVideoTime(window.videoPlayer.getDuration());
-  if (seek) seek.max = String(window.videoPlayer.getDuration() || 0);
-  if (!window.videoTicker) {
-    window.videoTicker = setInterval(function() {
-      if (!window.videoPlayer || !window.videoPlayer.getCurrentTime) return;
-      var cur = window.videoPlayer.getCurrentTime();
-      var s = document.getElementById("vpSeek");
-      if (s && !window.videoSeeking) s.value = String(cur);
-      var c = document.getElementById("vpCur");
-      if (c) c.textContent = fmtVideoTime(cur);
-    }, 250);
-  }
-}
-
-function onVideoStateChange(event) {
-  var playBtn = document.getElementById("vpPlay");
-  var centerPlay = document.getElementById("videoCenterPlay");
-  if (!playBtn || !window.YT) return;
-  if (event.data === window.YT.PlayerState.PLAYING) {
-    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-    if (centerPlay) centerPlay.classList.add("hidden");
-  } else {
-    playBtn.innerHTML = '<i class="fas fa-play"></i>';
-    if (centerPlay) centerPlay.classList.remove("hidden");
-  }
-}
-
-function onVideoError() {
-  var stage = document.getElementById("videoStage");
-  if (stage && !window.videoPlayer) {
-    stage.innerHTML = '<iframe src="https://www.youtube.com/embed/' + window.videoLoadTarget.videoId + '?rel=0" title="Video" allowfullscreen allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>';
-  }
-}
-
-function fallbackVideoEmbed(videoId) {
-  if (window.videoPlayer || !videoId) return;
-  var stage = document.getElementById("videoStage");
-  if (!stage) return;
-  stage.innerHTML = '<iframe src="https://www.youtube.com/embed/' + videoId + '?rel=0&controls=0&disablekb=1&fs=0&modestbranding=1&playsinline=1&showinfo=0&iv_load_policy=3&cc_load_policy=0" title="Video" allowfullscreen allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>';
-  var poster = document.getElementById("videoPoster");
-  if (poster) poster.classList.add("hidden");
 }
 
 function loadVideo(btn, url) {
@@ -594,121 +555,84 @@ function loadVideo(btn, url) {
   var card = btn.closest(".card");
   if (card) card.classList.add("active-card");
 
-  var videoId = getYoutubeVideoId(url);
-  if (!videoId) {
+  var embedUrl = getYoutubeEmbedUrl(url);
+  if (!embedUrl) {
     alert("Link video không hợp lệ.");
     return;
   }
 
-  window.videoLoadTarget = { videoId: videoId };
   document.getElementById("quiz").innerHTML =
     '<div class="video-box">' +
-      '<div class="video-stage" id="videoStage">' +
-        '<div id="videoPlayerEl"></div>' +
-        '<div class="video-cover" id="videoCover"></div>' +
-        '<div class="video-center-play hidden" id="videoCenterPlay"><div class="video-big-play"><i class="fas fa-play"></i></div></div>' +
-        '<div class="video-poster" id="videoPoster" style="background-image:url(https://img.youtube.com/vi/' + videoId + '/maxresdefault.jpg);">' +
-          '<div class="video-big-play"><i class="fas fa-play"></i></div>' +
-        '</div>' +
+      '<div class="video-topbar">' +
+        '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng video</button>' +
       '</div>' +
-      '<div class="video-controls">' +
-        '<button type="button" id="vpPlay" title="Phát/Tạm dừng" aria-label="Phát/Tạm dừng"><i class="fas fa-play"></i></button>' +
-        '<span class="vtime" id="vpCur">0:00</span>' +
-        '<input type="range" id="vpSeek" class="vseek" min="0" max="100" step="0.1" value="0" title="Tua video" aria-label="Tua video">' +
-        '<span class="vtime vtime-dur" id="vpDur">0:00</span>' +
-        '<span class="vspacer"></span>' +
-        '<button type="button" id="vpMute" title="Tắt/bật tiếng" aria-label="Tắt/bật tiếng"><i class="fas fa-volume-high"></i></button>' +
-        '<input type="range" id="vpVol" class="vvol" min="0" max="100" value="100" title="Âm lượng" aria-label="Âm lượng">' +
-        '<button type="button" id="vpFull" title="Toàn màn hình" aria-label="Toàn màn hình"><i class="fas fa-expand"></i></button>' +
-        '<button type="button" id="vpClose" title="Đóng video" aria-label="Đóng video"><i class="fas fa-xmark"></i></button>' +
+      '<div class="video-frame">' +
+        getYoutubeIframeHtml(embedUrl) +
       '</div>' +
     '</div>';
-
-  wireVideoControls();
 
   setTimeout(function() {
     var q = document.getElementById("quiz");
     if (q) q.scrollIntoView({ behavior: "smooth", block: "start" });
   }, 50);
-
-  loadYoutubeApi();
-  initVideoPlayer();
-
-  if (window.videoInitTimer) { clearTimeout(window.videoInitTimer); }
-  window.videoInitTimer = setTimeout(function() {
-    if (!window.videoPlayer) fallbackVideoEmbed(videoId);
-  }, 6000);
 }
 
-function toggleVideoPlayback() {
-  if (!window.videoPlayer) return;
-  var st = window.videoPlayer.getPlayerState ? window.videoPlayer.getPlayerState() : -1;
-  if (window.YT && st === window.YT.PlayerState.PLAYING) {
-    window.videoPlayer.pauseVideo();
-  } else {
-    window.videoPlayer.playVideo();
-    var p = document.getElementById("videoPoster");
-    if (p) p.classList.add("hidden");
+function playGrammarVideo(item) {
+  var videoId = item.getAttribute("data-video");
+  var iframe = document.getElementById("grammarVideo");
+  if (iframe && videoId) {
+    iframe.src = "https://www.youtube.com/embed/" + videoId;
   }
+  document.querySelectorAll(".grammar-sidebar-item").forEach(function(el) {
+    el.classList.remove("active");
+  });
+  item.classList.add("active");
 }
 
-function wireVideoControls() {
-  var poster = document.getElementById("videoPoster");
-  var cover = document.getElementById("videoCover");
-  var playBtn = document.getElementById("vpPlay");
-  var seek = document.getElementById("vpSeek");
-  var muteBtn = document.getElementById("vpMute");
-  var vol = document.getElementById("vpVol");
-  var fullBtn = document.getElementById("vpFull");
-  var closeBtn = document.getElementById("vpClose");
-
-  if (poster) poster.addEventListener("click", toggleVideoPlayback);
-  if (cover) cover.addEventListener("click", toggleVideoPlayback);
-  if (playBtn) playBtn.addEventListener("click", toggleVideoPlayback);
-
-  if (seek) {
-    seek.addEventListener("input", function() { window.videoSeeking = true; });
-    seek.addEventListener("change", function() {
-      if (window.videoPlayer && window.videoPlayer.seekTo) {
-        window.videoPlayer.seekTo(parseFloat(seek.value), true);
-      }
-      window.videoSeeking = false;
-    });
+function loadGrammarPlayer() {
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
+  var card = document.querySelector('.card h3');
+  if (card && card.textContent === "TỔNG ÔN NGỮ PHÁP") {
+    card.closest(".card").classList.add("active-card");
   }
 
-  if (muteBtn) muteBtn.addEventListener("click", function() {
-    if (!window.videoPlayer || !window.videoPlayer.isMuted) return;
-    if (window.videoPlayer.isMuted()) {
-      window.videoPlayer.unMute();
-      muteBtn.innerHTML = '<i class="fas fa-volume-high"></i>';
-    } else {
-      window.videoPlayer.mute();
-      muteBtn.innerHTML = '<i class="fas fa-volume-xmark"></i>';
-    }
-  });
+  document.getElementById("quiz").innerHTML =
+    '<div class="video-box">' +
+      '<div class="video-topbar">' +
+        '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng video</button>' +
+      '</div>' +
+      '<div class="grammar-player-content">' +
+        '<div class="video-frame">' +
+          '<iframe id="grammarVideo" src="https://www.youtube.com/embed/H8Fcn9XpDic" title="Video" frameborder="0" allowfullscreen="true" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>' +
+        '</div>' +
+        '<div class="grammar-sidebar">' +
+          '<div class="grammar-sidebar-header">Mục lục</div>' +
+          '<ul class="grammar-sidebar-list">' +
+            '<li class="grammar-sidebar-item active" data-video="H8Fcn9XpDic" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> So sánh</li>' +
+            '<li class="grammar-sidebar-item" data-video="RQb4H9iBup0" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Thì của động từ</li>' +
+            '<li class="grammar-sidebar-item" data-video="K8743i3Lx6E" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Câu bị động</li>' +
+            '<li class="grammar-sidebar-item" data-video="xmL6XgE2xE0" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Mệnh đề quan hệ</li>' +
+            '<li class="grammar-sidebar-item" data-video="dh06Qd5uPRI" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Động từ khuyết thiếu</li>' +
+            '<li class="grammar-sidebar-item" data-video="_Ce2kBuivNA" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Từ loại</li>' +
+            '<li class="grammar-sidebar-item" data-video="G7TBLDeFIuM" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Câu điều kiện</li>' +
+            '<li class="grammar-sidebar-item" data-video="3Q6MtuYtc00" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Liên từ</li>' +
+            '<li class="grammar-sidebar-item" data-video="fW3j-JhEHzE" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Lượng từ</li>' +
+            '<li class="grammar-sidebar-item" data-video="BtXJGT_6efk" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Word Form</li>' +
+            '<li class="grammar-sidebar-item" data-video="XwvUbIkt1ZQ" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Câu tường thuật</li>' +
+            '<li class="grammar-sidebar-item" data-video="Q8kKYTVKa4c" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Mạo từ</li>' +
+            '<li class="grammar-sidebar-item" data-video="r1lvjKxSyTk" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Sự phối thì</li>' +
+            '<li class="grammar-sidebar-item" data-video="5IHP4GYrDpw" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Word Order</li>' +
+          '</ul>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
 
-  if (vol) vol.addEventListener("input", function() {
-    if (!window.videoPlayer || !window.videoPlayer.setVolume) return;
-    window.videoPlayer.setVolume(parseInt(vol.value, 10));
-    if (window.videoPlayer.isMuted && window.videoPlayer.isMuted()) window.videoPlayer.unMute();
-    var m = document.getElementById("vpMute");
-    if (m) m.innerHTML = '<i class="fas fa-volume-high"></i>';
-  });
-
-  if (fullBtn) fullBtn.addEventListener("click", function() {
-    var stage = document.getElementById("videoStage");
-    if (!stage) return;
-    if (document.fullscreenElement) {
-      if (document.exitFullscreen) document.exitFullscreen();
-    } else if (stage.requestFullscreen) {
-      stage.requestFullscreen();
-    } else if (stage.webkitRequestFullscreen) {
-      stage.webkitRequestFullscreen();
-    }
-  });
-
-  if (closeBtn) closeBtn.addEventListener("click", closeQuiz);
+  setTimeout(function() {
+    var q = document.getElementById("quiz");
+    if (q) q.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 50);
 }
+
 </script>
 
 <script type="module">
@@ -720,7 +644,8 @@ const SUBJECTS = {
   tin:  { short: "Tin",  color: "#7c3aed" },
   su:   { short: "Sử",   color: "#ea580c" },
   hoa:  { short: "Hoá",  color: "#dc2626" },
-  anh:  { short: "Anh",  color: "#0891b2" }
+  anh:  { short: "Anh",  color: "#0891b2" },
+  toan: { short: "Toán", color: "#4f46e5" }
 };
 
 let scheduleChannel = null;
