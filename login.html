@@ -232,7 +232,7 @@
 
   /* ===== FORGOT / RESET PASSWORD MODAL ===== */
   .auth-modal-overlay{
-    position:fixed; inset:0; z-index:2000;
+    position:fixed; inset:0; z-index:2000001;
     display:none; align-items:center; justify-content:center;
     background:rgba(15,23,42,0.55);
     backdrop-filter:blur(4px);
@@ -522,11 +522,12 @@
 <script type="module">
 import { supabase } from "./supabase-config.js";
 import { getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, finalizeSession } from "./supabase-helpers.js";
-import { initResetPassword, showResetPasswordForm } from "./reset-password.js";
+import { redirectToResetPage, isPasswordRecovery } from "./reset-password.js";
 
-initResetPassword({
-  notice: (m, t, ti) => showAuthNotice(m, t, ti),
-  onSuccessRedirect: () => { window.location.replace("login.html"); }
+// Đăng ký ngay lập tức (trước mọi await bên dưới) để không lỡ sự kiện
+// PASSWORD_RECOVERY khi user bấm link đặt lại mật khẩu từ email.
+supabase.auth.onAuthStateChange((event) => {
+  isPasswordRecovery(event);
 });
 
 let maintenanceState = { enabled: false, message: "", initialized: false };
@@ -889,7 +890,8 @@ window.sendPasswordReset = async function() {
   btn.disabled = true;
   btn.textContent = "Đang gửi...";
   try {
-    const redirectTo = window.location.origin + window.location.pathname;
+    const base = window.location.origin + window.location.pathname;
+    const redirectTo = base.substring(0, base.lastIndexOf("/") + 1) + "reset-password.html";
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
     if (error) throw error;
     closeModal("forgotModal");
@@ -907,8 +909,7 @@ window.sendPasswordReset = async function() {
 onAuthChange(async (event, session) => {
   const user = session?.user ?? null;
   if (event === "PASSWORD_RECOVERY") {
-    document.getElementById("loginBox").style.display = "flex";
-    showResetPasswordForm();
+    redirectToResetPage();
     return;
   }
   if (user && !processingLogin) {

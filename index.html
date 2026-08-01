@@ -180,12 +180,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 import { supabase } from "./supabase-config.js";
 import { getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange } from "./supabase-helpers.js";
 import { createUserStats, updateUserStats } from "./learnhub-stats.js";
-import { initResetPassword, isPasswordRecovery } from "./reset-password.js";
-
-initResetPassword({
-  notice: (m, t, ti) => { try { window.showAuthNotice(m, t, ti); } catch (e) { console.log("[reset-password]", m); } },
-  onSuccessRedirect: () => { window.location.replace("login.html"); }
-});
+import { isPasswordRecovery } from "./reset-password.js";
 
 let currentSupabaseUser = null;
 let activeInterval = null;
