@@ -594,6 +594,48 @@ $$;
 revoke execute on function public.toggle_forum_reaction(uuid, text) from public;
 grant execute on function public.toggle_forum_reaction(uuid, text) to authenticated;
 
+-- Đăng bài / phản hồi: security definer lấy user_id = auth.uid() phía server nên
+-- luôn pass RLS insert dù uid client có bị lệch đi nữa. user_name/role lấy từ bảng users
+-- (không cho client tự khai). parent_id null = bài mới, có giá trị = phản hồi.
+create or replace function public.create_forum_post(p_text text, p_image_url text, p_parent_id uuid)
+returns uuid
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  v_uid  text := auth.uid()::text;
+  v_name text;
+  v_role text;
+  v_id   uuid;
+begin
+  if v_uid is null or coalesce(btrim(p_text), '') = '' then
+    return null;
+  end if;
+
+  select coalesce(nullif(btrim(name), ''), 'Người dùng'), coalesce(nullif(role, ''), 'member')
+    into v_name, v_role
+    from public.users
+   where id = v_uid;
+
+  insert into public.forum_posts (user_id, user_name, role, text, image_url, parent_id, time)
+  values (
+    v_uid,
+    coalesce(v_name, 'Người dùng'),
+    coalesce(v_role, 'member'),
+    btrim(p_text),
+    p_image_url,
+    p_parent_id,
+    extract(epoch from now())::bigint * 1000
+  )
+  returning id into v_id;
+
+  return v_id;
+end;
+$$;
+
+revoke execute on function public.create_forum_post(text, text, uuid) from public;
+grant execute on function public.create_forum_post(text, text, uuid) to authenticated;
+
 drop policy if exists legacy_uid_map_deny on public.legacy_uid_map;
 create policy legacy_uid_map_deny on public.legacy_uid_map
   for all to authenticated using (false) with check (false);

@@ -1075,6 +1075,7 @@ let filteredParents = [];
 let lastAllPosts = [];
 let postsChannel = null;
 let eventsChannel = null;
+const expandedThreads = new Set();
 
 /* ================= HỆ THỐNG MODAL (POPUP) ================= */
 function showModal(title, msg, isInput, currentText, onConfirm, isHtml = false) {
@@ -1317,8 +1318,11 @@ function getFileExt(type){
 
 async function uploadPendingImage(){
   const file = pendingImageFile;
-  if (!file || !currentUser) return null;
-  const path = `${currentUser.uid}/${crypto.randomUUID()}.${getFileExt(file.type)}`;
+  if (!file) return null;
+  const { data: { session } } = await supabase.auth.getSession();
+  const uid = (session && session.user && session.user.id) || (currentUser && currentUser.uid);
+  if (!uid) return null;
+  const path = `${uid}/${crypto.randomUUID()}.${getFileExt(file.type)}`;
   const { error } = await supabase.storage.from("forum-images").upload(path, file);
   if (error) throw error;
   const { data } = supabase.storage.from("forum-images").getPublicUrl(path);
@@ -1350,15 +1354,13 @@ async function sendPost(){
     let imageUrl = null;
     if (hasImage) imageUrl = await uploadPendingImage();
 
-    await supabase.from("forum_posts").insert({
-      user_id: currentUser.uid || null,
-      user_name: currentUser.name,
-      role: currentUser.role || "member",
-      text: text,
-      image_url: imageUrl,
-      parent_id: replyTo || null,
-      time: Date.now()
+    const { data: newPostId, error: createError } = await supabase.rpc("create_forum_post", {
+      p_text: text,
+      p_image_url: imageUrl || null,
+      p_parent_id: replyTo || null
     });
+    if (createError) throw createError;
+    if (!newPostId) throw new Error("Chưa xác thực được người dùng");
     notifySound("post");
     runCleanup();
     scheduleLoadPosts();
@@ -1523,7 +1525,7 @@ function createPostElement(post, allPosts){
   div.className = "post " + postClasses.join(" ");
 
   const ownerActions = isOwner ? `
-    <span class="edit-btn" onclick="editPost('${post.id}', ${JSON.stringify(post.text)})">✎ Sửa</span>
+    <span class="edit-btn" onclick="editPost('${post.id}')">✎ Sửa</span>
     <span class="delete-btn" onclick="deletePost('${post.id}')">🗑 Xóa</span>
   ` : "";
 
@@ -1551,7 +1553,7 @@ function createPostElement(post, allPosts){
     ${postImageHtml}
     <div class="actions">
       ${renderReactionButtons(post)}
-      <span class="reply-btn" onclick="setReply('${post.id}', ${JSON.stringify(post.user_name)})">Trả lời</span>
+      <span class="reply-btn" onclick="setReply('${post.id}')">Trả lời</span>
     </div>
   `;
 
@@ -1568,7 +1570,7 @@ function renderReplies(parentId, container, allPosts, level){
     .sort((a, b) => a.time - b.time);
   if(replies.length === 0) return;
 
-  let expanded = false;
+  let expanded = expandedThreads.has(parentId);
   const wrapper = document.createElement("div");
   wrapper.className = "replies-wrapper";
 
@@ -1581,6 +1583,8 @@ function renderReplies(parentId, container, allPosts, level){
     btn.onclick = (e) => {
       e.stopPropagation();
       expanded = !expanded;
+      if (expanded) expandedThreads.add(parentId);
+      else expandedThreads.delete(parentId);
       renderList();
     };
     wrapper.appendChild(btn);
@@ -1601,7 +1605,7 @@ function renderReplies(parentId, container, allPosts, level){
       repDiv.style.marginLeft = Math.min(level * 12, 36) + "px";
       
       const ownerActions = isOwner ? `
-        <span class="edit-btn" onclick="editPost('${rep.id}', ${JSON.stringify(rep.text)})">✎</span>
+        <span class="edit-btn" onclick="editPost('${rep.id}')">✎</span>
         <span class="delete-btn" onclick="deletePost('${rep.id}')">🗑</span>
       ` : "";
 
@@ -1620,7 +1624,7 @@ function renderReplies(parentId, container, allPosts, level){
         ${replyImageHtml}
         <div class="actions">
           ${renderReactionButtons(rep)}
-          <span class="reply-btn" onclick="setReply('${rep.id}', ${JSON.stringify(rep.user_name)})">Trả lời</span>
+          <span class="reply-btn" onclick="setReply('${rep.id}')">Trả lời</span>
         </div>
       `;
       
@@ -1636,7 +1640,9 @@ function renderReplies(parentId, container, allPosts, level){
 }
 /* ================= TIỆN ÍCH ================= */
 function formatTime(t){
+  if(!t) return "—";
   const d = new Date(t);
+  if(isNaN(d.getTime())) return "—";
   const date = d.getDate().toString().padStart(2,'0');
   const month = (d.getMonth()+1).toString().padStart(2,'0');
   const year = d.getFullYear();
@@ -1772,7 +1778,9 @@ async function showReactionDetails(postId){
   showModal("Chi tiết cảm xúc", `<div class="reaction-detail-layout">${preview}<div class="reaction-detail-panel"><div class="reaction-detail-label">Ai đã bày tỏ cảm xúc</div><div class="reaction-detail-list">${rows}</div></div></div>`, false, "", null, true);
 }
 
-function setReply(id, user) {
+function setReply(id) {
+  const target = lastAllPosts.find(p => p.id === id);
+  const user = target ? target.user_name : "Người dùng";
   replyTo = id;
   const replyBox = document.getElementById("replyingTo");
   
@@ -1818,7 +1826,10 @@ async function deletePost(postId) {
   });
 }
 
-function editPost(postId, oldText) {
+function editPost(postId) {
+  const post = lastAllPosts.find(p => p.id === postId);
+  if (!post) return;
+  const oldText = post.text || "";
   showModal("Chỉnh sửa bài viết", "", true, oldText, () => {
     const newText = document.getElementById("modalInput").value.trim();
     if (newText && newText !== oldText) {
