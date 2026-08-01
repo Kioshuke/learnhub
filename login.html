@@ -229,6 +229,64 @@
     background:#fff!important;padding:0 4px!important;border-radius:4px!important;
     transform:none!important;
   }
+
+  /* ===== FORGOT / RESET PASSWORD MODAL ===== */
+  .auth-modal-overlay{
+    position:fixed; inset:0; z-index:2000;
+    display:none; align-items:center; justify-content:center;
+    background:rgba(15,23,42,0.55);
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+  }
+  .auth-modal-overlay.show{ display:flex; }
+  .auth-modal{
+    width:min(92vw,420px);
+    background:#fff; border-radius:16px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.25);
+    padding:28px 26px;
+    box-sizing:border-box;
+    animation:authFadeUp .3s ease;
+    max-height:92vh; overflow-y:auto;
+  }
+  .auth-modal h3{
+    margin:0 0 6px; font-size:20px; color:#0f172a;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .auth-modal .auth-modal-sub{ margin:0 0 18px; font-size:13px; color:#64748b; }
+  .auth-modal-close{
+    border:none; background:none; font-size:20px; line-height:1;
+    color:#94a3b8; cursor:pointer; padding:4px; flex-shrink:0;
+  }
+  .auth-modal-close:hover{ color:#0f172a; }
+  #forgotModal .auth-input-group{ margin-bottom:14px; }
+  .auth-modal .auth-submit{ width:100%; }
+  .auth-forgot-link{
+    display:inline-block; margin:2px 0 14px;
+    color:#2563eb; font-size:13px; font-weight:600;
+    cursor:pointer; text-decoration:none; background:none; border:none; padding:0;
+  }
+  .auth-forgot-link:hover{ text-decoration:underline; }
+  .auth-modal .auth-static-group label{
+    position:relative!important;
+    top:auto!important; transform:none!important;
+    font-size:13px!important; color:#64748b!important;
+    background:none!important; padding:0!important;
+    margin-bottom:6px; display:block; pointer-events:auto;
+  }
+  .auth-modal .auth-static-group input{
+    width:100%;
+    padding:13px 16px;
+    border-radius:12px;
+    border:1.5px solid #e2e8f0;
+    outline:none;
+    font-size:14px;
+    background:rgba(255,255,255,0.9);
+    transition:border-color .25s ease, box-shadow .25s ease;
+  }
+  .auth-modal .auth-static-group input:focus{
+    border-color:#2563eb;
+    box-shadow:0 0 0 4px rgba(37,99,235,0.12);
+  }
 </style>
 </head>
 <body>
@@ -305,6 +363,8 @@
         <input type="password" id="loginPassword" required>
         <label>Mật khẩu <span class="req-star">*</span></label>
       </div>
+
+      <button type="button" class="auth-forgot-link" onclick="showForgotPassword()">Quên mật khẩu?</button>
 
       <button type="submit" class="auth-submit">Đăng nhập</button>
       </form>
@@ -442,9 +502,32 @@
   </div>
 </div>
 
+<!-- MODAL QUÊN MẬT KHẨU -->
+<div class="auth-modal-overlay" id="forgotModal">
+  <div class="auth-modal" role="dialog" aria-modal="true">
+    <h3>Quên mật khẩu
+      <button type="button" class="auth-modal-close" onclick="closeModal('forgotModal')" aria-label="Đóng">✕</button>
+    </h3>
+    <p class="auth-modal-sub">Nhập email đã đăng ký. LearnHub sẽ gửi liên kết đặt lại mật khẩu cho bạn.</p>
+    <form onsubmit="event.preventDefault();sendPasswordReset()">
+      <div class="auth-static-group auth-input-group">
+        <label>Email <span class="req-star">*</span></label>
+        <input type="email" id="forgotEmail" required>
+      </div>
+      <button type="submit" class="auth-submit" id="forgotSendBtn">Gửi liên kết đặt lại</button>
+    </form>
+  </div>
+</div>
+
 <script type="module">
 import { supabase } from "./supabase-config.js";
 import { getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, finalizeSession } from "./supabase-helpers.js";
+import { initResetPassword, showResetPasswordForm } from "./reset-password.js";
+
+initResetPassword({
+  notice: (m, t, ti) => showAuthNotice(m, t, ti),
+  onSuccessRedirect: () => { window.location.replace("login.html"); }
+});
 
 let maintenanceState = { enabled: false, message: "", initialized: false };
 
@@ -781,8 +864,53 @@ window.switchAuthTab = switchAuthTab;
 window.authComingSoon = authComingSoon;
 window.showAuthNotice = showAuthNotice;
 
+/* ---------- QUÊN MẬT KHẨU / ĐẶT LẠI MẬT KHẨU ---------- */
+
+window.closeModal = function(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove("show");
+};
+
+window.showForgotPassword = function() {
+  document.getElementById("forgotModal").classList.add("show");
+  setTimeout(() => {
+    const input = document.getElementById("forgotEmail");
+    if (input) input.focus();
+  }, 100);
+};
+
+window.sendPasswordReset = async function() {
+  const email = document.getElementById("forgotEmail").value.trim();
+  const btn = document.getElementById("forgotSendBtn");
+  if (!email) {
+    showAuthNotice("Vui lòng nhập email", "error", "Thiếu email");
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = "Đang gửi...";
+  try {
+    const redirectTo = window.location.origin + window.location.pathname;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    if (error) throw error;
+    closeModal("forgotModal");
+    showAuthNotice("Liên kết đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email!", "success", "Đã gửi");
+    document.getElementById("forgotEmail").value = "";
+  } catch (error) {
+    console.error("Lỗi gửi liên kết đặt lại mật khẩu:", error);
+    showAuthNotice("Gửi liên kết thất bại: " + error.message, "error", "Lỗi");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Gửi liên kết đặt lại";
+  }
+};
+
 onAuthChange(async (event, session) => {
   const user = session?.user ?? null;
+  if (event === "PASSWORD_RECOVERY") {
+    document.getElementById("loginBox").style.display = "flex";
+    showResetPasswordForm();
+    return;
+  }
   if (user && !processingLogin) {
     processingLogin = true;
     try {
