@@ -1233,6 +1233,24 @@ function playSound(type){
   }
 }
 
+let recentLocalSounds = [];
+let postsReloadTimer = null;
+
+function scheduleLoadPosts(){
+  clearTimeout(postsReloadTimer);
+  postsReloadTimer = setTimeout(() => loadPosts(), 150);
+}
+
+function notifySound(type, reactionType){
+  const t = Date.now();
+  recentLocalSounds.push(t);
+  if (recentLocalSounds.length > 30) recentLocalSounds.shift();
+  playSound(type);
+  supabase.from("forum_events").insert({ type, reaction_type: reactionType || null, time: t })
+    .then(() => {})
+    .catch(e => console.log("Lỗi ghi sự kiện âm thanh:", e));
+}
+
 /* ================= GỬI BÀI VIẾT / PHẢN HỒI ================= */
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/gif", "image/webp"];
@@ -1341,8 +1359,9 @@ async function sendPost(){
       parent_id: replyTo || null,
       time: Date.now()
     });
-    await supabase.from("forum_events").insert({ type: "post", time: Date.now() });
+    notifySound("post");
     runCleanup();
+    scheduleLoadPosts();
   } catch (e) {
     console.error("Lỗi gửi bài viết:", e);
     showModal("Lỗi", "Gửi bài viết thất bại. Vui lòng thử lại.", false, "", null);
@@ -1392,7 +1411,7 @@ async function loadPosts(){
 function subscribePosts(){
   if (postsChannel) supabase.removeChannel(postsChannel);
   postsChannel = supabase.channel("forum-posts")
-    .on("postgres_changes", { event: "*", schema: "public", table: "forum_posts" }, () => loadPosts())
+    .on("postgres_changes", { event: "*", schema: "public", table: "forum_posts" }, () => scheduleLoadPosts())
     .subscribe();
 }
 
@@ -1842,7 +1861,8 @@ async function toggleReaction(postId, type){
   delete dislikes[uid];
 
   await supabase.from("forum_posts").update({ reactions, likes, dislikes }).eq("id", postId);
-  await supabase.from("forum_events").insert({ type: "like", reaction_type: type, time: Date.now() });
+  notifySound("like", type);
+  scheduleLoadPosts();
 }
 
 function toggleLike(postId, isLike){
@@ -1856,8 +1876,10 @@ function subscribeEvents(){
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "forum_events" }, (payload) => {
       if (isFirstLoad) { isFirstLoad = false; return; }
       const ev = payload.new;
-      if (ev && ev.time && (Date.now() - ev.time < 5000)) {
-        playSound(ev.type);
+      if (ev && ev.time) {
+        const idx = recentLocalSounds.indexOf(ev.time);
+        if (idx !== -1) { recentLocalSounds.splice(idx, 1); return; }
+        if (Date.now() - ev.time < 5000) playSound(ev.type);
       }
     })
     .subscribe();
