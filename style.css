@@ -1492,12 +1492,7 @@ filter:blur(24px);
 opacity:0.78;
 }
 
-#loginBox .auth-bg-blur::after{
-content:"";
-position:absolute;
-inset:0;
-background:linear-gradient(to top, rgba(2,6,23,0.55), rgba(2,6,23,0.18), transparent);
-}
+
 
 #loginBox .auth-bg-main{
 position:absolute;
@@ -1508,13 +1503,7 @@ background-position:center;
 z-index:2;
 }
 
-#loginBox .auth-right::after{
-content:"";
-position:absolute;
-inset:0;
-background:rgba(2,6,23,0.34);
-z-index:2;
-}
+
 
 #loginBox .auth-overlay{
 position:absolute;
@@ -1731,15 +1720,6 @@ overflow:hidden;
 border:1px solid rgba(255,255,255,0.5);
 box-shadow:0 18px 40px rgba(37,99,235,0.12);
 background:linear-gradient(135deg,#dbeafe,#eef4ff);
-}
-
-#loginBox .auth-mobile-showcase::after{
-content:"";
-position:absolute;
-inset:0;
-background:linear-gradient(180deg, rgba(15,23,42,0.02), rgba(15,23,42,0.16));
-pointer-events:none;
-z-index:2;
 }
 
 #loginBox .auth-mobile-slide{
