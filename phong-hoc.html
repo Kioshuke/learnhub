@@ -30,8 +30,9 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
 /* Specific iframe sizing for quiz inserted into #quiz */
 #quiz iframe, .quiz-box iframe {
   width: 100%;
-  height: 70vh;
-  min-height: 420px;
+  height: 60vh;
+  min-height: 350px;
+  max-height: 700px;
   border: none !important;
   display: block;
   margin: 0;
@@ -127,7 +128,7 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
   height:4px;width:100%;
   background:linear-gradient(90deg,var(--card-color),color-mix(in srgb,var(--card-color) 50%,white));
 }
-.card-body{padding:12px 12px 14px;display:flex;flex-direction:column;gap:6px;}
+.card-body{padding:14px 14px 16px;display:flex;flex-direction:column;gap:8px;}
 .card:hover{
   transform:translateY(-2px);
   box-shadow:0 8px 24px color-mix(in srgb,var(--card-color,#2563eb) 12%,transparent);
@@ -140,8 +141,8 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
 
 .card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .card-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;background:var(--card-color,#2563eb);flex-shrink:0;}
-.card h3{margin:0;font-size:15px;font-weight:700;color:var(--text);line-height:1.3;flex:1 1 0;}
-.card-desc{font-size:13px;color:var(--text-sub);line-height:1.5;margin:0;}
+.card h3{margin:0;font-size:16px;font-weight:700;color:var(--text);line-height:1.4;flex:1 1 0;}
+.card-desc{font-size:14px;color:var(--text-sub);line-height:1.5;margin:0;}
 
 /* ===== STATUS ===== */
 .status{flex-shrink:0;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;white-space:nowrap;padding:4px 10px;border-radius:20px;}
@@ -196,7 +197,7 @@ body.dark-mode .schedule-item-session.evening{background:#241a3d;color:#c4b5fd;}
 }
 
 /* ===== QUIZ ===== */
-.quiz-box{margin-top:20px;background:var(--quiz-bg);border:1px solid var(--quiz-border);border-radius:10px;overflow:hidden;}
+.quiz-box{margin-top:16px;background:var(--quiz-bg);border:1px solid var(--quiz-border);border-radius:10px;overflow:hidden;}
 .quiz-header{padding:8px 8px;display:flex;justify-content:flex-start;border-bottom:1px solid var(--quiz-border);}
 .quiz-btn{padding:6px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:13px;}
 .close-btn{background:#ef4444;color:#fff;}
@@ -205,6 +206,37 @@ body.dark-mode .schedule-item-session.evening{background:#241a3d;color:#c4b5fd;}
 .skel-quiz-card{height:200px;border-radius:14px;margin-bottom:12px;}
 .skel-quiz-row{display:flex;gap:10px;}
 .loader{padding:20px;}
+
+/* ===== CUSTOM VIDEO PLAYER ===== */
+.video-box{background:var(--quiz-bg);border:1px solid var(--quiz-border);border-radius:12px;overflow:hidden;width:100%;max-width:800px;margin:16px auto 0;}
+.video-stage{position:relative;width:100%;padding-bottom:56.25%;height:0;background:#000;}
+.video-stage iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;outline:none;display:block;pointer-events:none;}
+.video-stage iframe::after{content:"";position:absolute;inset:0;z-index:10;background:transparent;}
+.video-poster{position:absolute;inset:0;background:#000 center/cover no-repeat;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;}
+.video-poster.hidden{display:none;}
+.video-poster .video-big-play,.video-center-play .video-big-play{width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,0.92);color:#dc2626;display:flex;align-items:center;justify-content:center;font-size:30px;padding-left:6px;transition:transform .2s ease,background .2s ease;box-shadow:0 6px 24px rgba(0,0,0,.35);}
+.video-poster:hover .video-big-play{transform:scale(1.08);background:#fff;}
+.video-cover{position:absolute;inset:0;z-index:3;cursor:pointer;}
+.video-center-play{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.35));pointer-events:none;transition:opacity .2s ease;}
+.video-center-play.hidden{opacity:0;visibility:hidden;}
+.video-center-play .video-big-play{transform:scale(.92);}
+.video-center-play .video-big-play:hover{transform:scale(1);}
+.video-controls{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#0f172a;color:#f1f5f9;}
+.video-controls button{border:none;background:transparent;color:#f1f5f9;font-size:16px;width:34px;height:34px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.video-controls button:hover{background:rgba(255,255,255,.12);}
+.video-controls .vtime{font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap;color:#cbd5e1;min-width:40px;text-align:center;flex-shrink:0;}
+.video-controls .vtime-dur{color:#64748b;min-width:auto;}
+.video-controls input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:999px;background:#334155;outline:none;cursor:pointer;}
+.video-controls input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;border:none;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+.video-controls input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#fff;border:none;}
+.video-controls .vseek{flex:1 1 auto;width:100%;min-width:60px;}
+.video-controls .vvol{width:70px;}
+.video-controls .vspacer{flex:0 0 auto;}
+@media (max-width:640px){
+  .video-controls{padding:6px 8px;gap:6px;}
+  .video-controls button{width:30px;height:30px;font-size:14px;}
+  .video-controls .vvol{width:46px;}
+}
 </style>
 </head>
 <body>
@@ -324,6 +356,14 @@ body.dark-mode .schedule-item-session.evening{background:#241a3d;color:#c4b5fd;}
         <div class="btn-row"><a class="btn" href="cauhoi/questionenglish.html?de=english.json" onclick="loadQuiz(this,'cauhoi/questionenglish.html?de=english.json'); return false;">Làm bài</a></div>
       </div>
     </div>
+    <div class="card" style="--card-index:1">
+      <div class="card-color-bar"></div>
+      <div class="card-body">
+        <div class="card-top"><div class="card-icon"><i class="fas fa-play"></i></div><h3>TỔNG ÔN NGỮ PHÁP SO SÁNH</h3><span class="status done"></span></div>
+        <p class="card-desc">Video tổng ôn ngữ pháp so sánh.</p>
+        <div class="btn-row"><a class="btn" href="#" onclick="loadVideo(this,'https://www.youtube.com/watch?v=H8Fcn9XpDic'); return false;">Xem video</a></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -419,11 +459,255 @@ function loadQuiz(btn, link) {
 }
 
 function closeQuiz() {
+  if (window.videoPlayer && window.videoPlayer.destroy) {
+    window.videoPlayer.destroy();
+  }
+  window.videoPlayer = null;
+  if (window.videoTicker) { clearInterval(window.videoTicker); window.videoTicker = null; }
+  if (window.videoInitTimer) { clearTimeout(window.videoInitTimer); window.videoInitTimer = null; }
+  window.videoLoadTarget = null;
   document.getElementById("quiz").innerHTML = "";
   document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
   if (window.parent && window.parent !== window) {
     window.parent.postMessage({ type: "CLOSE_QUIZ_SCROLL_TOP" }, "*");
   }
+}
+
+/* ===== CUSTOM YOUTUBE VIDEO PLAYER ===== */
+window.videoPlayer = null;
+window.videoApiReady = false;
+window.videoInitTimer = null;
+window.videoTicker = null;
+window.videoSeeking = false;
+window.videoLoadTarget = null;
+
+function getYoutubeVideoId(url) {
+  try {
+    var parsed = new URL(url);
+    if (parsed.hostname.includes("youtu.be")) {
+      return parsed.pathname.slice(1).split(/[?#&]/)[0];
+    }
+    if (parsed.hostname.includes("youtube.com")) {
+      if (parsed.pathname.indexOf("/shorts/") === 0) return parsed.pathname.split("/")[2] || "";
+      if (parsed.pathname.indexOf("/embed/") === 0) return parsed.pathname.split("/")[2] || "";
+      return parsed.searchParams.get("v") || "";
+    }
+  } catch (e) {}
+  return "";
+}
+
+function loadYoutubeApi() {
+  if (window.YT && window.YT.Player) { window.videoApiReady = true; return; }
+  if (document.getElementById("youtube-iframe-api")) return;
+  var tag = document.createElement("script");
+  tag.id = "youtube-iframe-api";
+  tag.src = "https://www.youtube.com/iframe_api";
+  document.head.appendChild(tag);
+}
+
+window.onYouTubeIframeAPIReady = function() {
+  window.videoApiReady = true;
+  initVideoPlayer();
+};
+
+function fmtVideoTime(sec) {
+  sec = Math.max(0, Math.floor(sec || 0));
+  return Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0");
+}
+
+function initVideoPlayer() {
+  if (!window.videoLoadTarget || !window.YT || !window.YT.Player) return;
+  if (window.videoPlayer) return;
+  var el = document.getElementById("videoPlayerEl");
+  if (!el) return;
+  window.videoPlayer = new YT.Player("videoPlayerEl", {
+    videoId: window.videoLoadTarget.videoId,
+    playerVars: {
+      controls: 0,
+      disablekb: 1,
+      fs: 0,
+      rel: 0,
+      modestbranding: 1,
+      playsinline: 1,
+      showinfo: 0,
+      iv_load_policy: 3,
+      cc_load_policy: 0,
+      annotations: 0
+    },
+    events: {
+      onReady: onVideoReady,
+      onStateChange: onVideoStateChange,
+      onError: onVideoError
+    }
+  });
+}
+
+function onVideoReady() {
+  if (window.videoInitTimer) { clearTimeout(window.videoInitTimer); window.videoInitTimer = null; }
+  var durEl = document.getElementById("vpDur");
+  var seek = document.getElementById("vpSeek");
+  if (window.videoPlayer && durEl) durEl.textContent = fmtVideoTime(window.videoPlayer.getDuration());
+  if (seek) seek.max = String(window.videoPlayer.getDuration() || 0);
+  if (!window.videoTicker) {
+    window.videoTicker = setInterval(function() {
+      if (!window.videoPlayer || !window.videoPlayer.getCurrentTime) return;
+      var cur = window.videoPlayer.getCurrentTime();
+      var s = document.getElementById("vpSeek");
+      if (s && !window.videoSeeking) s.value = String(cur);
+      var c = document.getElementById("vpCur");
+      if (c) c.textContent = fmtVideoTime(cur);
+    }, 250);
+  }
+}
+
+function onVideoStateChange(event) {
+  var playBtn = document.getElementById("vpPlay");
+  var centerPlay = document.getElementById("videoCenterPlay");
+  if (!playBtn || !window.YT) return;
+  if (event.data === window.YT.PlayerState.PLAYING) {
+    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    if (centerPlay) centerPlay.classList.add("hidden");
+  } else {
+    playBtn.innerHTML = '<i class="fas fa-play"></i>';
+    if (centerPlay) centerPlay.classList.remove("hidden");
+  }
+}
+
+function onVideoError() {
+  var stage = document.getElementById("videoStage");
+  if (stage && !window.videoPlayer) {
+    stage.innerHTML = '<iframe src="https://www.youtube.com/embed/' + window.videoLoadTarget.videoId + '?rel=0" title="Video" allowfullscreen allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>';
+  }
+}
+
+function fallbackVideoEmbed(videoId) {
+  if (window.videoPlayer || !videoId) return;
+  var stage = document.getElementById("videoStage");
+  if (!stage) return;
+  stage.innerHTML = '<iframe src="https://www.youtube.com/embed/' + videoId + '?rel=0&controls=0&disablekb=1&fs=0&modestbranding=1&playsinline=1&showinfo=0&iv_load_policy=3&cc_load_policy=0" title="Video" allowfullscreen allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>';
+  var poster = document.getElementById("videoPoster");
+  if (poster) poster.classList.add("hidden");
+}
+
+function loadVideo(btn, url) {
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
+  var card = btn.closest(".card");
+  if (card) card.classList.add("active-card");
+
+  var videoId = getYoutubeVideoId(url);
+  if (!videoId) {
+    alert("Link video không hợp lệ.");
+    return;
+  }
+
+  window.videoLoadTarget = { videoId: videoId };
+  document.getElementById("quiz").innerHTML =
+    '<div class="video-box">' +
+      '<div class="video-stage" id="videoStage">' +
+        '<div id="videoPlayerEl"></div>' +
+        '<div class="video-cover" id="videoCover"></div>' +
+        '<div class="video-center-play hidden" id="videoCenterPlay"><div class="video-big-play"><i class="fas fa-play"></i></div></div>' +
+        '<div class="video-poster" id="videoPoster" style="background-image:url(https://img.youtube.com/vi/' + videoId + '/maxresdefault.jpg);">' +
+          '<div class="video-big-play"><i class="fas fa-play"></i></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="video-controls">' +
+        '<button type="button" id="vpPlay" title="Phát/Tạm dừng" aria-label="Phát/Tạm dừng"><i class="fas fa-play"></i></button>' +
+        '<span class="vtime" id="vpCur">0:00</span>' +
+        '<input type="range" id="vpSeek" class="vseek" min="0" max="100" step="0.1" value="0" title="Tua video" aria-label="Tua video">' +
+        '<span class="vtime vtime-dur" id="vpDur">0:00</span>' +
+        '<span class="vspacer"></span>' +
+        '<button type="button" id="vpMute" title="Tắt/bật tiếng" aria-label="Tắt/bật tiếng"><i class="fas fa-volume-high"></i></button>' +
+        '<input type="range" id="vpVol" class="vvol" min="0" max="100" value="100" title="Âm lượng" aria-label="Âm lượng">' +
+        '<button type="button" id="vpFull" title="Toàn màn hình" aria-label="Toàn màn hình"><i class="fas fa-expand"></i></button>' +
+        '<button type="button" id="vpClose" title="Đóng video" aria-label="Đóng video"><i class="fas fa-xmark"></i></button>' +
+      '</div>' +
+    '</div>';
+
+  wireVideoControls();
+
+  setTimeout(function() {
+    var q = document.getElementById("quiz");
+    if (q) q.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 50);
+
+  loadYoutubeApi();
+  initVideoPlayer();
+
+  if (window.videoInitTimer) { clearTimeout(window.videoInitTimer); }
+  window.videoInitTimer = setTimeout(function() {
+    if (!window.videoPlayer) fallbackVideoEmbed(videoId);
+  }, 6000);
+}
+
+function toggleVideoPlayback() {
+  if (!window.videoPlayer) return;
+  var st = window.videoPlayer.getPlayerState ? window.videoPlayer.getPlayerState() : -1;
+  if (window.YT && st === window.YT.PlayerState.PLAYING) {
+    window.videoPlayer.pauseVideo();
+  } else {
+    window.videoPlayer.playVideo();
+    var p = document.getElementById("videoPoster");
+    if (p) p.classList.add("hidden");
+  }
+}
+
+function wireVideoControls() {
+  var poster = document.getElementById("videoPoster");
+  var cover = document.getElementById("videoCover");
+  var playBtn = document.getElementById("vpPlay");
+  var seek = document.getElementById("vpSeek");
+  var muteBtn = document.getElementById("vpMute");
+  var vol = document.getElementById("vpVol");
+  var fullBtn = document.getElementById("vpFull");
+  var closeBtn = document.getElementById("vpClose");
+
+  if (poster) poster.addEventListener("click", toggleVideoPlayback);
+  if (cover) cover.addEventListener("click", toggleVideoPlayback);
+  if (playBtn) playBtn.addEventListener("click", toggleVideoPlayback);
+
+  if (seek) {
+    seek.addEventListener("input", function() { window.videoSeeking = true; });
+    seek.addEventListener("change", function() {
+      if (window.videoPlayer && window.videoPlayer.seekTo) {
+        window.videoPlayer.seekTo(parseFloat(seek.value), true);
+      }
+      window.videoSeeking = false;
+    });
+  }
+
+  if (muteBtn) muteBtn.addEventListener("click", function() {
+    if (!window.videoPlayer || !window.videoPlayer.isMuted) return;
+    if (window.videoPlayer.isMuted()) {
+      window.videoPlayer.unMute();
+      muteBtn.innerHTML = '<i class="fas fa-volume-high"></i>';
+    } else {
+      window.videoPlayer.mute();
+      muteBtn.innerHTML = '<i class="fas fa-volume-xmark"></i>';
+    }
+  });
+
+  if (vol) vol.addEventListener("input", function() {
+    if (!window.videoPlayer || !window.videoPlayer.setVolume) return;
+    window.videoPlayer.setVolume(parseInt(vol.value, 10));
+    if (window.videoPlayer.isMuted && window.videoPlayer.isMuted()) window.videoPlayer.unMute();
+    var m = document.getElementById("vpMute");
+    if (m) m.innerHTML = '<i class="fas fa-volume-high"></i>';
+  });
+
+  if (fullBtn) fullBtn.addEventListener("click", function() {
+    var stage = document.getElementById("videoStage");
+    if (!stage) return;
+    if (document.fullscreenElement) {
+      if (document.exitFullscreen) document.exitFullscreen();
+    } else if (stage.requestFullscreen) {
+      stage.requestFullscreen();
+    } else if (stage.webkitRequestFullscreen) {
+      stage.webkitRequestFullscreen();
+    }
+  });
+
+  if (closeBtn) closeBtn.addEventListener("click", closeQuiz);
 }
 </script>
 
