@@ -549,6 +549,51 @@ drop policy if exists forum_events_delete_admin on public.forum_events;
 create policy forum_events_delete_admin on public.forum_events
   for delete to authenticated using (public.is_admin());
 
+-- ============================== REACTIONS ==============================
+
+-- Thả cảm xúc: cho phép mọi user đã đăng nhập update cảm xúc trên BẤT KỲ bài viết nào
+-- (kể cả bài của người khác) mà không phá RLS. Security definer + chỉ sửa 3 cột
+-- reactions/likes/dislikes, dùng auth.uid() làm key → user chỉ đổi cảm xúc của chính mình.
+create or replace function public.toggle_forum_reaction(p_post_id uuid, p_type text)
+returns void
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  v_uid text := auth.uid()::text;
+  v_reactions jsonb;
+begin
+  if v_uid is null or p_post_id is null or p_type is null then
+    return;
+  end if;
+  if p_type not in ('like', 'love', 'care', 'haha', 'wow', 'sad', 'angry', 'dislike') then
+    return;
+  end if;
+
+  select coalesce(reactions, '{}'::jsonb) into v_reactions
+    from public.forum_posts
+   where id = p_post_id;
+  if v_reactions is null then
+    return;
+  end if;
+
+  if v_reactions->>v_uid = p_type then
+    v_reactions := v_reactions - v_uid;
+  else
+    v_reactions := v_reactions || jsonb_build_object(v_uid, p_type);
+  end if;
+
+  update public.forum_posts
+     set reactions = v_reactions,
+         likes     = coalesce(likes, '{}'::jsonb) - v_uid,
+         dislikes  = coalesce(dislikes, '{}'::jsonb) - v_uid
+   where id = p_post_id;
+end;
+$$;
+
+revoke execute on function public.toggle_forum_reaction(uuid, text) from public;
+grant execute on function public.toggle_forum_reaction(uuid, text) to authenticated;
+
 drop policy if exists legacy_uid_map_deny on public.legacy_uid_map;
 create policy legacy_uid_map_deny on public.legacy_uid_map
   for all to authenticated using (false) with check (false);

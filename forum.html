@@ -1843,24 +1843,13 @@ function unpinPost(postId) {
 
 async function toggleReaction(postId, type){
   if(!currentUser) return;
-  const { data: post } = await supabase.from("forum_posts")
-    .select("reactions, likes, dislikes")
-    .eq("id", postId)
-    .maybeSingle();
-  if(!post) return;
-
-  const uid = currentUser.uid;
-  let reactions = post.reactions || {};
-  let likes = post.likes || {};
-  let dislikes = post.dislikes || {};
-
-  if(reactions[uid] === type) delete reactions[uid];
-  else reactions[uid] = type;
-
-  delete likes[uid];
-  delete dislikes[uid];
-
-  await supabase.from("forum_posts").update({ reactions, likes, dislikes }).eq("id", postId);
+  try {
+    const { error } = await supabase.rpc("toggle_forum_reaction", { p_post_id: postId, p_type: type });
+    if (error) throw error;
+  } catch (e) {
+    console.error("Lỗi thả cảm xúc:", e);
+    return;
+  }
   notifySound("like", type);
   scheduleLoadPosts();
 }
