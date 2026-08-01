@@ -41,6 +41,7 @@
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="account-popup.css">
 </head>
 <body class="app-ready">
 <audio id="offtest" src="sound/preview_4.mp3" preload="none" hidden></audio>
@@ -969,7 +970,6 @@ window.location.href = 'login.html?loggedout=1';
 document.addEventListener("click", function(e){
 const popup = document.getElementById("userPopup");
 const avatarBox = document.querySelector(".avatar-box");
-const moreWrap = document.querySelector(".popup-more-wrap");
 
 if(
 popup &&
@@ -977,9 +977,6 @@ popup &&
 (!avatarBox || !avatarBox.contains(e.target))
 ){
 popup.style.display = "none";
-}
-if(moreWrap && !moreWrap.contains(e.target)){
-closePopupActions();
 }
 });
 window.addEventListener("beforeunload", () => {
@@ -1050,46 +1047,154 @@ fetch('footer.html').then(r => r.text()).then(html => {
 
 <div id="userPopup" style="display:none;">
 
-<div class="popup-more-wrap">
-  <button id="popupMoreBtn" class="popup-more-btn" type="button" onclick="togglePopupActions(event)" aria-label="Mở tuỳ chọn" aria-expanded="false">⋯</button>
-  <div id="popupActionsMenu" class="popup-actions-menu" onclick="event.stopPropagation()">
-    <a href="profile.html">👤 Tài khoản</a>
-    <a href="https://learnhubpf.pages.dev/admin-dashboard.html" target="_blank" class="admin-link-btn">⚙️ Admin Panel</a>
-    <button id="logoutBtn" onclick="logout()">🚪 Đăng xuất</button>
+  <div class="cc-shell">
+    <nav class="cc-rail" id="ccRail">
+      <span class="cc-pill" id="ccPill"></span>
+      <button class="cc-nav cc-active" type="button" data-tab="home" data-tooltip="Trang chủ" aria-label="Trang chủ"><span class="cc-ico">🏠</span></button>
+      <button class="cc-nav" type="button" data-tab="profile" data-tooltip="Hồ sơ" aria-label="Hồ sơ"><span class="cc-ico">👤</span></button>
+      <button class="cc-nav" type="button" data-tab="appearance" data-tooltip="Giao diện" aria-label="Giao diện"><span class="cc-ico">🎨</span></button>
+      <button class="cc-nav" type="button" data-tab="focus" data-tooltip="Focus Mode" aria-label="Focus Mode"><span class="cc-ico">⏳</span></button>
+      <button class="cc-nav" type="button" data-tab="music" data-tooltip="Âm nhạc" aria-label="Âm nhạc"><span class="cc-ico">🎵</span></button>
+      <button class="cc-nav" type="button" data-tab="admin" data-tooltip="Admin Panel" aria-label="Admin Panel" id="ccNavAdmin"><span class="cc-ico">🛡️</span></button>
+      <button class="cc-nav cc-nav-logout" type="button" data-tab="logout" data-tooltip="Đăng xuất" aria-label="Đăng xuất"><span class="cc-ico">🚪</span></button>
+    </nav>
+
+    <section class="cc-body" id="ccBody">
+      <button class="cc-close" type="button" onclick="toggleUserPopup()" aria-label="Đóng">✕</button>
+
+      <div class="cc-pane cc-pane-active" data-pane="home">
+        <div class="cc-home-top">
+          <div class="cc-avatar-wrap">
+            <img id="popupAvatar" class="cc-avatar">
+            <span class="cc-status-dot"></span>
+          </div>
+          <div>
+            <div id="greetingText" class="cc-greeting"></div>
+            <h3 id="popupName" class="cc-name"></h3>
+            <p id="popupEmail" class="cc-email"></p>
+          </div>
+        </div>
+        <p id="popupQuote" class="cc-quote"></p>
+        <div class="cc-card cc-online">
+          <div class="cc-online-label"><span class="online-count-label">Đang trực tuyến (0)</span></div>
+          <div id="onlineList" class="cc-online-list"></div>
+        </div>
+        <div class="cc-version" id="ccVersionText"></div>
+      </div>
+
+      <div class="cc-pane" data-pane="appearance">
+        <div class="cc-section-title">Giao diện</div>
+        <label class="cc-row">
+          <span class="cc-row-label"><span class="cc-row-icon">🌙</span> Chế độ tối</span>
+          <span class="cc-switch"><input type="checkbox" id="darkModeToggle"><span class="cc-thumb"></span></span>
+        </label>
+        <label class="cc-row">
+          <span class="cc-row-label"><span class="cc-row-icon">🌫️</span> Hiệu ứng kính mờ</span>
+          <span class="cc-switch"><input type="checkbox" id="ccGlassToggle"><span class="cc-thumb"></span></span>
+        </label>
+        <label class="cc-row">
+          <span class="cc-row-label"><span class="cc-row-icon">✨</span> Animation chuyển tab</span>
+          <span class="cc-switch"><input type="checkbox" id="ccAnimToggle"><span class="cc-thumb"></span></span>
+        </label>
+        <label class="cc-row">
+          <span class="cc-row-label"><span class="cc-row-icon">🦾</span> Giảm chuyển động</span>
+          <span class="cc-switch"><input type="checkbox" id="ccReduceToggle"><span class="cc-thumb"></span></span>
+        </label>
+        <div class="cc-section-title" style="margin-top:14px;">Màu nhấn</div>
+        <div class="cc-accent-grid" id="ccAccentRow"></div>
+      </div>
+
+      <div class="cc-pane" data-pane="focus">
+        <div class="cc-section-title">Focus Mode</div>
+        <div class="cc-focus-presets">
+          <button class="cc-chip" type="button" data-min="25">25</button>
+          <button class="cc-chip" type="button" data-min="45">45</button>
+          <button class="cc-chip" type="button" data-min="60">60</button>
+          <button class="cc-chip" type="button" data-min="90">90</button>
+          <button class="cc-chip" type="button" data-min="120">120</button>
+        </div>
+        <div class="cc-focus-custom">
+          <input class="cc-focus-input" id="ccFocusCustom" type="number" min="1" max="180" placeholder="Phút tùy chỉnh (1-180)">
+          <button class="cc-btn-ghost" id="ccFocusSet" type="button">Đặt</button>
+        </div>
+        <button class="cc-btn-primary" id="ccFocusStart" type="button">▶ Bắt đầu Focus</button>
+        <p class="cc-focus-note">Focus sẽ bật toàn màn hình và ẩn hộp này đi. Hết giờ sẽ rung chuông và gửi thông báo.</p>
+      </div>
+
+      <div class="cc-pane" data-pane="music">
+        <div class="cc-section-title">Âm nhạc</div>
+        <div class="cc-track-list" id="ccTrackList"></div>
+        <div class="cc-player">
+          <div class="cc-player-top">
+            <span class="cc-now-icon" id="ccNowIcon">🎧</span>
+            <div style="min-width:0;">
+              <div class="cc-now-title" id="ccNowTitle">Lofi Beats</div>
+              <div class="cc-now-sub" id="ccNowSub">Radio 24/7 · Chillhop</div>
+            </div>
+          </div>
+          <div class="cc-progress" id="ccProgress"><div class="cc-progress-fill" id="ccProgressFill"></div></div>
+          <div class="cc-progress-times"><span id="ccCurTime">00:00</span><span id="ccDurTime">--:--</span></div>
+          <div class="cc-player-btns">
+            <button class="cc-pb" id="ccPrevBtn" type="button" aria-label="Bài trước">⏮</button>
+            <button class="cc-pb cc-pb-main" id="ccPlayBtn" type="button" aria-label="Phát / Tạm dừng">▶</button>
+            <button class="cc-pb" id="ccNextBtn" type="button" aria-label="Bài kế tiếp">⏭</button>
+          </div>
+          <div class="cc-volume">
+            <span>🔊</span>
+            <input id="ccVolume" type="range" min="0" max="100" step="1">
+          </div>
+          <div class="cc-player-error" id="ccYtError"></div>
+        </div>
+        <div class="cc-custom-url">
+          <input class="cc-custom-input" id="ccCustomUrl" type="text" placeholder="Dán link YouTube / nhạc bất kỳ..." autocomplete="off">
+          <button class="cc-custom-play" id="ccCustomPlay" type="button">Phát</button>
+        </div>
+        <div class="cc-custom-hint">Hỗ trợ link YouTube hoặc link nhạc trực tiếp (mp3, m4a...).</div>
+        <div id="ccYtPlayer" style="position:fixed;left:-9999px;top:0;width:200px;height:200px;pointer-events:none;"></div>
+        <audio id="ccCustomAudio" preload="none"></audio>
+      </div>
+    </section>
+  </div>
+
+</div>
+
+<div id="ccFocusWidget" class="cc-focus-widget">
+  <div class="cc-fw-head">
+    <span class="cc-fw-meta">
+      <span class="cc-fw-label">⏳ Focus Mode</span>
+      <span class="cc-fw-state" id="ccFocusMode">Đang bật</span>
+    </span>
+    <button class="cc-fw-hide" id="ccFocusHide" type="button" title="Ẩn đồng hồ">✕</button>
+  </div>
+  <div class="cc-fw-time" id="ccFocusTime">25:00</div>
+  <div class="cc-fw-bar"><div class="cc-fw-fill" id="ccFocusBar"></div></div>
+  <div class="cc-fw-actions">
+    <button class="cc-fw-btn" id="ccFocusPause" type="button">⏸ Tạm dừng</button>
+    <button class="cc-fw-btn cc-danger" id="ccFocusExit" type="button">Thoát</button>
   </div>
 </div>
+<button id="ccFocusPill" class="cc-focus-pill" type="button" title="Mở đồng hồ Focus" aria-label="Mở đồng hồ Focus" style="display:none;">⏳</button>
 
-<span class="popup-close" onclick="toggleUserPopup()">&times;</span>
-
-<div class="popup-info">
-<img id="popupAvatar">
-<div id="greetingText"></div>
-<h3 id="popupName"></h3>
-<p id="popupEmail"></p>
-<p id="popupQuote"></p>
+<div id="ccLogoutOverlay" class="cc-logout-overlay">
+  <div class="cc-logout-card">
+    <div class="cc-logout-icon">🚪</div>
+    <div class="cc-logout-title">Đăng xuất</div>
+    <p class="cc-logout-msg">Nếu chắc chắn muốn đăng xuất, nhấn nút bên dưới nhé!</p>
+    <div class="cc-logout-btns">
+      <button class="cc-btn-ghost" id="ccLogoutCancel" type="button">Huỷ</button>
+      <button class="cc-btn-danger" id="ccLogoutOk" type="button">Đăng xuất</button>
+    </div>
+  </div>
 </div>
-
-<hr class="popup-divider">
-
-<div style="font-weight: 600; font-size: 12px; color: var(--text-sub); margin-bottom: 8px;" class="online-count-label">
-  Đang trực tuyến (0)
-</div>
-
-<div id="onlineList" style="max-height: 150px; overflow-y: auto;"></div>
-<div class="dark-toggle">
-  <span>🌙 Dark mode</span>
-
-  <label class="switch">
-    <input type="checkbox" id="darkModeToggle">
-    <span class="slider"></span>
-  </label>
-</div>
-<p style="text-align: center;
-margin-top:10px;
-font-size: 13px;
-color: var(--text-sub);
-margin-bottom: 10px;">© 2026 LearnHub Platform | All rights reserved!</p>
-
+<div id="ccDoneOverlay" class="cc-logout-overlay">
+  <div class="cc-logout-card">
+    <div class="cc-logout-icon" style="background:rgba(16,185,129,0.12);">🎉</div>
+    <div class="cc-logout-title">Hết giờ!</div>
+    <p class="cc-logout-msg">Phiên Focus đã hoàn thành. Chúc bạn có giờ học thật hiệu quả nhé!</p>
+    <div class="cc-logout-btns">
+      <button class="cc-btn-primary" id="ccDoneOk" type="button">Tuyệt vời</button>
+    </div>
+  </div>
 </div>
 <div id="chatOverlay" onclick="toggleHubieChat()" style="
     display: none; 
@@ -1287,5 +1392,6 @@ margin-bottom: 10px;">© 2026 LearnHub Platform | All rights reserved!</p>
 })();
 </script>
 <script src="script.js" defer></script>
+<script src="account-popup.js" defer></script>
 </body>
 </html>

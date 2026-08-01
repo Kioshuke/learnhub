@@ -616,23 +616,8 @@ if(!pop) return;
 if(getComputedStyle(pop).display === "none"){
 pop.style.display = "block";
 } else {
-closePopupActions();
 pop.style.display = "none";
 }
-}
-function togglePopupActions(event){
-if(event) event.stopPropagation();
-const menu = document.getElementById("popupActionsMenu");
-const btn = document.getElementById("popupMoreBtn");
-if(!menu || !btn) return;
-const isOpen = menu.classList.toggle("show");
-btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
-}
-function closePopupActions(){
-const menu = document.getElementById("popupActionsMenu");
-const btn = document.getElementById("popupMoreBtn");
-if(menu) menu.classList.remove("show");
-if(btn) btn.setAttribute("aria-expanded", "false");
 }
 function updateProgress(percent){
   const fill = document.getElementById("progressFill");
