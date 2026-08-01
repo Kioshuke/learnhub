@@ -1117,7 +1117,7 @@ body.cc-no-anim *::after {
     top: 64px;
     right: 12px;
     width: 344px;
-    height: calc(100vh - 84px);
+    height: min(480px, calc(100vh - 84px));
   }
 
   .cc-rail {
