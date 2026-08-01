@@ -1044,9 +1044,16 @@ async function refreshCollections() {
 
 function startRealtime() {
   if (adminChannel) supabase.removeChannel(adminChannel);
+  const HEARTBEAT_FIELDS = ["online", "last_active", "online_start_time", "online_timer"];
   adminChannel = supabase.channel("admin-realtime")
     .on("postgres_changes", { event: "*", schema: "public", table: "access_list" }, () => refreshCollections())
-    .on("postgres_changes", { event: "*", schema: "public", table: "users" }, () => refreshCollections())
+    .on("postgres_changes", { event: "*", schema: "public", table: "users" }, (payload) => {
+      if (payload.eventType === "UPDATE") {
+        const changed = payload.old ? Object.keys(payload.old) : [];
+        if (changed.length && changed.every(k => HEARTBEAT_FIELDS.includes(k))) return;
+      }
+      refreshCollections();
+    })
     .subscribe();
 }
 
