@@ -7,6 +7,12 @@
 
 create extension if not exists "pgcrypto";
 
+-- ============================== CLEANUP LEGACY (Firebase→Supabase) ==============================
+-- Gỡ các object cũ của cơ chế chuyển dữ liệu Firebase (đã bỏ). Idempotent:
+-- nếu chưa từng tồn tại thì `if exists` bỏ qua, không báo lỗi.
+drop function if exists public.claim_legacy_data(text);
+drop table if exists public.legacy_uid_map;
+
 -- ============================== TABLES ==============================
 
 -- users.id là TEXT (không phải uuid) vì dữ liệu import từ Firebase có id dạng text.
