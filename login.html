@@ -1394,10 +1394,23 @@ window.sendPasswordReset = async function() {
     closeModal("forgotModal");
     showAuthNotice("Liên kết đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email!", "success", "Đã gửi");
     document.getElementById("forgotEmail").value = "";
+
+    // Đếm ngược 10s trước khi cho bấm lại
+    let countdown = 10;
+    btn.textContent = `Gửi lại (${countdown}s)`;
+    const interval = setInterval(() => {
+      countdown--;
+      if (countdown > 0) {
+        btn.textContent = `Gửi lại (${countdown}s)`;
+      } else {
+        clearInterval(interval);
+        btn.disabled = false;
+        btn.textContent = "Gửi liên kết đặt lại";
+      }
+    }, 1000);
   } catch (error) {
     console.error("Lỗi gửi liên kết đặt lại mật khẩu:", error);
     showAuthNotice("Gửi liên kết thất bại: " + error.message, "error", "Lỗi");
-  } finally {
     btn.disabled = false;
     btn.textContent = "Gửi liên kết đặt lại";
   }

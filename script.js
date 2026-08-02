@@ -530,11 +530,15 @@ function playNotificationSound(soundId = "thongbaoSound"){
         const p = a.play();
         if(p && p.then){
           p.then(function(){
-            loaded = true;
-            a.pause();
-            a.currentTime = 0;
+            // Nếu có một play() thật (có tiếng) đang chạy trong cùng lượt click
+            // (vd: bấm avatar mở popup), KHÔNG pause để tránh nuốt mất tiếng.
+            if (a.muted === true) {
+              a.pause();
+              a.currentTime = 0;
+            }
             a.muted = false;
             a.volume = 1;
+            loaded = true;
           }).catch(function(){});
         }
       } catch(e) {}
@@ -737,6 +741,9 @@ let isFirstLoad = true;
 function playSound(id) {
     const audio = document.getElementById(id);
     if (audio) {
+        // Bỏ mute/volume 0 nếu unlockAudio từng đặt (tránh phát ra tiếng nhưng bị câm)
+        audio.muted = false;
+        audio.volume = 1;
         audio.currentTime = 0;
         // Thêm .catch để PSI không báo lỗi khi trình duyệt chặn tự phát
         audio.play().catch(() => {}); 
