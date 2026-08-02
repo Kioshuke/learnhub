@@ -2,8 +2,7 @@
 // supabase-helpers.js
 // ----------------------------------------------------------------------------
 // Các hàm dùng chung cho mọi trang LearnHub sau khi migrate sang Supabase:
-// maintenance (get + realtime), whitelist email, session, đồng bộ hồ sơ,
-// nhận lại dữ liệu cũ (claim_legacy_data).
+// maintenance (get + realtime), whitelist email, session, đồng bộ hồ sơ.
 // ============================================================================
 
 import { supabase } from "./supabase-config.js";
@@ -114,17 +113,11 @@ export async function getUserRow(uid) {
   }
 }
 
-// Sau khi đăng nhập: nhận lại dữ liệu cũ từ migration (nếu có) + cập nhật hồ sơ.
+// Sau khi đăng nhập: cập nhật hồ sơ vào bảng users (user tạo mới nằm thẳng trên Supabase).
 export async function finalizeSession(user) {
   if (!user || !user.id) return null;
   const email = user.email;
   const nowIso = new Date().toISOString();
-
-  try {
-    await supabase.rpc("claim_legacy_data", { p_email: email });
-  } catch (e) {
-    console.warn("[supabase-helpers] claim_legacy_data:", e);
-  }
 
   const patch = {
     last_login: nowIso,

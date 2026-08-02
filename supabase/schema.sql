@@ -9,8 +9,8 @@ create extension if not exists "pgcrypto";
 
 -- ============================== TABLES ==============================
 
--- users.id là TEXT (không phải uuid) để lưu được uid Firebase cũ khi import.
--- Khi user cũ đăng nhập lại lần đầu, RPC claim_legacy_data() sẽ đổi id sang uid Supabase.
+-- users.id là TEXT (không phải uuid) vì dữ liệu import từ Firebase có id dạng text.
+-- User mới đăng ký qua Supabase Auth sẽ có id = auth uid (text), tạo trực tiếp trên Supabase.
 create table if not exists public.users (
   id               text primary key,
   email            text not null,
@@ -143,10 +143,24 @@ create table if not exists public.forum_events (
   created_at    timestamptz not null default now()
 );
 
-create table if not exists public.legacy_uid_map (
-  firebase_uid text primary key,
-  email        text not null unique
+-- Lịch học & Lịch thi (admin chỉnh từ Dashboard, phong-hoc/lich-hoc hiển thị).
+create table if not exists public.schedule_settings (
+  id         boolean primary key default true check (id),
+  active     boolean not null default true,
+  events     jsonb not null default '[]'::jsonb,
+  updated_at timestamptz,
+  updated_by text
 );
+
+-- Video user đã xem trong Phòng Học (đồng bộ trạng thái "đã xem").
+create table if not exists public.watched_videos (
+  user_id    text not null,
+  video_id   text not null,
+  watched_at timestamptz not null default now(),
+  primary key (user_id, video_id)
+);
+
+create index if not exists watched_videos_user_id_idx on public.watched_videos (user_id);
 
 -- ============================== RLS ==============================
 
@@ -160,7 +174,8 @@ alter table public.broadcast_welcome enable row level security;
 alter table public.ticker_settings enable row level security;
 alter table public.forum_posts enable row level security;
 alter table public.forum_events enable row level security;
-alter table public.legacy_uid_map enable row level security;
+alter table public.schedule_settings enable row level security;
+alter table public.watched_videos enable row level security;
 
 -- ============================== FUNCTIONS & TRIGGERS ==============================
 
@@ -199,10 +214,8 @@ $$;
 revoke execute on function public.is_email_allowed(text) from public;
 grant execute on function public.is_email_allowed(text) to anon, authenticated;
 
--- Tự tạo dòng users khi có user Supabase mới (Google / email) đăng nhập lần đầu.
--- Dùng `on conflict do nothing` (không chỉ định cột) để bỏ qua cả trường hợp trùng
--- email với dữ liệu Firebase cũ (unique index users_email_lower_idx). Khi đó auth vẫn
--- tạo user thành công, dữ liệu cũ sẽ được chuyển bởi claim_legacy_data() sau đó.
+-- Tự tạo dòng users khi có user Supabase mới (Google / email) đăng ký/đăng nhập lần đầu.
+-- Dùng `on conflict do nothing` (không chỉ định cột) để bỏ qua trường hợp trùng email.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql security definer
@@ -235,86 +248,6 @@ create trigger on_auth_user_created
 
 -- handle_new_user chỉ là trigger function, không cho ai gọi trực tiếp qua RPC.
 revoke execute on function public.handle_new_user() from public;
-
--- Nhận lại dữ liệu cũ: khi user cũ đăng nhập lại lần đầu (cùng email),
--- chuyển hồ sơ + điểm + bài viết forum từ uid Firebase cũ sang uid Supabase mới.
--- Email lấy từ JWT session (không tin tham số client). Xóa dòng cũ rồi xóa luôn
--- dòng mới (do handle_new_user tạo) để insert thuần theo auth uid — kể cả khi
--- handle_new_user đã bỏ qua insert vì trùng email.
-create or replace function public.claim_legacy_data(p_email text)
-returns text
-language plpgsql security definer
-set search_path = public
-as $$
-declare
-  v_new_uid text := auth.uid()::text;
-  v_session_email text;
-  v_old_uid text;
-  v_legacy public.users%rowtype;
-begin
-  if v_new_uid is null then
-    return null;
-  end if;
-
-  -- Email QUYỀN LỰC lấy từ token JWT, KHÔNG tin tham số client (p_email bị bỏ qua).
-  v_session_email := lower(btrim(coalesce(auth.jwt()->>'email', '')));
-  if v_session_email = '' then
-    return null;
-  end if;
-
-  select firebase_uid into v_old_uid
-    from public.legacy_uid_map
-   where email = v_session_email
-   limit 1;
-
-  if v_old_uid is null then
-    return null;
-  end if;
-
-  select * into v_legacy from public.users where id = v_old_uid;
-  if v_legacy.id is null then
-    return null;
-  end if;
-
-  -- An toàn kép: user legacy phải có email trùng với session.
-  if lower(btrim(coalesce(v_legacy.email, ''))) <> v_session_email then
-    return null;
-  end if;
-
-  -- Xoá dòng legacy cũ, rồi xoá luôn dòng mới (do handle_new_user tạo) để insert thuần.
-  -- KHÔNG dùng insert ... on conflict (id) do update vì nhánh update sẽ kích hoạt
-  -- trigger trg_users_prevent_privilege_update (chặn tự đổi role/email/id).
-  delete from public.users where id = v_old_uid;
-  delete from public.users where id = v_new_uid;
-
-  insert into public.users (
-    id, email, name, photo, role, bio, phone, birthdate, gender, school,
-    created_at, last_login, updated_at
-  )
-  values (
-    v_new_uid,
-    v_session_email,
-    coalesce(nullif(btrim(coalesce(v_legacy.name, '')), ''), split_part(v_session_email, '@', 1)),
-    v_legacy.photo,
-    coalesce(nullif(v_legacy.role, ''), 'Thành viên'),
-    v_legacy.bio, v_legacy.phone, v_legacy.birthdate, v_legacy.gender, v_legacy.school,
-    coalesce(v_legacy.created_at, now()),
-    coalesce(v_legacy.last_login, now()),
-    now()
-  );
-
-  update public.test_stats set user_id = v_new_uid where user_id = v_old_uid;
-  update public.forum_posts set user_id = v_new_uid where user_id = v_old_uid;
-
-  delete from public.legacy_uid_map where firebase_uid = v_old_uid;
-
-  return v_old_uid;
-end;
-$$;
-
--- claim_legacy_data: chỉ authenticated dùng (sau khi đăng nhập). anon/PUBLIC bị chặn.
-revoke execute on function public.claim_legacy_data(text) from public;
-grant execute on function public.claim_legacy_data(text) to authenticated;
 
 -- ============================== STORAGE (ảnh forum) ==============================
 
@@ -559,6 +492,28 @@ drop policy if exists forum_events_delete_admin on public.forum_events;
 create policy forum_events_delete_admin on public.forum_events
   for delete to authenticated using (public.is_admin());
 
+-- Lịch học & thi: mọi người (kể cả anon) đọc được — phong-hoc/lich-hoc hiển thị
+-- khi chưa đăng nhập. Chỉ admin mới ghi được.
+drop policy if exists schedule_settings_select_policy on public.schedule_settings;
+drop policy if exists schedule_settings_insert_policy on public.schedule_settings;
+drop policy if exists schedule_settings_update_policy on public.schedule_settings;
+drop policy if exists schedule_select on public.schedule_settings;
+create policy schedule_select on public.schedule_settings
+  for select using (true);
+
+drop policy if exists schedule_write_admin on public.schedule_settings;
+create policy schedule_write_admin on public.schedule_settings
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+-- Video đã xem: mỗi user chỉ đọc/ghi dòng của chính mình.
+drop policy if exists watched_videos_select_own on public.watched_videos;
+create policy watched_videos_select_own on public.watched_videos
+  for select to authenticated using (user_id = auth.uid()::text);
+
+drop policy if exists watched_videos_insert_own on public.watched_videos;
+create policy watched_videos_insert_own on public.watched_videos
+  for insert to authenticated with check (user_id = auth.uid()::text);
+
 -- ============================== REACTIONS ==============================
 
 -- Thả cảm xúc: cho phép mọi user đã đăng nhập update cảm xúc trên BẤT KỲ bài viết nào
@@ -672,14 +627,6 @@ $$;
 revoke execute on function public.set_forum_post_pinned(uuid, boolean) from public;
 grant execute on function public.set_forum_post_pinned(uuid, boolean) to authenticated;
 
-drop policy if exists legacy_uid_map_deny on public.legacy_uid_map;
-create policy legacy_uid_map_deny on public.legacy_uid_map
-  for all to authenticated using (false) with check (false);
-
-drop policy if exists legacy_uid_map_deny_anon on public.legacy_uid_map;
-create policy legacy_uid_map_deny_anon on public.legacy_uid_map
-  for all to anon using (false) with check (false);
-
 -- ============================== GRANTS ==============================
 
 grant usage on schema public to anon, authenticated;
@@ -701,7 +648,8 @@ begin
     'public.broadcast_current',
     'public.broadcast_welcome',
     'public.maintenance_settings',
-    'public.ticker_settings'
+    'public.ticker_settings',
+    'public.schedule_settings'
   ] loop
     if not exists (
       select 1 from pg_publication_tables
@@ -744,3 +692,28 @@ drop trigger if exists trg_users_prevent_privilege_update on public.users;
 create trigger trg_users_prevent_privilege_update
   before update on public.users
   for each row execute function public.users_prevent_privilege_update();
+
+-- ============================== FIX C1 (INSERT): chặn leo quyền khi tạo lại dòng users ==============================
+-- Trước đây chỉ chặn UPDATE (trigger C1 ở trên). Nhưng admin xóa user chỉ xóa dòng users
+-- (không xóa auth user), user vẫn còn session và có thể INSERT lại dòng của chính mình
+-- với role='Admin' (policy users_insert_own chỉ check id, không check role). Trigger này
+-- buộc user thường phải tạo dòng với role='Thành viên' và email lấy từ JWT (không tự khai).
+-- Admin thật (public.is_admin()) không bị giới hạn.
+create or replace function public.users_prevent_privilege_insert()
+returns trigger
+language plpgsql security definer
+set search_path = public
+as $$
+begin
+  if not public.is_admin() then
+    new.role  := 'Thành viên';
+    new.email := lower(btrim(coalesce(auth.jwt()->>'email', new.email)));
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_users_prevent_privilege_insert on public.users;
+create trigger trg_users_prevent_privilege_insert
+  before insert on public.users
+  for each row execute function public.users_prevent_privilege_insert();

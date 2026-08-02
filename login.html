@@ -1384,7 +1384,7 @@ onAuthChange(async (event, session) => {
         processingLogin = false;
         return;
       }
-      // Nhận lại dữ liệu cũ (claim_legacy_data) + cập nhật hồ sơ
+      // Cập nhật hồ sơ (user mới nằm thẳng trên Supabase) rồi vào trang chủ
       await finalizeSession(user);
       // Nhánh này chỉ chạy khi trang vừa load đã có sẵn session (Google OAuth quay về
       // hoặc mở login.html khi đã đăng nhập) → chuyển thẳng vào trang chủ, tránh màn hình
