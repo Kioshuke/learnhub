@@ -1,10 +1,10 @@
 :root {
   --cc-accent: #2563eb;
-  --cc-bg: rgba(255, 255, 255, 0.74);
+  --cc-bg: rgba(255, 255, 255, 0.56);
   --cc-bg-solid: #f8faff;
   --cc-border: rgba(255, 255, 255, 0.38);
   --cc-shadow: 0 24px 60px rgba(15, 23, 42, 0.28), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-  --cc-rail: rgba(255, 255, 255, 0.55);
+  --cc-rail: rgba(255, 255, 255, 0.36);
   --cc-row: rgba(255, 255, 255, 0.6);
   --cc-soft: rgba(37, 99, 235, 0.08);
   --cc-track: rgba(15, 23, 42, 0.12);
@@ -12,11 +12,11 @@
 
 body.dark-mode {
   --cc-accent: #3b82f6;
-  --cc-bg: rgba(15, 23, 42, 0.82);
+  --cc-bg: rgba(15, 23, 42, 0.72);
   --cc-bg-solid: #0f172a;
   --cc-border: rgba(148, 163, 184, 0.2);
   --cc-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-  --cc-rail: rgba(30, 41, 59, 0.5);
+  --cc-rail: rgba(30, 41, 59, 0.34);
   --cc-row: rgba(148, 163, 184, 0.09);
   --cc-soft: rgba(59, 130, 246, 0.16);
   --cc-track: rgba(148, 163, 184, 0.22);
@@ -33,8 +33,8 @@ body.dark-mode {
   border-radius: 24px;
   overflow: hidden;
   background: var(--cc-bg);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(26px) saturate(160%);
+  backdrop-filter: blur(26px) saturate(160%);
   border: 1px solid var(--cc-border);
   box-shadow: var(--cc-shadow);
   color: var(--text-main);
@@ -44,6 +44,7 @@ body.dark-mode {
 }
 
 body.cc-glass-off #userPopup,
+body.cc-glass-off .cc-rail,
 body.cc-glass-off .cc-focus-widget,
 body.cc-glass-off .cc-focus-pill,
 body.cc-glass-off .cc-logout-overlay,
@@ -67,6 +68,21 @@ body.cc-glass-off {
   display: none;
 }
 
+/* Lớp nền che header khi mở popup user — header nằm dưới, không bấm được */
+.cc-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2900;
+  background: rgba(15, 23, 42, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.cc-overlay.cc-overlay-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 #userPopup * {
   box-sizing: border-box;
 }
@@ -78,6 +94,7 @@ body.cc-glass-off {
 
 .cc-rail {
   position: relative;
+  z-index: 30;
   flex: none;
   width: 64px;
   display: flex;
@@ -86,6 +103,8 @@ body.cc-glass-off {
   padding: 14px 0 10px;
   gap: 6px;
   background: var(--cc-rail);
+  -webkit-backdrop-filter: blur(26px) saturate(160%);
+  backdrop-filter: blur(26px) saturate(160%);
   border-right: 1px solid var(--cc-border);
 }
 
@@ -696,6 +715,11 @@ body.cc-glass-off {
 .cc-track-eq span:nth-child(2) { animation-delay: 0.2s; }
 .cc-track-eq span:nth-child(3) { animation-delay: 0.4s; }
 
+/* Bật "Giảm chuyển động" trong popup user thì tắt equalizer */
+body.cc-reduced .cc-track-eq span {
+  animation: none !important;
+}
+
 @keyframes ccEq {
   0%, 100% { height: 4px; }
   50% { height: 14px; }
@@ -1127,13 +1151,6 @@ body.cc-glass-off {
 .cc-logout-btns .cc-btn-ghost,
 .cc-logout-btns .cc-btn-danger {
   flex: 1;
-}
-
-body.cc-no-anim *,
-body.cc-no-anim *::before,
-body.cc-no-anim *::after {
-  animation: none !important;
-  transition-duration: 0.01ms !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

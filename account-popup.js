@@ -1,7 +1,6 @@
 (function () {
   const STORE_KEYS = {
     glass: "cc_glass",
-    anim: "cc_anim",
     reduce: "cc_reduce",
     accent: "cc_accent",
     volume: "cc_volume",
@@ -19,7 +18,6 @@
 
   const prefs = {
     glass: localStorage.getItem(STORE_KEYS.glass) !== "off",
-    anim: localStorage.getItem(STORE_KEYS.anim) !== "off" && !prefersReduced,
     reduce: loadReducePref(),
     accent: localStorage.getItem(STORE_KEYS.accent)
   };
@@ -66,7 +64,6 @@
 
   function applyPrefs() {
     document.body.classList.toggle("cc-glass-off", !prefs.glass);
-    document.body.classList.toggle("cc-no-anim", !prefs.anim);
     document.body.classList.toggle("cc-reduced", prefs.reduce);
     if (prefs.accent) {
       document.body.style.setProperty("--cc-accent", prefs.accent);
@@ -74,10 +71,8 @@
       document.body.style.removeProperty("--cc-accent");
     }
     const glass = document.getElementById("ccGlassToggle");
-    const anim = document.getElementById("ccAnimToggle");
     const reduce = document.getElementById("ccReduceToggle");
     if (glass) glass.checked = prefs.glass;
-    if (anim) anim.checked = prefs.anim;
     if (reduce) reduce.checked = prefs.reduce;
     buildAccentRow();
   }
@@ -155,13 +150,11 @@
     const current = bodyEl ? bodyEl.querySelector(".cc-pane-active") : null;
     if (current === target) return;
 
-    if (prefs.anim && current) {
+    if (current) {
       current.classList.add("cc-leave");
       setTimeout(function () {
         current.classList.remove("cc-pane-active", "cc-leave");
       }, 300);
-    } else if (current) {
-      current.classList.remove("cc-pane-active");
     }
     target.classList.add("cc-pane-active");
     setNavActive(name);
@@ -185,14 +178,6 @@
         document.body.classList.toggle("cc-glass-off", !prefs.glass);
       });
     }
-    const anim = document.getElementById("ccAnimToggle");
-    if (anim) {
-      anim.addEventListener("change", function () {
-        prefs.anim = anim.checked;
-        localStorage.setItem(STORE_KEYS.anim, prefs.anim ? "on" : "off");
-        document.body.classList.toggle("cc-no-anim", !prefs.anim);
-      });
-    }
     const reduce = document.getElementById("ccReduceToggle");
     if (reduce) {
       reduce.addEventListener("change", function () {
@@ -205,8 +190,19 @@
 
   if (popup && "MutationObserver" in window) {
     new MutationObserver(function () {
-      if (popup.style.display !== "none") placePill();
+      const open = popup.style.display !== "none";
+      if (open) placePill();
+      const ov = document.getElementById("ccOverlay");
+      if (ov) ov.classList.toggle("cc-overlay-open", open);
     }).observe(popup, { attributes: true, attributeFilter: ["style"] });
+  }
+
+  const ccOverlayEl = document.getElementById("ccOverlay");
+  if (ccOverlayEl) {
+    ccOverlayEl.addEventListener("click", function () {
+      if (popup) popup.style.display = "none";
+      ccOverlayEl.classList.remove("cc-overlay-open");
+    });
   }
 
   window.addEventListener("resize", function () {

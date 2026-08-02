@@ -494,12 +494,46 @@ function playNotificationSound(soundId = "thongbaoSound"){
 
   // Reset audio to start
   audio.currentTime = 0;
-  
+  audio.muted = false;
+
   // Play with error handling for autoplay restrictions
   audio.play().catch(() => {
     // Nếu trình duyệt chặn tự động phát, bỏ qua (không cần thông báo lỗi)
   });
 }
+
+// Mở khoá autoplay sau lần tương tác đầu tiên của người dùng.
+// Không có bước này, thông báo realtime đến mà chưa bấm gì sẽ bị trình duyệt chặn tiếng.
+(function unlockAudio(){
+  const ids = ["realtimeSound", "thongbaoSound", "openpopup", "offtest"];
+  function tryUnlock(){
+    let ok = false;
+    ids.forEach(function(id){
+      const a = document.getElementById(id);
+      if(!a) return;
+      a.muted = false;
+      a.volume = 1;
+      try {
+        const p = a.play();
+        if(p && p.then){
+          p.then(function(){
+            ok = true;
+            a.pause();
+            a.currentTime = 0;
+          }).catch(function(){});
+        }
+      } catch(e) {}
+    });
+    if(ok){
+      document.removeEventListener("click", tryUnlock);
+      document.removeEventListener("touchstart", tryUnlock);
+      document.removeEventListener("keydown", tryUnlock);
+    }
+  }
+  document.addEventListener("click", tryUnlock);
+  document.addEventListener("touchstart", tryUnlock);
+  document.addEventListener("keydown", tryUnlock);
+})();
 
 function showAuthNotice(message, type = "info", title = "", durationMs = 2600, soundId = "thongbaoSound"){
   const notice = document.getElementById("authNotice");
@@ -613,11 +647,10 @@ function toggleUserPopup(){
 let pop = document.getElementById("userPopup");
 if(!pop) return;
 
-if(getComputedStyle(pop).display === "none"){
-pop.style.display = "block";
-} else {
-pop.style.display = "none";
-}
+const willOpen = getComputedStyle(pop).display === "none";
+pop.style.display = willOpen ? "block" : "none";
+const ov = document.getElementById("ccOverlay");
+if(ov) ov.classList.toggle("cc-overlay-open", willOpen);
 }
 function updateProgress(percent){
   const fill = document.getElementById("progressFill");

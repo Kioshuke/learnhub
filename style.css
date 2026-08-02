@@ -3718,8 +3718,7 @@ body.cc-reduced .online-pulse,
 body.cc-reduced .hubie-avatar,
 body.cc-reduced .hubie-feat-icon,
 body.cc-reduced .skel-bar,
-body.cc-reduced [class*="skel-"],
-body.cc-reduced .cc-track-eq span {
+body.cc-reduced [class*="skel-"] {
   animation: none !important;
 }
 
