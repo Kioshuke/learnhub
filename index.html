@@ -1265,37 +1265,104 @@ fetch('footer.html').then(r => r.text()).then(html => {
 <iframe id="chatbotFrame" src="AI.html" style="
     display: none;
     position: fixed;
-    bottom: 95px; /* Nằm ngay trên nút chat 65px + cách ra một chút */
-    left: 20px; /* Căn lề trái bằng với nút chat */
+    bottom: 95px;
+    left: 20px;
     width: 90%;
-    max-width: 380px; /* Độ rộng vừa vặn, nhỏ gọn như ảnh mẫu */
+    max-width: 380px;
     height: 70vh;
-    max-height: 520px; /* Chiều cao lý tưởng của popup góc */
+    max-height: 520px;
     border: none;
-    border-radius: 16px; /* Bo góc tròn mịn */
+    border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     z-index: 9999;
     background: white;
     overflow: hidden;
 " loading="lazy"></iframe>
 
-<div id="chatButton" style="
+<iframe id="traTuFrame" src="tra-tu.html" style="
+    display: none;
+    position: fixed;
+    bottom: 95px;
+    left: 20px;
+    width: 90%;
+    max-width: 380px;
+    height: 70vh;
+    max-height: 520px;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    background: white;
+    overflow: hidden;
+" loading="lazy"></iframe>
+
+<!-- BONG BÓNG CON TRỢ NĂNG -->
+<div id="traTuBubble" onclick="openTraTu()" style="
+    display: none;
+    position: fixed;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 2px solid rgba(8, 145, 178, 0.9);
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.16);
+    left: 20px;
+    bottom: 85px;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center center;
+    transition: transform 0.2s, opacity 0.2s;
+">
+  <i class="fas fa-book" style="color: #0891b2; font-size: 20px; pointer-events: none;"></i>
+</div>
+
+<div id="chatbotBubble" onclick="openChatbot()" style="
+    display: none;
+    position: fixed;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 2px solid rgba(124, 62, 237, 0.9);
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.16);
+    left: 20px;
+    bottom: 85px;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center center;
+    transition: transform 0.2s, opacity 0.2s;
+">
+  <img src="pictures/chatboiavt.png" alt="Chatbot" style="width:50px;height:50px;pointer-events:none;border-radius:50%;">
+</div>
+
+<!-- NÚT TRỢ NĂNG CHÍNH -->
+<div id="accessibilityButton" style="
   position: fixed;
-  width: 65px;
-  height: 65px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(8, 145, 178, 0.9);
   cursor: grab;
   z-index: 9999;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
   left: 20px;
   bottom: 20px;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
   will-change: transform;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 ">
-  <img src="pictures/chatboiavt.png" style="width:100%; height:100%; object-fit:cover; pointer-events: none;" loading="lazy" width="65" height="65">
+  <i class="fas fa-universal-access" id="accessibilityIcon" style="color: #0891b2; font-size: 24px; pointer-events: none;"></i>
+  <i class="fas fa-times" id="closeIcon" style="color: #ef4444; font-size: 24px; pointer-events: none; display: none;"></i>
 </div>
 <!-- LEADERBOARD FULL MODAL -->
 <div id="lb-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[2000] flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">

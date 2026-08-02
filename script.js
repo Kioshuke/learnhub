@@ -759,6 +759,16 @@ document.addEventListener('click', function(e) {
     
     // Nút mở Popup Avatar
     if (target.closest('.avatar-box')) playSound("openpopup");
+
+    // Nếu click ngoài nút trợ năng và ngoài bong bóng trợ năng, tắt bong bóng
+    const isClickOnAccessibility = target.closest('#accessibilityButton');
+    const isClickOnBubble = target.closest('#traTuBubble') || target.closest('#chatbotBubble');
+    if (!isClickOnAccessibility && !isClickOnBubble) {
+      if (traTuBubble) traTuBubble.style.display = 'none';
+      if (chatbotBubble) chatbotBubble.style.display = 'none';
+      if (accessibilityIcon) accessibilityIcon.style.display = 'block';
+      if (closeIcon) closeIcon.style.display = 'none';
+    }
 });
 
 // Nghe sự kiện Supabase realtime (forum_events) — Chặn tiếng kêu lúc mới load
@@ -786,9 +796,83 @@ if (typeof window.supabaseClient !== 'undefined') {
   document.addEventListener('DOMContentLoaded', _bindEvt);
   _bindEvt();
 }
-const chatBtn = document.getElementById("chatButton");
-const frame = document.getElementById("chatbotFrame");
-const overlay = document.getElementById("chatOverlay");
+let chatBtn, frame, traTuFrame, traTuBubble, chatbotBubble, accessibilityIcon, closeIcon, overlay;
+
+function injectBubbleStyles() {
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes bubbleBounce {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.18); }
+      100% { transform: scale(1); }
+    }
+    .bubble-bounce {
+      animation: bubbleBounce 0.32s ease-out;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function bounceBubble(el) {
+  if (!el) return;
+  el.classList.remove('bubble-bounce');
+  void el.offsetWidth;
+  el.classList.add('bubble-bounce');
+}
+
+function initAccessibilityButton() {
+  injectBubbleStyles();
+  chatBtn = document.getElementById("accessibilityButton");
+  frame = document.getElementById("chatbotFrame");
+  traTuFrame = document.getElementById("traTuFrame");
+  traTuBubble = document.getElementById("traTuBubble");
+  chatbotBubble = document.getElementById("chatbotBubble");
+  accessibilityIcon = document.getElementById("accessibilityIcon");
+  closeIcon = document.getElementById("closeIcon");
+  overlay = document.getElementById("chatOverlay");
+
+  if (!chatBtn) return;
+
+  chatBtn.addEventListener("click", () => {
+    if (hasMoved) return;
+
+    // Toggle bubbles
+    const isBubblesHidden = !traTuBubble || traTuBubble.style.display === "none" || traTuBubble.style.display === "";
+
+    if (traTuBubble) {
+      traTuBubble.style.display = isBubblesHidden ? "flex" : "none";
+    }
+    if (chatbotBubble) {
+      chatbotBubble.style.display = isBubblesHidden ? "flex" : "none";
+    }
+
+    // Toggle icon
+    if (accessibilityIcon) accessibilityIcon.style.display = isBubblesHidden ? "none" : "block";
+    if (closeIcon) closeIcon.style.display = isBubblesHidden ? "block" : "none";
+
+    // Đóng các iframe đang mở
+    if (frame) frame.style.display = "none";
+    if (traTuFrame) traTuFrame.style.display = "none";
+    if (overlay) overlay.style.display = "none";
+
+    // Cập nhật vị trí bubbles theo nút chính
+    if (traTuBubble && chatbotBubble) {
+      updateBubblePositions();
+      if (isBubblesHidden) {
+        bounceBubble(traTuBubble);
+        bounceBubble(chatbotBubble);
+      }
+    }
+  });
+
+  chatBtn.addEventListener("pointerdown", dragStart);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAccessibilityButton);
+} else {
+  initAccessibilityButton();
+}
 
 let isDragging = false;
 let startX, startY;
@@ -801,7 +885,6 @@ let hasMoved = false;
 // Tối ưu hóa bằng requestAnimationFrame
 let rafId = null;
 
-chatBtn.addEventListener("pointerdown", dragStart);
 document.addEventListener("pointermove", drag);
 document.addEventListener("pointerup", dragEnd);
 
@@ -848,51 +931,83 @@ function updatePosition() {
 
 function dragEnd() {
   if (!isDragging) return;
-  
+
   isDragging = false;
   chatBtn.style.cursor = "grab";
-  
+
   // Hiệu ứng "hít" vào cạnh gần nhất (trái hoặc phải)
   chatBtn.style.transition = "transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28)";
-  
+
   const rect = chatBtn.getBoundingClientRect();
   const middle = window.innerWidth / 2;
-  
+
   if (rect.left + rect.width / 2 > middle) {
     // Hít lề phải
-    xOffset = window.innerWidth - rect.width - 40; 
+    xOffset = window.innerWidth - rect.width - 40;
   } else {
     // Hít lề trái
-    xOffset = 0; 
+    xOffset = 0;
   }
-  
+
   updatePosition();
+
+  // Cập nhật vị trí bubbles sau khi kéo thả
+  setTimeout(updateBubblePositions, 400);
 }
 
-chatBtn.addEventListener("click", () => {
-  if (hasMoved) return;
 
-  const isHidden = frame.style.display === "none";
-  frame.style.display = isHidden ? "block" : "none";
-  overlay.style.display = isHidden ? "block" : "none";
+function updateBubblePositions() {
+  const btnRect = chatBtn.getBoundingClientRect();
+  const margin = 12; // Khoảng cách giữa nút chính và bong bóng đầu tiên
+  const bubbleGap = 60; // Khoảng cách giữa hai bong bóng
 
-  if (isHidden) {
-    // Gửi thông tin user (giữ nguyên logic của bạn)
-    const nameEl = document.getElementById("userName");
-    const avatarEl = document.getElementById("userAvatar");
-    let name = nameEl ? nameEl.innerText : "Bạn học";
-    const avatar = avatarEl ? avatarEl.src : "https://i.imgur.com/6VBx3io.png";
+  const baseBottom = window.innerHeight - btnRect.top + margin;
+  const centerLeft = btnRect.left + (btnRect.width - 48) / 2;
 
-    frame.contentWindow.postMessage({
-      type: "USER_INFO",
-      name: name,
-      avatar: avatar
-    }, "*");
-  }
-});
+  traTuBubble.style.left = centerLeft + "px";
+  traTuBubble.style.bottom = (baseBottom + 0) + "px";
+
+  chatbotBubble.style.left = centerLeft + "px";
+  chatbotBubble.style.bottom = (baseBottom + bubbleGap) + "px";
+}
+
+window.openTraTu = function() {
+  traTuBubble.style.display = "none";
+  chatbotBubble.style.display = "none";
+  accessibilityIcon.style.display = "block";
+  closeIcon.style.display = "none";
+  traTuFrame.style.display = "block";
+  overlay.style.display = "block";
+};
+
+window.openChatbot = function() {
+  traTuBubble.style.display = "none";
+  chatbotBubble.style.display = "none";
+  accessibilityIcon.style.display = "block";
+  closeIcon.style.display = "none";
+  frame.style.display = "block";
+  overlay.style.display = "block";
+
+  // Gửi thông tin user
+  const nameEl = document.getElementById("userName");
+  const avatarEl = document.getElementById("userAvatar");
+  let name = nameEl ? nameEl.innerText : "Bạn học";
+  const avatar = avatarEl ? avatarEl.src : "https://i.imgur.com/6VBx3io.png";
+
+  frame.contentWindow.postMessage({
+    type: "USER_INFO",
+    name: name,
+    avatar: avatar
+  }, "*");
+};
 
 overlay.addEventListener("click", () => {
   frame.style.display = "none";
+  traTuFrame.style.display = "none";
+  traTuBubble.style.display = "none";
+  chatbotBubble.style.display = "none";
+  accessibilityIcon.style.display = "block";
+  closeIcon.style.display = "none";
   overlay.style.display = "none";
   document.body.classList.remove("no-scroll");
 });
