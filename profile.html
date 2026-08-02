@@ -35,29 +35,146 @@
     </script>
     
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f6f8ff;
+        :root {
+            --bg-main: #f6f8ff;
+            --bg-pattern: #d6dcff;
+            --text-main: #111827;
+            --text-sub: #6b7280;
+            --card-bg: linear-gradient(135deg, #ffffff, #f3f6ff);
+            --card-border: rgba(226,232,240,0.7);
+            --card-shadow: 0 8px 24px rgba(2,12,27,0.07);
+            --blue-accent: #2563eb;
+            --popup-bg: rgba(255,255,255,0.88);
+            --footer-border: #e2e8f0;
+            --input-bg: #f8fafc;
+            --tint-blue: rgba(37,99,235,0.08);
+            --tint-green: rgba(16,185,129,0.10);
+            --tint-violet: rgba(139,92,246,0.10);
+            --tint-amber: rgba(245,158,11,0.12);
         }
-        /* Glassmorphism Effect */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+        body.dark-mode {
+            --bg-main: #0f172a;
+            --bg-pattern: #1e293b;
+            --text-main: #f1f5f9;
+            --text-sub: #cbd5f5;
+            --card-bg: linear-gradient(135deg, #1e293b, #0f172a);
+            --card-border: rgba(51,65,85,0.6);
+            --card-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            --blue-accent: #3b82f6;
+            --popup-bg: rgba(30,41,59,0.92);
+            --footer-border: #334155;
+            --input-bg: #1e293b;
+            --tint-blue: rgba(59,130,246,0.16);
+            --tint-green: rgba(52,211,153,0.14);
+            --tint-violet: rgba(167,139,250,0.16);
+            --tint-amber: rgba(251,191,36,0.14);
         }
-        /* Ẩn hoàn toàn thanh cuộn */
-        ::-webkit-scrollbar {
+        html, body {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar {
             display: none;
         }
-        * {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            color: var(--text-main);
+            background-color: var(--bg-main);
+            background-image: radial-gradient(var(--bg-pattern) 1.2px, transparent 1.2px);
+            background-size: 28px 28px;
+            overflow-x: hidden;
+            transition: background-color .3s ease, color .3s ease;
         }
-        
-        /* ===== SKELETON LOADING ANIMATION ===== */
+
+        /* ===== HEADER (đồng bộ vibe web chính) ===== */
+        .lh-header {
+            position: relative;
+            background: linear-gradient(135deg, rgb(30,90,200), rgb(58,134,255), rgb(120,100,255));
+            background-size: 300% 300%;
+            border-radius: 22px;
+            box-shadow: 0 10px 30px rgba(2,12,27,0.18);
+            animation: lhHeaderFlow 10s ease infinite;
+        }
+        @keyframes lhHeaderFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .lh-header-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all .2s ease;
+        }
+        .lh-header-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        /* ===== CARDS ===== */
+        .lh-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 22px;
+            box-shadow: var(--card-shadow);
+            transition: background .3s ease, border-color .3s ease, transform .2s ease, box-shadow .2s ease;
+        }
+        .lh-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(2,12,27,0.10);
+        }
+        body.dark-mode .lh-card:hover {
+            box-shadow: 0 14px 30px rgba(0,0,0,0.35);
+        }
+        .lh-tile-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .lh-stat {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(2,12,27,0.04);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .lh-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(2,12,27,0.08);
+        }
+        .lh-frame-box {
+            background: rgba(255,255,255,0.55);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        body.dark-mode .lh-frame-box {
+            background: rgba(15,23,42,0.45);
+        }
+        .lh-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(16,185,129,0.12);
+            color: #059669;
+        }
+        body.dark-mode .lh-status-badge {
+            background: rgba(16,185,129,0.15);
+            color: #34d399;
+        }
+
+        /* ===== SKELETON LOADING ===== */
         .skeleton {
-            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background: linear-gradient(90deg, rgba(148,163,184,0.25) 25%, rgba(148,163,184,0.45) 50%, rgba(148,163,184,0.25) 75%);
             background-size: 200% 100%;
             animation: skeleton-loading 1.5s infinite;
         }
@@ -65,25 +182,8 @@
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
-        
-        /* ===== BADGE SYSTEM ===== */
-        .badge-item {
-            filter: grayscale(100%);
-            opacity: 0.4;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .badge-item.earned {
-            filter: grayscale(0%);
-            opacity: 1;
-            background: rgba(239, 246, 255, 0.6);
-            border-color: rgba(147, 197, 253, 0.5);
-        }
-        .badge-item.earned:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.12);
-        }
 
-        /* ===== TOAST TIMELINE ANIMATION ===== */
+        /* ===== TOAST ===== */
         @keyframes shrinkWidth {
             from { width: 100%; }
             to { width: 0%; }
@@ -91,163 +191,277 @@
         .toast-timeline {
             animation: shrinkWidth 5s linear forwards;
         }
+
+        /* ===== MODAL ===== */
+        .lh-modal-overlay {
+            background: rgba(2,12,27,0.5);
+            backdrop-filter: blur(6px);
+        }
+        .lh-modal-box {
+            background: var(--popup-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            box-shadow: 0 24px 60px rgba(2,12,27,0.25);
+            transition: background .3s ease, border-color .3s ease;
+        }
+        .lh-input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            font-size: 13px;
+            padding: 7px 10px;
+            color: var(--text-main);
+            outline: none;
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
+        .lh-input:focus {
+            border-color: var(--blue-accent);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        }
+        .lh-input::placeholder {
+            color: rgba(148,163,184,0.8);
+        }
+        .lh-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-bottom: 4px;
+            color: var(--text-sub);
+        }
+        .lh-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            border-radius: 10px;
+            padding: 9px 12px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all .18s ease;
+        }
+        .lh-btn-ghost {
+            background: rgba(148,163,184,0.14);
+            color: var(--text-sub);
+        }
+        .lh-btn-ghost:hover {
+            background: rgba(148,163,184,0.22);
+            color: var(--text-main);
+        }
+        .lh-btn-primary {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(37,99,235,0.25);
+        }
+        .lh-btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(37,99,235,0.35);
+        }
+        body.dark-mode .lh-btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+        .lh-tabs {
+            display: flex;
+            gap: 4px;
+            background: rgba(148,163,184,0.14);
+            padding: 4px;
+            border-radius: 10px;
+        }
+        .lh-tab {
+            flex: 1;
+            padding: 7px 0;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-sub);
+            background: transparent;
+            cursor: pointer;
+            transition: all .18s ease;
+        }
+        .lh-tab.lh-tab-active {
+            background: var(--popup-bg);
+            color: var(--blue-accent);
+            box-shadow: 0 2px 6px rgba(2,12,27,0.08);
+        }
+        body.dark-mode select.lh-input option {
+            background: #1e293b;
+            color: #f1f5f9;
+        }
+
+        /* ===== DARK MODE tweaks cho nội dung render động ===== */
+        body.dark-mode #users-grid img { border-color: #334155; }
+        body.dark-mode #users-grid span { color: #cbd5f5; }
+        body.dark-mode #users-grid [class*="border-blue-200"] {
+            border-color: rgba(59,130,246,0.4);
+            background: rgba(59,130,246,0.08);
+        }
+        body.dark-mode #profile-role-badge {
+            background: rgba(15,23,42,0.4);
+        }
     </style>
 </head>
-<body class="bg-lh-bg text-lh-text min-h-screen flex justify-center items-start">
+<body class="min-h-screen">
 
-    <div class="w-full max-w-none bg-white/70 overflow-hidden flex flex-col glass-card">
-        
-        <div class="px-3 sm:px-6 py-4 grid grid-cols-[minmax(32px,auto)_1fr_minmax(32px,auto)] items-center gap-2" style="background-color: #2563eb;">
-            <button onclick="history.back()" class="flex items-center gap-1.5 text-sm font-semibold text-white/90 hover:text-white transition-colors justify-self-start">
-                <i class="fas fa-arrow-left text-xs"></i> <span class="hidden sm:inline">Quay lại</span>
-            </button>
-            <h1 class="text-lg sm:text-2xl font-bold text-white tracking-tight text-center truncate">
-                LearnHub - Hồ Sơ Người Dùng
-            </h1>
-            <button onclick="openSettingsModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-white/90 hover:bg-white/15 hover:text-white transition-all justify-self-end">
-                <i class="fas fa-cog text-base"></i>
-            </button>
+<script>
+    window.addEventListener("DOMContentLoaded", function () {
+        if (localStorage.getItem("darkMode") === "on") document.body.classList.add("dark-mode");
+    });
+</script>
+
+<div class="w-full max-w-[1150px] mx-auto px-4 sm:px-6 py-5 sm:py-7 flex flex-col gap-5">
+
+    <!-- HEADER -->
+    <div class="lh-header flex items-center justify-between gap-3 px-4 sm:px-6 py-4">
+        <button onclick="history.back()" class="lh-header-btn text-sm font-semibold text-white/90 hover:text-white">
+            <i class="fas fa-arrow-left text-xs"></i> <span class="hidden sm:inline">Quay lại</span>
+        </button>
+        <div class="flex items-center gap-3 min-w-0">
+            <img src="pictures/favicon.png" alt="LearnHub" class="w-10 h-10 rounded-xl shadow-md bg-white object-contain">
+            <div class="min-w-0">
+                <h1 class="text-base sm:text-xl font-extrabold text-white tracking-tight leading-tight truncate">Hồ Sơ Học Viên</h1>
+                <p class="text-[11px] sm:text-xs text-white/75 font-medium truncate">LearnHub Platform · Hệ sinh thái học tập</p>
+            </div>
+        </div>
+        <button onclick="openSettingsModal()" class="lh-header-btn w-9 h-9 rounded-full items-center justify-center text-white/90 hover:bg-white/15 hover:text-white">
+            <i class="fas fa-cog text-base"></i>
+        </button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+
+        <!-- LEFT COLUMN -->
+        <div class="space-y-5">
+
+            <!-- PROFILE DETAIL -->
+            <section id="user-profile-section" class="lh-card p-5 sm:p-6 space-y-4">
+                <h3 class="text-[11px] font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+                    <span class="lh-tile-icon" style="background:var(--tint-blue);color:var(--blue-accent)"><i class="fas fa-id-card"></i></span> Hồ Sơ Chi Tiết
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 items-center">
+                    <div class="flex flex-col items-center sm:items-start text-center sm:text-left gap-3">
+                        <div class="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-white shadow-lg bg-gray-100 flex-shrink-0">
+                            <img id="profile-avatar-display" src="https://lh3.googleusercontent.com/a/default-user=s120-c" alt="Avatar" class="w-full h-full object-cover">
+                        </div>
+                        <div class="space-y-1.5 w-full">
+                            <h2 id="profile-name-display" class="text-xl font-bold tracking-tight" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:130px;height:1.1em;vertical-align:middle;">&nbsp;</span></h2>
+                            <p id="profile-bio-display" class="text-xs font-semibold italic" style="color:var(--text-sub)"><span class="skeleton inline-block rounded" style="width:180px;height:0.9em;vertical-align:middle;">&nbsp;</span></p>
+                            <div>
+                                <span id="profile-role-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-gray-50 text-gray-600 border border-gray-200">
+                                    <span id="profile-role-dot" class="w-2 h-2 rounded-full bg-gray-500 animate-pulse"></span> <span id="profile-role-display"><span class="skeleton inline-block rounded" style="width:60px;height:0.9em;vertical-align:middle;">&nbsp;</span></span>
+                                </span>
+                            </div>
+                            <div class="text-sm font-medium space-y-1 pt-2 border-t" style="color:var(--text-sub);border-color:var(--card-border)">
+                                <p class="flex items-center justify-center sm:justify-start gap-1.5">
+                                    <i class="fas fa-envelope text-xs w-4 text-center" style="color:var(--text-sub)"></i><span id="profile-email-display"><span class="skeleton inline-block rounded" style="width:150px;height:0.9em;vertical-align:middle;">&nbsp;</span></span>
+                                </p>
+                                <p class="flex items-center justify-center sm:justify-start gap-1.5">
+                                    <i class="fas fa-phone text-xs w-4 text-center" style="color:var(--text-sub)"></i><span id="profile-phone-display"><span class="skeleton inline-block rounded" style="width:100px;height:0.9em;vertical-align:middle;">&nbsp;</span></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2.5 text-sm font-medium sm:border-l sm:border-gray-200/80 sm:pl-5" style="color:var(--text-sub)">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-birthday-cake text-blue-500 w-4 text-center"></i>
+                            <span>Ngày sinh: <span id="profile-birth-display" class="font-semibold" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:80px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-venus-mars text-indigo-500 w-4 text-center"></i>
+                            <span>Giới tính: <span id="profile-gender-display" class="font-semibold" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:60px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-school text-emerald-500 w-4 mt-0.5 text-center"></i>
+                            <span>Trường: <span id="profile-school-display" class="font-semibold" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:100px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-clock text-cyan-500 w-4 text-center"></i>
+                            <span>Thời gian online tuần: <span id="profile-online-display" class="font-semibold text-cyan-500"><span class="skeleton inline-block rounded" style="width:80px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STATS -->
+            <section class="lh-card p-5 sm:p-6 space-y-4">
+                <h3 class="text-[11px] font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+                    <span class="lh-tile-icon" style="background:var(--tint-amber);color:#f59e0b"><i class="fas fa-chart-bar"></i></span> Thống kê hiệu suất tuần này
+                </h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="lh-stat p-4 flex flex-col justify-between min-h-[84px]">
+                        <span class="text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-sub)">📚 Bài Đã Làm</span>
+                        <span id="stat-total-tests" class="text-xl font-extrabold mt-1" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:30px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                    </div>
+                    <div class="lh-stat p-4 flex flex-col justify-between min-h-[84px]">
+                        <span class="text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-sub)">🎯 Tổng Điểm</span>
+                        <span id="stat-total-score" class="text-xl font-extrabold mt-1" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                    </div>
+                    <div class="lh-stat p-4 flex flex-col justify-between min-h-[84px]">
+                        <span class="text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-sub)">📈 Điểm Trung Bình</span>
+                        <span id="stat-avg-score" class="text-xl font-extrabold mt-1" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                    </div>
+                    <div class="lh-stat p-4 flex flex-col justify-between min-h-[84px]">
+                        <span class="text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-sub)">🏆 Điểm Cao Nhất</span>
+                        <span id="stat-best-score" class="text-xl font-extrabold mt-1" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                    </div>
+                </div>
+            </section>
         </div>
 
-        <div class="p-4 sm:p-6 space-y-6">
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                
-                <div class="space-y-6">
-                    <div id="user-profile-section" class="bg-violet-100/70 border border-violet-200 p-5 rounded-xl space-y-4 shadow-sm">
-                        <h3 class="text-xs font-bold uppercase tracking-widest text-lh-textSub flex items-center gap-1.5">
-                            <i class="fas fa-id-card text-xs"></i> Hồ Sơ Chi Tiết
-                        </h3>
+        <!-- RIGHT COLUMN -->
+        <div class="space-y-5">
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 items-center bg-white p-4 rounded-xl border border-gray-100">
-                            
-                            <div class="flex flex-col items-center sm:items-start text-center sm:text-left space-y-2">
-                                <div class="relative w-20 h-20 rounded-full overflow-hidden border-2 border-white shadow-md bg-gray-100 flex-shrink-0">
-                                    <img id="profile-avatar-display" src="https://lh3.googleusercontent.com/a/default-user=s120-c" alt="Google Avatar" class="w-full h-full object-cover">
-                                </div>
-                                <div class="space-y-1 w-full">
-                                    <h2 id="profile-name-display" class="text-xl font-bold tracking-tight text-gray-900"><span class="skeleton inline-block rounded" style="width:130px;height:1.1em;vertical-align:middle;">&nbsp;</span></h2>
-                                    <p id="profile-bio-display" class="text-xs text-lh-textSub font-semibold italic"><span class="skeleton inline-block rounded" style="width:180px;height:0.9em;vertical-align:middle;">&nbsp;</span></p>
-                                    <div>
-                                        <span id="profile-role-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-gray-50 text-gray-600 border border-gray-200">
-                                            <span id="profile-role-dot" class="w-2 h-2 rounded-full bg-gray-500 animate-pulse"></span> <span id="profile-role-display"><span class="skeleton inline-block rounded" style="width:60px;height:0.9em;vertical-align:middle;">&nbsp;</span></span>
-                                        </span>
-                                    </div>
-                                    
-                                    <div class="text-sm text-lh-textSub font-medium space-y-1 pt-1 border-t border-gray-100 sm:border-0">
-                                        <p class="flex items-center justify-center sm:justify-start gap-1.5">
-                                            <i class="fas fa-envelope text-xs text-gray-400 w-4 text-center"></i><span id="profile-email-display"><span class="skeleton inline-block rounded" style="width:150px;height:0.9em;vertical-align:middle;">&nbsp;</span></span>
-                                        </p>
-                                        <p class="flex items-center justify-center sm:justify-start gap-1.5">
-                                            <i class="fas fa-phone text-xs text-gray-400 w-4 text-center"></i><span id="profile-phone-display"><span class="skeleton inline-block rounded" style="width:100px;height:0.9em;vertical-align:middle;">&nbsp;</span></span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="space-y-2.5 text-sm text-gray-700 font-medium border-t sm:border-t-0 sm:border-l border-gray-200/80 pt-4 sm:pt-0 sm:pl-5 flex flex-col justify-center">
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-birthday-cake text-blue-500 w-4 text-center"></i>
-                                    <span>Ngày sinh: <span id="profile-birth-display" class="font-semibold text-gray-900"><span class="skeleton inline-block rounded" style="width:80px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-venus-mars text-indigo-500 w-4 text-center"></i>
-                                    <span>Giới tính: <span id="profile-gender-display" class="font-semibold text-gray-900"><span class="skeleton inline-block rounded" style="width:60px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
-                                </div>
-                                <div class="flex items-start gap-2">
-                                    <i class="fas fa-school text-emerald-500 w-4 mt-0.5 text-center"></i>
-                                    <span>Trường: <span id="profile-school-display" class="font-semibold text-gray-900"><span class="skeleton inline-block rounded" style="width:100px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-clock text-cyan-500 w-4 text-center"></i>
-                                    <span>Thời gian online tuần: <span id="profile-online-display" class="font-semibold text-cyan-600"><span class="skeleton inline-block rounded" style="width:80px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
-                                </div>
-                            </div>
-
-                        </div>
-
-
-                    </div>
-
-                    <div class="space-y-3 bg-blue-100/70 border border-blue-200 rounded-xl p-4 shadow-sm">
-                        <h3 class="text-xs font-bold uppercase tracking-widest text-lh-textSub flex items-center gap-1.5">
-                            <i class="fas fa-chart-bar text-xs"></i> Thống kê hiệu suất (Tính theo thang điểm 10) của tuần này
-                        </h3>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="p-4 bg-white rounded-xl border border-gray-100 flex flex-col justify-between min-h-[72px]">
-                                <span class="text-[10px] font-bold text-lh-textSub uppercase tracking-wider">📚 Bài Đã Làm</span>
-                                <span id="stat-total-tests" class="text-xl font-extrabold text-lh-text mt-0.5"><span class="skeleton inline-block rounded" style="width:30px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
-                            </div>
-                            <div class="p-4 bg-white rounded-xl border border-gray-100 flex flex-col justify-between min-h-[72px]">
-                                <span class="text-[10px] font-bold text-lh-textSub uppercase tracking-wider">🎯 Tổng Điểm</span>
-                                <span id="stat-total-score" class="text-xl font-extrabold text-lh-text mt-0.5"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
-                            </div>
-                            <div class="p-4 bg-white rounded-xl border border-gray-100 flex flex-col justify-between min-h-[72px]">
-                                <span class="text-[10px] font-bold text-lh-textSub uppercase tracking-wider">📈 Điểm Trung Bình</span>
-                                <span id="stat-avg-score" class="text-xl font-extrabold text-lh-text mt-0.5"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
-                            </div>
-                            <div class="p-4 bg-white rounded-xl border border-gray-100 flex flex-col justify-between min-h-[72px]">
-                                <span class="text-[10px] font-bold text-lh-textSub uppercase tracking-wider">🏆 Điểm Cao Nhất</span>
-                                <span id="stat-best-score" class="text-xl font-extrabold text-lh-text mt-0.5"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
-                            </div>
-                        </div>
-                    </div>
+            <!-- USERS -->
+            <section id="users-section" class="lh-card p-5 sm:p-6 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-[11px] font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+                        <span class="lh-tile-icon" style="background:var(--tint-green);color:#10b981"><i class="fas fa-circle text-[8px]"></i></span> Hệ Thống Hồ Sơ Người Dùng
+                    </h3>
+                    <span class="lh-status-badge">Đang hoạt động</span>
                 </div>
-
-                <div class="space-y-6 md:border-l md:border-gray-100 md:pl-6">
-
-                    <div id="users-section" class="space-y-3 bg-green-100/70 border border-green-200 rounded-xl p-4 shadow-sm">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-xs font-bold uppercase tracking-widest text-lh-textSub flex items-center gap-1.5">
-                                <i class="fas fa-circle text-[8px] text-green-500"></i> Hệ Thống Hồ Sơ Người Dùng
-                            </h3>
-                            <span class="text-[10px] font-bold text-green-600 bg-white px-1.5 py-0.5 rounded-md">Đang hoạt động</span>
-                        </div>
-
-                        <div id="users-grid" class="grid grid-cols-4 gap-3 bg-white p-3 rounded-xl border border-gray-100">
-                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
-                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
-                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
-                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
-                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
-                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
-                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
-                            <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
-                            <!-- Users will be loaded dynamically from Supabase -->
-                        </div>
-                    </div>
-
-                    <div class="space-y-3 bg-indigo-100/70 border border-indigo-200 rounded-xl p-4 shadow-sm">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-xs font-bold uppercase tracking-widest text-lh-textSub flex items-center gap-1.5">
-                                <i class="fas fa-trophy text-xs"></i> Bảng Xếp Hạng Tuần
-                            </h3>
-                            <button onclick="openLeaderboardModal()" class="text-indigo-400 hover:text-indigo-600 transition-colors" title="Xem đầy đủ">
-                                <i class="fas fa-expand-alt text-xs"></i>
-                            </button>
-                        </div>
-                        <div class="w-full rounded-xl border border-gray-200/70 overflow-hidden shadow-sm bg-white h-[280px]">
-                            <iframe src="leaderboard.html?compact=1" class="w-full h-full border-0" scrolling="no"></iframe>
-                        </div>
-                    </div>
+                <div id="users-grid" class="grid grid-cols-4 gap-3">
+                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
                 </div>
+            </section>
 
-            </div>
-
-            <hr class="border-gray-100">
-
+            <!-- LEADERBOARD -->
+            <section class="lh-card p-5 sm:p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-[11px] font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+                        <span class="lh-tile-icon" style="background:var(--tint-violet);color:#8b5cf6"><i class="fas fa-trophy"></i></span> Bảng Xếp Hạng Tuần
+                    </h3>
+                    <button onclick="openLeaderboardModal()" class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors" style="color:#8b5cf6" title="Xem đầy đủ">
+                        <i class="fas fa-expand-alt text-xs"></i>
+                    </button>
+                </div>
+                <div class="lh-frame-box h-[300px]">
+                    <iframe src="leaderboard.html?compact=1" class="w-full h-full border-0" scrolling="no"></iframe>
+                </div>
+            </section>
         </div>
     </div>
+</div>
 
     <style>
         .no-scrollbar::-webkit-scrollbar{width:0;height:0}
         .no-scrollbar{scrollbar-width:none}
     </style>
     <!-- LEADERBOARD FULL MODAL -->
-    <div id="lb-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-white rounded-2xl w-full max-w-4xl mx-4 shadow-2xl transform scale-95 transition-transform duration-300 relative border border-gray-100 flex flex-col" style="height:80vh">
-            <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
-                <h3 class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+    <div id="lb-modal" class="lh-modal-overlay fixed inset-0 z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="lh-modal-box rounded-2xl w-full max-w-4xl mx-4 shadow-2xl transform scale-95 transition-transform duration-300 relative flex flex-col" style="height:80vh">
+            <div class="flex items-center justify-between px-5 py-3 border-b" style="border-color:var(--card-border)">
+                <h3 class="text-sm font-bold flex items-center gap-1.5" style="color:var(--text-main)">
                     <i class="fas fa-trophy text-amber-500"></i> Bảng Xếp Hạng Tuần
                 </h3>
                 <button onclick="closeLeaderboardModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
@@ -279,57 +493,57 @@
         document.getElementById('lb-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeLeaderboardModal(); });
     </script>
 
-    <div id="settings-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-white rounded-lh w-full max-w-sm p-5 shadow-2xl transform scale-95 transition-transform duration-300 relative border border-gray-100 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-gray-100 pb-2.5 mb-3.5">
-                <h3 class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
-                    <i class="fas fa-user-cog text-lh-primary"></i> Thiết lập tài khoản
+    <div id="settings-modal" class="lh-modal-overlay fixed inset-0 z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="lh-modal-box rounded-lh w-full max-w-sm p-5 shadow-2xl transform scale-95 transition-transform duration-300 relative max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-2.5 mb-3.5" style="border-color:var(--card-border)">
+                <h3 class="text-sm font-bold flex items-center gap-1.5" style="color:var(--text-main)">
+                    <i class="fas fa-user-cog" style="color:var(--blue-accent)"></i> Thiết lập tài khoản
                 </h3>
                 <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
                     <i class="fas fa-times text-base"></i>
                 </button>
             </div>
 
-            <div class="flex gap-1 mb-3.5 bg-gray-100 p-1 rounded-lg">
-                <button type="button" onclick="switchSettingsTab('info')" id="tab-btn-info" class="flex-1 py-1.5 rounded-md text-xs font-bold transition-all">
+            <div class="lh-tabs mb-3.5">
+                <button type="button" onclick="switchSettingsTab('info')" id="tab-btn-info" class="lh-tab">
                     <i class="fas fa-user mr-1"></i> Thông tin
                 </button>
-                <button type="button" onclick="switchSettingsTab('password')" id="tab-btn-password" class="flex-1 py-1.5 rounded-md text-xs font-bold transition-all">
+                <button type="button" onclick="switchSettingsTab('password')" id="tab-btn-password" class="lh-tab">
                     <i class="fas fa-lock mr-1"></i> Mật khẩu
                 </button>
             </div>
 
             <form id="settings-form" onsubmit="saveSettings(event)" class="space-y-3.5">
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Đổi Avatar (URL Hình riêng)</label>
-                    <input type="url" id="input-avatar" placeholder="https://example.com/photo.png" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                    <label class="lh-label">Đổi Avatar (URL Hình riêng)</label>
+                    <input type="url" id="input-avatar" placeholder="https://example.com/photo.png" class="lh-input">
                 </div>
 
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Tên hiển thị học viên</label>
-                    <input type="text" id="input-name" required class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                    <label class="lh-label">Tên hiển thị học viên</label>
+                    <input type="text" id="input-name" required class="lh-input">
                 </div>
 
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Tiểu sử / Châm ngôn</label>
-                    <input type="text" id="input-bio" placeholder="Nhập châm ngôn học tập của bạn..." class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                    <label class="lh-label">Tiểu sử / Châm ngôn</label>
+                    <input type="text" id="input-bio" placeholder="Nhập châm ngôn học tập của bạn..." class="lh-input">
                 </div>
 
                 <div class="grid grid-cols-2 gap-2.5">
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Ngày tháng năm sinh</label>
-                        <input type="date" id="input-birth" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                        <label class="lh-label">Ngày tháng năm sinh</label>
+                        <input type="date" id="input-birth" class="lh-input">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Số điện thoại</label>
-                        <input type="tel" id="input-phone" placeholder="09xxxxxxxx" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                        <label class="lh-label">Số điện thoại</label>
+                        <input type="tel" id="input-phone" placeholder="09xxxxxxxx" class="lh-input">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-3 gap-2.5">
                     <div class="col-span-1">
-                        <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Giới tính</label>
-                        <select id="input-gender" class="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                        <label class="lh-label">Giới tính</label>
+                        <select id="input-gender" class="lh-input">
                             <option value="">Chọn</option>
                             <option value="Nam">Nam</option>
                             <option value="Nữ">Nữ</option>
@@ -337,16 +551,16 @@
                         </select>
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Thông tin trường học</label>
-                        <input type="text" id="school-name-display" placeholder="Tên trường học..." class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                        <label class="lh-label">Thông tin trường học</label>
+                        <input type="text" id="school-name-display" placeholder="Tên trường học..." class="lh-input">
                     </div>
                 </div>
 
-                <div class="flex gap-2 pt-2.5 border-t border-gray-100">
-                    <button type="button" onclick="closeSettingsModal()" class="w-1/2 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-lg transition-colors">
+                <div class="flex gap-2 pt-2.5 border-t" style="border-color:var(--card-border)">
+                    <button type="button" onclick="closeSettingsModal()" class="lh-btn lh-btn-ghost w-1/2">
                         Hủy bỏ
                     </button>
-                    <button type="submit" class="w-1/2 py-2 bg-lh-primary hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition-colors shadow-sm">
+                    <button type="submit" class="lh-btn lh-btn-primary w-1/2">
                         Lưu thông tin
                     </button>
                 </div>
@@ -354,27 +568,27 @@
 
             <form id="password-form" onsubmit="savePassword(event)" class="space-y-3.5 hidden">
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Mật khẩu hiện tại</label>
-                    <input type="password" id="input-old-password" placeholder="••••••••" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
-                    <button type="button" onclick="sendForgotPasswordLink()" class="text-lh-primary text-[11px] font-bold hover:underline mt-1.5 inline-block">Quên mật khẩu?</button>
+                    <label class="lh-label">Mật khẩu hiện tại</label>
+                    <input type="password" id="input-old-password" placeholder="••••••••" class="lh-input">
+                    <button type="button" onclick="sendForgotPasswordLink()" class="text-[11px] font-bold hover:underline mt-1.5 inline-block" style="color:var(--blue-accent)">Quên mật khẩu?</button>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2.5">
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Mật khẩu mới</label>
-                        <input type="password" id="input-new-password" placeholder="••••••••" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                        <label class="lh-label">Mật khẩu mới</label>
+                        <input type="password" id="input-new-password" placeholder="••••••••" class="lh-input">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Xác nhận lại</label>
-                        <input type="password" id="input-confirm-password" placeholder="••••••••" class="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-lh-primary bg-gray-50/50">
+                        <label class="lh-label">Xác nhận lại</label>
+                        <input type="password" id="input-confirm-password" placeholder="••••••••" class="lh-input">
                     </div>
                 </div>
 
-                <div class="flex gap-2 pt-2.5 border-t border-gray-100">
-                    <button type="button" onclick="closeSettingsModal()" class="w-1/2 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-lg transition-colors">
+                <div class="flex gap-2 pt-2.5 border-t" style="border-color:var(--card-border)">
+                    <button type="button" onclick="closeSettingsModal()" class="lh-btn lh-btn-ghost w-1/2">
                         Hủy bỏ
                     </button>
-                    <button type="submit" class="w-1/2 py-2 bg-lh-primary hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition-colors shadow-sm">
+                    <button type="submit" class="lh-btn lh-btn-primary w-1/2">
                         Đổi mật khẩu
                     </button>
                 </div>
@@ -867,7 +1081,7 @@
             const passwordForm = document.getElementById('password-form');
             const btnInfo = document.getElementById('tab-btn-info');
             const btnPassword = document.getElementById('tab-btn-password');
-            const activeClasses = ['bg-white', 'text-lh-primary', 'shadow-sm'];
+            const activeClasses = ['lh-tab-active', 'text-lh-primary', 'shadow-sm'];
             const inactiveClasses = ['text-gray-500'];
 
             if (tab === 'password') {
