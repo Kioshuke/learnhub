@@ -204,6 +204,37 @@
             box-shadow: 0 24px 60px rgba(2,12,27,0.25);
             transition: background .3s ease, border-color .3s ease;
         }
+        .lh-modal-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 12px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .lh-modal-close {
+            margin-left: auto;
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-sub);
+            transition: all .18s ease;
+        }
+        .lh-modal-close:hover {
+            background: rgba(148,163,184,0.18);
+            color: var(--text-main);
+        }
+        .lh-link {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--blue-accent);
+        }
+        .lh-link:hover {
+            text-decoration: underline;
+        }
         .lh-input {
             width: 100%;
             background: var(--input-bg);
@@ -495,13 +526,12 @@
     </script>
 
     <div id="settings-modal" class="lh-modal-overlay fixed inset-0 z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="lh-modal-box rounded-lh w-full max-w-sm p-5 shadow-2xl transform scale-95 transition-transform duration-300 relative max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b pb-2.5 mb-3.5" style="border-color:var(--card-border)">
-                <h3 class="text-sm font-bold flex items-center gap-1.5" style="color:var(--text-main)">
-                    <i class="fas fa-user-cog" style="color:var(--blue-accent)"></i> Thiết lập tài khoản
-                </h3>
-                <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <i class="fas fa-times text-base"></i>
+        <div class="lh-modal-box w-full max-w-md p-5 shadow-2xl transform scale-95 transition-transform duration-300 relative max-h-[90vh] overflow-y-auto">
+            <div class="lh-modal-head">
+                <span class="lh-tile-icon" style="background:var(--tint-blue);color:var(--blue-accent)"><i class="fas fa-user-cog"></i></span>
+                <h3 class="text-base font-extrabold tracking-tight" style="color:var(--text-main)">Thiết lập tài khoản</h3>
+                <button onclick="closeSettingsModal()" class="lh-modal-close" title="Đóng">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
 
@@ -571,7 +601,7 @@
                 <div>
                     <label class="lh-label">Mật khẩu hiện tại</label>
                     <input type="password" id="input-old-password" placeholder="••••••••" class="lh-input">
-                    <button type="button" onclick="sendForgotPasswordLink()" class="text-[11px] font-bold hover:underline mt-1.5 inline-block" style="color:var(--blue-accent)">Quên mật khẩu?</button>
+                    <button type="button" onclick="sendForgotPasswordLink()" class="lh-link mt-1.5 inline-block">Quên mật khẩu?</button>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2.5">
