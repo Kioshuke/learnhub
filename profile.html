@@ -160,12 +160,14 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 700;
-            padding: 4px 12px;
+            padding: 3px 8px;
             border-radius: 999px;
             background: rgba(16,185,129,0.12);
             color: #059669;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         body.dark-mode .lh-status-badge {
             background: rgba(16,185,129,0.15);
@@ -369,7 +371,7 @@
 
             <!-- PROFILE DETAIL -->
             <section id="user-profile-section" class="lh-card p-4 sm:p-5 space-y-2.5">
-                <h3 class="text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+                <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
                     <span class="lh-tile-icon" style="background:var(--tint-blue);color:var(--blue-accent)"><i class="fas fa-id-card"></i></span> Hồ Sơ Chi Tiết
                 </h3>
 
@@ -420,25 +422,25 @@
 
             <!-- STATS -->
             <section class="lh-card p-4 sm:p-5 space-y-2.5">
-                <h3 class="text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+                <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
                     <span class="lh-tile-icon" style="background:var(--tint-amber);color:#f59e0b"><i class="fas fa-chart-bar"></i></span> Thống kê hiệu suất tuần này
                 </h3>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                    <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]">
-                        <span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-sub)">📚 Bài Đã Làm</span>
-                        <span id="stat-total-tests" class="text-xl font-extrabold mt-0.5" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:30px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                    <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]" style="background:var(--tint-blue);border-color:rgba(37,99,235,0.25)">
+                        <span class="text-xs font-bold uppercase tracking-wider" style="color:var(--blue-accent)">📚 Bài Đã Làm</span>
+                        <span id="stat-total-tests" class="text-xl font-extrabold mt-0.5" style="color:var(--blue-accent)"><span class="skeleton inline-block rounded" style="width:30px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
                     </div>
-                    <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]">
-                        <span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-sub)">🎯 Tổng Điểm</span>
-                        <span id="stat-total-score" class="text-xl font-extrabold mt-0.5" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                    <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]" style="background:var(--tint-amber);border-color:rgba(245,158,11,0.3)">
+                        <span class="text-xs font-bold uppercase tracking-wider" style="color:#f59e0b">🎯 Tổng Điểm</span>
+                        <span id="stat-total-score" class="text-xl font-extrabold mt-0.5" style="color:#f59e0b"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
                     </div>
-                    <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]">
-                        <span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-sub)">📈 Điểm Trung Bình</span>
-                        <span id="stat-avg-score" class="text-xl font-extrabold mt-0.5" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                    <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]" style="background:var(--tint-violet);border-color:rgba(139,92,246,0.25)">
+                        <span class="text-xs font-bold uppercase tracking-wider" style="color:#8b5cf6">📈 Điểm Trung Bình</span>
+                        <span id="stat-avg-score" class="text-xl font-extrabold mt-0.5" style="color:#8b5cf6"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
                     </div>
-                    <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]">
-                        <span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-sub)">🏆 Điểm Cao Nhất</span>
-                        <span id="stat-best-score" class="text-xl font-extrabold mt-0.5" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                    <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]" style="background:var(--tint-green);border-color:rgba(16,185,129,0.25)">
+                        <span class="text-xs font-bold uppercase tracking-wider" style="color:#10b981">🏆 Điểm Cao Nhất</span>
+                        <span id="stat-best-score" class="text-xl font-extrabold mt-0.5" style="color:#10b981"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
                     </div>
                 </div>
             </section>
@@ -449,13 +451,22 @@
 
             <!-- USERS -->
             <section id="users-section" class="lh-card p-4 sm:p-5 space-y-2.5">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
-                        <span class="lh-tile-icon" style="background:var(--tint-green);color:#10b981"><i class="fas fa-circle text-[8px]"></i></span> Hệ Thống Hồ Sơ Người Dùng
+                <div class="flex justify-between items-center gap-2 min-w-0">
+                    <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2 min-w-0" style="color:var(--text-sub)">
+                        <span class="lh-tile-icon flex-shrink-0" style="background:var(--tint-green);color:#10b981"><i class="fas fa-circle text-[8px]"></i></span> <span class="truncate">Hệ Thống Hồ Sơ Người Dùng</span>
                     </h3>
                     <span class="lh-status-badge">Đang hoạt động</span>
                 </div>
                 <div id="users-grid" class="grid grid-cols-6 gap-2">
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
                     <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
                     <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
                     <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
@@ -470,7 +481,7 @@
             <!-- LEADERBOARD -->
             <section class="lh-card p-4 sm:p-5 space-y-2.5">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+                    <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
                         <span class="lh-tile-icon" style="background:var(--tint-violet);color:#8b5cf6"><i class="fas fa-trophy"></i></span> Bảng Xếp Hạng Tuần
                     </h3>
                     <button onclick="openLeaderboardModal()" class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors" style="color:#8b5cf6" title="Xem đầy đủ">
@@ -524,6 +535,21 @@
         }
         document.getElementById('lb-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeLeaderboardModal(); });
     </script>
+
+    <!-- ALL USERS MODAL -->
+    <div id="all-users-modal" class="lh-modal-overlay fixed inset-0 z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="lh-modal-box w-full max-w-md p-5 shadow-2xl transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="lh-modal-head">
+                <span class="lh-tile-icon" style="background:var(--tint-green);color:#10b981"><i class="fas fa-users"></i></span>
+                <h3 class="text-base font-extrabold tracking-tight" style="color:var(--text-main)">Danh sách người dùng</h3>
+                <span id="all-users-count" class="text-[11px] font-bold px-2 py-0.5 rounded-full" style="background:var(--tint-blue);color:var(--blue-accent)"></span>
+                <button onclick="closeAllUsersModal()" class="lh-modal-close" title="Đóng">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="all-users-list" class="space-y-1 flex-1 overflow-y-auto pr-1"></div>
+        </div>
+    </div>
 
     <div id="settings-modal" class="lh-modal-overlay fixed inset-0 z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
         <div class="lh-modal-box w-full max-w-md p-5 shadow-2xl transform scale-95 transition-transform duration-300 relative max-h-[90vh] overflow-y-auto">
@@ -704,6 +730,7 @@
         let ownProfileChannel = null; // Channel cho profile của mình
         let statsChannel = null; // Channel cho stats
         let currentViewUserId = null; // Track user đang xem
+        let allUsersData = []; // Toàn bộ users cho modal "Xem thêm"
 
         // ===== UPDATE ONLINE STATUS =====
         async function updateOnlineStatus(isOnline) {
@@ -773,6 +800,44 @@
             }
         }
 
+        // Render lưới users: tối đa 17 người + ô "Xem thêm" (18 ô = 3 hàng x 6)
+        function renderUserGrid(container, users) {
+            const now = Date.now();
+            const ACTIVE_THRESHOLD = 10000;
+
+            const displayUsers = users.slice(0, 17);
+            const hasMore = users.length > 17;
+
+            let html = '';
+            displayUsers.forEach(u => {
+                const isOnline = u.online && u.last_active && (now - u.last_active) < ACTIVE_THRESHOLD;
+                const statusColor = isOnline ? 'bg-green-500' : 'bg-red-500';
+                const statusPulse = isOnline ? 'animate-pulse' : '';
+
+                html += `
+                    <div class="flex flex-col items-center text-center p-0.5 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group" data-uid="${escapeHtml(u.id)}">
+                        <div class="relative">
+                            <img src="${escapeUrl(u.photo) || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
+                            <span class="absolute bottom-0 right-0 w-2 h-2 ${statusColor} border border-white rounded-full ${statusPulse}"></span>
+                        </div>
+                        <span class="text-xs font-medium mt-1 text-gray-700 truncate w-full px-0.5">${escapeHtml(u.name) || 'User'}</span>
+                    </div>
+                `;
+            });
+
+            // Ô "Xem thêm" chiếm vị trí thứ 18
+            if (hasMore) {
+                html += `
+                    <div class="flex flex-col items-center justify-center p-0.5 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-dashed border-blue-200 bg-blue-50/30 h-[60px]" onclick="viewAllUsers()">
+                        <i class="fas fa-ellipsis-h text-xs text-lh-primary"></i>
+                        <span class="text-xs font-bold text-lh-primary mt-1">Xem thêm</span>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
         // ===== LISTEN TO USERS TABLE =====
         async function renderUsers() {
             const usersContainer = document.getElementById('users-grid');
@@ -801,38 +866,8 @@
                 return nameA.localeCompare(nameB, 'vi');
             });
 
-            // Hiển thị 11 người đầu tiên
-            const displayUsers = users.slice(0, 11);
-            const hasMore = users.length > 11;
-
-            let html = '';
-            displayUsers.forEach(u => {
-                const isOnline = u.online && u.last_active && (now - u.last_active) < ACTIVE_THRESHOLD;
-                const statusColor = isOnline ? 'bg-green-500' : 'bg-red-500';
-                const statusPulse = isOnline ? 'animate-pulse' : '';
-
-                html += `
-                    <div class="flex flex-col items-center text-center p-0.5 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group" data-uid="${escapeHtml(u.id)}">
-                        <div class="relative">
-                            <img src="${escapeUrl(u.photo) || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
-                            <span class="absolute bottom-0 right-0 w-2 h-2 ${statusColor} border border-white rounded-full ${statusPulse}"></span>
-                        </div>
-                        <span class="text-xs font-medium mt-1 text-gray-700 truncate w-full px-0.5">${escapeHtml(u.name) || 'User'}</span>
-                    </div>
-                `;
-            });
-
-            // Nút xem thêm
-            if (hasMore) {
-                html += `
-                    <div class="flex flex-col items-center justify-center p-0.5 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-dashed border-blue-200 bg-blue-50/30 h-[60px]" onclick="viewAllUsers()">
-                        <i class="fas fa-ellipsis-h text-xs text-lh-primary"></i>
-                        <span class="text-xs font-bold text-lh-primary mt-1">Xem thêm</span>
-                    </div>
-                `;
-            }
-
-            usersContainer.innerHTML = html;
+            allUsersData = users;
+            renderUserGrid(usersContainer, users);
         }
 
         // Click 1 lần ủy quyền cho toàn bộ grid (thay onclick inline → chống attribute injection).
@@ -874,11 +909,73 @@
             loadViewUserProfile(userId);
         };
 
-        // Xem tất cả users
+        // Xem tất cả users (mở modal danh sách đầy đủ)
         window.viewAllUsers = function() {
-            // Có thể mở modal hoặc trang riêng để hiển thị tất cả
-            window.showToast('Tính năng xem tất cả đang phát triển', 'info');
+            const modal = document.getElementById('all-users-modal');
+            const listEl = document.getElementById('all-users-list');
+            if (!modal || !listEl) return;
+
+            const now = Date.now();
+            const ACTIVE_THRESHOLD = 10000;
+
+            let html = '';
+            allUsersData.forEach(u => {
+                const isOnline = u.online && u.last_active && (now - u.last_active) < ACTIVE_THRESHOLD;
+                const statusColor = isOnline ? 'bg-green-500' : 'bg-red-500';
+                const statusPulse = isOnline ? 'animate-pulse' : '';
+                html += `
+                    <button type="button" data-uid="${escapeHtml(u.id)}" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white hover:shadow-sm transition-all text-left" style="border:none;background:transparent">
+                        <div class="relative flex-shrink-0">
+                            <img src="${escapeUrl(u.photo) || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm object-cover">
+                            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 ${statusColor} border-2 border-white rounded-full ${statusPulse}"></span>
+                        </div>
+                        <span class="text-sm font-semibold truncate" style="color:var(--text-main)">${escapeHtml(u.name) || 'User'}</span>
+                        <span class="ml-auto text-[11px] font-bold flex-shrink-0 ${isOnline ? 'text-emerald-500' : 'text-gray-400'}">${isOnline ? '● Online' : '● Offline'}</span>
+                    </button>
+                `;
+            });
+
+            if (!allUsersData.length) {
+                html = '<p class="text-sm font-medium text-center py-8" style="color:var(--text-sub)">Chưa có người dùng nào.</p>';
+            }
+            listEl.innerHTML = html;
+
+            const countEl = document.getElementById('all-users-count');
+            if (countEl) countEl.textContent = allUsersData.length + ' người';
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100');
+            modal.querySelector('div').classList.remove('scale-95');
+            modal.querySelector('div').classList.add('scale-100');
         };
+
+        window.closeAllUsersModal = function() {
+            const modal = document.getElementById('all-users-modal');
+            if (!modal) return;
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.classList.remove('opacity-100');
+            modal.querySelector('div').classList.add('scale-95');
+            modal.querySelector('div').classList.remove('scale-100');
+        };
+
+        (function () {
+            const modal = document.getElementById('all-users-modal');
+            if (!modal) return;
+            modal.addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeAllUsersModal();
+            });
+            const listEl = document.getElementById('all-users-list');
+            if (listEl) {
+                listEl.addEventListener('click', (e) => {
+                    const item = e.target.closest('[data-uid]');
+                    if (!item) return;
+                    closeAllUsersModal();
+                    if (typeof window.viewUserProfile === 'function') {
+                        window.viewUserProfile(item.dataset.uid);
+                    }
+                });
+            }
+        })();
 
         // Cleanup khi logout
         function cleanup() {
