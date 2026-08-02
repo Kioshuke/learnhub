@@ -92,8 +92,8 @@
             position: relative;
             background: linear-gradient(135deg, rgb(30,90,200), rgb(58,134,255), rgb(120,100,255));
             background-size: 300% 300%;
-            border-radius: 22px;
-            box-shadow: 0 10px 30px rgba(2,12,27,0.18);
+            border-radius: 0 0 18px 18px;
+            box-shadow: 0 8px 22px rgba(2,12,27,0.15);
             animation: lhHeaderFlow 10s ease infinite;
         }
         @keyframes lhHeaderFlow {
@@ -115,42 +115,42 @@
         .lh-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 22px;
+            border-radius: 18px;
             box-shadow: var(--card-shadow);
             transition: background .3s ease, border-color .3s ease, transform .2s ease, box-shadow .2s ease;
         }
         .lh-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 14px 30px rgba(2,12,27,0.10);
+            transform: translateY(-1px);
+            box-shadow: 0 12px 26px rgba(2,12,27,0.09);
         }
         body.dark-mode .lh-card:hover {
-            box-shadow: 0 14px 30px rgba(0,0,0,0.35);
+            box-shadow: 0 12px 26px rgba(0,0,0,0.32);
         }
         .lh-tile-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 9px;
+            width: 24px;
+            height: 24px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 10px;
             flex-shrink: 0;
         }
         .lh-stat {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(2,12,27,0.04);
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(2,12,27,0.04);
             transition: transform .2s ease, box-shadow .2s ease;
         }
         .lh-stat:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 18px rgba(2,12,27,0.08);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(2,12,27,0.07);
         }
         .lh-frame-box {
             background: rgba(255,255,255,0.55);
             border: 1px solid var(--card-border);
-            border-radius: 14px;
+            border-radius: 12px;
             overflow: hidden;
         }
         body.dark-mode .lh-frame-box {
@@ -160,7 +160,7 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 700;
             padding: 4px 10px;
             border-radius: 999px;
@@ -311,44 +311,45 @@
     });
 </script>
 
-<div class="w-full px-2 sm:px-4 py-5 sm:py-7 flex flex-col gap-5">
+<div class="w-full flex flex-col gap-3">
 
-    <!-- HEADER -->
-    <div class="lh-header flex items-center justify-between gap-3 px-4 sm:px-6 py-4">
+    <!-- HEADER (full-bleed sát mép trên) -->
+    <div class="lh-header w-full flex items-center justify-between gap-3 px-3 sm:px-5 py-2.5">
         <button onclick="history.back()" class="lh-header-btn text-sm font-semibold text-white/90 hover:text-white">
             <i class="fas fa-arrow-left text-xs"></i> <span class="hidden sm:inline">Quay lại</span>
         </button>
         <div class="flex items-center gap-3 min-w-0">
-            <img src="pictures/favicon.png" alt="LearnHub" class="w-10 h-10 rounded-xl shadow-md bg-white object-contain">
+            <img src="pictures/favicon.png" alt="LearnHub" class="w-8 h-8 rounded-lg shadow-md bg-white object-contain">
             <div class="min-w-0">
-                <h1 class="text-base sm:text-xl font-extrabold text-white tracking-tight leading-tight truncate">Hồ Sơ Học Viên</h1>
+                <h1 class="text-base sm:text-lg font-extrabold text-white tracking-tight leading-tight truncate">Hồ Sơ Học Viên</h1>
                 <p class="text-[11px] sm:text-xs text-white/75 font-medium truncate">LearnHub Platform · Hệ sinh thái học tập</p>
             </div>
         </div>
-        <button onclick="openSettingsModal()" class="lh-header-btn w-9 h-9 rounded-full items-center justify-center text-white/90 hover:bg-white/15 hover:text-white">
-            <i class="fas fa-cog text-base"></i>
+        <button onclick="openSettingsModal()" class="lh-header-btn w-8 h-8 rounded-full items-center justify-center text-white/90 hover:bg-white/15 hover:text-white">
+            <i class="fas fa-cog text-sm"></i>
         </button>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+    <div class="w-full px-2 sm:px-4 pb-5 sm:pb-7">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
 
         <!-- LEFT COLUMN -->
         <div class="space-y-5">
 
             <!-- PROFILE DETAIL -->
-            <section id="user-profile-section" class="lh-card p-5 sm:p-6 space-y-4">
-                <h3 class="text-[11px] font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+            <section id="user-profile-section" class="lh-card p-3.5 sm:p-4 space-y-2.5">
+                <h3 class="text-xs font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
                     <span class="lh-tile-icon" style="background:var(--tint-blue);color:var(--blue-accent)"><i class="fas fa-id-card"></i></span> Hồ Sơ Chi Tiết
                 </h3>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 items-center">
-                    <div class="flex flex-col items-center sm:items-start text-center sm:text-left gap-3">
-                        <div class="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-white shadow-lg bg-gray-100 flex-shrink-0">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                    <div class="flex flex-col items-center sm:items-start text-center sm:text-left gap-2">
+                        <div class="relative w-16 h-16 rounded-xl overflow-hidden border shadow-lg bg-gray-100 flex-shrink-0">
                             <img id="profile-avatar-display" src="https://lh3.googleusercontent.com/a/default-user=s120-c" alt="Avatar" class="w-full h-full object-cover">
                         </div>
-                        <div class="space-y-1.5 w-full">
-                            <h2 id="profile-name-display" class="text-xl font-bold tracking-tight" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:130px;height:1.1em;vertical-align:middle;">&nbsp;</span></h2>
-                            <p id="profile-bio-display" class="text-xs font-semibold italic" style="color:var(--text-sub)"><span class="skeleton inline-block rounded" style="width:180px;height:0.9em;vertical-align:middle;">&nbsp;</span></p>
+                        <div class="space-y-1 w-full">
+                            <h2 id="profile-name-display" class="text-lg font-bold tracking-tight leading-snug line-clamp-2 min-h-[2.4em]" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:130px;height:1.1em;vertical-align:middle;">&nbsp;</span></h2>
+                            <p id="profile-bio-display" class="text-xs font-semibold italic line-clamp-1" style="color:var(--text-sub)"><span class="skeleton inline-block rounded" style="width:180px;height:0.9em;vertical-align:middle;">&nbsp;</span></p>
                             <div>
                                 <span id="profile-role-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-gray-50 text-gray-600 border border-gray-200">
                                     <span id="profile-role-dot" class="w-2 h-2 rounded-full bg-gray-500 animate-pulse"></span> <span id="profile-role-display"><span class="skeleton inline-block rounded" style="width:60px;height:0.9em;vertical-align:middle;">&nbsp;</span></span>
@@ -365,48 +366,48 @@
                         </div>
                     </div>
 
-                    <div class="space-y-2.5 text-sm font-medium sm:border-l sm:border-gray-200/80 sm:pl-5" style="color:var(--text-sub)">
-                        <div class="flex items-center gap-2">
+                    <div class="space-y-1.5 text-sm font-medium sm:border-l sm:border-gray-200/60 sm:pl-3" style="color:var(--text-sub)">
+                        <div class="flex items-center gap-1.5">
                             <i class="fas fa-birthday-cake text-blue-500 w-4 text-center"></i>
                             <span>Ngày sinh: <span id="profile-birth-display" class="font-semibold" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:80px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1.5">
                             <i class="fas fa-venus-mars text-indigo-500 w-4 text-center"></i>
                             <span>Giới tính: <span id="profile-gender-display" class="font-semibold" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:60px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
                         </div>
-                        <div class="flex items-start gap-2">
+                        <div class="flex items-start gap-1.5">
                             <i class="fas fa-school text-emerald-500 w-4 mt-0.5 text-center"></i>
                             <span>Trường: <span id="profile-school-display" class="font-semibold" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:100px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1.5">
                             <i class="fas fa-clock text-cyan-500 w-4 text-center"></i>
-                            <span>Thời gian online tuần: <span id="profile-online-display" class="font-semibold text-cyan-500"><span class="skeleton inline-block rounded" style="width:80px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
+                            <span>Online tuần: <span id="profile-online-display" class="font-semibold text-cyan-500"><span class="skeleton inline-block rounded" style="width:80px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
                         </div>
                     </div>
                 </div>
             </section>
 
             <!-- STATS -->
-            <section class="lh-card p-5 sm:p-6 space-y-4">
-                <h3 class="text-[11px] font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+            <section class="lh-card p-3.5 sm:p-4 space-y-2.5">
+                <h3 class="text-xs font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
                     <span class="lh-tile-icon" style="background:var(--tint-amber);color:#f59e0b"><i class="fas fa-chart-bar"></i></span> Thống kê hiệu suất tuần này
                 </h3>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="lh-stat p-4 flex flex-col justify-between min-h-[84px]">
-                        <span class="text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-sub)">📚 Bài Đã Làm</span>
-                        <span id="stat-total-tests" class="text-xl font-extrabold mt-1" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:30px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                    <div class="lh-stat p-2.5 flex flex-col justify-between min-h-[60px]">
+                        <span class="text-[11px] font-bold uppercase tracking-wider" style="color:var(--text-sub)">📚 Bài Đã Làm</span>
+                        <span id="stat-total-tests" class="text-lg font-extrabold mt-0.5" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:30px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
                     </div>
-                    <div class="lh-stat p-4 flex flex-col justify-between min-h-[84px]">
-                        <span class="text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-sub)">🎯 Tổng Điểm</span>
-                        <span id="stat-total-score" class="text-xl font-extrabold mt-1" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                    <div class="lh-stat p-2.5 flex flex-col justify-between min-h-[60px]">
+                        <span class="text-[11px] font-bold uppercase tracking-wider" style="color:var(--text-sub)">🎯 Tổng Điểm</span>
+                        <span id="stat-total-score" class="text-lg font-extrabold mt-0.5" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
                     </div>
-                    <div class="lh-stat p-4 flex flex-col justify-between min-h-[84px]">
-                        <span class="text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-sub)">📈 Điểm Trung Bình</span>
-                        <span id="stat-avg-score" class="text-xl font-extrabold mt-1" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                    <div class="lh-stat p-2.5 flex flex-col justify-between min-h-[60px]">
+                        <span class="text-[11px] font-bold uppercase tracking-wider" style="color:var(--text-sub)">📈 Điểm Trung Bình</span>
+                        <span id="stat-avg-score" class="text-lg font-extrabold mt-0.5" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
                     </div>
-                    <div class="lh-stat p-4 flex flex-col justify-between min-h-[84px]">
-                        <span class="text-[10px] font-bold uppercase tracking-wider" style="color:var(--text-sub)">🏆 Điểm Cao Nhất</span>
-                        <span id="stat-best-score" class="text-xl font-extrabold mt-1" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                    <div class="lh-stat p-2.5 flex flex-col justify-between min-h-[60px]">
+                        <span class="text-[11px] font-bold uppercase tracking-wider" style="color:var(--text-sub)">🏆 Điểm Cao Nhất</span>
+                        <span id="stat-best-score" class="text-lg font-extrabold mt-0.5" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
                     </div>
                 </div>
             </section>
@@ -416,37 +417,37 @@
         <div class="space-y-5">
 
             <!-- USERS -->
-            <section id="users-section" class="lh-card p-5 sm:p-6 space-y-4">
+            <section id="users-section" class="lh-card p-3.5 sm:p-4 space-y-2.5">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-[11px] font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+                    <h3 class="text-xs font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
                         <span class="lh-tile-icon" style="background:var(--tint-green);color:#10b981"><i class="fas fa-circle text-[8px]"></i></span> Hệ Thống Hồ Sơ Người Dùng
                     </h3>
                     <span class="lh-status-badge">Đang hoạt động</span>
                 </div>
-                <div id="users-grid" class="grid grid-cols-4 gap-3">
-                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
-                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
-                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
-                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
-                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
-                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
-                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
-                    <div class="flex flex-col items-center text-center p-1"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1.5" style="width:32px;height:10px;"></div></div>
+                <div id="users-grid" class="grid grid-cols-6 gap-2">
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:34px;height:34px;"></div><div class="skeleton rounded mt-1" style="width:30px;height:9px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:34px;height:34px;"></div><div class="skeleton rounded mt-1" style="width:30px;height:9px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:34px;height:34px;"></div><div class="skeleton rounded mt-1" style="width:30px;height:9px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:34px;height:34px;"></div><div class="skeleton rounded mt-1" style="width:30px;height:9px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:34px;height:34px;"></div><div class="skeleton rounded mt-1" style="width:30px;height:9px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:34px;height:34px;"></div><div class="skeleton rounded mt-1" style="width:30px;height:9px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:34px;height:34px;"></div><div class="skeleton rounded mt-1" style="width:30px;height:9px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:34px;height:34px;"></div><div class="skeleton rounded mt-1" style="width:30px;height:9px;"></div></div>
                 </div>
             </section>
 
             <!-- LEADERBOARD -->
-            <section class="lh-card p-5 sm:p-6 space-y-4">
+            <section class="lh-card p-3.5 sm:p-4 space-y-2.5">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-[11px] font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+                    <h3 class="text-xs font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
                         <span class="lh-tile-icon" style="background:var(--tint-violet);color:#8b5cf6"><i class="fas fa-trophy"></i></span> Bảng Xếp Hạng Tuần
                     </h3>
                     <button onclick="openLeaderboardModal()" class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors" style="color:#8b5cf6" title="Xem đầy đủ">
                         <i class="fas fa-expand-alt text-xs"></i>
                     </button>
                 </div>
-                <div class="lh-frame-box h-[300px]">
-                    <iframe src="leaderboard.html?compact=1" class="w-full h-full border-0" scrolling="no"></iframe>
+                <div class="lh-frame-box h-[230px]">
+                <iframe src="leaderboard.html?compact=1" class="w-full h-full border-0" scrolling="no"></iframe>
                 </div>
             </section>
         </div>
@@ -781,12 +782,12 @@
                 const statusPulse = isOnline ? 'animate-pulse' : '';
 
                 html += `
-                    <div class="flex flex-col items-center text-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group" data-uid="${escapeHtml(u.id)}">
+                    <div class="flex flex-col items-center text-center p-0.5 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group" data-uid="${escapeHtml(u.id)}">
                         <div class="relative">
-                            <img src="${escapeUrl(u.photo) || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
-                            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 ${statusColor} border-2 border-white rounded-full ${statusPulse}"></span>
+                            <img src="${escapeUrl(u.photo) || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-9 h-9 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
+                            <span class="absolute bottom-0 right-0 w-2 h-2 ${statusColor} border border-white rounded-full ${statusPulse}"></span>
                         </div>
-                        <span class="text-[10px] font-medium mt-1.5 text-gray-700 truncate w-full px-0.5">${escapeHtml(u.name) || 'User'}</span>
+                        <span class="text-[11px] font-medium mt-1 text-gray-700 truncate w-full px-0.5">${escapeHtml(u.name) || 'User'}</span>
                     </div>
                 `;
             });
@@ -794,9 +795,9 @@
             // Nút xem thêm
             if (hasMore) {
                 html += `
-                    <div class="flex flex-col items-center justify-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-dashed border-blue-200 bg-blue-50/30 h-[68px]" onclick="viewAllUsers()">
+                    <div class="flex flex-col items-center justify-center p-0.5 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-dashed border-blue-200 bg-blue-50/30 h-[54px]" onclick="viewAllUsers()">
                         <i class="fas fa-ellipsis-h text-xs text-lh-primary"></i>
-                        <span class="text-[10px] font-bold text-lh-primary mt-1">Xem thêm</span>
+                        <span class="text-[11px] font-bold text-lh-primary mt-1">Xem thêm</span>
                     </div>
                 `;
             }
@@ -1300,5 +1301,6 @@
         }
     </script>
 
+</div>
 </body>
 </html>
