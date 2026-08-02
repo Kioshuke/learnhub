@@ -504,43 +504,51 @@ function playNotificationSound(soundId = "thongbaoSound"){
   // Reset audio to start
   audio.currentTime = 0;
   audio.muted = false;
+  audio.volume = 1;
 
   // Play with error handling for autoplay restrictions
   audio.play().catch(() => {
-    // Nếu trình duyệt chặn tự động phát, bỏ qua (không cần thông báo lỗi)
+    // Nếu trình duyệt chặn tự động phát, bỏ qua (không cần thông báo lỗi).
+    // Lần tương tác đầu tiên của user sẽ chạy unlockAudio để mở khoá cho các lần sau.
   });
 }
 
 // Mở khoá autoplay sau lần tương tác đầu tiên của người dùng.
 // Không có bước này, thông báo realtime đến mà chưa bấm gì sẽ bị trình duyệt chặn tiếng.
+// Dùng play() ở volume 0 (không gây tiếng "bùm" khi unlock) để load + mở khoá element,
+// sau đó các lần play thật sẽ phát bình thường.
 (function unlockAudio(){
   const ids = ["realtimeSound", "thongbaoSound", "openpopup", "offtest"];
   function tryUnlock(){
-    let ok = false;
+    let loaded = false;
     ids.forEach(function(id){
       const a = document.getElementById(id);
       if(!a) return;
-      a.muted = false;
-      a.volume = 1;
+      a.muted = true;
+      a.volume = 0;
       try {
         const p = a.play();
         if(p && p.then){
           p.then(function(){
-            ok = true;
+            loaded = true;
             a.pause();
             a.currentTime = 0;
+            a.muted = false;
+            a.volume = 1;
           }).catch(function(){});
         }
       } catch(e) {}
     });
-    if(ok){
+    if(loaded){
       document.removeEventListener("click", tryUnlock);
       document.removeEventListener("touchstart", tryUnlock);
+      document.removeEventListener("pointerdown", tryUnlock);
       document.removeEventListener("keydown", tryUnlock);
     }
   }
   document.addEventListener("click", tryUnlock);
   document.addEventListener("touchstart", tryUnlock);
+  document.addEventListener("pointerdown", tryUnlock);
   document.addEventListener("keydown", tryUnlock);
 })();
 

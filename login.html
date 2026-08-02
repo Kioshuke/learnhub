@@ -632,7 +632,7 @@
 </head>
 <body>
 
-<audio id="thongbaoSound" src="sound/thongbao.mp3" preload="none"></audio>
+<audio id="thongbaoSound" src="sound/thongbao.mp3" preload="auto"></audio>
 
 <div id="loginBox">
 <button type="button" class="auth-scroll-down" id="authScrollDown" aria-label="Khám phá các tính năng">
@@ -1062,8 +1062,47 @@ function playNotificationSound(soundId = "thongbaoSound") {
   const audio = document.getElementById(soundId);
   if (!audio) return;
   audio.currentTime = 0;
+  audio.muted = false;
+  audio.volume = 1;
   audio.play().catch(() => {});
 }
+
+// Mở khoá autoplay sau lần tương tác đầu tiên của người dùng.
+// Không có bước này, thông báo từ onAuthChange (restore session) bị trình duyệt chặn tiếng.
+(function unlockAudio() {
+  const ids = ["thongbaoSound"];
+  function tryUnlock() {
+    let loaded = false;
+    ids.forEach(function (id) {
+      const a = document.getElementById(id);
+      if (!a) return;
+      a.muted = true;
+      a.volume = 0;
+      try {
+        const p = a.play();
+        if (p && p.then) {
+          p.then(function () {
+            loaded = true;
+            a.pause();
+            a.currentTime = 0;
+            a.muted = false;
+            a.volume = 1;
+          }).catch(function () {});
+        }
+      } catch (e) {}
+    });
+    if (loaded) {
+      document.removeEventListener("click", tryUnlock);
+      document.removeEventListener("touchstart", tryUnlock);
+      document.removeEventListener("pointerdown", tryUnlock);
+      document.removeEventListener("keydown", tryUnlock);
+    }
+  }
+  document.addEventListener("click", tryUnlock);
+  document.addEventListener("touchstart", tryUnlock);
+  document.addEventListener("pointerdown", tryUnlock);
+  document.addEventListener("keydown", tryUnlock);
+})();
 
 function showAuthNotice(message, type = "info", title = "", durationMs = 2600, soundId = "thongbaoSound") {
   const notice = document.getElementById("authNotice");
