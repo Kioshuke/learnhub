@@ -1081,13 +1081,13 @@ fetch('footer.html').then(r => r.text()).then(html => {
   <div class="cc-shell">
     <nav class="cc-rail" id="ccRail">
       <span class="cc-pill" id="ccPill"></span>
-      <button class="cc-nav cc-active" type="button" data-tab="home" data-tooltip="Trang chủ" aria-label="Trang chủ"><span class="cc-ico">🏠</span></button>
-      <button class="cc-nav" type="button" data-tab="profile" data-tooltip="Hồ sơ" aria-label="Hồ sơ"><span class="cc-ico">👤</span></button>
-      <button class="cc-nav" type="button" data-tab="appearance" data-tooltip="Giao diện" aria-label="Giao diện"><span class="cc-ico">🎨</span></button>
-      <button class="cc-nav" type="button" data-tab="focus" data-tooltip="Focus Mode" aria-label="Focus Mode"><span class="cc-ico">⏳</span></button>
-      <button class="cc-nav" type="button" data-tab="music" data-tooltip="Âm nhạc" aria-label="Âm nhạc"><span class="cc-ico">🎵</span></button>
-      <button class="cc-nav" type="button" data-tab="admin" data-tooltip="Admin Panel" aria-label="Admin Panel" id="ccNavAdmin"><span class="cc-ico">🛡️</span></button>
-      <button class="cc-nav cc-nav-logout" type="button" data-tab="logout" data-tooltip="Đăng xuất" aria-label="Đăng xuất"><span class="cc-ico">🚪</span></button>
+      <button class="cc-nav cc-active" type="button" data-tab="home" data-tooltip="Trang chủ" aria-label="Trang chủ"><span class="cc-ico"><i class="fa-solid fa-house"></i></span></button>
+      <button class="cc-nav" type="button" data-tab="profile" data-tooltip="Hồ sơ" aria-label="Hồ sơ"><span class="cc-ico"><i class="fa-solid fa-user"></i></span></button>
+      <button class="cc-nav" type="button" data-tab="appearance" data-tooltip="Giao diện" aria-label="Giao diện"><span class="cc-ico"><i class="fa-solid fa-palette"></i></span></button>
+      <button class="cc-nav" type="button" data-tab="focus" data-tooltip="Focus Mode" aria-label="Focus Mode"><span class="cc-ico"><i class="fa-solid fa-hourglass-half"></i></span></button>
+      <button class="cc-nav" type="button" data-tab="music" data-tooltip="Âm nhạc" aria-label="Âm nhạc"><span class="cc-ico"><i class="fa-solid fa-music"></i></span></button>
+      <button class="cc-nav" type="button" data-tab="admin" data-tooltip="Admin Panel" aria-label="Admin Panel" id="ccNavAdmin"><span class="cc-ico"><i class="fa-solid fa-shield-halved"></i></span></button>
+      <button class="cc-nav cc-nav-logout" type="button" data-tab="logout" data-tooltip="Đăng xuất" aria-label="Đăng xuất"><span class="cc-ico"><i class="fa-solid fa-right-from-bracket"></i></span></button>
     </nav>
 
     <section class="cc-body" id="ccBody">
@@ -1116,23 +1116,33 @@ fetch('footer.html').then(r => r.text()).then(html => {
       <div class="cc-pane" data-pane="appearance">
         <div class="cc-section-title">Giao diện</div>
         <label class="cc-row">
-          <span class="cc-row-label"><span class="cc-row-icon">🌙</span> Chế độ tối</span>
+          <span class="cc-row-text">
+            <span class="cc-row-label"><span class="cc-row-icon">🌙</span> Chế độ tối</span>
+            <span class="cc-row-desc">Giao diện tối, dịu mắt khi học vào ban đêm.</span>
+          </span>
           <span class="cc-switch"><input type="checkbox" id="darkModeToggle"><span class="cc-thumb"></span></span>
         </label>
         <label class="cc-row">
-          <span class="cc-row-label"><span class="cc-row-icon">🌫️</span> Hiệu ứng kính mờ</span>
+          <span class="cc-row-text">
+            <span class="cc-row-label"><span class="cc-row-icon">🌫️</span> Hiệu ứng kính mờ</span>
+            <span class="cc-row-desc">Làm mờ nền phía sau các hộp thoại.</span>
+          </span>
           <span class="cc-switch"><input type="checkbox" id="ccGlassToggle"><span class="cc-thumb"></span></span>
         </label>
         <label class="cc-row">
-          <span class="cc-row-label"><span class="cc-row-icon">✨</span> Animation chuyển tab</span>
+          <span class="cc-row-text">
+            <span class="cc-row-label"><span class="cc-row-icon">✨</span> Animation chuyển tab</span>
+            <span class="cc-row-desc">Hiệu ứng chuyển động khi chuyển giữa các tab.</span>
+          </span>
           <span class="cc-switch"><input type="checkbox" id="ccAnimToggle"><span class="cc-thumb"></span></span>
         </label>
         <label class="cc-row">
-          <span class="cc-row-label"><span class="cc-row-icon">🦾</span> Giảm chuyển động</span>
+          <span class="cc-row-text">
+            <span class="cc-row-label"><span class="cc-row-icon">🦾</span> Giảm chuyển động</span>
+            <span class="cc-row-desc">Giảm animation để máy nhẹ hơn và tránh chói mắt.</span>
+          </span>
           <span class="cc-switch"><input type="checkbox" id="ccReduceToggle"><span class="cc-thumb"></span></span>
         </label>
-        <div class="cc-section-title" style="margin-top:14px;">Màu nhấn</div>
-        <div class="cc-accent-grid" id="ccAccentRow"></div>
       </div>
 
       <div class="cc-pane" data-pane="focus">
@@ -1208,7 +1218,7 @@ fetch('footer.html').then(r => r.text()).then(html => {
 
 <div id="ccLogoutOverlay" class="cc-logout-overlay">
   <div class="cc-logout-card">
-    <div class="cc-logout-icon">🚪</div>
+    <div class="cc-logout-icon"><i class="fa-solid fa-right-from-bracket" style="color:#ef4444;"></i></div>
     <div class="cc-logout-title">Đăng xuất</div>
     <p class="cc-logout-msg">Nếu chắc chắn muốn đăng xuất, nhấn nút bên dưới nhé!</p>
     <div class="cc-logout-btns">

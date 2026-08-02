@@ -41,6 +41,16 @@
   let bodyEl = document.getElementById("ccBody");
   let adminNav = document.getElementById("ccNavAdmin");
 
+  const TAB_COLORS = {
+    home: "#2563eb",
+    profile: "#16a34a",
+    appearance: "#7c3aed",
+    focus: "#d97706",
+    music: "#db2777",
+    admin: "#dc2626",
+    logout: "#ef4444"
+  };
+
   const navButtons = Array.prototype.slice.call(document.querySelectorAll(".cc-nav"));
   const paneEls = {};
   Array.prototype.slice.call(document.querySelectorAll(".cc-pane")).forEach(function (p) {
@@ -104,7 +114,18 @@
     navButtons.forEach(function (b) {
       b.classList.toggle("cc-active", b.getAttribute("data-tab") === name);
     });
+    applyPillColor(name);
     placePill();
+  }
+
+  function applyPillColor(name) {
+    if (!rail) return;
+    const c = TAB_COLORS[name];
+    if (c) {
+      rail.style.setProperty("--cc-pill-color", c);
+    } else {
+      rail.style.removeProperty("--cc-pill-color");
+    }
   }
 
   function switchPane(name) {
@@ -941,5 +962,6 @@
   initLogout();
   initVersion();
   waitForUser();
+  applyPillColor("home");
   placePill();
 })();

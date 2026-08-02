@@ -45,7 +45,11 @@ body.dark-mode {
 
 body.cc-glass-off #userPopup,
 body.cc-glass-off .cc-focus-widget,
-body.cc-glass-off .cc-logout-overlay {
+body.cc-glass-off .cc-focus-pill,
+body.cc-glass-off .cc-logout-overlay,
+body.cc-glass-off #popup,
+body.cc-glass-off .lh-popup-overlay,
+body.cc-glass-off #lb-modal {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -156,13 +160,28 @@ body.cc-glass-off {
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: var(--cc-soft);
-  border: 1px solid color-mix(in srgb, var(--cc-accent) 35%, transparent);
-  box-shadow: 0 4px 14px color-mix(in srgb, var(--cc-accent) 22%, transparent);
+  background: color-mix(in srgb, var(--cc-pill-color, var(--cc-accent)) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cc-pill-color, var(--cc-accent)) 35%, transparent);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--cc-pill-color, var(--cc-accent)) 22%, transparent);
   transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
   z-index: 0;
 }
+
+.cc-nav[data-tab="home"]:hover,
+.cc-nav[data-tab="home"].cc-active{color:#2563eb;background:rgba(37,99,235,.12);}
+.cc-nav[data-tab="profile"]:hover,
+.cc-nav[data-tab="profile"].cc-active{color:#16a34a;background:rgba(22,163,74,.12);}
+.cc-nav[data-tab="appearance"]:hover,
+.cc-nav[data-tab="appearance"].cc-active{color:#7c3aed;background:rgba(124,58,237,.12);}
+.cc-nav[data-tab="focus"]:hover,
+.cc-nav[data-tab="focus"].cc-active{color:#d97706;background:rgba(217,119,6,.12);}
+.cc-nav[data-tab="music"]:hover,
+.cc-nav[data-tab="music"].cc-active{color:#db2777;background:rgba(219,39,119,.12);}
+.cc-nav[data-tab="admin"]:hover,
+.cc-nav[data-tab="admin"].cc-active{color:#dc2626;background:rgba(220,38,38,.12);}
+.cc-nav[data-tab="logout"]:hover,
+.cc-nav[data-tab="logout"].cc-active{color:#ef4444;background:rgba(239,68,68,.12);}
 
 .cc-body {
   position: relative;
@@ -400,6 +419,20 @@ body.cc-glass-off {
   align-items: center;
   justify-content: center;
   font-size: 13px;
+}
+
+.cc-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cc-row-desc {
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--text-sub);
+  padding-left: 36px;
 }
 
 .cc-switch {
