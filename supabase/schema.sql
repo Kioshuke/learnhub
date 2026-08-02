@@ -238,9 +238,9 @@ revoke execute on function public.handle_new_user() from public;
 
 -- Nhận lại dữ liệu cũ: khi user cũ đăng nhập lại lần đầu (cùng email),
 -- chuyển hồ sơ + điểm + bài viết forum từ uid Firebase cũ sang uid Supabase mới.
--- Xóa dòng cũ trước (giải phóng email để khỏi trùng unique index), rồi upsert
--- dòng mới theo auth uid — kể cả khi trigger handle_new_user đã bỏ qua insert
--- vì trùng email.
+-- Email lấy từ JWT session (không tin tham số client). Xóa dòng cũ rồi xóa luôn
+-- dòng mới (do handle_new_user tạo) để insert thuần theo auth uid — kể cả khi
+-- handle_new_user đã bỏ qua insert vì trùng email.
 create or replace function public.claim_legacy_data(p_email text)
 returns text
 language plpgsql security definer
@@ -248,16 +248,23 @@ set search_path = public
 as $$
 declare
   v_new_uid text := auth.uid()::text;
+  v_session_email text;
   v_old_uid text;
   v_legacy public.users%rowtype;
 begin
-  if v_new_uid is null or p_email is null or btrim(p_email) = '' then
+  if v_new_uid is null then
+    return null;
+  end if;
+
+  -- Email QUYỀN LỰC lấy từ token JWT, KHÔNG tin tham số client (p_email bị bỏ qua).
+  v_session_email := lower(btrim(coalesce(auth.jwt()->>'email', '')));
+  if v_session_email = '' then
     return null;
   end if;
 
   select firebase_uid into v_old_uid
     from public.legacy_uid_map
-   where email = lower(btrim(p_email))
+   where email = v_session_email
    limit 1;
 
   if v_old_uid is null then
@@ -269,7 +276,16 @@ begin
     return null;
   end if;
 
+  -- An toàn kép: user legacy phải có email trùng với session.
+  if lower(btrim(coalesce(v_legacy.email, ''))) <> v_session_email then
+    return null;
+  end if;
+
+  -- Xoá dòng legacy cũ, rồi xoá luôn dòng mới (do handle_new_user tạo) để insert thuần.
+  -- KHÔNG dùng insert ... on conflict (id) do update vì nhánh update sẽ kích hoạt
+  -- trigger trg_users_prevent_privilege_update (chặn tự đổi role/email/id).
   delete from public.users where id = v_old_uid;
+  delete from public.users where id = v_new_uid;
 
   insert into public.users (
     id, email, name, photo, role, bio, phone, birthdate, gender, school,
@@ -277,28 +293,15 @@ begin
   )
   values (
     v_new_uid,
-    lower(btrim(p_email)),
-    coalesce(nullif(btrim(coalesce(v_legacy.name, '')), ''), split_part(lower(btrim(p_email)), '@', 1)),
+    v_session_email,
+    coalesce(nullif(btrim(coalesce(v_legacy.name, '')), ''), split_part(v_session_email, '@', 1)),
     v_legacy.photo,
     coalesce(nullif(v_legacy.role, ''), 'Thành viên'),
     v_legacy.bio, v_legacy.phone, v_legacy.birthdate, v_legacy.gender, v_legacy.school,
     coalesce(v_legacy.created_at, now()),
     coalesce(v_legacy.last_login, now()),
     now()
-  )
-  on conflict (id) do update set
-    email       = excluded.email,
-    name        = coalesce(nullif(btrim(coalesce(public.users.name, '')), ''), excluded.name),
-    photo       = coalesce(public.users.photo, excluded.photo),
-    role        = coalesce(nullif(excluded.role, ''), public.users.role),
-    bio         = coalesce(public.users.bio, excluded.bio),
-    phone       = coalesce(public.users.phone, excluded.phone),
-    birthdate   = coalesce(public.users.birthdate, excluded.birthdate),
-    gender      = coalesce(public.users.gender, excluded.gender),
-    school      = coalesce(public.users.school, excluded.school),
-    created_at  = coalesce(public.users.created_at, excluded.created_at),
-    last_login  = coalesce(public.users.last_login, excluded.last_login),
-    updated_at  = now();
+  );
 
   update public.test_stats set user_id = v_new_uid where user_id = v_old_uid;
   update public.forum_posts set user_id = v_new_uid where user_id = v_old_uid;
@@ -710,3 +713,34 @@ begin
     end if;
   end loop;
 end $$;
+
+-- ============================== FIX C1: chặn tự đổi role/email/id ==============================
+-- User chỉ được phép update các cột thường (name, photo, bio, phone, online, ...).
+-- Mọi đổi id/email bị từ chối; đổi role chỉ admin thật (public.is_admin()) được phép.
+-- Trigger security definer chạy với quyền owner nên không bị RLS cản,
+-- public.is_admin() bên trong vẫn dùng auth.uid() nên chuẩn.
+create or replace function public.users_prevent_privilege_update()
+returns trigger
+language plpgsql security definer
+set search_path = public
+as $$
+begin
+  if (new.id is distinct from old.id) then
+    raise exception 'Không được tự đổi id.';
+  end if;
+  if (new.email is distinct from old.email) then
+    raise exception 'Không được tự đổi email.';
+  end if;
+  if (new.role is distinct from old.role) then
+    if not public.is_admin() then
+      raise exception 'Không được tự đổi quyền (role).';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_users_prevent_privilege_update on public.users;
+create trigger trg_users_prevent_privilege_update
+  before update on public.users
+  for each row execute function public.users_prevent_privilege_update();

@@ -449,7 +449,7 @@
 
     <script type="module">
         import { supabase } from "./supabase-config.js";
-        import { onAuthChange } from "./supabase-helpers.js";
+        import { onAuthChange, escapeHtml, escapeUrl } from "./supabase-helpers.js";
 
         const settingsModal = document.getElementById('settings-modal');
         let currentUserId = null;
@@ -567,12 +567,12 @@
                 const statusPulse = isOnline ? 'animate-pulse' : '';
 
                 html += `
-                    <div class="flex flex-col items-center text-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group" onclick="viewUserProfile('${u.id}')">
+                    <div class="flex flex-col items-center text-center p-1 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group" data-uid="${escapeHtml(u.id)}">
                         <div class="relative">
-                            <img src="${u.photo || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
+                            <img src="${escapeUrl(u.photo) || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
                             <span class="absolute bottom-0 right-0 w-2.5 h-2.5 ${statusColor} border-2 border-white rounded-full ${statusPulse}"></span>
                         </div>
-                        <span class="text-[10px] font-medium mt-1.5 text-gray-700 truncate w-full px-0.5">${u.name || 'User'}</span>
+                        <span class="text-[10px] font-medium mt-1.5 text-gray-700 truncate w-full px-0.5">${escapeHtml(u.name) || 'User'}</span>
                     </div>
                 `;
             });
@@ -589,6 +589,19 @@
 
             usersContainer.innerHTML = html;
         }
+
+        // Click 1 lần ủy quyền cho toàn bộ grid (thay onclick inline → chống attribute injection).
+        (function () {
+            const gridEl = document.getElementById('users-grid');
+            if (!gridEl) return;
+            gridEl.addEventListener('click', (e) => {
+                const item = e.target.closest('[data-uid]');
+                if (!item) return;
+                if (typeof window.viewUserProfile === 'function') {
+                    window.viewUserProfile(item.dataset.uid);
+                }
+            });
+        })();
 
         function startUsersListener() {
             if (usersChannel) supabase.removeChannel(usersChannel);
@@ -972,6 +985,28 @@
             }
         });
 
+        // Validate đầu vào hồ sơ trước khi lưu (chống lưu nội dung gây XSS).
+        function validateProfileInput(p) {
+            const name = String(p.name || "").trim();
+            const bio = String(p.bio || "").trim();
+            if (name.length > 60) return "Tên không được dài quá 60 ký tự.";
+            if (bio.length > 200) return "Tiểu sử không được dài quá 200 ký tự.";
+            if (/[<>]/.test(name)) return "Tên không được chứa ký tự < hoặc >.";
+            if (/[<>]/.test(bio)) return "Tiểu sử không được chứa ký tự < hoặc >.";
+            const photo = String(p.photo || "").trim();
+            if (photo) {
+                try {
+                    const u = new URL(photo);
+                    if (u.protocol !== "http:" && u.protocol !== "https:") {
+                        return "URL ảnh không hợp lệ (chỉ chấp nhận http/https).";
+                    }
+                } catch (err) {
+                    return "URL ảnh không hợp lệ (chỉ chấp nhận http/https).";
+                }
+            }
+            return null;
+        }
+
         window.saveSettings = function(e) {
             e.preventDefault();
             if (!currentUserId) return window.showToast("Lỗi: Không tìm thấy phiên đăng nhập!", "error");
@@ -988,6 +1023,9 @@
                 school: document.getElementById('school-name-display').value,
                 updated_at: new Date().toISOString()
             };
+
+            const invalid = validateProfileInput(updatedProfile);
+            if (invalid) return window.showToast(invalid, "error");
 
             supabase.from("users").update(updatedProfile).eq("id", currentUserId)
                 .then(() => {

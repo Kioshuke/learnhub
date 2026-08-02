@@ -12,6 +12,25 @@ export function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
 
+// ---------- ESCAPE (chống XSS khi render dữ liệu user vào innerHTML) ----------
+
+export function escapeHtml(v) {
+  return String(v ?? "").replace(/[&<>"'`=\/]/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;", "`": "&#96;", "=": "&#61;", "/": "&#47;"
+  }[c]));
+}
+
+// Chỉ cho phép URL http/https (chặn javascript:, data:text/html, sai scheme).
+export function escapeUrl(u) {
+  const s = String(u ?? "").trim();
+  if (!s) return "";
+  try {
+    const p = new URL(s);
+    if (p.protocol === "http:" || p.protocol === "https:") return s;
+  } catch (e) { /* bỏ qua */ }
+  return "";
+}
+
 // ---------- MAINTENANCE ----------
 
 export async function getMaintenance() {
@@ -123,10 +142,14 @@ export async function finalizeSession(user) {
   if (name) patch.name = name;
   if (photo) patch.photo = photo;
 
+  const payload = { id: user.id, ...patch };
+  const normEmail = normalizeEmail(email);
+  if (normEmail) payload.email = normEmail;
+
   try {
     const { error } = await supabase
       .from("users")
-      .upsert({ id: user.id, email, ...patch }, { onConflict: "id" });
+      .upsert(payload, { onConflict: "id" });
     if (error) throw error;
   } catch (e) {
     console.error("[supabase-helpers] finalizeSession upsert lỗi:", e);

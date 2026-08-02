@@ -323,12 +323,21 @@ function closeMainPopup(){
   }
 }
 
+function safeHtml(html) {
+  if (window.DOMPurify && typeof window.DOMPurify.sanitize === "function") {
+    return window.DOMPurify.sanitize(html);
+  }
+  return String(html ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
 function showMainPopup(title, message){
   if(mainPopupTitleEl){
     mainPopupTitleEl.textContent = title || "📢 Thông báo";
   }
   if(mainPopupMessageEl){
-    mainPopupMessageEl.innerHTML = message || "";
+    mainPopupMessageEl.innerHTML = safeHtml(message || "");
   }
   if(popup){
     popup.style.display = "flex";
