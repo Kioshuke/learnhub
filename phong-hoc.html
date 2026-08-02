@@ -243,15 +243,25 @@ body.dark-mode .schedule-item-session.evening{background:#241a3d;color:#c4b5fd;}
 .grammar-player-content{display:flex;align-items:flex-start;gap:14px;width:100%;}
 .grammar-player-content .video-frame{flex:1 1 68%;min-width:0;margin:0;align-self:flex-start;}
 .grammar-sidebar{flex:0 0 260px;align-self:stretch;display:flex;flex-direction:column;min-height:0;background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;overflow:hidden;}
-.grammar-sidebar-header{flex-shrink:0;padding:10px 14px;font-size:12.5px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--text-sub);background:var(--notice-bg);border-bottom:1px solid var(--card-border);}
+.grammar-sidebar-header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;font-size:12.5px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--text-sub);background:var(--notice-bg);border-bottom:1px solid var(--card-border);}
+.watched-counter{font-size:11px;font-weight:700;letter-spacing:0;text-transform:none;color:var(--text-sub);white-space:nowrap;}
+.watched-counter b{color:#16a34a;font-weight:800;}
 .grammar-sidebar-list{list-style:none;margin:0;padding:6px;overflow-y:auto;flex:1 1 auto;min-height:0;}
 .grammar-sidebar-item{display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:4px;border-radius:10px;font-size:13px;font-weight:600;line-height:1.3;color:var(--text-sub);cursor:pointer;transition:background .18s,color .18s;}
 .grammar-sidebar-item i{flex-shrink:0;font-size:11px;}
 .grammar-sidebar-item:hover{background:var(--notice-bg);color:var(--text);}
 .grammar-sidebar-item.active{background:var(--tab,#0891b2);color:#fff;}
+.grammar-sidebar-item .watched-tick{display:none;margin-left:auto;color:#16a34a;font-size:14px;}
+.grammar-sidebar-item.watched .watched-tick{display:inline-block;}
+.grammar-sidebar-item.active .watched-tick{color:#fff;}
 @media (max-width:768px){
   .grammar-player-content{flex-direction:column;}
   .grammar-sidebar{flex:0 0 auto;align-self:stretch;border-radius:12px;}
+}
+.video-frame.pdf-mode{aspect-ratio:auto;height:75vh;max-height:820px;min-height:420px;}
+.video-frame.pdf-mode iframe{width:100%;height:100%;border:0;background:#fff;}
+@media (max-width:768px){
+  .video-frame.pdf-mode{height:60vh;min-height:320px;}
 }
 </style>
 </head>
@@ -406,9 +416,9 @@ body.dark-mode .schedule-item-session.evening{background:#241a3d;color:#c4b5fd;}
     <div class="card" style="--card-index:2">
       <div class="card-color-bar"></div>
       <div class="card-body">
-        <div class="card-top"><div class="card-icon"><i class="fas fa-file-pdf"></i></div><h3>Tài liệu</h3><span class="status done"></span></div>
-        <p class="card-desc">Giới hạn hàm số - Nhập môn buổi 1 (Live - đã gộp).</p>
-        <div class="btn-row"><a class="btn" href="cauhoi/Gi%E1%BB%9Bi%20h%E1%BA%A1n%20h%C3%A0m%20s%E1%BB%91%20-%20Nh%E1%BA%ADp%20m%C3%B4n%20bu%E1%BB%95i%201%20-%20Live-%C4%91%C3%A3%20g%E1%BB%99p.pdf" target="_blank" rel="noopener">Xem tài liệu</a></div>
+        <div class="card-top"><div class="card-icon"><i class="fas fa-th"></i></div><h3>TOÁN MA TRẬN</h3><span class="status done"></span></div>
+        <p class="card-desc">Tổng hợp 5 buổi toán cao cấp: Ma trận, Định thức, Nghịch đảo, Hạng, Lũy thừa bậc cao.</p>
+        <div class="btn-row"><a class="btn" href="#" onclick="loadMatrixPlayer(); return false;">Xem video</a></div>
       </div>
     </div>
   </div>
@@ -454,6 +464,12 @@ window.addEventListener('message', function(event) {
   if (!event.data) return;
   if (event.data.type === 'LEARNHUB_USER') {
     window.learnHubUser = event.data.user;
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'LEARNHUB_REQUEST_WATCHED', uid: event.data.user && event.data.user.uid }, '*');
+    }
+  }
+  if (event.data.type === 'LEARNHUB_WATCHED_LIST') {
+    applyWatchedList(event.data.videoIds);
   }
   if (event.data.type === 'LEARNHUB_TEST_RESULT') {
     if (window.parent && window.parent !== window) {
@@ -506,6 +522,9 @@ function loadQuiz(btn, link) {
 }
 
 function closeQuiz() {
+  stopWatchTimer();
+  ytPlayer = null;
+  currentVideoId = null;
   document.getElementById("quiz").innerHTML = "";
   document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
   if (window.parent && window.parent !== window) {
@@ -514,6 +533,165 @@ function closeQuiz() {
 }
 
 /* ===== YOUTUBE VIDEO PLAYER ===== */
+
+/* --- YouTube IFrame Player API: theo dõi tiến độ xem để tick "đã xem" --- */
+var ytPlayer = null;
+var currentVideoId = null;
+var watchProgressTimer = null;
+var watchedVideoIds = new Set();
+
+function ensureYouTubeAPI(callback) {
+  if (window.YT && window.YT.Player) { callback(); return; }
+  if (!window.__ytApiLoading) {
+    window.__ytApiLoading = true;
+    var tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(tag);
+  }
+  var prevReady = window.onYouTubeIframeAPIReady;
+  window.onYouTubeIframeAPIReady = function() {
+    if (typeof prevReady === "function") prevReady();
+    callback();
+  };
+}
+
+function createYTPlayer(elementId, videoId) {
+  stopWatchTimer();
+  currentVideoId = videoId;
+  ytPlayer = new YT.Player(elementId, {
+    videoId: videoId,
+    playerVars: { rel: 0 },
+    events: { onStateChange: onYTStateChange }
+  });
+}
+
+function onYTStateChange(e) {
+  if (e.data === YT.PlayerState.PLAYING) {
+    startWatchTimer();
+  } else {
+    stopWatchTimer();
+  }
+}
+
+function startWatchTimer() {
+  stopWatchTimer();
+  watchProgressTimer = setInterval(checkWatchProgress, 1000);
+}
+
+function stopWatchTimer() {
+  if (watchProgressTimer) { clearInterval(watchProgressTimer); watchProgressTimer = null; }
+}
+
+function checkWatchProgress() {
+  if (!ytPlayer || !currentVideoId || watchedVideoIds.has(currentVideoId)) return;
+  var duration = ytPlayer.getDuration ? ytPlayer.getDuration() : 0;
+  var time = ytPlayer.getCurrentTime ? ytPlayer.getCurrentTime() : 0;
+  if (duration > 0 && time / duration >= 0.75) {
+    markVideoWatched(currentVideoId);
+  }
+}
+
+function markVideoWatched(videoId) {
+  watchedVideoIds.add(videoId);
+  var item = document.querySelector('.grammar-sidebar-item[data-video="' + videoId + '"]');
+  if (item) item.classList.add("watched");
+  updateWatchedCounter();
+  if (window.learnHubUser && window.learnHubUser.uid && window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      type: "LEARNHUB_VIDEO_WATCHED",
+      uid: window.learnHubUser.uid,
+      videoId: videoId
+    }, "*");
+  }
+}
+
+function applyWatchedList(videoIds) {
+  watchedVideoIds = new Set(Array.isArray(videoIds) ? videoIds : []);
+  document.querySelectorAll(".grammar-sidebar-item[data-video]").forEach(function(li) {
+    var vid = li.getAttribute("data-video");
+    li.classList.toggle("watched", !!vid && watchedVideoIds.has(vid));
+  });
+  updateWatchedCounter();
+}
+
+function updateWatchedCounter() {
+  var sidebar = document.querySelector(".grammar-sidebar");
+  var counter = sidebar ? sidebar.querySelector(".watched-counter") : null;
+  if (!counter) return;
+  var total = 0;
+  var watched = 0;
+  sidebar.querySelectorAll(".grammar-sidebar-item[data-video]").forEach(function(li) {
+    total++;
+    var vid = li.getAttribute("data-video");
+    if (vid && watchedVideoIds.has(vid)) watched++;
+  });
+  counter.innerHTML = total ? 'Đã xem <b>' + watched + '</b>/' + total : "";
+}
+
+function initSidebarTicks() {
+  document.querySelectorAll(".grammar-sidebar-item[data-video]").forEach(function(li) {
+    if (!li.querySelector(".watched-tick")) {
+      var tick = document.createElement("i");
+      tick.className = "fas fa-check-circle watched-tick";
+      li.appendChild(tick);
+    }
+    var vid = li.getAttribute("data-video");
+    if (vid && watchedVideoIds.has(vid)) li.classList.add("watched");
+  });
+  updateWatchedCounter();
+}
+
+function switchSidebarVideo(item) {
+  var videoId = item.getAttribute("data-video");
+  if (!videoId) return;
+  document.querySelectorAll(".grammar-sidebar-item").forEach(function(el) {
+    el.classList.remove("active");
+  });
+  item.classList.add("active");
+  var frame = document.querySelector(".video-frame");
+  if (frame && frame.classList.contains("pdf-mode")) {
+    frame.classList.remove("pdf-mode");
+    frame.innerHTML = '<div id="ytPlayerHost"></div>';
+    if (ytPlayer && typeof ytPlayer.destroy === "function") ytPlayer.destroy();
+    ytPlayer = null;
+    currentVideoId = videoId;
+    ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", videoId); });
+    return;
+  }
+  currentVideoId = videoId;
+  if (ytPlayer && typeof ytPlayer.loadVideoById === "function") {
+    ytPlayer.loadVideoById(videoId);
+  }
+}
+
+function switchSidebarPdf(item) {
+  var pdf = item.getAttribute("data-pdf");
+  if (!pdf) return;
+  document.querySelectorAll(".grammar-sidebar-item").forEach(function(el) {
+    el.classList.remove("active");
+  });
+  item.classList.add("active");
+  showPdfPlayer(pdf);
+}
+
+function getPdfEmbedUrl(url) {
+  if (!url) return "";
+  var m = String(url).match(/\/file\/d\/([^/?#]+)/);
+  if (m && m[1]) return "https://drive.google.com/file/d/" + m[1] + "/preview";
+  return url;
+}
+
+function showPdfPlayer(pdfUrl) {
+  stopWatchTimer();
+  if (ytPlayer && typeof ytPlayer.destroy === "function") ytPlayer.destroy();
+  ytPlayer = null;
+  currentVideoId = null;
+  var frame = document.querySelector(".video-frame");
+  if (!frame) return;
+  frame.classList.add("pdf-mode");
+  frame.innerHTML = '<iframe src="' + getPdfEmbedUrl(pdfUrl) + '" title="Tài liệu PDF"></iframe>';
+}
+
 function getYoutubeEmbedUrl(url) {
   try {
     const parsed = new URL(url);
@@ -593,18 +771,6 @@ function loadVideo(btn, url) {
   }, 50);
 }
 
-function playGrammarVideo(item) {
-  var videoId = item.getAttribute("data-video");
-  var iframe = document.getElementById("grammarVideo");
-  if (iframe && videoId) {
-    iframe.src = "https://www.youtube.com/embed/" + videoId;
-  }
-  document.querySelectorAll(".grammar-sidebar-item").forEach(function(el) {
-    el.classList.remove("active");
-  });
-  item.classList.add("active");
-}
-
 function loadGrammarPlayer() {
   document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
   var card = document.querySelector('.card h3');
@@ -619,46 +785,38 @@ function loadGrammarPlayer() {
       '</div>' +
       '<div class="grammar-player-content">' +
         '<div class="video-frame">' +
-          '<iframe id="grammarVideo" src="https://www.youtube.com/embed/H8Fcn9XpDic" title="Video" frameborder="0" allowfullscreen="true" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>' +
+          '<div id="ytPlayerHost"></div>' +
         '</div>' +
         '<div class="grammar-sidebar">' +
-          '<div class="grammar-sidebar-header">Mục lục</div>' +
+          '<div class="grammar-sidebar-header">Mục lục<span class="watched-counter"></span></div>' +
           '<ul class="grammar-sidebar-list">' +
-            '<li class="grammar-sidebar-item active" data-video="H8Fcn9XpDic" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> So sánh</li>' +
-            '<li class="grammar-sidebar-item" data-video="RQb4H9iBup0" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Thì của động từ</li>' +
-            '<li class="grammar-sidebar-item" data-video="K8743i3Lx6E" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Câu bị động</li>' +
-            '<li class="grammar-sidebar-item" data-video="xmL6XgE2xE0" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Mệnh đề quan hệ</li>' +
-            '<li class="grammar-sidebar-item" data-video="dh06Qd5uPRI" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Động từ khuyết thiếu</li>' +
-            '<li class="grammar-sidebar-item" data-video="_Ce2kBuivNA" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Từ loại</li>' +
-            '<li class="grammar-sidebar-item" data-video="G7TBLDeFIuM" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Câu điều kiện</li>' +
-            '<li class="grammar-sidebar-item" data-video="3Q6MtuYtc00" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Liên từ</li>' +
-            '<li class="grammar-sidebar-item" data-video="fW3j-JhEHzE" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Lượng từ</li>' +
-            '<li class="grammar-sidebar-item" data-video="BtXJGT_6efk" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Word Form</li>' +
-            '<li class="grammar-sidebar-item" data-video="XwvUbIkt1ZQ" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Câu tường thuật</li>' +
-            '<li class="grammar-sidebar-item" data-video="Q8kKYTVKa4c" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Mạo từ</li>' +
-            '<li class="grammar-sidebar-item" data-video="r1lvjKxSyTk" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Sự phối thì</li>' +
-            '<li class="grammar-sidebar-item" data-video="5IHP4GYrDpw" onclick="playGrammarVideo(this)"><i class="fas fa-play-circle"></i> Word Order</li>' +
+            '<li class="grammar-sidebar-item active" data-video="H8Fcn9XpDic" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> So sánh</li>' +
+            '<li class="grammar-sidebar-item" data-video="RQb4H9iBup0" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Thì của động từ</li>' +
+            '<li class="grammar-sidebar-item" data-video="K8743i3Lx6E" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Câu bị động</li>' +
+            '<li class="grammar-sidebar-item" data-video="xmL6XgE2xE0" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Mệnh đề quan hệ</li>' +
+            '<li class="grammar-sidebar-item" data-video="dh06Qd5uPRI" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Động từ khuyết thiếu</li>' +
+            '<li class="grammar-sidebar-item" data-video="_Ce2kBuivNA" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Từ loại</li>' +
+            '<li class="grammar-sidebar-item" data-video="G7TBLDeFIuM" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Câu điều kiện</li>' +
+            '<li class="grammar-sidebar-item" data-video="3Q6MtuYtc00" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Liên từ</li>' +
+            '<li class="grammar-sidebar-item" data-video="fW3j-JhEHzE" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Lượng từ</li>' +
+            '<li class="grammar-sidebar-item" data-video="BtXJGT_6efk" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Word Form</li>' +
+            '<li class="grammar-sidebar-item" data-video="XwvUbIkt1ZQ" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Câu tường thuật</li>' +
+            '<li class="grammar-sidebar-item" data-video="Q8kKYTVKa4c" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Mạo từ</li>' +
+            '<li class="grammar-sidebar-item" data-video="r1lvjKxSyTk" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Sự phối thì</li>' +
+            '<li class="grammar-sidebar-item" data-video="5IHP4GYrDpw" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Word Order</li>' +
+            '<li class="grammar-sidebar-item" data-pdf="cauhoi/tongonav.pdf" onclick="switchSidebarPdf(this)"><i class="fas fa-file-pdf"></i> Tài liệu tổng ôn</li>' +
           '</ul>' +
         '</div>' +
       '</div>' +
     '</div>';
 
+  initSidebarTicks();
+  ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", "H8Fcn9XpDic"); });
+
   setTimeout(function() {
     var q = document.getElementById("quiz");
     if (q) q.scrollIntoView({ behavior: "smooth", block: "start" });
   }, 50);
-}
-
-function playMathVideo(item) {
-  var videoId = item.getAttribute("data-video");
-  var iframe = document.getElementById("mathVideo");
-  if (iframe && videoId) {
-    iframe.src = "https://www.youtube.com/embed/" + videoId;
-  }
-  document.querySelectorAll(".math-sidebar-item").forEach(function(el) {
-    el.classList.remove("active");
-  });
-  item.classList.add("active");
 }
 
 function loadMathPlayer() {
@@ -675,22 +833,65 @@ function loadMathPlayer() {
       '</div>' +
       '<div class="grammar-player-content">' +
         '<div class="video-frame">' +
-          '<iframe id="mathVideo" src="https://www.youtube.com/embed/2H-XDZ3lB6g" title="Video" frameborder="0" allowfullscreen="true" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>' +
+          '<div id="ytPlayerHost"></div>' +
         '</div>' +
         '<div class="grammar-sidebar">' +
-          '<div class="grammar-sidebar-header">Mục lục</div>' +
+          '<div class="grammar-sidebar-header">Mục lục<span class="watched-counter"></span></div>' +
           '<ul class="grammar-sidebar-list">' +
-            '<li class="grammar-sidebar-item math-sidebar-item active" data-video="2H-XDZ3lB6g" onclick="playMathVideo(this)"><i class="fas fa-play-circle"></i> B1: Giới hạn hàm số</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="_cljZgXg2WM" onclick="playMathVideo(this)"><i class="fas fa-play-circle"></i> B2: Giới hạn hàm số (tiếp)</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="uxFFDiWAOYQ" onclick="playMathVideo(this)"><i class="fas fa-play-circle"></i> B3: Một số dạng hàm số quan trọng</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="ZfaqXVhJEh4" onclick="playMathVideo(this)"><i class="fas fa-play-circle"></i> B4: Đại lượng vô cùng bé - vô cùng lớn</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="VuFcNmS4myw" onclick="playMathVideo(this)"><i class="fas fa-play-circle"></i> B5: PP L\'Hospital - giới hạn hàm số mũ</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="ZRYN2Bhi6p4" onclick="playMathVideo(this)"><i class="fas fa-play-circle"></i> B6: Luyện tập giới hạn hàm số</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="n6VxD511CLM" onclick="playMathVideo(this)"><i class="fas fa-play-circle"></i> B7: Dãy số - Giới hạn dãy số</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item active" data-video="2H-XDZ3lB6g" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B1: Giới hạn hàm số</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item" data-video="_cljZgXg2WM" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B2: Giới hạn hàm số (tiếp)</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item" data-video="uxFFDiWAOYQ" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B3: Một số dạng hàm số quan trọng</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item" data-video="ZfaqXVhJEh4" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B4: Đại lượng vô cùng bé - vô cùng lớn</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item" data-video="VuFcNmS4myw" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B5: PP L\'Hospital - giới hạn hàm số mũ</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item" data-video="ZRYN2Bhi6p4" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B6: Luyện tập giới hạn hàm số</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item" data-video="n6VxD511CLM" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B7: Dãy số - Giới hạn dãy số</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item" data-pdf="cauhoi/Gi%E1%BB%9Bi%20h%E1%BA%A1n%20h%C3%A0m%20s%E1%BB%91%20-%20Nh%E1%BA%ADp%20m%C3%B4n%20bu%E1%BB%95i%201%20-%20Live-%C4%91%C3%A3%20g%E1%BB%99p.pdf" onclick="switchSidebarPdf(this)"><i class="fas fa-file-pdf"></i> Tài liệu giải tích 1</li>' +
           '</ul>' +
         '</div>' +
       '</div>' +
     '</div>';
+
+  initSidebarTicks();
+  ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", "2H-XDZ3lB6g"); });
+
+  setTimeout(function() {
+    var q = document.getElementById("quiz");
+    if (q) q.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 50);
+}
+
+function loadMatrixPlayer() {
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
+  var card = document.querySelector('.card h3');
+  if (card && card.textContent === "TOÁN MA TRẬN") {
+    card.closest(".card").classList.add("active-card");
+  }
+
+  document.getElementById("quiz").innerHTML =
+    '<div class="video-box">' +
+      '<div class="video-topbar">' +
+        '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng video</button>' +
+      '</div>' +
+      '<div class="grammar-player-content">' +
+        '<div class="video-frame">' +
+          '<div id="ytPlayerHost"></div>' +
+        '</div>' +
+        '<div class="grammar-sidebar">' +
+          '<div class="grammar-sidebar-header">Mục lục<span class="watched-counter"></span></div>' +
+          '<ul class="grammar-sidebar-list">' +
+            '<li class="grammar-sidebar-item math-sidebar-item active" data-video="WqmuR6hhzIo" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B1: Ma trận - Các phép toán</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item" data-video="vLS9UWTIE6U" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B2: Định thức ma trận</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item" data-video="ti61DhllUnE" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B3: Ma trận nghịch đảo</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item" data-video="KMSsoeCds7E" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B4: Hạng ma trận</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item" data-video="gwJaJ_5AU0Q" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B5: Nâng cao - Lũy thừa bậc cao ma trận</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item" data-pdf="cauhoi/%5BD%C3%A3n%20D%C3%B2ng%5D%20-%2010%20bu%E1%BB%95i%20to%C3%A1n%20cao%20c%E1%BA%A5p%20ma%20tr%E1%BA%ADn.pdf" onclick="switchSidebarPdf(this)"><i class="fas fa-file-pdf"></i> Tài liệu</li>' +
+          '</ul>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  initSidebarTicks();
+  ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", "WqmuR6hhzIo"); });
 
   setTimeout(function() {
     var q = document.getElementById("quiz");

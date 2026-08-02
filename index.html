@@ -1031,6 +1031,37 @@ window.addEventListener("message", (event) => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 });
+window.addEventListener("message", async (event) => {
+  const phocFrame = document.getElementById("phongHocFrame");
+  if (!phocFrame || event.source !== phocFrame.contentWindow) return;
+  const u = window.currentLearnHubUser;
+  if (!u || !u.uid) return;
+
+  if (event.data && event.data.type === "LEARNHUB_VIDEO_WATCHED" && event.data.videoId) {
+    try {
+      await supabase.from("watched_videos").upsert(
+        { user_id: u.uid, video_id: String(event.data.videoId) },
+        { onConflict: "user_id,video_id", ignoreDuplicates: true }
+      );
+    } catch (e) {
+      console.log("Không thể lưu video đã xem:", e);
+    }
+    return;
+  }
+
+  if (event.data && event.data.type === "LEARNHUB_REQUEST_WATCHED") {
+    try {
+      const { data } = await supabase
+        .from("watched_videos")
+        .select("video_id")
+        .eq("user_id", u.uid);
+      const videoIds = (data || []).map(r => r.video_id);
+      phocFrame.contentWindow.postMessage({ type: "LEARNHUB_WATCHED_LIST", videoIds }, "*");
+    } catch (e) {
+      console.log("Không thể đồng bộ video đã xem:", e);
+    }
+  }
+});
 </script>
 <div id="lh-footer-placeholder"></div>
 <script>
