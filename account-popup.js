@@ -44,7 +44,6 @@
   let rail = document.getElementById("ccRail");
   let pill = document.getElementById("ccPill");
   let bodyEl = document.getElementById("ccBody");
-  let adminNav = document.getElementById("ccNavAdmin");
 
   const TAB_COLORS = {
     home: "#2563eb",
@@ -929,11 +928,7 @@
       .select("role")
       .eq("id", u.uid)
       .maybeSingle()
-      .then(function (res) {
-        const role = String((res.data && res.data.role) || "").toLowerCase();
-        if (role && role !== "admin" && adminNav) {
-          adminNav.style.display = "none";
-        }
+      .then(function () {
         placePill();
       })
       .catch(function () {});
