@@ -47,9 +47,9 @@ body.cc-glass-off #userPopup,
 body.cc-glass-off .cc-focus-widget,
 body.cc-glass-off .cc-focus-pill,
 body.cc-glass-off .cc-logout-overlay,
-body.cc-glass-off #popup,
 body.cc-glass-off .lh-popup-overlay,
-body.cc-glass-off #lb-modal {
+body.cc-glass-off #lb-modal,
+body.cc-glass-off #schedule-modal {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }

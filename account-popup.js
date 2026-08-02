@@ -10,10 +10,17 @@
 
   const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  function loadReducePref() {
+    const v = localStorage.getItem(STORE_KEYS.reduce);
+    if (v === "on") return true;
+    if (v === "off") return false;
+    return prefersReduced || (window.matchMedia && window.matchMedia("(max-width: 768px)").matches);
+  }
+
   const prefs = {
     glass: localStorage.getItem(STORE_KEYS.glass) !== "off",
     anim: localStorage.getItem(STORE_KEYS.anim) !== "off" && !prefersReduced,
-    reduce: localStorage.getItem(STORE_KEYS.reduce) === "on" || prefersReduced,
+    reduce: loadReducePref(),
     accent: localStorage.getItem(STORE_KEYS.accent)
   };
 
@@ -59,7 +66,8 @@
 
   function applyPrefs() {
     document.body.classList.toggle("cc-glass-off", !prefs.glass);
-    document.body.classList.toggle("cc-no-anim", !prefs.anim || prefs.reduce);
+    document.body.classList.toggle("cc-no-anim", !prefs.anim);
+    document.body.classList.toggle("cc-reduced", prefs.reduce);
     if (prefs.accent) {
       document.body.style.setProperty("--cc-accent", prefs.accent);
     } else {
@@ -182,7 +190,7 @@
       anim.addEventListener("change", function () {
         prefs.anim = anim.checked;
         localStorage.setItem(STORE_KEYS.anim, prefs.anim ? "on" : "off");
-        document.body.classList.toggle("cc-no-anim", !prefs.anim || prefs.reduce);
+        document.body.classList.toggle("cc-no-anim", !prefs.anim);
       });
     }
     const reduce = document.getElementById("ccReduceToggle");
@@ -190,7 +198,7 @@
       reduce.addEventListener("change", function () {
         prefs.reduce = reduce.checked;
         localStorage.setItem(STORE_KEYS.reduce, prefs.reduce ? "on" : "off");
-        document.body.classList.toggle("cc-no-anim", !prefs.anim || prefs.reduce);
+        document.body.classList.toggle("cc-reduced", prefs.reduce);
       });
     }
   }

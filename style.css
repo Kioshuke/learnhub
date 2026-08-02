@@ -3220,6 +3220,7 @@ animation: pulse-green 2s infinite;
 .info-card h3 {
   margin: 0 0 15px 0;
   font-size: 18px;
+  font-weight: 700;
   color: var(--blue-accent);
   display: flex;
   align-items: center;
@@ -3263,6 +3264,80 @@ animation: pulse-green 2s infinite;
   10%, 30% { transform: rotate(14deg) }
   20% { transform: rotate(-8deg) }
   40% { transform: rotate(-4deg) }
+}
+
+/* ===== HUBIE ROW (Trợ lý ảo + Tính năng nổi bật) ===== */
+.hubie-row {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.hubie-row .hubie-introduce {
+  flex: 1 1 50%;
+  max-width: none;
+  margin: 0;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hubie-feature-card {
+  flex: 1 1 50%;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  text-align: left;
+  background: var(--hubie-bg);
+  border: 1px solid var(--footer-border);
+  border-radius: 14px;
+  padding: 15px 20px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.hubie-row .hubie-introduce:hover,
+.hubie-feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--footer-shadow);
+}
+.hubie-feat-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+  animation: hubieShake 2s ease-in-out infinite;
+}
+.hubie-feat-content {
+  min-width: 0;
+}
+.hubie-feat-content h4 {
+  margin: 0 0 4px 0;
+  color: var(--blue-accent);
+  font-size: 14.5px;
+  font-weight: 700;
+}
+.hubie-feat-content p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-sub);
+  line-height: 1.4;
+}
+
+@keyframes hubieShake {
+  0%, 22%, 100% { transform: rotate(0) scale(1); }
+  27% { transform: rotate(-12deg) scale(1.12); }
+  34% { transform: rotate(10deg) scale(1.12); }
+  41% { transform: rotate(-8deg) scale(1.06); }
+  48% { transform: rotate(6deg) scale(1.06); }
+  55% { transform: rotate(0) scale(1); }
+}
+
+@media (max-width: 768px) {
+  .hubie-row {
+    flex-direction: column;
+  }
+  .hubie-feature-card {
+    flex: 1 1 auto;
+  }
 }
 
 /* ==================== TÍNH NĂNG NỔI BẬT (FEATURED FEATURES) ==================== */
@@ -3512,6 +3587,7 @@ animation: pulse-green 2s infinite;
   .feature-link,
   .featured-header h2,
   .hubie-avatar,
+  .hubie-feat-icon,
   .slide-img {
     animation: none !important;
     transition: none !important;
@@ -3617,4 +3693,56 @@ animation: pulse-green 2s infinite;
     height: 100vh !important;
     position: fixed !important;
     width: 100% !important;
+}
+
+/* ===== CHẾ ĐỘ GIẢM CHUYỂN ĐỘNG (body.cc-reduced) =====
+   Bật trong popup user -> Giao diện -> "Giảm chuyển động".
+   Giảm nhẹ hiệu ứng để mượt hơn trên thiết bị yếu — không bỏ hẳn. */
+body.cc-reduced *,
+body.cc-reduced *::before,
+body.cc-reduced *::after {
+  animation-duration: 0.2s !important;
+  transition-duration: 0.15s !important;
+}
+
+/* Tắt các vòng lặp chạy liên tục (nặng nhất), giữ hiệu ứng xuất hiện 1 lần */
+body.cc-reduced #loadingOverlay::before,
+body.cc-reduced .spin-slow,
+body.cc-reduced .pulse-bar,
+body.cc-reduced .loading-dot,
+body.cc-reduced .loading-brand img,
+body.cc-reduced .loading-brand h2,
+body.cc-reduced .status::before,
+body.cc-reduced .subject-notice,
+body.cc-reduced .online-pulse,
+body.cc-reduced .hubie-avatar,
+body.cc-reduced .hubie-feat-icon,
+body.cc-reduced .skel-bar,
+body.cc-reduced [class*="skel-"],
+body.cc-reduced .cc-track-eq span {
+  animation: none !important;
+}
+
+/* Header gradient vẫn chạy bình thường cho dù bật giảm chuyển động */
+body.cc-reduced .header {
+  animation: headerFlow 10s ease infinite !important;
+}
+
+/* Ticker (chữ chạy) vẫn chạy bình thường cho dù bật giảm chuyển động */
+body.cc-reduced .ticker-text {
+  animation: scrollText 18s linear infinite !important;
+}
+@media (max-width: 768px) {
+  body.cc-reduced .ticker-text {
+    animation: scrollText 24s linear infinite !important;
+  }
+}
+
+/* Hiện nội dung nhẹ nhàng, dịch ít hơn */
+body.cc-reduced .reveal-item {
+  transform: translateY(8px);
+  transition-duration: 0.2s;
+}
+body.cc-reduced .slide-text-block.active {
+  animation-duration: 0.2s;
 }

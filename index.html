@@ -128,10 +128,10 @@ fetch('header.html').then(r=>r.text()).then(html=>{
         <p>Ôn tập kiến thức theo môn học kết hợp cùng nền tảng LearnHub Test ngay trên nền tảng.</p>
         <span class="feature-link">Tham gia ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
-      <a class="feature-card" href="phong-hoc.html" data-open="phong-hoc" style="--feat-color:#0d9488;">
+      <a class="feature-card" href="phong-hoc.html" data-open="schedule" onclick="event.preventDefault(); openScheduleModal(); return false;" style="--feat-color:#0d9488;">
         <div class="feature-icon">📅</div>
         <h3>Lịch học &amp; Thi</h3>
-        <p>Lịch học và lịch thi cập nhật trực tiếp từ ban quản trị, hiển thị ngay đầu trang Phòng Học.</p>
+        <p>Lịch học và lịch thi cập nhật trực tiếp từ ban quản trị.</p>
         <span class="feature-link">Xem lịch <i class="fa-solid fa-arrow-right"></i></span>
       </a>
       <a class="feature-card" href="AI.html" data-open="chat" style="--feat-color:#0891b2;">
@@ -182,11 +182,20 @@ fetch('header.html').then(r=>r.text()).then(html=>{
     <h1>Chào mừng bạn đến với LearnHub Platform!</h1>
     <p class="subtitle">Hệ sinh thái học tập và rèn luyện trực tuyến tích hợp công nghệ thông minh, được xây dựng nhằm mang lại không gian tự học linh hoạt, cá nhân hóa và tối ưu nhất cho học sinh - sinh viên.</p>
 
-    <div class="hubie-introduce">
-      <div class="hubie-avatar">🤖</div>
-      <div class="hubie-content">
-        <h4>Gặp gỡ Trợ lý ảo Hubie</h4>
-        <p>Mình là Hubie, AI tích hợp trên hệ thống. Hãy nhấn vào biểu tượng bong bóng chat ở góc màn hình bất cứ lúc nào để hỏi bài hoặc ôn lại công thức cùng mình nhé!</p>
+    <div class="hubie-row">
+      <div class="hubie-introduce">
+        <div class="hubie-avatar">🤖</div>
+        <div class="hubie-content">
+          <h4>Gặp gỡ Trợ lý ảo Hubie</h4>
+          <p>Mình là Hubie, AI tích hợp trên hệ thống. Hãy nhấn vào biểu tượng bong bóng chat ở góc màn hình bất cứ lúc nào để trao đổi cùng mình nhé!</p>
+        </div>
+      </div>
+      <div class="hubie-feature-card">
+        <div class="hubie-feat-icon">🃏</div>
+        <div class="hubie-feat-content">
+          <h4>Smart Flashcard</h4>
+          <p>Học từ vựng siêu tốc với 4 chế độ: Ghép Thẻ, Blast, Điền từ và Chiến Thần cùng kho từ vựng đa dạng.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -1139,7 +1148,7 @@ fetch('footer.html').then(r => r.text()).then(html => {
         <label class="cc-row">
           <span class="cc-row-text">
             <span class="cc-row-label"><span class="cc-row-icon">🦾</span> Giảm chuyển động</span>
-            <span class="cc-row-desc">Giảm animation để máy nhẹ hơn và tránh chói mắt.</span>
+            <span class="cc-row-desc">Giảm nhẹ hiệu ứng động để mượt hơn (tự bật trên điện thoại).</span>
           </span>
           <span class="cc-switch"><input type="checkbox" id="ccReduceToggle"><span class="cc-thumb"></span></span>
         </label>
@@ -1321,6 +1330,38 @@ fetch('footer.html').then(r => r.text()).then(html => {
         setTimeout(() => { document.getElementById('lb-full-frame').src = ''; }, 300);
     }
     document.getElementById('lb-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeLeaderboardModal(); });
+</script>
+<!-- SCHEDULE FULL MODAL -->
+<div id="schedule-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white rounded-2xl w-full max-w-7xl mx-4 shadow-2xl transform scale-95 transition-transform duration-300 relative border border-gray-100 flex flex-col" style="height:60vh">
+        <div class="flex items-center justify-end px-3 py-2 border-b border-gray-100">
+            <button onclick="closeScheduleModal()" class="text-gray-400 hover:text-gray-600 transition-colors" aria-label="Đóng">
+                <i class="fas fa-times text-base"></i>
+            </button>
+        </div>
+        <div class="flex-1 overflow-hidden">
+            <iframe id="schedule-full-frame" src="" class="w-full h-full border-0 no-scrollbar"></iframe>
+        </div>
+    </div>
+</div>
+<script>
+    function openScheduleModal() {
+        const m = document.getElementById('schedule-modal');
+        document.getElementById('schedule-full-frame').src = 'lich-hoc.html?t=' + Date.now();
+        m.classList.remove('opacity-0','pointer-events-none');
+        m.classList.add('opacity-100');
+        m.querySelector('div').classList.remove('scale-95');
+        m.querySelector('div').classList.add('scale-100');
+    }
+    function closeScheduleModal() {
+        const m = document.getElementById('schedule-modal');
+        m.classList.add('opacity-0','pointer-events-none');
+        m.classList.remove('opacity-100');
+        m.querySelector('div').classList.add('scale-95');
+        m.querySelector('div').classList.remove('scale-100');
+        setTimeout(() => { document.getElementById('schedule-full-frame').src = ''; }, 300);
+    }
+    document.getElementById('schedule-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeScheduleModal(); });
 </script>
 
 <script>
