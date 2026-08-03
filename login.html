@@ -1196,11 +1196,16 @@ function playNotificationSound(soundId = "thongbaoSound") {
         const p = a.play();
         if (p && p.then) {
           p.then(function () {
-            loaded = true;
-            a.pause();
-            a.currentTime = 0;
+            // Nếu có một play() thật (có tiếng) đang chạy trong cùng lượt click
+            // (vd: bấm Đăng nhập bị lỗi → hiện thông báo), KHÔNG pause để
+            // tránh nuốt mất tiếng của thông báo.
+            if (a.muted === true) {
+              a.pause();
+              a.currentTime = 0;
+            }
             a.muted = false;
             a.volume = 1;
+            loaded = true;
           }).catch(function () {});
         }
       } catch (e) {}
