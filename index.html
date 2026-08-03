@@ -137,7 +137,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
       <a class="feature-card" href="AI.html" data-open="chat" style="--feat-color:#0891b2;">
         <div class="feature-icon">🤖</div>
         <h3>Trợ lý ảo Hubie</h3>
-        <p>Trợ lý AI luôn sẵn sàng 24/7, giải đáp thắc mắc kiến thức và đồng hành trong mọi lúc học tập.</p>
+        <p>Trợ lý AI 24/7 giải đáp thắc mắc kiến thức, kèm tính năng tra từ điển Anh - Việt ngay trong popup.</p>
         <span class="feature-link">Trò chuyện ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
       <a class="feature-card" href="leaderboard.html" data-open="leaderboard" style="--feat-color:#d97706;">
@@ -171,7 +171,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
       </div>
       <div class="slide-text-block" data-text-color="#16a34a">
         <h2>Giao Diện Chính:<br>Trợ Lý Ảo Hubie AI</h2>
-        <p>Làm quen với người bạn mới Hubie - Trợ lý trí tuệ nhân tạo thông minh tích hợp trực tiếp, luôn sẵn sàng đồng hành và giải đáp thắc mắc kiến thức 24/7 trong mọi bài kiểm tra và quá trình ôn tập.</p>
+        <p>Làm quen với người bạn mới Hubie - Trợ lý trí tuệ nhân tạo thông minh tích hợp trực tiếp, luôn sẵn sàng đồng hành và giải đáp thắc mắc kiến thức 24/7 trong mọi bài kiểm tra và quá trình ôn tập. Hubie còn có tab Tra từ để bạn tra nhanh nghĩa Anh - Việt kèm phiên âm, audio và ví dụ.</p>
       </div>
       <div class="slide-text-block" data-text-color="#f59e0b">
         <h2>LearnHub Forum:<br>Mạng Xã Hội Học Tập</h2>
@@ -193,7 +193,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
         <div class="hubie-avatar">🤖</div>
         <div class="hubie-content">
           <h4>Gặp gỡ Trợ lý ảo Hubie</h4>
-          <p>Mình là Hubie, AI tích hợp trên hệ thống. Hãy nhấn vào biểu tượng bong bóng chat ở góc màn hình bất cứ lúc nào để trao đổi cùng mình nhé!</p>
+          <p>Mình là Hubie, AI tích hợp trên hệ thống. Hãy nhấn vào biểu tượng bong bóng chat ở góc màn hình bất cứ lúc nào để trao đổi cùng mình nhé! Mình còn có tab Tra từ để bạn tra nhanh nghĩa Anh - Việt nữa đó!</p>
         </div>
       </div>
       <div class="hubie-feature-card">
@@ -201,6 +201,13 @@ fetch('header.html').then(r=>r.text()).then(html=>{
         <div class="hubie-feat-content">
           <h4>Smart Flashcard</h4>
           <p>Học từ vựng siêu tốc với 4 chế độ: Ghép Thẻ, Blast, Điền từ và Chiến Thần cùng kho từ vựng đa dạng.</p>
+        </div>
+      </div>
+      <div class="hubie-feature-card">
+        <div class="hubie-feat-icon">📖</div>
+        <div class="hubie-feat-content">
+          <h4>Tra từ Anh - Việt</h4>
+          <p>Tra nghĩa, phiên âm, nghe phát âm và ví dụ nhanh chóng ngay trong popup Hubie — hoàn toàn miễn phí, không tốn lượt AI.</p>
         </div>
       </div>
     </div>
@@ -1279,75 +1286,20 @@ fetch('footer.html').then(r => r.text()).then(html => {
     overflow: hidden;
 " loading="lazy"></iframe>
 
-<iframe id="traTuFrame" src="tra-tu.html" style="
-    display: none;
-    position: fixed;
-    bottom: 95px;
-    left: 20px;
-    width: 90%;
-    max-width: 380px;
-    height: 70vh;
-    max-height: 520px;
-    border: none;
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    z-index: 9999;
-    background: white;
-    overflow: hidden;
-" loading="lazy"></iframe>
-
-<!-- BONG BÓNG CON TRỢ NĂNG -->
-<div id="traTuBubble" onclick="openTraTu()" style="
-    display: none;
-    position: fixed;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-    border: 2px solid rgba(8, 145, 178, 0.9);
-    cursor: pointer;
-    z-index: 9999;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.16);
-    left: 20px;
-    bottom: 85px;
-    align-items: center;
-    justify-content: center;
-    transform-origin: center center;
-    transition: transform 0.2s, opacity 0.2s;
-">
-  <i class="fas fa-book" style="color: #0891b2; font-size: 20px; pointer-events: none;"></i>
-</div>
-
-<div id="chatbotBubble" onclick="openChatbot()" style="
-    display: none;
-    position: fixed;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-    border: 2px solid rgba(124, 62, 237, 0.9);
-    cursor: pointer;
-    z-index: 9999;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.16);
-    left: 20px;
-    bottom: 85px;
-    align-items: center;
-    justify-content: center;
-    transform-origin: center center;
-    transition: transform 0.2s, opacity 0.2s;
-">
-  <img src="pictures/chatboiavt.png" alt="Chatbot" style="width:50px;height:50px;pointer-events:none;border-radius:50%;">
-</div>
-
-<!-- NÚT TRỢ NĂNG CHÍNH -->
+<style>
+    @media (max-width: 768px) {
+        #accessibilityButton { width: 56px !important; height: 56px !important; }
+        #accessibilityButton img { width: 52px !important; height: 52px !important; }
+    }
+</style>
+<!-- NÚT HUBIE (1 bong bóng duy nhất) -->
 <div id="accessibilityButton" style="
   position: fixed;
-  width: 56px;
-  height: 56px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(8px);
-  border: 2px solid rgba(8, 145, 178, 0.9);
   cursor: grab;
   z-index: 9999;
   box-shadow: 0 6px 18px rgba(0,0,0,0.18);
@@ -1361,8 +1313,7 @@ fetch('footer.html').then(r => r.text()).then(html => {
   align-items: center;
   justify-content: center;
 ">
-  <i class="fas fa-universal-access" id="accessibilityIcon" style="color: #0891b2; font-size: 24px; pointer-events: none;"></i>
-  <i class="fas fa-times" id="closeIcon" style="color: #ef4444; font-size: 24px; pointer-events: none; display: none;"></i>
+  <img src="pictures/chatboiavt.png" alt="Hubie" style="width:64px;height:64px;pointer-events:none;border-radius:50%;">
 </div>
 <!-- LEADERBOARD FULL MODAL -->
 <div id="lb-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[2000] flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">

@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LearnHub AI - Hubie</title>
     <style>
-        /* Tối ưu lại toàn bộ container để vừa khít popup nhỏ */
+        /* ===== CHUNG ===== */
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* ẨN SCROLLBAR NHƯNG VẪN GIỮ CHỨC NĂNG CUỘN */
+        /* Ẩn scrollbar nhưng vẫn giữ chức năng cuộn */
         html, body {
             scrollbar-width: none; /* Firefox */
             -ms-overflow-style: none; /* IE/Edge */
@@ -16,51 +16,56 @@
         html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 
         body, html { width: 100%; height: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #fff; overflow: hidden; }
-        
-        .chat-container { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: #fff; }
-        
-        /* Thu nhỏ Header tinh tế hơn */
-        .chat-header { background: #1a73e8; color: white; padding: 10px 14px; display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); z-index: 10; position: relative; }
-        .chat-header img { width: 32px; height: 32px; border-radius: 50%; background: white; object-fit: cover; }
-        
-        /* Khung Chat tinh chỉnh khoảng cách nhỏ gọn */
+
+        .app { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: #fff; }
+
+        /* ===== HEADER ===== */
+        .chat-header { background: #1a73e8; color: white; padding: 10px 14px; display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); z-index: 10; position: relative; flex-shrink: 0; }
+        .chat-header img { width: 32px; height: 32px; border-radius: 50%; background: white; object-fit: cover; flex-shrink: 0; }
+        .header-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 30px; }
+
+        .info-btn { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 4px; line-height: 1; transition: opacity 0.2s; }
+        .info-btn:hover { opacity: 0.7; }
+
+        /* ===== THANH TAB CHỌN CHẾ ĐỘ ===== */
+        .mode-bar { display: flex; background: #1557b0; padding: 6px 12px; gap: 6px; flex-shrink: 0; }
+        .mode-tab { flex: 1; border: none; background: rgba(255,255,255,0.14); color: #fff; border-radius: 8px; padding: 7px 0; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s, color 0.2s; font-family: inherit; }
+        .mode-tab.active { background: #fff; color: #1a73e8; }
+        .mode-tab:hover:not(.active) { background: rgba(255,255,255,0.26); }
+
+        /* ===== PANEL ===== */
+        .panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+
+        /* ===== CHAT ===== */
         .chat-box { flex: 1; padding: 12px; overflow-y: auto; background: #f8f9fa; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
-        
+
         .message-wrapper { display: flex; flex-direction: column; max-width: 80%; gap: 2px; position: relative; }
         .message-wrapper.user-wrapper { align-self: flex-end; align-items: flex-end; margin-left: auto; }
-        .message-wrapper.ai-wrapper { align-self: flex-start; align-items: flex-start; padding-bottom: 22px; } /* Tạo khoảng trống chứa cụm công cụ bên dưới */
-        
-        /* Gom nhóm avatar + text của AI */
+        .message-wrapper.ai-wrapper { align-self: flex-start; align-items: flex-start; padding-bottom: 22px; }
+
         .ai-content-group { display: flex; gap: 8px; align-items: flex-start; width: 100%; }
-        
-        /* Thu nhỏ avatar trong khung chat */
+
         .msg-avatar { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; background: #eee; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        
-        /* Bong bóng chat tinh gọn font chữ và padding */
+
         .message { padding: 8px 12px; border-radius: 14px; word-break: break-word; line-height: 1.4; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .user-msg { background: #1a73e8; color: white; border-top-right-radius: 2px; }
         .ai-msg { background: white; color: #333; border-top-left-radius: 2px; border: 1px solid #e1e4e8; }
         .error-msg { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; align-self: center; max-width: 90%; font-size: 12px; border-radius: 8px; padding: 8px; text-align: center; }
-        
-        /* Khung hiển thị ảnh trong ô chat */
+
         .chat-img { max-width: 100%; max-height: 150px; border-radius: 8px; margin-bottom: 4px; display: block; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-        /* Dòng hiển thị Thời Gian (Timestamp) nhỏ mịn dưới bong bóng chat */
         .msg-time { font-size: 10px; color: #999; margin: 2px 4px 0 4px; padding: 0 2px; user-select: none; }
 
-        /* 🛠️ CỤM NÚT CHỨC NĂNG (COPY & REGENERATE) DƯỚI GÓC BÊN PHẢI TIN NHẮN AI */
         .ai-tools { position: absolute; bottom: 0; right: 4px; display: flex; gap: 4px; background: rgba(240, 242, 245, 0.85); padding: 2px 6px; border-radius: 10px; border: 1px solid #e1e4e8; opacity: 0; transition: opacity 0.2s ease; }
         .message-wrapper.ai-wrapper:hover .ai-tools { opacity: 1; }
         .tool-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: #5f6368; padding: 2px; display: flex; align-items: center; justify-content: center; transition: color 0.15s; }
         .tool-btn:hover { color: #1a73e8; }
 
-        /* Format text Markdown */
         .message strong { font-weight: bold; color: inherit; }
         .message em { font-style: italic; }
         .message p { margin-bottom: 4px; }
         .message p:last-child { margin-bottom: 0; }
 
-        /* Hiệu ứng gõ chữ nhấp nháy gọn hơn */
         .typing-bubble { display: flex; align-items: center; gap: 4px; padding: 10px 14px; background: white; border-radius: 14px; border-top-left-radius: 2px; border: 1px solid #e1e4e8; }
         .typing-dot { width: 6px; height: 6px; background: #7f8c8d; border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both; }
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
@@ -70,34 +75,105 @@
             40% { transform: scale(1.0); }
         }
 
-        /* Thanh trạng thái mỏng thanh lịch */
-        .status { font-size: 11px; color: #888; text-align: center; padding: 4px; background: #fafafa; border-bottom: 1px solid #eee; }
+        .status { font-size: 11px; color: #888; text-align: center; padding: 4px; background: #fafafa; border-bottom: 1px solid #eee; flex-shrink: 0; }
 
-        /* Khu vực nhập liệu thu nhỏ tối đa diện tích thừa */
-        .input-container { display: flex; flex-direction: column; background: #fff; border-top: 1px solid #eee; }
-        
-        /* Khung xem trước ảnh trước khi gửi */
+        .input-container { display: flex; flex-direction: column; background: #fff; border-top: 1px solid #eee; flex-shrink: 0; }
+
         .preview-container { display: none; padding: 8px 12px; background: #f8f9fa; border-bottom: 1px solid #f1f1f1; align-items: center; gap: 8px; position: relative; }
         .preview-image { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; }
         .preview-remove { position: absolute; top: 4px; left: 45px; background: #ff4d4d; color: white; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
         .input-area { display: flex; padding: 10px; gap: 6px; align-items: flex-end; }
-        
-        /* Nút Đính Kèm File */
+
         .attach-btn { width: 34px; height: 34px; background: #f1f3f4; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #5f6368; flex-shrink: 0; transition: background 0.2s; }
         .attach-btn:hover { background: #e8eaed; color: #1a73e8; }
 
         .input-area textarea { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 18px; outline: none; font-size: 14px; background: #f8f9fa; transition: all 0.2s; resize: none; max-height: 80px; font-family: inherit; line-height: 1.3; overflow-y: auto; }
         .input-area textarea:focus { background: #fff; border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.1); }
-        
+
         .input-area button.send-btn { width: 34px; height: 34px; background: #28a745; color: white; border: none; border-radius: 50%; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
         .input-area button.send-btn:hover { background: #218838; }
         .input-area button.send-btn svg { width: 16px; height: 16px; fill: white; }
 
-        /* ℹ️ KHU VỰC CSS CỦA NÚT THÔNG TIN VÀ POPUP MODAL */
-        .info-btn { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 4px; line-height: 1; transition: opacity 0.2s; }
-        .info-btn:hover { opacity: 0.7; }
+        /* ===== TRA TỪ ===== */
+        .dict-body { padding: 16px; flex: 1; overflow-y: auto; }
+        .search-row { display: flex; gap: 8px; margin-bottom: 14px; }
+        .search-row input {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            font-family: inherit;
+        }
+        .search-row input:focus { border-color: #1a73e8; }
+        .search-row button {
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .search-row button:hover { background: #1557b0; }
+        .search-row button:disabled { background: #9db8e8; cursor: default; }
 
+        .state-msg { font-size: 13px; color: #888; text-align: center; padding: 20px 0; }
+        .state-msg.error { color: #d93025; }
+
+        .result { display: none; }
+        .word-line { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+        .word-line .word { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+        .word-line .phonetic { font-size: 14px; color: #666; }
+        .word-vi {
+            font-size: 15px;
+            font-weight: 600;
+            color: #f9a825;
+            margin-bottom: 12px;
+        }
+        .audio-btn {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex; align-items: center; justify-content: center;
+            color: #1a73e8;
+        }
+        .audio-btn:hover { background: #e8f0fe; }
+        .audio-btn:disabled { opacity: 0.4; cursor: default; }
+
+        .pos-tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #1a73e8;
+            background: #e8f0fe;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin: 10px 6px 6px 0;
+        }
+        .pos-gloss {
+            font-size: 14px;
+            font-weight: 700;
+            color: #e65100;
+        }
+
+        .meaning-block { margin-bottom: 8px; }
+        .meaning-label { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; margin-bottom: 2px; }
+        .meaning-text { font-size: 14px; color: #333; line-height: 1.45; }
+        .meaning-text.vi { color: #1a1a1a; background: #fff8e1; padding: 8px 10px; border-radius: 8px; border-left: 3px solid #f9a825; }
+        .meaning-text.en { padding: 0 2px; }
+
+        .example { font-size: 12.5px; color: #777; font-style: italic; margin-top: 4px; padding-left: 2px; }
+
+        .disclaimer { font-size: 10.5px; color: #aaa; text-align: center; margin-top: 12px; }
+
+        /* ===== MODAL ===== */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
         .modal-content { background: white; border-radius: 12px; width: 100%; max-width: 280px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: fadeIn 0.2s ease-out; }
         .modal-title { font-size: 15px; font-weight: 600; color: #1a73e8; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
@@ -114,41 +190,75 @@
 </head>
 <body>
 
-<div class="chat-container">
+<div class="app">
     <div class="chat-header">
         <img src="pictures/chatboiavt.png" alt="Hubie" onerror="this.src='https://via.placeholder.com/32'">
-        <span>Hubie - Trợ lý LearnHub</span>
-        
+        <span class="header-title">Hubie - Trợ lý LearnHub</span>
+
         <button class="info-btn" onclick="openInfoModal()" title="Thông tin về Hubie">ℹ️</button>
     </div>
-    <div class="status" id="status">Hubie sẵn sàng trực tuyến</div>
-    
-    <div class="chat-box" id="chatBox">
-        <div class="message-wrapper ai-wrapper">
-            <div class="ai-content-group">
-                <img class="msg-avatar" src="pictures/chatboiavt.png" onerror="this.src='https://via.placeholder.com/26'">
-                <div class="message ai-msg">Chào bạn! Mình là Hubie đây, trợ thủ đắc lực của bạn trên LearnHub nè! 🤖✨<br><br>Bạn có câu hỏi gì hay cần mình hỗ trợ về bài vở không? Cứ hỏi hoặc paste thẳng ảnh bài tập vô đây nha! 😊</div>
+
+    <div class="mode-bar">
+        <button class="mode-tab active" data-mode="chat" onclick="setMode('chat')">💬 Chat</button>
+        <button class="mode-tab" data-mode="tut" onclick="setMode('tut')">📖 Tra từ</button>
+    </div>
+
+    <!-- ===== CHẾ ĐỘ CHAT ===== -->
+    <div id="panel-chat" class="panel">
+        <div class="status" id="status">Hubie sẵn sàng trực tuyến</div>
+
+        <div class="chat-box" id="chatBox">
+            <div class="message-wrapper ai-wrapper">
+                <div class="ai-content-group">
+                    <img class="msg-avatar" src="pictures/chatboiavt.png" onerror="this.src='https://via.placeholder.com/26'">
+                    <div class="message ai-msg">Chào bạn! Mình là Hubie đây, trợ thủ đắc lực của bạn trên LearnHub nè! 🤖✨<br><br>Bạn có câu hỏi gì hay cần mình hỗ trợ về bài vở không? Cứ hỏi, paste thẳng ảnh bài tập vô đây, hoặc dùng tab Tra từ để tra nhanh nghĩa tiếng Anh nha! 😊</div>
+                </div>
+                <div class="msg-time" id="welcome-time">10:00 PM</div>
+                <div class="ai-tools">
+                    <button class="tool-btn" onclick="copyToClipboard('Chào bạn! Mình là Hubie đây, trợ thủ đắc lực của bạn trên LearnHub nè! 🤖✨\n\nBạn có câu hỏi gì hay cần mình hỗ trợ về bài vở không? Cứ hỏi, paste thẳng ảnh bài tập vô đây, hoặc dùng tab Tra từ để tra nhanh nghĩa tiếng Anh nha! 😊')" title="Sao chép câu trả lời">📋</button>
+                </div>
             </div>
-            <div class="msg-time" id="welcome-time">10:00 PM</div>
-            <div class="ai-tools">
-                <button class="tool-btn" onclick="copyToClipboard('Chào bạn! Mình là Hubie đây, trợ thủ đắc lực của bạn trên LearnHub nè! 🤖✨\n\nBạn có câu hỏi gì hay cần mình hỗ trợ về bài vở không? Cứ hỏi hoặc paste thẳng ảnh bài tập vô đây nha! 😊')" title="Sao chép câu trả lời">📋</button>
+        </div>
+
+        <div class="input-container">
+            <div class="preview-container" id="previewContainer">
+                <img class="preview-image" id="previewImg" src="" alt="Preview">
+                <button class="preview-remove" onclick="clearSelectedFile()" title="Xóa ảnh">×</button>
+                <span style="font-size: 12px; color: #666; margin-left: 12px;">Ảnh đã được đính kèm</span>
+            </div>
+
+            <div class="input-area">
+                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+                <button class="attach-btn" onclick="document.getElementById('fileInput').click()" title="Đính kèm ảnh chụp bài tập">📎</button>
+
+                <textarea id="userInput" rows="1" placeholder="Hỏi Hubie hoặc paste ảnh (Ctrl+V)..." onkeydown="handleKeyDown(event)" oninput="autoResizeTextarea(this)"></textarea>
+                <button class="send-btn" onclick="sendMessage()" title="Gửi tin nhắn"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
             </div>
         </div>
     </div>
-    
-    <div class="input-container">
-        <div class="preview-container" id="previewContainer">
-            <img class="preview-image" id="previewImg" src="" alt="Preview">
-            <button class="preview-remove" onclick="clearSelectedFile()" title="Xóa ảnh">×</button>
-            <span style="font-size: 12px; color: #666; margin-left: 12px;">Ảnh đã được đính kèm</span>
-        </div>
 
-        <div class="input-area">
-            <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
-            <button class="attach-btn" onclick="document.getElementById('fileInput').click()" title="Đính kèm ảnh chụp bài tập">📎</button>
-            
-            <textarea id="userInput" rows="1" placeholder="Hỏi Hubie hoặc paste ảnh (Ctrl+V)..." onkeydown="handleKeyDown(event)" oninput="autoResizeTextarea(this)"></textarea>
-            <button class="send-btn" onclick="sendMessage()" title="Gửi tin nhắn"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+    <!-- ===== CHẾ ĐỘ TRA TỪ ===== -->
+    <div id="panel-tut" class="panel" style="display:none;">
+        <div class="dict-body">
+            <div class="search-row">
+                <input type="text" id="wordInput" placeholder="Nhập từ tiếng Anh..." onkeydown="if(event.key==='Enter') lookupWord()">
+                <button id="searchBtn" onclick="lookupWord()">Tra</button>
+            </div>
+
+            <div class="state-msg" id="stateMsg">Nhập 1 từ tiếng Anh rồi bấm Tra cứu.</div>
+
+            <div class="result" id="resultBox">
+                <div class="word-line">
+                    <span class="word" id="rWord"></span>
+                    <span class="phonetic" id="rPhonetic"></span>
+                    <button class="audio-btn" id="rAudioBtn" onclick="playAudio()" disabled>🔊</button>
+                </div>
+                <div class="word-vi" id="rWordVi"></div>
+
+                <div id="rMeaningsList"></div>
+
+                <div class="disclaimer">Nghĩa tiếng Anh: dictionaryapi.dev · Nghĩa tiếng Việt: dịch máy (DeepL) — chỉ mang tính tham khảo.</div>
+            </div>
         </div>
     </div>
 </div>
@@ -163,6 +273,7 @@
             <ul>
                 <li>Giải đáp thần tốc bài tập, lý thuyết phổ thông.</li>
                 <li>Đọc hiểu hình ảnh bài tập chụp trực tiếp.</li>
+                <li>Tra từ điển Anh - Việt nhanh chóng (tab Tra từ).</li>
                 <li>Gợi ý Flashcard và Bài kiểm tra ôn luyện.</li>
             </ul>
         </div>
@@ -173,7 +284,9 @@
 <script>
 // 🔒 API Key được ẩn trên Cloudflare Worker - không暴露 trên frontend
     const WORKER_URL = "https://hubie-proxy.quanhao678.workers.dev";
-    
+    // ⚠️ Sau khi deploy deepl-proxy-worker.js lên Cloudflare, dán URL worker vào đây
+    const DEEPL_PROXY_URL = "https://deepl-proxy.quanhao678.workers.dev";
+
     let chatHistory = JSON.parse(localStorage.getItem("hubie_chat_history")) || [];
     let selectedFileData = null;
 
@@ -185,6 +298,7 @@
     3. QUY ĐỊNH TÍNH NĂNG: Nhớ rằng học sinh chỉ có quyền xem/học bài, KHÔNG có quyền tự tạo Flashcard hay bài kiểm tra mới (chỉ Admin mới tạo được).
     4. QUY TẮC ICON: Tuyệt đối KHÔNG ĐƯỢC sử dụng các emoji cờ quốc gia (như cờ VN, Lào...) vì lỗi font hệ thống của người dùng. Hãy dùng các icon khác như 🌍, ✨, 📚, 🤖...
     5. XƯNG HÔ: Trả lời ngắn gọn, vui vẻ, xưng là "Hubie" hoặc "mình" và gọi người dùng là "bạn".
+    6. QUY TẮC TRA TỪ: Khi học sinh hỏi nghĩa của một từ tiếng Anh, hãy trả lời ngắn gọn và gợi ý bạn dùng tab "Tra từ" trong popup để xem nghĩa đầy đủ kèm phiên âm, audio và ví dụ (nhanh hơn và không tốn lượt AI).
     `;
 
     const MODEL_QUEUE = [
@@ -193,6 +307,31 @@
         { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B" }
     ];
 
+    // ==================== CHỌN CHẾ ĐỘ ====================
+    let currentMode = "chat";
+
+    function getModeFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const m = params.get("mode");
+        return m === "tut" ? "tut" : "chat";
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById("panel-chat").style.display = mode === "chat" ? "flex" : "none";
+        document.getElementById("panel-tut").style.display = mode === "tut" ? "flex" : "none";
+        document.querySelectorAll(".mode-tab").forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.mode === mode);
+        });
+        if (mode === "tut") {
+            setTimeout(() => {
+                const inp = document.getElementById("wordInput");
+                if (inp) inp.focus();
+            }, 60);
+        }
+    }
+
+    // ==================== CHAT ====================
     function getCurrentTimeFormatted() {
         const now = new Date();
         let hours = now.getHours();
@@ -559,6 +698,180 @@
         chatBox.appendChild(msgDiv);
     }
 
+    // ==================== TRA TỪ ====================
+    let currentAudioUrl = "";
+
+    async function lookupWord() {
+        const raw = document.getElementById("wordInput").value.trim();
+        if (!raw) return;
+
+        const btn = document.getElementById("searchBtn");
+        const stateMsg = document.getElementById("stateMsg");
+        const resultBox = document.getElementById("resultBox");
+
+        btn.disabled = true;
+        resultBox.style.display = "none";
+        stateMsg.style.display = "block";
+        stateMsg.className = "state-msg";
+        stateMsg.innerText = "Đang tra \"" + raw + "\"...";
+
+        try {
+            const word = raw.toLowerCase();
+
+            // 1) Tra tiếng Anh
+            const dictRes = await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(word));
+            if (!dictRes.ok) {
+                throw new Error("NOT_FOUND");
+            }
+            const dictData = await dictRes.json();
+            const entry = dictData[0];
+
+            // Lấy phiên âm + audio đầu tiên có sẵn
+            let phonetic = entry.phonetic || "";
+            let audioUrl = "";
+            (entry.phonetics || []).forEach(p => {
+                if (!phonetic && p.text) phonetic = p.text;
+                if (!audioUrl && p.audio) audioUrl = p.audio;
+            });
+            if (audioUrl && audioUrl.startsWith("//")) audioUrl = "https:" + audioUrl;
+            currentAudioUrl = audioUrl;
+
+            // Lấy tất cả từ loại (part of speech) mà từ này có, mỗi cái 1 definition đầu tiên
+            const meanings = entry.meanings || [];
+
+            // 2) Dịch từ đơn (nghĩa nhanh của cả từ) + dịch song song từng definition sang tiếng Việt
+            const wordViPromise = translateToVi(word).catch(() => "");
+
+            const meaningsData = await Promise.all(meanings.map(async (m) => {
+                const def = (m.definitions && m.definitions[0]) ? m.definitions[0] : null;
+                const enText = def ? def.definition : "";
+                const example = def ? def.example : "";
+                let viText = "";
+                if (enText) {
+                    try {
+                        viText = await translateToVi(enText);
+                    } catch (e) {
+                        viText = "(Không dịch được lúc này)";
+                    }
+                }
+                return { pos: m.partOfSpeech, en: enText, vi: viText, example };
+            }));
+
+            const wordVi = await wordViPromise;
+
+            renderResult(entry.word, phonetic, wordVi, meaningsData);
+            stateMsg.style.display = "none";
+            resultBox.style.display = "block";
+
+        } catch (err) {
+            console.error("Lỗi tra từ:", err);
+            stateMsg.className = "state-msg error";
+            if (err.message === "NOT_FOUND") {
+                stateMsg.innerText = "Không tìm thấy từ \"" + raw + "\" trong từ điển.";
+            } else {
+                stateMsg.innerText = "Có lỗi xảy ra, thử lại sau.";
+            }
+            resultBox.style.display = "none";
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    async function translateToVi(text) {
+        const res = await fetch(DEEPL_PROXY_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: text, target_lang: "VI", source_lang: "EN" })
+        });
+        if (!res.ok) throw new Error("Lỗi dịch");
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        return data.translatedText || "";
+    }
+
+    function shortGloss(viFull) {
+        if (!viFull) return "";
+        let seg = viFull.split(/[;,.]/)[0].trim();
+        seg = seg.replace(/^(Để|Đã|Là|Một|Sẽ|Đang)\s+/i, "").trim();
+        return seg;
+    }
+
+    function posAbbrev(pos) {
+        const map = {
+            "noun": "n",
+            "verb": "v",
+            "adjective": "adj",
+            "adverb": "adv",
+            "pronoun": "pron",
+            "preposition": "prep",
+            "conjunction": "conj",
+            "interjection": "interj",
+            "exclamation": "interj",
+            "determiner": "det",
+            "article": "art",
+            "number": "num"
+        };
+        const key = (pos || "").toLowerCase().trim();
+        return map[key] || key;
+    }
+
+    function renderResult(word, phonetic, wordVi, meaningsData) {
+        document.getElementById("rWord").innerText = word;
+        document.getElementById("rPhonetic").innerText = phonetic ? "/" + phonetic.replace(/\//g, "") + "/" : "";
+        document.getElementById("rAudioBtn").disabled = !currentAudioUrl;
+        const firstAbbrev = (meaningsData && meaningsData.length > 0) ? posAbbrev(meaningsData[0].pos) : "";
+        document.getElementById("rWordVi").innerText = wordVi ? "→ " + (firstAbbrev ? "(" + firstAbbrev + ") " : "") + wordVi : "";
+
+        const list = document.getElementById("rMeaningsList");
+        list.innerHTML = "";
+
+        meaningsData.forEach(m => {
+            if (!m.en) return;
+            const posTag = document.createElement("div");
+            posTag.innerHTML = '<span class="pos-tag">' + m.pos + '</span> <span class="pos-gloss">— ' + (shortGloss(m.vi) || "?") + '</span>';
+            list.appendChild(posTag);
+
+            const block = document.createElement("div");
+            block.className = "meaning-block";
+
+            const enLabel = document.createElement("div");
+            enLabel.className = "meaning-label";
+            enLabel.innerText = "Tiếng Anh";
+            const enText = document.createElement("div");
+            enText.className = "meaning-text en";
+            enText.innerText = m.en;
+
+            const viLabel = document.createElement("div");
+            viLabel.className = "meaning-label";
+            viLabel.style.marginTop = "8px";
+            viLabel.innerText = "Tiếng Việt";
+            const viText = document.createElement("div");
+            viText.className = "meaning-text vi";
+            const abbrev = posAbbrev(m.pos);
+            viText.innerText = (abbrev ? "(" + abbrev + ") " : "") + (m.vi || "(chưa có bản dịch)");
+
+            block.appendChild(enLabel);
+            block.appendChild(enText);
+            block.appendChild(viLabel);
+            block.appendChild(viText);
+
+            if (m.example) {
+                const ex = document.createElement("div");
+                ex.className = "example";
+                ex.innerText = "VD: " + m.example;
+                block.appendChild(ex);
+            }
+
+            list.appendChild(block);
+        });
+    }
+
+    function playAudio() {
+        if (!currentAudioUrl) return;
+        new Audio(currentAudioUrl).play();
+    }
+
+    setMode(getModeFromUrl());
     renderSavedChat();
 </script>
 
