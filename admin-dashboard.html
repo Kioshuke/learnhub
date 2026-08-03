@@ -1806,11 +1806,15 @@ function renderErrorLogs() {
       <td><span class="mini-meta" style="white-space:nowrap">${escapeHtml(l.source || "—")}</span></td>
       <td><span class="mini-meta">${escapeHtml(l.email || "—")}</span></td>
       <td><code style="font-size:11px;white-space:nowrap">${escapeHtml(l.code || "—")}</code></td>
-      <td><div class="mini-meta" style="max-width:260px;cursor:pointer" onclick="viewErrorLogDetail('${sid}')" title="Bấm để xem nội dung đầy đủ"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--blue)">${escapeHtml(l.message || "—")}</div>${detailSnippet ? `<div style="color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px">${escapeHtml(detailSnippet)}</div>` : ""}<div style="font-size:10.5px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-top:2px">Bấm để xem →</div></div></td>
+      <td><div class="mini-meta" style="max-width:260px;cursor:pointer" onclick="viewErrorLogDetail('${sid}')" title="Bấm để xem nội dung đầy đủ"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--blue);text-decoration:underline;text-decoration-style:dotted">${escapeHtml(l.message || "—")}</div>${detailSnippet ? `<div style="color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px">${escapeHtml(detailSnippet)}</div>` : ""}</div></td>
       <td>${fixed ? `<span class="chip green">Đã fix</span>` : `<span class="chip red">Chưa fix</span>`}</td>
       <td><div class="row-actions">
-        <button class="btn ${fixed ? "btn-soft" : "btn-success"}" onclick="toggleErrorLogFixed('${sid}', ${fixed})">${fixed ? "Mở lại" : "Đã fix"}</button>
-        <button class="btn btn-danger" onclick="deleteErrorLog('${sid}')">Xóa</button>
+        <button class="btn ${fixed ? "btn-soft" : "btn-success"}" onclick="toggleErrorLogFixed('${sid}', ${fixed})" title="${fixed ? "Mở lại" : "Đánh dấu đã fix"}" style="padding:8px 10px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <button class="btn btn-danger" onclick="deleteErrorLog('${sid}')" title="Xóa log" style="padding:8px 10px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        </button>
       </div></td>
     </tr>`;
   }).join("");
