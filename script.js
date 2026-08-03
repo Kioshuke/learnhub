@@ -838,6 +838,15 @@ function dragStart(e) {
   chatBtn.setPointerCapture(e.pointerId);
 }
 
+// Giới hạn trục dọc: không cho kéo bong bóng ra ngoài màn hình (trên/dưới)
+function clampYOffset() {
+  const height = chatBtn.offsetHeight || 56;
+  const baseBottom = 20; // offset gốc bottom: 20px
+  const margin = 4; // chừa lề an toàn
+  const baseTop = window.innerHeight - baseBottom - height;
+  yOffset = Math.max(margin - baseTop, Math.min(yOffset, baseBottom - margin));
+}
+
 function drag(e) {
   if (!isDragging) return;
   e.preventDefault();
@@ -852,6 +861,7 @@ function drag(e) {
 
   xOffset = currentX;
   yOffset = currentY;
+  clampYOffset();
 
   if (!rafId) {
     rafId = requestAnimationFrame(updatePosition);
@@ -862,6 +872,48 @@ function updatePosition() {
   // Sử dụng translate3d để cực kỳ mượt mà
   chatBtn.style.transform = `translate3d(${xOffset}px, ${yOffset}px, 0)`;
   rafId = null;
+  repositionPopupIfOpen();
+}
+
+// Đặt popup sát bên bong bóng Hubie, luôn nằm gọn trong màn hình
+function positionPopupNearBubble() {
+  if (!chatBtn) return;
+  const bubble = chatBtn.getBoundingClientRect();
+  const frame = document.getElementById("chatbotFrame");
+  if (!frame) return;
+
+  const margin = 8;
+  const gap = 10;
+  const frameW = Math.min(window.innerWidth * 0.9, 380);
+  const frameH = Math.min(window.innerHeight * 0.7, 520);
+
+  // Ngang: mở về bên phải nếu đủ chỗ, không thì trồi sang trái, luôn giữ trong màn hình
+  let left = bubble.left;
+  if (left + frameW > window.innerWidth - margin) {
+    left = bubble.right - frameW;
+  }
+  left = Math.max(margin, Math.min(left, window.innerWidth - frameW - margin));
+
+  // Dọc: ưu tiên mở phía trên bong bóng, thiếu chỗ thì mở phía dưới
+  let top = bubble.top - frameH - gap;
+  if (top < margin) {
+    top = bubble.bottom + gap;
+  }
+  top = Math.max(margin, Math.min(top, window.innerHeight - frameH - margin));
+
+  frame.style.left = left + "px";
+  frame.style.top = top + "px";
+  frame.style.bottom = "auto";
+  frame.style.width = frameW + "px";
+  frame.style.height = frameH + "px";
+}
+
+// Chỉ chạy khi popup đang mở (không ảnh hưởng khi đóng)
+function repositionPopupIfOpen() {
+  const fr = document.getElementById("chatbotFrame");
+  if (fr && fr.style.display !== "none") {
+    positionPopupNearBubble();
+  }
 }
 
 function dragEnd() {
@@ -884,7 +936,16 @@ function dragEnd() {
     xOffset = 0;
   }
 
+  clampYOffset();
   updatePosition();
+}
+
+// Khi đổi kích thước cửa sổ, giữ bong bóng nằm gọn trong màn hình
+if (chatBtn) {
+  window.addEventListener("resize", () => {
+    clampYOffset();
+    updatePosition();
+  });
 }
 
 if (overlay) {
@@ -937,7 +998,8 @@ function toggleHubieChat() {
   if (frame.style.display === "none" || frame.style.display === "") {
     // Ép iframe nạp/gọi lại file AI.html trực tiếp để trị dứt điểm lỗi trắng màn hình
     frame.src = "AI.html";
-    
+    positionPopupNearBubble();
+
     // Hiển thị popup góc và lớp overlay
     frame.style.display = "block";
     overlay.style.display = "block";

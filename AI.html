@@ -14,6 +14,8 @@
             -ms-overflow-style: none; /* IE/Edge */
         }
         html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+        .chat-box::-webkit-scrollbar, .dict-body::-webkit-scrollbar, .input-area textarea::-webkit-scrollbar { display: none; }
+        .chat-box, .dict-body, .input-area textarea { scrollbar-width: none; -ms-overflow-style: none; }
 
         body, html { width: 100%; height: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #fff; overflow: hidden; }
 
@@ -302,9 +304,9 @@
     `;
 
     const MODEL_QUEUE = [
-        { id: "google/gemma-4-31b-it:free", name: "Gemma 4 31B" },
-        { id: "nvidia/nemotron-3-super-120b-a12b:free", name: "Nemotron 3 Super" },
-        { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B" }
+        { id: "gemma-4-31b-it", name: "Gemma 4 31B" },
+        { id: "nemotron-3-super", name: "Nemotron 3 Super" },
+        { id: "gemma-4-26b-a4b-it", name: "Gemma 4 26B" }
     ];
 
     // ==================== CHỌN CHẾ ĐỘ ====================
