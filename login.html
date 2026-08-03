@@ -136,6 +136,39 @@
   .auth-otp-btn:hover{background:#dbeafe;border-color:#1d4ed8}
   .auth-otp-btn:disabled{opacity:.5;cursor:not-allowed;border-style:solid;color:#94a3b8;background:#f1f5f9}
 
+  /* ===== CẢI THIỆN UX/UI LOGIN ===== */
+  .auth-login-btn--soon{opacity:.55;filter:grayscale(.35);cursor:not-allowed}
+  .auth-login-btn--soon:hover{transform:none;box-shadow:0 10px 24px rgba(15,23,42,0.08)}
+  .auth-soon-tag{
+    font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    background:#e2e8f0;color:#64748b;border-radius:999px;padding:2px 8px;margin-left:4px;
+  }
+  .auth-eye-btn{
+    position:absolute;right:6px;top:50%;transform:translateY(-50%);
+    background:none;border:none;cursor:pointer;color:#94a3b8;
+    font-size:15px;padding:10px;border-radius:10px;transition:color .2s;
+    z-index:2;
+  }
+  .auth-eye-btn:hover{color:#2563eb}
+  #loginBox .auth-input-group input[type="password"]{padding-right:52px}
+  .auth-field-error{display:none;font-size:12px;color:#ef4444;margin:-6px 0 10px 4px;font-weight:600}
+  .auth-btn-spinner{
+    display:inline-block;vertical-align:-2px;margin-right:8px;
+    width:15px;height:15px;border-radius:50%;
+    border:2px solid rgba(255,255,255,.45);border-top-color:#fff;
+    animation:authSpin .7s linear infinite;
+  }
+  @keyframes authSpin{to{transform:rotate(360deg)}}
+  @keyframes authShake{
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-8px)}
+    40%{transform:translateX(8px)}
+    60%{transform:translateX(-5px)}
+    80%{transform:translateX(5px)}
+  }
+  .auth-shake{animation:authShake .45s ease}
+  @media (prefers-reduced-motion: reduce){.auth-shake{animation:none}}
+
   .auth-email-row{
     display:flex;
     gap:8px;
@@ -686,32 +719,35 @@
         <span>Tiếp tục với Google</span>
       </button>
 
-      <button class="auth-login-btn" onclick="authComingSoon()" style="margin-top:14px;">
+      <button class="auth-login-btn auth-login-btn--soon" type="button" disabled style="margin-top:14px;" title="Tính năng sắp ra mắt">
         <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" width="18" height="18" loading="lazy">
-        <span>Tiếp tục với Facebook</span>
+        <span>Tiếp tục với Facebook <span class="auth-soon-tag">Sắp có</span></span>
       </button>
 
-      <button class="auth-login-btn" onclick="authComingSoon()" style="margin-top:14px;">
+      <button class="auth-login-btn auth-login-btn--soon" type="button" disabled style="margin-top:14px;" title="Tính năng sắp ra mắt">
         <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" width="18" height="18" loading="lazy">
-        <span>Tiếp tục với Microsoft</span>
+        <span>Tiếp tục với Microsoft <span class="auth-soon-tag">Sắp có</span></span>
       </button>
 
       <div class="auth-divider">hoặc</div>
 
       <form onsubmit="event.preventDefault();emailLogin()">
       <div class="auth-input-group">
-        <input type="email" id="loginEmail" required>
+        <input type="email" id="loginEmail" required autocomplete="email">
         <label>Email <span class="req-star">*</span></label>
       </div>
+      <span class="auth-field-error" id="loginEmailError"></span>
 
       <div class="auth-input-group">
-        <input type="password" id="loginPassword" required>
+        <input type="password" id="loginPassword" required autocomplete="current-password">
         <label>Mật khẩu <span class="req-star">*</span></label>
+        <button type="button" class="auth-eye-btn" onclick="togglePassword('loginPassword', this)" tabindex="-1" aria-label="Hiện/ẩn mật khẩu"><i class="fa-solid fa-eye"></i></button>
       </div>
+      <span class="auth-field-error" id="loginPasswordError"></span>
 
       <button type="button" class="auth-forgot-link" onclick="showForgotPassword()">Quên mật khẩu?</button>
 
-      <button type="submit" class="auth-submit">Đăng nhập</button>
+      <button type="submit" class="auth-submit" id="loginSubmitBtn">Đăng nhập</button>
       </form>
     </div>
 
@@ -760,17 +796,19 @@
 <div id="authRegisterPanel" class="auth-panel auth-anim-item">
       <form onsubmit="event.preventDefault();emailRegister()">
       <div class="auth-input-group">
-        <input type="text" id="registerName" required>
+        <input type="text" id="registerName" required autocomplete="name">
         <label>Tên hiển thị <span class="req-star">*</span></label>
       </div>
+      <span class="auth-field-error" id="registerNameError"></span>
 
       <div class="auth-email-row">
         <div class="auth-input-group">
-          <input type="email" id="registerEmail" required>
+          <input type="email" id="registerEmail" required autocomplete="email">
           <label>Email <span class="req-star">*</span></label>
         </div>
         <button type="button" class="auth-otp-btn" id="sendOtpBtn" onclick="sendOTP()">Nhận mã</button>
       </div>
+      <span class="auth-field-error" id="registerEmailError"></span>
 
       <div id="otpSection" style="display:none">
         <div class="auth-otp-row">
@@ -778,17 +816,22 @@
           <span class="otp-timer-label">Hiệu lực mã <b id="otpCountdown">15:00</b></span>
           <button type="button" id="otpResendBtn" onclick="resendOTP()" disabled class="auth-otp-resend">Gửi lại</button>
         </div>
+        <span class="auth-field-error" id="otpCodeError"></span>
       </div>
 
       <div class="auth-input-group">
-        <input type="password" id="registerPassword" required>
+        <input type="password" id="registerPassword" required autocomplete="new-password">
         <label>Mật khẩu <span class="req-star">*</span></label>
+        <button type="button" class="auth-eye-btn" onclick="togglePassword('registerPassword', this)" tabindex="-1" aria-label="Hiện/ẩn mật khẩu"><i class="fa-solid fa-eye"></i></button>
       </div>
+      <span class="auth-field-error" id="registerPasswordError"></span>
 
       <div class="auth-input-group">
-        <input type="password" id="registerConfirmPassword" required>
+        <input type="password" id="registerConfirmPassword" required autocomplete="new-password">
         <label>Nhập lại mật khẩu <span class="req-star">*</span></label>
+        <button type="button" class="auth-eye-btn" onclick="togglePassword('registerConfirmPassword', this)" tabindex="-1" aria-label="Hiện/ẩn mật khẩu"><i class="fa-solid fa-eye"></i></button>
       </div>
+      <span class="auth-field-error" id="registerConfirmPasswordError"></span>
 
       <!-- Ô Ảnh đại diện đồng bộ hiệu ứng floating label -->
       <div class="auth-input-group">
@@ -796,7 +839,7 @@
         <label>Link ảnh đại diện (tuỳ chọn)</label>
       </div>
 
-      <button type="submit" class="auth-submit">Đăng ký</button>
+      <button type="submit" class="auth-submit" id="registerSubmitBtn">Đăng ký</button>
       </form>
     </div>
 
@@ -1031,6 +1074,71 @@ let authNoticeTimer = null;
 let countdownInterval = null;
 let processingLogin = false;
 
+const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+window.togglePassword = function(id, btn) {
+  const input = document.getElementById(id);
+  if (!input) return;
+  const show = input.type === "password";
+  input.type = show ? "text" : "password";
+  btn.innerHTML = show ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
+};
+
+function setFieldError(inputId, message) {
+  const err = document.getElementById(inputId + "Error");
+  const input = document.getElementById(inputId);
+  if (err) { err.textContent = message || ""; err.style.display = message ? "block" : "none"; }
+  if (input) input.style.borderColor = message ? "#ef4444" : "";
+}
+
+function clearFieldErrors() {
+  ["loginEmail","loginPassword","registerName","registerEmail","registerPassword","registerConfirmPassword","otpCode"].forEach(id => setFieldError(id, ""));
+}
+
+function shakeAuthBox(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove("auth-shake");
+  void el.offsetWidth;
+  el.classList.add("auth-shake");
+  setTimeout(() => el.classList.remove("auth-shake"), 500);
+}
+
+function setBtnLoading(btn, loading) {
+  if (!btn) return;
+  if (loading) {
+    btn.dataset.orig = btn.dataset.orig || btn.textContent;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="auth-btn-spinner"></span>Đang xử lý...';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = btn.dataset.orig || "Tiếp tục";
+  }
+}
+
+["loginEmail","loginPassword","registerName","registerEmail","registerPassword","registerConfirmPassword","otpCode"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener("input", () => setFieldError(id, ""));
+});
+
+document.getElementById("otpCode").addEventListener("input", function() {
+  const v = this.value.replace(/\D/g, "");
+  if (this.value !== v) this.value = v;
+  setFieldError("otpCode", "");
+  if (v.length === 6) {
+    const name = document.getElementById("registerName").value.trim();
+    const email = document.getElementById("registerEmail").value.trim();
+    const pw = document.getElementById("registerPassword").value;
+    const cf = document.getElementById("registerConfirmPassword").value;
+    if (!name || !email || !pw || !cf) {
+      const missing = !name ? "registerName" : !email ? "registerEmail" : !pw ? "registerPassword" : "registerConfirmPassword";
+      document.getElementById(missing).focus();
+      return;
+    }
+    emailRegister();
+  }
+});
+
 function showLoginSuccess(message, redirectMs = 3000) {
   if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
   const notice = document.getElementById("authNotice");
@@ -1210,6 +1318,8 @@ window.sendOTP = async function() {
     btn.textContent = "Đã gửi mã ✓";
     startOTPCountdown();
     startResendCooldown();
+    const otpFocus = document.getElementById("otpCode");
+    if (otpFocus) otpFocus.focus();
   } catch(err) {
     console.error("OTP send error:", err);
     showAuthNotice("Gửi mã thất bại. Vui lòng thử lại.", "error", "Lỗi gửi mã");
@@ -1246,6 +1356,7 @@ window.resendOTP = async function() {
 };
 
 function resetOTPState() {
+  clearFieldErrors();
   otpGenerated = "";
   otpExpiry = 0;
   clearInterval(otpCountdownInterval);
@@ -1517,12 +1628,20 @@ window.microsoftLogin = async function() {
 
 window.emailLogin = async function() {
   if (maintenanceState.enabled) { window.location.replace('maintenance.html'); return; }
+  clearFieldErrors();
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
-  if (!email || !password) {
-    showAuthNotice("Vui lòng nhập email và mật khẩu", "error", "Thiếu thông tin");
+  let invalid = false, focusId = null;
+  if (!email) { setFieldError("loginEmail", "Vui lòng nhập email"); focusId = "loginEmail"; invalid = true; }
+  else if (!emailRe.test(email)) { setFieldError("loginEmail", "Email không hợp lệ"); focusId = "loginEmail"; invalid = true; }
+  if (!password) { setFieldError("loginPassword", "Vui lòng nhập mật khẩu"); focusId = focusId || "loginPassword"; invalid = true; }
+  if (invalid) {
+    if (focusId) { shakeAuthBox(focusId); document.getElementById(focusId).focus(); }
+    showAuthNotice("Vui lòng kiểm tra lại thông tin", "error", "Thiếu thông tin");
     return;
   }
+  const btn = document.getElementById("loginSubmitBtn");
+  setBtnLoading(btn, true);
   processingLogin = true;
   try {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -1531,16 +1650,20 @@ window.emailLogin = async function() {
     if (!await emailAllowed(user.email)) {
       logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED", message: "Đăng nhập email/mật khẩu bằng email không nằm trong whitelist.", email: user.email });
       showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập", 4500);
+      setFieldError("loginEmail", "Email chưa được cấp quyền truy cập");
       await supabase.auth.signOut();
       processingLogin = false;
+      setBtnLoading(btn, false);
       return;
     }
     const row = await getUserRow(user.id);
     if (row && row.disabled) {
       logAppError({ source: "login", category: "disabled", level: "warning", code: "DISABLED", message: "Đăng nhập email/mật khẩu bằng tài khoản bị khóa.", email: user.email, detail: { name: row.name || "" } });
       showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa", 4500);
+      setFieldError("loginEmail", "Tài khoản đang bị khóa");
       await supabase.auth.signOut();
       processingLogin = false;
+      setBtnLoading(btn, false);
       return;
     }
     await finalizeSession(user);
@@ -1548,14 +1671,21 @@ window.emailLogin = async function() {
   } catch(error) {
     console.error("Lỗi đăng nhập:", error);
     processingLogin = false;
+    setBtnLoading(btn, false);
     let message = "Đăng nhập thất bại";
     const msg = String(error.message || "");
     if (error.code === 'invalid_credentials' || /invalid login credentials/i.test(msg)) {
       message = "Email hoặc mật khẩu không đúng";
+      setFieldError("loginPassword", "Email hoặc mật khẩu không đúng");
+      shakeAuthBox("loginPassword");
+      const pwInput = document.getElementById("loginPassword");
+      pwInput.focus(); pwInput.select();
     } else if (error.code === 'invalid_email' || /invalid email/i.test(msg)) {
       message = "Email không hợp lệ";
+      setFieldError("loginEmail", "Email không hợp lệ");
     } else if (error.code === 'email_not_confirmed') {
       message = "Email chưa được xác nhận";
+      setFieldError("loginEmail", "Email chưa được xác nhận");
     } else if (error.code === 'rate_limit_exceeded' || /too many requests|rate limit/i.test(msg)) {
       message = "Đăng nhập quá nhiều lần. Vui lòng thử lại sau";
     }
@@ -1564,6 +1694,7 @@ window.emailLogin = async function() {
 };
 
 window.emailRegister = async function() {
+  clearFieldErrors();
   const name = document.getElementById("registerName").value.trim();
   const email = document.getElementById("registerEmail").value.trim();
   const password = document.getElementById("registerPassword").value;
@@ -1571,15 +1702,23 @@ window.emailRegister = async function() {
   const otpInput = document.getElementById("otpCode");
   const otpSection = document.getElementById("otpSection");
 
-  if (!name || !email || !password || !confirmPassword) {
-    showAuthNotice("Vui lòng điền đầy đủ thông tin", "error", "Thiếu thông tin");
+  let invalid = false, focusId = null;
+  if (!name) { setFieldError("registerName", "Vui lòng nhập tên hiển thị"); focusId = "registerName"; invalid = true; }
+  else if (name.length < 2) { setFieldError("registerName", "Tên phải có ít nhất 2 ký tự"); focusId = "registerName"; invalid = true; }
+  if (!email) { setFieldError("registerEmail", "Vui lòng nhập email"); focusId = focusId || "registerEmail"; invalid = true; }
+  else if (!emailRe.test(email)) { setFieldError("registerEmail", "Email không hợp lệ"); focusId = focusId || "registerEmail"; invalid = true; }
+  if (!password) { setFieldError("registerPassword", "Vui lòng nhập mật khẩu"); focusId = focusId || "registerPassword"; invalid = true; }
+  else if (password.length < 6) { setFieldError("registerPassword", "Mật khẩu phải có ít nhất 6 ký tự"); focusId = focusId || "registerPassword"; invalid = true; }
+  if (!confirmPassword) { setFieldError("registerConfirmPassword", "Vui lòng nhập lại mật khẩu"); focusId = focusId || "registerConfirmPassword"; invalid = true; }
+  else if (confirmPassword !== password) { setFieldError("registerConfirmPassword", "Mật khẩu nhập lại không khớp"); focusId = focusId || "registerConfirmPassword"; invalid = true; }
+  if (invalid) {
+    if (focusId) { shakeAuthBox(focusId); document.getElementById(focusId).focus(); }
+    showAuthNotice("Vui lòng kiểm tra lại thông tin", "error", "Thiếu thông tin");
     return;
   }
-  if (name.length < 2) { showAuthNotice("Tên phải có ít nhất 2 ký tự", "error", "Tên quá ngắn"); return; }
-  if (password !== confirmPassword) { showAuthNotice("Mật khẩu nhập lại không khớp", "error", "Lỗi xác nhận"); return; }
-  if (password.length < 6) { showAuthNotice("Mật khẩu phải có ít nhất 6 ký tự", "error", "Mật khẩu quá ngắn"); return; }
   if (!await emailAllowed(email)) {
     logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED_SIGNUP", message: "Cố đăng ký bằng email không nằm trong whitelist.", email: email });
+    setFieldError("registerEmail", "Email chưa được cấp quyền truy cập");
     showAuthNotice("Email này không nằm trong danh sách được cấp quyền. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập");
     return;
   }
@@ -1591,18 +1730,25 @@ window.emailRegister = async function() {
 
   const code = otpInput.value.trim();
   if (!code || code.length !== 6) {
+    setFieldError("otpCode", "Vui lòng nhập mã xác nhận 6 chữ số");
+    shakeAuthBox("otpCode"); otpInput.focus();
     showAuthNotice("Vui lòng nhập mã xác nhận 6 chữ số", "error", "Thiếu mã xác nhận");
     return;
   }
   if (Date.now() > otpExpiry) {
+    setFieldError("otpCode", "Mã đã hết hạn. Nhấn 'Gửi lại mã'");
     showAuthNotice("Mã xác nhận đã hết hạn. Vui lòng nhấn 'Gửi lại mã'", "error", "Mã hết hạn");
     return;
   }
   if (code !== otpGenerated) {
+    setFieldError("otpCode", "Mã xác nhận không đúng");
+    shakeAuthBox("otpCode"); otpInput.focus(); otpInput.select();
     showAuthNotice("Mã xác nhận không đúng. Vui lòng kiểm tra lại", "error", "Sai mã");
     return;
   }
 
+  const btn = document.getElementById("registerSubmitBtn");
+  setBtnLoading(btn, true);
   processingLogin = true;
   try {
     const { data, error } = await supabase.auth.signUp({ email, password });
@@ -1623,19 +1769,24 @@ window.emailRegister = async function() {
     resetOTPState();
     await supabase.auth.signOut();
     processingLogin = false;
+    setBtnLoading(btn, false);
     switchAuthTab('login');
     document.getElementById("loginEmail").value = email;
   } catch(error) {
     console.error("Lỗi đăng ký:", error);
     processingLogin = false;
+    setBtnLoading(btn, false);
     let message = "Đăng ký thất bại";
     const msg = String(error.message || "");
     if (error.code === 'user_already_exists' || /already registered|already been registered/i.test(msg)) {
       message = "Email này đã được đăng ký";
+      setFieldError("registerEmail", "Email này đã được đăng ký");
     } else if (error.code === 'invalid_email' || /invalid email/i.test(msg)) {
       message = "Email không hợp lệ";
+      setFieldError("registerEmail", "Email không hợp lệ");
     } else if (error.code === 'weak_password' || /password should be at least|weak password/i.test(msg)) {
       message = "Mật khẩu quá yếu (cần ít nhất 6 ký tự)";
+      setFieldError("registerPassword", "Mật khẩu quá yếu (cần ít nhất 6 ký tự)");
     }
     showAuthNotice(message, "error", "Đăng ký thất bại");
   }
