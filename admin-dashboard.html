@@ -819,7 +819,7 @@
         </select>
         <select id="errorLogsStatusSelect" class="select">
           <option value="all">Mọi trạng thái</option>
-          <option value="open">Chưa fix</option>
+          <option value="open">Còn lỗi</option>
           <option value="fixed">Đã fix</option>
         </select>
         <select id="errorLogsCategorySelect" class="select">
@@ -1807,7 +1807,7 @@ function renderErrorLogsStats() {
   const warn = errorLogsData.filter(l => l.level === "warning").length;
   const info = errorLogsData.filter(l => l.level === "info").length;
   const card = (label, value, color) => `<div style="padding:10px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);min-width:110px"><div style="font-size:20px;font-weight:800;color:${color}">${value}</div><div style="font-size:10.5px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.04em">${label}</div></div>`;
-  errorLogsStats.innerHTML = card("Chưa fix", open, "var(--red)") + card("Nghiêm trọng", err, "var(--red)") + card("Cảnh báo", warn, "var(--amber)") + card("Bình thường", info, "var(--blue)");
+  errorLogsStats.innerHTML = card("Còn lỗi", open, "var(--red)") + card("Nghiêm trọng", err, "var(--red)") + card("Cảnh báo", warn, "var(--amber)") + card("Bình thường", info, "var(--blue)");
 }
 
 function renderErrorLogs() {
@@ -1837,7 +1837,7 @@ function renderErrorLogs() {
       <td><span class="mini-meta">${escapeHtml(l.email || "—")}</span></td>
       <td><code style="font-size:11px;white-space:nowrap">${escapeHtml(l.code || "—")}</code></td>
       <td><div class="mini-meta" style="max-width:260px;cursor:pointer" onclick="viewErrorLogDetail('${sid}')" title="Bấm để xem nội dung đầy đủ"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--blue);text-decoration:underline;text-decoration-style:dotted">${escapeHtml(l.message || "—")}</div>${detailSnippet ? `<div style="color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px">${escapeHtml(detailSnippet)}</div>` : ""}</div></td>
-      <td>${fixed ? `<span class="chip green">Đã fix</span>` : `<span class="chip red">Chưa fix</span>`}</td>
+      <td style="white-space:nowrap">${fixed ? `<span class="chip green" style="min-width:58px;text-align:center;display:inline-block">Đã fix</span>` : `<span class="chip red" style="min-width:58px;text-align:center;display:inline-block">Còn lỗi</span>`}</td>
       <td><div class="row-actions">
         <button class="btn ${fixed ? "btn-soft" : "btn-success"}" onclick="toggleErrorLogFixed('${sid}', ${fixed})" title="${fixed ? "Mở lại" : "Đánh dấu đã fix"}" style="padding:8px 10px">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1930,7 +1930,7 @@ function viewErrorLogDetail(id) {
     cell("Nguồn", escapeHtml(l.source || "—")),
     cell("User", escapeHtml(l.email || "—")),
     cell("Mã lỗi", `<code style="font-size:12px;font-weight:700">${escapeHtml(l.code || "—")}</code>`),
-    cell("Trạng thái", `<span style="color:${statusColor};font-weight:800">${fixed ? "Đã fix" : "Chưa fix"}</span>`),
+    cell("Trạng thái", `<span style="color:${statusColor};font-weight:800">${fixed ? "Đã fix" : "Còn lỗi"}</span>`),
     cell("URL", escapeHtml(l.url || "—"), "span2")
   ].join("");
 
