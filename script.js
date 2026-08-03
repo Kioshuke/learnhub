@@ -77,7 +77,25 @@ setTimeout(() => {
   setTimeout(()=>{
     iframe.style.boxShadow = "none";
   },1000);
+
+  clearTimeout(window.__quizLoadTimer);
 }
+  // 🕐 Watchdog: nếu iframe bài test không tải được trong 20s thì ghi log lỗi
+  window.__quizLoadTimer = setTimeout(() => {
+    const fr = document.getElementById("quizFrame");
+    if (fr && fr.style.display !== "block") {
+      if (window.logAppError) {
+        window.logAppError({
+          source: "quiz",
+          category: "feature",
+          level: "error",
+          code: "QUIZ_FRAME_LOAD_TIMEOUT",
+          message: "Iframe bài test không tải được trong 20s (trang test không hiển thị).",
+          detail: { link: String(link || "").slice(0, 200) }
+        });
+      }
+    }
+  }, 20000);
 }
 
 function closeQuiz(){

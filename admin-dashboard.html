@@ -511,6 +511,10 @@
         BXH &amp; Reset tuần
       </button>
       <div class="sidebar-label">Hệ thống</div>
+      <button class="sidebar-link" data-admin-tab="errorLogs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Lỗi hệ thống
+      </button>
       <button class="sidebar-link" onclick="location.href='index.html'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         Về trang chính
@@ -768,6 +772,52 @@
       </div>
       <div id="renameListBody"></div>
     </section>
+
+    <!-- ERROR LOGS -->
+    <section class="panel tab-panel hidden" id="errorLogsTabPanel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Lỗi hệ thống</div>
+          <div class="panel-desc" style="margin-bottom:0">Lỗi từ user và tính năng (whitelist, khóa user, AI, tải bài test). Log quá 7 ngày tự xóa.</div>
+        </div>
+      </div>
+      <div id="errorLogsStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px"></div>
+      <div class="toolbar">
+        <input id="errorLogsSearchInput" class="input" type="search" placeholder="Tìm theo email, nguồn, mã lỗi, nội dung...">
+        <select id="errorLogsLevelSelect" class="select">
+          <option value="all">Mọi mức độ</option>
+          <option value="warning">Cảnh báo</option>
+          <option value="error">Nghiêm trọng</option>
+          <option value="info">Bình thường</option>
+        </select>
+        <select id="errorLogsStatusSelect" class="select">
+          <option value="all">Mọi trạng thái</option>
+          <option value="open">Chưa fix</option>
+          <option value="fixed">Đã fix</option>
+        </select>
+        <select id="errorLogsCategorySelect" class="select">
+          <option value="all">Mọi loại</option>
+          <option value="ai">Lỗi AI</option>
+          <option value="whitelist">Whitelist</option>
+          <option value="disabled">Khóa user</option>
+          <option value="feature">Tính năng</option>
+          <option value="auth">Xác thực</option>
+        </select>
+        <button class="btn btn-soft" id="errorLogsRefreshBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Làm mới
+        </button>
+        <div class="pagination" id="errorLogsPagination"></div>
+      </div>
+      <div class="sheet-wrap">
+        <div class="sheet-scroll">
+          <table class="sheet-table">
+            <thead><tr><th>Thời gian</th><th>Mức độ</th><th>Loại</th><th>Nguồn</th><th>User</th><th>Mã lỗi</th><th>Nội dung</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+            <tbody id="errorLogsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -843,6 +893,18 @@ let scheduleEvents = [];
 let scheduleWeekStart = getMonday(new Date());
 let scheduleEditingEventId = null;
 
+const errorLogsTabPanel = document.getElementById("errorLogsTabPanel");
+const errorLogsTableBody = document.getElementById("errorLogsTableBody");
+const errorLogsStats = document.getElementById("errorLogsStats");
+const errorLogsSearchInput = document.getElementById("errorLogsSearchInput");
+const errorLogsLevelSelect = document.getElementById("errorLogsLevelSelect");
+const errorLogsStatusSelect = document.getElementById("errorLogsStatusSelect");
+const errorLogsCategorySelect = document.getElementById("errorLogsCategorySelect");
+const errorLogsPagination = document.getElementById("errorLogsPagination");
+let errorLogsData = [];
+let errorLogsPage = 1;
+let errorLogsChannel = null;
+
 const pageTitles = {
   users: ["Quản lý user", "Quản lý whitelist, khóa/mở khóa user."],
   rename: ["Tên hiển thị", "Đổi tên hiển thị cho từng user đã có tài khoản."],
@@ -851,7 +913,8 @@ const pageTitles = {
   ticker: ["Dòng chữ chạy", "Chỉnh nội dung và tốc độ dòng chữ chạy trên cùng web chính."],
   maintenance: ["Bảo trì hệ thống", "Bật/tắt chế độ bảo trì toàn hệ thống."],
   weeklyReset: ["BXH & Reset tuần", "Bảng xếp hạng học viên và reset điểm theo tuần."],
-  schedule: ["Lịch học & thi", "Chỉnh lịch học và lịch thi hiển thị trên trang Phòng Học."]
+  schedule: ["Lịch học & thi", "Chỉnh lịch học và lịch thi hiển thị trên trang Phòng Học."],
+  errorLogs: ["Lỗi hệ thống", "Xem lỗi từ user và tính năng, đánh dấu đã fix hoặc xóa."]
 };
 
 function switchAdminTab(tab) {
@@ -864,6 +927,7 @@ function switchAdminTab(tab) {
   maintenanceTabPanel.classList.toggle("hidden", tab !== "maintenance");
   weeklyResetTabPanel.classList.toggle("hidden", tab !== "weeklyReset");
   scheduleTabPanel.classList.toggle("hidden", tab !== "schedule");
+  errorLogsTabPanel.classList.toggle("hidden", tab !== "errorLogs");
   const t = pageTitles[tab] || ["", ""];
   pageTitle.textContent = t[0];
   pageSubtitle.textContent = t[1];
@@ -873,6 +937,7 @@ function switchAdminTab(tab) {
   if (tab === "rename") renderRenameList();
   if (tab === "weeklyReset") loadWeeklyResetForm();
   if (tab === "schedule") loadScheduleForm();
+  if (tab === "errorLogs") loadErrorLogs();
   // close mobile sidebar
   document.querySelector('.sidebar').classList.remove('open');
   document.querySelector('.sidebar-overlay').classList.remove('active');
@@ -1643,6 +1708,175 @@ document.getElementById("logoutAllBtn").addEventListener("click", async () => {
   cB.addEventListener("click", onConfirm);
   document.getElementById("confirmModalCancel").addEventListener("click", onCancel);
 });
+
+// ============================== ERROR LOGS ==============================
+const ERROR_LOG_PAGE_SIZE = 15;
+const ERROR_LOG_LEVELS = { error: ["Nghiêm trọng", "var(--red)"], warning: ["Cảnh báo", "var(--amber)"], info: ["Bình thường", "var(--blue)"] };
+const ERROR_LOG_CATS = { ai: "AI", whitelist: "Whitelist", disabled: "Khóa user", auth: "Xác thực", feature: "Tính năng", test: "Tải bài test" };
+let errorLogsLoaded = false;
+
+async function loadErrorLogs() {
+  if (!errorLogsLoaded) {
+    errorLogsLoaded = true;
+    try { await supabase.rpc("cleanup_error_logs", { p_days: 7 }); }
+    catch (e) { console.error("cleanup_error_logs:", e); }
+    subscribeErrorLogsRealtime();
+  }
+  await fetchErrorLogs();
+}
+
+async function fetchErrorLogs() {
+  errorLogsTableBody.innerHTML = `<tr><td colspan="9"><div class="empty">Đang tải log...</div></td></tr>`;
+  try {
+    const { data, error } = await supabase
+      .from("error_logs")
+      .select("id, created_at, email, source, category, level, code, message, detail, status, resolved_at, resolved_by")
+      .order("created_at", { ascending: false })
+      .limit(500);
+    if (error) throw error;
+    errorLogsData = data || [];
+    errorLogsPage = 1;
+    renderErrorLogs();
+  } catch (e) {
+    console.error(e);
+    errorLogsTableBody.innerHTML = `<tr><td colspan="9"><div class="empty">Không tải được log. Kiểm tra quyền admin hoặc bảng <b>error_logs</b> chưa được tạo trong Supabase (xem supabase/schema.sql).</div></td></tr>`;
+    renderErrorLogsStats([]);
+  }
+}
+
+function filteredErrorLogs() {
+  const kw = normalizeEmail(errorLogsSearchInput.value);
+  const lv = errorLogsLevelSelect.value, st = errorLogsStatusSelect.value, ca = errorLogsCategorySelect.value;
+  return errorLogsData.filter(l => {
+    if (lv !== "all" && l.level !== lv) return false;
+    if (st === "open" && l.status === "fixed") return false;
+    if (st === "fixed" && l.status !== "fixed") return false;
+    if (ca !== "all" && l.category !== ca) return false;
+    if (kw) {
+      const dMsg = (l.detail && typeof l.detail === "object" && l.detail.message) || "";
+      if (!normalizeEmail([l.email, l.source, l.code, l.message, dMsg].join(" ")).includes(kw)) return false;
+    }
+    return true;
+  });
+}
+
+function renderErrorLogsStats() {
+  const open = errorLogsData.filter(l => l.status !== "fixed").length;
+  const err = errorLogsData.filter(l => l.level === "error").length;
+  const warn = errorLogsData.filter(l => l.level === "warning").length;
+  const info = errorLogsData.filter(l => l.level === "info").length;
+  const card = (label, value, color) => `<div style="padding:10px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);min-width:110px"><div style="font-size:20px;font-weight:800;color:${color}">${value}</div><div style="font-size:10.5px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.04em">${label}</div></div>`;
+  errorLogsStats.innerHTML = card("Chưa fix", open, "var(--red)") + card("Nghiêm trọng", err, "var(--red)") + card("Cảnh báo", warn, "var(--amber)") + card("Bình thường", info, "var(--blue)");
+}
+
+function renderErrorLogs() {
+  renderErrorLogsStats();
+  const filtered = filteredErrorLogs();
+  const total = filtered.length, totalPages = Math.max(1, Math.ceil(total / ERROR_LOG_PAGE_SIZE));
+  if (errorLogsPage > totalPages) errorLogsPage = totalPages;
+  const start = (errorLogsPage - 1) * ERROR_LOG_PAGE_SIZE;
+  const paged = filtered.slice(start, start + ERROR_LOG_PAGE_SIZE);
+  if (!paged.length) {
+    errorLogsTableBody.innerHTML = `<tr><td colspan="9"><div class="empty">${total ? "Trang này không có log." : "Chưa có log nào khớp bộ lọc."}</div></td></tr>`;
+    renderErrorLogsPagination(total, totalPages);
+    return;
+  }
+  errorLogsTableBody.innerHTML = paged.map(l => {
+    const lv = ERROR_LOG_LEVELS[l.level] || ["—", "var(--text-3)"];
+    const cat = ERROR_LOG_CATS[l.category] || escapeHtml(l.category || "—");
+    const fixed = l.status === "fixed";
+    const detail = (l.detail && typeof l.detail === "object") ? l.detail : {};
+    const detailSnippet = detail.models || detail.model || "";
+    const sid = escapeHtml(l.id);
+    return `<tr>
+      <td><div class="mini-meta" style="white-space:nowrap">${formatDate(l.created_at)}</div></td>
+      <td><span style="display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;color:#fff;background:${lv[1]};white-space:nowrap">${lv[0]}</span></td>
+      <td><span class="mini-meta" style="white-space:nowrap">${cat}</span></td>
+      <td><span class="mini-meta" style="white-space:nowrap">${escapeHtml(l.source || "—")}</span></td>
+      <td><span class="mini-meta">${escapeHtml(l.email || "—")}</span></td>
+      <td><code style="font-size:11px;white-space:nowrap">${escapeHtml(l.code || "—")}</code></td>
+      <td><div class="mini-meta" style="max-width:260px"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(l.message || "—")}</div>${detailSnippet ? `<div style="color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px">${escapeHtml(detailSnippet)}</div>` : ""}</div></td>
+      <td>${fixed ? `<span class="chip green">Đã fix</span>` : `<span class="chip red">Chưa fix</span>`}</td>
+      <td><div class="row-actions">
+        <button class="btn ${fixed ? "btn-soft" : "btn-success"}" onclick="toggleErrorLogFixed('${sid}', ${fixed})">${fixed ? "Mở lại" : "Đã fix"}</button>
+        <button class="btn btn-danger" onclick="deleteErrorLog('${sid}')">Xóa</button>
+      </div></td>
+    </tr>`;
+  }).join("");
+  renderErrorLogsPagination(total, totalPages);
+}
+
+function renderErrorLogsPagination(total, totalPages) {
+  if (totalPages <= 1) { errorLogsPagination.innerHTML = `<div class="pagination-info">Tổng: ${total} log</div>`; return; }
+  const from = (errorLogsPage - 1) * ERROR_LOG_PAGE_SIZE + 1, to = Math.min(errorLogsPage * ERROR_LOG_PAGE_SIZE, total);
+  let btns = `<button class="page-btn" onclick="goErrorLogsPage(${errorLogsPage - 1})" ${errorLogsPage === 1 ? "disabled" : ""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>`;
+  const pages = [1];
+  if (errorLogsPage > 3) pages.push("...");
+  for (let p = Math.max(2, errorLogsPage - 1); p <= Math.min(totalPages - 1, errorLogsPage + 1); p++) pages.push(p);
+  if (errorLogsPage < totalPages - 2) pages.push("...");
+  if (totalPages > 1) pages.push(totalPages);
+  pages.forEach(p => {
+    if (p === "...") btns += `<span class="page-ellipsis">...</span>`;
+    else btns += `<button class="page-btn${p === errorLogsPage ? " active" : ""}" onclick="goErrorLogsPage(${p})">${p}</button>`;
+  });
+  btns += `<button class="page-btn" onclick="goErrorLogsPage(${errorLogsPage + 1})" ${errorLogsPage === totalPages ? "disabled" : ""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>`;
+  errorLogsPagination.innerHTML = `<div class="pagination-info">Hiển thị ${from}–${to} / ${total} log</div><div class="pagination-controls">${btns}</div>`;
+}
+window.goErrorLogsPage = (p) => { errorLogsPage = p; renderErrorLogs(); };
+
+window.toggleErrorLogFixed = async (id, fixed) => {
+  const target = !fixed;
+  const update = target
+    ? { status: "fixed", resolved_by: adminEmail, resolved_at: new Date().toISOString() }
+    : { status: "open", resolved_by: null, resolved_at: null };
+  const { error } = await supabase.from("error_logs").update(update).eq("id", id);
+  if (error) { console.error(error); showNotice("Không cập nhật được log.", "error"); return; }
+  const item = errorLogsData.find(x => x.id === id);
+  if (item) item.status = target ? "fixed" : "open";
+  renderErrorLogs();
+  showNotice(target ? "Đã đánh dấu log đã fix." : "Đã mở lại log.", "success");
+};
+
+function openConfirmDialog(title, message, onYes) {
+  const modal = document.getElementById("confirmModal");
+  document.getElementById("confirmModalIcon").textContent = "⚠️";
+  document.getElementById("confirmModalTitle").textContent = title;
+  document.getElementById("confirmModalMessage").textContent = message;
+  const cB = document.getElementById("confirmModalConfirm");
+  modal.classList.add("active");
+  const onCancel = () => {
+    modal.classList.remove("active");
+    cB.removeEventListener("click", onYes);
+    document.getElementById("confirmModalCancel").removeEventListener("click", onCancel);
+  };
+  cB.addEventListener("click", () => { onCancel(); onYes(); });
+  document.getElementById("confirmModalCancel").addEventListener("click", onCancel);
+}
+
+window.deleteErrorLog = (id) => {
+  openConfirmDialog("Xóa log này?", "Log sẽ bị xóa vĩnh viễn và không thể khôi phục.", async () => {
+    const { error } = await supabase.from("error_logs").delete().eq("id", id);
+    if (error) { console.error(error); showNotice("Xóa log thất bại.", "error"); return; }
+    errorLogsData = errorLogsData.filter(x => x.id !== id);
+    renderErrorLogs();
+    showNotice("Đã xóa log.", "success");
+  });
+};
+
+function subscribeErrorLogsRealtime() {
+  if (errorLogsChannel) return;
+  errorLogsChannel = supabase.channel("error_logs_realtime")
+    .on("postgres_changes", { event: "*", schema: "public", table: "error_logs" }, () => {
+      if (!errorLogsTabPanel.classList.contains("hidden")) fetchErrorLogs();
+    })
+    .subscribe();
+}
+
+errorLogsSearchInput.addEventListener("input", () => { errorLogsPage = 1; renderErrorLogs(); });
+errorLogsLevelSelect.addEventListener("change", () => { errorLogsPage = 1; renderErrorLogs(); });
+errorLogsStatusSelect.addEventListener("change", () => { errorLogsPage = 1; renderErrorLogs(); });
+errorLogsCategorySelect.addEventListener("change", () => { errorLogsPage = 1; renderErrorLogs(); });
+document.getElementById("errorLogsRefreshBtn").addEventListener("click", () => fetchErrorLogs());
 
 supabase.auth.onAuthStateChange(async (event, session) => {
   const user = session?.user ?? null;

@@ -634,6 +634,16 @@ async function loadQuestions() {
         renderQuiz();
 
     } catch (err) {
+        if (window.logAppError) {
+            window.logAppError({
+                source: "questionenglish",
+                category: "feature",
+                level: "error",
+                code: "LOAD_TEST_FAIL",
+                message: String(err.message || ""),
+                detail: { file: JSON_FILE }
+            });
+        }
         document.getElementById("quiz-container").innerHTML =
             `<div style="color:red">Lỗi load JSON: ${err.message}</div>`;
     }
@@ -847,5 +857,9 @@ function closeIntroPopup() {
         </button>
     </div>
 </div>
+<script type="module">
+import { logAppError } from "../log-errors.js";
+window.logAppError = logAppError;
+</script>
 </body>
 </html>

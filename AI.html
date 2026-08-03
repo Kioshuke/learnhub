@@ -452,9 +452,12 @@
         localStorage.removeItem("hubie_chat_html");
     });
 
-    async function fetchWithBackup(requestBody, modelIndex = 0) {
+    async function fetchWithBackup(requestBody, modelIndex = 0, errorLog = []) {
         if (modelIndex >= MODEL_QUEUE.length) {
-            throw new Error("Tất cả các model dự phòng đều đã hết lượt dùng trong ngày!");
+            const detail = errorLog
+                .map((e, i) => `${MODEL_QUEUE[i] ? MODEL_QUEUE[i].name : '?'} [${e.code || 'ERR'}]: ${e.message}`)
+                .join(' | ');
+            throw new Error(`Tất cả các model dự phòng đều đã hết lượt dùng trong ngày! (${detail})`);
         }
         const currentModel = MODEL_QUEUE[modelIndex];
         const statusEl = document.getElementById('status');
@@ -471,13 +474,18 @@
             });
             const data = await response.json();
             if (data.error && (data.error.code === 429 || data.error.code === 404)) {
-                return await fetchWithBackup(requestBody, modelIndex + 1);
+                errorLog.push({ code: data.error.code, message: data.error.message });
+                return await fetchWithBackup(requestBody, modelIndex + 1, errorLog);
             }
-            if (data.error) throw new Error(`[${currentModel.id}] ${data.error.status || data.error.code}: ${data.error.message}`);
+            if (data.error) {
+                if (typeof data.error === 'string') throw new Error(`[${currentModel.id}] HTTP ${response.status}: ${data.error}`);
+                throw new Error(`[${currentModel.id}] ${data.error.status || data.error.code || response.status}: ${data.error.message}`);
+            }
             return { data: data, activeModelName: currentModel.name };
         } catch (err) {
             if (err.message && err.message.startsWith('[')) throw err;
-            return await fetchWithBackup(requestBody, modelIndex + 1);
+            errorLog.push({ code: 'NET', message: err.message || 'Lỗi mạng' });
+            return await fetchWithBackup(requestBody, modelIndex + 1, errorLog);
         }
     }
 
@@ -551,7 +559,20 @@
         } catch (error) {
             removeTypingIndicator(typingIndicator);
             console.error(`[Hubie] API Error:`, error);
-            appendErrorMessage(`⚠️ Hubie bảo trì: ${error.message}`);
+            const errMsg = String(error.message || "");
+            const codeMatch = errMsg.match(/\b(HTTP )?(\d{3})\b/) || errMsg.match(/\[(\d{3})\]/);
+            const errCode = codeMatch ? codeMatch[2] || codeMatch[1] : "AI_FAIL";
+            if (window.logAppError) {
+                window.logAppError({
+                    source: "chat",
+                    category: "ai",
+                    level: "error",
+                    code: errCode,
+                    message: errMsg.slice(0, 500),
+                    detail: { models: MODEL_QUEUE.map(m => m.name), activeTab: currentMode }
+                });
+            }
+            appendErrorMessage(`⚠️ Hubie bảo trì: ${errMsg}`);
             statusEl.innerText = "Gặp sự cố lỗi hệ thống";
             chatHistory.pop(); 
             scrollToBottom();
@@ -875,6 +896,11 @@
 
     setMode(getModeFromUrl());
     renderSavedChat();
+</script>
+
+<script type="module">
+import { logAppError } from "./log-errors.js";
+window.logAppError = logAppError;
 </script>
 
 </body>

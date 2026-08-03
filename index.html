@@ -255,6 +255,8 @@ import { supabase } from "./supabase-config.js";
 import { getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, escapeHtml, escapeUrl } from "./supabase-helpers.js";
 import { createUserStats, updateUserStats } from "./learnhub-stats.js";
 import { isPasswordRecovery } from "./reset-password.js";
+import { logAppError } from "./log-errors.js";
+window.logAppError = logAppError;
 
 let currentSupabaseUser = null;
 let activeInterval = null;
@@ -599,6 +601,7 @@ function startAccessGuards(user){
       if(authGuardTriggered) return;
       const ok = await emailAllowed(user.email);
       if(!ok){
+        logAppError({ source: "index-guard", category: "whitelist", level: "warning", code: "WHITELIST_REVOKED", message: "User đang dùng web bị gỡ whitelist (phát hiện qua poll 30s).", email: user.email, detail: { uid: user.uid } });
         forceLogoutNow(
           "Quyền truy cập của bạn vừa bị thu hồi. Vui lòng liên hệ admin nếu cần hỗ trợ.",
           "Đã bị gỡ whitelist"
@@ -614,6 +617,7 @@ function startAccessGuards(user){
         if(authGuardTriggered) return;
         const data = payload.new || {};
         if(data.disabled){
+          logAppError({ source: "index-guard", category: "disabled", level: "warning", code: "DISABLED", message: "User đang dùng web bị khóa tài khoản (realtime).", email: user.email, detail: { uid: user.uid } });
           forceLogoutNow(
             "Tài khoản của bạn vừa bị vô hiệu hóa. Vui lòng liên hệ admin.",
             "Tài khoản bị khóa"
@@ -703,6 +707,7 @@ if(user){
   }
 
   if (!await emailAllowed(user.email)) {
+    logAppError({ source: "index-guard", category: "whitelist", level: "warning", code: "NOT_ALLOWED", message: "User mở web nhưng không nằm trong whitelist hiện tại.", email: user.email, detail: { uid: user.id } });
     forceLogoutWithCountdown(
       "Tài khoản này không nằm trong whitelist hiện tại.",
       "Không có quyền truy cập",
@@ -724,6 +729,7 @@ if(user){
     const supabaseRow = await getUserRow(user.id);
     if (supabaseRow) {
       if (supabaseRow.disabled) {
+        logAppError({ source: "index-guard", category: "disabled", level: "warning", code: "DISABLED", message: "User bị khóa tài khoản cố mở web.", email: user.email, detail: { uid: user.id, name: supabaseRow.name || "" } });
         forceLogoutWithCountdown(
           "Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.",
           "Tài khoản bị khóa",

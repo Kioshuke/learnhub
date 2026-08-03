@@ -1127,6 +1127,16 @@ async function loadQuestions() {
     } catch (e) {
         console.error(e);
         const msg = e.name === 'AbortError' ? 'Mạng quá chậm hoặc bị treo, vui lòng thử lại.' : e.message;
+        if (window.logAppError) {
+            window.logAppError({
+                source: "filetest",
+                category: "feature",
+                level: "error",
+                code: e.name === 'AbortError' ? 'TIMEOUT' : 'LOAD_TEST_FAIL',
+                message: msg,
+                detail: { file: JSON_FILE }
+            });
+        }
         document.getElementById('quiz-container').innerHTML = `
             <div style="padding: 20px; background: #fee2e2; color: #ef4444; border-radius: 10px; border: 1px solid #fca5a5;">
                 <strong>Lỗi tải đề thi:</strong> ${msg} <br>
@@ -1698,6 +1708,10 @@ function launchFireworkBurst(burstIndex) {
 
 // Khởi chạy
 loadQuestions();
+</script>
+<script type="module">
+import { logAppError } from "./log-errors.js";
+window.logAppError = logAppError;
 </script>
 <div id="confetti-container"></div>
 </body>

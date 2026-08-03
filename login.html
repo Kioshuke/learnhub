@@ -981,6 +981,7 @@
 import { supabase } from "./supabase-config.js";
 import { getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, finalizeSession } from "./supabase-helpers.js";
 import { redirectToResetPage, isPasswordRecovery } from "./reset-password.js";
+import { logAppError } from "./log-errors.js";
 
 // Đăng ký ngay lập tức (trước mọi await bên dưới) để không lỡ sự kiện
 // PASSWORD_RECOVERY khi user bấm link đặt lại mật khẩu từ email.
@@ -1428,6 +1429,7 @@ onAuthChange(async (event, session) => {
       // Kiểm tra whitelist
       const allowed = await emailAllowed(user.email);
       if (!allowed) {
+        logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED", message: "User không nằm trong whitelist cố đăng nhập (OAuth/quay lại khi có session).", email: user.email });
         showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập", 4500);
         await supabase.auth.signOut();
         processingLogin = false;
@@ -1436,6 +1438,7 @@ onAuthChange(async (event, session) => {
       // Kiểm tra tài khoản bị khóa
       const row = await getUserRow(user.id);
       if (row && row.disabled) {
+        logAppError({ source: "login", category: "disabled", level: "warning", code: "DISABLED", message: "Tài khoản bị khóa cố đăng nhập (OAuth/quay lại khi có session).", email: user.email, detail: { name: row.name || "" } });
         showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa", 4500);
         await supabase.auth.signOut();
         processingLogin = false;
@@ -1526,6 +1529,7 @@ window.emailLogin = async function() {
     if (error) throw error;
     const user = data.user;
     if (!await emailAllowed(user.email)) {
+      logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED", message: "Đăng nhập email/mật khẩu bằng email không nằm trong whitelist.", email: user.email });
       showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập", 4500);
       await supabase.auth.signOut();
       processingLogin = false;
@@ -1533,6 +1537,7 @@ window.emailLogin = async function() {
     }
     const row = await getUserRow(user.id);
     if (row && row.disabled) {
+      logAppError({ source: "login", category: "disabled", level: "warning", code: "DISABLED", message: "Đăng nhập email/mật khẩu bằng tài khoản bị khóa.", email: user.email, detail: { name: row.name || "" } });
       showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa", 4500);
       await supabase.auth.signOut();
       processingLogin = false;
@@ -1574,6 +1579,7 @@ window.emailRegister = async function() {
   if (password !== confirmPassword) { showAuthNotice("Mật khẩu nhập lại không khớp", "error", "Lỗi xác nhận"); return; }
   if (password.length < 6) { showAuthNotice("Mật khẩu phải có ít nhất 6 ký tự", "error", "Mật khẩu quá ngắn"); return; }
   if (!await emailAllowed(email)) {
+    logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED_SIGNUP", message: "Cố đăng ký bằng email không nằm trong whitelist.", email: email });
     showAuthNotice("Email này không nằm trong danh sách được cấp quyền. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập");
     return;
   }

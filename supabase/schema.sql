@@ -168,6 +168,28 @@ create table if not exists public.watched_videos (
 
 create index if not exists watched_videos_user_id_idx on public.watched_videos (user_id);
 
+-- Log lỗi hệ thống: client ghi qua RPC log_app_error (cho cả anon), admin xem/xoá trên dashboard.
+create table if not exists public.error_logs (
+  id          uuid primary key default gen_random_uuid(),
+  created_at  timestamptz not null default now(),
+  user_id     text,
+  email       text,
+  source      text not null default '',
+  category    text not null default 'feature',
+  level       text not null default 'warning',
+  code        text not null default '',
+  message     text not null default '',
+  url         text not null default '',
+  detail      jsonb not null default '{}'::jsonb,
+  status      text not null default 'open',
+  resolved_by text,
+  resolved_at timestamptz
+);
+
+create index if not exists error_logs_created_at_idx on public.error_logs (created_at desc);
+create index if not exists error_logs_status_idx on public.error_logs (status);
+create index if not exists error_logs_level_idx on public.error_logs (level);
+
 -- ============================== RLS ==============================
 
 alter table public.users enable row level security;
@@ -182,6 +204,7 @@ alter table public.forum_posts enable row level security;
 alter table public.forum_events enable row level security;
 alter table public.schedule_settings enable row level security;
 alter table public.watched_videos enable row level security;
+alter table public.error_logs enable row level security;
 
 -- ============================== FUNCTIONS & TRIGGERS ==============================
 
@@ -338,6 +361,72 @@ $$;
 
 revoke execute on function public.cleanup_expired_forum_images() from public;
 grant execute on function public.cleanup_expired_forum_images() to authenticated;
+
+-- ============================== ERROR LOGS (log lỗi hệ thống) ==============================
+-- Client ghi log qua RPC này: security definer chạy với quyền owner nên vượt RLS.
+-- Cho phép cả anon (ghi log TRƯỚC khi đăng nhập: người không whitelist/bị khóa cố vào web).
+-- Khi có session thì tự lấy user_id/email; không có thì dùng p_email do client truyền.
+create or replace function public.log_app_error(
+  p_source text,
+  p_level text,
+  p_code text,
+  p_message text,
+  p_url text,
+  p_category text,
+  p_email text,
+  p_detail jsonb
+)
+returns void
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  v_uid    text := auth.uid()::text;
+  v_email  text;
+begin
+  select email into v_email from public.users where id = v_uid;
+  if v_email is null then
+    v_email := lower(btrim(coalesce(auth.jwt()->>'email', '')));
+  end if;
+  if v_email is null or v_email = '' then
+    v_email := lower(btrim(coalesce(p_email, '')));
+  end if;
+
+  insert into public.error_logs (user_id, email, source, category, level, code, message, url, detail)
+  values (
+    v_uid,
+    nullif(v_email, ''),
+    nullif(coalesce(p_source, ''), ''),
+    nullif(coalesce(p_category, 'feature'), ''),
+    nullif(coalesce(p_level, 'warning'), ''),
+    nullif(coalesce(p_code, ''), ''),
+    nullif(coalesce(p_message, ''), ''),
+    nullif(coalesce(p_url, ''), ''),
+    coalesce(p_detail, '{}'::jsonb)
+  );
+end;
+$$;
+
+revoke execute on function public.log_app_error(text, text, text, text, text, text, text, jsonb) from public;
+grant execute on function public.log_app_error(text, text, text, text, text, text, text, jsonb) to anon, authenticated;
+
+-- Dọn log cũ (mặc định >7 ngày). Chỉ admin mới chạy được (tự kiểm tra bên trong).
+create or replace function public.cleanup_error_logs(p_days int default 7)
+returns void
+language plpgsql security definer
+set search_path = public
+as $$
+begin
+  if not public.is_admin() then
+    return;
+  end if;
+  delete from public.error_logs
+   where created_at < now() - make_interval(days => coalesce(p_days, 7));
+end;
+$$;
+
+revoke execute on function public.cleanup_error_logs(int) from public;
+grant execute on function public.cleanup_error_logs(int) to authenticated;
 
 -- ============================== POLICIES ==============================
 
@@ -520,6 +609,11 @@ drop policy if exists watched_videos_insert_own on public.watched_videos;
 create policy watched_videos_insert_own on public.watched_videos
   for insert to authenticated with check (user_id = auth.uid()::text);
 
+-- Log lỗi: chỉ admin đọc/xoá/sửa; việc ghi đi qua RPC log_app_error (security definer).
+drop policy if exists error_logs_admin on public.error_logs;
+create policy error_logs_admin on public.error_logs
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
 -- ============================== REACTIONS ==============================
 
 -- Thả cảm xúc: cho phép mọi user đã đăng nhập update cảm xúc trên BẤT KỲ bài viết nào
@@ -655,7 +749,8 @@ begin
     'public.broadcast_welcome',
     'public.maintenance_settings',
     'public.ticker_settings',
-    'public.schedule_settings'
+    'public.schedule_settings',
+    'public.error_logs'
   ] loop
     if not exists (
       select 1 from pg_publication_tables

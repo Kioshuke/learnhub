@@ -483,8 +483,27 @@ function loadQuiz(btn, link) {
     if (window.learnHubUser) {
       iframe.contentWindow.postMessage({ type: "LEARNHUB_USER", user: window.learnHubUser }, "*");
     }
+    clearTimeout(window.__quizLoadTimer);
     document.getElementById("quiz").scrollIntoView({ behavior: "smooth", block: "start" });
   };
+
+  // 🕐 Watchdog: nếu iframe bài test không tải được trong 20s thì ghi log lỗi
+  clearTimeout(window.__quizLoadTimer);
+  window.__quizLoadTimer = setTimeout(function() {
+    var fr = document.getElementById("quizFrame");
+    if (fr && fr.style.display !== "block") {
+      if (window.logAppError) {
+        window.logAppError({
+          source: "quiz",
+          category: "feature",
+          level: "error",
+          code: "QUIZ_FRAME_LOAD_TIMEOUT",
+          message: "Iframe bài test không tải được trong 20s (trang test không hiển thị).",
+          detail: { link: String(link || "").slice(0, 200) }
+        });
+      }
+    }
+  }, 20000);
 }
 
 function closeQuiz() {
@@ -865,6 +884,10 @@ function loadMatrixPlayer() {
   }, 50);
 }
 
+</script>
+<script type="module">
+import { logAppError } from "./log-errors.js";
+window.logAppError = logAppError;
 </script>
 </body>
 </html>
