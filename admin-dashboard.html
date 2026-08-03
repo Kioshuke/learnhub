@@ -339,6 +339,33 @@
     .confirm-btn-cancel{background:#f1f5f9;color:var(--text-2)}.confirm-btn-cancel:hover{background:#e2e8f0}
     .confirm-btn-confirm{background:var(--red);color:#fff}.confirm-btn-confirm:hover{background:#b91c1c;transform:translateY(-1px)}
 
+    /* Log detail modal */
+    .log-detail-head{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:14px 20px;border-radius:18px 18px 0 0;margin:-28px -26px 16px;
+      color:#fff;
+    }
+    .log-detail-head-left{display:flex;align-items:center;gap:10px;min-width:0}
+    .log-detail-head .confirm-title{color:#fff;margin:0;font-size:16px;letter-spacing:-.2px}
+    .log-detail-chip{
+      flex-shrink:0;padding:3px 11px;border-radius:999px;
+      font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+      background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.35);
+    }
+    .log-detail-head .btn-soft{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.3)}
+    .log-detail-head .btn-soft:hover{background:rgba(255,255,255,.28);color:#fff}
+    .log-detail-grid{
+      display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;
+      padding:14px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);
+      margin-bottom:14px;
+    }
+    .log-detail-grid .cell{min-width:0}
+    .log-detail-grid .cell.span2{grid-column:1 / -1}
+    .log-detail-key{
+      font-size:10.5px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;
+    }
+    .log-detail-val{font-size:12.5px;color:var(--text);word-break:break-word;font-weight:600}
+
     /* ================= LOGIN ================= */
     .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;width:100%}
     .login-card{
@@ -836,12 +863,15 @@
 
 <!-- LOG DETAIL MODAL -->
 <div id="logDetailModal" class="confirm-modal">
-  <div class="confirm-card" style="max-width:660px;text-align:left">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px">
-      <h3 class="confirm-title" style="margin:0">Chi tiết log</h3>
-      <button class="btn btn-soft" onclick="closeLogDetail()" style="padding:6px 14px;font-size:12px">Đóng</button>
+  <div class="confirm-card" style="max-width:680px;text-align:left">
+    <div class="log-detail-head" id="logDetailHead">
+      <div class="log-detail-head-left">
+        <span class="log-detail-chip" id="logDetailLevelChip">Cảnh báo</span>
+        <h3 class="confirm-title" id="logDetailTitle">Chi tiết log</h3>
+      </div>
+      <button class="btn btn-soft" onclick="closeLogDetail()" style="padding:6px 14px;font-size:12px">✕ Đóng</button>
     </div>
-    <div id="logDetailBody" style="font-size:13px;line-height:1.6;color:var(--text-2);max-height:62vh;overflow:auto"></div>
+    <div id="logDetailBody" style="font-size:13px;line-height:1.6;color:var(--text-2);max-height:60vh;overflow:auto"></div>
   </div>
 </div>
 
@@ -1882,21 +1912,33 @@ function viewErrorLogDetail(id) {
   const l = errorLogsData.find(x => x.id === id);
   if (!l) return;
   const detail = (l.detail && typeof l.detail === "object") ? l.detail : {};
-  const rows = [
-    ["Thời gian", formatDate(l.created_at)],
-    ["Mức độ", (ERROR_LOG_LEVELS[l.level] || ["—"])[0]],
-    ["Loại", ERROR_LOG_CATS[l.category] || l.category || "—"],
-    ["Nguồn", l.source || "—"],
-    ["User", l.email || "—"],
-    ["Mã lỗi", l.code || "—"],
-    ["Trạng thái", l.status === "fixed" ? "Đã fix" : "Chưa fix"],
-    ["URL", l.url || "—"]
-  ];
-  let html = rows.map(([k, v]) => `<div style="margin-bottom:10px"><div style="font-size:10.5px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.04em">${escapeHtml(k)}</div><div style="margin-top:2px;word-break:break-word">${escapeHtml(v)}</div></div>`).join("");
-  html += `<div style="margin-bottom:10px"><div style="font-size:10.5px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.04em">Nội dung đầy đủ</div><div style="margin-top:2px;white-space:pre-wrap;word-break:break-word;color:var(--text)">${escapeHtml(l.message || "—")}</div></div>`;
+  const lvl = ERROR_LOG_LEVELS[l.level] || ["—", "var(--text-3)"];
+  const levelColor = lvl[1];
+  const fixed = l.status === "fixed";
+  const statusColor = fixed ? "var(--green)" : "var(--red)";
+
+  const head = document.getElementById("logDetailHead");
+  head.style.background = `linear-gradient(135deg, ${levelColor} 0%, color-mix(in srgb, ${levelColor} 65%, #0f172a) 100%)`;
+  document.getElementById("logDetailLevelChip").textContent = lvl[0];
+  document.getElementById("logDetailTitle").textContent = l.code ? `Chi tiết log · ${l.code}` : "Chi tiết log";
+
+  const cell = (k, v, cls = "") => `<div class="cell ${cls}"><div class="log-detail-key">${escapeHtml(k)}</div><div class="log-detail-val">${v}</div></div>`;
+  const grid = [
+    cell("Thời gian", escapeHtml(formatDate(l.created_at))),
+    cell("Mức độ", `<span style="color:${levelColor};font-weight:800">${lvl[0]}</span>`),
+    cell("Loại", escapeHtml(ERROR_LOG_CATS[l.category] || l.category || "—")),
+    cell("Nguồn", escapeHtml(l.source || "—")),
+    cell("User", escapeHtml(l.email || "—")),
+    cell("Mã lỗi", `<code style="font-size:12px;font-weight:700">${escapeHtml(l.code || "—")}</code>`),
+    cell("Trạng thái", `<span style="color:${statusColor};font-weight:800">${fixed ? "Đã fix" : "Chưa fix"}</span>`),
+    cell("URL", escapeHtml(l.url || "—"), "span2")
+  ].join("");
+
+  let html = `<div class="log-detail-grid">${grid}</div>`;
+  html += `<div style="margin-bottom:14px"><div class="log-detail-key">Nội dung đầy đủ</div><div style="margin-top:4px;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);white-space:pre-wrap;word-break:break-word;color:var(--text);font-size:13px;line-height:1.6">${escapeHtml(l.message || "—")}</div></div>`;
   const entries = Object.entries(detail);
   if (entries.length) {
-    html += `<div><div style="font-size:10.5px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Thông tin thêm (detail)</div><pre style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;font-size:12px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin:0">${escapeHtml(JSON.stringify(detail, null, 2))}</pre></div>`;
+    html += `<div class="log-detail-key" style="margin-bottom:4px">Thông tin thêm (detail)</div><pre style="background:#0f172a;color:#e2e8f0;border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;font-size:12px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin:0">${escapeHtml(JSON.stringify(detail, null, 2))}</pre>`;
   }
   document.getElementById("logDetailBody").innerHTML = html;
   document.getElementById("logDetailModal").classList.add("active");
