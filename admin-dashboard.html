@@ -834,6 +834,17 @@
   </div>
 </div>
 
+<!-- LOG DETAIL MODAL -->
+<div id="logDetailModal" class="confirm-modal">
+  <div class="confirm-card" style="max-width:660px;text-align:left">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px">
+      <h3 class="confirm-title" style="margin:0">Chi tiết log</h3>
+      <button class="btn btn-soft" onclick="closeLogDetail()" style="padding:6px 14px;font-size:12px">Đóng</button>
+    </div>
+    <div id="logDetailBody" style="font-size:13px;line-height:1.6;color:var(--text-2);max-height:62vh;overflow:auto"></div>
+  </div>
+</div>
+
 <script type="module">
 import { createLearnHubClient } from "./supabase-config.js";
 
@@ -1795,7 +1806,7 @@ function renderErrorLogs() {
       <td><span class="mini-meta" style="white-space:nowrap">${escapeHtml(l.source || "—")}</span></td>
       <td><span class="mini-meta">${escapeHtml(l.email || "—")}</span></td>
       <td><code style="font-size:11px;white-space:nowrap">${escapeHtml(l.code || "—")}</code></td>
-      <td><div class="mini-meta" style="max-width:260px"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(l.message || "—")}</div>${detailSnippet ? `<div style="color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px">${escapeHtml(detailSnippet)}</div>` : ""}</div></td>
+      <td><div class="mini-meta" style="max-width:260px;cursor:pointer" onclick="viewErrorLogDetail('${sid}')" title="Bấm để xem nội dung đầy đủ"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--blue)">${escapeHtml(l.message || "—")}</div>${detailSnippet ? `<div style="color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px">${escapeHtml(detailSnippet)}</div>` : ""}<div style="font-size:10.5px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-top:2px">Bấm để xem →</div></div></td>
       <td>${fixed ? `<span class="chip green">Đã fix</span>` : `<span class="chip red">Chưa fix</span>`}</td>
       <td><div class="row-actions">
         <button class="btn ${fixed ? "btn-soft" : "btn-success"}" onclick="toggleErrorLogFixed('${sid}', ${fixed})">${fixed ? "Mở lại" : "Đã fix"}</button>
@@ -1862,6 +1873,39 @@ window.deleteErrorLog = (id) => {
     showNotice("Đã xóa log.", "success");
   });
 };
+
+function viewErrorLogDetail(id) {
+  const l = errorLogsData.find(x => x.id === id);
+  if (!l) return;
+  const detail = (l.detail && typeof l.detail === "object") ? l.detail : {};
+  const rows = [
+    ["Thời gian", formatDate(l.created_at)],
+    ["Mức độ", (ERROR_LOG_LEVELS[l.level] || ["—"])[0]],
+    ["Loại", ERROR_LOG_CATS[l.category] || l.category || "—"],
+    ["Nguồn", l.source || "—"],
+    ["User", l.email || "—"],
+    ["Mã lỗi", l.code || "—"],
+    ["Trạng thái", l.status === "fixed" ? "Đã fix" : "Chưa fix"],
+    ["URL", l.url || "—"]
+  ];
+  let html = rows.map(([k, v]) => `<div style="margin-bottom:10px"><div style="font-size:10.5px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.04em">${escapeHtml(k)}</div><div style="margin-top:2px;word-break:break-word">${escapeHtml(v)}</div></div>`).join("");
+  html += `<div style="margin-bottom:10px"><div style="font-size:10.5px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.04em">Nội dung đầy đủ</div><div style="margin-top:2px;white-space:pre-wrap;word-break:break-word;color:var(--text)">${escapeHtml(l.message || "—")}</div></div>`;
+  const entries = Object.entries(detail);
+  if (entries.length) {
+    html += `<div><div style="font-size:10.5px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Thông tin thêm (detail)</div><pre style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;font-size:12px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin:0">${escapeHtml(JSON.stringify(detail, null, 2))}</pre></div>`;
+  }
+  document.getElementById("logDetailBody").innerHTML = html;
+  document.getElementById("logDetailModal").classList.add("active");
+}
+
+function closeLogDetail() {
+  document.getElementById("logDetailModal").classList.remove("active");
+}
+window.viewErrorLogDetail = viewErrorLogDetail;
+window.closeLogDetail = closeLogDetail;
+document.getElementById("logDetailModal").addEventListener("click", (e) => {
+  if (e.target === document.getElementById("logDetailModal")) closeLogDetail();
+});
 
 function subscribeErrorLogsRealtime() {
   if (errorLogsChannel) return;
