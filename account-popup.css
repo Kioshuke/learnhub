@@ -1111,7 +1111,7 @@ body.cc-reduced .cc-track-eq span {
   width: min(320px, calc(100vw - 32px));
   padding: 24px 22px;
   border-radius: 22px;
-  background: var(--cc-bg);
+  background: var(--cc-bg-solid);
   border: 1px solid var(--cc-border);
   box-shadow: var(--cc-shadow);
   text-align: center;
@@ -1151,6 +1151,25 @@ body.cc-reduced .cc-track-eq span {
 .cc-logout-btns .cc-btn-ghost,
 .cc-logout-btns .cc-btn-danger {
   flex: 1;
+}
+
+.cc-logout-btns .cc-btn-ghost {
+  border: 1px solid var(--cc-track);
+  background: transparent;
+  color: var(--text-main);
+}
+
+.cc-logout-btns .cc-btn-ghost:hover {
+  background: var(--cc-track);
+}
+
+.cc-logout-btns .cc-btn-danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.cc-logout-btns .cc-btn-danger:hover {
+  background: #dc2626;
 }
 
 @media (prefers-reduced-motion: reduce) {
