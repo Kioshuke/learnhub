@@ -474,6 +474,7 @@ let welcomeGuardChannel = null;
 let authGuardTriggered = false;
 let welcomePopupCache = null;
 let appLoadingComplete = false;
+let welcomeShown = false;
 
 const WELCOME_POPUP_DEFAULT = {
   title: "📢 Thông báo",
@@ -817,18 +818,13 @@ if(user){
 
   applyUserToUI(userData);
 
-  // ✅ WELCOME BACK POPUP — hiện 1 lần mỗi session
-  if (!sessionStorage.getItem("welcomeBackShown")) {
-    sessionStorage.setItem("welcomeBackShown", "1");
+  // ✅ WELCOME BACK POPUP — hiện 1 lần mỗi lần mở trang
+  if (!welcomeShown) {
+    welcomeShown = true;
     const welcomeName = userData.displayName || "bạn";
-    document.getElementById("welcomeBackName").textContent = `Xin chào ${welcomeName}, sẵn sàng học bài chưa?`;
-    document.getElementById("welcomeBackOverlay").classList.add("cc-open");
-    try { document.getElementById("realtimeSound").play().catch(()=>{}); } catch(e){}
-    const closeWelcome = () => {
-      document.getElementById("welcomeBackOverlay").classList.remove("cc-open");
-    };
-    document.getElementById("welcomeBackOk").onclick = closeWelcome;
-    setTimeout(closeWelcome, 5000);
+    const rtSound = document.getElementById("realtimeSound");
+    const canPlay = rtSound && !rtSound.muted && rtSound.volume > 0;
+    showAuthNotice(`Xin chào ${welcomeName}`, "info", "Chào mừng trở lại!", 4000, canPlay ? "realtimeSound" : "");
   }
 
 } else {
@@ -1256,16 +1252,6 @@ fetch('footer.html').then(r => r.text()).then(html => {
     <p class="cc-logout-msg">Phiên Focus đã hoàn thành. Chúc bạn có giờ học thật hiệu quả nhé!</p>
     <div class="cc-logout-btns">
       <button class="cc-btn-primary" id="ccDoneOk" type="button">Tuyệt vời</button>
-    </div>
-  </div>
-</div>
-<div id="welcomeBackOverlay" class="cc-logout-overlay">
-  <div class="cc-logout-card">
-    <div class="cc-logout-icon" style="background:rgba(37,99,235,0.12);">👋</div>
-    <div class="cc-logout-title">Chào mừng trở lại!</div>
-    <p class="cc-logout-msg" id="welcomeBackName"></p>
-    <div class="cc-logout-btns">
-      <button class="cc-btn-primary" id="welcomeBackOk" type="button">Bắt đầu học</button>
     </div>
   </div>
 </div>
