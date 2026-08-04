@@ -376,12 +376,15 @@
         };
 
         // ===== LOAD SCORE RANKING =====
+        let scoreLoadBusy = false;
         async function load() {
+            if (scoreLoadBusy) return;
+            scoreLoadBusy = true;
             document.getElementById("week-label").textContent = getWeekKey();
 
             try {
                 const [{ data: stats }, { data: users }] = await Promise.all([
-                    supabase.from("test_stats").select("user_id, total_score, total_tests"),
+                    supabase.from("test_stats").select("user_id, total_score, total_tests").eq("week_key", getWeekKey()),
                     supabase.from("users").select("id, name, email, photo")
                 ]);
 
@@ -437,7 +440,7 @@
                     podiumEl.innerHTML = buildPodium(top3, [
                         { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '🥈' },
                         { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' },
-                        { idx: 2, ring: 'ring-bronze', bar: 'ring-bronze', avSz: 56, barH: 40, rank: 3, medal: '🥉' }
+                        { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: '🥉' }
                     ]);
                 }
 
@@ -463,11 +466,16 @@
             } catch (e) {
                 console.error("[load-score]", e);
                 document.getElementById("table-body").innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu xếp hạng điểm.</td></tr>`;
+            } finally {
+                scoreLoadBusy = false;
             }
         }
 
         // ===== LOAD ONLINE TIME RANKING =====
+        let timeLoadBusy = false;
         async function loadOnlineTime() {
+            if (timeLoadBusy) return;
+            timeLoadBusy = true;
             try {
                 const { data: allUsers } = await supabase.from("users")
                     .select("id, name, email, photo, online, online_timer, online_start_time, last_active, disabled");
@@ -553,12 +561,16 @@
             } catch (e) {
                 console.error("[load-online-time]", e);
                 document.getElementById("table-body-time").innerHTML = `<tr><td colspan="3" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu xếp hạng thời gian.</td></tr>`;
+            } finally {
+                timeLoadBusy = false;
             }
         }
 
         if (new URLSearchParams(location.search).get("compact") === "1") document.body.classList.add("compact");
         load();
         loadOnlineTime();
+        // Tự refresh bảng xếp hạng (điểm + thời gian online) mỗi 60s để giảm tải DB
+        setInterval(() => { load(); loadOnlineTime(); }, 60000);
     </script>
 </body>
 </html>

@@ -373,10 +373,16 @@
         });
     }
 
+    function escapeHtmlText(str) {
+        return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+            "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        }[c]));
+    }
+
     function formatMarkdown(text) {
-        let html = text;
+        let html = escapeHtmlText(text);
         html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\*(.*?)\*\*/g, '<em>$1</em>');
+        html = html.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
         return html.split('\n').map(line => line.trim() ? `<p>${line}</p>` : '<br>').join('');
     }
 
@@ -574,7 +580,12 @@
             }
             appendErrorMessage(`⚠️ Hubie bảo trì: ${errMsg}`);
             statusEl.innerText = "Gặp sự cố lỗi hệ thống";
-            chatHistory.pop(); 
+            chatHistory.pop();
+            const chatBox = document.getElementById('chatBox');
+            const userWrappers = chatBox.getElementsByClassName('user-wrapper');
+            if (userWrappers.length > 0) {
+                chatBox.removeChild(userWrappers[userWrappers.length - 1]);
+            }
             scrollToBottom();
         }
     }
@@ -674,11 +685,22 @@
         const toolsDiv = document.createElement('div');
         toolsDiv.className = 'ai-tools';
         
-        const escapedText = text.replace(/'/g, "\\'").replace(/\n/g, "\\n");
-        toolsDiv.innerHTML = `
-            <button class="tool-btn" onclick="copyToClipboard('${escapedText}')" title="Sao chép câu trả lời">📋</button>
-            <button class="tool-btn" onclick="regenerateAiResponse()" title="Yêu cầu Hubie trả lời lại câu này">🔄</button>
-        `;
+        const copyBtn = document.createElement('button');
+        copyBtn.type = 'button';
+        copyBtn.className = 'tool-btn';
+        copyBtn.title = 'Sao chép câu trả lời';
+        copyBtn.textContent = '📋';
+        copyBtn.addEventListener('click', () => copyToClipboard(text));
+        
+        const regenBtn = document.createElement('button');
+        regenBtn.type = 'button';
+        regenBtn.className = 'tool-btn';
+        regenBtn.title = 'Yêu cầu Hubie trả lời lại câu này';
+        regenBtn.textContent = '🔄';
+        regenBtn.addEventListener('click', () => regenerateAiResponse());
+        
+        toolsDiv.appendChild(copyBtn);
+        toolsDiv.appendChild(regenBtn);
         
         wrapper.appendChild(contentGroup);
         wrapper.appendChild(timeDiv);

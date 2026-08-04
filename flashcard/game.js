@@ -576,7 +576,7 @@ function startBlastGame() {
     updateProgress();
     streak = 0;
     const scoreEl = document.getElementById("score");
-    if(scoreEl) scoreEl.innerHTML = `Streak: <span class="streak-badge">0</span> �`;
+    if(scoreEl) scoreEl.innerHTML = `Streak: <span class="streak-badge">0</span>`;
     
     // Ưu tiên lấy từ activeCards, không có thì lấy từ cards
     const dataSource = (typeof activeCards !== 'undefined' && activeCards.length > 0) ? activeCards : cards;

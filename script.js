@@ -726,31 +726,33 @@ function sendDarkModeToIframe(isDark) {
 }
 
 // 1. Load lại trạng thái cũ khi vừa mở web
-if(localStorage.getItem("darkMode") === "on"){
-    document.body.classList.add("dark-mode");
-    toggle.checked = true;
-    darkModeFrames.forEach((frame) => {
-        if (frame) {
-            frame.onload = () => sendDarkModeToIframe(true);
+if(toggle){
+    if(localStorage.getItem("darkMode") === "on"){
+        document.body.classList.add("dark-mode");
+        toggle.checked = true;
+        darkModeFrames.forEach((frame) => {
+            if (frame) {
+                frame.onload = () => sendDarkModeToIframe(true);
+            }
+        });
+    }
+
+    // 2. Khi bấm nút gạt
+    toggle.addEventListener("change", () => {
+        const isDark = toggle.checked;
+        
+        if(isDark){
+            document.body.classList.add("dark-mode");
+            localStorage.setItem("darkMode", "on");
+        } else {
+            document.body.classList.remove("dark-mode");
+            localStorage.setItem("darkMode", "off");
         }
+        
+        // Gửi tín hiệu ngay lập tức sang iframe
+        sendDarkModeToIframe(isDark);
     });
 }
-
-// 2. Khi bấm nút gạt
-toggle.addEventListener("change", () => {
-    const isDark = toggle.checked;
-    
-    if(isDark){
-        document.body.classList.add("dark-mode");
-        localStorage.setItem("darkMode", "on");
-    } else {
-        document.body.classList.remove("dark-mode");
-        localStorage.setItem("darkMode", "off");
-    }
-    
-    // Gửi tín hiệu ngay lập tức sang iframe
-    sendDarkModeToIframe(isDark);
-});
 // Gán sự kiện click cho tất cả các nút trong Menu
 /* ================= TỐI ƯU CHO PAGESPEED ================= */
 let isFirstLoad = true;

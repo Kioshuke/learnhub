@@ -843,7 +843,15 @@
         return getGoogleDriveIframeHtml(driveEmbedUrl);
       }
 
-      return getFacebookIframeHtml(url);
+      try {
+        const parsed = new URL(url);
+        const host = parsed.hostname.toLowerCase();
+        if (host === "facebook.com" || host.endsWith(".facebook.com") || host === "fb.watch" || host.endsWith(".fb.watch")) {
+          return getFacebookIframeHtml(url);
+        }
+      } catch (e) {}
+
+      return '<div style="display:flex;align-items:center;justify-content:center;height:100%;min-height:120px;color:#94a3b8;font-size:13px;text-align:center;padding:16px;">Không hỗ trợ link này. Chỉ chấp nhận YouTube, Google Drive hoặc Facebook.</div>';
     }
 
     function getGoogleDriveFolderEmbedUrl(url) {

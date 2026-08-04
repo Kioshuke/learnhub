@@ -120,9 +120,10 @@ export async function finalizeSession(user) {
   const nowIso = new Date().toISOString();
 
   const patch = {
-    last_login: nowIso,
-    last_active: Date.now(),
-    online: true
+    last_login: nowIso
+    // KHÔNG set online/last_active ở đây: để users_begin_online (RPC) là nguồn duy nhất
+    // quyết định phiên online. Nếu login ghi last_active=now sẽ "che" phiên cũ chết (crash),
+    // khiến begin tưởng phiên vẫn liên tục → vẫn cộng cả khoảng offline (giờ ảo).
   };
   const name =
     user.user_metadata?.name ||
@@ -149,4 +150,45 @@ export async function finalizeSession(user) {
   }
 
   return { ...user, name, photo };
+}
+
+// ---------- ONLINE SESSION (atomic qua RPC, chống giờ ảo / double-count) ----------
+// Toàn bộ thay đổi online_start_time / online_timer được thực hiện trong DB bằng
+// function atomic (SELECT ... FOR UPDATE) nên 2 tab/pages cùng ghi không thể double-count.
+
+// Bắt đầu/claim phiên online: giữ start nếu phiên liên tục; nếu phiên cũ chết (crash)
+// chỉ cộng phần online thật (start -> last_active), KHÔNG cộng khoảng offline.
+export async function beginOnlineSession(uid) {
+  if (!uid) return;
+  try {
+    const { error } = await supabase.rpc("users_begin_online", { p_uid: uid });
+    if (error) throw error;
+  } catch (e) {
+    console.error("[supabase-helpers] beginOnlineSession lỗi:", e);
+  }
+}
+
+// Kết thúc phiên online (ẩn tab / logout / rời trang): cộng dồn đúng (now - start) rồi reset.
+// Idempotent: gọi trùng (visibilitychange + pagehide + beforeunload) vẫn an toàn.
+export async function finalizeOnlineSession(uid) {
+  if (!uid) return;
+  try {
+    const { error } = await supabase.rpc("users_finalize_online", { p_uid: uid });
+    if (error) throw error;
+  } catch (e) {
+    console.error("[supabase-helpers] finalizeOnlineSession lỗi:", e);
+  }
+}
+
+// Admin: quét user đang online nhưng hết hạn (crash/browser kill) → tự finalize,
+// chống báo online ảo trên DB. Chỉ admin mới được chạy (chặn trong function).
+export async function cleanupStaleOnline(staleMs = 120000) {
+  try {
+    const { data, error } = await supabase.rpc("users_cleanup_stale_online", { p_stale_ms: staleMs });
+    if (error) throw error;
+    return Number(data || 0);
+  } catch (e) {
+    console.error("[supabase-helpers] cleanupStaleOnline lỗi:", e);
+    return 0;
+  }
 }

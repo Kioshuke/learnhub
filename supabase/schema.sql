@@ -818,3 +818,143 @@ drop trigger if exists trg_users_prevent_privilege_insert on public.users;
 create trigger trg_users_prevent_privilege_insert
   before insert on public.users
   for each row execute function public.users_prevent_privilege_insert();
+
+-- ============================== ONLINE TIMER FIX (atomic, chống giờ ảo) ==============================
+-- Lỗi cũ: client "đọc rồi ghi" online_start_time/online_timer không atomic → 2 tab cùng ghi
+-- double-count; login cộng bù (now - start) vô điều kiện → session chết (crash) bị cộng cả
+-- khoảng offline → thời gian online bị thổi phồng ("40 tiếng").
+-- Cách mới: mọi thay đổi start/timer nằm trong function atomic (SELECT ... FOR UPDATE).
+--   users_begin_online:   claim/bắt đầu phiên; KHÔNG cộng khoảng offline, chỉ cộng phần
+--                         online thật (start -> last_active) nếu phiên cũ bị gián đoạn.
+--   users_finalize_online: kết thúc phiên, cộng dồn đúng (now - start), reset start.
+--   users_cleanup_stale_online: admin quét user online hết hạn (crash) → finalize thay thế.
+create or replace function public.users_begin_online(p_uid text)
+returns void
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  now_ms bigint := (extract(epoch from clock_timestamp()) * 1000)::bigint;
+  r record;
+begin
+  if auth.uid()::text <> p_uid and not public.is_admin() then
+    raise exception 'Forbidden';
+  end if;
+
+  select online_start_time, last_active into r
+    from public.users where id = p_uid for update;
+
+  if r.online_start_time is null or r.online_start_time = 0 then
+    -- Phiên mới: bắt đầu đếm từ bây giờ
+    update public.users
+      set online = true, last_active = now_ms, online_start_time = now_ms
+      where id = p_uid and not coalesce(disabled, false);
+  elsif r.last_active is not null and (now_ms - r.last_active) < 900000 then
+    -- Phiên vẫn liên tục (heartbeat gần đây): giữ start, chỉ refresh last_active/online
+    update public.users
+      set online = true, last_active = now_ms
+      where id = p_uid and not coalesce(disabled, false);
+  else
+    -- Phiên cũ chết (crash/tắt máy): chỉ cộng phần online thật (start -> last_active),
+    -- KHÔNG cộng khoảng offline; reset start để bắt đầu phiên mới.
+    update public.users
+      set online = true,
+          last_active = now_ms,
+          online_start_time = now_ms,
+          online_timer = online_timer + case
+            when r.last_active is not null and r.online_start_time > 0
+              then greatest(0, (least(r.last_active, now_ms) - r.online_start_time)) / 1000
+            else 0 end
+      where id = p_uid and not coalesce(disabled, false);
+  end if;
+end;
+$$;
+
+create or replace function public.users_finalize_online(p_uid text)
+returns void
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  now_ms bigint := (extract(epoch from clock_timestamp()) * 1000)::bigint;
+  r record;
+begin
+  if auth.uid()::text <> p_uid and not public.is_admin() then
+    raise exception 'Forbidden';
+  end if;
+
+  select online_start_time into r from public.users where id = p_uid for update;
+
+  update public.users
+    set online = false,
+        last_active = now_ms,
+        online_start_time = 0,
+        online_timer = online_timer + case
+          when coalesce(r.online_start_time,0) > 0
+            then greatest(0, (now_ms - r.online_start_time)) / 1000
+          else 0 end
+    where id = p_uid;
+end;
+$$;
+
+create or replace function public.users_cleanup_stale_online(p_stale_ms bigint default 120000)
+returns integer
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  now_ms bigint := (extract(epoch from clock_timestamp()) * 1000)::bigint;
+  n integer;
+begin
+  if not public.is_admin() then
+    raise exception 'Forbidden';
+  end if;
+
+  update public.users
+    set online = false,
+        online_start_time = 0,
+        online_timer = online_timer + case
+          when coalesce(online_start_time,0) > 0 and last_active is not null
+            then greatest(0, (least(last_active, now_ms) - online_start_time)) / 1000
+          else 0 end
+    where online = true
+      and (last_active is null or (now_ms - last_active) > p_stale_ms);
+
+  get diagnostics n = row_count;
+  return n;
+end;
+$$;
+
+-- Heartbeat nhẹ: chỉ cập nhật last_active + online, KHÔNG đếm thời gian.
+-- Dùng thay cho update trực tiếp từ client → tất cả writes đi qua server,
+-- dùng clock_timestamp() (server time) chống gian lận chỉnh giờ máy.
+create or replace function public.users_heartbeat(p_uid text)
+returns void
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  now_ms bigint := (extract(epoch from clock_timestamp()) * 1000)::bigint;
+begin
+  if auth.uid()::text <> p_uid and not public.is_admin() then
+    raise exception 'Forbidden';
+  end if;
+
+  update public.users
+    set last_active = now_ms,
+        online = true
+    where id = p_uid
+      and not coalesce(disabled, false)
+      and online = true;
+end;
+$$;
+
+revoke execute on function public.users_heartbeat(text) from public;
+grant execute on function public.users_heartbeat(text) to authenticated;
+
+revoke execute on function public.users_begin_online(text) from public;
+revoke execute on function public.users_finalize_online(text) from public;
+revoke execute on function public.users_cleanup_stale_online(bigint) from public;
+grant execute on function public.users_begin_online(text) to authenticated;
+grant execute on function public.users_finalize_online(text) to authenticated;
+grant execute on function public.users_cleanup_stale_online(bigint) to authenticated;

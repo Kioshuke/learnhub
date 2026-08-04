@@ -720,9 +720,10 @@
 
     <script type="module">
         import { supabase } from "./supabase-config.js";
-        import { onAuthChange, escapeHtml, escapeUrl } from "./supabase-helpers.js";
+        import { onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession } from "./supabase-helpers.js";
 
         const settingsModal = document.getElementById('settings-modal');
+        let settingsEditing = false;
         let currentUserId = null;
         let activeInterval = null;
         let usersChannel = null;
@@ -735,34 +736,10 @@
         // ===== UPDATE ONLINE STATUS =====
         async function updateOnlineStatus(isOnline) {
             if (!currentUserId) return;
-            const now = Date.now();
             if (isOnline) {
-                return supabase.from("users").update({
-                    online: true,
-                    last_active: now,
-                    updated_at: new Date().toISOString()
-                }).eq("id", currentUserId);
+                return beginOnlineSession(currentUserId);
             } else {
-                // Tính thời gian online trước khi dừng
-                const { data } = await supabase.from("users")
-                    .select("online_start_time, online_timer")
-                    .eq("id", currentUserId)
-                    .single()
-                    .catch(() => ({ data: null }));
-                const uData = data || {};
-                const startTime = uData.online_start_time || 0;
-                const currentTimer = Number(uData.online_timer || 0);
-                let newTimer = currentTimer;
-                if (startTime > 0) {
-                    newTimer += Math.floor((now - startTime) / 1000);
-                }
-                return supabase.from("users").update({
-                    online: false,
-                    last_active: now,
-                    online_timer: newTimer,
-                    online_start_time: 0,
-                    updated_at: new Date().toISOString()
-                }).eq("id", currentUserId);
+                return finalizeOnlineSession(currentUserId);
             }
         }
 
@@ -776,25 +753,49 @@
                 if(!activeInterval){
                     activeInterval = setInterval(() => {
                         if (currentUserId) {
-                            supabase.from("users").update({
-                                last_active: Date.now(),
-                                online: true
-                            }).eq("id", currentUserId);
+                            supabase.rpc("users_heartbeat", { p_uid: currentUserId });
                         }
                     }, 5000);
                 }
             }
         });
 
-        // Interval để cập nhật online status mỗi 5 giây
+        // pagehide: finalize kể cả khi đóng tab / rời trang (RPC idempotent nên an toàn khi gọi trùng)
+        window.addEventListener("pagehide", () => {
+            if(activeInterval){ clearInterval(activeInterval); activeInterval = null; }
+            updateOnlineStatus(false);
+        });
+
+        // beforeunload: dùng sendBeacon + keepalive fetch đảm bảo RPC hoàn thành trước khi trang đóng
+        window.addEventListener("beforeunload", () => {
+            if (!currentUserId) return;
+            try {
+                const rpcUrl = "https://hyuzukvxulwouaexatqv.supabase.co/rest/v1/rpc/users_finalize_online";
+                const body = JSON.stringify({ p_uid: currentUserId });
+                navigator.sendBeacon(rpcUrl, new Blob([body], { type: "application/json" }));
+            } catch(e) {}
+            try {
+                const rpcUrl = "https://hyuzukvxulwouaexatqv.supabase.co/rest/v1/rpc/users_finalize_online";
+                fetch(rpcUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "apikey": "sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J",
+                        "Authorization": "Bearer sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J"
+                    },
+                    body: JSON.stringify({ p_uid: currentUserId }),
+                    keepalive: true
+                }).catch(()=>{});
+            } catch(e) {}
+            updateOnlineStatus(false);
+        });
+
+        // Interval để cập nhật online status mỗi 15 giây (heartbeat qua RPC)
         function startOnlineInterval() {
             if (!activeInterval) {
                 activeInterval = setInterval(() => {
                     if (currentUserId) {
-                        supabase.from("users").update({
-                            last_active: Date.now(),
-                            online: true
-                        }).eq("id", currentUserId);
+                        supabase.rpc("users_heartbeat", { p_uid: currentUserId });
                     }
                 }, 5000);
             }
@@ -803,7 +804,7 @@
         // Render lưới users: tối đa 17 người + ô "Xem thêm" (18 ô = 3 hàng x 6)
         function renderUserGrid(container, users) {
             const now = Date.now();
-            const ACTIVE_THRESHOLD = 10000;
+            const ACTIVE_THRESHOLD = 10000; // presence theo heartbeat: quá 10s không có tín hiệu = offline
 
             const displayUsers = users.slice(0, 17);
             const hasMore = users.length > 17;
@@ -850,7 +851,7 @@
 
             // Sắp xếp: online trước (theo bảng chữ cái), offline sau (theo bảng chữ cái)
             const now = Date.now();
-            const ACTIVE_THRESHOLD = 10000; // presence theo heartbeat: quá 10s không có tín hiệu = offline
+            const ACTIVE_THRESHOLD = 10000; // presence theo heartbeat: quá 30s không có tín hiệu = offline
 
             users.sort((a, b) => {
                 const aOnline = a.online && a.last_active && (now - a.last_active) < ACTIVE_THRESHOLD;
@@ -1146,13 +1147,15 @@
 
                     applyRoleBadgeStyle(finalRole);
 
-                    document.getElementById('input-name').value = data.name || "";
-                    document.getElementById('input-avatar').value = data.photo || "";
-                    document.getElementById('input-bio').value = data.bio || "";
-                    document.getElementById('input-phone').value = data.phone || "";
-                    document.getElementById('input-birth').value = data.birthdate || "";
-                    document.getElementById('input-gender').value = data.gender || "";
-                    document.getElementById('school-name-display').value = data.school || "";
+                    if (!settingsEditing) {
+                        document.getElementById('input-name').value = data.name || "";
+                        document.getElementById('input-avatar').value = data.photo || "";
+                        document.getElementById('input-bio').value = data.bio || "";
+                        document.getElementById('input-phone').value = data.phone || "";
+                        document.getElementById('input-birth').value = data.birthdate || "";
+                        document.getElementById('input-gender').value = data.gender || "";
+                        document.getElementById('school-name-display').value = data.school || "";
+                    }
 
                     // Hiển thị nút settings khi xem profile của mình
                     const settingsBtn = document.querySelector('button[onclick="openSettingsModal()"]');
@@ -1198,6 +1201,7 @@
         });
 
         window.openSettingsModal = function() {
+            settingsEditing = true;
             settingsModal.classList.remove('opacity-0', 'pointer-events-none');
             settingsModal.firstElementChild.classList.remove('scale-95');
             settingsModal.firstElementChild.classList.add('scale-100');
@@ -1230,6 +1234,7 @@
         }
 
         window.closeSettingsModal = function() {
+            settingsEditing = false;
             settingsModal.classList.add('opacity-0', 'pointer-events-none');
             settingsModal.firstElementChild.classList.remove('scale-100');
             settingsModal.firstElementChild.classList.add('scale-95');
@@ -1285,25 +1290,9 @@
             if (user) {
                 currentUserId = user.id;
 
-                // ✅ ONLINE TIMER - khôi phục timer cũ nếu có
+                // ✅ ONLINE TIMER - begin phiên (atomic trên DB, chống cộng khoảng offline / double-count)
                 try {
-                    const { data: uData } = await supabase.from("users")
-                        .select("online_start_time, online_timer")
-                        .eq("id", user.id)
-                        .maybeSingle();
-                    const startTime = (uData && uData.online_start_time) || 0;
-                    const currentTimer = Number((uData && uData.online_timer) || 0);
-                    if (startTime > 0) {
-                        const elapsed = Math.floor((Date.now() - startTime) / 1000);
-                        await supabase.from("users").update({
-                            online_timer: currentTimer + elapsed,
-                            online_start_time: Date.now()
-                        }).eq("id", user.id);
-                    } else {
-                        await supabase.from("users").update({
-                            online_start_time: Date.now()
-                        }).eq("id", user.id);
-                    }
+                    await beginOnlineSession(user.id);
                 } catch(e){}
 
                 // Bắt đầu cập nhật online status và listener users

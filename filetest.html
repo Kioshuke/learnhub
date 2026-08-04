@@ -959,20 +959,30 @@ window.ensureTestStatsProfile = async function(user){
 
 window.saveTestResult = async function(score){
     const user = window.learnHubUser;
-    if (!user || !user.uid || !window.parent) {
+    if (!user || !user.uid || window.parent === window) {
         showSaveStatus(false);
         return;
     }
 
     const requestId = `test-result-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
+    const onAck = (event) => {
+        if (!event.data || event.data.type !== "LEARNHUB_TEST_RESULT_ACK" || event.data.requestId !== requestId) return;
+        window.removeEventListener("message", onAck);
+        clearTimeout(ackTimer);
+        showSaveStatus(true);
+    };
+    window.addEventListener("message", onAck);
+    const ackTimer = setTimeout(() => {
+        window.removeEventListener("message", onAck);
+        showSaveStatus(false);
+    }, 8000);
+
     window.parent.postMessage({
         type: "LEARNHUB_TEST_RESULT",
         requestId,
         score
     }, "*");
-
-    showSaveStatus(true);
 };
 
 function showSaveStatus(success){
@@ -1090,9 +1100,10 @@ async function loadQuestions() {
         
         totalQuestions = 0; 
 
-        // Lấy thời gian làm bài (phút) từ section đầu tiên có khai báo timeLimit
         const timeLimitSection = data.find(section => typeof section.timeLimit === 'number' && section.timeLimit > 0);
-        examTimeLimitSeconds = timeLimitSection ? Math.round(timeLimitSection.timeLimit * 60) : 0;
+        const sectionLimit = timeLimitSection ? timeLimitSection.timeLimit : 0;
+        const topLimit = Number(data && data.timeLimit) || 0;
+        examTimeLimitSeconds = Math.round((topLimit || sectionLimit) * 60);
 
         questionsData = data.map(section => {
             const sectionQuestions = shuffle(section.questions).map(q => {
@@ -1378,7 +1389,7 @@ function handleFinalSubmit(autoSubmitted = false) {
                 item.subQuestions.forEach((sub, subIdx) => {
                     const sel = document.querySelector(`input[name="tf-${globalIdx}-${subIdx}"]:checked`);
                     if (sel && parseInt(sel.value) === sub.correct) {
-                        userScore += (basePerQuestion / 4);
+                        userScore += (basePerQuestion / (item.subQuestions.length || 1));
                         subCorrect++;
                     }
                 });
@@ -1454,7 +1465,7 @@ scoreCircle.style.animation = feedback.animation + " 0.6s ease";
     
     closeModal('confirmModal');
     openModal('resultModal');
-    updateProgress(true, userScore);
+    updateProgress(true, score);
     const timerBoxEl = document.getElementById('timerBox');
     if (timerBoxEl) timerBoxEl.style.display = 'none';
     const submitBtnEl = document.getElementById('submitBtn');

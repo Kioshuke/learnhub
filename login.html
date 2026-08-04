@@ -838,6 +838,7 @@
         <input type="url" id="registerPhoto" placeholder=" ">
         <label>Link ảnh đại diện (tuỳ chọn)</label>
       </div>
+      <span class="auth-field-error" id="registerPhotoError"></span>
 
       <button type="submit" class="auth-submit" id="registerSubmitBtn">Đăng ký</button>
       </form>
@@ -1092,7 +1093,7 @@ function setFieldError(inputId, message) {
 }
 
 function clearFieldErrors() {
-  ["loginEmail","loginPassword","registerName","registerEmail","registerPassword","registerConfirmPassword","otpCode"].forEach(id => setFieldError(id, ""));
+  ["loginEmail","loginPassword","registerName","registerEmail","registerPassword","registerConfirmPassword","registerPhoto","otpCode"].forEach(id => setFieldError(id, ""));
 }
 
 function shakeAuthBox(id) {
@@ -1116,7 +1117,7 @@ function setBtnLoading(btn, loading) {
   }
 }
 
-["loginEmail","loginPassword","registerName","registerEmail","registerPassword","registerConfirmPassword","otpCode"].forEach(id => {
+  ["loginEmail","loginPassword","registerName","registerEmail","registerPassword","registerConfirmPassword","registerPhoto","otpCode"].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener("input", () => setFieldError(id, ""));
 });
@@ -1125,7 +1126,7 @@ document.getElementById("otpCode").addEventListener("input", function() {
   const v = this.value.replace(/\D/g, "");
   if (this.value !== v) this.value = v;
   setFieldError("otpCode", "");
-  if (v.length === 6) {
+  if (v.length === 6 && !processingLogin) {
     const name = document.getElementById("registerName").value.trim();
     const email = document.getElementById("registerEmail").value.trim();
     const pw = document.getElementById("registerPassword").value;
@@ -1305,6 +1306,7 @@ window.sendOTP = async function() {
     showAuthNotice("Vui lòng nhập email trước", "error", "Thiếu email");
     return;
   }
+  setFieldError("otpCode", "");
   const btn = document.getElementById("sendOtpBtn");
   btn.disabled = true;
   btn.textContent = "Đang gửi...";
@@ -1336,6 +1338,7 @@ window.sendOTP = async function() {
 window.resendOTP = async function() {
   const email = document.getElementById("registerEmail").value.trim();
   if (!email) return;
+  setFieldError("otpCode", "");
   const btn = document.getElementById("otpResendBtn");
   btn.disabled = true;
 
@@ -1728,6 +1731,14 @@ window.emailRegister = async function() {
     return;
   }
 
+  const photoValue = document.getElementById("registerPhoto").value.trim();
+  if (photoValue && !/^https?:\/\/\S+$/i.test(photoValue)) {
+    setFieldError("registerPhoto", "Ảnh đại diện phải là đường dẫn http(s) hợp lệ");
+    shakeAuthBox("registerPhoto"); document.getElementById("registerPhoto").focus();
+    showAuthNotice("Ảnh đại diện phải là đường dẫn http(s) hợp lệ", "error", "URL ảnh không hợp lệ");
+    return;
+  }
+
   if (otpSection.style.display === "none" || !otpSection.style.display) {
     showAuthNotice("Vui lòng nhấn 'Nhận mã' để xác minh email trước", "error", "Chưa xác minh email");
     return;
@@ -1763,7 +1774,7 @@ window.emailRegister = async function() {
     const photoUrl = document.getElementById("registerPhoto").value.trim() || "https://i.imgur.com/6VBx3io.png";
     await supabase.from("users").upsert({
       id: user.id, email: user.email, name: name, photo: photoUrl,
-      last_login: nowIso, last_active: Date.now(), online: true, created_at: nowIso
+      last_login: nowIso, online: false, created_at: nowIso
     }, { onConflict: "id" });
     showAuthNotice("Đăng ký thành công! Vui lòng đăng nhập.", "success", "Thành công");
     document.getElementById("registerName").value = "";

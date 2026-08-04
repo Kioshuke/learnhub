@@ -252,7 +252,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 
 <script type="module">
 import { supabase } from "./supabase-config.js";
-import { getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, escapeHtml, escapeUrl } from "./supabase-helpers.js";
+import { getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession } from "./supabase-helpers.js";
 import { createUserStats, updateUserStats } from "./learnhub-stats.js";
 import { isPasswordRecovery } from "./reset-password.js";
 import { logAppError } from "./log-errors.js";
@@ -272,6 +272,7 @@ function handleMaintenanceTransition(newEnabled){
   try {
     if(newEnabled && !previousMaintenanceEnabled && currentSupabaseUser){
       console.trace("SIGN OUT (maintenance mode - transition)");
+      finalizeOnlineSession(currentSupabaseUser.id);
       supabase.auth.signOut().catch(()=>{});
       // ensure UI stays on maintenance after sign out
       setTimeout(() => applyMaintenanceUI(), 100);
@@ -553,6 +554,7 @@ function forceLogoutWithCountdown(message, title, redirectMs = 5000){
   const noticeMessage = document.getElementById("authNoticeMessage");
   const noticeIcon = document.getElementById("authNoticeIcon");
   if(!notice || !noticeTitle || !noticeMessage || !noticeIcon){
+    if(currentSupabaseUser) finalizeOnlineSession(currentSupabaseUser.id);
     supabase.auth.signOut().catch(()=>{});
     return;
   }
@@ -702,6 +704,7 @@ if(previewMode){
 if(user){
   if (maintenanceState.initialized && maintenanceState.enabled) {
     applyMaintenanceUI();
+    try { await finalizeOnlineSession(user.id); } catch (e) {}
     try { console.trace("SIGN OUT (maintenance mode)"); await supabase.auth.signOut(); } catch (e) {}
     return;
   }
@@ -796,34 +799,20 @@ if(user){
     window.sendUserToQuizFrame();
   }
 
-  // ✅ UPDATE ONLINE STATUS
+  // ✅ UPDATE ONLINE STATUS — heartbeat qua RPC (server time, chống gian lận giờ)
   if(!activeInterval){
     activeInterval = setInterval(()=>{
       const u = currentSupabaseUser;
       if(u){
-        supabase.from("users").update({
-          last_active: Date.now(),
-          online: true
-        }).eq("id", u.id).then(()=>{}).catch(()=>{});
+        supabase.rpc("users_heartbeat", { p_uid: u.id }).then(()=>{}).catch(()=>{});
       }
-    }, 5000);
+      }, 5000);
   }
 
-  // ✅ ONLINE TIMER - khi login thì bắt đầu đếm + khôi phục timer cũ nếu có
+  // ✅ ONLINE TIMER - begin phiên (atomic trên DB, chống cộng khoảng offline / double-count)
   try {
     if(user.id){
-      const startTime = userData.onlineStartTime || 0;
-      const currentTimer = userData.onlineTimer || 0;
-      if(startTime > 0){
-        // Có timer cũ chưa được lưu → cộng dồn
-        const elapsed = Math.floor((Date.now() - startTime) / 1000);
-        await supabase.from("users").update({
-          online_timer: currentTimer + elapsed,
-          online_start_time: Date.now()
-        }).eq("id", user.id);
-      } else {
-        await supabase.from("users").update({ online_start_time: Date.now() }).eq("id", user.id);
-      }
+      await beginOnlineSession(user.id);
     }
   } catch(e){}
 
@@ -855,26 +844,9 @@ const updateStatus = (isOnline) => {
 const user = currentSupabaseUser;
 if (user) {
   if(isOnline){
-    return supabase.from("users").update({ 
-      online: true,
-      last_active: Date.now(),
-      online_start_time: Date.now()
-    }).eq("id", user.id);
+    return beginOnlineSession(user.id);
   } else {
-    // Tính thời gian online trước khi dừng
-    getUserRow(user.id).then(uData => {
-      const startTime = uData?.online_start_time || 0;
-      const currentTimer = Number(uData?.online_timer || 0);
-      let newTimer = currentTimer;
-      if(startTime > 0){
-        newTimer += Math.floor((Date.now() - startTime) / 1000);
-      }
-      supabase.from("users").update({ 
-        online: false,
-        online_timer: newTimer,
-        online_start_time: 0
-      }).eq("id", user.id).then(()=>{}).catch(()=>{});
-    }).catch(()=>{});
+    return finalizeOnlineSession(user.id);
   }
 }
 };
@@ -889,14 +861,18 @@ document.addEventListener("visibilitychange", () => {
       activeInterval = setInterval(()=>{
         const u = currentSupabaseUser;
         if(u){
-          supabase.from("users").update({
-            last_active: Date.now(),
-            online: true
-          }).eq("id", u.id).then(()=>{}).catch(()=>{});
+          supabase.rpc("users_heartbeat", { p_uid: u.id }).then(()=>{}).catch(()=>{});
         }
-      }, 5000);
+    }, 5000);
     }
   }
+});
+
+// pagehide: bắn khi đóng tab / rời trang — finalize kể cả khi visibilitychange bị bỏ lỡ.
+// RPC finalize idempotent nên gọi trùng với visibilitychange/beforeunload vẫn an toàn.
+window.addEventListener("pagehide", () => {
+  if(activeInterval){ clearInterval(activeInterval); activeInterval = null; }
+  updateStatus(false);
 });
 
 // Trick để ép trình duyệt gửi dữ liệu cuối cùng trước khi đóng
@@ -915,7 +891,7 @@ async function refreshOnlineList(){
       .order("last_active", { ascending: false });
 
     const now = Date.now();
-    // Presence theo heartbeat: off nếu quá 10s (2 nhịp 5s) chưa có tín hiệu
+    // Presence theo heartbeat: off nếu quá 30s (2 nhịp 15s) chưa có tín hiệu
     const ACTIVE_THRESHOLD = 10000;
 
     list.innerHTML = "";
@@ -961,26 +937,9 @@ function startListening(){
 window.logout = async function(){
 const user = currentSupabaseUser;
 
-// cập nhật offline + lưu timer
+// cập nhật offline + lưu timer (atomic trên DB)
 if(user){
-  try {
-    const row = await getUserRow(user.id);
-    const startTime = row?.online_start_time || 0;
-    const currentTimer = Number(row?.online_timer || 0);
-    let newTimer = currentTimer;
-    if(startTime > 0){
-      newTimer += Math.floor((Date.now() - startTime) / 1000);
-    }
-    await supabase.from("users").update({
-      online: false,
-      online_timer: newTimer,
-      online_start_time: 0
-    }).eq("id", user.id);
-  } catch(e){
-    await supabase.from("users").update({
-      online: false
-    }).eq("id", user.id);
-  }
+  await finalizeOnlineSession(user.id);
 }
 
 // 🔥 TẮT interval (THÊM Ở ĐÂY)
@@ -1013,7 +972,32 @@ popup.style.display = "none";
 }
 });
 window.addEventListener("beforeunload", () => {
-  updateStatus(false);
+  // Dùng sendBeacon + keepalive fetch để đảm bảo RPC hoàn thành trước khi trang đóng
+  const user = currentSupabaseUser;
+  if(user){
+    // Thử cả 2 cách: sendBeacon (fire-and-forget) và keepalive fetch
+    try {
+      const rpcUrl = "https://hyuzukvxulwouaexatqv.supabase.co/rest/v1/rpc/users_finalize_online";
+      const body = JSON.stringify({ p_uid: user.id });
+      // sendBeacon: browser guarantee gửi đi dù trang đóng
+      navigator.sendBeacon(rpcUrl, new Blob([body], { type: "application/json" }));
+    } catch(e) {}
+    // Fallback: keepalive fetch
+    try {
+      const rpcUrl = "https://hyuzukvxulwouaexatqv.supabase.co/rest/v1/rpc/users_finalize_online";
+      fetch(rpcUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": "sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J",
+          "Authorization": "Bearer sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J"
+        },
+        body: JSON.stringify({ p_uid: user.id }),
+        keepalive: true
+      }).catch(()=>{});
+    } catch(e) {}
+    updateStatus(false);
+  }
 });
 // --- Dán đoạn này vào CUỐI thẻ <script type="module"> trong index.html ---
   window.supabaseClient = supabase;
@@ -1057,6 +1041,10 @@ window.addEventListener("beforeunload", () => {
     } catch (e) {
       console.log("Không thể lưu kết quả từ iframe:", e);
     }
+  }
+
+  if (event.source && event.source.postMessage) {
+    event.source.postMessage({ type: "LEARNHUB_TEST_RESULT_ACK", requestId: event.data.requestId }, "*");
   }
 });
 window.addEventListener("message", (event) => {

@@ -342,7 +342,7 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
       <div class="card-body">
         <div class="card-top"><div class="card-icon"><i class="fas fa-play"></i></div><h3>TỔNG ÔN NGỮ PHÁP</h3><span class="status done"></span></div>
         <p class="card-desc">Video tổng ôn ngữ pháp tiếng Anh.</p>
-        <div class="btn-row"><a class="btn" href="#" onclick="loadGrammarPlayer(); return false;">Xem video</a></div>
+        <div class="btn-row"><a class="btn" href="#" onclick="loadGrammarPlayer(this); return false;">Xem video</a></div>
       </div>
     </div>
   </div>
@@ -364,7 +364,7 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
       <div class="card-body">
         <div class="card-top"><div class="card-icon"><i class="fas fa-play"></i></div><h3>TỔNG ÔN GIẢI TÍCH 1</h3><span class="status done"></span></div>
         <p class="card-desc">Video tổng ôn Giải tích 1.</p>
-        <div class="btn-row"><a class="btn" href="#" onclick="loadMathPlayer(); return false;">Xem video</a></div>
+        <div class="btn-row"><a class="btn" href="#" onclick="loadMathPlayer(this); return false;">Xem video</a></div>
       </div>
     </div>
     <div class="card" style="--card-index:2">
@@ -372,7 +372,7 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
       <div class="card-body">
         <div class="card-top"><div class="card-icon"><i class="fas fa-th"></i></div><h3>TOÁN MA TRẬN</h3><span class="status done"></span></div>
         <p class="card-desc">Tổng hợp 5 buổi toán cao cấp: Ma trận, Định thức, Nghịch đảo, Hạng, Lũy thừa bậc cao.</p>
-        <div class="btn-row"><a class="btn" href="#" onclick="loadMatrixPlayer(); return false;">Xem video</a></div>
+        <div class="btn-row"><a class="btn" href="#" onclick="loadMatrixPlayer(this); return false;">Xem video</a></div>
       </div>
     </div>
   </div>
@@ -436,6 +436,12 @@ window.addEventListener('message', function(event) {
   if (event.data.type === 'LEARNHUB_TEST_RESULT') {
     if (window.parent && window.parent !== window) {
       window.parent.postMessage(event.data, '*');
+    }
+  }
+  if (event.data.type === 'LEARNHUB_TEST_RESULT_ACK') {
+    var qf = document.getElementById("quizFrame");
+    if (qf && qf.contentWindow) {
+      qf.contentWindow.postMessage(event.data, '*');
     }
   }
   if (event.data.type === 'DARK_MODE') {
@@ -508,6 +514,9 @@ function loadQuiz(btn, link) {
 
 function closeQuiz() {
   stopWatchTimer();
+  if (ytPlayer && typeof ytPlayer.destroy === "function") {
+    try { ytPlayer.destroy(); } catch (e) {}
+  }
   ytPlayer = null;
   currentVideoId = null;
   document.getElementById("quiz").innerHTML = "";
@@ -525,8 +534,10 @@ var currentVideoId = null;
 var watchProgressTimer = null;
 var watchedVideoIds = new Set();
 
+var __ytFallbackCb = null;
 function ensureYouTubeAPI(callback) {
-  if (window.YT && window.YT.Player) { callback(); return; }
+  __ytFallbackCb = callback;
+  if (window.YT && window.YT.Player) { __ytFallbackCb = null; callback(); return; }
   if (!window.__ytApiLoading) {
     window.__ytApiLoading = true;
     var tag = document.createElement("script");
@@ -536,18 +547,44 @@ function ensureYouTubeAPI(callback) {
   var prevReady = window.onYouTubeIframeAPIReady;
   window.onYouTubeIframeAPIReady = function() {
     if (typeof prevReady === "function") prevReady();
+    if (window.__ytFallbackTimer) { clearTimeout(window.__ytFallbackTimer); window.__ytFallbackTimer = null; }
+    __ytFallbackCb = null;
     callback();
   };
+  if (!window.__ytFallbackTimer) {
+    window.__ytFallbackTimer = setTimeout(function() {
+      window.__ytFallbackTimer = null;
+      if (window.YT && window.YT.Player) return;
+      var cb = __ytFallbackCb;
+      __ytFallbackCb = null;
+      if (typeof cb === "function") cb();
+    }, 5000);
+  }
 }
 
 function createYTPlayer(elementId, videoId) {
   stopWatchTimer();
+  if (ytPlayer && typeof ytPlayer.destroy === "function") {
+    try { ytPlayer.destroy(); } catch (e) {}
+  }
+  ytPlayer = null;
   currentVideoId = videoId;
-  ytPlayer = new YT.Player(elementId, {
-    videoId: videoId,
-    playerVars: { rel: 0 },
-    events: { onStateChange: onYTStateChange }
-  });
+  var host = document.getElementById(elementId);
+  if (!host) return;
+  if (!window.YT || !window.YT.Player) {
+    host.innerHTML = getYoutubeIframeHtml(getYoutubeEmbedUrl("https://www.youtube.com/watch?v=" + videoId));
+    return;
+  }
+  try {
+    ytPlayer = new YT.Player(elementId, {
+      videoId: videoId,
+      playerVars: { rel: 0 },
+      events: { onStateChange: onYTStateChange }
+    });
+  } catch (e) {
+    ytPlayer = null;
+    host.innerHTML = getYoutubeIframeHtml(getYoutubeEmbedUrl("https://www.youtube.com/watch?v=" + videoId));
+  }
 }
 
 function onYTStateChange(e) {
@@ -635,10 +672,12 @@ function switchSidebarVideo(item) {
   item.classList.add("active");
   var frame = document.querySelector(".video-frame");
   if (frame && frame.classList.contains("pdf-mode")) {
+    if (ytPlayer && typeof ytPlayer.destroy === "function") {
+      try { ytPlayer.destroy(); } catch (e) {}
+    }
+    ytPlayer = null;
     frame.classList.remove("pdf-mode");
     frame.innerHTML = '<div id="ytPlayerHost"></div>';
-    if (ytPlayer && typeof ytPlayer.destroy === "function") ytPlayer.destroy();
-    ytPlayer = null;
     currentVideoId = videoId;
     ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", videoId); });
     return;
@@ -756,12 +795,10 @@ function loadVideo(btn, url) {
   }, 50);
 }
 
-function loadGrammarPlayer() {
+function loadGrammarPlayer(el) {
   document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
-  var card = document.querySelector('.card h3');
-  if (card && card.textContent === "TỔNG ÔN NGỮ PHÁP") {
-    card.closest(".card").classList.add("active-card");
-  }
+  var card = el ? el.closest(".card") : null;
+  if (card) card.classList.add("active-card");
 
   document.getElementById("quiz").innerHTML =
     '<div class="video-box">' +
@@ -804,12 +841,10 @@ function loadGrammarPlayer() {
   }, 50);
 }
 
-function loadMathPlayer() {
+function loadMathPlayer(el) {
   document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
-  var card = document.querySelector('.card h3');
-  if (card && card.textContent === "TỔNG ÔN GIẢI TÍCH 1") {
-    card.closest(".card").classList.add("active-card");
-  }
+  var card = el ? el.closest(".card") : null;
+  if (card) card.classList.add("active-card");
 
   document.getElementById("quiz").innerHTML =
     '<div class="video-box">' +
@@ -845,12 +880,10 @@ function loadMathPlayer() {
   }, 50);
 }
 
-function loadMatrixPlayer() {
+function loadMatrixPlayer(el) {
   document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
-  var card = document.querySelector('.card h3');
-  if (card && card.textContent === "TOÁN MA TRẬN") {
-    card.closest(".card").classList.add("active-card");
-  }
+  var card = el ? el.closest(".card") : null;
+  if (card) card.classList.add("active-card");
 
   document.getElementById("quiz").innerHTML =
     '<div class="video-box">' +

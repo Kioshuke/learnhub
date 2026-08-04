@@ -568,11 +568,23 @@ window.addEventListener('message', (event) => {
 
 window.saveTestResult = async function(score) {
     const user = window.learnHubUser;
-    if (!user || !user.uid || !window.parent) return;
+    if (!user || !user.uid || window.parent === window) return;
+
+    const requestId = `test-result-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+    const onAck = (event) => {
+        if (!event.data || event.data.type !== "LEARNHUB_TEST_RESULT_ACK" || event.data.requestId !== requestId) return;
+        window.removeEventListener("message", onAck);
+        clearTimeout(ackTimer);
+    };
+    window.addEventListener("message", onAck);
+    const ackTimer = setTimeout(() => {
+        window.removeEventListener("message", onAck);
+    }, 8000);
 
     window.parent.postMessage({
         type: "LEARNHUB_TEST_RESULT",
-        requestId: `test-result-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        requestId,
         score
     }, "*");
 };
@@ -587,6 +599,7 @@ const JSON_FILE = urlParams.get('de') || "english.json";
 
 let questionsData = [];
 let totalQuestions = 0;
+let isSubmitted = false;
 
 // ===== SHUFFLE =====
 function shuffle(array) {
@@ -724,6 +737,7 @@ function renderQuiz() {
 
 // ===== SELECT =====
 function selectAnswer(el, qIdx) {
+    if (isSubmitted) return;
     document.querySelectorAll(`input[name="q-${qIdx}"]`)
         .forEach(i => i.parentElement.classList.remove("selected"));
 
@@ -741,6 +755,9 @@ function updateProgress() {
 
 // ===== SUBMIT =====
 function handleFinalSubmit() {
+    if (isSubmitted) return;
+    isSubmitted = true;
+
     let score = 0;
     let idx = 0;
 
@@ -756,7 +773,7 @@ function handleFinalSubmit() {
         });
     });
 
-    const finalScore = ((score / totalQuestions) * 10).toFixed(1);
+    const finalScore = totalQuestions > 0 ? ((score / totalQuestions) * 10).toFixed(1) : "0.0";
 
     document.getElementById("scoreValue").innerText = finalScore;
     document.getElementById("statsText").innerText = `Đúng ${score}/${totalQuestions}`;
@@ -772,6 +789,14 @@ function handleFinalSubmit() {
 // ===== REVIEW =====
 function reviewMode() {
     closeModal("resultModal");
+
+    document.getElementById("quiz-container").classList.add("quiz-locked");
+    document.querySelectorAll("input").forEach(input => input.disabled = true);
+
+    const actionEl = document.getElementById("action-button-container");
+    if (actionEl) {
+        actionEl.innerHTML = '<button class="btn" disabled style="opacity:0.6;cursor:not-allowed;">Đã nộp bài</button>';
+    }
 
     let idx = 0;
 

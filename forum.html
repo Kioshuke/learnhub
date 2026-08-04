@@ -1059,11 +1059,11 @@ body.dark-mode .pagination-info { color: #64748b; }
 <script type="module">
 /* ================= SUPABASE CONFIG ================= */
 import { supabase } from "./supabase-config.js";
+import { beginOnlineSession } from "./supabase-helpers.js";
 
 /* ================= BIẾN TOÀN CỤC ================= */
 let currentUser = null;
 let replyTo = null;
-let isFirstLoad = true;
 let isMuted = localStorage.getItem("forum_muted") === "true";
 let modalAction = null;
 let userDirectoryCache = null;
@@ -1354,8 +1354,10 @@ async function sendPost(){
     let imageUrl = null;
     if (hasImage) imageUrl = await uploadPendingImage();
 
+    const postText = text || "(Hình ảnh)";
+
     const { data: newPostId, error: createError } = await supabase.rpc("create_forum_post", {
-      p_text: text,
+      p_text: postText,
       p_image_url: imageUrl || null,
       p_parent_id: replyTo || null
     });
@@ -1437,17 +1439,21 @@ function applyFilters(){
   const pinned = parents.filter(p => p.pinned);
   const unpinned = parents.filter(p => !p.pinned);
 
-  if(sortVal === "newest"){
-    unpinned.sort((a, b) => b.time - a.time);
-  } else if(sortVal === "oldest"){
-    unpinned.sort((a, b) => a.time - b.time);
-  } else if(sortVal === "replies"){
-    unpinned.sort((a, b) => {
-      const countA = lastAllPosts.filter(p => p.parent_id === a.id).length;
-      const countB = lastAllPosts.filter(p => p.parent_id === b.id).length;
-      return countB - countA;
-    });
-  }
+  const sortList = (list) => {
+    if (sortVal === "newest"){
+      list.sort((a, b) => b.time - a.time);
+    } else if (sortVal === "oldest"){
+      list.sort((a, b) => a.time - b.time);
+    } else if (sortVal === "replies"){
+      list.sort((a, b) => {
+        const countA = lastAllPosts.filter(p => p.parent_id === a.id).length;
+        const countB = lastAllPosts.filter(p => p.parent_id === b.id).length;
+        return countB - countA;
+      });
+    }
+  };
+  sortList(pinned);
+  sortList(unpinned);
 
   filteredParents = [...pinned, ...unpinned];
 
@@ -1875,7 +1881,7 @@ async function toggleReaction(postId, type){
     console.error("Lỗi thả cảm xúc:", e);
     return;
   }
-  notifySound("like", type);
+  notifySound(type === "sad" ? "dislike" : "like", type);
   scheduleLoadPosts();
 }
 
@@ -1884,13 +1890,15 @@ function toggleLike(postId, isLike){
 }
 
 /* ================= NGHE SỰ KIỆN REAL-TIME (ÂM THANH) ================= */
+const FORUM_SUBSCRIBE_GRACE_MS = 3000;
 function subscribeEvents(){
   if (eventsChannel) supabase.removeChannel(eventsChannel);
+  const subscribeTime = Date.now();
   eventsChannel = supabase.channel("forum-events-sound")
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "forum_events" }, (payload) => {
-      if (isFirstLoad) { isFirstLoad = false; return; }
       const ev = payload.new;
       if (ev && ev.time) {
+        if (Date.now() - subscribeTime < FORUM_SUBSCRIBE_GRACE_MS) return;
         const idx = recentLocalSounds.indexOf(ev.time);
         if (idx !== -1) { recentLocalSounds.splice(idx, 1); return; }
         if (Date.now() - ev.time < 5000) playSound(ev.type);
@@ -1941,7 +1949,7 @@ window.loadPosts = loadPosts;
 window.__forumSetUser = applyReceivedUser;
 window.__forumSetupOnline = async function(user){
   if (!user || !user.uid) return;
-  await supabase.from("users").update({ online: true, last_active: Date.now() }).eq("id", user.uid).catch(() => {});
+  await beginOnlineSession(user.uid);
 };
 </script>
 

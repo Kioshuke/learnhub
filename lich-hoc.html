@@ -132,10 +132,11 @@ function scheduleEventPast(e) {
   if (!date) return false;
   if (date < scheduleIsoDate(now)) return true;
   if (date > scheduleIsoDate(now)) return false;
-  const end = String(e.endTime || e.time || "");
+  const end = String(e.endTime || "");
+  if (!end) return false;
   const parts = end.split(":").map(Number);
   if (parts.length < 2 || Number.isNaN(parts[0])) return false;
-  return now.getHours() * 60 + now.getMinutes() > parts[0] * 60 + parts[1];
+  return now.getHours() * 60 + now.getMinutes() >= parts[0] * 60 + parts[1];
 }
 
 function renderSchedule() {

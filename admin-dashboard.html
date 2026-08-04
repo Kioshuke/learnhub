@@ -84,7 +84,7 @@
     .sidebar-logout svg{width:18px;height:18px}
 
     /* ================= MAIN CONTENT ================= */
-    .main{margin-left:var(--sidebar-w);flex:1;min-height:100vh;padding:24px 28px 48px}
+    .main{margin-left:var(--sidebar-w);flex:1;min-width:0;min-height:100vh;padding:24px 28px 48px}
 
     .main-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:16px}
     .main-title{font-size:22px;font-weight:800;letter-spacing:-.02em}
@@ -355,16 +355,21 @@
     .log-detail-head .btn-soft{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.3)}
     .log-detail-head .btn-soft:hover{background:rgba(255,255,255,.28);color:#fff}
     .log-detail-grid{
-      display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;
-      padding:14px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);
-      margin-bottom:14px;
+      display:grid;grid-template-columns:1fr 1fr;gap:8px;
+      padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+      margin-bottom:12px;
     }
-    .log-detail-grid .cell{min-width:0}
+    .log-detail-grid .cell{
+      min-width:0;border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;
+      background:var(--surface-2);
+    }
     .log-detail-grid .cell.span2{grid-column:1 / -1}
     .log-detail-key{
-      font-size:10.5px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;
+      font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+      padding:4px 10px;color:var(--text-2);
+      background:var(--border);
     }
-    .log-detail-val{font-size:12.5px;color:var(--text);word-break:break-word;font-weight:600}
+    .log-detail-val{padding:7px 10px;font-size:12px;color:var(--text);word-break:break-word;font-weight:600;line-height:1.45}
 
     /* ================= LOGIN ================= */
     .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;width:100%}
@@ -829,6 +834,7 @@
           <option value="disabled">Khóa user</option>
           <option value="feature">Tính năng</option>
           <option value="auth">Xác thực</option>
+          <option value="test">Tải bài test</option>
         </select>
         <button class="btn btn-soft" id="errorLogsRefreshBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
@@ -839,7 +845,7 @@
       <div class="sheet-wrap">
         <div class="sheet-scroll">
           <table class="sheet-table">
-            <thead><tr><th>Thời gian</th><th>Mức độ</th><th>Loại</th><th>Nguồn</th><th>User</th><th>Mã lỗi</th><th>Nội dung</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+            <thead><tr><th>Thời gian</th><th>Mức độ</th><th>Loại</th><th>User</th><th>Mã lỗi</th><th>Nội dung</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
             <tbody id="errorLogsTableBody"></tbody>
           </table>
         </div>
@@ -884,6 +890,15 @@ const supabase = createLearnHubClient({ storageKey: "learnhub-admin-auth" });
 const adminEmail = "learnhubadmin@gmail.com";
 let allowDocs = [];
 let userDocs = [];
+
+// Finalize/cleanup thời gian online qua RPC atomic (chống mất giờ + online ảo).
+async function adminFinalizeOnline(uid) {
+  if (!uid) return;
+  try { const { error } = await supabase.rpc("users_finalize_online", { p_uid: uid }); if (error) throw error; } catch (e) { console.error("[admin] finalize online lỗi:", e); }
+}
+async function adminCleanupStaleOnline() {
+  try { const { error } = await supabase.rpc("users_cleanup_stale_online", { p_stale_ms: 120000 }); if (error) throw error; } catch (e) { console.error("[admin] cleanup stale online lỗi:", e); }
+}
 
 const noticeEl = document.getElementById("notice");
 const loginView = document.getElementById("loginView");
@@ -1173,7 +1188,10 @@ document.getElementById("adminLoginBtn").addEventListener("click", async () => {
   }
 });
 
-document.getElementById("logoutBtn").addEventListener("click", async () => { await supabase.auth.signOut(); });
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  try { const { data } = await supabase.auth.getUser(); if (data?.user?.id) await adminFinalizeOnline(data.user.id); } catch(e){}
+  await supabase.auth.signOut();
+});
 document.getElementById("seedBtn").addEventListener("click", () => document.getElementById("whitelistFileInput").click());
 document.getElementById("whitelistFileInput").addEventListener("change", async (e) => {
   const file = e.target.files[0];
@@ -1429,24 +1447,21 @@ async function loadMaintenanceForm() {
   } catch(e) { console.error(e); showNotice("Không tải được trạng thái bảo trì.", "error"); }
 }
 
-document.getElementById("saveMaintenanceBtn").addEventListener("click", async () => {
-  const enabled=maintenanceEnabledInput.checked, message=String(maintenanceMessageInput.value||"").trim();
-  const modal=document.getElementById("confirmModal"), mI=document.getElementById("confirmModalIcon"), mT=document.getElementById("confirmModalTitle");
-  const mM=document.getElementById("confirmModalMessage"), cB=document.getElementById("confirmModalConfirm");
-  if (enabled) { mI.textContent="⚠️"; mT.textContent="Bật chế độ bảo trì?"; mM.textContent="Toàn bộ user sẽ bị đăng xuất và mọi truy cập mới bị chặn. Tiếp tục?"; }
-  else { mI.textContent="✅"; mT.textContent="Tắt chế độ bảo trì?"; mM.textContent="User có thể đăng nhập và truy cập web bình thường. Tiếp tục?"; }
-  modal.classList.add("active");
-  const onConfirm = async () => {
-    modal.classList.remove("active"); cB.removeEventListener("click",onConfirm); document.getElementById("confirmModalCancel").removeEventListener("click",onCancel);
+document.getElementById("saveMaintenanceBtn").addEventListener("click", () => {
+  const enabled = maintenanceEnabledInput.checked, message = String(maintenanceMessageInput.value || "").trim();
+  const apply = async () => {
     try {
-      const now=new Date().toISOString();
+      const now = new Date().toISOString();
       await supabase.from("maintenance_settings").upsert({ id: true, enabled, message, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
-      renderMaintenanceBanner({enabled}); maintenanceMeta.textContent=`Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
-      showNotice(enabled?"Đã BẬT bảo trì.":"Đã TẮT bảo trì.","success"); await loadMaintenanceForm();
-    } catch(e) { console.error(e); showNotice("Cập nhật bảo trì thất bại.", "error"); }
+      renderMaintenanceBanner({ enabled }); maintenanceMeta.textContent = `Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
+      showNotice(enabled ? "Đã BẬT bảo trì." : "Đã TẮT bảo trì.", "success"); await loadMaintenanceForm();
+    } catch (e) { console.error(e); showNotice("Cập nhật bảo trì thất bại.", "error"); }
   };
-  const onCancel = () => { modal.classList.remove("active"); cB.removeEventListener("click",onConfirm); document.getElementById("confirmModalCancel").removeEventListener("click",onCancel); maintenanceEnabledInput.checked=!enabled; };
-  cB.addEventListener("click",onConfirm); document.getElementById("confirmModalCancel").addEventListener("click",onCancel);
+  if (enabled) {
+    openConfirmDialog("Bật chế độ bảo trì?", "Toàn bộ user sẽ bị đăng xuất và mọi truy cập mới bị chặn. Tiếp tục?", apply);
+  } else {
+    openConfirmDialog("Tắt chế độ bảo trì?", "User có thể đăng nhập và truy cập web bình thường. Tiếp tục?", apply);
+  }
 });
 
 document.getElementById("refreshMaintenanceBtn").addEventListener("click", loadMaintenanceForm);
@@ -1475,7 +1490,9 @@ window.renameUser = async (uid) => {
   await supabase.from("users").update({ name, updated_at: new Date().toISOString() }).eq("id", uid); showNotice("Đã cập nhật tên user.", "success");
 };
 window.toggleDisable = async (uid, cur) => {
-  if (!uid) return; await supabase.from("users").update({ disabled: !cur, online: false, updated_at: new Date().toISOString() }).eq("id", uid);
+  if (!uid) return;
+  if(!cur){ await adminFinalizeOnline(uid); } // finalize giờ online đang chạy trước khi khóa, không mất công sức
+  await supabase.from("users").update({ disabled: !cur, online: false, updated_at: new Date().toISOString() }).eq("id", uid);
   showNotice(cur?"Đã mở khóa user.":"Đã disable user.", "success");
 };
 window.changeUserRole = async (uid, role) => {
@@ -1726,7 +1743,7 @@ document.getElementById("logoutAllBtn").addEventListener("click", async () => {
       let count = 0;
       for (const u of (users || [])) {
         if(u.online){
-          await supabase.from("users").update({ online: false, online_start_time: 0 }).eq("id", u.id);
+          await adminFinalizeOnline(u.id);
           count++;
         }
       }
@@ -1766,21 +1783,21 @@ async function loadErrorLogs() {
   await fetchErrorLogs();
 }
 
-async function fetchErrorLogs() {
-  errorLogsTableBody.innerHTML = `<tr><td colspan="9"><div class="empty">Đang tải log...</div></td></tr>`;
+async function fetchErrorLogs(preservePage = false) {
+  errorLogsTableBody.innerHTML = `<tr><td colspan="8"><div class="empty">Đang tải log...</div></td></tr>`;
   try {
     const { data, error } = await supabase
       .from("error_logs")
-      .select("id, created_at, email, source, category, level, code, message, detail, status, resolved_at, resolved_by")
+      .select("id, created_at, url, email, source, category, level, code, message, detail, status, resolved_at, resolved_by")
       .order("created_at", { ascending: false })
       .limit(500);
     if (error) throw error;
     errorLogsData = data || [];
-    errorLogsPage = 1;
+    if (!preservePage) errorLogsPage = 1;
     renderErrorLogs();
   } catch (e) {
     console.error(e);
-    errorLogsTableBody.innerHTML = `<tr><td colspan="9"><div class="empty">Không tải được log. Kiểm tra quyền admin hoặc bảng <b>error_logs</b> chưa được tạo trong Supabase (xem supabase/schema.sql).</div></td></tr>`;
+    errorLogsTableBody.innerHTML = `<tr><td colspan="8"><div class="empty">Không tải được log. Kiểm tra quyền admin hoặc bảng <b>error_logs</b> chưa được tạo trong Supabase (xem supabase/schema.sql).</div></td></tr>`;
     renderErrorLogsStats([]);
   }
 }
@@ -1818,7 +1835,7 @@ function renderErrorLogs() {
   const start = (errorLogsPage - 1) * ERROR_LOG_PAGE_SIZE;
   const paged = filtered.slice(start, start + ERROR_LOG_PAGE_SIZE);
   if (!paged.length) {
-    errorLogsTableBody.innerHTML = `<tr><td colspan="9"><div class="empty">${total ? "Trang này không có log." : "Chưa có log nào khớp bộ lọc."}</div></td></tr>`;
+    errorLogsTableBody.innerHTML = `<tr><td colspan="8"><div class="empty">${total ? "Trang này không có log." : "Chưa có log nào khớp bộ lọc."}</div></td></tr>`;
     renderErrorLogsPagination(total, totalPages);
     return;
   }
@@ -1833,7 +1850,6 @@ function renderErrorLogs() {
       <td><div class="mini-meta" style="white-space:nowrap">${formatDate(l.created_at)}</div></td>
       <td><span style="display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;color:#fff;background:${lv[1]};white-space:nowrap">${lv[0]}</span></td>
       <td><span class="mini-meta" style="white-space:nowrap">${cat}</span></td>
-      <td><span class="mini-meta" style="white-space:nowrap">${escapeHtml(l.source || "—")}</span></td>
       <td><span class="mini-meta">${escapeHtml(l.email || "—")}</span></td>
       <td><code style="font-size:11px;white-space:nowrap">${escapeHtml(l.code || "—")}</code></td>
       <td><div class="mini-meta" style="max-width:260px;cursor:pointer" onclick="viewErrorLogDetail('${sid}')" title="Bấm để xem nội dung đầy đủ"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--blue);text-decoration:underline;text-decoration-style:dotted">${escapeHtml(l.message || "—")}</div>${detailSnippet ? `<div style="color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px">${escapeHtml(detailSnippet)}</div>` : ""}</div></td>
@@ -1843,7 +1859,7 @@ function renderErrorLogs() {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
         <button class="btn btn-danger" onclick="deleteErrorLog('${sid}')" title="Xóa log" style="padding:8px 10px">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
         </button>
       </div></td>
     </tr>`;
@@ -1882,20 +1898,28 @@ window.toggleErrorLogFixed = async (id, fixed) => {
   showNotice(target ? "Đã đánh dấu log đã fix." : "Đã mở lại log.", "success");
 };
 
+let confirmDialogHandler = null;
 function openConfirmDialog(title, message, onYes) {
   const modal = document.getElementById("confirmModal");
+  const cB = document.getElementById("confirmModalConfirm");
+  const cC = document.getElementById("confirmModalCancel");
   document.getElementById("confirmModalIcon").textContent = "⚠️";
   document.getElementById("confirmModalTitle").textContent = title;
   document.getElementById("confirmModalMessage").textContent = message;
-  const cB = document.getElementById("confirmModalConfirm");
-  modal.classList.add("active");
-  const onCancel = () => {
+  if (confirmDialogHandler) {
+    cB.removeEventListener("click", confirmDialogHandler);
+    cC.removeEventListener("click", confirmDialogHandler);
+  }
+  confirmDialogHandler = () => {
     modal.classList.remove("active");
-    cB.removeEventListener("click", onYes);
-    document.getElementById("confirmModalCancel").removeEventListener("click", onCancel);
+    cB.removeEventListener("click", confirmDialogHandler);
+    cC.removeEventListener("click", confirmDialogHandler);
+    confirmDialogHandler = null;
+    onYes();
   };
-  cB.addEventListener("click", () => { onCancel(); onYes(); });
-  document.getElementById("confirmModalCancel").addEventListener("click", onCancel);
+  cB.addEventListener("click", confirmDialogHandler);
+  cC.addEventListener("click", confirmDialogHandler);
+  modal.classList.add("active");
 }
 
 window.deleteErrorLog = (id) => {
@@ -1957,7 +1981,7 @@ function subscribeErrorLogsRealtime() {
   if (errorLogsChannel) return;
   errorLogsChannel = supabase.channel("error_logs_realtime")
     .on("postgres_changes", { event: "*", schema: "public", table: "error_logs" }, () => {
-      if (!errorLogsTabPanel.classList.contains("hidden")) fetchErrorLogs();
+      if (!errorLogsTabPanel.classList.contains("hidden")) fetchErrorLogs(true);
     })
     .subscribe();
 }
@@ -1978,6 +2002,13 @@ supabase.auth.onAuthStateChange(async (event, session) => {
   loginView.style.display="none"; dashboardView.classList.remove("hidden"); dashboardView.style.display="flex";
   await refreshCollections();
 });
+
+// Tự refresh dashboard + quét user online hết hạn (crash) mỗi 30s → chống báo online ảo.
+setInterval(async () => {
+  if (loginView.style.display === "flex") return;
+  await adminCleanupStaleOnline();
+  await refreshCollections();
+}, 30000);
 </script>
 <div id="notice" class="notice info"></div>
 </body>
