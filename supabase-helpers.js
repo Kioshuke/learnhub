@@ -68,19 +68,37 @@ export function subscribeMaintenance(cb) {
 }
 
 // ---------- WHITELIST EMAIL ----------
+// Cache: { result: boolean, ts: number }
+let _whitelistCache = { result: null, ts: 0 };
+const WHITELIST_CACHE_TTL = 60000; // 60s
 
 export async function emailAllowed(email) {
   if (!email) return false;
-  try {
-    const { data, error } = await supabase.rpc("is_email_allowed", {
-      p_email: email
-    });
-    if (error) throw error;
-    return data === true;
-  } catch (e) {
-    console.error("[supabase-helpers] emailAllowed lỗi:", e);
-    return false;
+  const now = Date.now();
+  // Dùng cache nếu < TTL
+  if (_whitelistCache.result !== null && (now - _whitelistCache.ts) < WHITELIST_CACHE_TTL) {
+    return _whitelistCache.result;
   }
+  // Thử 2 lần (retry 1 lần nếu lỗi mạng)
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const { data, error } = await supabase.rpc("is_email_allowed", { p_email: email });
+      if (error) throw error;
+      const ok = data === true;
+      _whitelistCache = { result: ok, ts: now };
+      return ok;
+    } catch (e) {
+      console.warn("[supabase-helpers] emailAllowed retry " + (attempt + 1) + ":", e.message || e);
+      if (attempt === 0) await new Promise(r => setTimeout(r, 1500)); // chờ 1.5s rồi thử lại
+    }
+  }
+  // Cả 2 lần đều lỗi → dùng cache nếu còn hạn, nếu không → return false (an toàn)
+  if (_whitelistCache.result !== null && (now - _whitelistCache.ts) < WHITELIST_CACHE_TTL) {
+    console.warn("[supabase-helpers] emailAllowed: dùng cache do RPC lỗi");
+    return _whitelistCache.result;
+  }
+  console.error("[supabase-helpers] emailAllowed: RPC lỗi cả 2 lần, không có cache");
+  return false;
 }
 
 // ---------- SESSION ----------
