@@ -325,341 +325,456 @@
   .auth-below{
     position:relative;
     width:100%;
-    background:linear-gradient(180deg,#f8fafc 0%,#ffffff 26%);
+    background:linear-gradient(180deg,#f0f4ff 0%,#ffffff 40%,#f8fafc 100%);
     padding:80px 20px 88px;
     box-sizing:border-box;
     overflow:hidden;
   }
-  /* Nền trang trí: grid mờ + blob xanh hai góc */
+  .auth-below::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent 0%,#c7d2fe 50%,transparent 100%);
+  }
+  /* Animated grid bg */
   .auth-below-gridbg{
-    position:absolute;
-    inset:0;
-    z-index:0;
-    pointer-events:none;
+    position:absolute;inset:0;z-index:0;pointer-events:none;
     background-image:
-      linear-gradient(to right, rgba(37,99,235,.055) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(37,99,235,.055) 1px, transparent 1px);
-    background-size:56px 56px;
-    -webkit-mask-image:radial-gradient(ellipse 85% 75% at 50% 22%, #000 25%, transparent 72%);
-    mask-image:radial-gradient(ellipse 85% 75% at 50% 22%, #000 25%, transparent 72%);
+      linear-gradient(to right,rgba(99,102,241,.04) 1px,transparent 1px),
+      linear-gradient(to bottom,rgba(99,102,241,.04) 1px,transparent 1px);
+    background-size:64px 64px;
+    -webkit-mask-image:radial-gradient(ellipse 90% 80% at 50% 18%,#000 20%,transparent 70%);
+    mask-image:radial-gradient(ellipse 90% 80% at 50% 18%,#000 20%,transparent 70%);
+    animation:authGridDrift 20s linear infinite;
   }
-  .auth-below-blob{
-    position:absolute;
-    border-radius:50%;
-    pointer-events:none;
-    z-index:0;
-    filter:blur(70px);
-    opacity:.55;
+  @keyframes authGridDrift{0%{background-position:0 0}100%{background-position:64px 64px}}
+
+  /* Blobs */
+  .auth-below-blob{position:absolute;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);opacity:.45}
+  .auth-below-blob--tl{width:500px;height:500px;top:-200px;left:-180px;background:radial-gradient(circle at 32% 30%,#c7d2fe 0%,rgba(199,210,254,0) 65%);animation:authBlobFloat1 8s ease-in-out infinite}
+  .auth-below-blob--br{width:520px;height:520px;bottom:-200px;right:-180px;background:radial-gradient(circle at 68% 70%,#bfdbfe 0%,rgba(191,219,254,0) 65%);animation:authBlobFloat2 10s ease-in-out infinite}
+  @keyframes authBlobFloat1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(20px,15px) scale(1.05)}}
+  @keyframes authBlobFloat2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-15px,-20px) scale(1.08)}}
+
+  /* Floating particles */
+  .auth-below-particles{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .auth-below-particle{
+    position:absolute;border-radius:50%;
+    background:linear-gradient(135deg,rgba(37,99,235,.15),rgba(124,58,237,.12));
+    animation:authParticleFloat linear infinite;
   }
-  .auth-below-blob--tl{
-    width:440px;height:440px;
-    top:-160px;left:-140px;
-    background:radial-gradient(circle at 32% 30%, #dbeafe 0%, rgba(219,234,254,0) 68%);
-  }
-  .auth-below-blob--br{
-    width:480px;height:480px;
-    bottom:-180px;right:-160px;
-    background:radial-gradient(circle at 68% 70%, #e0f2fe 0%, rgba(224,242,254,0) 70%);
-  }
-  .auth-below-inner{
-    position:relative;
-    z-index:1;
-    max-width:1080px;
-    margin:0 auto;
-  }
-  .auth-below-head{
-    text-align:center;
-    margin-bottom:34px;
-  }
-  .auth-below-head h2{
-    margin:0 0 14px;
-    font-size:30px;
-    font-weight:800;
-    color:#0f172a;
-    letter-spacing:-0.6px;
-    line-height:1.25;
-  }
-  .auth-below-head h2 span{
-    background:linear-gradient(120deg,#2563eb 0%,#1d4ed8 55%,#60a5fa 100%);
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
-  }
-  .auth-below-head p{
-    margin:0 auto;
-    max-width:640px;
-    font-size:15px;
-    line-height:1.75;
-    color:#64748b;
-  }
-  .auth-below-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-    gap:18px;
-  }
-  .auth-below-points{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:12px;
-    margin-bottom:38px;
-  }
-  .auth-below-point{
-    display:flex;
-    align-items:center;
-    gap:9px;
-    padding:11px 18px;
-    background:#fff;
-    border:1px solid #e2e8f0;
-    border-radius:14px;
-    font-size:13px;
-    font-weight:700;
-    color:#334155;
-    box-shadow:0 1px 2px rgba(16,24,40,.04), 0 6px 16px -6px rgba(16,24,40,.08);
-    transition:transform .3s cubic-bezier(.2,.7,.3,1), border-color .3s ease, box-shadow .3s ease, background .3s ease;
-  }
-  .auth-below-point i{
-    font-style:normal;
-    font-size:15px;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:24px;height:24px;
-    border-radius:8px;
-    background:color-mix(in srgb,#2563eb 10%,#f1f5f9);
-    transition:transform .3s cubic-bezier(.2,.7,.3,1), background .3s ease;
-  }
-  .auth-below-point:hover{
-    transform:translateY(-4px);
-    border-color:#2563eb;
-    background:#fff;
-    box-shadow:0 2px 4px rgba(16,24,40,.05), 0 14px 28px -10px rgba(37,99,235,.28);
-  }
-  .auth-below-point:hover i{
-    transform:scale(1.12);
-    background:color-mix(in srgb,#2563eb 18%,#fff);
-  }
-  .auth-below-card{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    padding:26px 24px 28px;
-    background:#fff;
-    border:1px solid #eef2f7;
-    border-top:3px solid var(--fc,#2563eb);
-    border-radius:20px;
-    box-shadow:
-      0 1px 2px rgba(16,24,40,.05),
-      0 8px 20px -6px rgba(16,24,40,.08);
-    box-sizing:border-box;
-    transition:transform .28s cubic-bezier(.2,.7,.3,1), box-shadow .28s cubic-bezier(.2,.7,.3,1), border-color .28s ease, background .28s ease;
-  }
-  .auth-below-card:hover{
-    transform:translateY(-8px) scale(1.02);
-    animation-play-state:paused;
-    box-shadow:
-      0 2px 4px rgba(16,24,40,.05),
-      0 28px 56px -14px color-mix(in srgb,var(--fc,#2563eb) 28%,rgba(16,24,40,.16));
-    border-color:color-mix(in srgb,var(--fc,#2563eb) 40%,#e2e8f0);
-  }
-  .auth-below-icon{
-    width:50px;height:50px;
-    display:flex;align-items:center;justify-content:center;
-    font-size:24px;
-    border-radius:14px;
-    background:color-mix(in srgb,var(--fc,#2563eb) 10%,#fff);
-    border:1px solid color-mix(in srgb,var(--fc,#2563eb) 22%,transparent);
-    animation:authFloat 4s ease-in-out infinite;
-    transition:scale .28s cubic-bezier(.2,.7,.3,1), background .28s ease, border-color .28s ease;
-  }
-  .auth-below-card:nth-child(even) .auth-below-icon{animation-delay:.7s;}
-  .auth-below-card:nth-child(3n) .auth-below-icon{animation-delay:1.3s;}
-  @keyframes authFloat{
-    0%,100%{transform:translateY(0)}
-    50%{transform:translateY(-3px)}
-  }
-  .auth-below-card:hover .auth-below-icon{
-    scale:1.1;
-    background:color-mix(in srgb,var(--fc,#2563eb) 16%,#fff);
-    border-color:color-mix(in srgb,var(--fc,#2563eb) 42%,transparent);
-  }
-  .auth-below-name{
-    font-size:15.5px;
-    font-weight:800;
-    color:#0f172a;
-    letter-spacing:-0.2px;
-  }
-  .auth-below-desc{
-    font-size:12.8px;
-    line-height:1.6;
-    color:#64748b;
+  .auth-below-particle:nth-child(1){width:6px;height:6px;top:12%;left:8%;animation-duration:7s;animation-delay:0s}
+  .auth-below-particle:nth-child(2){width:4px;height:4px;top:25%;left:85%;animation-duration:9s;animation-delay:1s}
+  .auth-below-particle:nth-child(3){width:8px;height:8px;top:55%;left:15%;animation-duration:11s;animation-delay:2s}
+  .auth-below-particle:nth-child(4){width:5px;height:5px;top:70%;left:75%;animation-duration:8s;animation-delay:0.5s}
+  .auth-below-particle:nth-child(5){width:7px;height:7px;top:40%;left:50%;animation-duration:12s;animation-delay:3s}
+  .auth-below-particle:nth-child(6){width:4px;height:4px;top:85%;left:30%;animation-duration:10s;animation-delay:1.5s}
+  .auth-below-particle:nth-child(7){width:6px;height:6px;top:18%;left:65%;animation-duration:8.5s;animation-delay:2.5s}
+  .auth-below-particle:nth-child(8){width:5px;height:5px;top:65%;left:42%;animation-duration:9.5s;animation-delay:0.8s}
+  @keyframes authParticleFloat{
+    0%{transform:translateY(0) rotate(0deg);opacity:0}
+    10%{opacity:.7}
+    90%{opacity:.7}
+    100%{transform:translateY(-120vh) rotate(720deg);opacity:0}
   }
 
-  /* ===== REVEAL KHI SCROLL VÀO VIEWPORT (Intersection Observer thêm class .auth-below--show) ===== */
-  .auth-below:not(.auth-below--show) .auth-below-head,
-  .auth-below:not(.auth-below--show) .auth-below-point,
-  .auth-below:not(.auth-below--show) .auth-below-card{
-    opacity:0;
-    transform:translateY(24px);
+  .auth-below-inner{position:relative;z-index:1;max-width:1100px;margin:0 auto}
+
+  /* === HEADER === */
+  .auth-below-head{text-align:center;margin-bottom:28px}
+  .auth-below-head-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:6px 16px;border-radius:999px;
+    background:linear-gradient(135deg,rgba(37,99,235,.08),rgba(99,102,241,.08));
+    border:1px solid rgba(37,99,235,.12);
+    font-size:12px;font-weight:700;color:#2563eb;
+    margin-bottom:16px;letter-spacing:.02em;
+    animation:authBadgeShimmer 3s ease-in-out infinite;
   }
-  @keyframes authFadeUp{
-    from{opacity:0;transform:translateY(24px)}
-    to{opacity:1;transform:translateY(0)}
+  @keyframes authBadgeShimmer{
+    0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,0)}
+    50%{box-shadow:0 0 0 6px rgba(37,99,235,.08)}
   }
-  .auth-below--show .auth-below-head{ animation:authFadeUp .6s cubic-bezier(.2,.7,.3,1) backwards; animation-delay:.05s; }
-  .auth-below--show .auth-below-point{ animation:authFadeUp .5s cubic-bezier(.2,.7,.3,1) backwards; }
-  .auth-below--show .auth-below-point:nth-child(1){animation-delay:.10s}
-  .auth-below--show .auth-below-point:nth-child(2){animation-delay:.16s}
-  .auth-below--show .auth-below-point:nth-child(3){animation-delay:.22s}
-  .auth-below--show .auth-below-point:nth-child(4){animation-delay:.28s}
-  .auth-below--show .auth-below-card{
-    animation:
-      authFadeUp .55s cubic-bezier(.2,.7,.3,1) backwards,
-      authCardSpot 14s linear infinite;
-    animation-delay:0s, 0s;
+  .auth-below-head-badge i{font-size:11px;animation:authBadgeIconPulse 2s ease-in-out infinite}
+  @keyframes authBadgeIconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+  .auth-below-head h2{
+    margin:0 0 16px;font-size:34px;font-weight:800;
+    color:#0f172a;letter-spacing:-.8px;line-height:1.2;
   }
-  .auth-below--show .auth-below-card:nth-child(1){animation-delay:.12s, 0s}
-  .auth-below--show .auth-below-card:nth-child(2){animation-delay:.21s, 2s}
-  .auth-below--show .auth-below-card:nth-child(3){animation-delay:.30s, 4s}
-  .auth-below--show .auth-below-card:nth-child(4){animation-delay:.39s, 6s}
-  .auth-below--show .auth-below-card:nth-child(5){animation-delay:.48s, 8s}
-  .auth-below--show .auth-below-card:nth-child(6){animation-delay:.57s, 10s}
-  .auth-below--show .auth-below-card:nth-child(7){animation-delay:.66s, 12s}
-  @keyframes authCardSpot{
-    0%{scale:1;box-shadow:0 1px 2px rgba(16,24,40,.05), 0 8px 20px -6px rgba(16,24,40,.08)}
-    7%{scale:1.045;box-shadow:0 2px 4px rgba(16,24,40,.05), 0 22px 44px -12px color-mix(in srgb,var(--fc,#2563eb) 26%,rgba(16,24,40,.16))}
-    13.5%{scale:1;box-shadow:0 1px 2px rgba(16,24,40,.05), 0 8px 20px -6px rgba(16,24,40,.08)}
-    100%{scale:1;box-shadow:0 1px 2px rgba(16,24,40,.05), 0 8px 20px -6px rgba(16,24,40,.08)}
+  .auth-below-head h2 span{
+    background:linear-gradient(135deg,#2563eb 0%,#7c3aed 30%,#ec4899 60%,#2563eb 100%);
+    background-size:300% 300%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:authGradShift 5s ease infinite;
   }
-  .auth-below-note{
-    text-align:center;
-    margin-top:34px;
-    font-size:13px;
-    color:#94a3b8;
+  @keyframes authGradShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  .auth-below-head p{margin:0 auto;max-width:600px;font-size:15px;line-height:1.8;color:#64748b}
+
+  /* === STATS ROW === */
+  .auth-below-stats{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:32px}
+  .auth-below-stat{
+    display:flex;align-items:center;gap:10px;
+    padding:14px 22px;border-radius:16px;
+    background:#fff;border:1px solid #e8edf5;
+    box-shadow:0 2px 8px rgba(16,24,40,.04);
+    min-width:150px;
+    transition:all .3s cubic-bezier(.2,.7,.3,1);
+    position:relative;overflow:hidden;
   }
+  .auth-below-stat::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(135deg,transparent 40%,rgba(37,99,235,.03) 50%,transparent 60%);
+    background-size:250% 250%;
+    animation:authStatShine 4s ease-in-out infinite;
+  }
+  @keyframes authStatShine{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  .auth-below-stat:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 12px 32px rgba(37,99,235,.12)}
+  .auth-below-stat-icon{
+    width:40px;height:40px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;flex-shrink:0;color:#fff;
+    animation:authStatIconPulse 3s ease-in-out infinite;
+  }
+  @keyframes authStatIconPulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.3)}
+    50%{box-shadow:0 0 0 8px rgba(255,255,255,0)}
+  }
+  .auth-below-stat-num{font-size:20px;font-weight:800;color:#0f172a;line-height:1;position:relative;z-index:1}
+  .auth-below-stat-label{font-size:11.5px;color:#94a3b8;font-weight:600;margin-top:2px;position:relative;z-index:1}
+
+  /* === POINTS (BADGES) === */
+  .auth-below-points{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:40px}
+  .auth-below-point{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:10px 18px;border-radius:12px;
+    background:#fff;border:1px solid #e2e8f0;
+    font-size:13px;font-weight:600;color:#334155;
+    box-shadow:0 1px 3px rgba(16,24,40,.04);
+    transition:all .3s cubic-bezier(.2,.7,.3,1);
+    position:relative;overflow:hidden;
+  }
+  .auth-below-point::before{
+    content:'';position:absolute;top:50%;left:50%;
+    width:0;height:0;border-radius:50%;
+    background:rgba(37,99,235,.06);
+    transition:all .5s ease;transform:translate(-50%,-50%);
+  }
+  .auth-below-point:hover::before{width:200px;height:200px}
+  .auth-below-point i{
+    font-size:13px;display:inline-flex;align-items:center;justify-content:center;
+    width:26px;height:26px;border-radius:8px;
+    color:#2563eb;background:rgba(37,99,235,.08);
+    transition:all .3s ease;position:relative;z-index:1;
+  }
+  .auth-below-point span{position:relative;z-index:1}
+  .auth-below-point:hover{
+    transform:translateY(-3px) scale(1.03);border-color:#2563eb;
+    box-shadow:0 8px 24px rgba(37,99,235,.18);
+  }
+  .auth-below-point:hover i{background:rgba(37,99,235,.15);transform:scale(1.15) rotate(-5deg)}
+
+  /* === FEATURE CARDS === */
+  .auth-below-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .auth-below-card{
+    position:relative;display:flex;flex-direction:column;align-items:flex-start;
+    gap:14px;padding:28px 22px 26px;
+    background:#fff;border:1px solid #eef2f7;border-radius:18px;
+    box-shadow:0 1px 3px rgba(16,24,40,.04),0 6px 16px -6px rgba(16,24,40,.06);
+    box-sizing:border-box;overflow:hidden;
+    transition:all .4s cubic-bezier(.2,.7,.3,1);
+    transform-style:preserve-3d;
+    perspective:800px;
+  }
+  .auth-below-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--fc,#2563eb),color-mix(in srgb,var(--fc,#2563eb) 50%,#a78bfa),var(--fc,#2563eb));
+    background-size:200% 100%;
+    opacity:0;transition:opacity .3s ease;
+    animation:authCardBorderFlow 3s linear infinite paused;
+  }
+  .auth-below-card:hover::before{opacity:1;animation-play-state:running}
+  @keyframes authCardBorderFlow{0%{background-position:0% 0}100%{background-position:200% 0}}
+  .auth-below-card::after{
+    content:'';position:absolute;inset:0;border-radius:18px;
+    background:radial-gradient(circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--fc,#2563eb) 6%,transparent) 0%,transparent 60%);
+    opacity:0;transition:opacity .3s ease;pointer-events:none;
+  }
+  .auth-below-card:hover::after{opacity:1}
+  .auth-below-card:hover{
+    transform:translateY(-8px) scale(1.02);
+    box-shadow:0 4px 8px rgba(16,24,40,.04),0 32px 64px -16px color-mix(in srgb,var(--fc,#2563eb) 25%,rgba(16,24,40,.14));
+    border-color:color-mix(in srgb,var(--fc,#2563eb) 35%,#e2e8f0);
+  }
+
+  /* === STAGGER HOVER: hover 1 card -> card kề hưởng ứng nhẹ === */
+  .auth-below-grid:has(.auth-below-card:hover) .auth-below-card:not(:hover){
+    transform:translateY(-3px) scale(1.008);
+    box-shadow:0 2px 6px rgba(16,24,40,.03),0 12px 24px -8px rgba(16,24,40,.06);
+    border-color:#e8edf5;
+  }
+  .auth-below-grid:has(.auth-below-card:hover) .auth-below-card:not(:hover) .auth-below-icon{
+    transform:translateY(-1px) scale(1.03);
+  }
+  /* Card liền kề (trước/sau) hover mạnh hơn chút */
+  .auth-below-grid:has(.auth-below-card:hover) .auth-below-card:not(:hover):has(~ .auth-below-card:hover),
+  .auth-below-grid:has(.auth-below-card:hover) .auth-below-card:not(:hover):has(+ .auth-below-card:hover){
+    transform:translateY(-5px) scale(1.012);
+    box-shadow:0 3px 8px rgba(16,24,40,.04),0 18px 36px -10px rgba(16,24,40,.08);
+  }
+  .auth-below-grid:has(.auth-below-card:hover) .auth-below-card:not(:hover):has(~ .auth-below-card:hover) .auth-below-icon,
+  .auth-below-grid:has(.auth-below-card:hover) .auth-below-card:not(:hover):has(+ .auth-below-card:hover) .auth-below-icon{
+    transform:translateY(-2px) scale(1.05);
+  }
+
+  /* === AUTO HOVER: tự động highlight card theo thứ tự === */
+  .auth-below-card--auto-active{
+    transform:translateY(-8px) scale(1.02)!important;
+    box-shadow:0 4px 8px rgba(16,24,40,.04),0 32px 64px -16px color-mix(in srgb,var(--fc,#2563eb) 25%,rgba(16,24,40,.14))!important;
+    border-color:color-mix(in srgb,var(--fc,#2563eb) 35%,#e2e8f0)!important;
+    z-index:2;
+  }
+  .auth-below-card--auto-active::before{opacity:1;animation-play-state:running}
+  .auth-below-card--auto-active::after{opacity:1}
+  .auth-below-card--auto-active .auth-below-icon{
+    transform:translateY(-4px) scale(1.12) rotate(-3deg)!important;
+    box-shadow:0 8px 20px color-mix(in srgb,var(--fc,#2563eb) 25%,transparent)!important;
+  }
+  /* Card liền kề auto-active cũng rise nhẹ */
+  .auth-below-card--auto-active ~ .auth-below-card:not(.auth-below-card--auto-active):not(:hover){
+    transform:translateY(-4px) scale(1.01)!important;
+    box-shadow:0 3px 8px rgba(16,24,40,.04),0 16px 32px -10px rgba(16,24,40,.08)!important;
+  }
+  .auth-below-card--auto-active ~ .auth-below-card:not(.auth-below-card--auto-active):not(:hover) .auth-below-icon{
+    transform:translateY(-2px) scale(1.05)!important;
+  }
+  .auth-below-card:has(+ .auth-below-card--auto-active):not(.auth-below-card--auto-active):not(:hover){
+    transform:translateY(-4px) scale(1.01)!important;
+    box-shadow:0 3px 8px rgba(16,24,40,.04),0 16px 32px -10px rgba(16,24,40,.08)!important;
+  }
+  .auth-below-card:has(+ .auth-below-card--auto-active):not(.auth-below-card--auto-active):not(:hover) .auth-below-icon{
+    transform:translateY(-2px) scale(1.05)!important;
+  }
+
+  .auth-below-icon{
+    width:48px;height:48px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;border-radius:14px;
+    background:linear-gradient(135deg,color-mix(in srgb,var(--fc,#2563eb) 10%,#fff),color-mix(in srgb,var(--fc,#2563eb) 5%,#f8fafc));
+    border:1px solid color-mix(in srgb,var(--fc,#2563eb) 18%,transparent);
+    color:var(--fc,#2563eb);
+    transition:all .4s cubic-bezier(.2,.7,.3,1);
+  }
+  .auth-below-card:hover .auth-below-icon{
+    transform:translateY(-4px) scale(1.12) rotate(-3deg);
+    box-shadow:0 8px 20px color-mix(in srgb,var(--fc,#2563eb) 25%,transparent);
+  }
+  .auth-below-name{font-size:14.5px;font-weight:700;color:#0f172a;letter-spacing:-.1px;line-height:1.3}
+  .auth-below-desc{font-size:12.5px;line-height:1.65;color:#64748b}
+
+  /* === SCROLL UP BUTTON === */
   .auth-below-up{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    margin:34px auto 0;
-    padding:14px 26px;
-    border-radius:999px;
-    border:1.5px solid #e2e8f0;
-    background:#fff;
-    color:#334155;
-    font-family:inherit;
-    font-size:14px;
-    font-weight:700;
-    cursor:pointer;
-    box-shadow:0 3px 12px rgba(15,23,42,.05);
-    transition:all .3s ease;
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    margin:40px auto 0;padding:14px 28px;
+    border-radius:14px;border:1.5px solid #e2e8f0;
+    background:linear-gradient(135deg,#fff,#f8fafc);
+    color:#334155;font-family:inherit;font-size:14px;font-weight:700;
+    cursor:pointer;box-shadow:0 4px 16px rgba(15,23,42,.06);
+    transition:all .3s ease;position:relative;overflow:hidden;
   }
+  .auth-below-up::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(90deg,transparent,rgba(37,99,235,.05),transparent);
+    transform:translateX(-100%);transition:transform .5s ease;
+  }
+  .auth-below-up:hover::before{transform:translateX(100%)}
+  .auth-below-up:hover{border-color:#2563eb;box-shadow:0 8px 28px rgba(37,99,235,.15);transform:translateY(-2px)}
   .auth-below-up-icon{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:26px;
-    height:26px;
-    border-radius:50%;
-    background:#e2e8f0;
-    color:#334155;
-    font-size:15px;
-    line-height:1;
+    display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;border-radius:8px;
+    background:#e2e8f0;color:#334155;font-size:14px;
     transition:all .3s ease;
   }
   .auth-below-up.active{
     border-color:#2563eb;
-    background:#2563eb;
-    color:#fff;
-    box-shadow:0 10px 28px rgba(37,99,235,.35);
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    color:#fff;box-shadow:0 10px 32px rgba(37,99,235,.35);
+    animation:authUpPulse 2s ease-in-out infinite;
   }
+  @keyframes authUpPulse{0%,100%{box-shadow:0 10px 32px rgba(37,99,235,.35)}50%{box-shadow:0 10px 40px rgba(37,99,235,.5)}}
   .auth-below-up.active .auth-below-up-icon{
-    background:#fff;
-    color:#2563eb;
+    background:#fff;color:#2563eb;
     animation:authUpBob 1s ease-in-out infinite;
   }
-  @keyframes authUpBob{
-    0%,100%{transform:translateY(0)}
-    50%{transform:translateY(-4px)}
-  }
+  @keyframes authUpBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 
-  /* Nút mũi tên cuộn xuống (hiện khi ở đầu trang) */
+  /* === SCROLL DOWN FAB === */
   .auth-scroll-down{
-    position:fixed;
-    left:50%;
-    bottom:22px;
+    position:fixed;left:50%;bottom:22px;
     transform:translateX(-50%);
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding:10px 18px;
-    border-radius:999px;
-    border:1.5px solid #2563eb;
-    background:#fff;
-    color:#2563eb;
-    font-family:inherit;
-    font-size:13px;
-    font-weight:700;
-    cursor:pointer;
-    z-index:60;
-    box-shadow:0 8px 24px rgba(37,99,235,.22);
-    transition:opacity .3s ease, transform .3s ease;
+    display:flex;align-items:center;gap:8px;
+    padding:10px 20px;border-radius:999px;
+    border:1.5px solid #2563eb;background:#fff;color:#2563eb;
+    font-family:inherit;font-size:13px;font-weight:700;
+    cursor:pointer;z-index:60;
+    box-shadow:0 8px 24px rgba(37,99,235,.2);
+    transition:all .3s ease;
+    animation:authFabEntry .6s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:1s;
   }
+  @keyframes authFabEntry{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+  .auth-scroll-down::before{
+    content:'';position:absolute;inset:-3px;border-radius:999px;
+    background:conic-gradient(from 0deg,transparent,#2563eb,transparent);
+    opacity:0;transition:opacity .3s ease;z-index:-1;
+    animation:authFabGlowSpin 3s linear infinite;
+  }
+  .auth-scroll-down:hover::before{opacity:.4}
+  @keyframes authFabGlowSpin{to{transform:rotate(360deg)}}
+  .auth-scroll-down:hover{box-shadow:0 12px 32px rgba(37,99,235,.35);transform:translateX(-50%) translateY(-3px)}
   .auth-scroll-down-arrow{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:22px;
-    height:22px;
-    border-radius:50%;
-    background:#2563eb;
-    color:#fff;
-    font-size:13px;
-    line-height:1;
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;
+    background:#2563eb;color:#fff;font-size:13px;
     animation:authDownBob 1.2s ease-in-out infinite;
   }
-  @keyframes authDownBob{
-    0%,100%{transform:translateY(0)}
-    50%{transform:translateY(4px)}
+  @keyframes authDownBob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+  .auth-scroll-down.hidden{opacity:0;pointer-events:none;transform:translateX(-50%) translateY(10px)}
+
+  /* === REVEAL ANIMATION === */
+  .auth-below:not(.auth-below--show) .auth-below-head,
+  .auth-below:not(.auth-below--show) .auth-below-stat,
+  .auth-below:not(.auth-below--show) .auth-below-point,
+  .auth-below:not(.auth-below--show) .auth-below-card{
+    opacity:0;transform:translateY(32px) scale(.96);
   }
-  .auth-scroll-down.hidden{
-    opacity:0;
-    pointer-events:none;
-    transform:translateX(-50%) translateY(10px);
+  @keyframes authFadeUp{from{opacity:0;transform:translateY(32px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+  @keyframes authFadeUpBounce{
+    0%{opacity:0;transform:translateY(40px) scale(.9)}
+    60%{opacity:1;transform:translateY(-6px) scale(1.02)}
+    100%{opacity:1;transform:translateY(0) scale(1)}
   }
+  @keyframes authIconPopIn{
+    0%{transform:scale(0) rotate(-15deg)}
+    70%{transform:scale(1.15) rotate(5deg)}
+    100%{transform:scale(1) rotate(0)}
+  }
+  .auth-below--show .auth-below-head{animation:authFadeUpBounce .65s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:.05s}
+  .auth-below--show .auth-below-stat{animation:authFadeUpBounce .55s cubic-bezier(.2,.7,.3,1) backwards}
+  .auth-below--show .auth-below-stat:nth-child(1){animation-delay:.1s}
+  .auth-below--show .auth-below-stat:nth-child(2){animation-delay:.17s}
+  .auth-below--show .auth-below-stat:nth-child(3){animation-delay:.24s}
+  .auth-below--show .auth-below-stat:nth-child(4){animation-delay:.31s}
+  .auth-below--show .auth-below-point{animation:authFadeUp .45s cubic-bezier(.2,.7,.3,1) backwards}
+  .auth-below--show .auth-below-point:nth-child(1){animation-delay:.36s}
+  .auth-below--show .auth-below-point:nth-child(2){animation-delay:.41s}
+  .auth-below--show .auth-below-point:nth-child(3){animation-delay:.46s}
+  .auth-below--show .auth-below-point:nth-child(4){animation-delay:.51s}
+  .auth-below--show .auth-below-card{animation:authFadeUp .5s cubic-bezier(.2,.7,.3,1) backwards}
+  .auth-below--show .auth-below-card:nth-child(1){animation-delay:.55s}
+  .auth-below--show .auth-below-card:nth-child(2){animation-delay:.60s}
+  .auth-below--show .auth-below-card:nth-child(3){animation-delay:.65s}
+  .auth-below--show .auth-below-card:nth-child(4){animation-delay:.70s}
+  .auth-below--show .auth-below-card:nth-child(5){animation-delay:.75s}
+  .auth-below--show .auth-below-card:nth-child(6){animation-delay:.80s}
+  .auth-below--show .auth-below-card:nth-child(7){animation-delay:.85s}
+  .auth-below--show .auth-below-card:nth-child(8){animation-delay:.90s}
+  .auth-below--show .auth-below-card .auth-below-icon{animation:authIconPopIn .5s cubic-bezier(.2,.7,.3,1) backwards}
+  .auth-below--show .auth-below-card:nth-child(1) .auth-below-icon{animation-delay:.7s}
+  .auth-below--show .auth-below-card:nth-child(2) .auth-below-icon{animation-delay:.75s}
+  .auth-below--show .auth-below-card:nth-child(3) .auth-below-icon{animation-delay:.80s}
+  .auth-below--show .auth-below-card:nth-child(4) .auth-below-icon{animation-delay:.85s}
+  .auth-below--show .auth-below-card:nth-child(5) .auth-below-icon{animation-delay:.90s}
+  .auth-below--show .auth-below-card:nth-child(6) .auth-below-icon{animation-delay:.95s}
+  .auth-below--show .auth-below-card:nth-child(7) .auth-below-icon{animation-delay:1s}
+  .auth-below--show .auth-below-card:nth-child(8) .auth-below-icon{animation-delay:1.05s}
+
+  /* === RESPONSIVE === */
   @media (max-width:900px){
-    .auth-scroll-down{
-      bottom:14px;
-      width:46px;
-      height:46px;
-      padding:0;
-      border-radius:50%;
-      justify-content:center;
-      box-shadow:0 6px 18px rgba(37,99,235,.35);
-    }
-    .auth-scroll-down span:first-child{display:none;}
-    .auth-scroll-down-arrow{font-size:18px; margin:0;}
+    .auth-scroll-down{bottom:14px;width:46px;height:46px;padding:0;border-radius:50%;justify-content:center;box-shadow:0 6px 18px rgba(37,99,235,.35)}
+    .auth-scroll-down span:first-child{display:none}
+    .auth-scroll-down-arrow{font-size:18px;margin:0}
+    /* Giảm stagger effect trên tablet */
+    .auth-below-grid:has(.auth-below-card:hover) .auth-below-card:not(:hover){transform:none;box-shadow:0 1px 3px rgba(16,24,40,.04);border-color:#eef2f7}
+    .auth-below-grid:has(.auth-below-card:hover) .auth-below-card:not(:hover) .auth-below-icon{transform:none}
+    .auth-below-grid:has(.auth-below-card:hover) .auth-below-card:not(:hover):has(~ .auth-below-card:hover),
+    .auth-below-grid:has(.auth-below-card:hover) .auth-below-card:not(:hover):has(+ .auth-below-card:hover){transform:none;box-shadow:0 1px 3px rgba(16,24,40,.04)}
+    .auth-below-grid:has(.auth-below-card:hover) .auth-below-card:not(:hover):has(~ .auth-below-card:hover) .auth-below-icon,
+    .auth-below-grid:has(.auth-below-card:hover) .auth-below-card:not(:hover):has(+ .auth-below-card:hover) .auth-below-icon{transform:none}
+  }
+  @media (max-width:768px){
+    .auth-below{padding:56px 16px 64px}
+    .auth-below-head h2{font-size:26px}
+    .auth-below-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+    .auth-below-stats{gap:8px}
+    .auth-below-stat{min-width:140px;padding:12px 16px}
+    .auth-below-stat-num{font-size:17px}
+    .auth-below-particle:nth-child(5),.auth-below-particle:nth-child(6),.auth-below-particle:nth-child(7),.auth-below-particle:nth-child(8){display:none}
+    /* Giảm animation trên tablet */
+    .auth-below-blob{animation:none!important}
+    .auth-below-head-badge{animation:none!important}
+    .auth-below-head-badge i{animation:none!important}
+    .auth-below-head h2 span{animation-duration:8s!important}
+    .auth-below-stat::after{animation:none!important}
+    .auth-below-stat-icon{animation:none!important}
+    .auth-below-card::before{animation:none!important}
+    .auth-scroll-down::before{display:none}
+    .auth-scroll-down{animation:none!important}
   }
   @media (max-width:560px){
-    .auth-below{padding:44px 16px 60px;}
-    .auth-below-head h2{font-size:22px;}
-    .auth-below-grid{grid-template-columns:1fr;}
+    .auth-below{padding:40px 14px 52px}
+    .auth-below-head h2{font-size:22px;letter-spacing:-.4px}
+    .auth-below-head p{font-size:13.5px}
+    .auth-below-grid{grid-template-columns:1fr}
+    .auth-below-stats{flex-direction:column;align-items:stretch}
+    .auth-below-stat{min-width:0}
+    .auth-below-card{padding:22px 18px 22px}
+    .auth-below-particle{display:none}
+    .auth-below-gridbg{animation:none!important}
+    /* Giảm tối đa animation trên mobile */
+    .auth-below-card{transition:box-shadow .2s ease,border-color .2s ease!important}
+    .auth-below-card:hover{transform:none!important;box-shadow:0 2px 8px rgba(16,24,40,.06)!important}
+    .auth-below-card:hover .auth-below-icon{transform:none!important;box-shadow:none!important}
+    .auth-below-card::after{display:none!important}
+    .auth-below-card::before{display:none!important}
+    .auth-below-point{transition:box-shadow .2s ease!important}
+    .auth-below-point:hover{transform:none!important}
+    .auth-below-point::before{display:none!important}
+    .auth-below-point:hover i{transform:none!important}
+    .auth-below-stat{transition:box-shadow .2s ease!important}
+    .auth-below-stat:hover{transform:none!important}
+    .auth-below-up{transition:box-shadow .2s ease!important}
+    .auth-below-up:hover{transform:none!important}
+    .auth-below-up::before{display:none!important}
+    .auth-below-up.active{animation:none!important}
+    .auth-below-up.active .auth-below-up-icon{animation:none!important}
+    .auth-below-head-badge{box-shadow:none!important}
+    .auth-below-blob{filter:blur(60px);opacity:.3!important}
+    /* Ẩn nút scroll-down trên mobile */
+    .auth-scroll-down{display:none!important}
   }
-  @media (prefers-reduced-motion: reduce){
+  @media (prefers-reduced-motion:reduce){
     .auth-below--show .auth-below-head,
+    .auth-below--show .auth-below-stat,
     .auth-below--show .auth-below-point,
-    .auth-below--show .auth-below-card{animation:none;opacity:1;transform:none;}
+    .auth-below--show .auth-below-card{animation:none;opacity:1;transform:none}
     .auth-below:not(.auth-below--show) .auth-below-head,
+    .auth-below:not(.auth-below--show) .auth-below-stat,
     .auth-below:not(.auth-below--show) .auth-below-point,
-    .auth-below:not(.auth-below--show) .auth-below-card{opacity:1;transform:none;}
-    .auth-below-card{transition:none;}
-    .auth-below-card:hover{transform:none;}
-    .auth-below-point{transition:none;}
-    .auth-below-point:hover{transform:none;}
-    .auth-below-icon{animation:none;}
-    .auth-below-up.active .auth-below-up-icon{animation:none;}
-    .auth-scroll-down-arrow{animation:none;}
+    .auth-below:not(.auth-below--show) .auth-below-card{opacity:1;transform:none}
+    .auth-below-card{transition:none}
+    .auth-below-card:hover{transform:none}
+    .auth-below-point{transition:none}
+    .auth-below-point:hover{transform:none}
+    .auth-below-icon{transition:none}
+    .auth-below-card:hover .auth-below-icon{transform:none}
+    .auth-below-up.active .auth-below-up-icon{animation:none}
+    .auth-scroll-down-arrow{animation:none}
+    .auth-below-head h2 span{animation:none}
+    .auth-below-head-badge{animation:none}
+    .auth-below-head-badge i{animation:none}
+    .auth-below-stat-icon{animation:none}
+    .auth-below-gridbg{animation:none}
+    .auth-below-blob{animation:none}
+    .auth-below-particle{animation:none}
+    .auth-below-card::before{animation:none}
+    .auth-below-stat::after{animation:none}
   }
 </style>
 </head>
@@ -886,63 +1001,98 @@
   <div class="auth-below-gridbg" aria-hidden="true"></div>
   <div class="auth-below-blob auth-below-blob--tl" aria-hidden="true"></div>
   <div class="auth-below-blob auth-below-blob--br" aria-hidden="true"></div>
+  <div class="auth-below-particles" aria-hidden="true">
+    <div class="auth-below-particle"></div>
+    <div class="auth-below-particle"></div>
+    <div class="auth-below-particle"></div>
+    <div class="auth-below-particle"></div>
+    <div class="auth-below-particle"></div>
+    <div class="auth-below-particle"></div>
+    <div class="auth-below-particle"></div>
+    <div class="auth-below-particle"></div>
+  </div>
   <div class="auth-below-inner">
     <div class="auth-below-head">
+      <div class="auth-below-head-badge"><i class="fa-solid fa-bolt"></i> Hệ sinh thái học tập ALL-IN-ONE</div>
       <h2>Khám phá hệ sinh thái <span>LearnHub Platform</span></h2>
-      <p>Nền tảng học tập toàn diện dành riêng cho bạn — 7 công cụ đồng hành giúp việc ôn thi nhanh hơn, vui hơn và hiệu quả hơn mỗi ngày.</p>
+      <p>Nền tảng học tập toàn diện dành riêng cho bạn — 8+ công cụ đồng hành giúp việc ôn thi nhanh hơn, vui hơn và hiệu quả hơn mỗi ngày.</p>
     </div>
+
+    <div class="auth-below-stats">
+      <div class="auth-below-stat">
+        <div class="auth-below-stat-icon" style="background:linear-gradient(135deg,#2563eb,#3b82f6)"><i class="fa-solid fa-users"></i></div>
+        <div><div class="auth-below-stat-num">10+</div><div class="auth-below-stat-label">Học viên</div></div>
+      </div>
+      <div class="auth-below-stat">
+        <div class="auth-below-stat-icon" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6)"><i class="fa-solid fa-file-lines"></i></div>
+        <div><div class="auth-below-stat-num">50+</div><div class="auth-below-stat-label">Video & Test</div></div>
+      </div>
+      <div class="auth-below-stat">
+        <div class="auth-below-stat-icon" style="background:linear-gradient(135deg,#059669,#10b981)"><i class="fa-solid fa-clock"></i></div>
+        <div><div class="auth-below-stat-num">24/7</div><div class="auth-below-stat-label">Hỗ trợ</div></div>
+      </div>
+      <div class="auth-below-stat">
+        <div class="auth-below-stat-icon" style="background:linear-gradient(135deg,#d97706,#f59e0b)"><i class="fa-solid fa-star"></i></div>
+        <div><div class="auth-below-stat-num">99%</div><div class="auth-below-stat-label">Hài lòng</div></div>
+      </div>
+    </div>
+
     <div class="auth-below-points">
-      <span class="auth-below-point"><i>⚡</i> Chấm điểm &amp; lưu kết quả tự động</span>
-      <span class="auth-below-point"><i>🔄</i> Cập nhật realtime từ ban quản trị</span>
-      <span class="auth-below-point"><i>🛡️</i> Tài khoản được kiểm duyệt, bảo mật</span>
-      <span class="auth-below-point"><i>📱</i> Mượt mà trên mọi thiết bị</span>
+      <span class="auth-below-point"><i class="fa-solid fa-bolt"></i> Chấm điểm tự động</span>
+      <span class="auth-below-point"><i class="fa-solid fa-rotate"></i> Cập nhật realtime</span>
+      <span class="auth-below-point"><i class="fa-solid fa-shield-halved"></i> Bảo mật tuyệt đối</span>
+      <span class="auth-below-point"><i class="fa-solid fa-mobile-screen-button"></i> Mọi thiết bị</span>
     </div>
+
     <div class="auth-below-grid">
       <div class="auth-below-card" style="--fc:#2563eb">
-        <span class="auth-below-icon">📝</span>
+        <div class="auth-below-icon"><i class="fa-solid fa-pen-to-square"></i></div>
         <span class="auth-below-name">LearnHub Test</span>
         <span class="auth-below-desc">Kiểm tra trực tuyến bấm giờ, chấm điểm tự động và lưu kết quả để theo dõi tiến bộ.</span>
       </div>
       <div class="auth-below-card" style="--fc:#f59e0b">
-        <span class="auth-below-icon">🃏</span>
+        <div class="auth-below-icon"><i class="fa-solid fa-layer-group"></i></div>
         <span class="auth-below-name">Smart Flashcard</span>
         <span class="auth-below-desc">Học từ vựng siêu tốc với 4 chế độ lật thẻ và kho từ vựng đa dạng.</span>
       </div>
       <div class="auth-below-card" style="--fc:#16a34a">
-        <span class="auth-below-icon">💬</span>
+        <div class="auth-below-icon"><i class="fa-solid fa-comments"></i></div>
         <span class="auth-below-name">Forum học tập</span>
-        <span class="auth-below-desc">Hỏi đáp, thảo luận bài tập và chia sẻ tài liệu cùng bạn bè như một mạng xã hội nội bộ.</span>
+        <span class="auth-below-desc">Hỏi đáp, thảo luận bài tập và chia sẻ tài liệu cùng bạn bè.</span>
       </div>
       <div class="auth-below-card" style="--fc:#7c3aed">
-        <span class="auth-below-icon">🏫</span>
+        <div class="auth-below-icon"><i class="fa-solid fa-school"></i></div>
         <span class="auth-below-name">Phòng học ảo</span>
         <span class="auth-below-desc">Ôn tập kiến thức theo từng môn học kết hợp cùng hệ thống LearnHub Test.</span>
       </div>
       <div class="auth-below-card" style="--fc:#0d9488">
-        <span class="auth-below-icon">📅</span>
+        <div class="auth-below-icon"><i class="fa-solid fa-calendar-check"></i></div>
         <span class="auth-below-name">Lịch học &amp; thi</span>
-        <span class="auth-below-desc">Lịch học và lịch thi cập nhật trực tiếp từ ban quản trị, hiển thị ngay đầu trang Phòng Học.</span>
+        <span class="auth-below-desc">Lịch học và lịch thi cập nhật trực tiếp từ ban quản trị.</span>
       </div>
       <div class="auth-below-card" style="--fc:#0891b2">
-        <span class="auth-below-icon">🤖</span>
+        <div class="auth-below-icon"><i class="fa-solid fa-robot"></i></div>
         <span class="auth-below-name">Trợ lý ảo Hubie</span>
         <span class="auth-below-desc">Trợ lý AI luôn sẵn sàng 24/7, giải đáp thắc mắc kiến thức mọi lúc.</span>
       </div>
       <div class="auth-below-card" style="--fc:#d97706">
-        <span class="auth-below-icon">🏆</span>
+        <div class="auth-below-icon"><i class="fa-solid fa-trophy"></i></div>
         <span class="auth-below-name">Bảng xếp hạng</span>
         <span class="auth-below-desc">Thi đua cùng bạn bè, theo dõi điểm số và vị trí học tập của bạn.</span>
       </div>
       <div class="auth-below-card" style="--fc:#ec4899">
-        <span class="auth-below-icon">👤</span>
+        <div class="auth-below-icon"><i class="fa-solid fa-user-graduate"></i></div>
         <span class="auth-below-name">Hồ sơ học viên</span>
-        <span class="auth-below-desc">Xem hồ sơ chi tiết của bản thân &amp; người khác: thông tin cá nhân, thống kê học tập và trạng thái trực tuyến.</span>
+        <span class="auth-below-desc">Xem hồ sơ chi tiết, thống kê học tập và trạng thái trực tuyến.</span>
       </div>
     </div>
-    <button type="button" class="auth-below-up" id="authBelowUp" aria-label="Cuộn lên đầu trang">
-      <span class="auth-below-up-icon">↑</span>
-      <span class="auth-below-up-text">Cuộn lên để đăng nhập và bắt đầu trải nghiệm.</span>
-    </button>
+
+    <div style="text-align:center">
+      <button type="button" class="auth-below-up" id="authBelowUp" aria-label="Cuộn lên đầu trang">
+        <span class="auth-below-up-icon"><i class="fa-solid fa-arrow-up"></i></span>
+        <span class="auth-below-up-text">Cuộn lên để đăng nhập và bắt đầu trải nghiệm</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1849,6 +1999,153 @@ window.emailRegister = async function() {
   window.addEventListener("resize", onScroll);
   onScroll();
   btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+})();
+
+/* ---------- MOUSE GLOW TRACKING ON CARDS ---------- */
+(function initCardMouseGlow() {
+  if (window.matchMedia("(max-width:768px)").matches) return;
+  document.querySelectorAll(".auth-below-card").forEach(card => {
+    card.addEventListener("mousemove", e => {
+      const r = card.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width) * 100;
+      const y = ((e.clientY - r.top) / r.height) * 100;
+      card.style.setProperty("--mx", x + "%");
+      card.style.setProperty("--my", y + "%");
+    });
+  });
+})();
+
+/* ---------- COUNTER ANIMATION FOR STATS ---------- */
+(function initStatCounters() {
+  const below = document.querySelector(".auth-below");
+  if (!below) return;
+  let counted = false;
+  function animateCounters() {
+    if (counted) return;
+    counted = true;
+    document.querySelectorAll(".auth-below-stat-num").forEach(el => {
+      const text = el.textContent.trim();
+      const match = text.match(/^([\d.]+)([K+%]*)$/);
+      if (!match) return;
+      const target = parseFloat(match[1]);
+      const suffix = match[2] || "";
+      const isFloat = text.includes(".");
+      const duration = 1200;
+      const start = performance.now();
+      function tick(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = target * eased;
+        if (isFloat) el.textContent = current.toFixed(1) + suffix;
+        else el.textContent = Math.round(current) + suffix;
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = text;
+      }
+      el.textContent = isFloat ? "0.0" + suffix : "0" + suffix;
+      requestAnimationFrame(tick);
+    });
+  }
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => { if (en.isIntersecting) { animateCounters(); io.disconnect(); } });
+  }, { threshold: 0.3 });
+  const statsRow = below.querySelector(".auth-below-stats");
+  if (statsRow) io.observe(statsRow);
+})();
+
+/* ---------- AUTO HOVER CARDS: tự động highlight từng card ---------- */
+(function initAutoHoverCards() {
+  if (window.matchMedia("(max-width:768px)").matches) return;
+  const grid = document.querySelector(".auth-below-grid");
+  if (!grid) return;
+  const cards = Array.from(grid.querySelectorAll(".auth-below-card"));
+  if (cards.length === 0) return;
+
+  let currentIdx = 0;
+  let autoTimer = null;
+  let paused = false;
+  let resumeTimer = null;
+  const INTERVAL = 2000;
+
+  function activate(idx) {
+    cards.forEach(c => c.classList.remove("auth-below-card--auto-active"));
+    cards[idx].classList.add("auth-below-card--auto-active");
+  }
+
+  function nextCard() {
+    if (paused) return;
+    currentIdx = (currentIdx + 1) % cards.length;
+    activate(currentIdx);
+    autoTimer = setTimeout(nextCard, INTERVAL);
+  }
+
+  function startAuto() {
+    clearTimeout(autoTimer);
+    clearTimeout(resumeTimer);
+    paused = false;
+    activate(currentIdx);
+    autoTimer = setTimeout(nextCard, INTERVAL);
+  }
+
+  function pauseAuto() {
+    paused = true;
+    clearTimeout(autoTimer);
+    clearTimeout(resumeTimer);
+    cards.forEach(c => c.classList.remove("auth-below-card--auto-active"));
+  }
+
+  cards.forEach(card => {
+    card.addEventListener("mouseenter", pauseAuto);
+    card.addEventListener("mouseleave", () => {
+      resumeTimer = setTimeout(startAuto, 2500);
+    });
+    card.addEventListener("touchstart", pauseAuto, { passive: true });
+  });
+
+  // Bắt đầu khi grid scroll vào viewport
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (en.isIntersecting) { startAuto(); io.disconnect(); }
+    });
+  }, { threshold: 0.2 });
+  io.observe(grid);
+})();
+
+/* ---------- TILT EFFECT ON CARDS ---------- */
+(function initCardTilt() {
+  if (window.matchMedia("(max-width:768px)").matches) return;
+  document.querySelectorAll(".auth-below-card").forEach(card => {
+    card.addEventListener("mousemove", e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform = `translateY(-8px) scale(1.02) rotateY(${x * 8}deg) rotateX(${-y * 8}deg)`;
+    });
+    card.addEventListener("mouseleave", () => {
+      card.style.transform = "";
+    });
+  });
+})();
+
+/* ---------- STAT ICON BOUNCE ON VIEW ---------- */
+(function initStatIconBounce() {
+  const statsRow = document.querySelector(".auth-below-stats");
+  if (!statsRow) return;
+  let bounced = false;
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (en.isIntersecting && !bounced) {
+        bounced = true;
+        statsRow.querySelectorAll(".auth-below-stat-icon").forEach((icon, i) => {
+          icon.style.animation = "none";
+          void icon.offsetWidth;
+          icon.style.animation = `authIconPopIn .5s cubic-bezier(.2,.7,.3,1) ${i * .1 + .2}s backwards`;
+        });
+        io.disconnect();
+      }
+    });
+  }, { threshold: 0.4 });
+  io.observe(statsRow);
 })();
 </script>
 </body>
