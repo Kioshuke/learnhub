@@ -1086,6 +1086,27 @@ window.addEventListener("message", async (event) => {
     }
   }
 });
+
+// ================= OVERLAY (event decorations) =================
+async function loadActiveOverlay() {
+  try {
+    const { data } = await supabase
+      .from("overlay_settings").select("active_overlay, enabled")
+      .eq("id", true).maybeSingle();
+    if (data && data.enabled && data.active_overlay) {
+      const s = document.createElement("script");
+      s.src = `overlays/${data.active_overlay}.js`;
+      document.body.appendChild(s);
+    }
+  } catch(e) { console.error("Overlay load error:", e); }
+}
+loadActiveOverlay();
+
+supabase.channel("overlay-realtime")
+  .on("postgres_changes", { event: "*", schema: "public", table: "overlay_settings" }, () => {
+    location.reload();
+  })
+  .subscribe();
 </script>
 <div id="lh-footer-placeholder"></div>
 <script>

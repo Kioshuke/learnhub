@@ -67,6 +67,14 @@ create table if not exists public.maintenance_settings (
   updated_by text
 );
 
+create table if not exists public.overlay_settings (
+  id              boolean primary key default true check (id),
+  enabled         boolean not null default false,
+  active_overlay  text,
+  updated_at      timestamptz,
+  updated_by      text
+);
+
 create table if not exists public.weekly_reset (
   id            boolean primary key default true check (id),
   last_reset_at timestamptz,
@@ -196,6 +204,7 @@ alter table public.users enable row level security;
 alter table public.access_list enable row level security;
 alter table public.test_stats enable row level security;
 alter table public.maintenance_settings enable row level security;
+alter table public.overlay_settings enable row level security;
 alter table public.weekly_reset enable row level security;
 alter table public.broadcast_current enable row level security;
 alter table public.broadcast_welcome enable row level security;
@@ -483,6 +492,18 @@ drop policy if exists maintenance_write_admin on public.maintenance_settings;
 create policy maintenance_write_admin on public.maintenance_settings
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
+drop policy if exists overlay_select on public.overlay_settings;
+create policy overlay_select on public.overlay_settings
+  for select to authenticated using (true);
+
+drop policy if exists overlay_select_anon on public.overlay_settings;
+create policy overlay_select_anon on public.overlay_settings
+  for select to anon using (true);
+
+drop policy if exists overlay_write_admin on public.overlay_settings;
+create policy overlay_write_admin on public.overlay_settings
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
 drop policy if exists weekly_reset_select on public.weekly_reset;
 create policy weekly_reset_select on public.weekly_reset
   for select to authenticated using (true);
@@ -748,6 +769,7 @@ begin
     'public.broadcast_current',
     'public.broadcast_welcome',
     'public.maintenance_settings',
+    'public.overlay_settings',
     'public.ticker_settings',
     'public.schedule_settings',
     'public.error_logs'
