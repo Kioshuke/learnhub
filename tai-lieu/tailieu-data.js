@@ -8,16 +8,20 @@
    - name        : TÊN FILE hiển thị (dùng cho ô tìm kiếm)
    - description : Mô tả file
    - category    : Nhóm / môn học (dùng cho bộ lọc)
-   - type        : NGUỒN NHÚNG FILE
-       * "drive"   -> Link Google Drive (nhận cả 2 dạng:
-                       https://drive.google.com/file/d/<ID>/view...
-                       https://drive.google.com/open?id=<ID>)
-       * "direct"  -> File trực tiếp (PDF, ảnh, video...) hoặc file
-                       nằm trong repo (vd: "../cauhoi/ten-file.pdf")
-       * "storage" -> Kho lưu trữ khác / URL bất kỳ
-                       (OneDrive, Dropbox, S3, CDN...)
-   - url         : Đường dẫn file (bắt buộc)
-   - size        : (tùy chọn) kích thước file
+    - type        : NGUỒN NHÚNG FILE
+        * "drive"   -> Link Google Drive (nhận cả 2 dạng:
+                        https://drive.google.com/file/d/<ID>/view...
+                        https://drive.google.com/open?id=<ID>)
+        * "direct"  -> File trực tiếp (PDF, ảnh, video...) hoặc file
+                        nằm trong repo (vd: "../cauhoi/ten-file.pdf")
+        * "storage" -> Kho lưu trữ khác / URL bất kỳ
+                        (OneDrive, Dropbox, S3, CDN...)
+    - url         : Đường dẫn file (bắt buộc)
+    - icon        : (tùy chọn) ÉP icon theo đuôi file, dùng khi link
+                    không có đuôi (vd: Google Drive). Ví dụ:
+                    "docx", "xlsx", "pptx", "pdf", "png"...
+                    Nếu bỏ trống sẽ tự nhận biết qua đuôi url.
+    - size        : (tùy chọn) kích thước file
    - date        : (tùy chọn) ngày đăng, dạng YYYY-MM-DD
    - author      : (tùy chọn) người đăng tài liệu
    ============================================================ */
@@ -31,7 +35,7 @@ window.TAI_LIEU_DATA = [
     url: "../cauhoi/Giới hạn hàm số - Nhập môn buổi 1 - Live-đã gộp.pdf",
     size: "3.0 MB",
     date: "2026-01-10",
-    author: "Ban quản trị"
+    author: "Admin"
   },
   {
     id: "toan-cao-cap-ma-tran",
@@ -42,7 +46,7 @@ window.TAI_LIEU_DATA = [
     url: "../cauhoi/[Dãn Dòng] - 10 buổi toán cao cấp ma trận.pdf",
     size: "9.4 MB",
     date: "2026-02-02",
-    author: "Dãn Dòng"
+    author: "Admin"
   },
   {
     id: "tong-on-ngu-phap",
@@ -53,7 +57,7 @@ window.TAI_LIEU_DATA = [
     url: "../cauhoi/tongonav.pdf",
     size: "24.8 MB",
     date: "2026-01-20",
-    author: "Ban quản trị"
+    author: "Admin"
   },
   {
     id: "vi-du-drive",
@@ -64,6 +68,42 @@ window.TAI_LIEU_DATA = [
     url: "https://drive.google.com/file/d/THAY_FILE_ID_O_DAY/view?usp=sharing",
     size: "—",
     date: "2026-01-01",
+    author: "Admin"
+  },
+  {
+    id: "vd-word",
+    name: "Ví dụ file Word (Google Drive)",
+    description: "File Word (.docx) mẫu nhúng qua Google Drive. Thay url và id bằng link Drive thật để xem trước.",
+    category: "Hướng dẫn",
+    type: "drive",
+    icon: "docx",
+    url: "https://drive.google.com/file/d/THAY_ID_FILE_WORD/view?usp=sharing",
+    size: "—",
+    date: "2026-08-01",
+    author: "Admin"
+  },
+  {
+    id: "vd-excel",
+    name: "Ví dụ file Excel (Google Drive)",
+    description: "File Excel (.xlsx) mẫu nhúng qua Google Drive. Thay url và id bằng link Drive thật để xem trước.",
+    category: "Hướng dẫn",
+    type: "drive",
+    icon: "xlsx",
+    url: "https://drive.google.com/file/d/THAY_ID_FILE_EXCEL/view?usp=sharing",
+    size: "—",
+    date: "2026-08-02",
+    author: "Admin"
+  },
+  {
+    id: "vd-powerpoint",
+    name: "Ví dụ file PowerPoint (Google Drive)",
+    description: "File PowerPoint (.pptx) mẫu nhúng qua Google Drive. Thay url và id bằng link Drive thật để xem trước.",
+    category: "Hướng dẫn",
+    type: "drive",
+    icon: "pptx",
+    url: "https://drive.google.com/file/d/THAY_ID_FILE_POWERPOINT/view?usp=sharing",
+    size: "—",
+    date: "2026-08-03",
     author: "Admin"
   }
 ];

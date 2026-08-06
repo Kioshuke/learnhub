@@ -49,21 +49,12 @@
       font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       color: var(--text-main);
       min-height: 100vh;
-      background:
-        radial-gradient(circle at 12% 8%, rgba(8, 145, 178, 0.12), transparent 28%),
-        radial-gradient(circle at 88% 16%, rgba(37, 99, 235, 0.12), transparent 30%),
-        radial-gradient(circle at 72% 86%, rgba(16, 185, 129, 0.1), transparent 32%),
-        linear-gradient(135deg, #f2fbfe 0%, #f8fbff 45%, #f4fdf9 100%);
-      background-attachment: fixed;
+      background: transparent;
       overflow-x: hidden;
     }
 
     body.dark-mode {
-      background:
-        radial-gradient(circle at 12% 8%, rgba(8, 145, 178, 0.16), transparent 28%),
-        radial-gradient(circle at 88% 16%, rgba(37, 99, 235, 0.14), transparent 30%),
-        radial-gradient(circle at 72% 86%, rgba(16, 185, 129, 0.12), transparent 32%),
-        linear-gradient(135deg, #0b1220 0%, #0f172a 45%, #0a1a16 100%);
+      background: transparent;
     }
 
     .wrap {
@@ -74,9 +65,12 @@
 
     /* ===== HERO ===== */
     .hero {
-      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
       margin-bottom: 22px;
-      padding: 26px 22px;
+      padding: 20px 24px;
       border: 1px solid var(--line);
       border-radius: 22px;
       background: var(--glass);
@@ -88,22 +82,54 @@
     .hero::before {
       content: "";
       position: absolute;
-      inset: 0 auto 0 0;
-      width: 7px;
-      background: linear-gradient(180deg, #0891b2, #2563eb, #16a34a);
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #0891b2, #2563eb, #16a34a);
     }
-    .hero h1 {
-      margin: 0 0 10px;
-      font-size: clamp(28px, 4.2vw, 44px);
-      letter-spacing: 0.3px;
+    .hero-main { min-width: 0; }
+    .hero-title {
+      margin: 0;
+      font-size: clamp(22px, 3.2vw, 32px);
+      letter-spacing: 0.2px;
       color: var(--primary);
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    .hero p {
-      margin: 0 auto;
-      max-width: 760px;
+    .hero-title i { font-size: 0.85em; }
+    .hero-sub {
+      margin: 4px 0 0;
       color: var(--text-sub);
-      line-height: 1.65;
-      font-size: 15px;
+      font-size: 13.5px;
+      font-weight: 500;
+    }
+    .hero-stat {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, var(--primary-soft), rgba(37, 99, 235, 0.12));
+      border: 1px solid var(--primary-border);
+      border-radius: 16px;
+      padding: 10px 18px;
+      flex-shrink: 0;
+    }
+    .stat-num {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, #0891b2, #2563eb);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .stat-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-sub);
+      line-height: 1.3;
     }
 
     /* ===== TOOLBAR ===== */
@@ -166,12 +192,6 @@
       background: var(--primary);
       border-color: var(--primary);
       color: #fff;
-    }
-    .result-count {
-      margin-left: auto;
-      font-size: 13px;
-      color: var(--text-sub);
-      font-weight: 600;
     }
 
     /* ===== CARDS GRID ===== */
@@ -256,7 +276,7 @@
       border-radius: 999px;
       line-height: 1;
     }
-    .tag-cat { background: var(--primary-soft); color: var(--primary); }
+    .tag-cat { background: color-mix(in srgb, var(--cat, var(--primary)) 14%, transparent); color: var(--cat, var(--primary)); }
     .tag-src {
       margin-left: auto;
       color: #fff;
@@ -277,16 +297,32 @@
     .empty-state .fa-folder-open { font-size: 48px; margin-bottom: 14px; color: var(--primary); }
     .empty-state h3 { margin: 0 0 6px; color: var(--text-main); }
 
-    /* ===== DETAIL VIEW ===== */
+    /* ===== DETAIL POPUP ===== */
     .detail-view {
-      margin-top: 24px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(10, 15, 25, 0.55);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .detail-view.show { display: flex; }
+    .detail-modal {
+      position: relative;
+      width: 100%;
+      max-width: 1080px;
+      max-height: calc(100vh - 40px);
+      display: flex;
+      flex-direction: column;
       background: var(--glass);
       box-shadow: var(--shadow);
+      border-radius: 22px;
       overflow: hidden;
-      backdrop-filter: blur(16px);
-      animation: detailIn 0.35s ease both;
+      animation: detailIn 0.3s ease both;
     }
     @keyframes detailIn {
       from { opacity: 0; transform: translateY(16px); }
@@ -297,14 +333,15 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 14px 18px;
+      padding: 11px 16px;
       border-bottom: 1px solid var(--line);
       background: var(--panel-soft);
+      flex-shrink: 0;
     }
-    .detail-head .file-ico { width: 42px; height: 42px; font-size: 19px; }
+    .detail-head .file-ico { width: 38px; height: 38px; font-size: 17px; }
     .detail-head h2 {
       margin: 0;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 800;
       line-height: 1.35;
     }
@@ -330,14 +367,15 @@
     .detail-body {
       display: grid;
       grid-template-columns: 1fr 360px;
-      min-height: 520px;
+      flex: 1;
+      min-height: 0;
     }
     /* LEFT: chi tiết file (preview) */
     .detail-preview {
       position: relative;
       background: #0f172a;
       border-right: 1px solid var(--line);
-      min-height: 520px;
+      min-height: 420px;
     }
     .detail-preview iframe {
       position: absolute;
@@ -383,6 +421,8 @@
       display: flex;
       flex-direction: column;
       gap: 18px;
+      overflow-y: auto;
+      min-height: 0;
     }
     .detail-info .d-desc {
       margin: 0;
@@ -452,29 +492,11 @@
     .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
     .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
 
-    .toast {
-      position: fixed;
-      bottom: 22px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: #0f172a;
-      color: #fff;
-      padding: 12px 22px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.35);
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.25s ease;
-      z-index: 50;
-    }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
     /* ===== RESPONSIVE ===== */
     @media (max-width: 900px) {
       .detail-body {
         grid-template-columns: 1fr;
+        overflow-y: auto;
       }
       .detail-preview {
         border-right: none;
@@ -486,14 +508,24 @@
     @media (max-width: 480px) {
       .cards-grid { grid-template-columns: 1fr; }
     }
+    @media (max-width: 560px) {
+      .hero { flex-direction: column; align-items: flex-start; gap: 14px; padding: 18px; }
+      .hero-stat { align-self: stretch; justify-content: center; }
+    }
   </style>
 </head>
 <body>
 
 <div class="wrap">
   <header class="hero">
-    <h1><i class="fa-solid fa-book-open"></i> Thư viện Tài liệu</h1>
-    <p>Tổng hợp tài liệu ôn tập, đề kiểm tra và bài giảng từ Google Drive, file trực tiếp và nhiều kho lưu trữ khác. Nhấn vào một thẻ để xem chi tiết file.</p>
+    <div class="hero-main">
+      <h1 class="hero-title"><i class="fa-solid fa-book-open"></i> Thư viện Tài liệu</h1>
+      <p class="hero-sub">Tìm kiếm và xem nhanh tài liệu học tập</p>
+    </div>
+    <div class="hero-stat">
+      <span class="stat-num" id="statCount">0</span>
+      <span class="stat-label">tài liệu</span>
+    </div>
   </header>
 
   <div class="toolbar">
@@ -502,7 +534,6 @@
       <input type="search" id="searchInput" placeholder="Tìm kiếm tên file..." autocomplete="off">
     </div>
     <div class="chips" id="categoryChips"></div>
-    <span class="result-count" id="resultCount"></span>
   </div>
 
   <div id="cardsGrid" class="cards-grid"></div>
@@ -513,15 +544,16 @@
     <p>Thử thay đổi từ khóa tìm kiếm hoặc chọn nhóm khác.</p>
   </div>
 
-  <section class="detail-view" id="detailView" style="display:none;">
-    <div class="detail-head">
-      <div class="doc-card-top" style="margin:0;">
-        <span class="file-ico" id="detailIco"><i class="fa-solid fa-file"></i></span>
-        <h2 id="detailName"></h2>
+  <section class="detail-view" id="detailView">
+    <div class="detail-modal">
+      <div class="detail-head">
+        <div class="doc-card-top" style="margin:0;">
+          <span class="file-ico" id="detailIco"><i class="fa-solid fa-file"></i></span>
+          <h2 id="detailName"></h2>
+        </div>
+        <button class="detail-close" type="button" title="Đóng chi tiết" onclick="closeDetail()">✕</button>
       </div>
-      <button class="detail-close" type="button" title="Đóng chi tiết" onclick="closeDetail()">✕</button>
-    </div>
-    <div class="detail-body">
+      <div class="detail-body">
       <div class="detail-preview">
         <div class="detail-spinner" id="detailSpinner">
           <div class="spinner"></div>
@@ -539,7 +571,7 @@
       <aside class="detail-info">
         <p class="d-desc" id="detailDesc"></p>
         <ul class="meta-list">
-          <li><span class="m-icon"><i class="fa-solid fa-tag"></i></span><span class="m-label">Nhóm</span><span class="m-value" id="detailCategory"></span></li>
+          <li><span class="m-icon" id="detailCatIco"><i class="fa-solid fa-tag"></i></span><span class="m-label">Nhóm</span><span class="m-value" id="detailCategory"></span></li>
           <li><span class="m-icon"><i class="fa-solid fa-link"></i></span><span class="m-label">Nguồn</span><span class="m-value" id="detailSource"></span></li>
           <li><span class="m-icon"><i class="fa-solid fa-file-arrow-down"></i></span><span class="m-label">Kích thước</span><span class="m-value" id="detailSize"></span></li>
           <li><span class="m-icon"><i class="fa-solid fa-calendar-days"></i></span><span class="m-label">Ngày đăng</span><span class="m-value" id="detailDate"></span></li>
@@ -547,14 +579,13 @@
         </ul>
         <div class="detail-actions">
           <a class="btn btn-primary" id="openBtn" target="_blank" rel="noopener"><i class="fa-solid fa-up-right-from-square"></i> Mở file gốc</a>
-          <button class="btn btn-ghost" type="button" onclick="copyLink()"><i class="fa-solid fa-copy"></i> Sao chép liên kết</button>
+          <a class="btn btn-ghost" id="downloadBtn" target="_blank" rel="noopener"><i class="fa-solid fa-download"></i> Tải xuống</a>
         </div>
       </aside>
+      </div>
     </div>
   </section>
 </div>
-
-<div class="toast" id="toast"></div>
 
 <script src="tailieu-data.js"></script>
 <script>
@@ -567,7 +598,6 @@
   var chipsEl = document.getElementById("categoryChips");
   var gridEl = document.getElementById("cardsGrid");
   var emptyEl = document.getElementById("emptyState");
-  var countEl = document.getElementById("resultCount");
   var detailView = document.getElementById("detailView");
   var frame = document.getElementById("detailFrame");
   var spinner = document.getElementById("detailSpinner");
@@ -576,6 +606,42 @@
   var state = { q: "", cat: "all", activeId: null, activeDoc: null };
 
   var SOURCE_LABEL = { drive: "Google Drive", direct: "File trực tiếp", storage: "Kho lưu trữ" };
+
+  var CAT_COLOR = {
+    "Toán": "#4f46e5",
+    "Vật Lý": "#2563eb",
+    "Lý": "#2563eb",
+    "Hóa Học": "#dc2626",
+    "Hóa": "#dc2626",
+    "Sinh Học": "#16a34a",
+    "Sinh": "#16a34a",
+    "Tin Học": "#7c3aed",
+    "Tin": "#7c3aed",
+    "Lịch Sử": "#ea580c",
+    "Sử": "#ea580c",
+    "Tiếng Anh": "#0891b2",
+    "Anh Văn": "#0891b2",
+    "Anh": "#0891b2",
+    "Ngữ Văn": "#db2777",
+    "Văn": "#db2777",
+    "Địa Lý": "#059669",
+    "Địa": "#059669",
+    "GDCD": "#d97706",
+    "Giáo dục công dân": "#d97706"
+  };
+
+  function categoryColor(cat) {
+    return CAT_COLOR[cat] || "";
+  }
+
+  function formatDate(v) {
+    if (!v) return "—";
+    var m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return m[3] + "/" + m[2] + "/" + m[1];
+    var d = new Date(v);
+    if (isNaN(d.getTime())) return v;
+    return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+  }
 
   var EXT_ICON = {
     pdf:  { icon: "fa-solid fa-file-pdf",   bg: "#ef4444" },
@@ -611,8 +677,8 @@
   }
 
   function fileStyle(doc) {
-    var ext = extOf(doc.url);
-    var style = EXT_ICON[ext];
+    var key = (doc.icon || extOf(doc.url)).toLowerCase();
+    var style = EXT_ICON[key];
     if (!style) style = { icon: "fa-solid fa-file", bg: "#64748b" };
     return style;
   }
@@ -629,6 +695,17 @@
     var u = String(doc.url || "").trim();
     if (!u) return "";
     if (doc.type === "drive") return toDrivePreview(u);
+    return u;
+  }
+
+  function buildDownloadUrl(doc) {
+    var u = String(doc.url || "").trim();
+    if (doc.type === "drive") {
+      var m = u.match(/\/(?:file\/d|document\/d|spreadsheets\/d|presentation\/d)\/([a-zA-Z0-9_-]+)/);
+      if (m) return "https://drive.google.com/uc?export=download&id=" + m[1];
+      m = u.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (m) return "https://drive.google.com/uc?export=download&id=" + m[1];
+    }
     return u;
   }
 
@@ -689,13 +766,14 @@
   function renderGrid() {
     var list = filteredDocs();
     gridEl.innerHTML = "";
-    countEl.textContent = list.length + " tài liệu";
     emptyEl.style.display = list.length ? "none" : "block";
 
     list.forEach(function (doc, i) {
       var st = fileStyle(doc);
       var card = document.createElement("div");
       card.className = "doc-card" + (state.activeId === doc.id ? " active" : "");
+      var catColor = categoryColor(doc.category);
+      if (catColor) card.style.setProperty("--cat", catColor);
       card.style.animationDelay = Math.min(i, 12) * 40 + "ms";
       card.innerHTML =
         '<div class="doc-card-top">' +
@@ -710,15 +788,6 @@
       card.addEventListener("click", function () { openDetail(doc); });
       gridEl.appendChild(card);
     });
-  }
-
-  function showToast(msg) {
-    var t = document.getElementById("toast");
-    if (!t) return;
-    t.textContent = msg;
-    t.classList.add("show");
-    clearTimeout(t._timer);
-    t._timer = setTimeout(function () { t.classList.remove("show"); }, 2200);
   }
 
   function openDetail(doc) {
@@ -737,14 +806,29 @@
     document.getElementById("detailName").textContent = doc.name;
     document.getElementById("detailDesc").textContent = doc.description || "Chưa có mô tả.";
     document.getElementById("detailCategory").textContent = doc.category || "Chung";
+    var catColor = categoryColor(doc.category);
+    var catIco = document.getElementById("detailCatIco");
+    if (catIco) {
+      catIco.style.background = catColor ? "color-mix(in srgb, " + catColor + " 15%, transparent)" : "";
+      catIco.style.color = catColor || "";
+    }
+    document.getElementById("detailCategory").style.color = catColor || "";
     document.getElementById("detailSource").textContent = SOURCE_LABEL[doc.type] || "Khác";
     document.getElementById("detailSize").textContent = doc.size || "—";
-    document.getElementById("detailDate").textContent = doc.date || "—";
+    document.getElementById("detailDate").textContent = formatDate(doc.date);
     document.getElementById("detailAuthor").textContent = doc.author || "—";
 
     var openBtn = document.getElementById("openBtn");
     openBtn.href = doc.url || "#";
     openBtn.dataset.url = doc.url || "";
+
+    var dlBtn = document.getElementById("downloadBtn");
+    dlBtn.href = buildDownloadUrl(doc);
+    if (/^\.\.?\//.test(doc.url) || String(doc.url || "").indexOf(location.origin) === 0) {
+      dlBtn.setAttribute("download", "");
+    } else {
+      dlBtn.removeAttribute("download");
+    }
 
     var embed = buildEmbedUrl(doc);
     var embeddable = canEmbed(doc) && embed;
@@ -764,8 +848,8 @@
       fallback.style.display = "grid";
     }
 
-    detailView.style.display = "block";
-    detailView.scrollIntoView({ behavior: "smooth", block: "start" });
+    detailView.classList.add("show");
+    document.body.style.overflow = "hidden";
   }
 
   window.closeDetail = function () {
@@ -773,30 +857,16 @@
     state.activeDoc = null;
     frame.removeAttribute("src");
     document.querySelectorAll(".doc-card").forEach(function (c) { c.classList.remove("active"); });
-    detailView.style.display = "none";
+    detailView.classList.remove("show");
+    document.body.style.overflow = "";
   };
 
-  window.copyLink = function () {
-    var url = state.activeDoc && state.activeDoc.url;
-    if (!url) return;
-    var done = function () { showToast("Đã sao chép liên kết!"); };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(done).catch(function () { fallbackCopy(url, done); });
-    } else {
-      fallbackCopy(url, done);
-    }
-  };
-
-  function fallbackCopy(text, done) {
-    var ta = document.createElement("textarea");
-    ta.value = text;
-    ta.style.position = "fixed";
-    ta.style.opacity = "0";
-    document.body.appendChild(ta);
-    ta.select();
-    try { document.execCommand("copy"); done(); } catch (e) {}
-    document.body.removeChild(ta);
-  }
+  detailView.addEventListener("click", function (e) {
+    if (e.target === detailView) closeDetail();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeDetail();
+  });
 
   searchInput.addEventListener("input", function () {
     state.q = searchInput.value;
@@ -805,6 +875,8 @@
 
   renderChips();
   renderGrid();
+
+  document.getElementById("statCount").textContent = data.length;
 
   window.addEventListener("message", function (event) {
     if (!event.data) return;
