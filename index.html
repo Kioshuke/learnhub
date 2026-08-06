@@ -1062,11 +1062,20 @@ window.addEventListener("message", async (event) => {
   if (!u || !u.uid) return;
 
   if (event.data && event.data.type === "LEARNHUB_VIDEO_WATCHED" && event.data.videoId) {
+    const videoId = String(event.data.videoId);
     try {
-      await supabase.from("watched_videos").upsert(
-        { user_id: u.uid, video_id: String(event.data.videoId) },
-        { onConflict: "user_id,video_id", ignoreDuplicates: true }
-      );
+      const { data: existing } = await supabase
+        .from("watched_videos")
+        .select("video_id")
+        .eq("user_id", u.uid)
+        .eq("video_id", videoId)
+        .maybeSingle();
+      if (!existing) {
+        const { error } = await supabase.from("watched_videos").insert({ user_id: u.uid, video_id: videoId });
+        if (!error) {
+          await updateUserStats(u.uid, 5, { countAsTest: false });
+        }
+      }
     } catch (e) {
       console.log("Không thể lưu video đã xem:", e);
     }

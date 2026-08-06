@@ -88,7 +88,7 @@ export async function createUserStats(user) {
   }
 }
 
-export async function updateUserStats(uid, score) {
+export async function updateUserStats(uid, score, options = {}) {
   if (!uid) {
     console.log("[learnhub-stats] updateUserStats: thiếu uid");
     return false;
@@ -99,6 +99,10 @@ export async function updateUserStats(uid, score) {
     console.log("[learnhub-stats] updateUserStats: score không hợp lệ:", score);
     return false;
   }
+
+  // countAsTest=false (chế độ video): chỉ cộng điểm, không tính là "bài đã làm",
+  // không đụng best_score (chỉ áp cho điểm bài thi).
+  const countAsTest = options.countAsTest !== false;
 
   try {
     const currentWeek = getCurrentWeekKey();
@@ -113,18 +117,20 @@ export async function updateUserStats(uid, score) {
     const isNewWeek = currentData.week_key && currentData.week_key !== currentWeek;
     if (isNewWeek) recordAutoWeeklyReset(currentWeek);
 
-    const totalTests = (isNewWeek ? 0 : Number(currentData.total_tests || 0)) + 1;
+    const totalTests = (isNewWeek ? 0 : Number(currentData.total_tests || 0)) + (countAsTest ? 1 : 0);
     const totalScore = (isNewWeek ? 0 : Number(currentData.total_score || 0)) + numericScore;
-    const bestScore = isNewWeek ? numericScore : Math.max(Number(currentData.best_score || 0), numericScore);
+    const bestScore = countAsTest
+      ? (isNewWeek ? numericScore : Math.max(Number(currentData.best_score || 0), numericScore))
+      : (isNewWeek ? 0 : Number(currentData.best_score || 0));
 
     const payload = {
       total_tests: totalTests,
       total_score: totalScore,
       best_score: bestScore,
       week_key: currentWeek,
-      last_played: nowIso(),
       updated_at: nowIso()
     };
+    if (countAsTest) payload.last_played = nowIso();
 
     if (!existing) {
       payload.created_at = nowIso();
