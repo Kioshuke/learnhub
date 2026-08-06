@@ -4,7 +4,8 @@
     reduce: "cc_reduce",
     accent: "cc_accent",
     volume: "cc_volume",
-    focus: "cc_focus_min"
+    focus: "cc_focus_min",
+    overlay: "cc_overlay"
   };
 
   const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -19,7 +20,8 @@
   const prefs = {
     glass: localStorage.getItem(STORE_KEYS.glass) !== "off",
     reduce: loadReducePref(),
-    accent: localStorage.getItem(STORE_KEYS.accent)
+    accent: localStorage.getItem(STORE_KEYS.accent),
+    overlay: localStorage.getItem(STORE_KEYS.overlay) !== "off"
   };
 
   const ACCENTS = [
@@ -71,8 +73,10 @@
     }
     const glass = document.getElementById("ccGlassToggle");
     const reduce = document.getElementById("ccReduceToggle");
+    const overlay = document.getElementById("ccOverlayToggle");
     if (glass) glass.checked = prefs.glass;
     if (reduce) reduce.checked = prefs.reduce;
+    if (overlay) overlay.checked = prefs.overlay;
     buildAccentRow();
   }
 
@@ -183,6 +187,14 @@
         prefs.reduce = reduce.checked;
         localStorage.setItem(STORE_KEYS.reduce, prefs.reduce ? "on" : "off");
         document.body.classList.toggle("cc-reduced", prefs.reduce);
+      });
+    }
+    const overlay = document.getElementById("ccOverlayToggle");
+    if (overlay) {
+      overlay.addEventListener("change", function () {
+        prefs.overlay = overlay.checked;
+        localStorage.setItem(STORE_KEYS.overlay, prefs.overlay ? "on" : "off");
+        if (typeof window.reloadEventOverlay === "function") window.reloadEventOverlay();
       });
     }
   }

@@ -1,264 +1,165 @@
 (function () {
   'use strict';
 
-  // Prevent duplicate instances
-  const EXISTING_OVERLAY = document.getElementById('qk-overlay');
-  if (EXISTING_OVERLAY) {
-    EXISTING_OVERLAY.remove();
-  }
-  const EXISTING_STYLE = document.getElementById('qk-styles');
-  if (EXISTING_STYLE) {
-    EXISTING_STYLE.remove();
-  }
+  // Nếu đã có overlay sẵn (script load lại) thì gỡ cũ trước
+  const EXISTING = document.getElementById('event-overlay');
+  if (EXISTING) EXISTING.remove();
 
   // Inject Styles
   const style = document.createElement('style');
-  style.id = 'qk-styles';
   style.textContent = `
-    /* Root Overlay Container */
-    #qk-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 99999;
-      pointer-events: none;
-      overflow: hidden;
-      will-change: transform;
+    #event-overlay{position:fixed;inset:0;z-index:9998;pointer-events:none;overflow:hidden}
+
+    /* ---------- 1. DÂY CỜ ĐỎ SAO VÀNG (hình chữ nhật, treo dọc) ---------- */
+    .qk-bunting{position:absolute;top:0;left:0;width:100%;display:flex;justify-content:space-between;align-items:flex-start;padding:0 1.5%;filter:drop-shadow(0 4px 8px rgba(153,27,27,.28))}
+    .qk-flag{flex:none;transform-origin:top center;animation:qkSway 3.4s ease-in-out infinite alternate}
+    .qk-flag:nth-child(odd){animation-duration:2.8s}
+    .qk-flag:nth-child(3n){animation-duration:4s;animation-delay:.5s}
+    .qk-flag:nth-child(4n){animation-delay:.9s}
+    .qk-flag:nth-child(5n){animation-duration:3s;animation-delay:.3s}
+    @keyframes qkSway{0%{transform:rotate(-5deg)}100%{transform:rotate(5deg)}}
+
+    /* ---------- 2. PHÁO HOA ---------- */
+    .qk-fw{position:absolute;opacity:0;will-change:transform,opacity;animation:qkBurst var(--d,2.8s) ease-out infinite var(--delay,0s)}
+    .qk-fw .qk-fw-ring{animation:qkRingSpin var(--spin,12s) linear infinite;transform-origin:50% 50%}
+    @keyframes qkBurst{
+      0%{opacity:0;transform:scale(.18)}
+      10%{opacity:1}
+      55%{transform:scale(1.12);opacity:.95}
+      100%{transform:scale(1.55);opacity:0}
+    }
+    @keyframes qkRingSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+    /* ---------- 3. SAO VÀNG RƠI TỪ TRÊN TRỜI ---------- */
+    .qk-star{position:absolute;top:-30px;will-change:transform,opacity;opacity:0;filter:drop-shadow(0 2px 4px rgba(218,37,29,.25));animation:qkStarFall var(--fall-duration,10s) linear infinite var(--fall-delay,0s)}
+    @keyframes qkStarFall{
+      0%{transform:translate3d(0,0,0) rotate(0deg);opacity:0}
+      10%{opacity:.9}
+      85%{opacity:.65}
+      100%{transform:translate3d(var(--sway-x,60px),105vh,0) rotate(var(--rot-deg,360deg));opacity:0}
     }
 
-    /* --- 1. BUNTING / DÂY CỜ TỔ QUỐC HÌNH CHỮ NHẬT NGANG ĐỈNH --- */
-    .qk-bunting-wrap {
-      position: absolute;
-      top: -2px;
-      left: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      padding: 0 4%;
-      filter: drop-shadow(0 4px 8px rgba(153, 27, 27, 0.25));
-    }
+    /* ---------- 4. VẦNG SÁNG LƠ LỬNG ---------- */
+    .qk-glow{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(218,37,29,.14),transparent 70%);animation:qkGlow 4s ease-in-out infinite alternate}
+    @keyframes qkGlow{from{opacity:.35;transform:scale(1)}to{opacity:.75;transform:scale(1.18)}}
 
-    .qk-flag-pennant {
-      will-change: transform;
-      transform-origin: top center;
-      animation: qkPennantSway 3.2s ease-in-out infinite alternate;
-    }
-
-    .qk-flag-pennant:nth-child(odd) {
-      animation-duration: 2.8s;
-    }
-    .qk-flag-pennant:nth-child(3n) {
-      animation-duration: 3.6s;
-      animation-delay: 0.4s;
-    }
-    .qk-flag-pennant:nth-child(4n) {
-      animation-delay: 0.8s;
-    }
-
-    @keyframes qkPennantSway {
-      0% { transform: rotate(-4deg); }
-      100% { transform: rotate(4deg); }
-    }
-
-    /* --- 2. FIREWORKS --- */
-    .qk-firework {
-      position: absolute;
-      will-change: transform, opacity;
-      opacity: 0;
-      animation: qkFireworkBurst var(--fw-duration, 2.6s) ease-out infinite var(--fw-delay, 0s);
-    }
-
-    @keyframes qkFireworkBurst {
-      0% {
-        transform: scale(0.15);
-        opacity: 0;
-      }
-      8% {
-        opacity: 1;
-      }
-      45% {
-        transform: scale(1);
-        opacity: 0.9;
-      }
-      75% {
-        opacity: 0.4;
-      }
-      100% {
-        transform: scale(1.25);
-        opacity: 0;
-      }
-    }
-
-    /* --- 3. FALLING STARS --- */
-    .qk-star {
-      position: absolute;
-      top: -30px;
-      will-change: transform, opacity;
-      opacity: 0;
-      filter: drop-shadow(0 2px 4px rgba(153, 27, 27, 0.2));
-      animation: qkStarFall var(--fall-duration, 10s) linear infinite var(--fall-delay, 0s);
-    }
-
-    @keyframes qkStarFall {
-      0% {
-        transform: translate3d(0, 0, 0) rotate(0deg);
-        opacity: 0;
-      }
-      10% {
-        opacity: 0.9;
-      }
-      85% {
-        opacity: 0.65;
-      }
-      100% {
-        transform: translate3d(var(--sway-x, 60px), 105vh, 0) rotate(var(--rot-deg, 360deg));
-        opacity: 0;
-      }
-    }
-
-    /* --- 4. BOTTOM CORNERS: BÔNG LÚA VÀNG ÔM NGÔI SAO (mô-típ Quốc huy) --- */
-    .qk-bottom-corner {
-      position: absolute;
-      bottom: 0;
-      width: 150px;
-      height: 128px;
-      pointer-events: none;
-      filter: drop-shadow(0 5px 12px rgba(122, 20, 15, 0.22));
-    }
-
-    .qk-bottom-corner svg {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-
-    .qk-corner-left {
-      left: 0;
-    }
-
-    .qk-corner-right {
-      right: 0;
-      transform: scaleX(-1);
-    }
-
-    .qk-corner-star {
-      transform-origin: center;
-      animation: qkCornerStarGlow 3.2s ease-in-out infinite alternate;
-    }
-
-    @keyframes qkCornerStarGlow {
-      0% { opacity: 0.85; }
-      100% { opacity: 1; }
-    }
-
-    .qk-corner-wheat {
-      animation: qkWheatSway 4.5s ease-in-out infinite alternate;
-      transform-origin: 8% 96%;
-    }
-
-    @keyframes qkWheatSway {
-      0% { transform: rotate(-1.2deg); }
-      100% { transform: rotate(1.2deg); }
-    }
+    /* ---------- 5. GÓC DƯỚI: BÔNG LÚA VÀNG ÔM NGÔI SAO ---------- */
+    .qk-corner{position:absolute;bottom:0;width:170px;height:150px;pointer-events:none;filter:drop-shadow(0 6px 14px rgba(122,20,15,.25))}
+    .qk-corner svg{display:block;width:100%;height:100%}
+    .qk-corner-left{left:-6px}
+    .qk-corner-right{right:-6px;transform:scaleX(-1)}
+    .qk-corner-wheat{animation:qkWheat 4.5s ease-in-out infinite alternate;transform-origin:10% 96%}
+    @keyframes qkWheat{0%{transform:rotate(-1.4deg)}100%{transform:rotate(1.4deg)}}
+    .qk-corner-star{transform-origin:center;animation:qkStarPulse 2.4s ease-in-out infinite alternate}
+    @keyframes qkStarPulse{from{opacity:.75;transform:scale(.95)}to{opacity:1;transform:scale(1.08)}}
   `;
   document.head.appendChild(style);
 
-  // Overlay Root Element
   const overlay = document.createElement('div');
-  overlay.id = 'qk-overlay';
+  overlay.id = 'event-overlay';
 
-  // --- 1. BUNTING: CỜ TỔ QUỐC HÌNH CHỮ NHẬT (không còn cờ tam giác) ---
-  const createFlagSVG = () => `
-    <svg class="qk-flag-pennant" width="28" height="21" viewBox="0 0 28 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <line x1="14" y1="0" x2="14" y2="3" stroke="#78350f" stroke-width="1.1"/>
-      <rect x="1" y="3" width="26" height="16" rx="0.5" fill="#da251d" stroke="#7f1d1d" stroke-width="0.8"/>
-      <polygon points="14,6 15.6,10.1 20,10.1 16.5,12.7 17.8,16.8 14,14.3 10.2,16.8 11.5,12.7 8,10.1 12.4,10.1"
-               fill="#ffcd00"/>
-    </svg>
-  `;
+  // ---------- 1. DÂY CỜ ĐỎ SAO VÀNG (hình chữ nhật, treo dọc) ----------
+  const flagSVG = (w) => `
+    <svg width="${w}" height="${Math.round(w * 1.45)}" viewBox="0 0 24 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="12" y1="0" x2="12" y2="4" stroke="#78350f" stroke-width="1.2"/>
+      <rect x="1" y="4" width="22" height="29" rx="1" fill="#da251d" stroke="#7f1d1d" stroke-width="0.8"/>
+      <polygon points="12,9.5 13.5,14.8 19,14.8 14.6,18.1 15.9,23.4 12,20.2 8.1,23.4 9.4,18.1 5,14.8 10.5,14.8" fill="#ffcd00"/>
+    </svg>`;
 
-  let buntingHTML = '<div class="qk-bunting-wrap">';
-  for (let i = 0; i < 14; i++) {
-    buntingHTML += createFlagSVG();
+  let buntingHTML = '<div class="qk-bunting">';
+  const count = 16;
+  for (let i = 0; i < count; i++) {
+    const w = 26 - (i % 4) * 2;
+    buntingHTML += `<div class="qk-flag" style="animation-delay:${(i % 7) * 0.35}s">${flagSVG(w)}</div>`;
   }
   buntingHTML += '</div>';
 
-  // --- 2. FIREWORKS ---
-  const createFireworkSVG = (color, size) => `
-    <svg width="${size}" height="${size}" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <g stroke="${color}" stroke-width="2.5" stroke-linecap="round">
-        <line x1="50" y1="50" x2="50" y2="8" />
-        <line x1="50" y1="50" x2="50" y2="92" />
-        <line x1="50" y1="50" x2="8" y2="50" />
-        <line x1="50" y1="50" x2="92" y2="50" />
-        <line x1="50" y1="50" x2="20" y2="20" />
-        <line x1="50" y1="50" x2="80" y2="20" />
-        <line x1="50" y1="50" x2="20" y2="80" />
-        <line x1="50" y1="50" x2="80" y2="80" />
+  // ---------- 2. PHÁO HOA ----------
+  const fireworkSVG = (color, size) => `
+    <svg class="qk-fw-ring" width="${size}" height="${size}" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="${color}" stroke-width="2.4" stroke-linecap="round">
+        <line x1="60" y1="60" x2="60" y2="10"/>
+        <line x1="60" y1="60" x2="60" y2="110"/>
+        <line x1="60" y1="60" x2="10" y2="60"/>
+        <line x1="60" y1="60" x2="110" y2="60"/>
+        <line x1="60" y1="60" x2="25" y2="25"/>
+        <line x1="60" y1="60" x2="95" y2="25"/>
+        <line x1="60" y1="60" x2="25" y2="95"/>
+        <line x1="60" y1="60" x2="95" y2="95"/>
+        <line x1="60" y1="60" x2="17" y2="38"/>
+        <line x1="60" y1="60" x2="103" y2="38"/>
+        <line x1="60" y1="60" x2="17" y2="82"/>
+        <line x1="60" y1="60" x2="103" y2="82"/>
+        <line x1="60" y1="60" x2="38" y2="17"/>
+        <line x1="60" y1="60" x2="38" y2="103"/>
+        <line x1="60" y1="60" x2="82" y2="17"/>
+        <line x1="60" y1="60" x2="82" y2="103"/>
       </g>
       <g fill="${color}">
-        <circle cx="50" cy="8" r="3" />
-        <circle cx="50" cy="92" r="3" />
-        <circle cx="8" cy="50" r="3" />
-        <circle cx="92" cy="50" r="3" />
-        <circle cx="20" cy="20" r="2.4" />
-        <circle cx="80" cy="20" r="2.4" />
-        <circle cx="20" cy="80" r="2.4" />
-        <circle cx="80" cy="80" r="2.4" />
+        <circle cx="60" cy="10" r="3.2"/><circle cx="60" cy="110" r="3.2"/>
+        <circle cx="10" cy="60" r="3.2"/><circle cx="110" cy="60" r="3.2"/>
+        <circle cx="25" cy="25" r="2.6"/><circle cx="95" cy="25" r="2.6"/>
+        <circle cx="25" cy="95" r="2.6"/><circle cx="95" cy="95" r="2.6"/>
+        <circle cx="17" cy="38" r="2.2"/><circle cx="103" cy="38" r="2.2"/>
+        <circle cx="17" cy="82" r="2.2"/><circle cx="103" cy="82" r="2.2"/>
+        <circle cx="38" cy="17" r="2.2"/><circle cx="38" cy="103" r="2.2"/>
+        <circle cx="82" cy="17" r="2.2"/><circle cx="82" cy="103" r="2.2"/>
       </g>
-      <circle cx="50" cy="50" r="4" fill="#fff7cc" />
-    </svg>
-  `;
+      <circle cx="60" cy="60" r="5" fill="#fff7cc"/>
+      <circle cx="60" cy="60" r="2.6" fill="#ffffff"/>
+    </svg>`;
 
-  const fireworkConfigs = [
-    { top: '22%', left: '12%', color: '#ffcd00', size: 80, duration: 3.2, delay: 0 },
-    { top: '28%', left: '82%', color: '#da251d', size: 65, duration: 2.6, delay: 1.1 },
-    { top: '18%', left: '48%', color: '#ffffff', size: 55, duration: 2.9, delay: 2.2 },
-    { top: '35%', left: '68%', color: '#ffcd00', size: 60, duration: 3.4, delay: 0.6 },
-    { top: '32%', left: '28%', color: '#da251d', size: 50, duration: 2.4, delay: 1.8 }
+  const fws = [
+    { top: '24%', left: '10%', color: '#ffcd00', size: 90, d: 3.4, delay: 0,  spin: 14 },
+    { top: '20%', left: '50%', color: '#ffffff', size: 66, d: 2.7, delay: 1.6, spin: 10 },
+    { top: '30%', left: '88%', color: '#da251d', size: 74, d: 3.0, delay: 0.8, spin: 12 },
+    { top: '42%', left: '30%', color: '#da251d', size: 56, d: 2.4, delay: 2.4, spin: 9 },
+    { top: '16%', left: '68%', color: '#ffcd00', size: 62, d: 2.9, delay: 3.2, spin: 11 }
   ];
-
-  let fireworksHTML = '';
-  fireworkConfigs.forEach(f => {
-    fireworksHTML += `
-      <div class="qk-firework" style="top:${f.top}; left:${f.left}; --fw-duration:${f.duration}s; --fw-delay:${f.delay}s;">
-        ${createFireworkSVG(f.color, f.size)}
-      </div>
-    `;
+  let fwHTML = '';
+  fws.forEach(f => {
+    fwHTML += `
+      <div class="qk-fw" style="top:${f.top};left:${f.left};--d:${f.d}s;--delay:${f.delay}s;--spin:${f.spin}s">
+        ${fireworkSVG(f.color, f.size)}
+      </div>`;
   });
 
-  // --- 3. FALLING STARS ---
-  const starConfigs = [
-    { left: 5, duration: 11, delay: 0, sway: 45, rot: 260, size: 10, color: '#ffcd00' },
-    { left: 15, duration: 9, delay: 2.5, sway: -35, rot: 300, size: 8, color: '#da251d' },
-    { left: 25, duration: 13, delay: 1, sway: 55, rot: 220, size: 11, color: '#ffcd00' },
-    { left: 35, duration: 10, delay: 4, sway: -50, rot: 330, size: 9, color: '#da251d' },
-    { left: 45, duration: 12, delay: 1.8, sway: 40, rot: 190, size: 10, color: '#ffcd00' },
-    { left: 55, duration: 9.5, delay: 3.2, sway: -60, rot: 280, size: 8, color: '#da251d' },
-    { left: 65, duration: 11.5, delay: 0.8, sway: 50, rot: 310, size: 10, color: '#ffcd00' },
-    { left: 75, duration: 14, delay: 5, sway: -40, rot: 240, size: 9, color: '#da251d' },
-    { left: 85, duration: 10.5, delay: 2, sway: 35, rot: 340, size: 11, color: '#ffcd00' },
-    { left: 92, duration: 12.5, delay: 3.6, sway: -30, rot: 200, size: 8, color: '#da251d' },
-    { left: 10, duration: 13, delay: 6, sway: 60, rot: 300, size: 9, color: '#ffcd00' },
-    { left: 30, duration: 10, delay: 4.4, sway: -55, rot: 250, size: 10, color: '#da251d' },
-    { left: 50, duration: 12, delay: 7, sway: 45, rot: 210, size: 9, color: '#ffcd00' },
-    { left: 70, duration: 9, delay: 2.2, sway: -45, rot: 350, size: 8, color: '#da251d' },
-    { left: 80, duration: 11, delay: 5.5, sway: 55, rot: 170, size: 10, color: '#ffcd00' }
+  // ---------- 3. SAO VÀNG RƠI ----------
+  const starPos = [
+    { l: 6,  d: 11,   dl: 0,   sway: 45, rot: 260, s: 12, c: '#ffcd00' },
+    { l: 14, d: 9,    dl: 2.5, sway: -35, rot: 300, s: 10, c: '#f59e0b' },
+    { l: 22, d: 13,   dl: 1,   sway: 55, rot: 220, s: 11, c: '#ffcd00' },
+    { l: 30, d: 10,   dl: 4,   sway: -50, rot: 330, s: 9,  c: '#f59e0b' },
+    { l: 38, d: 12,   dl: 1.8, sway: 40, rot: 190, s: 12, c: '#ffcd00' },
+    { l: 46, d: 9.5,  dl: 3.2, sway: -60, rot: 280, s: 10, c: '#f59e0b' },
+    { l: 54, d: 11.5, dl: 0.8, sway: 50, rot: 310, s: 11, c: '#ffcd00' },
+    { l: 62, d: 14,   dl: 5,   sway: -40, rot: 240, s: 9,  c: '#f59e0b' },
+    { l: 70, d: 10.5, dl: 2,   sway: 35, rot: 340, s: 12, c: '#ffcd00' },
+    { l: 78, d: 12.5, dl: 3.6, sway: -30, rot: 200, s: 10, c: '#f59e0b' },
+    { l: 86, d: 13,   dl: 6,   sway: 60, rot: 300, s: 11, c: '#ffcd00' },
+    { l: 93, d: 10,   dl: 4.4, sway: -55, rot: 250, s: 9,  c: '#f59e0b' },
+    { l: 10, d: 12,   dl: 7,   sway: 45, rot: 210, s: 10, c: '#ffcd00' },
+    { l: 34, d: 9,    dl: 2.2, sway: -45, rot: 350, s: 9,  c: '#f59e0b' },
+    { l: 58, d: 11,   dl: 5.5, sway: 55, rot: 170, s: 11, c: '#ffcd00' },
+    { l: 82, d: 12,   dl: 8,   sway: -35, rot: 290, s: 10, c: '#f59e0b' }
   ];
-
+  const starSVG = (size, color) => `
+    <svg width="${size}" height="${size}" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="10,0 12.5,7 20,7 14,11.5 16,19 10,14.5 4,19 6,11.5 0,7 7.5,7" fill="${color}"/>
+    </svg>`;
   let starsHTML = '';
-  starConfigs.forEach(s => {
+  starPos.forEach(s => {
     starsHTML += `
-      <div class="qk-star" style="left:${s.left}%; --fall-duration:${s.duration}s; --fall-delay:${s.delay}s; --sway-x:${s.sway}px; --rot-deg:${s.rot}deg;">
-        <svg width="${s.size}" height="${s.size}" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <polygon points="10,0 12.5,7 20,7 14,11.5 16,19 10,14.5 4,19 6,11.5 0,7 7.5,7"
-                   fill="${s.color}" fill-opacity="0.85"/>
-        </svg>
-      </div>
-    `;
+      <div class="qk-star" style="left:${s.l}%;--fall-duration:${s.d}s;--fall-delay:${s.dl}s;--sway-x:${s.sway}px;--rot-deg:${s.rot}deg">${starSVG(s.s, s.c)}</div>`;
   });
 
-  // --- 4. BOTTOM CORNERS: BÔNG LÚA VÀNG (mô-típ Quốc huy Việt Nam) ---
-  // Sinh hạt lúa dọc theo một đường cong bezier bậc 2 để tạo dáng bông lúa uốn tự nhiên
+  // ---------- 4. VẦNG SÁNG ----------
+  let glowHTML = '';
+  [{ l: '4%',  t: '12%', s: 140 }, { r: '5%', t: '16%', s: 120 }, { l: '42%', t: '6%', s: 100 }, { r: '30%', t: '70%', s: 90 }].forEach(g => {
+    glowHTML += `<div class="qk-glow" style="left:${g.l||'auto'};right:${g.r||'auto'};top:${g.t};width:${g.s}px;height:${g.s}px"></div>`;
+  });
+
+  // ---------- 5. BÔNG LÚA GÓC DƯỚI ----------
   const quadPoint = (p0, p1, p2, t) => ({
     x: (1 - t) * (1 - t) * p0.x + 2 * (1 - t) * t * p1.x + t * t * p2.x,
     y: (1 - t) * (1 - t) * p0.y + 2 * (1 - t) * t * p1.y + t * t * p2.y
@@ -268,7 +169,6 @@
     const dy = 2 * (1 - t) * (p1.y - p0.y) + 2 * t * (p2.y - p1.y);
     return (Math.atan2(dy, dx) * 180) / Math.PI;
   };
-
   const buildWheatStalk = (p0, p1, p2, grainCount, baseSize) => {
     let stemPath = `M ${p0.x} ${p0.y} Q ${p1.x} ${p1.y} ${p2.x} ${p2.y}`;
     let grains = '';
@@ -277,32 +177,15 @@
       const pos = quadPoint(p0, p1, p2, t);
       const angle = quadTangentAngle(p0, p1, p2, t);
       const size = baseSize * (1 - t * 0.55);
-      // Hai hạt lúa đối xứng hai bên thân, góc nghiêng theo tiếp tuyến đường cong
       grains += `
-        <ellipse cx="${pos.x}" cy="${pos.y}" rx="${size}" ry="${size * 0.42}"
-                 fill="url(#qkWheatGrain)" stroke="#a45c0a" stroke-width="0.4"
-                 transform="rotate(${angle - 55} ${pos.x} ${pos.y})"/>
-        <ellipse cx="${pos.x}" cy="${pos.y}" rx="${size}" ry="${size * 0.42}"
-                 fill="url(#qkWheatGrain)" stroke="#a45c0a" stroke-width="0.4"
-                 transform="rotate(${angle + 55} ${pos.x} ${pos.y})"/>
-      `;
+        <ellipse cx="${pos.x}" cy="${pos.y}" rx="${size}" ry="${size * 0.42}" fill="url(#qkWheatGrain)" stroke="#a45c0a" stroke-width="0.4" transform="rotate(${angle - 55} ${pos.x} ${pos.y})"/>
+        <ellipse cx="${pos.x}" cy="${pos.y}" rx="${size}" ry="${size * 0.42}" fill="url(#qkWheatGrain)" stroke="#a45c0a" stroke-width="0.4" transform="rotate(${angle + 55} ${pos.x} ${pos.y})"/>`;
     }
-    return `
-      <path d="${stemPath}" stroke="#e0a52e" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-      ${grains}
-    `;
+    return `<path d="${stemPath}" stroke="#e0a52e" stroke-width="1.6" fill="none" stroke-linecap="round"/>${grains}`;
   };
 
-  const wheatStalkSVG = buildWheatStalk(
-    { x: 10, y: 126 },
-    { x: 14, y: 46 },
-    { x: 118, y: 14 },
-    8,
-    8.5
-  );
-
   const cornerSceneSVG = `
-    <svg width="150" height="128" viewBox="0 0 150 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="170" height="150" viewBox="0 0 170 150" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="qkWheatGrain" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stop-color="#ffe580"/>
@@ -310,34 +193,24 @@
           <stop offset="100%" stop-color="#e0a52e"/>
         </linearGradient>
         <radialGradient id="qkCornerGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#fff3c4" stop-opacity="0.85"/>
+          <stop offset="0%" stop-color="#fff3c4" stop-opacity="0.8"/>
           <stop offset="100%" stop-color="#ffcd00" stop-opacity="0"/>
         </radialGradient>
       </defs>
-
-      <!-- Dải ruy băng đỏ buộc gốc bông lúa -->
-      <path d="M 4 122 C 20 112, 42 112, 56 122 L 60 132 C 42 124, 20 124, 2 132 Z"
-            fill="#da251d" stroke="#7f1d1d" stroke-width="0.8"/>
-
+      <path d="M 8 142 C 28 130, 52 130, 66 142 L 70 154 C 50 145, 26 145, 6 154 Z" fill="#da251d" stroke="#7f1d1d" stroke-width="0.8"/>
       <g class="qk-corner-wheat">
-        ${wheatStalkSVG}
+        ${buildWheatStalk({ x: 14, y: 146 }, { x: 20, y: 52 }, { x: 132, y: 16 }, 9, 9.5)}
       </g>
-
-      <!-- Vầng sáng + ngôi sao vàng nhỏ tựa vào gốc bông lúa -->
-      <circle cx="22" cy="108" r="26" fill="url(#qkCornerGlow)"/>
-      <g class="qk-corner-star" transform="translate(22,108)">
-        <polygon points="0,-13 3.9,-4.2 13.5,-4.2 5.8,1.8 8.9,11 0,5.4 -8.9,11 -5.8,1.8 -13.5,-4.2 -3.9,-4.2"
-                 fill="#ffcd00" stroke="#a45c0a" stroke-width="0.6"/>
+      <circle cx="26" cy="126" r="30" fill="url(#qkCornerGlow)"/>
+      <g class="qk-corner-star" transform="translate(26,126)">
+        <polygon points="0,-15 4.5,-4.8 15.6,-4.8 6.7,1.9 10.3,12.8 0,6.3 -10.3,12.8 -6.7,1.9 -15.6,-4.8 -4.5,-4.8" fill="#ffcd00" stroke="#a45c0a" stroke-width="0.6"/>
       </g>
-    </svg>
-  `;
+    </svg>`;
 
   const cornersHTML = `
-    <div class="qk-bottom-corner qk-corner-left">${cornerSceneSVG}</div>
-    <div class="qk-bottom-corner qk-corner-right">${cornerSceneSVG}</div>
-  `;
+    <div class="qk-corner qk-corner-left">${cornerSceneSVG}</div>
+    <div class="qk-corner qk-corner-right">${cornerSceneSVG}</div>`;
 
-  // Assemble HTML
-  overlay.innerHTML = buntingHTML + fireworksHTML + starsHTML + cornersHTML;
+  overlay.innerHTML = buntingHTML + fwHTML + starsHTML + glowHTML + cornersHTML;
   document.body.appendChild(overlay);
 })();

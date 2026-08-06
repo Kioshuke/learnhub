@@ -2,20 +2,20 @@
   'use strict';
 
   // Prevent duplicate instances
-  const EXISTING_OVERLAY = document.getElementById('ma-overlay');
+  const EXISTING_OVERLAY = document.getElementById('event-overlay');
   if (EXISTING_OVERLAY) {
     EXISTING_OVERLAY.remove();
   }
 
   // Inject Styles
   const style = document.createElement('style');
-  style.id = 'ma-styles';
+  style.id = 'event-overlay-styles';
   style.textContent = `
     /* Root Overlay Container */
-    #ma-overlay {
+    #event-overlay {
       position: fixed;
       inset: 0;
-      z-index: 99999;
+      z-index: 9998;
       pointer-events: none;
       overflow: hidden;
       will-change: transform;
@@ -173,12 +173,30 @@
         opacity: 0;
       }
     }
+
+    /* --- 6. LỒNG ĐÈN TREO (ĐÈN ÔNG SAO + LỒNG ĐÈN CÁ CHÉP) --- */
+    .ma-hang-lantern {
+      position: absolute;
+      top: 0;
+      transform-origin: top center;
+      filter: drop-shadow(0 6px 14px rgba(220, 38, 38, 0.35));
+      animation: maStarSwing 4s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+    .ma-hang-lantern:nth-child(even) {
+      animation-duration: 4.8s;
+      animation-direction: alternate-reverse;
+    }
+    @keyframes maStarSwing {
+      0% { transform: rotate(-6deg); }
+      100% { transform: rotate(6deg); }
+    }
   `;
   document.head.appendChild(style);
 
   // Overlay Root Element
   const overlay = document.createElement('div');
-  overlay.id = 'ma-overlay';
+  overlay.id = 'event-overlay';
 
   // --- 1. MOON ---
   const moonHTML = `
@@ -349,6 +367,59 @@
     <div class="ma-bottom-corner ma-corner-right">${cornerSceneSVG}</div>
   `;
 
+  // --- 4.5 LỒNG ĐÈN TREO (ĐÈN ÔNG SAO + LỒNG ĐÈN CÁ CHÉP) - KHÚC GIỮA ---
+  const createStarLanternSVG = (h) => `
+    <svg width="${Math.round(h * 0.56)}" height="${h}" viewBox="0 0 36 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="18" y1="0" x2="18" y2="22" stroke="#78350f" stroke-width="1.1"/>
+      <line x1="18" y1="8" x2="27" y2="8" stroke="#78350f" stroke-width="0.9"/>
+      <polygon points="18,24 24,34 36,34 27,42 30,54 18,47 6,54 9,42 0,34 12,34" fill="#dc2626" stroke="#fbbf24" stroke-width="1.3"/>
+      <circle cx="18" cy="39" r="4" fill="#fef08a"/>
+      <line x1="18" y1="54" x2="18" y2="58" stroke="#dc2626" stroke-width="1.2"/>
+      <rect x="16" y="58" width="4" height="6" rx="1" fill="#dc2626"/>
+    </svg>
+  `;
+  const createCarpLanternSVG = (i, h) => `
+    <svg width="${Math.round(h * 0.6)}" height="${h}" viewBox="0 0 60 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="maCarpLanG${i}" x1="0" y1="20" x2="0" y2="85" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#fbbf24"/>
+          <stop offset="35%" stop-color="#ef4444"/>
+          <stop offset="100%" stop-color="#b91c1c"/>
+        </linearGradient>
+      </defs>
+      <line x1="30" y1="0" x2="30" y2="14" stroke="#78350f" stroke-width="1.2"/>
+      <line x1="20" y1="14" x2="40" y2="14" stroke="#78350f" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="30" y1="16" x2="30" y2="22" stroke="#78350f" stroke-width="0.8"/>
+      <path d="M 26 26 C 26 22, 34 22, 34 26" stroke="#b45309" stroke-width="1.2" fill="none"/>
+      <path d="M 30 24 C 45 24, 53 38, 52 56 C 51 70, 43 80, 30 84 C 17 80, 9 70, 8 56 C 7 38, 15 24, 30 24 Z" fill="url(#maCarpLanG${i})" stroke="#fbbf24" stroke-width="1.4"/>
+      <circle cx="30" cy="52" r="11" fill="#fef08a" fill-opacity="0.65"/>
+      <ellipse cx="30" cy="60" rx="9" ry="11" fill="#fff" fill-opacity="0.3"/>
+      <circle cx="37" cy="35" r="2.6" fill="#fff"/>
+      <circle cx="37.8" cy="35" r="1.4" fill="#7f1d1d"/>
+      <path d="M 21 46 C 26 49, 34 49, 39 46" stroke="#b45309" stroke-width="1.1" fill="none"/>
+      <path d="M 15 48 C 8 55, 10 62, 17 57 C 19 54, 19 50, 15 48 Z" fill="#f97316" opacity="0.9"/>
+      <path d="M 45 48 C 52 55, 50 62, 43 57 C 41 54, 41 50, 45 48 Z" fill="#f97316" opacity="0.9"/>
+      <path d="M 26 80 C 16 90, 10 96, 17 94 C 21 92, 26 87, 30 90 C 34 87, 39 92, 43 94 C 50 96, 44 90, 34 80 Z" fill="url(#maCarpLanG${i})" stroke="#fbbf24" stroke-width="1"/>
+      <circle cx="30" cy="86" r="3.5" fill="#fef08a" fill-opacity="0.6"/>
+      <line x1="30" y1="92" x2="30" y2="96" stroke="#dc2626" stroke-width="1"/>
+      <rect x="28.4" y="96" width="3.2" height="4" rx="0.8" fill="#dc2626"/>
+    </svg>
+  `;
+  const hangLanternPos = [
+    { l: 16, t: 'star', h: 62 },
+    { l: 23, t: 'carp', h: 60 },
+    { l: 30, t: 'star', h: 78 },
+    { l: 37, t: 'carp', h: 70 },
+    { l: 44, t: 'star', h: 58 },
+    { l: 51, t: 'carp', h: 76 },
+    { l: 58, t: 'star', h: 82 }
+  ];
+  let hangLanternsHTML = '';
+  hangLanternPos.forEach((s, i) => {
+    const svg = s.t === 'star' ? createStarLanternSVG(s.h) : createCarpLanternSVG(i, s.h);
+    hangLanternsHTML += `<div class="ma-hang-lantern" style="left:${s.l}%;animation-delay:${(i % 4) * 0.5}s">${svg}</div>`;
+  });
+
   // --- 5. LEAVES / PETALS ---
   let leavesHTML = '';
   const leafConfigs = [
@@ -382,6 +453,6 @@
   });
 
   // Assemble HTML
-  overlay.innerHTML = moonHTML + cloudsHTML + lanternsHTML + cornersHTML + leavesHTML;
+  overlay.innerHTML = moonHTML + cloudsHTML + lanternsHTML + hangLanternsHTML + cornersHTML + leavesHTML;
   document.body.appendChild(overlay);
 })();
