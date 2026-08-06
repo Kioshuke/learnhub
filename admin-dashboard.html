@@ -552,6 +552,7 @@
       <button class="sidebar-link" data-admin-tab="overlays">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><circle cx="12" cy="10" r="3"/></svg>
         Overlay sự kiện
+        <span class="sidebar-badge" id="overlayBadge"></span>
       </button>
       <button class="sidebar-link" data-admin-tab="weeklyReset">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 6 9 6 9z"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 18 9 18 9z"/><path d="M4 22h16"/><path d="M10 22V8h4v14"/><path d="M6 22V6h4v16"/></svg>
@@ -733,6 +734,10 @@
         <select id="overlaySelect" class="select">
           <option value="">-- Không overlay --</option>
           <option value="mid-autumn">Trung thu</option>
+          <option value="vietnam-national-day">Quốc khánh Việt Nam (2/9)</option>
+          <option value="christmas">Giáng sinh (Noel)</option>
+          <option value="tet-nguyen-dan">Tết Nguyên Đán</option>
+          <option value="halloween">Halloween</option>
         </select>
       </div>
       <div style="margin:14px 0"><label class="toggle-switch"><input id="overlayEnabledInput" type="checkbox" style="display:none"><span class="toggle-slider"></span><span style="font-weight:600;font-size:14px">Bật overlay</span></label></div>
@@ -1520,10 +1525,19 @@ document.getElementById("saveMaintenanceBtn").addEventListener("click", () => {
 document.getElementById("refreshMaintenanceBtn").addEventListener("click", loadMaintenanceForm);
 
 // ================= OVERLAY =================
+function updateOverlayBadge(enabled) {
+  const badge = document.getElementById("overlayBadge");
+  if (!badge) return;
+  badge.textContent = enabled ? "On" : "Off";
+  badge.classList.add("visible");
+  badge.classList.toggle("on", Boolean(enabled));
+  badge.classList.toggle("off", !enabled);
+}
+
 function renderOverlayBanner(d) {
   const on = Boolean(d && d.enabled);
   const name = d && d.active_overlay;
-  const labels = { "mid-autumn": "Trung thu" };
+  const labels = { "mid-autumn": "Trung thu", "vietnam-national-day": "Quốc khánh Việt Nam", "christmas": "Giáng sinh", "tet-nguyen-dan": "Tết Nguyên Đán", "halloween": "Halloween" };
   if (!on || !name) {
     overlayStatusBanner.textContent = "Overlay đang tắt — Web hiển thị bình thường.";
     overlayStatusBanner.style.background = "#f0fdf4"; overlayStatusBanner.style.color = "#166534";
@@ -1533,6 +1547,7 @@ function renderOverlayBanner(d) {
     overlayStatusBanner.style.background = "#dbeafe"; overlayStatusBanner.style.color = "#1e40af";
     overlayStatusBanner.style.border = "1px solid #bfdbfe";
   }
+  updateOverlayBadge(on);
 }
 
 async function loadOverlayForm() {
