@@ -77,8 +77,8 @@
 fetch('header.html').then(r=>r.text()).then(html=>{
   document.getElementById('lh-header-placeholder').innerHTML = html;
   const active = document.getElementById('lh-header-placeholder').dataset.active;
-  const map = {'home':'index.html','flash':'flashcard/hub.html','forum':'forum.html','phong-hoc':'phong-hoc.html'};
-  const reverseMap = {'index.html':'home','flashcard/hub.html':'flash','forum.html':'forum','phong-hoc.html':'phong-hoc'};
+  const map = {'home':'index.html','flash':'flashcard/hub.html','forum':'forum.html','tai-lieu':'tai-lieu/hub.html','phong-hoc':'phong-hoc.html'};
+  const reverseMap = {'index.html':'home','flashcard/hub.html':'flash','forum.html':'forum','tai-lieu/hub.html':'tai-lieu','phong-hoc.html':'phong-hoc'};
   document.querySelectorAll('.nav-link').forEach(a => {
     if(a.getAttribute('href') === map[active]) a.classList.add('active');
     a.addEventListener('click', function(e){
@@ -114,6 +114,12 @@ fetch('header.html').then(r=>r.text()).then(html=>{
         <h3>Smart Flashcard</h3>
         <p>Học từ vựng siêu tốc với 4 chế độ: Ghép Thẻ, Blast, Điền từ và Chiến Thần cùng kho từ vựng đa dạng.</p>
         <span class="feature-link">Khám phá ngay <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
+      <a class="feature-card" href="tai-lieu/hub.html" data-open="tai-lieu" style="--feat-color:#0891b2;">
+        <div class="feature-icon">📚</div>
+        <h3>Thư viện Tài liệu</h3>
+        <p>Tổng hợp tài liệu, đề kiểm tra và bài giảng từ Google Drive, file trực tiếp và nhiều kho lưu trữ, có tìm kiếm nhanh theo tên.</p>
+        <span class="feature-link">Xem ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
       <a class="feature-card" href="forum.html" data-open="forum" style="--feat-color:#16a34a;">
         <div class="feature-icon">💬</div>
@@ -232,9 +238,10 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 
 <button id="tabScrollTopBtn" type="button" aria-label="Cuộn lên đầu">↑</button>
 
-<!-- ===== IFRAME TABS: flash, forum, phong-hoc ===== -->
+<!-- ===== IFRAME TABS: flash, forum, tai-lieu, phong-hoc ===== -->
 <div id="flash" style="display:none;width:100%;margin:0;padding:0;"><iframe id="flashHubFrame" src="flashcard/hub.html" style="width:100%;height:100vh;border:none;"></iframe></div>
 <div id="forum" style="display:none;width:100%;margin:0;padding:0;"><iframe id="forumFrame" src="forum.html" style="width:100%;height:100vh;border:none;"></iframe></div>
+<div id="tai-lieu" style="display:none;width:100%;margin:0;padding:0;"><iframe id="taiLieuFrame" src="tai-lieu/hub.html" style="width:100%;height:100vh;border:none;"></iframe></div>
 <div id="phong-hoc" style="display:none;width:100%;margin:0;padding:0;"><iframe id="phongHocFrame" src="phong-hoc.html" style="width:100%;height:100vh;border:none;"></iframe></div>
 
 <div id="quiz"></div>
@@ -758,7 +765,7 @@ if(user){
       photo: userData.photoURL,
       displayName: userData.displayName
     };
-    ["forumFrame","flashHubFrame","phongHocFrame"].forEach(function(id){
+    ["forumFrame","flashHubFrame","taiLieuFrame","phongHocFrame"].forEach(function(id){
       var f = document.getElementById(id);
       if(f && f.contentWindow){
         try { f.contentWindow.postMessage({ type:"LEARNHUB_USER", user:window.currentLearnHubUser }, "*"); } catch(e){}
@@ -769,7 +776,7 @@ if(user){
   sendUserToAllFrames();
 
   // Re-send user when any iframe finishes loading
-  ["forumFrame","flashHubFrame","phongHocFrame"].forEach(function(id){
+  ["forumFrame","flashHubFrame","taiLieuFrame","phongHocFrame"].forEach(function(id){
     var f = document.getElementById(id);
     if(f) f.onload = function(){ sendUserToAllFrames(); };
   });

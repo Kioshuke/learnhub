@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<body>
+<div id="lh-header-placeholder" data-active="home"></div>
+<div id="flash" style="display:none"><iframe id="flashHubFrame"></iframe></div>
+<div id="forum" style="display:none"><iframe id="forumFrame"></iframe></div>
+<div id="tai-lieu" style="display:none"><iframe id="taiLieuFrame"></iframe></div>
+<div id="phong-hoc" style="display:none"><iframe id="phongHocFrame"></iframe></div>
+<script>
+// === replicate the EXACT inline header script from index.html ===
+fetch('header.html').then(r=>r.text()).then(html=>{
+  document.getElementById('lh-header-placeholder').innerHTML = html;
+  const active = document.getElementById('lh-header-placeholder').dataset.active;
+  const map = {'home':'index.html','flash':'flashcard/hub.html','forum':'forum.html','tai-lieu':'tai-lieu/hub.html','phong-hoc':'phong-hoc.html'};
+  const reverseMap = {'index.html':'home','flashcard/hub.html':'flash','forum.html':'forum','tai-lieu/hub.html':'tai-lieu','phong-hoc.html':'phong-hoc'};
+  document.querySelectorAll('.nav-link').forEach(a => {
+    if(a.getAttribute('href') === map[active]) a.classList.add('active');
+    a.addEventListener('click', function(e){
+      var href = this.getAttribute('href');
+      var tab = reverseMap[href];
+      if(tab){
+        e.preventDefault();
+        if(typeof show === 'function') show(tab);
+      }
+    });
+  });
+});
+</script>
+<script src="script.js" defer></script>
+<script>
+setTimeout(function(){
+  var link = document.querySelector('a[href="tai-lieu/hub.html"]');
+  if(!link){ document.body.dataset.result = 'NO_TL_LINK'; document.body.dataset.navCount = document.querySelectorAll('.nav-link').length; return; }
+  var ev = new MouseEvent('click', {cancelable:true, bubbles:true});
+  link.dispatchEvent(ev);
+  var tl = document.getElementById('tai-lieu');
+  document.body.dataset.result = (tl && tl.style.display === 'block') ? 'IFRAME_SHOWN' : 'NOT_SHOWN';
+  document.body.dataset.navCount = document.querySelectorAll('.nav-link').length;
+  document.body.dataset.hasShow = (typeof show === 'function') ? 'yes' : 'no';
+}, 900);
+</script>
+</body>
+</html>

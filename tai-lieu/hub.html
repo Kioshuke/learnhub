@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thư viện Tài liệu - LearnHub</title>
+  <link rel="icon" href="../pictures/favicon.png" sizes="any">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
+  <style>
+    :root {
+      --primary: #0891b2;
+      --primary-dark: #0e7490;
+      --primary-soft: rgba(8, 145, 178, 0.12);
+      --primary-border: rgba(8, 145, 178, 0.35);
+      --glass: rgba(255, 255, 255, 0.82);
+      --line: rgba(148, 163, 184, 0.35);
+      --text-main: #0f172a;
+      --text-sub: #475569;
+      --panel: #ffffff;
+      --panel-soft: #f8fbff;
+      --shadow: 0 12px 30px rgba(8, 47, 73, 0.08);
+      --shadow-hover: 0 18px 42px rgba(8, 47, 73, 0.15);
+      --badge-drive: #1a73e8;
+      --badge-direct: #16a34a;
+      --badge-storage: #7c3aed;
+      --radius: 16px;
+    }
+
+    body.dark-mode {
+      --glass: rgba(15, 23, 42, 0.82);
+      --line: rgba(148, 163, 184, 0.22);
+      --text-main: #e2e8f0;
+      --text-sub: #94a3b8;
+      --panel: #1e293b;
+      --panel-soft: #0f172a;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+      --shadow-hover: 0 18px 42px rgba(0, 0, 0, 0.5);
+      --primary-soft: rgba(8, 145, 178, 0.2);
+      --primary-border: rgba(8, 145, 178, 0.5);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(8, 145, 178, 0.12), transparent 28%),
+        radial-gradient(circle at 88% 16%, rgba(37, 99, 235, 0.12), transparent 30%),
+        radial-gradient(circle at 72% 86%, rgba(16, 185, 129, 0.1), transparent 32%),
+        linear-gradient(135deg, #f2fbfe 0%, #f8fbff 45%, #f4fdf9 100%);
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    body.dark-mode {
+      background:
+        radial-gradient(circle at 12% 8%, rgba(8, 145, 178, 0.16), transparent 28%),
+        radial-gradient(circle at 88% 16%, rgba(37, 99, 235, 0.14), transparent 30%),
+        radial-gradient(circle at 72% 86%, rgba(16, 185, 129, 0.12), transparent 32%),
+        linear-gradient(135deg, #0b1220 0%, #0f172a 45%, #0a1a16 100%);
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 18px 48px;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      text-align: center;
+      margin-bottom: 22px;
+      padding: 26px 22px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--glass);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 7px;
+      background: linear-gradient(180deg, #0891b2, #2563eb, #16a34a);
+    }
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4.2vw, 44px);
+      letter-spacing: 0.3px;
+      color: var(--primary);
+    }
+    .hero p {
+      margin: 0 auto;
+      max-width: 760px;
+      color: var(--text-sub);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    /* ===== TOOLBAR ===== */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .search {
+      flex: 1 1 320px;
+      position: relative;
+    }
+    .search .fa-magnifying-glass {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      pointer-events: none;
+    }
+    .search input {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      background: var(--panel);
+      color: var(--text-main);
+      border-radius: 14px;
+      padding: 13px 16px 13px 42px;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      box-shadow: 0 6px 16px rgba(8, 47, 73, 0.07);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .search input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      flex: 1 1 100%;
+    }
+    .chip {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text-sub);
+      border-radius: 999px;
+      padding: 8px 15px;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .chip:hover { border-color: var(--primary); color: var(--primary); }
+    .chip.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .result-count {
+      margin-left: auto;
+      font-size: 13px;
+      color: var(--text-sub);
+      font-weight: 600;
+    }
+
+    /* ===== CARDS GRID ===== */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 16px;
+    }
+    .doc-card {
+      border: 1px solid var(--line);
+      background: var(--glass);
+      border-radius: var(--radius);
+      padding: 18px 18px 16px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+      position: relative;
+      overflow: hidden;
+      animation: cardIn 0.35s ease both;
+    }
+    .doc-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--primary-border);
+    }
+    .doc-card.active {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-soft), var(--shadow-hover);
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .doc-card-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .file-ico {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 8px 16px rgba(15, 23, 42, 0.16);
+    }
+    .doc-card h3 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.35;
+      font-weight: 700;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .doc-card p.desc {
+      margin: 0 0 14px;
+      color: var(--text-sub);
+      font-size: 13.5px;
+      line-height: 1.55;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .doc-card-bottom {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      line-height: 1;
+    }
+    .tag-cat { background: var(--primary-soft); color: var(--primary); }
+    .tag-src {
+      margin-left: auto;
+      color: #fff;
+    }
+    .tag-src.drive { background: var(--badge-drive); }
+    .tag-src.direct { background: var(--badge-direct); }
+    .tag-src.storage { background: var(--badge-storage); }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-sub);
+      border: 2px dashed var(--line);
+      border-radius: var(--radius);
+      background: var(--glass);
+    }
+    .empty-state .fa-folder-open { font-size: 48px; margin-bottom: 14px; color: var(--primary); }
+    .empty-state h3 { margin: 0 0 6px; color: var(--text-main); }
+
+    /* ===== DETAIL VIEW ===== */
+    .detail-view {
+      margin-top: 24px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--glass);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+      animation: detailIn 0.35s ease both;
+    }
+    @keyframes detailIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .detail-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel-soft);
+    }
+    .detail-head .file-ico { width: 42px; height: 42px; font-size: 19px; }
+    .detail-head h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+    .detail-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text-main);
+      font-size: 17px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+    .detail-close:hover {
+      background: #fee2e2;
+      border-color: #f87171;
+      color: #b91c1c;
+    }
+    .detail-body {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      min-height: 520px;
+    }
+    /* LEFT: chi tiết file (preview) */
+    .detail-preview {
+      position: relative;
+      background: #0f172a;
+      border-right: 1px solid var(--line);
+      min-height: 520px;
+    }
+    .detail-preview iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #fff;
+    }
+    .detail-spinner {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #94a3b8;
+      font-size: 14px;
+      gap: 10px;
+    }
+    .detail-spinner .spinner {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 4px solid rgba(148, 163, 184, 0.3);
+      border-top-color: var(--primary);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .detail-fallback {
+      position: absolute;
+      inset: 0;
+      display: none;
+      place-items: center;
+      text-align: center;
+      color: #e2e8f0;
+      padding: 30px;
+    }
+    .detail-fallback .fa-file { font-size: 56px; margin-bottom: 14px; color: #38bdf8; }
+    .detail-fallback p { max-width: 380px; line-height: 1.6; }
+    /* RIGHT: thông tin */
+    .detail-info {
+      padding: 20px 22px;
+      background: var(--panel-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .detail-info .d-desc {
+      margin: 0;
+      color: var(--text-sub);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .meta-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .meta-list li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13.5px;
+    }
+    .meta-list .m-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+    .meta-list .m-label { color: var(--text-sub); font-weight: 600; min-width: 74px; }
+    .meta-list .m-value { font-weight: 600; word-break: break-word; }
+    .detail-actions {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 14.5px;
+      font-weight: 700;
+      font-family: inherit;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 8px 18px var(--primary-soft);
+    }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+    .btn-ghost {
+      background: var(--panel);
+      border-color: var(--line);
+      color: var(--text-main);
+    }
+    .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+    .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+    .toast {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 50;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .detail-body {
+        grid-template-columns: 1fr;
+      }
+      .detail-preview {
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+        min-height: 46vh;
+      }
+      .detail-preview iframe { position: static; display: block; height: 46vh; }
+    }
+    @media (max-width: 480px) {
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="hero">
+    <h1><i class="fa-solid fa-book-open"></i> Thư viện Tài liệu</h1>
+    <p>Tổng hợp tài liệu ôn tập, đề kiểm tra và bài giảng từ Google Drive, file trực tiếp và nhiều kho lưu trữ khác. Nhấn vào một thẻ để xem chi tiết file.</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="search" id="searchInput" placeholder="Tìm kiếm tên file..." autocomplete="off">
+    </div>
+    <div class="chips" id="categoryChips"></div>
+    <span class="result-count" id="resultCount"></span>
+  </div>
+
+  <div id="cardsGrid" class="cards-grid"></div>
+
+  <div id="emptyState" class="empty-state" style="display:none;">
+    <div class="fa-solid fa-folder-open"></div>
+    <h3>Không tìm thấy tài liệu</h3>
+    <p>Thử thay đổi từ khóa tìm kiếm hoặc chọn nhóm khác.</p>
+  </div>
+
+  <section class="detail-view" id="detailView" style="display:none;">
+    <div class="detail-head">
+      <div class="doc-card-top" style="margin:0;">
+        <span class="file-ico" id="detailIco"><i class="fa-solid fa-file"></i></span>
+        <h2 id="detailName"></h2>
+      </div>
+      <button class="detail-close" type="button" title="Đóng chi tiết" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-preview">
+        <div class="detail-spinner" id="detailSpinner">
+          <div class="spinner"></div>
+          <span>Đang tải file...</span>
+        </div>
+        <iframe id="detailFrame" title="Xem trước tài liệu" allowfullscreen></iframe>
+        <div class="detail-fallback" id="detailFallback">
+          <div>
+            <div class="fa-solid fa-file"></div>
+            <h3 style="margin:0 0 8px;">Không thể xem trước trong trình duyệt</h3>
+            <p>Loại file này không hỗ trợ nhúng xem trước. Vui lòng nhấn <b>Mở file gốc</b> ở khung bên phải.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="detail-info">
+        <p class="d-desc" id="detailDesc"></p>
+        <ul class="meta-list">
+          <li><span class="m-icon"><i class="fa-solid fa-tag"></i></span><span class="m-label">Nhóm</span><span class="m-value" id="detailCategory"></span></li>
+          <li><span class="m-icon"><i class="fa-solid fa-link"></i></span><span class="m-label">Nguồn</span><span class="m-value" id="detailSource"></span></li>
+          <li><span class="m-icon"><i class="fa-solid fa-file-arrow-down"></i></span><span class="m-label">Kích thước</span><span class="m-value" id="detailSize"></span></li>
+          <li><span class="m-icon"><i class="fa-solid fa-calendar-days"></i></span><span class="m-label">Ngày đăng</span><span class="m-value" id="detailDate"></span></li>
+          <li><span class="m-icon"><i class="fa-solid fa-user"></i></span><span class="m-label">Người đăng</span><span class="m-value" id="detailAuthor"></span></li>
+        </ul>
+        <div class="detail-actions">
+          <a class="btn btn-primary" id="openBtn" target="_blank" rel="noopener"><i class="fa-solid fa-up-right-from-square"></i> Mở file gốc</a>
+          <button class="btn btn-ghost" type="button" onclick="copyLink()"><i class="fa-solid fa-copy"></i> Sao chép liên kết</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="tailieu-data.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var data = (window.TAI_LIEU_DATA || []).slice();
+
+  var searchInput = document.getElementById("searchInput");
+  var chipsEl = document.getElementById("categoryChips");
+  var gridEl = document.getElementById("cardsGrid");
+  var emptyEl = document.getElementById("emptyState");
+  var countEl = document.getElementById("resultCount");
+  var detailView = document.getElementById("detailView");
+  var frame = document.getElementById("detailFrame");
+  var spinner = document.getElementById("detailSpinner");
+  var fallback = document.getElementById("detailFallback");
+
+  var state = { q: "", cat: "all", activeId: null, activeDoc: null };
+
+  var SOURCE_LABEL = { drive: "Google Drive", direct: "File trực tiếp", storage: "Kho lưu trữ" };
+
+  var EXT_ICON = {
+    pdf:  { icon: "fa-solid fa-file-pdf",   bg: "#ef4444" },
+    doc:  { icon: "fa-solid fa-file-word",  bg: "#2563eb" },
+    docx: { icon: "fa-solid fa-file-word",  bg: "#2563eb" },
+    xls:  { icon: "fa-solid fa-file-excel", bg: "#16a34a" },
+    xlsx: { icon: "fa-solid fa-file-excel", bg: "#16a34a" },
+    ppt:  { icon: "fa-solid fa-file-powerpoint", bg: "#ea580c" },
+    pptx: { icon: "fa-solid fa-file-powerpoint", bg: "#ea580c" },
+    mp4:  { icon: "fa-solid fa-file-video", bg: "#7c3aed" },
+    webm: { icon: "fa-solid fa-file-video", bg: "#7c3aed" },
+    mov:  { icon: "fa-solid fa-file-video", bg: "#7c3aed" },
+    mp3:  { icon: "fa-solid fa-file-audio", bg: "#0891b2" },
+    wav:  { icon: "fa-solid fa-file-audio", bg: "#0891b2" },
+    png:  { icon: "fa-solid fa-file-image", bg: "#d97706" },
+    jpg:  { icon: "fa-solid fa-file-image", bg: "#d97706" },
+    jpeg: { icon: "fa-solid fa-file-image", bg: "#d97706" },
+    gif:  { icon: "fa-solid fa-file-image", bg: "#d97706" },
+    webp: { icon: "fa-solid fa-file-image", bg: "#d97706" },
+    svg:  { icon: "fa-solid fa-file-image", bg: "#d97706" },
+    zip:  { icon: "fa-solid fa-file-zipper", bg: "#475569" },
+    rar:  { icon: "fa-solid fa-file-zipper", bg: "#475569" }
+  };
+
+  var EMBEDDABLE = ["pdf", "png", "jpg", "jpeg", "gif", "webp", "svg", "mp4", "webm", "mov", "mp3", "wav", "ogg", "txt", "csv", "html", "htm"];
+
+  function extOf(url) {
+    var u = String(url || "");
+    var name = "";
+    try { name = decodeURIComponent(u.split("?")[0].split("#")[0]); } catch (e) { name = u.split("?")[0]; }
+    var m = name.match(/\.([a-zA-Z0-9]+)$/);
+    return m ? m[1].toLowerCase() : "";
+  }
+
+  function fileStyle(doc) {
+    var ext = extOf(doc.url);
+    var style = EXT_ICON[ext];
+    if (!style) style = { icon: "fa-solid fa-file", bg: "#64748b" };
+    return style;
+  }
+
+  function toDrivePreview(u) {
+    var m = u.match(/\/(?:file\/d|document\/d|spreadsheets\/d|presentation\/d)\/([a-zA-Z0-9_-]+)/);
+    if (m) return "https://drive.google.com/file/d/" + m[1] + "/preview";
+    m = u.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (m) return "https://drive.google.com/file/d/" + m[1] + "/preview";
+    return u;
+  }
+
+  function buildEmbedUrl(doc) {
+    var u = String(doc.url || "").trim();
+    if (!u) return "";
+    if (doc.type === "drive") return toDrivePreview(u);
+    return u;
+  }
+
+  function isHttp(u) { return /^https?:\/\//i.test(u); }
+
+  function canEmbed(doc) {
+    var u = String(doc.url || "");
+    if (doc.type === "drive") return true;
+    var ext = extOf(u);
+    if (EMBEDDABLE.indexOf(ext) !== -1) return true;
+    return false;
+  }
+
+  function sourceTag(doc) {
+    return '<span class="tag tag-src ' + escapeAttr(doc.type || "storage") + '">' + escapeHtml(SOURCE_LABEL[doc.type] || "Khác") + '</span>';
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function escapeAttr(s) {
+    return String(s == null ? "" : s).replace(/"/g, "&quot;");
+  }
+
+  function renderChips() {
+    var cats = ["all"];
+    data.forEach(function (d) {
+      if (d.category && cats.indexOf(d.category) === -1) cats.push(d.category);
+    });
+    chipsEl.innerHTML = "";
+    cats.forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip" + (state.cat === c ? " active" : "");
+      b.textContent = c === "all" ? "Tất cả" : c;
+      b.dataset.cat = c;
+      b.addEventListener("click", function () {
+        state.cat = c;
+        renderChips();
+        renderGrid();
+      });
+      chipsEl.appendChild(b);
+    });
+  }
+
+  function filteredDocs() {
+    var q = state.q.trim().toLowerCase();
+    return data.filter(function (d) {
+      if (state.cat !== "all" && d.category !== state.cat) return false;
+      if (!q) return true;
+      return String(d.name || "").toLowerCase().indexOf(q) !== -1 ||
+             String(d.description || "").toLowerCase().indexOf(q) !== -1;
+    });
+  }
+
+  function renderGrid() {
+    var list = filteredDocs();
+    gridEl.innerHTML = "";
+    countEl.textContent = list.length + " tài liệu";
+    emptyEl.style.display = list.length ? "none" : "block";
+
+    list.forEach(function (doc, i) {
+      var st = fileStyle(doc);
+      var card = document.createElement("div");
+      card.className = "doc-card" + (state.activeId === doc.id ? " active" : "");
+      card.style.animationDelay = Math.min(i, 12) * 40 + "ms";
+      card.innerHTML =
+        '<div class="doc-card-top">' +
+          '<span class="file-ico" style="background:' + st.bg + ';"><i class="' + st.icon + '"></i></span>' +
+          '<h3>' + escapeHtml(doc.name) + '</h3>' +
+        '</div>' +
+        '<p class="desc">' + escapeHtml(doc.description) + '</p>' +
+        '<div class="doc-card-bottom">' +
+          '<span class="tag tag-cat">' + escapeHtml(doc.category || "Chung") + '</span>' +
+          sourceTag(doc) +
+        '</div>';
+      card.addEventListener("click", function () { openDetail(doc); });
+      gridEl.appendChild(card);
+    });
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById("toast");
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function () { t.classList.remove("show"); }, 2200);
+  }
+
+  function openDetail(doc) {
+    state.activeId = doc.id;
+    state.activeDoc = doc;
+    document.querySelectorAll(".doc-card").forEach(function (c) { c.classList.remove("active"); });
+    var match = null;
+    gridEl.querySelectorAll(".doc-card").forEach(function (c) {
+      if (c.textContent.indexOf(doc.name) !== -1) { match = c; }
+    });
+    if (match) match.classList.add("active");
+
+    var st = fileStyle(doc);
+    document.getElementById("detailIco").style.background = st.bg;
+    document.getElementById("detailIco").innerHTML = '<i class="' + st.icon + '"></i>';
+    document.getElementById("detailName").textContent = doc.name;
+    document.getElementById("detailDesc").textContent = doc.description || "Chưa có mô tả.";
+    document.getElementById("detailCategory").textContent = doc.category || "Chung";
+    document.getElementById("detailSource").textContent = SOURCE_LABEL[doc.type] || "Khác";
+    document.getElementById("detailSize").textContent = doc.size || "—";
+    document.getElementById("detailDate").textContent = doc.date || "—";
+    document.getElementById("detailAuthor").textContent = doc.author || "—";
+
+    var openBtn = document.getElementById("openBtn");
+    openBtn.href = doc.url || "#";
+    openBtn.dataset.url = doc.url || "";
+
+    var embed = buildEmbedUrl(doc);
+    var embeddable = canEmbed(doc) && embed;
+
+    frame.removeAttribute("src");
+    spinner.style.display = "grid";
+    fallback.style.display = "none";
+
+    if (embeddable) {
+      frame.style.display = "block";
+      frame.setAttribute("src", embed);
+      frame.onload = function () { spinner.style.display = "none"; };
+      setTimeout(function () { if (spinner.style.display !== "none") spinner.style.display = "none"; }, 12000);
+    } else {
+      frame.style.display = "none";
+      spinner.style.display = "none";
+      fallback.style.display = "grid";
+    }
+
+    detailView.style.display = "block";
+    detailView.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  window.closeDetail = function () {
+    state.activeId = null;
+    state.activeDoc = null;
+    frame.removeAttribute("src");
+    document.querySelectorAll(".doc-card").forEach(function (c) { c.classList.remove("active"); });
+    detailView.style.display = "none";
+  };
+
+  window.copyLink = function () {
+    var url = state.activeDoc && state.activeDoc.url;
+    if (!url) return;
+    var done = function () { showToast("Đã sao chép liên kết!"); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(done).catch(function () { fallbackCopy(url, done); });
+    } else {
+      fallbackCopy(url, done);
+    }
+  };
+
+  function fallbackCopy(text, done) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); done(); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+
+  searchInput.addEventListener("input", function () {
+    state.q = searchInput.value;
+    renderGrid();
+  });
+
+  renderChips();
+  renderGrid();
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    if (event.data.type === "DARK_MODE") {
+      document.body.classList.toggle("dark-mode", !!event.data.value);
+    }
+    if (event.data.type === "LEARNHUB_USER") {
+      window.learnHubUser = event.data.user;
+    }
+  });
+
+  if (localStorage.getItem("darkMode") === "on") {
+    document.body.classList.add("dark-mode");
+  }
+})();
+</script>
+</body>
+</html>

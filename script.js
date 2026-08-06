@@ -113,10 +113,10 @@ function closeQuiz(){
     });
   }, 100); // delay nhẹ cho mượt
 }
-const allTabs = ["home", "flash", "forum", "phong-hoc"];
-const iframeTabIds = {"flash":"flashHubFrame","forum":"forumFrame","phong-hoc":"phongHocFrame"};
-const navMap = {'home':'index.html','flash':'flashcard/hub.html','forum':'forum.html','phong-hoc':'phong-hoc.html'};
-const reverseNavMap = {'index.html':'home','flashcard/hub.html':'flash','forum.html':'forum','phong-hoc.html':'phong-hoc'};
+const allTabs = ["home", "flash", "forum", "tai-lieu", "phong-hoc"];
+const iframeTabIds = {"flash":"flashHubFrame","forum":"forumFrame","tai-lieu":"taiLieuFrame","phong-hoc":"phongHocFrame"};
+const navMap = {'home':'index.html','flash':'flashcard/hub.html','forum':'forum.html','tai-lieu':'tai-lieu/hub.html','phong-hoc':'phong-hoc.html'};
+const reverseNavMap = {'index.html':'home','flashcard/hub.html':'flash','forum.html':'forum','tai-lieu/hub.html':'tai-lieu','phong-hoc.html':'phong-hoc'};
 
 function sendUserToFrame(frame){
   if(!frame || !frame.contentWindow) return;
@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function(){
         if(typeof openLeaderboardModal === 'function') openLeaderboardModal();
         return;
       }
-      if(open === 'phong-hoc' || open === 'flash' || open === 'forum'){
+      if(open === 'phong-hoc' || open === 'flash' || open === 'forum' || open === 'tai-lieu'){
         if(typeof show === 'function') show(open);
       }
     });
@@ -202,7 +202,7 @@ function updateTabScrollTopBtn(){
   const btn = document.getElementById("tabScrollTopBtn");
   if(!btn) return;
   const isHome = currentTab === "home";
-  if(!isHome && currentTab !== "flash" && currentTab !== "forum"){
+  if(!isHome && currentTab !== "flash" && currentTab !== "forum" && currentTab !== "tai-lieu"){
     btn.style.display = "none";
     return;
   }
@@ -210,8 +210,8 @@ function updateTabScrollTopBtn(){
   let scrolled = isHome ? window.scrollY > 200 : window.scrollY > 20;
 
   if(!isHome){
-    const frameId = currentTab === "flash" ? "flashHubFrame" : "forumFrame";
-    const frame = document.getElementById(frameId);
+    const frameId = iframeTabIds[currentTab] || "";
+    const frame = frameId ? document.getElementById(frameId) : null;
     if(frame && frame.contentWindow){
       try {
         scrolled = frame.contentWindow.scrollY > 20 || window.scrollY > 20;
@@ -264,6 +264,7 @@ function bindFrameScrollWatcher(frameId){
 
 bindFrameScrollWatcher("flashHubFrame");
 bindFrameScrollWatcher("forumFrame");
+bindFrameScrollWatcher("taiLieuFrame");
 bindFrameScrollWatcher("phongHocFrame");
 
 function attachFrameWheelHandoff(frameId){
@@ -317,6 +318,7 @@ function attachFrameWheelHandoff(frameId){
 
 attachFrameWheelHandoff("forumFrame");
 attachFrameWheelHandoff("flashHubFrame");
+attachFrameWheelHandoff("taiLieuFrame");
 attachFrameWheelHandoff("phongHocFrame");
 
 const popup = document.getElementById("popup");
@@ -712,6 +714,7 @@ const toggle = document.getElementById("darkModeToggle");
 const darkModeFrames = [
     document.getElementById("forumFrame"),
     document.getElementById("flashHubFrame"),
+    document.getElementById("taiLieuFrame"),
     document.getElementById("phongHocFrame"),
     document.getElementById("chatbotFrame")
 ].filter(Boolean);
