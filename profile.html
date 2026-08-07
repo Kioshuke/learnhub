@@ -347,10 +347,12 @@
 <div class="w-full flex flex-col gap-3">
 
     <!-- HEADER (full-bleed sát mép trên) -->
-    <div class="lh-header w-full flex items-center justify-between gap-3 px-3 sm:px-5 py-2.5">
-        <button onclick="history.back()" class="lh-header-btn text-sm font-semibold text-white/90 hover:text-white">
-            <i class="fas fa-arrow-left text-xs"></i> <span class="hidden sm:inline">Quay lại</span>
-        </button>
+    <div class="lh-header w-full grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-3 sm:px-5 py-2.5">
+        <div class="flex items-center justify-start min-w-0">
+            <button onclick="history.back()" class="lh-header-btn text-sm font-semibold text-white/90 hover:text-white">
+                <i class="fas fa-arrow-left text-xs"></i> <span class="hidden sm:inline">Quay lại</span>
+            </button>
+        </div>
         <div class="flex items-center gap-3 min-w-0">
             <img src="pictures/favicon.png" alt="LearnHub" class="w-8 h-8 rounded-lg shadow-md bg-white object-contain">
             <div class="min-w-0">
@@ -358,9 +360,11 @@
                 <p class="text-xs sm:text-sm text-white/75 font-medium truncate">LearnHub Platform · Hệ sinh thái học tập</p>
             </div>
         </div>
-        <button onclick="openSettingsModal()" class="lh-header-btn w-8 h-8 rounded-full items-center justify-center text-white/90 hover:bg-white/15 hover:text-white">
-            <i class="fas fa-cog text-sm"></i>
-        </button>
+        <div class="flex items-center justify-end min-w-0">
+            <button id="settings-btn" onclick="openSettingsModal()" class="lh-header-btn w-8 h-8 rounded-full items-center justify-center text-white/90 hover:bg-white/15 hover:text-white">
+                <i class="fas fa-cog text-sm"></i>
+            </button>
+        </div>
     </div>
 
     <div class="w-full px-2 sm:px-4 pb-5 sm:pb-7">
@@ -1083,7 +1087,7 @@
                     applyRoleBadgeStyle(finalRole);
 
                     // Ẩn nút settings khi xem profile người khác
-                    const settingsBtn = document.querySelector('button[onclick="openSettingsModal()"]');
+                    const settingsBtn = document.getElementById('settings-btn');
                     if (settingsBtn) settingsBtn.style.display = 'none';
 
                     // Load stats của user đang xem
@@ -1158,7 +1162,7 @@
                     }
 
                     // Hiển thị nút settings khi xem profile của mình
-                    const settingsBtn = document.querySelector('button[onclick="openSettingsModal()"]');
+                    const settingsBtn = document.getElementById('settings-btn');
                     if (settingsBtn) settingsBtn.style.display = 'flex';
 
                     // Load stats của chính mình

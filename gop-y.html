@@ -4,9 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <title>Góp ý ý kiến - LearnHub</title>
-  
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script type="text/javascript">
      (function(){
@@ -15,288 +17,186 @@
   </script>
 
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #ffffff;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-      box-sizing: border-box;
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family:'Inter','Segoe UI',system-ui,sans-serif;
+      background:#f6f8ff;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      -webkit-font-smoothing:antialiased;
+      color:#1e293b;
+      overflow-x:hidden;
+      scrollbar-width:none;
+    }
+    body::-webkit-scrollbar{width:0;height:0}
+
+    /* ===== BLOBS NỀN (đồng bộ vibe web chính) ===== */
+    .bg-blobs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .bg-blobs span{position:absolute;border-radius:50%;filter:blur(46px);opacity:.18;animation:floaty 14s ease-in-out infinite alternate}
+    .bg-blobs span:nth-child(1){width:220px;height:220px;background:#c7d2fe;top:-60px;left:-60px}
+    .bg-blobs span:nth-child(2){width:180px;height:180px;background:#c7d2fe;bottom:-50px;right:-50px;animation-delay:3s}
+    .bg-blobs span:nth-child(3){width:140px;height:140px;background:#c7d2fe;top:42%;right:18px;animation-delay:6s}
+    @keyframes floaty{from{transform:translateY(0) scale(1)}to{transform:translateY(22px) scale(1.06)}}
+
+    .feedback-container{
+      position:relative;
+      z-index:1;
+      width:100%;
+      max-width:480px;
+      padding:30px 26px 26px;
+      box-sizing:border-box;
     }
 
-    .feedback-container {
-      background: #ffffff;
-      width: 100%;
-      max-width: 480px;
-      padding: 32px 28px 24px 28px;
-      position: relative;
-      box-sizing: border-box;
+    /* ===== HEADER ===== */
+    .feedback-header{margin-bottom:20px}
+    .feedback-head-row{display:flex;align-items:center;gap:12px}
+    .feedback-badge{
+      width:44px;height:44px;flex-shrink:0;
+      border-radius:13px;
+      background:#2563eb;
+      display:flex;align-items:center;justify-content:center;
+      color:#fff;font-size:17px;
+      box-shadow:0 8px 18px rgba(37,99,235,.28);
+    }
+    .feedback-head-row h2{
+      font-size:19px;font-weight:900;letter-spacing:-.02em;line-height:1.2;
+      color:#2563eb;
+    }
+    .feedback-head-row p{margin-top:2px;color:#64748b;font-size:12.5px;font-weight:500;line-height:1.5}
+
+    /* ===== FORM GROUP ===== */
+    .form-group{margin-bottom:16px;display:flex;flex-direction:column;gap:7px}
+    .form-group label{font-size:12px;font-weight:700;color:#475569;letter-spacing:.02em}
+    .required{color:#ef4444;margin-left:3px}
+
+    .form-group input,
+    .form-group textarea{
+      width:100%;padding:11px 14px;
+      border:1px solid #e2e8f0;border-radius:12px;
+      font-size:14px;color:#1e293b;background:#fff;
+      outline:none;font-family:inherit;box-sizing:border-box;
+      transition:all .18s ease;
+      box-shadow:0 1px 2px rgba(15,23,42,.04);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder{color:#a0aec0}
+    .form-group input[readonly]{
+      background:#eef2f7;color:#475569;cursor:not-allowed;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus{
+      border-color:#2563eb;
+      box-shadow:0 0 0 4px rgba(37,99,235,.14),0 1px 2px rgba(15,23,42,.04);
+    }
+    .form-group textarea{resize:none;height:96px;line-height:1.5}
+
+    /* ===== CUSTOM SELECT ===== */
+    .custom-select-wrapper{position:relative;user-select:none;width:100%}
+    .real-select{display:none}
+    .select-trigger{
+      padding:11px 40px 11px 14px;
+      border:1px solid #e2e8f0;border-radius:12px;
+      font-size:14px;color:#a0aec0;background:#fff;
+      cursor:pointer;display:flex;align-items:center;
+      transition:all .18s ease;position:relative;
+      box-sizing:border-box;width:100%;
+      box-shadow:0 1px 2px rgba(15,23,42,.04);
+    }
+    .select-trigger.has-value{color:#1e293b;font-weight:600}
+    .select-trigger:after{
+      content:"\f107";
+      font-family:"Font Awesome 6 Free";font-weight:900;
+      position:absolute;right:16px;top:50%;transform:translateY(-50%);
+      color:#64748b;font-size:14px;transition:transform .2s ease;
+    }
+    .custom-select-wrapper.open .select-trigger{
+      border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.14);
+    }
+    .custom-select-wrapper.open .select-trigger:after{transform:translateY(-50%) rotate(180deg)}
+
+    .custom-options{
+      position:absolute;top:calc(100% + 6px);left:0;right:0;
+      background:#fff;border:1px solid #e2e8f0;border-radius:14px;
+      box-shadow:0 20px 40px -12px rgba(15,23,42,.18),0 6px 14px -6px rgba(15,23,42,.08);
+      z-index:99;opacity:0;visibility:hidden;pointer-events:none;
+      transform:translateY(6px);
+      transition:opacity .15s ease,transform .15s ease,visibility .15s;
+      will-change:opacity,transform;
+      padding:6px;box-sizing:border-box;
+    }
+    .custom-select-wrapper.open .custom-options{
+      opacity:1;visibility:visible;pointer-events:auto;
+      transform:translateY(0);
+    }
+    .custom-option{
+      padding:10px 12px;cursor:pointer;border-radius:9px;
+      font-size:14px;color:#334155;transition:background-color .12s ease,color .12s ease;
+      display:flex;align-items:center;gap:9px;
+    }
+    .custom-option:hover{background:#eff6ff;color:#2563eb}
+    .custom-option.selected{
+      background:#dbeafe;color:#2563eb;font-weight:700;
+    }
+    .custom-option.selected:after{
+      content:"\f00c";font-family:"Font Awesome 6 Free";font-weight:900;
+      margin-left:auto;font-size:12px;
     }
 
-    .feedback-container::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 6px;
-      background: linear-gradient(90deg, #0066cc, #3b82f6, #8b5cf6);
+    /* ===== SUBMIT ===== */
+    .btn-submit{
+      width:100%;padding:13px;
+      background:#2563eb;
+      color:#fff;border:none;border-radius:12px;
+      font-size:14.5px;font-weight:700;font-family:inherit;
+      cursor:pointer;transition:all .2s ease;
+      display:flex;justify-content:center;align-items:center;gap:9px;
+      margin-top:20px;
+      box-shadow:0 8px 20px rgba(37,99,235,.3);
+    }
+    .btn-submit:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(37,99,235,.4)}
+    .btn-submit:active{transform:translateY(0)}
+    .btn-submit:disabled{background:#cbd5e1;color:#94a3b8;cursor:not-allowed;box-shadow:none;transform:none}
+
+    /* ===== ERROR ===== */
+    .error-message{
+      display:none;padding:11px;border-radius:10px;font-size:13px;
+      text-align:center;margin-top:12px;font-weight:600;
+      background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;
     }
 
-    .feedback-header {
-      text-align: center;
-      margin-bottom: 24px;
+    /* ===== SUCCESS ===== */
+    .success-container{display:none;text-align:center;padding:56px 10px;animation:scaleIn .4s cubic-bezier(.34,1.56,.64,1) forwards}
+    .success-icon{
+      width:86px;height:86px;margin:0 auto 20px;
+      border-radius:50%;
+      background:#dbeafe;
+      display:flex;align-items:center;justify-content:center;
+      color:#2563eb;font-size:40px;
+      box-shadow:0 0 0 8px rgba(37,99,235,.1),0 12px 28px rgba(37,99,235,.18);
+      animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;
     }
+    @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+    .success-title{font-size:22px;font-weight:900;color:#0f172a;letter-spacing:-.02em;margin-bottom:10px}
+    .success-text{color:#64748b;font-size:14px;line-height:1.65}
 
-    .feedback-header h2 {
-      margin: 0 0 6px 0;
-      color: #1e293b;
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-
-    .feedback-header p {
-      margin: 0;
-      color: #64748b;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .form-group label {
-      font-size: 13px;
-      font-weight: 600;
-      color: #475569;
-    }
-
-    .required {
-      color: #ef4444;
-      margin-left: 3px;
-    }
-
-    .form-group input, 
-    .form-group textarea {
-      padding: 11px 14px;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      font-size: 14px;
-      color: #1e293b;
-      background-color: #ffffff;
-      outline: none;
-      transition: all 0.15s ease;
-      font-family: inherit;
-      box-sizing: border-box;
-      width: 100%;
-    }
-
-    .form-group input:focus, 
-    .form-group textarea:focus {
-      border-color: #0066cc;
-      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
-    }
-
-    /* --- HỆ THỐNG CUSTOM SELECT CAO CẤP --- */
-    .custom-select-wrapper {
-      position: relative;
-      user-select: none;
-      width: 100%;
-    }
-
-    /* Ẩn thẻ select thật đi nhưng vẫn giữ để gửi dữ liệu form */
-    .real-select {
-      display: none;
-    }
-
-    /* Ô hiển thị select giả được custom bằng CSS */
-    .select-trigger {
-      padding: 11px 40px 11px 14px;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      font-size: 14px;
-      color: #94a3b8; /* Màu mờ mặc định placeholder */
-      background-color: #ffffff;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      transition: all 0.15s ease;
-      position: relative;
-      box-sizing: border-box;
-      width: 100%;
-    }
-
-    .select-trigger.has-value {
-      color: #1e293b; /* Đổi màu chữ đậm khi đã chọn */
-    }
-
-    .select-trigger:after {
-      content: "\f107";
-      font-family: "Font Awesome 6 Free";
-      font-weight: 900;
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #64748b;
-      font-size: 15px;
-      transition: transform 0.2s ease;
-    }
-
-    /* Trạng thái khi đang mở danh sách */
-    .custom-select-wrapper.open .select-trigger {
-      border-color: #0066cc;
-      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
-    }
-
-    .custom-select-wrapper.open .select-trigger:after {
-      transform: translateY(-50%) rotate(180deg); /* Mũi tên quay ngược lên */
-    }
-
-    /* Khung chứa danh sách các option tự tạo - Bo góc, đổ bóng sang xịn mịn */
-    .custom-options {
-      position: absolute;
-      display: block;
-      top: calc(100% + 6px);
-      left: 0;
-      right: 0;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-      z-index: 99;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-10px);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      padding: 6px;
-      box-sizing: border-box;
-    }
-
-    /* Hiển thị mượt mà khi thêm class open */
-    .custom-select-wrapper.open .custom-options {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-
-    /* Từng item option bên trong dropdown */
-    .custom-option {
-      padding: 10px 12px;
-      cursor: pointer;
-      border-radius: 8px;
-      font-size: 14px;
-      color: #334155;
-      transition: all 0.15s ease;
-      display: flex;
-      align-items: center;
-    }
-
-    .custom-option:hover {
-      background-color: #f1f5f9;
-      color: #0066cc;
-    }
-
-    .custom-option.selected {
-      background-color: #e0f2fe;
-      color: #0369a1;
-      font-weight: 600;
-    }
-
-    .form-group textarea {
-      resize: none;
-      height: 95px;
-    }
-
-    .btn-submit {
-      width: 100%;
-      padding: 12px;
-      background: #0066cc;
-      color: #ffffff;
-      border: none;
-      border-radius: 10px;
-      font-size: 14.5px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      margin-top: 20px;
-    }
-
-    .btn-submit:hover {
-      background: #0052a3;
-    }
-
-    .btn-submit:disabled {
-      background: #cbd5e1;
-      color: #94a3b8;
-      cursor: not-allowed;
-    }
-
-    .success-container {
-      display: none;
-      text-align: center;
-      padding: 50px 10px;
-      animation: scaleIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    }
-
-    .success-icon {
-      font-size: 56px;
-      color: #10b981;
-      margin-bottom: 18px;
-    }
-
-    .success-title {
-      font-size: 22px;
-      color: #1e293b;
-      margin: 0 0 10px 0;
-      font-weight: 700;
-    }
-
-    .success-text {
-      color: #64748b;
-      font-size: 14px;
-      line-height: 1.6;
-      margin: 0;
-    }
-
-    .error-message {
-      display: none;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 13px;
-      text-align: center;
-      margin-top: 12px;
-      font-weight: 600;
-      background-color: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fca5a5;
-    }
-
-    @keyframes scaleIn {
-      from { transform: scale(0.95); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
+    @keyframes scaleIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
   </style>
 </head>
 <body>
+  <div class="bg-blobs"><span></span><span></span><span></span></div>
 
   <div class="feedback-container" id="container-box">
     <div id="form-wrapper">
       <div class="feedback-header">
-        <h2>Góp ý ý kiến</h2>
-        <p>Ý kiến của bạn giúp LearnHub hoàn thiện hơn mỗi ngày.</p>
+        <div class="feedback-head-row">
+          <div class="feedback-badge"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          <div>
+            <h2>Góp ý ý kiến</h2>
+            <p>Ý kiến của bạn giúp LearnHub hoàn thiện hơn mỗi ngày.</p>
+          </div>
+        </div>
       </div>
 
       <form id="lh-feedback-form" novalidate>
@@ -312,7 +212,7 @@
 
         <div class="form-group">
           <label for="feedback_type">Bạn muốn góp ý về điều gì?<span class="required">*</span></label>
-          
+
           <div class="custom-select-wrapper">
             <select id="feedback_type" name="feedback_type" required class="real-select">
               <option value="" disabled selected>-- Chọn danh mục --</option>
@@ -321,9 +221,9 @@
               <option value="Đề xuất nội dung">📚 Đề xuất nội dung học tập</option>
               <option value="Ý kiến khác">💡 Ý kiến đóng góp khác</option>
             </select>
-            
+
             <div class="select-trigger" id="custom-trigger">-- Chọn danh mục --</div>
-            
+
             <div class="custom-options">
               <div class="custom-option" data-value="Báo lỗi hệ thống">🐛 Báo lỗi tính năng / Hệ thống</div>
               <div class="custom-option" data-value="Góp ý giao diện">🎨 Góp ý giao diện / UI-UX</div>
@@ -342,7 +242,7 @@
           <i class="fa-solid fa-paper-plane"></i> Gửi ý kiến
         </button>
       </form>
-      
+
       <div id="error-box" class="error-message"></div>
     </div>
 
@@ -409,7 +309,7 @@
     const submitBtn = document.getElementById('btn-text');
 
     form.addEventListener('submit', function(event) {
-      event.preventDefault(); 
+      event.preventDefault();
 
       // Kiểm tra xem đã chọn danh mục chưa (Vì dùng select giả nên check thủ công)
       if (!realSelect.value) {
@@ -420,11 +320,11 @@
 
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
-      errorBox.style.display = 'none'; 
+      errorBox.style.display = 'none';
 
-      const serviceID = 'service_7ku42kd'; 
-      const adminTemplateID = 'template_hkba0sf'; 
-      const userTemplateID = 'template_yx6vfty';   
+      const serviceID = 'service_7ku42kd';
+      const adminTemplateID = 'template_hkba0sf';
+      const userTemplateID = 'template_yx6vfty';
 
       const sendToAdmin = emailjs.sendForm(serviceID, adminTemplateID, this);
       const sendToUser = emailjs.sendForm(serviceID, userTemplateID, this);
@@ -445,6 +345,48 @@
           errorBox.innerText = '😓 Đã có lỗi xảy ra. Vui lòng kiểm tra lại!';
           console.log(JSON.stringify(err));
         });
+    });
+  </script>
+
+  <script type="module">
+    import { supabase } from "./supabase-config.js";
+
+    // Tự động điền email (và tên) của user đang đăng nhập vào form góp ý.
+    // Session Supabase nằm trong localStorage chung cùng nguồn gốc, nên iframe
+    // này đọc được trực tiếp mà không cần parent gửi tín hiệu.
+    (async function () {
+      try {
+        const { data } = await supabase.auth.getSession();
+        const session = data?.session;
+        if (!session?.user?.email) return;
+
+        const emailInput = document.getElementById('user_email');
+        const nameInput = document.getElementById('user_name');
+        if (emailInput) {
+          emailInput.value = session.user.email;
+          emailInput.readOnly = true;
+        }
+        if (nameInput && !nameInput.value.trim()) {
+          const meta = session.user.user_metadata || {};
+          nameInput.value = meta.name || meta.full_name || '';
+        }
+      } catch (e) {
+        console.log("[gop-y] Không lấy được session:", e);
+      }
+    })();
+
+    // Dự phòng: nhận tín hiệu từ parent nếu parent chủ động gửi email user.
+    window.addEventListener("message", (event) => {
+      const d = event.data;
+      if (d && d.type === "LEARNHUB_FEEDBACK_USER" && d.email) {
+        const emailInput = document.getElementById('user_email');
+        if (emailInput && !emailInput.value) {
+          emailInput.value = String(d.email);
+          emailInput.readOnly = true;
+        }
+        const nameInput = document.getElementById('user_name');
+        if (d.name && nameInput && !nameInput.value.trim()) nameInput.value = String(d.name);
+      }
     });
   </script>
 
