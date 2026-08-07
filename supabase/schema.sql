@@ -53,11 +53,14 @@ create table if not exists public.test_stats (
   total_tests int not null default 0,
   total_score double precision not null default 0,
   best_score  double precision not null default 0,
+  total_videos int not null default 0,
   week_key    text,
   created_at  timestamptz,
   last_played timestamptz,
   updated_at  timestamptz
 );
+
+alter table public.test_stats add column if not exists total_videos int not null default 0;
 
 create table if not exists public.maintenance_settings (
   id         boolean primary key default true check (id),

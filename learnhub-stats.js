@@ -35,6 +35,7 @@ function camelStats(row) {
     totalTests: Number(row.total_tests || 0),
     totalScore: Number(row.total_score || 0),
     bestScore: Number(row.best_score || 0),
+    totalVideos: Number(row.total_videos || 0),
     weekKey: row.week_key ?? null,
     createdAt: row.created_at,
     lastPlayed: row.last_played,
@@ -62,6 +63,7 @@ export async function createUserStats(user) {
         total_tests: isNewWeek ? 0 : Number(existing.total_tests || 0),
         total_score: isNewWeek ? 0 : Number(existing.total_score || 0),
         best_score: isNewWeek ? 0 : Number(existing.best_score || 0),
+        total_videos: isNewWeek ? 0 : Number(existing.total_videos || 0),
         week_key: currentWeek,
         updated_at: nowIso()
       };
@@ -74,6 +76,7 @@ export async function createUserStats(user) {
       total_tests: 0,
       total_score: 0,
       best_score: 0,
+      total_videos: 0,
       week_key: currentWeek,
       created_at: nowIso(),
       last_played: nowIso(),
@@ -100,8 +103,8 @@ export async function updateUserStats(uid, score, options = {}) {
     return false;
   }
 
-  // countAsTest=false (chế độ video): chỉ cộng điểm, không tính là "bài đã làm",
-  // không đụng best_score (chỉ áp cho điểm bài thi).
+  // countAsTest=false (chế độ video): chỉ cộng điểm và tăng số video đã xem,
+  // không tính là "bài đã làm", không đụng best_score (chỉ áp cho điểm bài thi).
   const countAsTest = options.countAsTest !== false;
 
   try {
@@ -119,6 +122,7 @@ export async function updateUserStats(uid, score, options = {}) {
 
     const totalTests = (isNewWeek ? 0 : Number(currentData.total_tests || 0)) + (countAsTest ? 1 : 0);
     const totalScore = (isNewWeek ? 0 : Number(currentData.total_score || 0)) + numericScore;
+    const totalVideos = (isNewWeek ? 0 : Number(currentData.total_videos || 0)) + (countAsTest ? 0 : 1);
     const bestScore = countAsTest
       ? (isNewWeek ? numericScore : Math.max(Number(currentData.best_score || 0), numericScore))
       : (isNewWeek ? 0 : Number(currentData.best_score || 0));
@@ -127,6 +131,7 @@ export async function updateUserStats(uid, score, options = {}) {
       total_tests: totalTests,
       total_score: totalScore,
       best_score: bestScore,
+      total_videos: totalVideos,
       week_key: currentWeek,
       updated_at: nowIso()
     };
@@ -175,6 +180,7 @@ export async function loadUserStats(uid, fallbackUser = null) {
       totalTests: statsRow ? Number(statsRow.total_tests || 0) : 0,
       totalScore: statsRow ? Number(statsRow.total_score || 0) : 0,
       bestScore: statsRow ? Number(statsRow.best_score || 0) : 0,
+      totalVideos: statsRow ? Number(statsRow.total_videos || 0) : 0,
       weekKey: statsRow ? (statsRow.week_key ?? null) : null
     };
   } catch (e) {
