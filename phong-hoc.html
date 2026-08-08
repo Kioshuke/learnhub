@@ -220,6 +220,10 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
 .grammar-sidebar-item .watched-tick{display:none;margin-left:auto;color:#16a34a;font-size:14px;}
 .grammar-sidebar-item.watched .watched-tick{display:inline-block;}
 .grammar-sidebar-item.active .watched-tick{color:#fff;}
+.grammar-sidebar-item.math-pending{opacity:0.55;cursor:default;pointer-events:none;}
+.grammar-sidebar-item.math-pending:hover{background:transparent;color:var(--text-sub);}
+.grammar-sidebar-item.math-pending .math-pending-tag{margin-left:auto;flex-shrink:0;}
+.math-pending-tag{font-size:10px;font-weight:700;line-height:1;padding:3px 7px;border-radius:20px;background:rgba(245,158,11,0.12);color:#d97706;white-space:nowrap;}
 @media (max-width:768px){
   .grammar-player-content{flex-direction:column;}
   .grammar-sidebar{flex:0 0 auto;align-self:stretch;border-radius:12px;}
@@ -860,11 +864,14 @@ function loadMathPlayer(el) {
           '<ul class="grammar-sidebar-list">' +
             '<li class="grammar-sidebar-item math-sidebar-item active" data-video="2H-XDZ3lB6g" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B1: Giới hạn hàm số</li>' +
             '<li class="grammar-sidebar-item math-sidebar-item" data-video="_cljZgXg2WM" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B2: Giới hạn hàm số (tiếp)</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item" data-video="ZRYN2Bhi6p4" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Luyện tập giới hạn hàm số</li>' +
             '<li class="grammar-sidebar-item math-sidebar-item" data-video="uxFFDiWAOYQ" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B3: Một số dạng hàm số quan trọng</li>' +
             '<li class="grammar-sidebar-item math-sidebar-item" data-video="ZfaqXVhJEh4" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B4: Đại lượng vô cùng bé - vô cùng lớn</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="VuFcNmS4myw" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B5: PP L\'Hospital - giới hạn hàm số mũ</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="ZRYN2Bhi6p4" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B6: Luyện tập giới hạn hàm số</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item" data-video="RUbMStw8tJs" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B5: Các tiêu chuẩn tồn tại giới hạn dãy số</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item math-pending"><i class="fas fa-hourglass-half"></i> B6: Dãy số theo kiểu quy nạp<span class="math-pending-tag">Chưa có video</span></li>' +
             '<li class="grammar-sidebar-item math-sidebar-item" data-video="n6VxD511CLM" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B7: Dãy số - Giới hạn dãy số</li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item math-pending"><i class="fas fa-hourglass-half"></i> B8: Mệnh đề và các phép toán mệnh đề<span class="math-pending-tag">Chưa có video</span></li>' +
+            '<li class="grammar-sidebar-item math-sidebar-item" data-video="VuFcNmS4myw" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B9: PP L\'Hospital - giới hạn hàm số mũ</li>' +
             '<li class="grammar-sidebar-item math-sidebar-item" data-pdf="cauhoi/Gi%E1%BB%9Bi%20h%E1%BA%A1n%20h%C3%A0m%20s%E1%BB%91%20-%20Nh%E1%BA%ADp%20m%C3%B4n%20bu%E1%BB%95i%201%20-%20Live-%C4%91%C3%A3%20g%E1%BB%99p.pdf" onclick="switchSidebarPdf(this)"><i class="fas fa-file-pdf"></i> Tài liệu giải tích 1</li>' +
           '</ul>' +
         '</div>' +
