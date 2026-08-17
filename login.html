@@ -1211,7 +1211,6 @@ isRegistrationOpen().then(ok => {
   if (!ok) {
     document.querySelectorAll('#loginBox .auth-tab[data-auth-tab="register"]').forEach(el => {
       el.style.opacity = "0.45";
-      el.style.pointerEvents = "none";
       el.title = "Đăng ký đang đóng";
     });
     const gBtn = document.querySelector('#authLoginPanel .auth-login-btn:not(.auth-login-btn--soon)');
