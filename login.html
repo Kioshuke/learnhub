@@ -1205,16 +1205,16 @@ try {
 } catch(e) { console.error("Maintenance check error:", e); }
 
 let registrationOpen = true;
-try {
-  registrationOpen = await isRegistrationOpen();
-  if (!registrationOpen) {
+isRegistrationOpen().then(ok => {
+  registrationOpen = ok;
+  if (!ok) {
     document.querySelectorAll('#loginBox .auth-tab[data-auth-tab="register"]').forEach(el => {
       el.style.opacity = "0.45";
       el.style.pointerEvents = "none";
       el.title = "Đăng ký đang đóng";
     });
   }
-} catch(e) { console.error("Registration check error:", e); }
+}).catch(e => console.error("Registration check error:", e));
 
 // Lắng nghe realtime: bật → redirect maintenance.html, tắt → redirect login.html
 try {
