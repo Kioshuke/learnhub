@@ -101,6 +101,33 @@ export async function emailAllowed(email) {
   return false;
 }
 
+// ---------- REGISTRATION TOGGLE ----------
+let _regCache = { result: null, ts: 0 };
+const REG_CACHE_TTL = 30000;
+
+export async function isRegistrationOpen() {
+  const now = Date.now();
+  if (_regCache.result !== null && (now - _regCache.ts) < REG_CACHE_TTL) {
+    return _regCache.result;
+  }
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const { data, error } = await supabase.rpc("is_registration_open");
+      if (error) throw error;
+      const ok = data === true;
+      _regCache = { result: ok, ts: now };
+      return ok;
+    } catch (e) {
+      console.warn("[supabase-helpers] isRegistrationOpen retry " + (attempt + 1) + ":", e.message || e);
+      if (attempt === 0) await new Promise(r => setTimeout(r, 1500));
+    }
+  }
+  if (_regCache.result !== null && (now - _regCache.ts) < REG_CACHE_TTL) {
+    return _regCache.result;
+  }
+  return true; // default: open
+}
+
 // ---------- SESSION ----------
 
 export async function getSession() {

@@ -1178,7 +1178,7 @@
 
 <script type="module">
 import { supabase } from "./supabase-config.js";
-import { getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, finalizeSession } from "./supabase-helpers.js";
+import { getMaintenance, subscribeMaintenance, emailAllowed, isRegistrationOpen, getUserRow, onAuthChange, finalizeSession } from "./supabase-helpers.js";
 import { redirectToResetPage, isPasswordRecovery } from "./reset-password.js";
 import { logAppError } from "./log-errors.js";
 
@@ -1203,6 +1203,18 @@ try {
     console.log("[MAINTENANCE] Maintenance is disabled, staying on login.html");
   }
 } catch(e) { console.error("Maintenance check error:", e); }
+
+let registrationOpen = true;
+try {
+  registrationOpen = await isRegistrationOpen();
+  if (!registrationOpen) {
+    document.querySelectorAll('#loginBox .auth-tab[data-auth-tab="register"]').forEach(el => {
+      el.style.opacity = "0.45";
+      el.style.pointerEvents = "none";
+      el.title = "Đăng ký đang đóng";
+    });
+  }
+} catch(e) { console.error("Registration check error:", e); }
 
 // Lắng nghe realtime: bật → redirect maintenance.html, tắt → redirect login.html
 try {
@@ -1877,6 +1889,12 @@ window.emailRegister = async function() {
   if (invalid) {
     if (focusId) { shakeAuthBox(focusId); document.getElementById(focusId).focus(); }
     showAuthNotice("Vui lòng kiểm tra lại thông tin", "error", "Thiếu thông tin");
+    return;
+  }
+  if (!registrationOpen && !await emailAllowed(email)) {
+    logAppError({ source: "login", category: "whitelist", level: "warning", code: "REG_CLOSED", message: "Đăng ký bị đóng, email không nằm trong whitelist.", email: email });
+    setFieldError("registerEmail", "Đăng ký hiện đang đóng");
+    showAuthNotice("Đăng ký hiện đang đóng. Vui lòng liên hệ admin nếu bạn cần tài khoản.", "error", "Đăng ký bị đóng");
     return;
   }
   if (!await emailAllowed(email)) {

@@ -63,6 +63,15 @@ create table if not exists public.test_stats (
 
 alter table public.test_stats add column if not exists total_videos int not null default 0;
 
+-- Registration toggle: admin bật/tắt đăng ký, whitelist vẫn bypass được.
+create table if not exists public.registration_settings (
+  id         boolean primary key default true check (id),
+  enabled    boolean not null default true,
+  message    text not null default 'Đăng ký hiện đang đóng. Vui lòng liên hệ admin.',
+  updated_at timestamptz,
+  updated_by text
+);
+
 create table if not exists public.maintenance_settings (
   id         boolean primary key default true check (id),
   enabled    boolean not null default false,
@@ -209,6 +218,7 @@ alter table public.forum_events enable row level security;
 alter table public.schedule_settings enable row level security;
 alter table public.watched_videos enable row level security;
 alter table public.error_logs enable row level security;
+alter table public.registration_settings enable row level security;
 
 -- ============================== FUNCTIONS & TRIGGERS ==============================
 
@@ -246,6 +256,21 @@ $$;
 -- authenticated cần cho guard whitelist.
 revoke execute on function public.is_email_allowed(text) from public;
 grant execute on function public.is_email_allowed(text) to anon, authenticated;
+
+-- Kiểm tra đăng ký có đang mở không (login.html gọi khi chưa đăng nhập).
+create or replace function public.is_registration_open()
+returns boolean
+language sql stable security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select enabled from public.registration_settings where id = true),
+    true
+  );
+$$;
+
+revoke execute on function public.is_registration_open() from public;
+grant execute on function public.is_registration_open() to anon, authenticated;
 
 -- Tự tạo dòng users khi có user Supabase mới (Google / email) đăng ký/đăng nhập lần đầu.
 -- Dùng `on conflict do nothing` (không chỉ định cột) để bỏ qua trường hợp trùng email.
@@ -485,6 +510,19 @@ create policy maintenance_select_anon on public.maintenance_settings
 
 drop policy if exists maintenance_write_admin on public.maintenance_settings;
 create policy maintenance_write_admin on public.maintenance_settings
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+-- Registration toggle: admin bật/tắt đăng ký, login.html đọc khi chưa login (anon).
+drop policy if exists registration_select on public.registration_settings;
+create policy registration_select on public.registration_settings
+  for select to authenticated using (true);
+
+drop policy if exists registration_select_anon on public.registration_settings;
+create policy registration_select_anon on public.registration_settings
+  for select to anon using (true);
+
+drop policy if exists registration_write_admin on public.registration_settings;
+create policy registration_write_admin on public.registration_settings
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 drop policy if exists weekly_reset_select on public.weekly_reset;
