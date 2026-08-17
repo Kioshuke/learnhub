@@ -1102,40 +1102,6 @@ window.addEventListener("message", async (event) => {
   }
 });
 
-// ================= OVERLAY (event decorations) =================
-function eventOverlayEnabled(){
-  return localStorage.getItem("cc_overlay") !== "off";
-}
-function removeEventOverlay(){
-  document.querySelectorAll("#event-overlay").forEach(function(el){ el.remove(); });
-  document.querySelectorAll("style").forEach(function(el){
-    if((el.textContent || "").indexOf("#event-overlay") !== -1) el.remove();
-  });
-}
-async function loadActiveOverlay() {
-  try {
-    if(!eventOverlayEnabled()) return;
-    const { data } = await supabase
-      .from("overlay_settings").select("active_overlay, enabled")
-      .eq("id", true).maybeSingle();
-    if (data && data.enabled && data.active_overlay) {
-      const s = document.createElement("script");
-      s.src = `overlays/${data.active_overlay}.js`;
-      document.body.appendChild(s);
-    }
-  } catch(e) { console.error("Overlay load error:", e); }
-}
-window.reloadEventOverlay = function(){
-  removeEventOverlay();
-  if(eventOverlayEnabled()) loadActiveOverlay();
-};
-loadActiveOverlay();
-
-supabase.channel("overlay-realtime")
-  .on("postgres_changes", { event: "*", schema: "public", table: "overlay_settings" }, () => {
-    location.reload();
-  })
-  .subscribe();
 </script>
 <div id="lh-footer-placeholder"></div>
 <script>
@@ -1210,13 +1176,6 @@ fetch('footer.html').then(r => r.text()).then(html => {
             <span class="cc-row-desc">Giúp mượt hơn (tự bật trên điện thoại).</span>
           </span>
           <span class="cc-switch"><input type="checkbox" id="ccReduceToggle"><span class="cc-thumb"></span></span>
-        </label>
-        <label class="cc-row">
-          <span class="cc-row-text">
-            <span class="cc-row-label"><span class="cc-row-icon">🎉</span> Trang trí sự kiện</span>
-            <span class="cc-row-desc">Ẩn overlay trang trí ngày lễ (Tết, Giáng sinh...).</span>
-          </span>
-          <span class="cc-switch"><input type="checkbox" id="ccOverlayToggle"><span class="cc-thumb"></span></span>
         </label>
       </div>
 

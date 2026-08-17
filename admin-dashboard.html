@@ -550,11 +550,6 @@
         Bảo trì hệ thống
         <span class="sidebar-badge" id="maintenanceBadge"></span>
       </button>
-      <button class="sidebar-link" data-admin-tab="overlays">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><circle cx="12" cy="10" r="3"/></svg>
-        Overlay sự kiện
-        <span class="sidebar-badge" id="overlayBadge"></span>
-      </button>
       <button class="sidebar-link" data-admin-tab="weeklyReset">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 6 9 6 9z"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 18 9 18 9z"/><path d="M4 22h16"/><path d="M10 22V8h4v14"/><path d="M6 22V6h4v16"/></svg>
         BXH &amp; Reset tuần
@@ -735,28 +730,6 @@
         <button class="btn btn-soft" id="refreshMaintenanceBtn">Làm mới</button>
       </div>
       <p class="panel-desc" id="maintenanceMeta" style="margin-top:12px;margin-bottom:0"></p>
-    </section>
-
-    <!-- OVERLAY TAB -->
-    <section class="panel tab-panel hidden" id="overlaysTabPanel">
-      <div class="panel-head"><div><div class="panel-title">Overlay sự kiện</div><div class="panel-desc" style="margin-bottom:0">Hiển thị overlay trang trí theo sự kiện (Trung thu, Halloween...). Web vẫn tương tác bình thường bên dưới.</div></div></div>
-      <div id="overlayStatusBanner" style="border-radius:var(--r-sm);padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:13px">Đang tải trạng thái...</div>
-      <div class="field-row" style="margin-top:0">
-        <select id="overlaySelect" class="select">
-          <option value="">-- Không overlay --</option>
-          <option value="mid-autumn">Trung thu</option>
-          <option value="vietnam-national-day">Quốc khánh Việt Nam (2/9)</option>
-          <option value="christmas">Giáng sinh (Noel)</option>
-          <option value="tet-nguyen-dan">Tết Nguyên Đán</option>
-          <option value="halloween">Halloween</option>
-        </select>
-      </div>
-      <div style="margin:14px 0"><label class="toggle-switch"><input id="overlayEnabledInput" type="checkbox" style="display:none"><span class="toggle-slider"></span><span style="font-weight:600;font-size:14px">Bật overlay</span></label></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-primary" id="saveOverlayBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Lưu &amp; áp dụng</button>
-        <button class="btn btn-soft" id="refreshOverlayBtn">Làm mới</button>
-      </div>
-      <p class="panel-desc" id="overlayMeta" style="margin-top:12px;margin-bottom:0"></p>
     </section>
 
     <!-- WEEKLY RESET + LEADERBOARD TAB -->
@@ -982,11 +955,6 @@ const maintenanceEnabledInput = document.getElementById("maintenanceEnabledInput
 const maintenanceMessageInput = document.getElementById("maintenanceMessageInput");
 const maintenanceStatusBanner = document.getElementById("maintenanceStatusBanner");
 const maintenanceMeta = document.getElementById("maintenanceMeta");
-const overlaysTabPanel = document.getElementById("overlaysTabPanel");
-const overlaySelect = document.getElementById("overlaySelect");
-const overlayEnabledInput = document.getElementById("overlayEnabledInput");
-const overlayStatusBanner = document.getElementById("overlayStatusBanner");
-const overlayMeta = document.getElementById("overlayMeta");
 const renameTabPanel = document.getElementById("renameTabPanel");
 const renameSearchInput = document.getElementById("renameSearchInput");
 const renameListBody = document.getElementById("renameListBody");
@@ -1023,7 +991,6 @@ const pageTitles = {
   welcomePopup: ["Popup chào mừng", "Chỉnh popup hiển thị sau khi user đăng nhập."],
   ticker: ["Dòng chữ chạy", "Chỉnh nội dung và tốc độ dòng chữ chạy trên cùng web chính."],
   maintenance: ["Bảo trì hệ thống", "Bật/tắt chế độ bảo trì toàn hệ thống."],
-  overlays: ["Overlay sự kiện", "Bật/tắt overlay trang trí theo sự kiện trên web chính."],
   weeklyReset: ["BXH & Reset tuần", "Bảng xếp hạng học viên và reset điểm theo tuần."],
   schedule: ["Lịch học & thi", "Chỉnh lịch học và lịch thi hiển thị trên trang Phòng Học."],
   errorLogs: ["Lỗi hệ thống", "Xem lỗi từ user và tính năng, đánh dấu đã fix hoặc xóa."]
@@ -1037,7 +1004,6 @@ function switchAdminTab(tab) {
   welcomePopupTabPanel.classList.toggle("hidden", tab !== "welcomePopup");
   tickerTabPanel.classList.toggle("hidden", tab !== "ticker");
   maintenanceTabPanel.classList.toggle("hidden", tab !== "maintenance");
-  overlaysTabPanel.classList.toggle("hidden", tab !== "overlays");
   weeklyResetTabPanel.classList.toggle("hidden", tab !== "weeklyReset");
   scheduleTabPanel.classList.toggle("hidden", tab !== "schedule");
   errorLogsTabPanel.classList.toggle("hidden", tab !== "errorLogs");
@@ -1047,7 +1013,6 @@ function switchAdminTab(tab) {
   if (tab === "welcomePopup") loadWelcomePopupForm();
   if (tab === "ticker") loadTickerForm();
   if (tab === "maintenance") loadMaintenanceForm();
-  if (tab === "overlays") loadOverlayForm();
   if (tab === "rename") renderRenameList();
   if (tab === "weeklyReset") loadWeeklyResetForm();
   if (tab === "schedule") loadScheduleForm();
@@ -1534,62 +1499,6 @@ document.getElementById("saveMaintenanceBtn").addEventListener("click", () => {
 });
 
 document.getElementById("refreshMaintenanceBtn").addEventListener("click", loadMaintenanceForm);
-
-// ================= OVERLAY =================
-function updateOverlayBadge(enabled) {
-  const badge = document.getElementById("overlayBadge");
-  if (!badge) return;
-  badge.textContent = enabled ? "On" : "Off";
-  badge.classList.add("visible");
-  badge.classList.toggle("on", Boolean(enabled));
-  badge.classList.toggle("off", !enabled);
-}
-
-function renderOverlayBanner(d) {
-  const on = Boolean(d && d.enabled);
-  const name = d && d.active_overlay;
-  const labels = { "mid-autumn": "Trung thu", "vietnam-national-day": "Quốc khánh Việt Nam", "christmas": "Giáng sinh", "tet-nguyen-dan": "Tết Nguyên Đán", "halloween": "Halloween" };
-  if (!on || !name) {
-    overlayStatusBanner.textContent = "Overlay đang tắt — Web hiển thị bình thường.";
-    overlayStatusBanner.style.background = "#f0fdf4"; overlayStatusBanner.style.color = "#166534";
-    overlayStatusBanner.style.border = "1px solid #bbf7d0";
-  } else {
-    overlayStatusBanner.textContent = `🟢 Overlay "${labels[name] || name}" đang bật — Hiển thị trên web chính.`;
-    overlayStatusBanner.style.background = "#dbeafe"; overlayStatusBanner.style.color = "#1e40af";
-    overlayStatusBanner.style.border = "1px solid #bfdbfe";
-  }
-  updateOverlayBadge(on);
-}
-
-async function loadOverlayForm() {
-  try {
-    const { data: d } = await supabase.from("overlay_settings").select("*").eq("id", true).maybeSingle();
-    overlaySelect.value = (d && d.active_overlay) || "";
-    overlayEnabledInput.checked = Boolean(d && d.enabled);
-    renderOverlayBanner(d || {});
-    overlayMeta.textContent = d && d.updated_at ? `Cập nhật: ${formatDate(d.updated_at)}${d.updated_by ? ` · bởi ${d.updated_by}` : ""}` : "Chưa từng bật overlay.";
-  } catch(e) { console.error(e); showNotice("Không tải được trạng thái overlay.", "error"); }
-}
-
-document.getElementById("saveOverlayBtn").addEventListener("click", () => {
-  const enabled = overlayEnabledInput.checked;
-  const active_overlay = overlaySelect.value || null;
-  const apply = async () => {
-    try {
-      const now = new Date().toISOString();
-      await supabase.from("overlay_settings").upsert({ id: true, enabled, active_overlay, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
-      renderOverlayBanner({ enabled, active_overlay }); overlayMeta.textContent = `Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
-      showNotice(enabled ? "Đã BẬT overlay." : "Đã TẮT overlay.", "success"); await loadOverlayForm();
-    } catch (e) { console.error(e); showNotice("Cập nhật overlay thất bại.", "error"); }
-  };
-  if (enabled && active_overlay) {
-    openConfirmDialog("Bật overlay?", "Overlay sẽ hiển thị trên trang chính cho tất cả user. Tiếp tục?", apply);
-  } else {
-    apply();
-  }
-});
-
-document.getElementById("refreshOverlayBtn").addEventListener("click", () => loadOverlayForm());
 
 document.getElementById("addWhitelistBtn").addEventListener("click", async () => {
   const input=document.getElementById("allowEmailInput"), email=normalizeEmail(input.value);
@@ -2155,8 +2064,6 @@ supabase.auth.onAuthStateChange(async (event, session) => {
   }
   const { data: maint } = await supabase.from("maintenance_settings").select("enabled").eq("id", true).maybeSingle();
   updateMaintenanceBadge(maint && maint.enabled);
-  const { data: ov } = await supabase.from("overlay_settings").select("enabled, active_overlay").eq("id", true).maybeSingle();
-  renderOverlayBanner(ov || {});
 });
 
 // Tự refresh dashboard + quét user online hết hạn (crash) mỗi 30s → chống báo online ảo.
