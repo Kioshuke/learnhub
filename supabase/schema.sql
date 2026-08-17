@@ -34,6 +34,7 @@ create table if not exists public.users (
   last_login       timestamptz,
   online_start_time bigint,
   online_timer     bigint not null default 0,
+  online_week_key  text,
   created_at       timestamptz,
   updated_at       timestamptz
 );
@@ -526,10 +527,16 @@ as $$
 declare
   v_count int;
 begin
+  -- Reset online_timer + online_week_key cho toàn bộ user
+  update public.users
+     set online_timer    = 0,
+         online_week_key = p_week_key
+   where (online_week_key is distinct from p_week_key);
+
   select reset_count into v_count from public.weekly_reset where id = true;
   if v_count is null then
     insert into public.weekly_reset (id, last_reset_at, last_reset_by, week_key, reset_count, users_reset, reset_targets)
-    values (true, now(), 'Hệ thống', p_week_key, 1, 1, 'Điểm số (tự động theo tuần)');
+    values (true, now(), 'Hệ thống', p_week_key, 1, 1, 'Điểm số & Thời gian online (tự động theo tuần)');
     return;
   end if;
   update public.weekly_reset
@@ -538,7 +545,7 @@ begin
          week_key      = p_week_key,
          reset_count   = v_count + 1,
          users_reset   = coalesce(users_reset, 0) + 1,
-         reset_targets = 'Điểm số (tự động theo tuần)'
+         reset_targets = 'Điểm số & Thời gian online (tự động theo tuần)'
    where id = true
      and (week_key is distinct from p_week_key);
 end;

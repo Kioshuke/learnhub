@@ -246,6 +246,15 @@
             return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
         }
 
+        function getWeekStartMs() {
+            const now = new Date();
+            const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() - dayNum + 1);
+            d.setUTCHours(0, 0, 0, 0);
+            return d.getTime();
+        }
+
         function ringAva(photo, name, size, ringCls) {
             const fs = Math.round(size * .38);
             const inner = photo
@@ -370,16 +379,25 @@
             timeLoadBusy = true;
             try {
                 const { data: allUsers } = await supabase.from("users")
-                    .select("id, name, email, photo, online, online_timer, online_start_time, last_active, disabled");
+                    .select("id, name, email, photo, online, online_timer, online_start_time, online_week_key, last_active, disabled");
                 const rows = [];
                 const now = Date.now();
                 const THRESHOLD = 10000;
+                const currentWeekKey = getWeekKey();
+                const weekStart = getWeekStartMs();
                 for (const ud of (allUsers || [])) {
                     if (ud.disabled) continue;
-                    const baseTimer = Number(ud.online_timer || 0);
-                    let effectiveTimer = baseTimer;
-                    if (ud.online && ud.last_active && (now - ud.last_active) < THRESHOLD && ud.online_start_time > 0) {
-                        effectiveTimer += Math.floor((now - ud.online_start_time) / 1000);
+                    const userWeekKey = ud.online_week_key || "";
+                    let effectiveTimer = 0;
+                    if (userWeekKey === currentWeekKey) {
+                        effectiveTimer = Number(ud.online_timer || 0);
+                        if (ud.online && ud.last_active && (now - ud.last_active) < THRESHOLD && ud.online_start_time > 0) {
+                            const sessionStart = Math.max(ud.online_start_time, weekStart);
+                            effectiveTimer += Math.floor((now - sessionStart) / 1000);
+                        }
+                    } else if (ud.online && ud.last_active && (now - ud.last_active) < THRESHOLD && ud.online_start_time > 0) {
+                        const sessionStart = Math.max(ud.online_start_time, weekStart);
+                        effectiveTimer = Math.floor((now - sessionStart) / 1000);
                     }
                     if (effectiveTimer <= 0) continue;
                     rows.push({

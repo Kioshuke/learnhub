@@ -28,6 +28,13 @@ function recordAutoWeeklyReset(weekKey) {
     .catch((e) => console.log("[learnhub-stats] Ghi nhận auto reset lỗi:", e));
 }
 
+async function resetUserOnlineWeek(uid, weekKey) {
+  await supabase.from("users").update({
+    online_timer: 0,
+    online_week_key: weekKey
+  }).eq("id", uid);
+}
+
 function camelStats(row) {
   if (!row) return null;
   return {
@@ -58,7 +65,10 @@ export async function createUserStats(user) {
 
     if (existing) {
       const isNewWeek = existing.week_key && existing.week_key !== currentWeek;
-      if (isNewWeek) recordAutoWeeklyReset(currentWeek);
+      if (isNewWeek) {
+        recordAutoWeeklyReset(currentWeek);
+        resetUserOnlineWeek(uid, currentWeek).catch(() => {});
+      }
       const payload = {
         total_tests: isNewWeek ? 0 : Number(existing.total_tests || 0),
         total_score: isNewWeek ? 0 : Number(existing.total_score || 0),
@@ -118,7 +128,10 @@ export async function updateUserStats(uid, score, options = {}) {
 
     const currentData = existing || {};
     const isNewWeek = currentData.week_key && currentData.week_key !== currentWeek;
-    if (isNewWeek) recordAutoWeeklyReset(currentWeek);
+    if (isNewWeek) {
+      recordAutoWeeklyReset(currentWeek);
+      resetUserOnlineWeek(uid, currentWeek).catch(() => {});
+    }
 
     const totalTests = (isNewWeek ? 0 : Number(currentData.total_tests || 0)) + (countAsTest ? 1 : 0);
     const totalScore = (isNewWeek ? 0 : Number(currentData.total_score || 0)) + numericScore;

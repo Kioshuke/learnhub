@@ -1798,7 +1798,8 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
         for (const s of (users || [])) {
           await supabase.from("users").update({
             online_timer: 0,
-            online_start_time: 0
+            online_start_time: 0,
+            online_week_key: currentWeek
           }).eq("id", s.id);
           if(!resetScore) count++;
         }
