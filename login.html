@@ -1210,14 +1210,6 @@ let registrationMessage = "";
 isRegistrationOpen().then(ok => {
   registrationOpen = ok;
   window.registrationOpen = ok;
-  if (!ok) {
-    document.querySelectorAll('#loginBox .auth-tab[data-auth-tab="register"]').forEach(el => {
-      el.style.opacity = "0.45";
-      el.title = "Đăng ký đang đóng";
-    });
-    const gBtn = document.querySelector('#authLoginPanel .auth-login-btn:not(.auth-login-btn--soon)');
-    if (gBtn) { gBtn.style.opacity = "0.45"; gBtn.style.pointerEvents = "none"; gBtn.title = "Đăng ký đang đóng"; }
-  }
 }).catch(e => console.error("Registration check error:", e));
 
 // Lắng nghe realtime: bật → redirect maintenance.html, tắt → redirect login.html
