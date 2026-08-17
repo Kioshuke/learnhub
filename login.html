@@ -1205,9 +1205,11 @@ try {
 } catch(e) { console.error("Maintenance check error:", e); }
 
 let registrationOpen = true;
+window.registrationOpen = true;
 let registrationMessage = "";
 isRegistrationOpen().then(ok => {
   registrationOpen = ok;
+  window.registrationOpen = ok;
   if (!ok) {
     document.querySelectorAll('#loginBox .auth-tab[data-auth-tab="register"]').forEach(el => {
       el.style.opacity = "0.45";

@@ -416,6 +416,10 @@ let authSlideTimer = null;
 let authNoticeTimer = null;
 
 function switchAuthTab(type){
+  if(type === "register" && typeof registrationOpen !== "undefined" && !registrationOpen){
+    if(typeof showAuthNotice === "function") showAuthNotice("Đăng ký hiện đang đóng. Vui lòng liên hệ admin nếu bạn cần tài khoản.", "warning", "Đăng ký bị đóng");
+    return;
+  }
   const login = document.getElementById("authLoginPanel");
   const register = document.getElementById("authRegisterPanel");
   const tabs = document.querySelectorAll("#loginBox .auth-tab");
