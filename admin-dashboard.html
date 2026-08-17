@@ -2139,6 +2139,8 @@ supabase.auth.onAuthStateChange(async (event, session) => {
   }
   const { data: maint } = await supabase.from("maintenance_settings").select("enabled").eq("id", true).maybeSingle();
   updateMaintenanceBadge(maint && maint.enabled);
+  const { data: reg } = await supabase.from("registration_settings").select("enabled").eq("id", true).maybeSingle();
+  updateRegistrationBadge(reg && reg.enabled);
 });
 
 // Tự refresh dashboard + quét user online hết hạn (crash) mỗi 30s → chống báo online ảo.
