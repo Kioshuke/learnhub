@@ -1205,6 +1205,7 @@ try {
 } catch(e) { console.error("Maintenance check error:", e); }
 
 let registrationOpen = true;
+let registrationMessage = "";
 isRegistrationOpen().then(ok => {
   registrationOpen = ok;
   if (!ok) {
@@ -1213,6 +1214,8 @@ isRegistrationOpen().then(ok => {
       el.style.pointerEvents = "none";
       el.title = "Đăng ký đang đóng";
     });
+    const gBtn = document.querySelector('#authLoginPanel .auth-login-btn:not(.auth-login-btn--soon)');
+    if (gBtn) { gBtn.style.opacity = "0.45"; gBtn.style.pointerEvents = "none"; gBtn.title = "Đăng ký đang đóng"; }
   }
 }).catch(e => console.error("Registration check error:", e));
 
@@ -1557,6 +1560,10 @@ function retriggerAnim(container) {
 }
 
 function switchAuthTab(type) {
+  if (type === "register" && !registrationOpen) {
+    showAuthNotice("Đăng ký hiện đang đóng. Vui lòng liên hệ admin nếu bạn cần tài khoản.", "warning", "Đăng ký bị đóng");
+    return;
+  }
   const authShell = document.getElementById("authShell");
   const loginFormContainer = document.getElementById("loginFormContainer");
   const registerFormContainer = document.getElementById("registerFormContainer");
@@ -1755,6 +1762,7 @@ onAuthChange(async (event, session) => {
 
 window.googleLogin = async function() {
   if (maintenanceState.enabled) { window.location.replace('maintenance.html'); return; }
+  if (!registrationOpen) { showAuthNotice("Đăng ký hiện đang đóng. Vui lòng liên hệ admin.", "warning", "Đăng ký bị đóng"); return; }
   processingLogin = true;
   try {
     const { error } = await supabase.auth.signInWithOAuth({
