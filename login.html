@@ -1755,7 +1755,6 @@ onAuthChange(async (event, session) => {
 
 window.googleLogin = async function() {
   if (maintenanceState.enabled) { window.location.replace('maintenance.html'); return; }
-  if (!registrationOpen) { showAuthNotice("Đăng ký hiện đang đóng. Vui lòng liên hệ admin.", "warning", "Đăng ký bị đóng"); return; }
   processingLogin = true;
   try {
     const { error } = await supabase.auth.signInWithOAuth({
