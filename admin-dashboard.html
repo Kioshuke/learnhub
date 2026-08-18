@@ -2143,6 +2143,24 @@ supabase.auth.onAuthStateChange(async (event, session) => {
   updateRegistrationBadge(reg && reg.enabled);
 });
 
+// Relay admin session to leaderboard iframe
+const leaderboardFrame = document.getElementById("leaderboardFrame");
+async function sendAdminSessionToLeaderboard() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session && leaderboardFrame && leaderboardFrame.contentWindow) {
+      leaderboardFrame.contentWindow.postMessage({
+        type: "ADMIN_SESSION",
+        accessToken: session.access_token,
+        refreshToken: session.refresh_token
+      }, "*");
+    }
+  } catch(e) {}
+}
+if (leaderboardFrame) {
+  leaderboardFrame.addEventListener("load", sendAdminSessionToLeaderboard);
+}
+
 // Tự refresh dashboard + quét user online hết hạn (crash) mỗi 30s → chống báo online ảo.
 setInterval(async () => {
   if (loginView.style.display === "flex") return;

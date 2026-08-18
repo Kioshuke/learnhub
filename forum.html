@@ -1075,6 +1075,15 @@ let filteredParents = [];
 let lastAllPosts = [];
 let postsChannel = null;
 let eventsChannel = null;
+const authorRoleCache = new Map();
+const rateLimitMap = new Map();
+function checkRateLimit(key, ms) {
+  const now = Date.now();
+  const last = rateLimitMap.get(key) || 0;
+  if (now - last < ms) return false;
+  rateLimitMap.set(key, now);
+  return true;
+}
 const expandedThreads = new Set();
 
 /* ================= HỆ THỐNG MODAL (POPUP) ================= */
@@ -1345,6 +1354,10 @@ async function sendPost(){
     alert("Vui lòng chờ ứng dụng xác thực thông tin người dùng...");
     return;
   }
+  if(!checkRateLimit("sendPost", 3000)) {
+    showAuthNotice("Bạn gửi quá nhanh. Vui lòng chờ 3 giây.", "warning", "Chống spam");
+    return;
+  }
 
   const submitBtn = document.querySelector(".post-submit");
   const originalHtml = submitBtn ? submitBtn.innerHTML : "";
@@ -1396,8 +1409,26 @@ async function loadPosts(){
   container.innerHTML = "";
 
   try {
-    const { data } = await supabase.from("forum_posts").select("*");
+    const { data } = await supabase.from("forum_posts").select("*").order("time", { ascending: false }).range(0, 499);
     lastAllPosts = data || [];
+    if (lastAllPosts.length >= 500) {
+      console.warn("Forum: Đã tải 500 bài viết gần nhất. Có thể còn bài cũ hơn.");
+    }
+
+    const uniqueUids = [...new Set(lastAllPosts.map(p => p.user_id).filter(Boolean))];
+    const uncachedUids = uniqueUids.filter(uid => !authorRoleCache.has(uid));
+    if (uncachedUids.length > 0) {
+      try {
+        const { data: roleRows } = await supabase
+          .from("users")
+          .select("id, role")
+          .in("id", uncachedUids);
+        (roleRows || []).forEach(r => authorRoleCache.set(r.id, r.role || "member"));
+        uncachedUids.forEach(uid => { if (!authorRoleCache.has(uid)) authorRoleCache.set(uid, "member"); });
+      } catch (e) {
+        uncachedUids.forEach(uid => { if (!authorRoleCache.has(uid)) authorRoleCache.set(uid, "member"); });
+      }
+    }
   } catch (e) {
     console.error("Lỗi tải bài viết:", e);
     lastAllPosts = [];
@@ -1521,7 +1552,8 @@ function goToPage(page){
 function createPostElement(post, allPosts){
   const div = document.createElement("div");
   const isOwner = currentUser && post.user_id === currentUser.uid;
-  const isAdmin = post.user_name === "Admin LearnHub";
+  const authorRole = authorRoleCache.get(post.user_id) || "member";
+  const isAdmin = authorRole === "Admin" || authorRole === "admin";
   const isAdminUser = currentUser && (currentUser.role === 'admin' || currentUser.role === 'Admin');
 
   let postClasses = [];
@@ -1603,7 +1635,8 @@ function renderReplies(parentId, container, allPosts, level){
     replies.forEach(rep => {
       const repDiv = document.createElement("div");
       const isOwner = currentUser && rep.user_id === currentUser.uid;
-      const isAdminReply = rep.user_name === "Admin LearnHub";
+      const replyAuthorRole = authorRoleCache.get(rep.user_id) || "member";
+      const isAdminReply = replyAuthorRole === "Admin" || replyAuthorRole === "admin";
 
       let replyClasses = ["reply"];
       if (isAdminReply) replyClasses.push("admin-reply-card");
@@ -1874,6 +1907,7 @@ async function unpinPost(postId) {
 
 async function toggleReaction(postId, type){
   if(!currentUser) return;
+  if(!checkRateLimit("reaction-" + postId, 1500)) return;
   try {
     const { error } = await supabase.rpc("toggle_forum_reaction", { p_post_id: postId, p_type: type });
     if (error) throw error;

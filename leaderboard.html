@@ -224,7 +224,28 @@
     </div>
 
     <script type="module">
-        import { supabase } from "./supabase-config.js";
+        import { supabase, createLearnHubClient } from "./supabase-config.js";
+
+        let activeSupabase = supabase;
+
+        // Accept admin session from parent (admin-dashboard iframe)
+        window.addEventListener("message", async (e) => {
+            if (e.data && e.data.type === "ADMIN_SESSION" && e.data.accessToken) {
+                try {
+                    const adminClient = createLearnHubClient({ storageKey: "learnhub-admin-auth" });
+                    await adminClient.auth.setSession({
+                        access_token: e.data.accessToken,
+                        refresh_token: e.data.refresh_token
+                    });
+                    activeSupabase = adminClient;
+                    // Reload data with admin credentials
+                    load();
+                    loadOnlineTime();
+                } catch(err) {
+                    console.warn("[leaderboard] Failed to set admin session:", err);
+                }
+            }
+        });
 
         function getWeekKey() {
             const now = new Date();
@@ -283,8 +304,8 @@
 
             try {
                 const [{ data: stats }, { data: users }] = await Promise.all([
-                    supabase.from("test_stats").select("user_id, total_score, total_tests, total_videos").eq("week_key", getWeekKey()),
-                    supabase.from("users").select("id, name, email, photo")
+                    activeSupabase.from("test_stats").select("user_id, total_score, total_tests, total_videos").eq("week_key", getWeekKey()),
+                    activeSupabase.from("users").select("id, name, email, photo")
                 ]);
 
                 const userMap = new Map((users || []).map(u => [u.id, u]));
@@ -378,7 +399,7 @@
             if (timeLoadBusy) return;
             timeLoadBusy = true;
             try {
-                const { data: allUsers } = await supabase.from("users")
+                const { data: allUsers } = await activeSupabase.from("users")
                     .select("id, name, email, photo, online, online_timer, online_start_time, online_week_key, last_active, disabled");
                 const rows = [];
                 const now = Date.now();

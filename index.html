@@ -251,11 +251,14 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 
 <script type="module">
 import { supabase } from "./supabase-config.js";
+import { SUPABASE_URL } from "./supabase-config.js";
 import { getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession } from "./supabase-helpers.js";
 import { createUserStats, updateUserStats } from "./learnhub-stats.js";
 import { isPasswordRecovery } from "./reset-password.js";
 import { logAppError } from "./log-errors.js";
 window.logAppError = logAppError;
+
+const TRUSTED_ORIGIN = location.origin;
 
 let currentSupabaseUser = null;
 let activeInterval = null;
@@ -467,7 +470,7 @@ function enterPreviewMode(){
         name: previewUser.displayName,
         role: previewUser.role || "member"
       }
-    }, "*");
+    }, TRUSTED_ORIGIN);
   }
 
   showContent();
@@ -768,18 +771,15 @@ if(user){
     ["forumFrame","flashHubFrame","taiLieuFrame","phongHocFrame"].forEach(function(id){
       var f = document.getElementById(id);
       if(f && f.contentWindow){
-        try { f.contentWindow.postMessage({ type:"LEARNHUB_USER", user:window.currentLearnHubUser }, "*"); } catch(e){}
+        try { f.contentWindow.postMessage({ type:"LEARNHUB_USER", user:window.currentLearnHubUser }, TRUSTED_ORIGIN); } catch(e){}
       }
     });
     if(typeof window.sendUserToQuizFrame === "function") window.sendUserToQuizFrame();
   }
+  window.sendUserToAllFrames = sendUserToAllFrames;
   sendUserToAllFrames();
 
-  // Re-send user when any iframe finishes loading
-  ["forumFrame","flashHubFrame","taiLieuFrame","phongHocFrame"].forEach(function(id){
-    var f = document.getElementById(id);
-    if(f) f.onload = function(){ sendUserToAllFrames(); };
-  });
+  // Iframe onload handlers are managed by script.js (dark mode + user sync)
 
   window.currentLearnHubUser = {
     uid: userData.uid,
@@ -881,6 +881,9 @@ document.addEventListener("visibilitychange", () => {
 // RPC finalize idempotent nên gọi trùng với visibilitychange/beforeunload vẫn an toàn.
 window.addEventListener("pagehide", () => {
   if(activeInterval){ clearInterval(activeInterval); activeInterval = null; }
+  if(typeof homeSlideshowInterval !== "undefined" && homeSlideshowInterval){ clearInterval(homeSlideshowInterval); homeSlideshowInterval = null; }
+  if(typeof authSlideTimer !== "undefined" && authSlideTimer){ clearInterval(authSlideTimer); authSlideTimer = null; }
+  stopAccessGuards();
   updateStatus(false);
 });
 
@@ -951,10 +954,19 @@ if(user){
   await finalizeOnlineSession(user.id);
 }
 
-// 🔥 TẮT interval (THÊM Ở ĐÂY)
+// 🔥 TẮT tất cả intervals & guards
+stopAccessGuards();
 if(activeInterval){
   clearInterval(activeInterval);
   activeInterval = null;
+}
+if(typeof homeSlideshowInterval !== "undefined" && homeSlideshowInterval){
+  clearInterval(homeSlideshowInterval);
+  homeSlideshowInterval = null;
+}
+if(typeof authSlideTimer !== "undefined" && authSlideTimer){
+  clearInterval(authSlideTimer);
+  authSlideTimer = null;
 }
 
 // 🔥 tắt realtime listener
@@ -981,19 +993,15 @@ popup.style.display = "none";
 }
 });
 window.addEventListener("beforeunload", () => {
-  // Dùng sendBeacon + keepalive fetch để đảm bảo RPC hoàn thành trước khi trang đóng
   const user = currentSupabaseUser;
   if(user){
-    // Thử cả 2 cách: sendBeacon (fire-and-forget) và keepalive fetch
     try {
-      const rpcUrl = "https://hyuzukvxulwouaexatqv.supabase.co/rest/v1/rpc/users_finalize_online";
+      const rpcUrl = SUPABASE_URL + "/rest/v1/rpc/users_finalize_online";
       const body = JSON.stringify({ p_uid: user.id });
-      // sendBeacon: browser guarantee gửi đi dù trang đóng
       navigator.sendBeacon(rpcUrl, new Blob([body], { type: "application/json" }));
     } catch(e) {}
-    // Fallback: keepalive fetch
     try {
-      const rpcUrl = "https://hyuzukvxulwouaexatqv.supabase.co/rest/v1/rpc/users_finalize_online";
+      const rpcUrl = SUPABASE_URL + "/rest/v1/rpc/users_finalize_online";
       fetch(rpcUrl, {
         method: "POST",
         headers: {
@@ -1028,7 +1036,7 @@ window.addEventListener("beforeunload", () => {
         photo: u.photo,
         displayName: u.displayName
       }
-    }, "*");
+    }, TRUSTED_ORIGIN);
   };
   window.addEventListener("message", async (event) => {
   if (!event.data || event.data.type !== "LEARNHUB_TEST_RESULT") return;
@@ -1053,7 +1061,7 @@ window.addEventListener("beforeunload", () => {
   }
 
   if (event.source && event.source.postMessage) {
-    event.source.postMessage({ type: "LEARNHUB_TEST_RESULT_ACK", requestId: event.data.requestId }, "*");
+    event.source.postMessage({ type: "LEARNHUB_TEST_RESULT_ACK", requestId: event.data.requestId }, TRUSTED_ORIGIN);
   }
 });
 window.addEventListener("message", (event) => {
@@ -1095,7 +1103,7 @@ window.addEventListener("message", async (event) => {
         .select("video_id")
         .eq("user_id", u.uid);
       const videoIds = (data || []).map(r => r.video_id);
-      phocFrame.contentWindow.postMessage({ type: "LEARNHUB_WATCHED_LIST", videoIds }, "*");
+      phocFrame.contentWindow.postMessage({ type: "LEARNHUB_WATCHED_LIST", videoIds }, TRUSTED_ORIGIN);
     } catch (e) {
       console.log("Không thể đồng bộ video đã xem:", e);
     }

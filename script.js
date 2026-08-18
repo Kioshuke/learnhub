@@ -80,7 +80,7 @@ setTimeout(() => {
 
   clearTimeout(window.__quizLoadTimer);
 }
-  // 🕐 Watchdog: nếu iframe bài test không tải được trong 20s thì ghi log lỗi
+  // 🕐 Watchdog: nếu iframe bài test không tải được trong 20s thì thông báo user
   window.__quizLoadTimer = setTimeout(() => {
     const fr = document.getElementById("quizFrame");
     if (fr && fr.style.display !== "block") {
@@ -93,6 +93,11 @@ setTimeout(() => {
           message: "Iframe bài test không tải được trong 20s (trang test không hiển thị).",
           detail: { link: String(link || "").slice(0, 200) }
         });
+      }
+      const loader = document.getElementById("loader");
+      if(loader){
+        loader.innerHTML = '<div style="text-align:center;padding:30px 16px"><div style="font-size:36px;margin-bottom:12px">&#9888;&#65039;</div><div style="font-size:15px;font-weight:700;color:#1e293b;margin-bottom:6px">Không thể tải bài test</div><div style="font-size:13px;color:#64748b;margin-bottom:16px;line-height:1.5">Trang bài test không phản hồi. Vui lòng thử lại.</div><button onclick="closeQuiz()" style="padding:10px 24px;border:none;border-radius:10px;background:#4f46e5;color:#fff;font-size:13px;font-weight:600;cursor:pointer">Đóng</button></div>';
+        loader.style.display = "flex";
       }
     }
   }, 20000);
@@ -732,16 +737,23 @@ function sendDarkModeToIframe(isDark) {
     });
 }
 
-// 1. Load lại trạng thái cũ khi vừa mở web
+// 1. Load lại trạng thái cũ khi vừa mở web — luôn sync dark mode khi iframe reload
 if(toggle){
+    const syncDarkModeOnLoad = (frame) => {
+        if(!frame) return;
+        frame.addEventListener("load", () => {
+            const isDark = document.body.classList.contains("dark-mode");
+            if(isDark) sendDarkModeToIframe(true);
+            if(typeof sendUserToAllFrames === "function") sendUserToAllFrames();
+        }, { once: false });
+    };
+
     if(localStorage.getItem("darkMode") === "on"){
         document.body.classList.add("dark-mode");
         toggle.checked = true;
-        darkModeFrames.forEach((frame) => {
-            if (frame) {
-                frame.onload = () => sendDarkModeToIframe(true);
-            }
-        });
+        darkModeFrames.forEach(syncDarkModeOnLoad);
+    } else {
+        darkModeFrames.forEach(syncDarkModeOnLoad);
     }
 
     // 2. Khi bấm nút gạt

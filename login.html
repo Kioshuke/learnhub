@@ -1423,9 +1423,40 @@ let otpExpiry = 0;
 let otpCountdownInterval = null;
 let otpResendCooldown = null;
 const OTP_EXPIRE_MS = 15 * 60 * 1000;
+let otpServerId = null;
 
 function generateOTP() {
   return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+async function storeOTPOnServer(email, code) {
+  try {
+    const { data, error } = await supabase.rpc("store_otp", {
+      p_email: email,
+      p_code: code,
+      p_expires_in_seconds: Math.floor(OTP_EXPIRE_MS / 1000)
+    });
+    if (error) throw error;
+    otpServerId = data;
+    return true;
+  } catch (e) {
+    console.warn("Server OTP store unavailable, using client-only:", e.message);
+    return false;
+  }
+}
+
+async function verifyOTPOnServer(email, code) {
+  try {
+    const { data, error } = await supabase.rpc("verify_otp", {
+      p_email: email,
+      p_code: code
+    });
+    if (error) throw error;
+    return data === true;
+  } catch (e) {
+    console.warn("Server OTP verify unavailable, using client-only:", e.message);
+    return null;
+  }
 }
 
 function startOTPCountdown() {
@@ -1474,6 +1505,9 @@ window.sendOTP = async function() {
 
   otpGenerated = generateOTP();
   otpExpiry = Date.now() + OTP_EXPIRE_MS;
+  otpServerId = null;
+
+  await storeOTPOnServer(email, otpGenerated);
 
   try {
     const expireTime = new Date(otpExpiry).toLocaleTimeString("vi-VN", {hour:"2-digit",minute:"2-digit"});
@@ -1505,6 +1539,9 @@ window.resendOTP = async function() {
 
   otpGenerated = generateOTP();
   otpExpiry = Date.now() + OTP_EXPIRE_MS;
+  otpServerId = null;
+
+  await storeOTPOnServer(email, otpGenerated);
 
   try {
     const expireTime = new Date(otpExpiry).toLocaleTimeString("vi-VN", {hour:"2-digit",minute:"2-digit"});
@@ -1528,6 +1565,7 @@ function resetOTPState() {
   clearFieldErrors();
   otpGenerated = "";
   otpExpiry = 0;
+  otpServerId = null;
   clearInterval(otpCountdownInterval);
   clearInterval(otpResendCooldown);
   const otpSection = document.getElementById("otpSection");
@@ -1928,10 +1966,19 @@ window.emailRegister = async function() {
     return;
   }
   if (code !== otpGenerated) {
-    setFieldError("otpCode", "Mã xác nhận không đúng");
-    shakeAuthBox("otpCode"); otpInput.focus(); otpInput.select();
-    showAuthNotice("Mã xác nhận không đúng. Vui lòng kiểm tra lại", "error", "Sai mã");
-    return;
+    const serverResult = await verifyOTPOnServer(email, code);
+    if (serverResult === false) {
+      setFieldError("otpCode", "Mã xác nhận không đúng");
+      shakeAuthBox("otpCode"); otpInput.focus(); otpInput.select();
+      showAuthNotice("Mã xác nhận không đúng. Vui lòng kiểm tra lại", "error", "Sai mã");
+      return;
+    }
+    if (serverResult === null) {
+      setFieldError("otpCode", "Mã xác nhận không đúng");
+      shakeAuthBox("otpCode"); otpInput.focus(); otpInput.select();
+      showAuthNotice("Mã xác nhận không đúng. Vui lòng kiểm tra lại", "error", "Sai mã");
+      return;
+    }
   }
 
   const btn = document.getElementById("registerSubmitBtn");
