@@ -890,31 +890,15 @@ window.addEventListener("pagehide", () => {
 // Trick để ép trình duyệt gửi dữ liệu cuối cùng trước khi đóng
 
 let usersChannel = null;
+let onlineUsersMap = new Map(); // userId -> DOM element
+let refreshOnlineListTimer = null;
 
-async function refreshOnlineList(){
-  const list = document.getElementById("onlineList");
-  if (!list) return;
-
-  let onlineCount = 0;
-  try {
-    const { data } = await supabase
-      .from("users")
-      .select("id,name,photo,online,last_active")
-      .order("last_active", { ascending: false });
-
-    const now = Date.now();
-    // Presence theo heartbeat: off nếu quá 30s (2 nhịp 15s) chưa có tín hiệu
-    const ACTIVE_THRESHOLD = 10000;
-
-    list.innerHTML = "";
-    for (const u of data || []) {
-      if (!u.last_active || now - u.last_active > ACTIVE_THRESHOLD) continue;
-      if (!u.online) continue;
-
-      const div = document.createElement("div");
-      const safePhoto = escapeUrl(u.photo) || "https://i.imgur.com/6VBx3io.png";
-      const safeName = escapeHtml(u.name) || "User";
-      div.innerHTML = `
+function buildOnlineUserRow(u) {
+  const safePhoto = escapeUrl(u.photo) || "https://i.imgur.com/6VBx3io.png";
+  const safeName = escapeHtml(u.name) || "User";
+  const div = document.createElement("div");
+  div.dataset.uid = u.id;
+  div.innerHTML = `
 <div style="display:flex; align-items:center; gap:10px; padding:6px 8px;">
 <img src="${safePhoto}"
 style="width:26px;height:26px;border-radius:50%;">
@@ -924,24 +908,70 @@ style="width:8px;height:8px;background:#22c55e;border-radius:50%;">
 </div>
 </div>
 `;
+  return div;
+}
 
-      onlineCount++;
-      list.appendChild(div);
+async function refreshOnlineList(){
+  const list = document.getElementById("onlineList");
+  if (!list) return;
+
+  const ACTIVE_THRESHOLD = 10000;
+  const thresholdTime = Date.now() - ACTIVE_THRESHOLD;
+
+  try {
+    const { data } = await supabase
+      .from("users")
+      .select("id,name,photo")
+      .eq("online", true)
+      .gt("last_active", thresholdTime)
+      .order("last_active", { ascending: false });
+
+    const newIds = new Set();
+    for (const u of (data || [])) {
+      newIds.add(u.id);
+    }
+
+    // Xóa user offline khỏi DOM + map
+    for (const [uid, el] of onlineUsersMap) {
+      if (!newIds.has(uid)) {
+        el.remove();
+        onlineUsersMap.delete(uid);
+      }
+    }
+
+    // Thêm user mới vào DOM
+    for (const u of (data || [])) {
+      if (!onlineUsersMap.has(u.id)) {
+        const el = buildOnlineUserRow(u);
+        list.appendChild(el);
+        onlineUsersMap.set(u.id, el);
+      }
+    }
+
+    const label = document.querySelector(".online-count-label");
+    if (label) {
+      label.textContent = `Đang trực tuyến (${newIds.size})`;
     }
   } catch(e) {}
+}
 
-  const label = document.querySelector(".online-count-label");
-  if (label) {
-    label.textContent = `Đang trực tuyến (${onlineCount})`;
-  }
+function scheduleRefreshOnlineList() {
+  if (refreshOnlineListTimer) return;
+  refreshOnlineListTimer = setTimeout(() => {
+    refreshOnlineListTimer = null;
+    refreshOnlineList();
+  }, 500);
 }
 
 function startListening(){
   if (usersChannel) { supabase.removeChannel(usersChannel); usersChannel = null; }
+  onlineUsersMap.clear();
+  const list = document.getElementById("onlineList");
+  if (list) list.innerHTML = "";
   refreshOnlineList();
   usersChannel = supabase.channel("users-online")
     .on("postgres_changes", { event: "*", schema: "public", table: "users" }, () => {
-      refreshOnlineList();
+      scheduleRefreshOnlineList();
     })
     .subscribe();
 }
@@ -974,6 +1004,11 @@ if(usersChannel){
   supabase.removeChannel(usersChannel);
   usersChannel = null;
 }
+if(refreshOnlineListTimer){
+  clearTimeout(refreshOnlineListTimer);
+  refreshOnlineListTimer = null;
+}
+onlineUsersMap.clear();
 
 // logout
 supabase.auth.signOut().then(()=>{
