@@ -185,15 +185,6 @@
             100% { background-position: -200% 0; }
         }
 
-        /* ===== TOAST ===== */
-        @keyframes shrinkWidth {
-            from { width: 100%; }
-            to { width: 0%; }
-        }
-        .toast-timeline {
-            animation: shrinkWidth 5s linear forwards;
-        }
-
         /* ===== MODAL ===== */
         .lh-modal-overlay {
             background: rgba(2,12,27,0.5);
@@ -336,6 +327,7 @@
         }
     </style>
 <script src="version/version-check.js" defer></script>
+<script src="toast.js"></script>
 </head>
 <body class="min-h-screen">
 
@@ -659,65 +651,12 @@
     </div>
 
 
-    <div id="toast-container" class="fixed top-5 right-5 z-[99999] flex flex-col gap-3 pointer-events-none"></div>
-
     <script>
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-
-            let icon = '💡';
-            let iconColor = 'text-blue-500';
-            let barColor = 'bg-blue-500';
-            let borderColor = 'border-blue-500/20';
-            
-            if (type === 'success') {
-                icon = '✨';
-                iconColor = 'text-emerald-500';
-                barColor = 'bg-emerald-500';
-                borderColor = 'border-emerald-500/20';
-            } else if (type === 'error' || type === 'warning') {
-                icon = '💥';
-                iconColor = 'text-rose-500';
-                barColor = 'bg-rose-500';
-                borderColor = 'border-rose-500/20';
+        function showToast(message, type = 'success', icon) {
+            var t = type === 'err' ? 'error' : type;
+            if (window.lhToast) {
+                lhToast(message, { type: ['info', 'success', 'warning', 'error'].indexOf(t) !== -1 ? t : 'info', icon: icon || undefined });
             }
-
-            const toast = document.createElement('div');
-            toast.className = `flex flex-col rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] border backdrop-blur-xl transition-all duration-300 transform translate-x-full opacity-0 pointer-events-auto max-w-sm overflow-hidden`;
-            toast.style.background = 'var(--popup-bg, rgba(255, 255, 255, 0.9))';
-            toast.style.borderColor = 'var(--footer-border, #e5e7eb)';
-            toast.classList.add(borderColor);
-
-            toast.innerHTML = `
-                <div class="flex items-center gap-3 p-4 pr-5">
-                    <span class="${iconColor} text-xl flex-shrink-0">${icon}</span>
-                    <div class="flex-1 text-xs font-bold tracking-wide" style="color: var(--text-main, #1e293b);">${message}</div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600 text-sm font-bold ml-2 transition-colors">×</button>
-                </div>
-                <div class="w-full h-[3px] bg-gray-100/50 mt-auto">
-                    <div class="h-full toast-timeline ${barColor}"></div>
-                </div>
-            `;
-
-            container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.classList.remove('translate-x-full', 'opacity-0');
-            }, 10);
-
-            try {
-                const audio = new Audio('sound/realtimesound.mp3');
-                audio.volume = 0.5;
-                audio.play();
-            } catch (e) {
-                console.log("Trình duyệt chặn phát âm thanh:", e);
-            }
-
-            setTimeout(() => {
-                toast.classList.add('opacity-0', '-translate-y-2', 'scale-95');
-                setTimeout(() => { toast.remove(); }, 300);
-            }, 5000);
         }
 
         window.showToast = showToast;
@@ -1383,7 +1322,7 @@
                 const redirectTo = base.substring(0, base.lastIndexOf("/") + 1) + "reset-password.html";
                 const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
                 if (error) throw error;
-                window.showToast("Liên kết đặt lại mật khẩu đã được gửi đến " + email + "!", "success");
+                window.showToast("Liên kết đặt lại mật khẩu đã được gửi đến " + email + "!", "success", "fa-envelope");
 
                 // Đếm ngược 10s trước khi cho bấm lại
                 const btn = document.querySelector('button[onclick="sendForgotPasswordLink()"]');

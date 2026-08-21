@@ -7,7 +7,7 @@
 // - Không đụng database, chỉ GET 1 file tĩnh mỗi 2 phút.
 // ============================================================================
 
-window.LH_VERSION = "1.26.8.2.21"; // ← release.bat tự thay giá trị này, KHÔNG sửa tay
+window.LH_VERSION = "1.26.8.2.21.3"; // ← release.bat tự thay giá trị này, KHÔNG sửa tay
 
 (function () {
   "use strict";
@@ -42,7 +42,7 @@ window.LH_VERSION = "1.26.8.2.21"; // ← release.bat tự thay giá trị này,
   function playNotifySound() {
     try {
       var a = new Audio(ROOT + SOUND_REL.split("/").map(encodeURIComponent).join("/"));
-      a.volume = 0.6;
+      a.volume = 1;
       var p = a.play();
       if (p && p.catch) p.catch(function () {});
     } catch (e) {}

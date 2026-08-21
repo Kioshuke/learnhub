@@ -809,6 +809,7 @@
   }
 </style>
 <script src="version/version-check.js" defer></script>
+<script src="toast.js"></script>
 </head>
 <body>
 
@@ -1195,14 +1196,6 @@
 </div>
 </div>
 
-<div id="authNotice" class="notice-info" role="status" aria-live="polite">
-  <div class="notice-icon" id="authNoticeIcon">i</div>
-  <div class="notice-content">
-    <p class="notice-title" id="authNoticeTitle">Thong bao</p>
-    <p class="notice-message" id="authNoticeMessage"></p>
-  </div>
-</div>
-
 <!-- MODAL QUÊN MẬT KHẨU -->
 <div class="auth-modal-overlay" id="forgotModal">
   <div class="auth-modal" role="dialog" aria-modal="true">
@@ -1278,7 +1271,6 @@ try {
   });
 } catch(e) { console.error("Maintenance listener error:", e); }
 
-let authNoticeTimer = null;
 let countdownInterval = null;
 let processingLogin = false;
 
@@ -1349,33 +1341,24 @@ document.getElementById("otpCode").addEventListener("input", function() {
 
 function showLoginSuccess(message, redirectMs = 3000) {
   if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-  const notice = document.getElementById("authNotice");
-  const noticeTitle = document.getElementById("authNoticeTitle");
-  const noticeMessage = document.getElementById("authNoticeMessage");
-  const noticeIcon = document.getElementById("authNoticeIcon");
-  if (!notice || !noticeTitle || !noticeMessage || !noticeIcon) {
-    window.location.href = '/index.html';
-    return;
-  }
-  if (authNoticeTimer) { clearTimeout(authNoticeTimer); authNoticeTimer = null; }
-  notice.classList.remove("hide", "show", "notice-error", "notice-info", "notice-success", "notice-warning");
-  notice.classList.add("notice-success");
-  noticeIcon.innerText = "✓";
-  noticeTitle.innerText = "Thành công";
   let remaining = Math.ceil(redirectMs / 1000);
-  noticeMessage.textContent = `${message} Chuyển hướng sau ${remaining}s...`;
-  notice.style.display = "flex";
-  void notice.offsetWidth;
-  notice.classList.add("show");
-  playNotificationSound("thongbaoSound");
+  let toast = null;
+  if (window.lhToast) {
+    toast = lhToast(`${message} Chuyển hướng sau ${remaining}s...`, {
+      type: "success",
+      title: "Thành công",
+      durationMs: redirectMs,
+      sound: "thongbao"
+    });
+  }
   countdownInterval = setInterval(() => {
     remaining--;
     if (remaining <= 0) {
       clearInterval(countdownInterval);
       countdownInterval = null;
       window.location.href = '/index.html';
-    } else {
-      noticeMessage.textContent = `${message} Chuyển hướng sau ${remaining}s...`;
+    } else if (toast) {
+      toast.update(`${message} Chuyển hướng sau ${remaining}s...`);
     }
   }, 1000);
 }
@@ -1414,8 +1397,8 @@ function playNotificationSound(soundId = "thongbaoSound") {
     try { audio = base.cloneNode(); } catch (e) { audio = base; }
   }
   try { audio.currentTime = 0; } catch (e) {}
-  audio.muted = false;
-  audio.volume = 1;
+audio.muted = false;
+audio.volume = 1;
   const fail = () => playFallbackBeep();
   audio.addEventListener("error", fail, { once: true });
   const p = audio.play();
@@ -1449,9 +1432,9 @@ function playNotificationSound(soundId = "thongbaoSound") {
               a.pause();
               a.currentTime = 0;
             }
-            a.muted = false;
-            a.volume = 1;
-            loaded = true;
+a.muted = false;
+a.volume = 1;
+loaded = true;
           }).catch(function () {});
         }
       } catch (e) {}
@@ -1477,36 +1460,16 @@ function playNotificationSound(soundId = "thongbaoSound") {
   document.addEventListener("keydown", tryUnlock);
 })();
 
-function showAuthNotice(message, type = "info", title = "", durationMs = 2600, soundId = "thongbaoSound") {
-  const notice = document.getElementById("authNotice");
-  const noticeTitle = document.getElementById("authNoticeTitle");
-  const noticeMessage = document.getElementById("authNoticeMessage");
-  const noticeIcon = document.getElementById("authNoticeIcon");
-  if (!notice || !noticeTitle || !noticeMessage || !noticeIcon) return;
-
-  if (authNoticeTimer) { clearTimeout(authNoticeTimer); authNoticeTimer = null; }
-  notice.classList.remove("hide", "show", "notice-error", "notice-info", "notice-success", "notice-warning");
-
-  let icon = "i";
-  let defaultTitle = "Thông báo";
-  if (type === "error") { notice.classList.add("notice-error"); icon = "✕"; defaultTitle = "Lỗi"; }
-  else if (type === "warning") { notice.classList.add("notice-warning"); icon = "!"; defaultTitle = "Chú ý"; }
-  else if (type === "success") { notice.classList.add("notice-success"); icon = "✓"; defaultTitle = "Thành công"; }
-  else { notice.classList.add("notice-info"); }
-
-  noticeIcon.innerText = icon;
-  noticeTitle.innerText = title || defaultTitle;
-  noticeMessage.textContent = message;
-  notice.style.display = "flex";
-  void notice.offsetWidth;
-  notice.classList.add("show");
-  playNotificationSound(soundId);
-
-  authNoticeTimer = setTimeout(() => {
-    notice.classList.remove("show");
-    notice.classList.add("hide");
-    setTimeout(() => { notice.classList.remove("hide"); notice.style.display = "none"; }, 220);
-  }, Math.max(1200, Number(durationMs) || 2600));
+function showAuthNotice(message, type = "info", title = "", durationMs = 2600, soundId = "thongbaoSound", icon) {
+  if (window.lhToast) {
+    lhToast(message, {
+      type: type === "warn" ? "warning" : type,
+      title: title || undefined,
+      durationMs: Math.max(1200, Number(durationMs) || 2600),
+      icon: icon || undefined,
+      sound: /realtime/i.test(soundId || "") ? "realtime" : "thongbao"
+    });
+  }
 }
 
 /* --- OTP STATE --- */
@@ -1682,7 +1645,7 @@ function retriggerAnim(container) {
 
 function switchAuthTab(type) {
   if (type === "register" && !registrationOpen) {
-    showAuthNotice("Đăng ký hiện đang đóng. Vui lòng liên hệ admin nếu bạn cần tài khoản.", "warning", "Đăng ký bị đóng");
+    showAuthNotice("Đăng ký hiện đang đóng. Vui lòng liên hệ admin nếu bạn cần cấp tài khoản.", "warning", "Đăng ký bị đóng");
     return;
   }
   const authShell = document.getElementById("authShell");
@@ -1807,7 +1770,7 @@ window.sendPasswordReset = async function() {
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
     if (error) throw error;
     closeModal("forgotModal");
-    showAuthNotice("Liên kết đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email!", "success", "Đã gửi");
+    showAuthNotice("Liên kết đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email!", "success", "Đã gửi", 2600, "thongbaoSound", "fa-envelope");
     document.getElementById("forgotEmail").value = "";
 
     // Đếm ngược 10s trước khi cho bấm lại

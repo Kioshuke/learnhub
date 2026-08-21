@@ -428,56 +428,6 @@
       transform: translateY(-2px);
     }
 
-    .popup-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.35);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      padding: 16px;
-    }
-
-    .popup-overlay.show {
-      display: flex;
-      animation: overlayFade 0.2s ease;
-    }
-
-    .popup-box {
-      width: min(420px, 100%);
-      background: #ffffff;
-      border-radius: 20px;
-      border: 1px solid #dbeafe;
-      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
-      padding: 22px 18px 16px;
-      text-align: center;
-      animation: popupIn 0.25s ease;
-    }
-
-    .popup-box h3 {
-      margin: 0 0 8px;
-      color: #1d4ed8;
-      font-size: 22px;
-    }
-
-    .popup-box p {
-      margin: 0 0 14px;
-      color: #475569;
-      line-height: 1.5;
-      font-weight: 500;
-    }
-
-    .popup-close {
-      border: none;
-      border-radius: 10px;
-      padding: 8px 14px;
-      color: #fff;
-      background: #2563eb;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
     .loading-overlay {
       position: fixed;
       inset: 0;
@@ -819,16 +769,6 @@
       background: linear-gradient(135deg, #f59e0b, #b45309);
     }
 
-    body.dark-mode .popup-overlay { background: rgba(0,0,0,0.6); }
-
-    body.dark-mode .popup-box {
-      background: #1e293b;
-      border-color: #334155;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    }
-    body.dark-mode .popup-box h3 { color: #60a5fa; }
-    body.dark-mode .popup-box p { color: #94a3b8; }
-
     body.dark-mode .loading-overlay { background: rgba(15, 23, 42, 0.85); }
 
     body.dark-mode .loading-box {
@@ -851,6 +791,7 @@
 
   </style>
 <script src="../version/version-check.js" defer></script>
+<script src="../toast.js"></script>
 </head>
 <body class="app-ready">
   <div class="wrap">
@@ -936,14 +877,6 @@
         </div>
       </section>
     </main>
-  </div>
-
-  <div id="popup" class="popup-overlay">
-    <div class="popup-box">
-      <h3>Thông báo</h3>
-      <p id="popupMessage"></p>
-      <button id="popupClose" class="popup-close" type="button">Đã hiểu</button>
-    </div>
   </div>
 
   <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
@@ -1071,9 +1004,6 @@
     const filterBtn = document.getElementById("filterBtn");
     const filterMenu = document.getElementById("filterMenu");
     const filterLabel = document.getElementById("filterLabel");
-    const popup = document.getElementById("popup");
-    const popupMessage = document.getElementById("popupMessage");
-    const popupClose = document.getElementById("popupClose");
     const loadingOverlay = document.getElementById("loadingOverlay");
     const loadingText = document.getElementById("loadingText");
     const sectionSlides = {};
@@ -1083,11 +1013,6 @@
       if (window.innerWidth <= 620) return 1;
       if (window.innerWidth <= 860) return 2;
       return 3;
-    }
-
-    function showPopup(message) {
-      popupMessage.textContent = message;
-      popup.classList.add("show");
     }
 
     function getSectionStatusBadge(sectionIndex) {
@@ -1129,11 +1054,6 @@
 
       window.location.href = topic.href;
     }
-
-    popupClose.addEventListener("click", () => popup.classList.remove("show"));
-    popup.addEventListener("click", (e) => {
-      if (e.target === popup) popup.classList.remove("show");
-    });
 
     function renderHub(filterValue = "all") {
       hubSections.innerHTML = "";
@@ -1218,7 +1138,7 @@
 
             card.querySelector(".open-btn").addEventListener("click", () => {
               if (isUnavailable) {
-                showPopup("Nội dung đang được cập nhật. Vui lòng quay lại sau!");
+                lhToast("Nội dung đang được cập nhật. Vui lòng quay lại sau!", { type: "warning", title: "Đang cập nhật", icon: "fa-arrows-rotate" });
               } else {
                 openLesson(topic);
               }

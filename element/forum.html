@@ -979,6 +979,7 @@ body.dark-mode .pagination-info { color: #64748b; }
 }
 </style>
 <script src="../version/version-check.js" defer></script>
+<script src="../toast.js"></script>
 </head>
 <body class="app-ready">
 
@@ -1239,6 +1240,7 @@ function playSound(type){
   let id = "sound" + type.charAt(0).toUpperCase() + type.slice(1);
   let sound = document.getElementById(id);
   if(sound){
+    sound.volume = 1;
     sound.currentTime = 0;
     sound.play().catch(e => console.log("Sound error: " + e));
   }
@@ -1352,11 +1354,11 @@ async function sendPost(){
 
   if (!text && !hasImage) return;
   if (!currentUser) {
-    alert("Vui lòng chờ ứng dụng xác thực thông tin người dùng...");
+    lhToast("Vui lòng chờ ứng dụng xác thực thông tin người dùng...", 'info');
     return;
   }
   if(!checkRateLimit("sendPost", 3000)) {
-    showAuthNotice("Bạn gửi quá nhanh. Vui lòng chờ 3 giây.", "warning", "Chống spam");
+    lhToast("Bạn gửi quá nhanh. Vui lòng chờ 3 giây.", { type: "warning", title: "Chống spam" });
     return;
   }
 

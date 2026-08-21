@@ -235,6 +235,7 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
 }
 </style>
 <script src="../version/version-check.js" defer></script>
+<script src="../toast.js"></script>
 </head>
 <body>
 
@@ -780,7 +781,7 @@ function loadVideo(btn, url) {
 
   var embedUrl = getYoutubeEmbedUrl(url);
   if (!embedUrl) {
-    alert("Link video không hợp lệ.");
+    lhToast("Link video không hợp lệ.", 'error');
     return;
   }
 

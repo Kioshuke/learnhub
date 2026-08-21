@@ -115,21 +115,7 @@
     .btn-soft{background:#eff6ff;color:var(--blue)}.btn-soft:hover{background:#dbeafe}
     .btn-danger{background:#fef2f2;color:var(--red)}.btn-danger:hover{background:#fee2e2}
     .btn-success{background:#f0fdf4;color:var(--green)}.btn-success:hover{background:#dcfce7}
-    .btn-warning{background:#fffbeb;color:#92400e}.btn-warning:hover{background:#fef3c7}
-
-    /* ================= TOAST ================= */
-    .notice{
-      position:fixed;top:20px;right:20px;z-index:9999;width:360px;max-width:calc(100vw - 40px);
-      padding:14px 18px;border-radius:var(--r);border:1px solid transparent;
-      font-size:13.5px;font-weight:500;line-height:1.5;box-shadow:var(--shadow-md);
-      transform:translateX(120%);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .25s ease;
-      opacity:0;pointer-events:none;display:flex;align-items:center;gap:10px;
-    }
-    .notice.show{transform:translateX(0);opacity:1;pointer-events:auto}
-    .notice.info{background:#eff6ff;color:#1e40af;border-color:#bfdbfe}
-    .notice.success{background:#f0fdf4;color:#166534;border-color:#bbf7d0}
-    .notice.error{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
-    .notice.warn{background:#fffbeb;color:#92400e;border-color:#fde68a}
+.btn-warning{background:#fffbeb;color:#92400e}.btn-warning:hover{background:#fef3c7}
 
     /* ================= STAT CARDS ================= */
     .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
@@ -460,6 +446,7 @@
     }
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
   </style>
+<script src="toast.js"></script>
 </head>
 <body>
 
@@ -941,7 +928,6 @@ async function adminCleanupStaleOnline() {
   try { const { error } = await supabase.rpc("users_cleanup_stale_online", { p_stale_ms: 120000 }); if (error) throw error; } catch (e) { console.error("[admin] cleanup stale online lỗi:", e); }
 }
 
-const noticeEl = document.getElementById("notice");
 const loginView = document.getElementById("loginView");
 const dashboardView = document.getElementById("dashboardView");
 const totalUsersEl = document.getElementById("totalUsers");
@@ -1060,14 +1046,9 @@ document.querySelectorAll('input[name="broadcastTargetMode"]').forEach(r => {
 });
 
 function showNotice(message, type = "info") {
-  if (type === "warning") type = "warn";
-  const ns = new Audio('sound/realtimesound.mp3');
-  ns.volume = 0.5;
-  ns.play().catch(() => {});
-  noticeEl.className = `notice ${type} show`;
-  noticeEl.textContent = message;
-  clearTimeout(showNotice.timer);
-  showNotice.timer = setTimeout(() => noticeEl.classList.remove("show"), 3200);
+  if (window.lhToast) {
+    lhToast(message, { type: type === "warn" ? "warning" : type });
+  }
 }
 
 function normalizeEmail(e) { return String(e || "").trim().toLowerCase(); }
@@ -1590,7 +1571,7 @@ window.toggleWhitelist = async (email, cur) => {
   showNotice(cur?"Đã tắt quyền email này.":"Đã bật lại quyền email này.", "success");
 };
 window.removeWhitelist = async (email) => {
-  if (!confirm("Xóa email này khỏi whitelist?")) return;
+  if (!(await lhConfirm("Xóa email này khỏi whitelist?"))) return;
   await supabase.from("access_list").delete().eq("email", email); showNotice("Đã xóa email khỏi whitelist.", "success");
 };
 window.renameUser = async (uid) => {
@@ -1677,7 +1658,7 @@ document.addEventListener("click", (e) => {
 });
 window.deleteUserData = async (uid, email) => {
   const has=Boolean(uid);
-  if (!confirm(has?"Xóa hồ sơ và gỡ khỏi whitelist?":"Xóa email khỏi whitelist?")) return;
+  if (!(await lhConfirm(has?"Xóa hồ sơ và gỡ khỏi whitelist?":"Xóa email khỏi whitelist?"))) return;
   if (has) await supabase.from("users").delete().eq("id", uid);
   const ne=normalizeEmail(email);
   if (ne) { const { data } = await supabase.from("access_list").select("email").eq("email", ne).maybeSingle(); if (data) await supabase.from("access_list").delete().eq("email", ne); }
@@ -2168,6 +2149,5 @@ setInterval(async () => {
   await refreshCollections();
 }, 30000);
 </script>
-<div id="notice" class="notice info"></div>
 </body>
 </html>

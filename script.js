@@ -418,7 +418,6 @@ const authSlideData = [
 
 let authSlideIndex = 0;
 let authSlideTimer = null;
-let authNoticeTimer = null;
 
 function switchAuthTab(type){
   if(type === "register" && window.registrationOpen === false){
@@ -532,8 +531,8 @@ function playNotificationSound(soundId = "thongbaoSound"){
 
   // Reset audio to start
   audio.currentTime = 0;
-  audio.muted = false;
-  audio.volume = 1;
+audio.muted = false;
+audio.volume = 1;
 
   // Play with error handling for autoplay restrictions
   audio.play().catch(() => {
@@ -565,9 +564,9 @@ function playNotificationSound(soundId = "thongbaoSound"){
               a.pause();
               a.currentTime = 0;
             }
-            a.muted = false;
-            a.volume = 1;
-            loaded = true;
+a.muted = false;
+a.volume = 1;
+loaded = true;
           }).catch(function(){});
         }
       } catch(e) {}
@@ -585,62 +584,16 @@ function playNotificationSound(soundId = "thongbaoSound"){
   document.addEventListener("keydown", tryUnlock);
 })();
 
-function showAuthNotice(message, type = "info", title = "", durationMs = 2600, soundId = "thongbaoSound"){
-  const notice = document.getElementById("authNotice");
-  const noticeTitle = document.getElementById("authNoticeTitle");
-  const noticeMessage = document.getElementById("authNoticeMessage");
-  const noticeIcon = document.getElementById("authNoticeIcon");
-
-  if(!notice || !noticeTitle || !noticeMessage || !noticeIcon) return;
-
-  if(authNoticeTimer){
-    clearTimeout(authNoticeTimer);
-    authNoticeTimer = null;
+function showAuthNotice(message, type = "info", title = "", durationMs = 2600, soundId = "thongbaoSound", icon){
+  if(window.lhToast){
+    lhToast(message, {
+      type: type === "warn" ? "warning" : type,
+      title: title || undefined,
+      durationMs: Math.max(1200, Number(durationMs) || 2600),
+      icon: icon || undefined,
+      sound: /realtime/i.test(soundId || "") ? "realtime" : "thongbao"
+    });
   }
-
-  notice.classList.remove("hide", "show", "notice-error", "notice-info", "notice-success", "notice-warning");
-
-  // Set class and icon based on type
-  let icon = "i";
-  let defaultTitle = "Thông báo";
-  if (type === "error") {
-    notice.classList.add("notice-error");
-    icon = "✕";
-    defaultTitle = "Lỗi";
-  } else if (type === "warning") {
-    notice.classList.add("notice-warning");
-    icon = "!";
-    defaultTitle = "Chú ý";
-  } else if (type === "success") {
-    notice.classList.add("notice-success");
-    icon = "✓";
-    defaultTitle = "Thành công";
-  } else {
-    notice.classList.add("notice-info");
-    icon = "i";
-    defaultTitle = "Thông báo";
-  }
-
-  noticeIcon.innerText = icon;
-  noticeTitle.innerText = title || defaultTitle;
-  noticeMessage.textContent = message;
-
-  notice.style.display = "flex";
-  void notice.offsetWidth;
-  notice.classList.add("show");
-
-  // Play notification sound when popup appears
-  playNotificationSound(soundId);
-
-  authNoticeTimer = setTimeout(() => {
-    notice.classList.remove("show");
-    notice.classList.add("hide");
-
-    setTimeout(() => {
-      notice.classList.remove("hide");
-      notice.style.display = "none";
-    }, 220);
-  }, Math.max(1200, Number(durationMs) || 2600));
 }
 
 function authComingSoon(){
@@ -781,9 +734,9 @@ function playSound(id) {
     const audio = document.getElementById(id);
     if (audio) {
         // Bỏ mute/volume 0 nếu unlockAudio từng đặt (tránh phát ra tiếng nhưng bị câm)
-        audio.muted = false;
-        audio.volume = 1;
-        audio.currentTime = 0;
+audio.muted = false;
+audio.volume = 1;
+audio.currentTime = 0;
         // Thêm .catch để PSI không báo lỗi khi trình duyệt chặn tự phát
         audio.play().catch(() => {}); 
     }

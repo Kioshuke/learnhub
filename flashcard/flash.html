@@ -2596,6 +2596,7 @@ body.dark-mode #score,
 body.dark-mode .streak-badge { color: #f1f5f9; }
 </style>
 <script src="../version/version-check.js" defer></script>
+<script src="../toast.js"></script>
 </head>
 
 <body>
@@ -2899,7 +2900,7 @@ function loadDataScript() {
 
         gameScript.onerror = () => {
             hideLoadPopup();
-            alert("Không tải được game.js");
+            lhToast("Không tải được game.js", 'error');
         };
 
         document.body.appendChild(gameScript);
@@ -2907,7 +2908,7 @@ function loadDataScript() {
 
     script.onerror = () => {
         hideLoadPopup();
-        alert("Không tải được dữ liệu: " + dataFile);
+        lhToast("Không tải được dữ liệu: " + dataFile, 'error');
     };
 
     document.body.appendChild(script);

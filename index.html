@@ -43,6 +43,7 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="account-popup.css">
 <script src="version/version-check.js" defer></script>
+<script src="toast.js"></script>
 </head>
 <body class="app-ready">
 <audio id="offtest" src="sound/preview_4.mp3" preload="auto" hidden></audio>
@@ -65,13 +66,6 @@
 </div>
 <!-- loginBox đã được tách sang login.html -->
 
-<div id="authNotice" class="notice-info" role="status" aria-live="polite">
-  <div class="notice-icon" id="authNoticeIcon">i</div>
-  <div class="notice-content">
-    <p class="notice-title" id="authNoticeTitle">Thong bao</p>
-    <p class="notice-message" id="authNoticeMessage"></p>
-  </div>
-</div>
 
 <div id="lh-header-placeholder" data-active="home"></div>
 <script>
@@ -553,41 +547,29 @@ function forceLogoutWithCountdown(message, title, redirectMs = 5000){
   if(authGuardTriggered) return;
   authGuardTriggered = true;
 
-  const notice = document.getElementById("authNotice");
-  const noticeTitle = document.getElementById("authNoticeTitle");
-  const noticeMessage = document.getElementById("authNoticeMessage");
-  const noticeIcon = document.getElementById("authNoticeIcon");
-  if(!notice || !noticeTitle || !noticeMessage || !noticeIcon){
-    if(currentSupabaseUser) finalizeOnlineSession(currentSupabaseUser.id);
-    supabase.auth.signOut().catch(()=>{});
-    return;
-  }
-
-  if(authNoticeTimer){ clearTimeout(authNoticeTimer); authNoticeTimer = null; }
-  notice.classList.remove("hide", "show", "notice-error", "notice-info", "notice-success", "notice-warning");
-  notice.classList.add("notice-error");
-  noticeIcon.innerText = "✕";
-  noticeTitle.innerText = title || "Phiên đăng nhập đã hết hiệu lực";
   let remaining = Math.ceil(redirectMs / 1000);
-  noticeMessage.textContent = `${message} Đang đăng xuất sau ${remaining}s...`;
-  notice.style.display = "flex";
-  void notice.offsetWidth;
-  notice.classList.add("show");
-  playNotificationSound("thongbaoSound");
+  let toast = null;
+  if(window.lhToast){
+    toast = lhToast(`${message} Đang đăng xuất sau ${remaining}s...`, {
+      type: "error",
+      title: title || "Phiên đăng nhập đã hết hiệu lực",
+      durationMs: redirectMs,
+      sound: "thongbao"
+    });
+  }
 
   const countdownTimer = setInterval(() => {
     remaining--;
     if(remaining <= 0){
       clearInterval(countdownTimer);
-      notice.classList.remove("show");
-      notice.classList.add("hide");
+      if(toast) toast.close();
       const st = updateStatus(false);
       if(st && typeof st.catch === "function") st.catch(()=>{});
       supabase.auth.signOut().catch(()=>{}).finally(() => {
         window.location.href = "login.html?loggedout=1";
       });
-    } else {
-      noticeMessage.textContent = `${message} Đang đăng xuất sau ${remaining}s...`;
+    } else if(toast){
+      toast.update(`${message} Đang đăng xuất sau ${remaining}s...`);
     }
   }, 1000);
 }
@@ -831,7 +813,7 @@ if(user){
     const welcomeName = userData.displayName || "bạn";
     const rtSound = document.getElementById("realtimeSound");
     const canPlay = rtSound && !rtSound.muted && rtSound.volume > 0;
-    showAuthNotice(`Xin chào ${welcomeName}`, "info", "Chào mừng trở lại!", 4000, canPlay ? "realtimeSound" : "");
+    showAuthNotice(`Xin chào ${welcomeName}`, "info", "Chào mừng trở lại!", 4000, canPlay ? "realtimeSound" : "", "fa-solid fa-hand lh-wave");
   }
 
 } else {

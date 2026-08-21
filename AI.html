@@ -189,6 +189,7 @@
             to { opacity: 1; transform: scale(1); }
         }
     </style>
+<script src="toast.js"></script>
 </head>
 <body>
 
@@ -369,7 +370,7 @@
             statusEl.innerText = "✓ Đã copy nội dung tin nhắn!";
             setTimeout(() => { statusEl.innerText = originalStatus; }, 2000);
         }).catch(err => {
-            alert('Lỗi! Không thể copy văn bản.');
+            lhToast('Lỗi! Không thể copy văn bản.', 'error');
         });
     }
 
@@ -414,7 +415,7 @@
     function processFile(file) {
         if (!file) return;
         if (!file.type.startsWith('image/')) {
-            alert('Hubie hiện tại chỉ hỗ trợ nhận diện các định dạng hình ảnh thôi nè!');
+            lhToast('Hubie hiện tại chỉ hỗ trợ nhận diện các định dạng hình ảnh thôi nè!', 'warning');
             return;
         }
 
