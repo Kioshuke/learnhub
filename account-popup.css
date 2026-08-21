@@ -1188,10 +1188,16 @@ body.cc-reduced.cc-glass-off {
     right: 12px;
     width: 344px;
     height: min(480px, calc(100vh - 84px));
+    /* Đảm bảo kính mờ hoạt động giống desktop trên mobile */
+    -webkit-backdrop-filter: blur(26px) saturate(160%);
+    backdrop-filter: blur(26px) saturate(160%);
   }
 
   .cc-rail {
     width: 56px;
+    /* Đảm bảo kính mờ hoạt động giống desktop trên mobile */
+    -webkit-backdrop-filter: blur(26px) saturate(160%);
+    backdrop-filter: blur(26px) saturate(160%);
   }
 
   .cc-pill {
@@ -1201,10 +1207,34 @@ body.cc-reduced.cc-glass-off {
   .cc-focus-widget {
     right: 12px;
     bottom: 84px;
+    /* Đảm bảo kính mờ hoạt động giống desktop trên mobile */
+    -webkit-backdrop-filter: blur(16px) saturate(130%);
+    backdrop-filter: blur(16px) saturate(130%);
   }
 
   .cc-focus-pill {
     right: 12px;
     bottom: 84px;
+    /* Đảm bảo kính mờ hoạt động giống desktop trên mobile */
+    -webkit-backdrop-filter: blur(16px) saturate(130%);
+    backdrop-filter: blur(16px) saturate(130%);
+  }
+
+  /* Tắt kính mờ trên mobile khi cc-glass-off */
+  body.cc-glass-off #userPopup,
+  body.cc-glass-off .cc-rail,
+  body.cc-glass-off .cc-focus-widget,
+  body.cc-glass-off .cc-focus-pill {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* Tắt kính mờ trên mobile khi cc-reduced */
+  body.cc-reduced #userPopup,
+  body.cc-reduced .cc-rail,
+  body.cc-reduced .cc-focus-widget,
+  body.cc-reduced .cc-focus-pill {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
 }
