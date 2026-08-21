@@ -25,7 +25,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path  # .../LearnHub/version
+$root      = Split-Path -Parent $scriptDir                    # .../LearnHub (gốc repo, chỗ chạy git)
 Set-Location $root
 
 try {
@@ -35,7 +36,7 @@ try {
     $updatedVi = $now.ToString("dd/MM/yyyy")
 
     # ---------- 2. Đọc version.json hiện tại ----------
-    $vjPath = Join-Path $root "version.json"
+    $vjPath = Join-Path $scriptDir "version.json"
     if (-not (Test-Path $vjPath)) { throw "Không tìm thấy version.json" }
     $data = Get-Content $vjPath -Raw -Encoding UTF8 | ConvertFrom-Json
     $metaDate  = if ($data._meta -and $data._meta.date)  { [string]$data._meta.date }  else { "" }
@@ -92,7 +93,7 @@ try {
     [System.IO.File]::WriteAllText($vjPath, $json + "`n", $utf8NoBom)
 
     # ---------- 7. Vá LH_VERSION trong version-check.js ----------
-    $jsPath = Join-Path $root "version-check.js"
+    $jsPath = Join-Path $scriptDir "version-check.js"
     if (-not (Test-Path $jsPath)) { throw "Không tìm thấy version-check.js" }
     $js = [System.IO.File]::ReadAllText($jsPath)
     $pattern = 'window\.LH_VERSION\s*=\s*"[^"]*"'

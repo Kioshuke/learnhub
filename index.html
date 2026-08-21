@@ -42,7 +42,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="account-popup.css">
-<script src="version-check.js" defer></script>
+<script src="version/version-check.js" defer></script>
 </head>
 <body class="app-ready">
 <audio id="offtest" src="sound/preview_4.mp3" preload="auto" hidden></audio>
@@ -1056,7 +1056,7 @@ window.addEventListener("beforeunload", () => {
   window.supabaseClient = supabase;
   window.getCurrentLearnHubUser = () => window.currentLearnHubUser || null;
 
-  // 🆕 [LearnHub Test - Giai đoạn 1] Gửi thông tin user sang iframe #quizFrame (filetest.html)
+  // 🆕 [LearnHub Test - Giai đoạn 1] Gửi thông tin user sang iframe #quizFrame (cauhoi/filetest.html)
   // - Chỉ gửi khi quizFrame đã load xong và đã có user đăng nhập (window.currentLearnHubUser).
   // - Được gọi từ script.js mỗi khi iframe.onload bắn lên (loadQuiz), nên tự gửi lại mỗi khi mở/reload đề.
   window.sendUserToQuizFrame = function(){

@@ -2,7 +2,7 @@
 // LearnHub Stats Module (learnhub-stats.js)
 // ----------------------------------------------------------------------------
 // Module thao tác Supabase cho thống kê cơ bản.
-// Giữ nguyên tên hàm và kiểu trả về để index.html / filetest.html không đổi.
+// Giữ nguyên tên hàm và kiểu trả về để index.html / cauhoi/filetest.html không đổi.
 // ============================================================================
 
 import { supabase } from "./supabase-config.js";
