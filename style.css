@@ -3759,3 +3759,62 @@ body.cc-reduced .reveal-item {
 body.cc-reduced .slide-text-block.active {
   animation-duration: 0.2s;
 }
+
+/* ===== VERSION POPUP (nút "Phiên bản v..." ở footer) ===== */
+.lh-version-btn{
+  background:none;border:none;padding:0;margin:0;
+  font:inherit;color:var(--footer-bottom-text);
+  cursor:pointer;letter-spacing:inherit;
+  border-bottom:1px dashed currentColor;
+  transition:color .2s ease, border-color .2s ease;
+}
+.lh-version-btn:hover{color:var(--footer-link-hover)}
+.lh-version-popup{
+  position:fixed;inset:0;z-index:2147483000;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  background:rgba(15,23,42,.55);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .25s ease,visibility .25s ease;
+}
+.lh-version-popup.lh-version-show{opacity:1;visibility:visible;pointer-events:auto}
+.lh-version-card{
+  width:min(92vw,360px);box-sizing:border-box;
+  background:#fff;border-radius:18px;
+  box-shadow:0 24px 60px rgba(0,0,0,.28);
+  padding:26px 22px 20px;text-align:center;position:relative;
+  transform:translateY(18px) scale(.94);
+  transition:transform .3s cubic-bezier(.2,.7,.3,1);
+}
+.lh-version-popup.lh-version-show .lh-version-card{transform:translateY(0) scale(1)}
+.lh-version-close{
+  position:absolute;top:10px;right:12px;
+  border:none;background:none;font-size:20px;line-height:1;
+  color:#94a3b8;cursor:pointer;padding:4px;border-radius:8px;
+  transition:color .2s ease;
+}
+.lh-version-close:hover{color:#0f172a}
+.lh-version-logo{width:52px;height:52px;margin:0 auto 10px;display:block}
+.lh-version-name{margin:0;font-size:17px;font-weight:800;color:#0f172a;letter-spacing:-.2px}
+.lh-version-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  margin:12px auto 2px;padding:7px 18px;border-radius:999px;
+  background:linear-gradient(135deg,#2563eb,#7c3aed);
+  color:#fff;font-size:14px;font-weight:800;letter-spacing:.02em;
+  box-shadow:0 6px 18px rgba(37,99,235,.35);
+}
+.lh-version-date{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:12px;font-size:13px;color:#64748b;font-weight:600;
+}
+.lh-version-date i{color:#2563eb}
+.lh-version-note{margin:12px 0 0;font-size:12px;color:#94a3b8;line-height:1.6}
+/* Dark mode */
+body.dark-mode .lh-version-card{background:#1e293b;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+body.dark-mode .lh-version-name{color:#f1f5f9}
+body.dark-mode .lh-version-close:hover{color:#f1f5f9}
+body.dark-mode .lh-version-date{color:#94a3b8}
+body.dark-mode .lh-version-note{color:#64748b}
+@media (prefers-reduced-motion:reduce){
+  .lh-version-popup,.lh-version-card{transition:none}
+}

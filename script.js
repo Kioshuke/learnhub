@@ -825,6 +825,24 @@ if (typeof window.supabaseClient !== 'undefined') {
   document.addEventListener('DOMContentLoaded', _bindEvt);
   _bindEvt();
 }
+// ==================== SCROLL LOCK GIỮ VỊ TRÍ CUỘN ====================
+// body.no-scroll dùng position:fixed -> nếu không lưu vị trí trước khi khóa,
+// trang sẽ bị nhảy về đầu trang khi mở/đóng popup (bug bong bóng chat Hubie).
+function lhLockBodyScroll() {
+  const y = window.scrollY || document.documentElement.scrollTop || 0;
+  document.body.dataset.scrollLockY = String(y);
+  document.body.style.top = (-y) + "px";
+  document.body.classList.add("no-scroll");
+}
+function lhUnlockBodyScroll() {
+  if (!document.body.classList.contains("no-scroll")) return;
+  const y = parseInt(document.body.dataset.scrollLockY || "0", 10);
+  document.body.classList.remove("no-scroll");
+  document.body.style.top = "";
+  delete document.body.dataset.scrollLockY;
+  window.scrollTo(0, y);
+}
+
 let chatBtn, frame, overlay;
 
 function initAccessibilityButton() {
@@ -991,7 +1009,7 @@ if (overlay) {
   overlay.addEventListener("click", () => {
     frame.style.display = "none";
     overlay.style.display = "none";
-    document.body.classList.remove("no-scroll");
+    lhUnlockBodyScroll();
   });
 }
 // ==================== CODE ĐIỀU KHIỂN SLIDESHOW TRANG CHỦ ====================
@@ -1042,12 +1060,12 @@ function toggleHubieChat() {
     // Hiển thị popup góc và lớp overlay
     frame.style.display = "block";
     overlay.style.display = "block";
-    document.body.classList.add("no-scroll");
+    lhLockBodyScroll();
   } else {
     // Ẩn khung chat khi đóng
     frame.style.display = "none";
     overlay.style.display = "none";
-    document.body.classList.remove("no-scroll");
+    lhUnlockBodyScroll();
   }
 }
 

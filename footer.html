@@ -43,7 +43,19 @@
     <div class="lh-footer-bottom-links">
       <a href="dieu-khoan.html">Điều khoản sử dụng</a>
       <a href="chinh-sach-bao-mat.html">Chính sách bảo mật</a>
-      <span>Phiên bản v1.27.2</span>
+      <button type="button" class="lh-version-btn" title="Xem thông tin phiên bản" onclick="document.getElementById('lh-version-popup').classList.add('lh-version-show')">Phiên bản v1.26.8.2</button>
     </div>
   </div>
 </footer>
+
+<!-- POPUP THÔNG TIN PHIÊN BẢN -->
+<div class="lh-version-popup" id="lh-version-popup" role="dialog" aria-modal="true" aria-label="Thông tin phiên bản" onclick="if(event.target===this)this.classList.remove('lh-version-show')">
+  <div class="lh-version-card">
+    <button type="button" class="lh-version-close" aria-label="Đóng" onclick="document.getElementById('lh-version-popup').classList.remove('lh-version-show')">&times;</button>
+    <img class="lh-version-logo" src="pictures/favicon.png" alt="LearnHub">
+    <p class="lh-version-name">LearnHub Platform</p>
+    <div class="lh-version-badge"><i class="fa-solid fa-code-branch"></i> v1.26.8.2</div>
+    <div class="lh-version-date"><i class="fa-regular fa-calendar-check"></i> Cập nhật ngày 21/08/2026</div>
+    <p class="lh-version-note">Bạn đang sử dụng phiên bản mới nhất của LearnHub Platform.</p>
+  </div>
+</div>

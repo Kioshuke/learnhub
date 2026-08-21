@@ -365,6 +365,11 @@ window.openFeedbackModal = function() {
   const overlay = document.getElementById('lh-feedback-overlay');
   if (overlay) {
     overlay.classList.add('active');
+    // Lưu vị trí cuộn trước khi khóa (.no-scroll dùng position:fixed
+    // nên nếu không lưu thì trang sẽ bị nhảy về đầu trang)
+    const lockY = window.scrollY || document.documentElement.scrollTop || 0;
+    document.body.dataset.scrollLockY = String(lockY);
+    document.body.style.top = (-lockY) + 'px';
     document.body.classList.add('no-scroll');
   }
 };
@@ -373,7 +378,12 @@ window.closeFeedbackModal = function() {
   const overlay = document.getElementById('lh-feedback-overlay');
   if (overlay) {
     overlay.classList.remove('active');
+    // Khôi phục đúng vị trí cuộn trước khi khóa
+    const lockY = parseInt(document.body.dataset.scrollLockY || '0', 10);
     document.body.classList.remove('no-scroll');
+    document.body.style.top = '';
+    delete document.body.dataset.scrollLockY;
+    window.scrollTo(0, lockY);
   }
 };
 
@@ -469,6 +479,11 @@ fetch('footer.html').then(r=>r.text()).then(html=>{
     const overlay = document.getElementById('lh-feedback-overlay');
     if (overlay) {
       overlay.classList.add('active');
+      // Lưu vị trí cuộn trước khi khóa (.no-scroll dùng position:fixed
+      // nên nếu không lưu thì trang sẽ bị nhảy về đầu trang)
+      const lockY = window.scrollY || document.documentElement.scrollTop || 0;
+      document.body.dataset.scrollLockY = String(lockY);
+      document.body.style.top = (-lockY) + 'px';
       document.body.classList.add('no-scroll');
     }
   }
@@ -477,7 +492,12 @@ fetch('footer.html').then(r=>r.text()).then(html=>{
     const overlay = document.getElementById('lh-feedback-overlay');
     if (overlay) {
       overlay.classList.remove('active');
+      // Khôi phục đúng vị trí cuộn trước khi khóa
+      const lockY = parseInt(document.body.dataset.scrollLockY || '0', 10);
       document.body.classList.remove('no-scroll');
+      document.body.style.top = '';
+      delete document.body.dataset.scrollLockY;
+      window.scrollTo(0, lockY);
     }
   }
 
