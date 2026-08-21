@@ -37,21 +37,21 @@
       "name": "LearnHub Test",
       "short_name": "Thi thử",
       "description": "Làm bài kiểm tra trực tuyến ngay",
-      "url": "/element/phong-hoc.html",
+      "url": "/index.html?open=phong-hoc",
       "icons": [{ "src": "/pictures/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Bảng Xếp Hạng",
       "short_name": "BXH",
       "description": "Xem bảng xếp hạng tuần",
-      "url": "/element/leaderboard.html",
+      "url": "/index.html?open=leaderboard",
       "icons": [{ "src": "/pictures/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Smart Flashcard",
       "short_name": "Flashcard",
       "description": "Học từ vựng với flashcard",
-      "url": "/flashcard/hub.html",
+      "url": "/index.html?open=flash",
       "icons": [{ "src": "/pictures/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]

@@ -203,6 +203,31 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 });
 
+/* === PWA SHORTCUT DEEP LINK (?open=...) — mở tab nội bộ như bấm card tính năng === */
+document.addEventListener('DOMContentLoaded', function(){
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var open = params.get("open");
+    if(!open) return;
+    var validTabs = ["phong-hoc", "flash", "forum", "tai-lieu", "leaderboard"];
+    if(validTabs.indexOf(open) === -1) return;
+    history.replaceState(null, "", window.location.pathname);
+    var tries = 0;
+    var iv = setInterval(function(){
+      tries++;
+      if(!window.currentLearnHubUser && tries < 32) return;
+      clearInterval(iv);
+      setTimeout(function(){
+        if(open === "leaderboard"){
+          if(typeof openLeaderboardModal === "function") openLeaderboardModal();
+          return;
+        }
+        if(typeof show === "function") show(open);
+      }, 300);
+    }, 250);
+  } catch(e){}
+});
+
 function updateTabScrollTopBtn(){
   const btn = document.getElementById("tabScrollTopBtn");
   if(!btn) return;
