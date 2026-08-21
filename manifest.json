@@ -1,0 +1,58 @@
+{
+  "name": "LearnHub Platform",
+  "short_name": "LearnHub",
+  "description": "Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích học tập hiện đại trên một nền tảng duy nhất.",
+  "id": "/",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f6f8ff",
+  "theme_color": "#1a73e8",
+  "lang": "vi",
+  "dir": "ltr",
+  "categories": ["education"],
+  "icons": [
+    {
+      "src": "/pictures/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pictures/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pictures/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "LearnHub Test",
+      "short_name": "Thi thử",
+      "description": "Làm bài kiểm tra trực tuyến ngay",
+      "url": "/element/phong-hoc.html",
+      "icons": [{ "src": "/pictures/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Bảng Xếp Hạng",
+      "short_name": "BXH",
+      "description": "Xem bảng xếp hạng tuần",
+      "url": "/element/leaderboard.html",
+      "icons": [{ "src": "/pictures/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Smart Flashcard",
+      "short_name": "Flashcard",
+      "description": "Học từ vựng với flashcard",
+      "url": "/flashcard/hub.html",
+      "icons": [{ "src": "/pictures/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

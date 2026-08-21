@@ -2,7 +2,6 @@
   const STORE_KEYS = {
     glass: "cc_glass",
     reduce: "cc_reduce",
-    accent: "cc_accent",
     volume: "cc_volume",
     focus: "cc_focus_min"
   };
@@ -18,17 +17,8 @@
 
   const prefs = {
     glass: localStorage.getItem(STORE_KEYS.glass) !== "off",
-    reduce: loadReducePref(),
-    accent: localStorage.getItem(STORE_KEYS.accent)
+    reduce: loadReducePref()
   };
-
-  const ACCENTS = [
-    { value: "#2563eb", label: "Xanh dương" },
-    { value: "#7c3aed", label: "Tím" },
-    { value: "#10b981", label: "Xanh lá" },
-    { value: "#f43f5e", label: "Hồng" },
-    { value: "#f59e0b", label: "Cam" }
-  ];
 
   const TRACKS = [
     { id: "7NOSDKb0HlU", name: "Lofi Beats", sub: "Radio 24/7 · Chillhop", icon: "🎧" },
@@ -51,6 +41,7 @@
     appearance: "#7c3aed",
     focus: "#d97706",
     music: "#db2777",
+    install: "#0ea5e9",
     admin: "#dc2626",
     logout: "#ef4444"
   };
@@ -64,44 +55,10 @@
   function applyPrefs() {
     document.body.classList.toggle("cc-glass-off", !prefs.glass);
     document.body.classList.toggle("cc-reduced", prefs.reduce);
-    if (prefs.accent) {
-      document.body.style.setProperty("--cc-accent", prefs.accent);
-    } else {
-      document.body.style.removeProperty("--cc-accent");
-    }
     const glass = document.getElementById("ccGlassToggle");
     const reduce = document.getElementById("ccReduceToggle");
     if (glass) glass.checked = prefs.glass;
     if (reduce) reduce.checked = prefs.reduce;
-    buildAccentRow();
-  }
-
-  function effectiveAccent() {
-    if (prefs.accent) return prefs.accent;
-    const v = getComputedStyle(document.body).getPropertyValue("--cc-accent").trim();
-    return v || "#2563eb";
-  }
-
-  function buildAccentRow() {
-    const wrap = document.getElementById("ccAccentRow");
-    if (!wrap) return;
-    wrap.innerHTML = "";
-    const active = effectiveAccent();
-    ACCENTS.forEach(function (a) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "cc-accent-dot" + (a.value === active ? " cc-selected" : "");
-      btn.style.background = a.value;
-      btn.title = a.label;
-      btn.setAttribute("aria-label", a.label);
-      btn.addEventListener("click", function () {
-        prefs.accent = a.value;
-        localStorage.setItem(STORE_KEYS.accent, a.value);
-        document.body.style.setProperty("--cc-accent", a.value);
-        buildAccentRow();
-      });
-      wrap.appendChild(btn);
-    });
   }
 
   function placePill() {
@@ -142,6 +99,10 @@
     }
     if (name === "logout") {
       openLogoutConfirm();
+      return;
+    }
+    if (name === "install") {
+      doInstallApp();
       return;
     }
     const target = paneEls[name];
@@ -961,6 +922,63 @@
     if (el) el.textContent = "© 2026 LearnHub Platform · Control Center v2.0";
   }
 
+  /* ===== Icon cài ứng dụng (PWA) trên rail menu ===== */
+  function isStandaloneDisplay() {
+    return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches)
+      || window.navigator.standalone === true;
+  }
+
+  function isIosSafari() {
+    return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+  }
+
+  function updateInstallVisibility() {
+    const btn = document.getElementById("ccNavInstall");
+    if (!btn) return;
+    if (isStandaloneDisplay()) { btn.style.display = "none"; return; }
+    const canPrompt = !!window.__lhInstallPrompt;
+    btn.style.display = (canPrompt || isIosSafari()) ? "" : "none";
+  }
+
+  function doInstallApp() {
+    const promptEvent = window.__lhInstallPrompt;
+    if (promptEvent) {
+      promptEvent.prompt();
+      promptEvent.userChoice.then(function (choice) {
+        window.__lhInstallPrompt = null;
+        if (choice && choice.outcome === "accepted") {
+          try { lhToast("Đã cài LearnHub lên thiết bị 🎉", { type: "success", title: "Cài đặt thành công" }); } catch (e) {}
+        }
+        updateInstallVisibility();
+      }).catch(function () { updateInstallVisibility(); });
+      return;
+    }
+    if (isIosSafari()) {
+      try {
+        lhToast('Trên iPhone: nhấn nút Chia sẻ ⬆️ rồi chọn "Thêm vào Màn hình chính".', { type: "info", title: "Cài ứng dụng", durationMs: 6000 });
+      } catch (e) {}
+      return;
+    }
+    updateInstallVisibility();
+  }
+
+  function initInstallApp() {
+    window.addEventListener("beforeinstallprompt", function (e) {
+      e.preventDefault();
+      window.__lhInstallPrompt = e;
+      updateInstallVisibility();
+    });
+
+    window.addEventListener("appinstalled", function () {
+      window.__lhInstallPrompt = null;
+      const b = document.getElementById("ccNavInstall");
+      if (b) b.style.display = "none";
+      try { lhToast("LearnHub đã được cài lên thiết bị 🎉", { type: "success" }); } catch (e) {}
+    });
+
+    updateInstallVisibility();
+  }
+
   applyPrefs();
   bindPrefs();
   initFocus();
@@ -968,6 +986,7 @@
   initMusic();
   initLogout();
   initVersion();
+  initInstallApp();
   waitForUser();
   applyPillColor("home");
   placePill();

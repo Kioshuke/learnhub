@@ -197,6 +197,8 @@ body.cc-glass-off {
 .cc-nav[data-tab="focus"].cc-active{color:#d97706;background:rgba(217,119,6,.12);}
 .cc-nav[data-tab="music"]:hover,
 .cc-nav[data-tab="music"].cc-active{color:#db2777;background:rgba(219,39,119,.12);}
+.cc-nav[data-tab="install"]:hover,
+.cc-nav[data-tab="install"].cc-active{color:#0ea5e9;background:rgba(14,165,233,.12);}
 .cc-nav[data-tab="admin"]:hover,
 .cc-nav[data-tab="admin"].cc-active{color:#dc2626;background:rgba(220,38,38,.12);}
 .cc-nav[data-tab="logout"]:hover,
@@ -498,31 +500,6 @@ body.cc-glass-off {
 
 .cc-switch input:checked + .cc-thumb::after {
   transform: translateX(18px);
-}
-
-.cc-accent-grid {
-  display: flex;
-  gap: 10px;
-  margin: 2px 0 8px;
-}
-
-.cc-accent-dot {
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.cc-accent-dot:hover {
-  transform: scale(1.12);
-}
-
-.cc-accent-dot.cc-selected {
-  border-color: var(--text-main);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--text-main) 20%, transparent), 0 4px 12px rgba(0, 0, 0, 0.2);
-  transform: scale(1.08);
 }
 
 .cc-focus-presets {

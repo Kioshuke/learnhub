@@ -9,7 +9,20 @@
 <link rel="icon" type="image/png" sizes="48x48" href="pictures/favicon.png">
 <link rel="apple-touch-icon" href="pictures/favicon.png">
 
+<!-- PWA: cài web như ứng dụng -->
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a73e8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="LearnHub">
+<script>
+/* Bắt sớm sự kiện cài app để nút trong Control Center dùng được */
+window.addEventListener("beforeinstallprompt", function (e) {
+  e.preventDefault();
+  window.__lhInstallPrompt = e;
+});
+</script>
 <title>LearnHub Platform </title>
 <meta name="description" content="LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.">
 
@@ -1153,6 +1166,7 @@ fetch('footer.html').then(r => r.text()).then(html => {
       <button class="cc-nav" type="button" data-tab="appearance" data-tooltip="Giao diện" aria-label="Giao diện"><span class="cc-ico"><i class="fa-solid fa-palette"></i></span></button>
       <button class="cc-nav" type="button" data-tab="focus" data-tooltip="Focus Mode" aria-label="Focus Mode"><span class="cc-ico"><i class="fa-solid fa-hourglass-half"></i></span></button>
       <button class="cc-nav" type="button" data-tab="music" data-tooltip="Âm nhạc" aria-label="Âm nhạc"><span class="cc-ico"><i class="fa-solid fa-music"></i></span></button>
+      <button class="cc-nav" type="button" data-tab="install" data-tooltip="Cài ứng dụng" aria-label="Cài ứng dụng" id="ccNavInstall" style="display:none;"><span class="cc-ico"><i class="fa-solid fa-download"></i></span></button>
       <button class="cc-nav" type="button" data-tab="admin" data-tooltip="Admin Panel" aria-label="Admin Panel" id="ccNavAdmin"><span class="cc-ico"><i class="fa-solid fa-shield-halved"></i></span></button>
       <button class="cc-nav cc-nav-logout" type="button" data-tab="logout" data-tooltip="Đăng xuất" aria-label="Đăng xuất"><span class="cc-ico"><i class="fa-solid fa-right-from-bracket"></i></span></button>
     </nav>
@@ -1536,5 +1550,13 @@ fetch('footer.html').then(r => r.text()).then(html => {
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js"></script>
 <script src="script.js" defer></script>
 <script src="account-popup.js" defer></script>
+<script>
+/* PWA: đăng ký service worker (bỏ qua im lặng nếu môi trường không hỗ trợ) */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("service-worker.js").catch(function () {});
+  });
+}
+</script>
 </body>
 </html>

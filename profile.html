@@ -946,6 +946,44 @@
             }
         }
 
+        // Đếm số chạy mượt từ 0 lên giá trị đích (count-up), tôn trọng reduced-motion
+        function animateCountUp(el, target, opts) {
+            if (!el) return;
+            opts = opts || {};
+            const decimals = opts.decimals || 0;
+            const duration = opts.duration || 900;
+            const formatter = opts.formatter || function (v) { return v.toFixed(decimals); };
+            const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            if (reduceMotion || duration <= 0 || !isFinite(target)) { el.innerText = formatter(target); return; }
+            if (el._cuRaf) cancelAnimationFrame(el._cuRaf);
+            const start = performance.now();
+            function frame(now) {
+                const p = Math.min(1, (now - start) / duration);
+                const eased = 1 - Math.pow(1 - p, 3);
+                el.innerText = formatter(target * eased);
+                if (p < 1) {
+                    el._cuRaf = requestAnimationFrame(frame);
+                } else {
+                    el.innerText = formatter(target);
+                    el._cuRaf = null;
+                }
+            }
+            el._cuRaf = requestAnimationFrame(frame);
+        }
+
+        // Chỉ animate giờ online khi mới mở/đổi profile xem, các lần cập nhật realtime sau đó set thẳng
+        let onlineAnimKey = null;
+        function setOnlineDisplay(seconds, key) {
+            const el = document.getElementById('profile-online-display');
+            if (!el) return;
+            if (onlineAnimKey !== key) {
+                onlineAnimKey = key;
+                animateCountUp(el, seconds, { formatter: formatTimer, duration: 1200 });
+            } else {
+                el.innerText = formatTimer(seconds);
+            }
+        }
+
         // Load stats theo UID
         async function fetchStats(uid) {
             const { data } = await supabase.from("test_stats")
@@ -954,12 +992,12 @@
                 .maybeSingle();
 
             if (data) {
-                document.getElementById('stat-total-tests').innerText = data.total_tests || 0;
-                document.getElementById('stat-total-score').innerText = parseFloat(data.total_score || 0).toFixed(2);
-                document.getElementById('stat-best-score').innerText = parseFloat(data.best_score || 0).toFixed(2);
+                animateCountUp(document.getElementById('stat-total-tests'), data.total_tests || 0);
+                animateCountUp(document.getElementById('stat-total-score'), parseFloat(data.total_score || 0), { decimals: 2 });
+                animateCountUp(document.getElementById('stat-best-score'), parseFloat(data.best_score || 0), { decimals: 2 });
 
                 const avg = data.total_tests ? (data.total_score / data.total_tests) : 0;
-                document.getElementById('stat-avg-score').innerText = avg.toFixed(2);
+                animateCountUp(document.getElementById('stat-avg-score'), avg, { decimals: 2 });
             } else {
                 document.getElementById('stat-total-tests').innerText = 0;
                 document.getElementById('stat-total-score').innerText = "0.00";
@@ -1020,7 +1058,7 @@
                     if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
                         effectiveTimer += Math.floor((now - data.online_start_time) / 1000);
                     }
-                    document.getElementById('profile-online-display').innerText = formatTimer(effectiveTimer);
+                    setOnlineDisplay(effectiveTimer, 'view-' + userId);
 
                     const finalRole = data.role || "Thành viên";
                     document.getElementById('profile-role-display').innerText = finalRole;
@@ -1084,7 +1122,7 @@
                     if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
                         effectiveTimer += Math.floor((now - data.online_start_time) / 1000);
                     }
-                    document.getElementById('profile-online-display').innerText = formatTimer(effectiveTimer);
+                    setOnlineDisplay(effectiveTimer, 'own');
 
                     const finalRole = data.role || "Thành viên";
                     document.getElementById('profile-role-display').innerText = finalRole;

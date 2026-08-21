@@ -7,6 +7,11 @@
 <link rel="icon" type="image/png" sizes="48x48" href="pictures/favicon.png">
 <link rel="apple-touch-icon" href="pictures/favicon.png">
 <meta name="theme-color" content="#1a73e8">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="LearnHub">
 <title>Đăng nhập - LearnHub Platform</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2289,6 +2294,14 @@ window.emailRegister = async function() {
   }, { threshold: 0.4 });
   io.observe(statsRow);
 })();
+</script>
+<script>
+/* PWA: đăng ký service worker */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("service-worker.js").catch(function () {});
+  });
+}
 </script>
 </body>
 </html>

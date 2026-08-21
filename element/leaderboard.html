@@ -125,6 +125,16 @@
         .sk{height:16px;border-radius:4px;background:linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 37%,#e2e8f0 63%);background-size:400% 100%;animation:sh 1.4s ease infinite}
         @keyframes sh{0%{background-position:100% 50%}100%{background-position:0% 50%}}
 
+        /* EMPTY STATE */
+        .lb-empty{padding:44px 20px;text-align:center}
+        .lb-empty-icon{font-size:46px;line-height:1;margin-bottom:12px;display:inline-block;animation:lbEmptyFloat 3s ease-in-out infinite}
+        @keyframes lbEmptyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+        .lb-empty-title{font-size:15px;font-weight:800;color:#334155;margin-bottom:5px}
+        .lb-empty-sub{font-size:12.5px;color:#94a3b8;margin-bottom:18px;line-height:1.7}
+        .lb-empty-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border:none;border-radius:999px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;text-decoration:none;box-shadow:0 8px 20px rgba(79,70,229,.35);transition:all .25s ease}
+        .lb-empty-btn:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(79,70,229,.45)}
+        @media (prefers-reduced-motion: reduce){.lb-empty-icon{animation:none}}
+
         /* COMPACT MODE (profile embed) */
         body.compact .hdr,
         body.compact .podium-side,
@@ -341,7 +351,14 @@
                 const tbodyEl = document.getElementById("table-body");
 
                 if (!rows.length) {
-                    tbodyEl.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:#94a3b8">Chưa có dữ liệu xếp hạng</td></tr>`;
+                    tbodyEl.innerHTML = `<tr><td colspan="5">
+                        <div class="lb-empty">
+                            <div class="lb-empty-icon">🏆</div>
+                            <div class="lb-empty-title">Bảng xếp hạng còn trống</div>
+                            <div class="lb-empty-sub">Chưa có ai làm bài thi trong tuần này.<br>Hãy là người đầu tiên ghi tên mình lên bảng vinh danh!</div>
+                            <a class="lb-empty-btn" href="phong-hoc.html" target="_top">📝 Làm bài thi đầu tiên</a>
+                        </div>
+                    </td></tr>`;
                     return;
                 }
 
@@ -457,7 +474,13 @@
                 const tbodyEl = document.getElementById("table-body-time");
 
                 if (!rows.length) {
-                    tbodyEl.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:40px; color:#94a3b8">Chưa có dữ liệu xếp hạng</td></tr>`;
+                    tbodyEl.innerHTML = `<tr><td colspan="3">
+                        <div class="lb-empty">
+                            <div class="lb-empty-icon">⏰</div>
+                            <div class="lb-empty-title">Chưa có dữ liệu online</div>
+                            <div class="lb-empty-sub">Thời gian học online tuần này của bạn sẽ được ghi nhận<br>khi bạn truy cập và học tập trên LearnHub.</div>
+                        </div>
+                    </td></tr>`;
                     return;
                 }
 
