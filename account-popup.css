@@ -1177,6 +1177,9 @@ body.cc-reduced .cc-logout-overlay {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
+body.cc-reduced {
+  --cc-bg: var(--cc-bg-solid);
+}
 
 @media (max-width: 480px) {
   #userPopup {
