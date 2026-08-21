@@ -1165,7 +1165,8 @@ body.cc-reduced .cc-track-eq span {
 
 /* ===== GIẢM CHUYỂN ĐỘNG (body.cc-reduced): tối ưu mở popup trên máy yếu =====
    - Popup hiện tức thì, không animation scale/translate.
-   - backdrop-filter blur(26px) là hiệu ứng nặng nhất trên GPU mobile -> tắt hẳn. */
+   - backdrop-filter blur(26px) là hiệu ứng nặng nhất trên GPU mobile -> tắt hẳn.
+   - Chỉ áp dụng solid background khi không có cc-glass-off (kính mờ đang tắt). */
 body.cc-reduced #userPopup {
   animation: none !important;
 }
@@ -1177,7 +1178,7 @@ body.cc-reduced .cc-logout-overlay {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
-body.cc-reduced {
+body.cc-reduced.cc-glass-off {
   --cc-bg: var(--cc-bg-solid);
 }
 
