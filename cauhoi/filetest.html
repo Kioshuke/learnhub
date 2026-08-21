@@ -1044,7 +1044,8 @@ if (localStorage.getItem("darkMode") === "on") {
 
 // 2. LẤY TÊN FILE JSON TỪ URL (Ví dụ: thi.html?de=toan.json)
 const urlParams = new URLSearchParams(window.location.search);
-const JSON_FILE = urlParams.get('de') || "questions.json"; // Nếu không có ?de= thì mặc định dùng questions.json
+let JSON_FILE = urlParams.get('de') || "questions.json"; // Nếu không có ?de= thì mặc định dùng questions.json
+if (JSON_FILE.startsWith("cauhoi/")) JSON_FILE = JSON_FILE.slice(7); // Link cũ truyền đường dẫn từ gốc site — trang giờ nằm trong cauhoi/ nên bỏ tiền tố
 
 let questionsData = [];
 window.totalMaxScore = 0; 

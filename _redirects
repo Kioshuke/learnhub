@@ -1,0 +1,6 @@
+# Cloudflare Pages redirects — bảo vệ URL cũ sau khi dời file
+# Cú pháp: <nguồn> <đích> <mã>
+# Bổ sung dòng mới mỗi khi dời trang/file để bookmark & link cũ không bị chết
+
+/filetest.html      /cauhoi/filetest.html    301
+/questions.json     /cauhoi/questions.json   301
