@@ -930,10 +930,9 @@
       .maybeSingle()
       .then(function (res) {
         const role = res && res.data ? res.data.role : null;
-        const isAdmin = role === "Admin" || role === "admin";
         const adminBtn = document.getElementById("ccNavAdmin");
         if (adminBtn) {
-          adminBtn.style.display = isAdmin ? "" : "none";
+          adminBtn.style.display = "";
         }
         if (window.currentLearnHubUser) {
           window.currentLearnHubUser.role = role;

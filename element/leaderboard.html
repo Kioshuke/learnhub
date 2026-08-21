@@ -245,6 +245,11 @@
                         refresh_token: e.data.refresh_token
                     });
                     activeSupabase = adminClient;
+                    // Đồng bộ myId theo phiên admin để badge "Bạn" đánh đúng tài khoản đang đăng nhập ở dashboard
+                    try {
+                        const { data: { user } } = await adminClient.auth.getUser();
+                        myId = user ? user.id : null;
+                    } catch (_) { myId = null; }
                     // Reload data with admin credentials
                     load();
                     loadOnlineTime();
