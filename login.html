@@ -472,7 +472,7 @@
   .auth-below-point:hover i{background:rgba(37,99,235,.15);transform:scale(1.15) rotate(-5deg)}
 
   /* === FEATURE CARDS === */
-  .auth-below-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .auth-below-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
   .auth-below-card{
     position:relative;display:flex;flex-direction:column;align-items:flex-start;
     gap:14px;padding:28px 22px 26px;
@@ -566,8 +566,36 @@
     transform:translateY(-4px) scale(1.12) rotate(-3deg);
     box-shadow:0 8px 20px color-mix(in srgb,var(--fc,#2563eb) 25%,transparent);
   }
-  .auth-below-name{font-size:14.5px;font-weight:700;color:#0f172a;letter-spacing:-.1px;line-height:1.3}
+  .auth-below-name{font-size:14.5px;font-weight:700;color:#0f172a;letter-spacing:-.1px;line-height:1.3;transition:color .3s ease}
   .auth-below-desc{font-size:12.5px;line-height:1.65;color:#64748b}
+  .auth-below-card:hover .auth-below-name{color:var(--fc,#2563eb)}
+
+  /* === SHINE SWEEP: vệt sáng quét ngang card khi hover === */
+  .auth-below-shine{
+    position:absolute;top:-20%;bottom:-20%;left:0;width:70px;
+    transform:translateX(-140px) skewX(-22deg);
+    background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--fc,#2563eb) 16%,rgba(255,255,255,.85)),transparent);
+    opacity:0;pointer-events:none;z-index:3;
+  }
+  .auth-below-card:hover .auth-below-shine,
+  .auth-below-card--auto-active .auth-below-shine{
+    opacity:1;animation:authCardShine 1s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes authCardShine{
+    0%{transform:translateX(-140px) skewX(-22deg);opacity:0}
+    15%{opacity:1}
+    85%{opacity:1}
+    100%{transform:translateX(560px) skewX(-22deg);opacity:0}
+  }
+
+  /* === CLICK RIPPLE: sóng lan khi bấm vào card === */
+  .auth-below-ripple{
+    position:absolute;border-radius:50%;transform:scale(0);
+    background:radial-gradient(circle,color-mix(in srgb,var(--fc,#2563eb) 22%,transparent) 0%,transparent 65%);
+    animation:authCardRipple .65s ease-out forwards;
+    pointer-events:none;z-index:2;
+  }
+  @keyframes authCardRipple{to{transform:scale(1);opacity:0}}
 
   /* === SCROLL UP BUTTON === */
   .auth-below-up{
@@ -673,6 +701,7 @@
   .auth-below--show .auth-below-card:nth-child(6){animation-delay:.80s}
   .auth-below--show .auth-below-card:nth-child(7){animation-delay:.85s}
   .auth-below--show .auth-below-card:nth-child(8){animation-delay:.90s}
+  .auth-below--show .auth-below-card:nth-child(9){animation-delay:.95s}
   .auth-below--show .auth-below-card .auth-below-icon{animation:authIconPopIn .5s cubic-bezier(.2,.7,.3,1) backwards}
   .auth-below--show .auth-below-card:nth-child(1) .auth-below-icon{animation-delay:.7s}
   .auth-below--show .auth-below-card:nth-child(2) .auth-below-icon{animation-delay:.75s}
@@ -682,6 +711,7 @@
   .auth-below--show .auth-below-card:nth-child(6) .auth-below-icon{animation-delay:.95s}
   .auth-below--show .auth-below-card:nth-child(7) .auth-below-icon{animation-delay:1s}
   .auth-below--show .auth-below-card:nth-child(8) .auth-below-icon{animation-delay:1.05s}
+  .auth-below--show .auth-below-card:nth-child(9) .auth-below-icon{animation-delay:1.1s}
 
   /* === RESPONSIVE === */
   @media (max-width:900px){
@@ -712,6 +742,7 @@
     .auth-below-stat::after{animation:none!important}
     .auth-below-stat-icon{animation:none!important}
     .auth-below-card::before{animation:none!important}
+    .auth-below-shine,.auth-below-ripple{display:none!important}
     .auth-scroll-down::before{display:none}
     .auth-scroll-down{animation:none!important}
   }
@@ -773,6 +804,8 @@
     .auth-below-particle{animation:none}
     .auth-below-card::before{animation:none}
     .auth-below-stat::after{animation:none}
+    .auth-below-shine{display:none}
+    .auth-below-ripple{display:none}
   }
 </style>
 </head>
@@ -1013,7 +1046,7 @@
     <div class="auth-below-head">
       <div class="auth-below-head-badge"><i class="fa-solid fa-bolt"></i> Hệ sinh thái học tập ALL-IN-ONE</div>
       <h2>Khám phá hệ sinh thái <span>LearnHub Platform</span></h2>
-      <p>Nền tảng học tập toàn diện dành riêng cho bạn — 8+ công cụ đồng hành giúp việc ôn thi nhanh hơn, vui hơn và hiệu quả hơn mỗi ngày.</p>
+      <p>Nền tảng học tập toàn diện dành riêng cho bạn — 9 công cụ đồng hành giúp việc ôn thi nhanh hơn, vui hơn và hiệu quả hơn mỗi ngày.</p>
     </div>
 
     <div class="auth-below-stats">
@@ -1044,47 +1077,47 @@
 
     <div class="auth-below-grid">
       <div class="auth-below-card" style="--fc:#2563eb">
-        <div class="auth-below-icon"><i class="fa-solid fa-pen-to-square"></i></div>
+        <span class="auth-below-shine"></span><div class="auth-below-icon"><i class="fa-solid fa-pen-to-square"></i></div>
         <span class="auth-below-name">LearnHub Test</span>
         <span class="auth-below-desc">Kiểm tra trực tuyến bấm giờ, chấm điểm tự động và lưu kết quả để theo dõi tiến bộ.</span>
       </div>
       <div class="auth-below-card" style="--fc:#f59e0b">
-        <div class="auth-below-icon"><i class="fa-solid fa-layer-group"></i></div>
+        <span class="auth-below-shine"></span><div class="auth-below-icon"><i class="fa-solid fa-layer-group"></i></div>
         <span class="auth-below-name">Smart Flashcard</span>
         <span class="auth-below-desc">Học từ vựng siêu tốc với 4 chế độ lật thẻ và kho từ vựng đa dạng.</span>
       </div>
       <div class="auth-below-card" style="--fc:#16a34a">
-        <div class="auth-below-icon"><i class="fa-solid fa-comments"></i></div>
+        <span class="auth-below-shine"></span><div class="auth-below-icon"><i class="fa-solid fa-comments"></i></div>
         <span class="auth-below-name">Forum học tập</span>
         <span class="auth-below-desc">Hỏi đáp, thảo luận bài tập và chia sẻ tài liệu cùng bạn bè.</span>
       </div>
       <div class="auth-below-card" style="--fc:#7c3aed">
-        <div class="auth-below-icon"><i class="fa-solid fa-school"></i></div>
+        <span class="auth-below-shine"></span><div class="auth-below-icon"><i class="fa-solid fa-school"></i></div>
         <span class="auth-below-name">Phòng học ảo</span>
         <span class="auth-below-desc">Ôn tập kiến thức theo từng môn học kết hợp cùng hệ thống LearnHub Test.</span>
       </div>
       <div class="auth-below-card" style="--fc:#0891b2">
-        <div class="auth-below-icon"><i class="fa-solid fa-book-open"></i></div>
+        <span class="auth-below-shine"></span><div class="auth-below-icon"><i class="fa-solid fa-book-open"></i></div>
         <span class="auth-below-name">Thư viện Tài liệu</span>
         <span class="auth-below-desc">Tìm kiếm và xem nhanh tài liệu học tập tập trung từ nhiều nguồn khác nhau.</span>
       </div>
       <div class="auth-below-card" style="--fc:#0d9488">
-        <div class="auth-below-icon"><i class="fa-solid fa-calendar-check"></i></div>
+        <span class="auth-below-shine"></span><div class="auth-below-icon"><i class="fa-solid fa-calendar-check"></i></div>
         <span class="auth-below-name">Lịch học &amp; thi</span>
         <span class="auth-below-desc">Lịch học và lịch thi cập nhật trực tiếp từ ban quản trị.</span>
       </div>
       <div class="auth-below-card" style="--fc:#dc2626">
-        <div class="auth-below-icon"><i class="fa-solid fa-robot"></i></div>
+        <span class="auth-below-shine"></span><div class="auth-below-icon"><i class="fa-solid fa-robot"></i></div>
         <span class="auth-below-name">Trợ lý ảo Hubie</span>
         <span class="auth-below-desc">Trợ lý AI luôn sẵn sàng 24/7, giải đáp thắc mắc kiến thức mọi lúc.</span>
       </div>
       <div class="auth-below-card" style="--fc:#d97706">
-        <div class="auth-below-icon"><i class="fa-solid fa-trophy"></i></div>
+        <span class="auth-below-shine"></span><div class="auth-below-icon"><i class="fa-solid fa-trophy"></i></div>
         <span class="auth-below-name">Bảng xếp hạng</span>
         <span class="auth-below-desc">Thi đua cùng bạn bè, theo dõi điểm số và vị trí học tập của bạn.</span>
       </div>
       <div class="auth-below-card" style="--fc:#ec4899">
-        <div class="auth-below-icon"><i class="fa-solid fa-user-graduate"></i></div>
+        <span class="auth-below-shine"></span><div class="auth-below-icon"><i class="fa-solid fa-user-graduate"></i></div>
         <span class="auth-below-name">Hồ sơ học viên</span>
         <span class="auth-below-desc">Xem hồ sơ chi tiết, thống kê học tập và trạng thái trực tuyến.</span>
       </div>
@@ -1334,17 +1367,53 @@ function showLoginSuccess(message, redirectMs = 3000) {
   }, 1000);
 }
 
+// Fallback: nếu mp3 bị chặn/lỗi tải thì kêu beep bằng WebAudio API (luôn available sau gesture)
+let _noticeAudioCtx = null;
+function playFallbackBeep() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    _noticeAudioCtx = _noticeAudioCtx || new AC();
+    const ctx = _noticeAudioCtx;
+    if (ctx.state === "suspended") { ctx.resume().catch(() => {}); }
+    const t0 = ctx.currentTime;
+    [[880, 0], [1244.51, 0.13]].forEach(([freq, offset]) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      const st = t0 + offset;
+      gain.gain.setValueAtTime(0.0001, st);
+      gain.gain.exponentialRampToValueAtTime(0.16, st + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, st + 0.24);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(st); osc.stop(st + 0.26);
+    });
+  } catch (e) {}
+}
+
 function playNotificationSound(soundId = "thongbaoSound") {
-  const audio = document.getElementById(soundId);
-  if (!audio) return;
-  audio.currentTime = 0;
+  const base = document.getElementById(soundId);
+  if (!base) { playFallbackBeep(); return; }
+  let audio = base;
+  // Thông báo trước chưa phát xong -> dùng bản clone để chồng tiếng, không cắt nhau
+  if (!base.paused && !base.ended && base.currentTime > 0) {
+    try { audio = base.cloneNode(); } catch (e) { audio = base; }
+  }
+  try { audio.currentTime = 0; } catch (e) {}
   audio.muted = false;
   audio.volume = 1;
-  audio.play().catch(() => {});
+  const fail = () => playFallbackBeep();
+  audio.addEventListener("error", fail, { once: true });
+  const p = audio.play();
+  if (p && p.then) p.then(() => audio.removeEventListener("error", fail)).catch(fail);
 }
 
 // Mở khoá autoplay sau lần tương tác đầu tiên của người dùng.
 // Không có bước này, thông báo từ onAuthChange (restore session) bị trình duyệt chặn tiếng.
+// QUAN TRỌNG: listener click ở document chạy SAU onclick của nút (event bubbling),
+// nên nếu không guard thì nó sẽ mute/tải lại audio mà thông báo vừa bắt đầu phát
+// -> tiếng popup bị nuốt mất. Luôn bỏ qua nếu audio đang phát tiếng thật.
 (function unlockAudio() {
   const ids = ["thongbaoSound"];
   function tryUnlock() {
@@ -1352,6 +1421,8 @@ function playNotificationSound(soundId = "thongbaoSound") {
     ids.forEach(function (id) {
       const a = document.getElementById(id);
       if (!a) return;
+      // Đang phát thông báo thật -> trình duyệt đã cho phép tiếng, đừng đụng vào
+      if (!a.paused && !a.muted && a.volume > 0) { loaded = true; return; }
       a.muted = true;
       a.volume = 0;
       try {
@@ -1372,6 +1443,14 @@ function playNotificationSound(soundId = "thongbaoSound") {
         }
       } catch (e) {}
     });
+    // Warm-up luôn WebAudio context cho fallback beep
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) {
+        _noticeAudioCtx = _noticeAudioCtx || new AC();
+        if (_noticeAudioCtx.state === "suspended") _noticeAudioCtx.resume().catch(function () {});
+      }
+    } catch (e) {}
     if (loaded) {
       document.removeEventListener("click", tryUnlock);
       document.removeEventListener("touchstart", tryUnlock);
@@ -2079,6 +2158,25 @@ window.emailRegister = async function() {
       const y = ((e.clientY - r.top) / r.height) * 100;
       card.style.setProperty("--mx", x + "%");
       card.style.setProperty("--my", y + "%");
+    });
+  });
+})();
+
+/* ---------- CLICK RIPPLE ON CARDS ---------- */
+(function initCardRipple() {
+  document.querySelectorAll(".auth-below-card").forEach(card => {
+    card.addEventListener("click", e => {
+      const r = card.getBoundingClientRect();
+      const d = Math.max(r.width, r.height) * 2.2;
+      const s = document.createElement("span");
+      s.className = "auth-below-ripple";
+      s.style.width = s.style.height = d + "px";
+      const cx = (e.clientX || r.left + r.width / 2) - r.left;
+      const cy = (e.clientY || r.top + r.height / 2) - r.top;
+      s.style.left = (cx - d / 2) + "px";
+      s.style.top = (cy - d / 2) + "px";
+      card.appendChild(s);
+      setTimeout(() => s.remove(), 700);
     });
   });
 })();
