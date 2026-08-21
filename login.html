@@ -1150,14 +1150,14 @@
         <a href="https://www.facebook.com" class="fb" target="_blank" rel="noopener" title="Facebook Fanpage"><i class="fa-brands fa-facebook-f"></i></a>
         <a href="https://www.youtube.com" class="yt" target="_blank" rel="noopener" title="Kênh Youtube"><i class="fa-brands fa-youtube"></i></a>
         <a href="https://www.tiktok.com" class="tk" target="_blank" rel="noopener" title="Kênh TikTok"><i class="fa-brands fa-tiktok"></i></a>
-        <a href="https://learnhubpf.pages.dev/forum.html" class="cm" target="_blank" rel="noopener" title="Cộng đồng học tập"><i class="fa-solid fa-users"></i></a>
+        <a href="/element/forum.html" class="cm" target="_blank" rel="noopener" title="Cộng đồng học tập"><i class="fa-solid fa-users"></i></a>
       </div>
     </div>
 
     <div class="lh-footer-col">
       <h4>Hỗ trợ</h4>
       <ul class="lh-footer-links">
-        <li><a href="https://learnhubpf.pages.dev/faq.html">Trung tâm trợ giúp</a></li>
+        <li><a href="/element/faq.html">Trung tâm trợ giúp</a></li>
       </ul>
     </div>
 
@@ -1175,8 +1175,8 @@
   <div class="lh-footer-bottom">
     <span>© 2026 LearnHub Platform. Tất cả quyền được bảo lưu.</span>
     <div class="lh-footer-bottom-links">
-      <a href="dieu-khoan.html">Điều khoản sử dụng</a>
-      <a href="chinh-sach-bao-mat.html">Chính sách bảo mật</a>
+      <a href="element/dieu-khoan.html">Điều khoản sử dụng</a>
+      <a href="element/chinh-sach-bao-mat.html">Chính sách bảo mật</a>
       <button type="button" class="lh-version-btn" title="Xem thông tin phiên bản" onclick="document.getElementById('lh-version-popup').classList.add('lh-version-show')">Phiên bản v1.26.8.2</button>
     </div>
   </div>
@@ -1354,7 +1354,7 @@ function showLoginSuccess(message, redirectMs = 3000) {
   const noticeMessage = document.getElementById("authNoticeMessage");
   const noticeIcon = document.getElementById("authNoticeIcon");
   if (!notice || !noticeTitle || !noticeMessage || !noticeIcon) {
-    window.location.href = 'index.html';
+    window.location.href = '/index.html';
     return;
   }
   if (authNoticeTimer) { clearTimeout(authNoticeTimer); authNoticeTimer = null; }
@@ -1373,7 +1373,7 @@ function showLoginSuccess(message, redirectMs = 3000) {
     if (remaining <= 0) {
       clearInterval(countdownInterval);
       countdownInterval = null;
-      window.location.href = 'index.html';
+      window.location.href = '/index.html';
     } else {
       noticeMessage.textContent = `${message} Chuyển hướng sau ${remaining}s...`;
     }
@@ -1864,7 +1864,7 @@ onAuthChange(async (event, session) => {
       // hoặc mở login.html khi đã đăng nhập) → chuyển thẳng vào trang chủ, tránh màn hình
       // trống + popup (loginBox vốn ẩn khi đã có session). Đăng nhập email/mật khẩu thì
       // gọi showLoginSuccess trực tiếp trong emailLogin() nên không ảnh hưởng.
-      window.location.replace("index.html");
+      window.location.replace("/index.html");
     } catch(e) {
       console.error("Finalize login lỗi:", e);
       processingLogin = false;

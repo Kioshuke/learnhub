@@ -494,7 +494,7 @@
                     </button>
                 </div>
                 <div class="lh-frame-box h-[230px]">
-                <iframe src="leaderboard.html?compact=1" class="w-full h-full border-0" scrolling="no"></iframe>
+                <iframe src="element/leaderboard.html?compact=1" class="w-full h-full border-0" scrolling="no"></iframe>
                 </div>
             </section>
         </div>
@@ -524,7 +524,7 @@
     <script>
         function openLeaderboardModal() {
             const m = document.getElementById('lb-modal');
-            document.getElementById('lb-full-frame').src = 'leaderboard.html?t=' + Date.now();
+            document.getElementById('lb-full-frame').src = 'element/leaderboard.html?t=' + Date.now();
             m.classList.remove('opacity-0','pointer-events-none');
             m.classList.add('opacity-100');
             m.querySelector('div').classList.remove('scale-95');

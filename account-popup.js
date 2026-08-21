@@ -38,7 +38,7 @@
     { id: "PRAGLqfNK1o", name: "Jazz", sub: "Bossa nova ngọt ngào, ấm áp", icon: "🎷" }
   ];
 
-  const ADMIN_PANEL_URL = "https://learnhubpf.pages.dev/admin-dashboard.html";
+  const ADMIN_PANEL_URL = "/admin-dashboard.html";
 
   let popup = document.getElementById("userPopup");
   let rail = document.getElementById("ccRail");

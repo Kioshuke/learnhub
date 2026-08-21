@@ -565,7 +565,7 @@
         Lỗi hệ thống
         <span class="sidebar-badge" id="errorLogsBadge"></span>
       </button>
-      <button class="sidebar-link" onclick="location.href='index.html'">
+      <button class="sidebar-link" onclick="location.href='/index.html'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         Về trang chính
       </button>
@@ -798,12 +798,12 @@
         <div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
             <span style="font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em">Bảng xếp hạng tuần</span>
-            <button class="btn btn-soft" onclick="document.getElementById('leaderboardFrame').src='leaderboard.html?t='+Date.now()" style="padding:4px 10px;font-size:11px">
+            <button class="btn btn-soft" onclick="document.getElementById('leaderboardFrame').src='element/leaderboard.html?t='+Date.now()" style="padding:4px 10px;font-size:11px">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
               Làm mới
             </button>
           </div>
-          <iframe id="leaderboardFrame" src="leaderboard.html" style="width:100%;height:520px;border:none;border-radius:var(--r-sm);border:1px solid var(--border)" loading="lazy"></iframe>
+          <iframe id="leaderboardFrame" src="element/leaderboard.html" style="width:100%;height:520px;border:none;border-radius:var(--r-sm);border:1px solid var(--border)" loading="lazy"></iframe>
         </div>
       </div>
     </section>

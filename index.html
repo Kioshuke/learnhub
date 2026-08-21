@@ -78,8 +78,8 @@
 fetch('header.html').then(r=>r.text()).then(html=>{
   document.getElementById('lh-header-placeholder').innerHTML = html;
   const active = document.getElementById('lh-header-placeholder').dataset.active;
-  const map = {'home':'index.html','flash':'flashcard/hub.html','forum':'forum.html','tai-lieu':'tai-lieu/hub.html','phong-hoc':'phong-hoc.html'};
-  const reverseMap = {'index.html':'home','flashcard/hub.html':'flash','forum.html':'forum','tai-lieu/hub.html':'tai-lieu','phong-hoc.html':'phong-hoc'};
+  const map = {'home':'/index.html','flash':'flashcard/hub.html','forum':'element/forum.html','tai-lieu':'tai-lieu/hub.html','phong-hoc':'element/phong-hoc.html'};
+  const reverseMap = {'/index.html':'home','flashcard/hub.html':'flash','element/forum.html':'forum','tai-lieu/hub.html':'tai-lieu','element/phong-hoc.html':'phong-hoc'};
   document.querySelectorAll('.nav-link').forEach(a => {
     if(a.getAttribute('href') === map[active]) a.classList.add('active');
     a.addEventListener('click', function(e){
@@ -104,7 +104,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
       <p>Khám phá những công cụ giúp việc học của bạn trở nên hiệu quả và thú vị hơn</p>
     </div>
     <div class="feature-grid">
-      <a class="feature-card" href="phong-hoc.html" data-open="phong-hoc" style="--feat-color:#2563eb;">
+      <a class="feature-card" href="element/phong-hoc.html" data-open="phong-hoc" style="--feat-color:#2563eb;">
         <div class="feature-icon">📝</div>
         <h3>LearnHub Test</h3>
         <p>Hệ thống kiểm tra trực tuyến với bấm giờ, chấm điểm tự động và lưu kết quả để theo dõi tiến bộ của bạn.</p>
@@ -122,19 +122,19 @@ fetch('header.html').then(r=>r.text()).then(html=>{
         <p>Tổng hợp tài liệu, đề kiểm tra và bài giảng từ Google Drive, file trực tiếp và nhiều kho lưu trữ, có tìm kiếm nhanh theo tên.</p>
         <span class="feature-link">Xem ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
-      <a class="feature-card" href="forum.html" data-open="forum" style="--feat-color:#16a34a;">
+      <a class="feature-card" href="element/forum.html" data-open="forum" style="--feat-color:#16a34a;">
         <div class="feature-icon">💬</div>
         <h3>LearnHub Forum</h3>
         <p>Mạng xã hội học tập nội bộ: hỏi đáp, thảo luận bài tập và chia sẻ tài liệu cùng bạn bè.</p>
         <span class="feature-link">Sử dụng ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
-      <a class="feature-card" href="phong-hoc.html" data-open="phong-hoc" style="--feat-color:#7c3aed;">
+      <a class="feature-card" href="element/phong-hoc.html" data-open="phong-hoc" style="--feat-color:#7c3aed;">
         <div class="feature-icon">🏫</div>
         <h3>Phòng học ảo</h3>
         <p>Ôn tập kiến thức theo môn học kết hợp cùng nền tảng LearnHub Test ngay trên nền tảng.</p>
         <span class="feature-link">Tham gia ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
-      <a class="feature-card" href="phong-hoc.html" data-open="schedule" onclick="event.preventDefault(); openScheduleModal(); return false;" style="--feat-color:#0d9488;">
+      <a class="feature-card" href="element/phong-hoc.html" data-open="schedule" onclick="event.preventDefault(); openScheduleModal(); return false;" style="--feat-color:#0d9488;">
         <div class="feature-icon">📅</div>
         <h3>Lịch học &amp; Thi</h3>
         <p>Lịch học và lịch thi cập nhật trực tiếp từ ban quản trị.</p>
@@ -146,7 +146,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
         <p>Trợ lý AI 24/7 giải đáp thắc mắc kiến thức, kèm tính năng tra từ điển Anh - Việt ngay trong popup.</p>
         <span class="feature-link">Trò chuyện ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
-      <a class="feature-card" href="leaderboard.html" data-open="leaderboard" style="--feat-color:#d97706;">
+      <a class="feature-card" href="element/leaderboard.html" data-open="leaderboard" style="--feat-color:#d97706;">
         <div class="feature-icon">🏆</div>
         <h3>Bảng xếp hạng</h3>
         <p>Thi đua cùng bạn bè, theo dõi điểm số và vị trí của bạn trên bảng xếp hạng học tập.</p>
@@ -241,9 +241,9 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 
 <!-- ===== IFRAME TABS: flash, forum, tai-lieu, phong-hoc ===== -->
 <div id="flash" style="display:none;width:100%;margin:0;padding:0;"><iframe id="flashHubFrame" src="flashcard/hub.html" style="width:100%;height:100vh;border:none;"></iframe></div>
-<div id="forum" style="display:none;width:100%;margin:0;padding:0;"><iframe id="forumFrame" src="forum.html" style="width:100%;height:100vh;border:none;"></iframe></div>
+<div id="forum" style="display:none;width:100%;margin:0;padding:0;"><iframe id="forumFrame" src="element/forum.html" style="width:100%;height:100vh;border:none;"></iframe></div>
 <div id="tai-lieu" style="display:none;width:100%;margin:0;padding:0;"><iframe id="taiLieuFrame" src="tai-lieu/hub.html" style="width:100%;height:100vh;border:none;"></iframe></div>
-<div id="phong-hoc" style="display:none;width:100%;margin:0;padding:0;"><iframe id="phongHocFrame" src="phong-hoc.html" style="width:100%;height:100vh;border:none;"></iframe></div>
+<div id="phong-hoc" style="display:none;width:100%;margin:0;padding:0;"><iframe id="phongHocFrame" src="element/phong-hoc.html" style="width:100%;height:100vh;border:none;"></iframe></div>
 
 <div id="quiz"></div>
 
@@ -1156,7 +1156,7 @@ fetch('footer.html').then(r => r.text()).then(html => {
 <div id="lh-feedback-overlay" class="lh-popup-overlay" onclick="closeFeedbackModalByOverlay(event)">
   <div class="lh-popup-content">
     <button class="lh-popup-close" onclick="closeFeedbackModal()" title="Đóng">&times;</button>
-    <iframe src="gop-y.html" class="lh-popup-iframe"></iframe>
+    <iframe src="element/gop-y.html" class="lh-popup-iframe"></iframe>
   </div>
 </div>
 
@@ -1393,7 +1393,7 @@ fetch('footer.html').then(r => r.text()).then(html => {
 <script>
     function openLeaderboardModal() {
         const m = document.getElementById('lb-modal');
-        document.getElementById('lb-full-frame').src = 'leaderboard.html?t=' + Date.now();
+        document.getElementById('lb-full-frame').src = 'element/leaderboard.html?t=' + Date.now();
         m.classList.remove('opacity-0','pointer-events-none');
         m.classList.add('opacity-100');
         m.querySelector('div').classList.remove('scale-95');
@@ -1425,7 +1425,7 @@ fetch('footer.html').then(r => r.text()).then(html => {
 <script>
     function openScheduleModal() {
         const m = document.getElementById('schedule-modal');
-        document.getElementById('schedule-full-frame').src = 'lich-hoc.html?t=' + Date.now();
+        document.getElementById('schedule-full-frame').src = 'element/lich-hoc.html?t=' + Date.now();
         m.classList.remove('opacity-0','pointer-events-none');
         m.classList.add('opacity-100');
         m.querySelector('div').classList.remove('scale-95');

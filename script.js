@@ -120,8 +120,8 @@ function closeQuiz(){
 }
 const allTabs = ["home", "flash", "forum", "tai-lieu", "phong-hoc"];
 const iframeTabIds = {"flash":"flashHubFrame","forum":"forumFrame","tai-lieu":"taiLieuFrame","phong-hoc":"phongHocFrame"};
-const navMap = {'home':'index.html','flash':'flashcard/hub.html','forum':'forum.html','tai-lieu':'tai-lieu/hub.html','phong-hoc':'phong-hoc.html'};
-const reverseNavMap = {'index.html':'home','flashcard/hub.html':'flash','forum.html':'forum','tai-lieu/hub.html':'tai-lieu','phong-hoc.html':'phong-hoc'};
+const navMap = {'home':'/index.html','flash':'flashcard/hub.html','forum':'element/forum.html','tai-lieu':'tai-lieu/hub.html','phong-hoc':'element/phong-hoc.html'};
+const reverseNavMap = {'/index.html':'home','flashcard/hub.html':'flash','element/forum.html':'forum','tai-lieu/hub.html':'tai-lieu','element/phong-hoc.html':'phong-hoc'};
 
 function sendUserToFrame(frame){
   if(!frame || !frame.contentWindow) return;

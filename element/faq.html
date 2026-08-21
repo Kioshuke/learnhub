@@ -5,9 +5,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 <meta name="google-site-verification" content="T8hlEJb2HT-iCvVbHPeribVXAyr7x9ShD570c1TR710" />
-<link rel="icon" href="pictures/favicon.png" sizes="any">
-<link rel="icon" type="image/png" sizes="48x48" href="pictures/favicon.png">
-<link rel="apple-touch-icon" href="pictures/favicon.png">
+<link rel="icon" href="../pictures/favicon.png" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="../pictures/favicon.png">
+<link rel="apple-touch-icon" href="../pictures/favicon.png">
 
 <meta name="theme-color" content="#1a73e8">
 <title>Trung Tâm Trợ Giúp - LearnHub Platform</title>
@@ -15,7 +15,7 @@
 
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../style.css">
 
 <style>
   html {
@@ -581,21 +581,21 @@
     }
   }
 </style>
-<script src="version/version-check.js" defer></script>
+<script src="../version/version-check.js" defer></script>
 </head>
 <body>
 
 <!-- Header Đồng bộ Gradient -->
 <div class="doc-nav">
-  <a href="https://learnhubpf.pages.dev" class="doc-nav-brand">
-    <img src="pictures/logoweb.webp" width="46" height="46" alt="Logo LearnHub">
+  <a href="/index.html" class="doc-nav-brand">
+    <img src="../pictures/logoweb.webp" width="46" height="46" alt="Logo LearnHub">
     <div class="doc-nav-text">
       <span class="doc-nav-title">LearnHub Platform</span>
       <span class="doc-nav-sub">Trung Tâm Trợ Giúp Kỹ Thuật</span>
     </div>
   </a>
   <div class="doc-nav-actions">
-    <a href="https://learnhubpf.pages.dev" class="doc-nav-btn"><i class="fa-solid fa-house"></i> Về trang chủ</a>
+    <a href="/index.html" class="doc-nav-btn"><i class="fa-solid fa-house"></i> Về trang chủ</a>
   </div>
 </div>
 
@@ -1205,7 +1205,7 @@
 <!-- Footer -->
 <div id="lh-footer-placeholder"></div>
 <script>
-fetch('footer.html').then(r => r.text()).then(html => {
+fetch('../footer.html').then(r => r.text()).then(html => {
   document.getElementById('lh-footer-placeholder').innerHTML = html;
 });
 </script>
@@ -1218,7 +1218,7 @@ fetch('footer.html').then(r => r.text()).then(html => {
   </div>
 </div>
 
-<script src="script.js" defer></script>
+<script src="../script.js" defer></script>
 <script>
   // FAQ Accordion functionality
   document.querySelectorAll('.faq-question').forEach(question => {

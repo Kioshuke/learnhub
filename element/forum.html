@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LearnHub Forum</title>
-  <link rel="icon" href="pictures/favicon.png" sizes="any">
-  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="../pictures/favicon.png" sizes="any">
+  <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
 
 <style>
@@ -978,7 +978,7 @@ body.dark-mode .pagination-info { color: #64748b; }
   .pagination-bar button { min-width: 32px; height: 30px; font-size: 12px; }
 }
 </style>
-<script src="version/version-check.js" defer></script>
+<script src="../version/version-check.js" defer></script>
 </head>
 <body class="app-ready">
 
@@ -1053,14 +1053,14 @@ body.dark-mode .pagination-info { color: #64748b; }
   </div>
 </div>
 
-<audio id="soundPost" src="sound/post.mp3" preload="auto"></audio>
-<audio id="soundLike" src="sound/like.mp3" preload="auto"></audio>
-<audio id="soundDislike" src="sound/dislike.mp3" preload="auto"></audio>
+<audio id="soundPost" src="../sound/post.mp3" preload="auto"></audio>
+<audio id="soundLike" src="../sound/like.mp3" preload="auto"></audio>
+<audio id="soundDislike" src="../sound/dislike.mp3" preload="auto"></audio>
 
 <script type="module">
 /* ================= SUPABASE CONFIG ================= */
-import { supabase } from "./supabase-config.js";
-import { beginOnlineSession } from "./supabase-helpers.js";
+import { supabase } from "../supabase-config.js";
+import { beginOnlineSession } from "../supabase-helpers.js";
 
 /* ================= BIẾN TOÀN CỤC ================= */
 let currentUser = null;
