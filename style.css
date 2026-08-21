@@ -3589,10 +3589,19 @@ body.cc-reduced .ticker-text {
   }
 }
 
-/* Hiện nội dung nhẹ nhàng, dịch ít hơn */
+/* Hiện nội dung tĩnh ngay lập tức — không trượt, đỡ lag máy yếu */
 body.cc-reduced .reveal-item {
-  transform: translateY(8px);
-  transition-duration: 0.2s;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Toast: giữ đúng thời lượng thật của thanh tiến trình
+   (nếu bị rule chung ép về 0.2s thì thông báo sẽ nháy một cái rồi biến mất) */
+body.cc-reduced .lh-toast-progress {
+  animation-duration: var(--lh-toast-dur, 3500ms) !important;
+}
+body.cc-reduced .lh-toast-icon .lh-wave {
+  animation: none !important;
 }
 body.cc-reduced .slide-text-block.active {
   animation-duration: 0.2s;

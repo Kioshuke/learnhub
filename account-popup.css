@@ -1163,6 +1163,21 @@ body.cc-reduced .cc-track-eq span {
   }
 }
 
+/* ===== GIẢM CHUYỂN ĐỘNG (body.cc-reduced): tối ưu mở popup trên máy yếu =====
+   - Popup hiện tức thì, không animation scale/translate.
+   - backdrop-filter blur(26px) là hiệu ứng nặng nhất trên GPU mobile -> tắt hẳn. */
+body.cc-reduced #userPopup {
+  animation: none !important;
+}
+body.cc-reduced #userPopup,
+body.cc-reduced .cc-rail,
+body.cc-reduced .cc-focus-widget,
+body.cc-reduced .cc-focus-pill,
+body.cc-reduced .cc-logout-overlay {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
 @media (max-width: 480px) {
   #userPopup {
     top: 64px;

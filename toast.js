@@ -174,6 +174,7 @@
     var progress = document.createElement("div");
     progress.className = "lh-toast-progress";
     progress.style.backgroundColor = TYPES[o.type].color;
+    progress.style.setProperty("--lh-toast-dur", o.durationMs + "ms");
     progress.style.animation = "lh-progress-shrink " + o.durationMs + "ms linear forwards";
 
     toast.appendChild(icon);
@@ -201,7 +202,13 @@
     }
 
     close.addEventListener("click", dismiss);
-    progress.addEventListener("animationend", dismiss);
+    /* Chế độ giảm chuyển động có thể rút ngắn animation -> animationend bắn sớm
+       làm toast nháy một cái rồi mất. Chỉ chấp nhận kết thúc đúng hạn. */
+    var shownAt = Date.now();
+    progress.addEventListener("animationend", function () {
+      if (Date.now() - shownAt < o.durationMs * 0.5) return;
+      dismiss();
+    });
     backupTimer = setTimeout(dismiss, o.durationMs + 2500);
 
     return {
