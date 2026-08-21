@@ -1,0 +1,114 @@
+﻿# ============================================================================
+# release.ps1 — Phát hành phiên bản mới LearnHub Platform (tự sinh số version)
+# ----------------------------------------------------------------------------
+# Công thức: v{era}.{YY}.{M}.{chục-ngày}
+#   era       = năm hiện tại - 2025 (web ra mắt 2026 → 2026 là năm 1)
+#   YY        = 2 số cuối năm            (2026 → 26)
+#   M         = tháng, không thêm số 0   (tháng 8 → 8)
+#   chục-ngày = floor(ngày / 10)         (ngày 21 → 2, nhóm 20-29)
+#
+# Trùng ngày:
+#   Lần 1 trong ngày      → v1.26.8.2
+#   Lần 2 cùng ngày       → v1.26.8.2.21        (nối đầy đủ ngày)
+#   Lần 3+ cùng ngày      → v1.26.8.2.21.3 ...  (thêm số đếm)
+#
+# Cách dùng:  release.bat              (hỏi xác nhận trước khi push)
+#             release.bat -Yes         (không hỏi, đẩy luôn)
+#             release.bat -DryRun      (chỉ xem số version sẽ sinh, không ghi/push)
+#
+# LƯU Ý: release.bat = push.bat + tự bump phiên bản (đẩy toàn bộ thay đổi code).
+# Muốn đẩy code mà KHÔNG đổi phiên bản thì dùng push.bat như cũ.
+# ============================================================================
+param(
+    [switch]$Yes,
+    [switch]$DryRun
+)
+
+$ErrorActionPreference = "Stop"
+$root = Split-Path -Parent $MyInvocation.MyCommand.Path
+Set-Location $root
+
+try {
+    # ---------- 1. Ngày giờ hiện tại ----------
+    $now       = Get-Date
+    $dateIso   = $now.ToString("yyyy-MM-dd")
+    $updatedVi = $now.ToString("dd/MM/yyyy")
+
+    # ---------- 2. Đọc version.json hiện tại ----------
+    $vjPath = Join-Path $root "version.json"
+    if (-not (Test-Path $vjPath)) { throw "Không tìm thấy version.json" }
+    $data = Get-Content $vjPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $metaDate  = if ($data._meta -and $data._meta.date)  { [string]$data._meta.date }  else { "" }
+    $metaCount = if ($data._meta -and $data._meta.count) { [int]$data._meta.count }   else { 0 }
+
+    # ---------- 3. Tính base version theo công thức ----------
+    $era  = $now.Year - 2025
+    $yy   = $now.ToString("yy")
+    $m    = $now.Month
+    $dec  = [math]::Floor($now.Day / 10)
+    $base = "{0}.{1}.{2}.{3}" -f $era, $yy, $m, $dec
+
+    # ---------- 4. Xử lý trùng ngày ----------
+    if ($metaDate -eq $dateIso) {
+        $count = $metaCount + 1
+        if ($count -eq 2) { $newVersion = "$base.$($now.Day)" }
+        else              { $newVersion = "$base.$($now.Day).$count" }
+    } else {
+        $count      = 1
+        $newVersion = $base
+    }
+
+    Write-Host ""
+    Write-Host "=============================================" -ForegroundColor Cyan
+    Write-Host " LearnHub Release" -ForegroundColor Cyan
+    Write-Host "=============================================" -ForegroundColor Cyan
+    Write-Host " Hôm nay          : $updatedVi"
+    Write-Host " Phiên bản cũ     : v$($data.version)"
+    Write-Host " Phiên bản mới    : v$newVersion"
+    if ($metaDate -eq $dateIso) {
+        Write-Host " (Lần thứ $count phát hành trong hôm nay)" -ForegroundColor Yellow
+    }
+    Write-Host "=============================================" -ForegroundColor Cyan
+
+    if ($DryRun) {
+        Write-Host ""
+        Write-Host "[DryRun] Không ghi file, không commit, không push." -ForegroundColor Magenta
+        exit 0
+    }
+
+    # ---------- 5. Xác nhận ----------
+    if (-not $Yes) {
+        $confirm = Read-Host " Commit + push bản mới? (Y/N)"
+        if ($confirm -notmatch '^[Yy]') { Write-Host "Đã hủy." ; exit 0 }
+    }
+
+    # ---------- 6. Ghi version.json ----------
+    $json = @{
+        version = $newVersion
+        updated = $updatedVi
+        _meta   = @{ date = $dateIso; count = $count }
+    } | ConvertTo-Json -Depth 5
+    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+    [System.IO.File]::WriteAllText($vjPath, $json + "`n", $utf8NoBom)
+
+    # ---------- 7. Vá LH_VERSION trong version-check.js ----------
+    $jsPath = Join-Path $root "version-check.js"
+    if (-not (Test-Path $jsPath)) { throw "Không tìm thấy version-check.js" }
+    $js = [System.IO.File]::ReadAllText($jsPath)
+    $pattern = 'window\.LH_VERSION\s*=\s*"[^"]*"'
+    if ($js -notmatch $pattern) { throw "Không tìm thấy window.LH_VERSION trong version-check.js" }
+    $js = [regex]::Replace($js, $pattern, ('window.LH_VERSION = "' + $newVersion + '"'))
+    [System.IO.File]::WriteAllText($jsPath, $js, $utf8NoBom)
+
+    # ---------- 8. Commit + push TOÀN BỘ thay đổi (như push.bat) + kèm version mới ----------
+    git add .
+    git commit -m "release v$newVersion ($updatedVi)"
+    git push origin main
+
+    Write-Host ""
+    Write-Host "✅ Đã phát hành v$newVersion — người dùng online sẽ thấy thông báo trong tối đa 2 phút." -ForegroundColor Green
+} catch {
+    Write-Host ""
+    Write-Host "❌ Lỗi: $($_.Exception.Message)" -ForegroundColor Red
+    exit 1
+}
