@@ -89,11 +89,14 @@
         .list-side{background:#fff;padding:8px;border-radius:18px;box-shadow:0 10px 40px rgba(99,102,241,.07),0 2px 8px rgba(0,0,0,.02);border:1px solid rgba(99,102,241,.10);overflow:hidden}
         .table-responsive{width:100%;overflow:hidden}
         table{width:100%;border-collapse:collapse;text-align:left;table-layout:fixed}
-        th,td{padding:9px 10px;font-size:13px;vertical-align:middle}
-        th:first-child,td:first-child{width:50px}
-        th:nth-child(3),td:nth-child(3){width:80px}
-        th:nth-child(4),td:nth-child(4){width:90px;text-align:right}
-        th:nth-child(5),td:nth-child(5){width:70px;text-align:right}
+        th,td{padding:10px 12px;font-size:13px;vertical-align:middle}
+        
+        /* FIX CHỒNG CHỮ: Cố định độ rộng và canh lề rõ ràng cho các cột */
+        th:first-child,td:first-child{width:60px;text-align:center;} /* Cột Hạng rộng hơn và canh giữa */
+        th:nth-child(3),td:nth-child(3){width:80px;text-align:center;}
+        th:nth-child(4),td:nth-child(4){width:80px;text-align:center;}
+        th:nth-child(5),td:nth-child(5){width:75px;text-align:right;}
+
         th{background:linear-gradient(135deg,#eef2ff,#f5f3ff);color:#4f46e5;font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:.05em;border-bottom:2px solid rgba(99,102,241,.14)}
         tr{border-bottom:1px solid #f1f5f9;transition:all .2s ease}
         tr:last-child{border-bottom:none}
@@ -107,17 +110,18 @@
         .me-badge{display:inline-flex;align-items:center;margin-left:8px;padding:2px 8px;border-radius:999px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.3px;flex-shrink:0}
         .t3-me-badge{display:inline-block;margin:3px auto 0;padding:2px 10px;border-radius:999px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:11px;font-weight:700}
 
-        .rank-badge{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#64748b;background:#e2e8f0}
+        .rank-badge{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#64748b;background:#e2e8f0;margin:0 auto;}
         tr.row-rank-1 .rank-badge{background:#fef3c7;color:#b45309}
         tr.row-rank-2 .rank-badge{background:#cbd5e1;color:#334155}
         tr.row-rank-3 .rank-badge{background:#ffedd5;color:#c2410c}
-        .rank-badge-medal{font-size:16px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+        .rank-badge-medal{font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center}
 
         .name-cell{display:flex;align-items:center;gap:8px;font-weight:600;color:#0f172a;overflow:hidden}
         .name-cell span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .row-ava{width:28px;height:28px;border-radius:50%;object-fit:cover;background:#e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,.08)}
         .row-ava-fb{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#e0e7ff,#f3e8ff);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#6366f1}
-        .count-cell{color:#475569;font-weight:500}
+        .count-cell{color:#475569;font-weight:500;text-align:center;}
+        .th-short{display:none}
         .score-cell{background:linear-gradient(135deg,#4f46e5,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;font-size:13.5px}
         .time-cell{color:#4f46e5;font-weight:700;font-family:'Inter',monospace;font-size:13px;letter-spacing:.02em}
 
@@ -154,6 +158,18 @@
             .hdr-top{grid-template-columns:1fr;justify-items:center;gap:10px}
             .hdr-top .week-tag,.hdr-top .mode-switch{justify-self:center}
             .hdr-title h1{font-size:20px}
+            th,td{padding:9px 6px;font-size:12px}
+            th:first-child,td:first-child{width:40px}
+            th:nth-child(2){text-align:center}
+            /* Mobile: header rút gọn, cột Tên chiếm chỗ nhiều nhất */
+            .th-long{display:none}
+            .th-short{display:inline}
+            th:nth-child(3),td:nth-child(3){width:44px}
+            th:nth-child(4),td:nth-child(4){width:56px}
+            th:nth-child(5),td:nth-child(5){width:48px}
+            .name-cell span:not(.me-badge){min-width:0}
+            .row-ava,.row-ava-fb{display:none}
+            .cell-unit{display:none}
         }
 
         .tab-panel{display:none}
@@ -191,17 +207,17 @@
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 50px;">Hạng</th>
-                                <th>Tên người dùng</th>
-                                <th style="width: 90px;">Đã làm</th>
-                                <th style="width: 100px; text-align: right;">Video</th>
-                                <th style="width: 80px; text-align: right;">Điểm</th>
+                                <th>Hạng</th>
+                                <th><span class="th-long">Tên người dùng</span><span class="th-short">Tên</span></th>
+                                <th><span class="th-long">Đã làm</span><span class="th-short">Bài</span></th>
+                                <th style="text-align: center;">Video</th>
+                                <th style="text-align: right;">Điểm</th>
                             </tr>
                         </thead>
                         <tbody id="table-body">
-                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:60%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:40px; margin-left:auto"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
-                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:45%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:40px; margin-left:auto"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
-                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:50%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:40px; margin-left:auto"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:60%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:40px; margin:auto"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:45%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:40px; margin:auto"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:50%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:40px; margin:auto"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -222,15 +238,15 @@
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 50px;">Hạng</th>
+                                <th style="width: 60px; text-align: center;">Hạng</th>
                                 <th>Tên người dùng</th>
                                 <th style="width: 120px; text-align: right;">Tổng online</th>
                             </tr>
                         </thead>
                         <tbody id="table-body-time">
-                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:60%"></div></td><td><div class="sk" style="width:80px; margin-left:auto"></div></td></tr>
-                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:45%"></div></td><td><div class="sk" style="width:80px; margin-left:auto"></div></td></tr>
-                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:50%"></div></td><td><div class="sk" style="width:80px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px; margin:auto"></div></td><td><div class="sk" style="width:60%"></div></td><td><div class="sk" style="width:80px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px; margin:auto"></div></td><td><div class="sk" style="width:45%"></div></td><td><div class="sk" style="width:80px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px; margin:auto"></div></td><td><div class="sk" style="width:50%"></div></td><td><div class="sk" style="width:80px; margin-left:auto"></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -245,7 +261,6 @@
         let activeSupabase = supabase;
         let myId = null;
 
-        // Accept admin session from parent (admin-dashboard iframe)
         window.addEventListener("message", async (e) => {
             if (e.data && e.data.type === "ADMIN_SESSION" && e.data.accessToken) {
                 try {
@@ -255,12 +270,10 @@
                         refresh_token: e.data.refresh_token
                     });
                     activeSupabase = adminClient;
-                    // Đồng bộ myId theo phiên admin để badge "Bạn" đánh đúng tài khoản đang đăng nhập ở dashboard
                     try {
                         const { data: { user } } = await adminClient.auth.getUser();
                         myId = user ? user.id : null;
                     } catch (_) { myId = null; }
-                    // Reload data with admin credentials
                     load();
                     loadOnlineTime();
                 } catch(err) {
@@ -311,13 +324,11 @@
             return `<div class="row-ava-fb">${esc(name.charAt(0))}</div>`;
         }
 
-        // ===== TAB SWITCHING =====
         window.switchTab = function(tab) {
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + tab));
             document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === tab));
         };
 
-        // ===== LOAD SCORE RANKING =====
         let scoreLoadBusy = false;
         async function load() {
             if (scoreLoadBusy) return;
@@ -403,7 +414,7 @@
                     const rankDisplay = rankNum <= 3 ? `<span class="rank-badge-medal">${medals[rankNum - 1]}</span>` : `<span class="rank-badge">${rankNum}</span>`;
                     
                     return `<tr class="${specialClass}${u.uid === myId ? ' ld-me' : ''}">
-                        <td>${rankDisplay}</td>
+                        <td style="text-align: center;">${rankDisplay}</td>
                         <td>
                             <div class="name-cell">
                                 ${rowAva(u.photo, u.name)}
@@ -411,8 +422,8 @@
                                 ${u.uid === myId ? '<span class="me-badge">Bạn</span>' : ''}
                             </div>
                         </td>
-                        <td class="count-cell">${u.tests} bài</td>
-                        <td class="count-cell" style="text-align: right;">${u.videos} video</td>
+                        <td class="count-cell">${u.tests}<span class="cell-unit"> bài</span></td>
+                        <td class="count-cell">${u.videos}<span class="cell-unit"> video</span></td>
                         <td class="score-cell" style="text-align: right;">${u.score}đ</td>
                     </tr>`;
                 }).join('');
@@ -433,7 +444,6 @@
             }
         }
 
-        // ===== LOAD ONLINE TIME RANKING =====
         let timeLoadBusy = false;
         async function loadOnlineTime() {
             if (timeLoadBusy) return;
@@ -511,7 +521,7 @@
                         { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' }
                     ]);
                 } else {
-                    podiumEl.innerHTML = buildTimePodium(top3, [
+                    podiumEl.innerHTML = buildTimePosium(top3, [
                         { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '🥈' },
                         { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' },
                         { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: '🥉' }
@@ -525,7 +535,7 @@
                     const rankDisplay = rankNum <= 3 ? `<span class="rank-badge-medal">${medals[rankNum - 1]}</span>` : `<span class="rank-badge">${rankNum}</span>`;
 
                     return `<tr class="${specialClass}${u.uid === myId ? ' ld-me' : ''}">
-                        <td>${rankDisplay}</td>
+                        <td style="text-align: center;">${rankDisplay}</td>
                         <td>
                             <div class="name-cell">
                                 ${rowAva(u.photo, u.name)}
@@ -561,7 +571,6 @@
             } catch (_) { myId = null; }
             load();
             loadOnlineTime();
-            // Tự refresh bảng xếp hạng (điểm + thời gian online) mỗi 60s để giảm tải DB
             setInterval(() => { load(); loadOnlineTime(); }, 60000);
         })();
     </script>
