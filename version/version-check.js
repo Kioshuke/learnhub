@@ -7,7 +7,7 @@
 // - Không đụng database, chỉ GET 1 file tĩnh mỗi 2 phút.
 // ============================================================================
 
-window.LH_VERSION = "1.26.8.2"; // ← release.bat tự thay giá trị này, KHÔNG sửa tay
+window.LH_VERSION = "1.26.8.2.22"; // ← release.bat tự thay giá trị này, KHÔNG sửa tay
 
 (function () {
   "use strict";
