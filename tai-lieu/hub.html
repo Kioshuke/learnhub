@@ -492,6 +492,27 @@
     .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
     .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
 
+    .mobile-note {
+      display: none;
+      align-items: flex-start;
+      gap: 10px;
+      position: relative;
+      z-index: 2;
+      margin: 12px;
+      padding: 13px 14px;
+      border-radius: 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      color: var(--text-main);
+      font-size: 13.5px;
+      line-height: 1.55;
+      box-shadow: var(--shadow);
+    }
+    .mobile-note i { color: var(--primary); font-size: 17px; margin-top: 2px; flex-shrink: 0; }
+    .mobile-note .mn-inner { display: flex; flex-direction: column; gap: 4px; }
+    .mobile-note .mn-title { font-size: 14.5px; font-weight: 800; }
+    .mobile-note .mn-sub { color: var(--text-sub); }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 900px) {
       .detail-body {
@@ -507,6 +528,13 @@
     }
     @media (max-width: 480px) {
       .cards-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .mobile-note { display: flex; }
+      .detail-preview { min-height: 0; }
+      .detail-preview iframe,
+      .detail-spinner,
+      .detail-fallback { display: none !important; }
     }
     @media (max-width: 560px) {
       .hero { flex-direction: column; align-items: flex-start; gap: 14px; padding: 18px; }
@@ -556,6 +584,13 @@
       </div>
       <div class="detail-body">
       <div class="detail-preview">
+        <div class="mobile-note">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span class="mn-inner">
+            <b class="mn-title">Chế độ xem trước chỉ có thể được sử dụng trên desktop</b>
+            <span class="mn-sub">Để xem file trên điện thoại, vui lòng bấm nút <b>Mở file gốc</b> hoặc <b>Tải xuống</b> bên dưới.</span>
+          </span>
+        </div>
         <div class="detail-spinner" id="detailSpinner">
           <div class="spinner"></div>
           <span>Đang tải file...</span>

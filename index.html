@@ -355,15 +355,47 @@ try {
 
 // ================= DÒNG CHỮ CHẠY (ticker, đọc realtime từ ticker_settings) =================
 let tickerApplied = false;
+let tickerLastSpeed = null;
+let tickerResizeTimer = null;
+
+// Mobile màn hẹp => quãng đường 1 vòng ngắn hơn desktop nên cùng số giây sẽ
+// thấy chữ chạy chậm hẳn. Co thời lượng theo quãng đường thực tế để tốc độ
+// cảm giác (px/s) ≈ desktop.
+const TICKER_REF_DIST = 1700; // quãng đường tham chiếu 1 vòng trên desktop (px)
+
+function setTickerDuration(el, secs) {
+  if (!window.matchMedia("(max-width:768px)").matches) {
+    el.style.animationDuration = secs + "s";
+    el.style.setProperty("--ticker-dur", secs + "s");
+    return;
+  }
+  // offsetWidth đã gồm padding-left:100% (bề ngang khung) + chiều dài chữ
+  const dist = Math.max(1, el.offsetWidth);
+  const scaled = Math.round(secs * dist / TICKER_REF_DIST * 10) / 10;
+  const dur = Math.min(90, Math.max(5, scaled)) + "s";
+  el.style.animationDuration = dur;
+  el.style.setProperty("--ticker-dur", dur);
+}
 
 function applyTicker(text, speedSeconds) {
   const el = document.querySelector(".ticker-text");
   if (!el) return false;
   if (typeof text === "string" && text.trim() !== "") el.textContent = text;
-  el.style.animationDuration = (Number(speedSeconds) || 18) + "s";
+  const secs = Number(speedSeconds) || 18;
+  tickerLastSpeed = secs;
+  setTickerDuration(el, secs);
   tickerApplied = true;
   return true;
 }
+
+// Xoay ngang / kéo cửa sổ: tính lại thời lượng cho khớp tốc độ desktop
+window.addEventListener("resize", () => {
+  clearTimeout(tickerResizeTimer);
+  tickerResizeTimer = setTimeout(() => {
+    const el = document.querySelector(".ticker-text");
+    if (el && tickerLastSpeed) setTickerDuration(el, tickerLastSpeed);
+  }, 200);
+});
 
 async function initTicker() {
   let tries = 0;

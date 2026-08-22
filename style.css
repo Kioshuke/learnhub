@@ -2554,8 +2554,9 @@ animation:none;
 background-size:100% 100%;
 }
 
+/* Tốc độ mobile = desktop (JS sẽ tự co thời lượng theo bề ngang màn hình) */
 .ticker-text{
-animation:scrollText 24s linear infinite;
+animation:scrollText 18s linear infinite;
 }
 
 /* Loading overlay tối ưu cho mobile */
@@ -3579,14 +3580,11 @@ body.cc-reduced .header {
   animation: headerFlow 10s ease infinite !important;
 }
 
-/* Ticker (chữ chạy) vẫn chạy bình thường cho dù bật giảm chuyển động */
+/* Ticker (chữ chạy) vẫn chạy bình thường cho dù bật giảm chuyển động.
+   Dùng --ticker-dur do JS set theo từng thiết bị (mobile co ngắn lại cho
+   khớp tốc độ cảm giác với desktop). */
 body.cc-reduced .ticker-text {
-  animation: scrollText 18s linear infinite !important;
-}
-@media (max-width: 768px) {
-  body.cc-reduced .ticker-text {
-    animation: scrollText 24s linear infinite !important;
-  }
+  animation: scrollText var(--ticker-dur, 18s) linear infinite !important;
 }
 
 /* Hiện nội dung tĩnh ngay lập tức — không trượt, đỡ lag máy yếu */

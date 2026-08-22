@@ -55,6 +55,9 @@ body.cc-glass-off #schedule-modal {
   backdrop-filter: none;
 }
 
+/* CHỈ "Tắt kính mờ" (cc-glass-off) mới đổi nền đặc.
+   "Giảm chuyển động" (cc-reduced) KHÔNG đụng vào màu nền/kính mờ —
+   nó chỉ giảm animation (xem block cuối file). */
 body.cc-glass-off {
   --cc-bg: var(--cc-bg-solid);
 }
@@ -1163,23 +1166,12 @@ body.cc-reduced .cc-track-eq span {
   }
 }
 
-/* ===== GIẢM CHUYỂN ĐỘNG (body.cc-reduced): tối ưu mở popup trên máy yếu =====
-   - Popup hiện tức thì, không animation scale/translate.
-   - backdrop-filter blur(26px) là hiệu ứng nặng nhất trên GPU mobile -> tắt hẳn.
-   - Chỉ áp dụng solid background khi không có cc-glass-off (kính mờ đang tắt). */
+/* ===== GIẢM CHUYỂN ĐỘNG (body.cc-reduced) =====
+   CHỈ giảm animation (popup mở tức thì, không scale/translate).
+   KHÔNG đụng vào kính mờ hay màu nền — muốn tắt kính mờ hãy dùng
+   nút "Kính mờ" riêng (cc-glass-off, tự đổi nền đặc tương ứng). */
 body.cc-reduced #userPopup {
   animation: none !important;
-}
-body.cc-reduced #userPopup,
-body.cc-reduced .cc-rail,
-body.cc-reduced .cc-focus-widget,
-body.cc-reduced .cc-focus-pill,
-body.cc-reduced .cc-logout-overlay {
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-body.cc-reduced.cc-glass-off {
-  --cc-bg: var(--cc-bg-solid);
 }
 
 @media (max-width: 480px) {
@@ -1227,14 +1219,5 @@ body.cc-reduced.cc-glass-off {
   body.cc-glass-off .cc-focus-pill {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
-  }
-
-  /* Tắt kính mờ trên mobile khi cc-reduced */
-  body.cc-reduced #userPopup,
-  body.cc-reduced .cc-rail,
-  body.cc-reduced .cc-focus-widget,
-  body.cc-reduced .cc-focus-pill {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
   }
 }
