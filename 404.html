@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/pictures/favicon.png" sizes="any">
+<title>404 · Trang không tồn tại - LearnHub Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+:root{
+  --bg:#f4f7fb;--text:#0f172a;--sub:#64748b;--card:#ffffff;--border:#dbe3ef;
+  --blue:#1a73e8;
+}
+body.dark-mode{
+  --bg:#0b1220;--text:#f1f5f9;--sub:#94a3b8;--card:#121d33;--border:#25344f;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;}
+body{
+  font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:24px;text-align:center;position:relative;overflow:hidden;
+}
+
+/* ===== ICON BAY LƠ LỬNG ===== */
+.float{
+  position:absolute;opacity:.25;pointer-events:none;
+  animation:bob 6s ease-in-out infinite;
+}
+.float.i1{top:12%;left:8%;font-size:56px;color:#1a73e8;}
+.float.i2{top:18%;right:10%;font-size:44px;color:#7c3aed;animation-delay:-1.5s;animation-duration:7s;}
+.float.i3{bottom:16%;left:12%;font-size:48px;color:#16a34a;animation-delay:-3s;animation-duration:8s;}
+.float.i4{bottom:12%;right:9%;font-size:60px;color:#dc2626;animation-delay:-2s;}
+.float.i5{top:45%;left:4%;font-size:36px;color:#f59e0b;animation-delay:-4s;animation-duration:9s;}
+.float.i6{top:50%;right:5%;font-size:38px;color:#0891b2;animation-delay:-.8s;animation-duration:6.5s;}
+@keyframes bob{
+  0%,100%{transform:translateY(0) rotate(-6deg);}
+  50%{transform:translateY(-18px) rotate(6deg);}
+}
+
+/* ===== NỘI DUNG CHÍNH ===== */
+main{max-width:520px;position:relative;z-index:1;}
+.badge{
+  display:inline-flex;align-items:center;gap:7px;background:var(--card);
+  border:1px solid var(--border);color:var(--blue);font-weight:700;font-size:13px;
+  border-radius:999px;padding:7px 15px;margin-bottom:18px;
+  box-shadow:0 4px 14px rgba(15,23,42,.06);
+  animation:fadeDown .5s ease .05s both;
+}
+.code{
+  font-size:clamp(110px,30vw,190px);font-weight:900;line-height:.95;letter-spacing:-.05em;
+  background:linear-gradient(135deg,#1a73e8 10%,#7c3aed 55%,#dc2626 95%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 14px 32px rgba(26,115,232,.22));
+  animation:pop .7s cubic-bezier(.22,1.4,.36,1) both;
+}
+@keyframes pop{
+  from{transform:scale(.7);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-12px);}to{opacity:1;transform:none;}}
+@keyframes fadeLeft{from{opacity:0;transform:translateX(-18px);}to{opacity:1;transform:none;}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+/* ===== HUBIE NÓI CHUYỆN ===== */
+.hubie-row{display:flex;align-items:flex-start;gap:12px;margin-top:20px;text-align:left;}
+.hubie-avt{
+  width:60px;height:60px;flex-shrink:0;border-radius:50%;object-fit:cover;
+  border:3px solid var(--blue);box-shadow:0 8px 22px rgba(26,115,232,.35);
+  animation:fadeLeft .5s ease .2s both, bob 5s ease-in-out 1.2s infinite;
+}
+.hubie-name{font-size:11px;font-weight:700;color:var(--sub);margin-bottom:5px;}
+.hubie-name i{color:var(--blue);margin-right:3px;}
+.bubble{
+  position:relative;background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:11px 15px;font-size:13.5px;line-height:1.65;color:var(--text);
+  box-shadow:0 8px 24px rgba(15,23,42,.08);
+  animation:pop .55s cubic-bezier(.22,1.4,.36,1) .25s both;
+}
+.bubble::before{
+  content:"";position:absolute;left:-5.5px;top:20px;width:10px;height:10px;
+  background:var(--card);border-left:1px solid var(--border);border-bottom:1px solid var(--border);
+  transform:rotate(45deg);
+}
+.bubble b{color:var(--blue);}
+
+.btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px;}
+.btn{
+  display:inline-flex;align-items:center;gap:9px;text-decoration:none;
+  font-weight:700;font-size:14px;border-radius:12px;padding:12px 22px;
+  transition:transform .15s ease,box-shadow .15s ease,background .15s ease;
+}
+.btn.primary{
+  background:linear-gradient(135deg,#1a73e8,#1557b0);color:#fff;
+  box-shadow:0 8px 20px rgba(26,115,232,.35);
+  animation:fadeUp .5s ease .5s both;
+}
+.btn.primary:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(26,115,232,.45);}
+.btn.ghost{
+  background:var(--card);color:var(--text);border:1px solid var(--border);
+  box-shadow:0 4px 12px rgba(15,23,42,.05);
+  animation:fadeUp .5s ease .65s both;
+}
+.btn.ghost:hover{transform:translateY(-2px);border-color:var(--blue);color:var(--blue);}
+
+.hint{margin-top:22px;font-size:11.5px;color:var(--sub);opacity:.8;animation:fadeIn .6s ease 1s both;}
+.countdown{margin-top:16px;font-size:13px;color:var(--sub);animation:fadeIn .6s ease .85s both;}
+.countdown i{margin-right:4px;color:var(--blue);}
+.countdown b{color:var(--blue);font-weight:800;font-size:15px;}
+.countdown a{color:var(--blue);font-weight:700;text-decoration:none;border-bottom:1.5px dashed currentColor;margin-left:2px;}
+.countdown a:hover{opacity:.75;}
+
+@media(max-width:560px){
+  .float.i5,.float.i6{display:none;}
+  .float.i1,.float.i3{font-size:38px;}
+  .btns .btn{width:100%;justify-content:center;}
+  .hubie-avt{width:46px;height:46px;}
+}
+</style>
+</head>
+<body>
+<script>
+/* Dark mode theo cài đặt chung của site (localStorage, giống các trang khác) */
+if (localStorage.getItem("darkMode") === "on") document.body.classList.add("dark-mode");
+window.addEventListener("storage", function (e) {
+  if (e.key === "darkMode") document.body.classList.toggle("dark-mode", e.newValue === "on");
+});
+</script>
+
+<i class="fas fa-book float i1"></i>
+<i class="fas fa-pencil float i2"></i>
+<i class="fas fa-flask float i3"></i>
+<i class="fas fa-graduation-cap float i4"></i>
+<i class="fas fa-calculator float i5"></i>
+<i class="fas fa-lightbulb float i6"></i>
+
+<main>
+  <span class="badge"><i class="fas fa-compass"></i> Lỗi 404 · Không tìm thấy trang</span>
+  <div class="code">404</div>
+  <div class="hubie-row">
+    <img class="hubie-avt" src="/pictures/chatboiavt.png" alt="Hubie">
+    <div class="hubie-col">
+      <div class="hubie-name"><i class="fas fa-robot"></i> Hubie · Trợ lý LearnHub</div>
+      <div class="bubble">Huhu trang này mình lùng suốt cũng <b>không thấy đâu</b> hết trơn á! 🥲<br>Thui để mình chỉ đường đưa bạn về chỗ học nha! 👉</div>
+    </div>
+  </div>
+  <div class="btns">
+    <a class="btn primary" href="/index.html"><i class="fas fa-house"></i> Về trang chủ</a>
+    <a class="btn ghost" href="/index.html?open=phong-hoc"><i class="fas fa-book-open"></i> Vào phòng học</a>
+  </div>
+  <div class="countdown"><i class="fas fa-hourglass-half"></i> Tự động về trang chủ sau <b id="cdNum">30</b>s · <a href="/index.html">Về ngay</a></div>
+  <div class="hint">LearnHub Platform · Nền tảng học tập trực tuyến</div>
+</main>
+
+<script>
+/* Đếm ngược 30s tự về trang chủ */
+(function () {
+  var n = 30;
+  var el = document.getElementById("cdNum");
+  var iv = setInterval(function () {
+    n--;
+    if (n <= 0) { clearInterval(iv); window.location.replace("/index.html"); return; }
+    if (el) el.textContent = n;
+  }, 1000);
+})();
+</script>
+
+</body>
+</html>

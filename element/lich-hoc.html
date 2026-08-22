@@ -63,6 +63,10 @@ body{padding:0;}
 .schedule-item.past{filter:grayscale(1);opacity:.62;}
 .schedule-item.past .schedule-item-title{color:var(--text-sub);}
 .schedule-item.past .schedule-item-meta{opacity:.8;}
+
+/* ===== CARD LỊCH BẤM ĐƯỢC ===== */
+.schedule-item{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;}
+.schedule-item:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.12);}
 @media(max-width:640px){.schedule-week-grid{grid-template-columns:repeat(7,minmax(128px,1fr))}.schedule-week-nav button{padding:6px 7px;font-size:11px}}
 
 /* ===== DARK MODE ===== */
@@ -105,6 +109,9 @@ const SUBJECTS = {
   toan: { short: "Toán", color: "#4f46e5" }
 };
 
+const SESSIONS = { morning: ["🌅", "Sáng"], noon: ["☀️", "Trưa"], afternoon: ["🌤️", "Chiều"], evening: ["🌙", "Tối"] };
+let eventFlat = [];
+
 let scheduleChannel = null;
 let scheduleWeekStart = getScheduleMonday(new Date());
 
@@ -143,6 +150,8 @@ function scheduleEventPast(e) {
 function renderSchedule() {
   const box = document.getElementById("scheduleBox");
   if (!box) return;
+  closeEventDetail();
+  eventFlat = [];
   const body = document.getElementById("scheduleBody");
   const meta = document.getElementById("scheduleMeta");
   const count = document.getElementById("scheduleCount");
@@ -165,13 +174,14 @@ function renderSchedule() {
       const s = SUBJECTS[e.subject] || { short: String(e.subject || ""), color: "#2563eb" };
       const type = e.type === "thi" ? "thi" : "hoc";
       const session = e.session || (Number(String(e.time || "08:00").split(":")[0]) < 11 ? "morning" : Number(String(e.time || "08:00").split(":")[0]) < 14 ? "noon" : Number(String(e.time || "08:00").split(":")[0]) < 18 ? "afternoon" : "evening");
-      const sessionInfo = { morning: ["🌅", "Sáng"], noon: ["☀️", "Trưa"], afternoon: ["🌤️", "Chiều"], evening: ["🌙", "Tối"] }[session] || ["🕒", "Buổi học"];
+      const sessionInfo = SESSIONS[session] || ["🕒", "Buổi học"];
       const timeText = [e.time, e.endTime].filter(v => v).join(" – ");
       const metaParts = [];
       if (timeText) metaParts.push('<strong class="schedule-item-time">' + escHtml(timeText) + '</strong>');
       if (e.note) metaParts.push(escHtml(e.note));
       const metaText = metaParts.join(" · ");
-      return '<div class="schedule-item' + (scheduleEventPast(e) ? " past" : "") + '" style="--si-color:' + s.color + '"><div class="schedule-item-top"><span class="schedule-item-type ' + type + '">' + (type === "thi" ? "Thi" : "Học") + '</span><span class="schedule-item-session ' + session + '">' + sessionInfo[0] + ' ' + sessionInfo[1] + '</span><span class="schedule-item-subj">' + escHtml(s.short) + '</span></div><div class="schedule-item-info"><div class="schedule-item-title">' + escHtml(e.title) + '</div><div class="schedule-item-meta">' + metaText + '</div></div></div>';
+      const idx = eventFlat.push(e) - 1;
+      return '<div class="schedule-item' + (scheduleEventPast(e) ? " past" : "") + '" style="--si-color:' + s.color + '" onclick="openEventDetail(' + idx + ')"><div class="schedule-item-top"><span class="schedule-item-type ' + type + '">' + (type === "thi" ? "Thi" : "Học") + '</span><span class="schedule-item-session ' + session + '">' + sessionInfo[0] + ' ' + sessionInfo[1] + '</span><span class="schedule-item-subj">' + escHtml(s.short) + '</span></div><div class="schedule-item-info"><div class="schedule-item-title">' + escHtml(e.title) + '</div><div class="schedule-item-meta">' + metaText + '</div></div></div>';
     }).join("") : '<div class="schedule-empty">Trống</div>';
     return '<div class="' + dayClass + '"><div class="schedule-day-head"><span class="schedule-day-name">' + weekdayNames[index] + '</span><span class="schedule-day-date">' + fmtDate(date) + '</span></div>' + cards + '</div>';
   }).join("") + "</div>";
@@ -183,6 +193,166 @@ window.changeScheduleWeek = changeScheduleWeek;
 
 function changeScheduleWeekToday() { scheduleWeekStart = getScheduleMonday(new Date()); renderSchedule(); }
 window.changeScheduleWeekToday = changeScheduleWeekToday;
+
+/* ===== POPUP CHI TIẾT LỊCH ===== */
+const WEEKDAY_VN = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
+
+function weekdayOfVN(iso) {
+  const d = new Date(String(iso || "") + "T00:00:00");
+  return isNaN(d.getTime()) ? "" : WEEKDAY_VN[d.getDay()];
+}
+
+function eventCountdown(e) {
+  const today = scheduleIsoDate(new Date());
+  const d = String(e.date || "");
+  if (!d || d < today) return { cls: "past", icon: "fa-circle-check", text: "Đã diễn ra" };
+  if (d === today) return { cls: "today", icon: "fa-bolt", text: "Hôm nay!" };
+  const days = Math.round((new Date(d + "T00:00:00") - new Date(today + "T00:00:00")) / 86400000);
+  return days === 1
+    ? { cls: "soon", icon: "fa-hourglass-half", text: "Ngày mai!" }
+    : { cls: "soon", icon: "fa-hourglass-half", text: "Còn " + days + " ngày" };
+}
+
+function getHostDoc() {
+  /* Chỉ "gửi popup lên trên" khi đang nhúng trong phong-hoc.html (same-origin) */
+  try {
+    if (window.parent === window) return null;
+    return /phong-hoc\.html$/i.test(window.parent.location.pathname) ? window.parent.document : null;
+  } catch (err) {
+    return null;
+  }
+}
+
+/* CSS popup tự chứa (biến riêng --lh-*) — chèn vào document nào cũng chạy,
+   dark mode tự theo body.dark-mode của document đó */
+const LHD_STYLE = `
+#eventOverlay{--lh-text:#111827;--lh-sub:#6b7280;--lh-card:#ffffff;--lh-border:#e2e5ec;--lh-notice:#f0f4ff;}
+body.dark-mode #eventOverlay{--lh-text:#f1f5f9;--lh-sub:#94a3b8;--lh-card:#1e293b;--lh-border:#334155;--lh-notice:#1e293b;}
+#eventOverlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,23,42,.55);opacity:0;pointer-events:none;transition:opacity .2s ease;font-family:'Inter','Segoe UI',sans-serif;text-align:left;}
+#eventOverlay.show{opacity:1;pointer-events:auto;}
+#eventModal{position:relative;width:100%;max-width:540px;max-height:88%;overflow-y:auto;background:var(--lh-card);color:var(--lh-text);border:1px solid var(--lh-border);border-top:4px solid var(--ev-color,#2563eb);border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.30);transform:scale(.94) translateY(10px);transition:transform .22s ease;}
+#eventOverlay.show #eventModal{transform:scale(1) translateY(0);}
+.event-close{position:absolute;top:11px;right:11px;z-index:2;width:28px;height:28px;border:none;border-radius:50%;background:var(--lh-notice);color:var(--lh-sub);font-size:13px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;}
+.event-close:hover{background:var(--lh-border);color:var(--lh-text);}
+.event-head{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:14px 44px 0 16px;}
+.event-subj{flex-shrink:0;font-size:10px;font-weight:700;color:#fff;background:var(--si-color,#2563eb);border-radius:999px;padding:3px 9px;}
+.schedule-item-type{flex-shrink:0;font-size:10.5px;font-weight:700;border-radius:999px;padding:3px 9px;text-transform:uppercase;letter-spacing:.03em;}
+.schedule-item-type.hoc{background:rgba(37,99,235,.12);color:#2563eb;}
+.schedule-item-type.thi{background:rgba(220,38,38,.12);color:#dc2626;}
+.event-countdown{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;border-radius:999px;padding:3px 9px;}
+.event-countdown.soon{background:rgba(245,158,11,.14);color:#d97706;}
+.event-countdown.today{background:rgba(220,38,38,.14);color:#dc2626;}
+.event-countdown.past{background:rgba(107,114,128,.14);color:#6b7280;}
+body.dark-mode .event-countdown.past{color:#94a3b8;}
+.event-body{padding:12px 18px 18px;}
+.event-title{font-size:17px;font-weight:800;color:var(--lh-text);line-height:1.35;margin-bottom:10px;padding-right:20px;}
+.event-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.event-grid .event-row{margin-bottom:0;}
+.event-row{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--lh-border);border-radius:10px;background:var(--lh-notice);margin-bottom:7px;}
+.event-row>i{width:32px;height:32px;flex-shrink:0;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:#fff;background:var(--ev-color,#2563eb);}
+.event-row-info{min-width:0;}
+.event-row-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--lh-sub);}
+.event-row-value{font-size:13px;font-weight:700;color:var(--lh-text);margin-top:1px;}
+.event-row-sub{font-size:11px;color:var(--lh-sub);margin-top:1px;}
+.event-note{display:flex;gap:9px;padding:10px 12px;margin-top:2px;border-left:3px solid var(--ev-color,#2563eb);border-radius:0 10px 10px 0;background:var(--lh-notice);}
+.event-note i{color:var(--ev-color,#2563eb);flex-shrink:0;margin-top:2px;}
+.event-note span{font-size:12px;color:var(--lh-text);line-height:1.55;}
+.event-hint{margin-top:10px;text-align:center;font-size:10px;color:var(--lh-sub);opacity:.75;}
+@media(max-width:560px){#eventModal{max-width:100%;}.event-grid{grid-template-columns:1fr;}}
+`;
+
+function ensureEventOverlay(doc) {
+  let ov = doc.getElementById("eventOverlay");
+  if (ov) return { ov: ov, modal: doc.getElementById("eventModal") };
+  if (!doc.getElementById("lhdStyle")) {
+    const st = doc.createElement("style");
+    st.id = "lhdStyle";
+    st.textContent = LHD_STYLE;
+    doc.head.appendChild(st);
+  }
+  ov = doc.createElement("div");
+  ov.id = "eventOverlay";
+  ov.innerHTML = '<div id="eventModal" role="dialog" aria-modal="true"></div>';
+  ov.addEventListener("click", function (ev) {
+    if (ev.target === ov) closeEventDetail();
+  });
+  (doc.body || doc.documentElement).appendChild(ov);
+  if (!doc.defaultView.__lhdEscBound) {
+    doc.defaultView.__lhdEscBound = true;
+    doc.defaultView.addEventListener("keydown", function (ev) {
+      if (ev.key === "Escape") closeEventDetail();
+    });
+  }
+  return { ov: ov, modal: doc.getElementById("eventModal") };
+}
+
+function buildEventModalInner(e) {
+  const s = SUBJECTS[e.subject] || { short: String(e.subject || "?"), color: "#2563eb" };
+  const type = e.type === "thi" ? "thi" : "hoc";
+  const cd = eventCountdown(e);
+  const hour = Number(String(e.time || "08:00").split(":")[0]);
+  const sess = SESSIONS[e.session] ||
+    SESSIONS[hour < 11 ? "morning" : hour < 14 ? "noon" : hour < 18 ? "afternoon" : "evening"] ||
+    ["🕒", "Buổi học"];
+  const timeText = [e.time, e.endTime].filter(v => v).join(" – ");
+  const dateRow =
+    '<div class="event-row"><i class="fas fa-calendar-day"></i><div class="event-row-info">' +
+      '<div class="event-row-label">Thời gian</div>' +
+      '<div class="event-row-value">' + escHtml(weekdayOfVN(e.date)) + '</div>' +
+      '<div class="event-row-sub">' + escHtml(fmtDate(e.date)) + '</div></div></div>';
+  const timeRow =
+    '<div class="event-row"><i class="fas fa-clock"></i><div class="event-row-info">' +
+      '<div class="event-row-label">Giờ học</div>' +
+      '<div class="event-row-value">' + escHtml(timeText || "—") + '</div>' +
+      '<div class="event-row-sub">' + sess[0] + ' ' + sess[1] + '</div></div></div>';
+  let rowsHtml = '<div class="event-grid">' + dateRow + timeRow + '</div>';
+  if (e.note) {
+    rowsHtml += '<div class="event-note"><i class="fas fa-note-sticky"></i><span>' + escHtml(e.note) + '</span></div>';
+  }
+  return {
+    color: s.color,
+    html:
+      /* Nút đóng KHÔNG dùng inline onclick vì khi inject sang trang cha thì
+         hàm nằm trong window của iframe — phải gắn listener trực tiếp */
+      '<button class="event-close" type="button" aria-label="Đóng"><i class="fas fa-xmark"></i></button>' +
+      '<div class="event-head">' +
+        '<span class="schedule-item-type ' + type + '">' + (type === "thi" ? "Thi" : "Học") + '</span>' +
+        '<span class="event-subj" style="--si-color:' + s.color + '">' + escHtml(s.short) + '</span>' +
+        '<span class="event-countdown ' + cd.cls + '"><i class="fas ' + cd.icon + '"></i>' + cd.text + '</span>' +
+      '</div>' +
+      '<div class="event-body"><div class="event-title">' + escHtml(e.title) + '</div>' + rowsHtml +
+      '<div class="event-hint">Bấm ra ngoài hoặc nhấn Esc để đóng</div></div>'
+  };
+}
+
+function closeEventDetail() {
+  [document, getHostDoc()].forEach(function (doc) {
+    if (!doc) return;
+    const ov = doc.getElementById("eventOverlay");
+    if (ov) ov.classList.remove("show");
+  });
+}
+
+function openEventDetail(idx) {
+  const e = eventFlat[idx];
+  if (!e) return;
+  const built = buildEventModalInner(e);
+  let ui = null;
+  const hostDoc = getHostDoc();
+  if (hostDoc) {
+    try { ui = ensureEventOverlay(hostDoc); } catch (err) { ui = null; }
+  }
+  if (!ui) ui = ensureEventOverlay(document);
+  ui.modal.style.setProperty("--ev-color", built.color);
+  ui.modal.innerHTML = built.html;
+  const btn = ui.modal.querySelector(".event-close");
+  if (btn) btn.addEventListener("click", closeEventDetail);
+  ui.ov.classList.add("show");
+}
+window.openEventDetail = openEventDetail;
+window.closeEventDetail = closeEventDetail;
+
+ensureEventOverlay(document);
 
 async function loadSchedule() {
   try {

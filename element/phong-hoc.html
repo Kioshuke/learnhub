@@ -245,149 +245,22 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
 
 <div class="subject-block">
   <div class="subject-title"><i class="fas fa-book-open"></i> Danh sách môn học</div>
-  <div class="subject-tabs" id="subjectTabs">
-    <button class="subject-tab" data-subject="ly" onclick="switchSubject('ly')"><i class="fas fa-atom"></i> <span class="tab-full">Vật Lý</span><span class="tab-short">Lý</span></button>
-    <button class="subject-tab" data-subject="sinh" onclick="switchSubject('sinh')"><i class="fas fa-leaf"></i> <span class="tab-full">Sinh Học</span><span class="tab-short">Sinh</span></button>
-    <button class="subject-tab" data-subject="tin" onclick="switchSubject('tin')"><i class="fas fa-laptop-code"></i> <span class="tab-full">Tin Học</span><span class="tab-short">Tin</span></button>
-    <button class="subject-tab" data-subject="su" onclick="switchSubject('su')"><i class="fas fa-landmark"></i> <span class="tab-full">Lịch Sử</span><span class="tab-short">Sử</span></button>
-    <button class="subject-tab" data-subject="hoa" onclick="switchSubject('hoa')"><i class="fas fa-flask"></i> <span class="tab-full">Hoá Học</span><span class="tab-short">Hoá</span></button>
-    <button class="subject-tab" data-subject="anh" onclick="switchSubject('anh')"><i class="fas fa-language"></i> <span class="tab-full">Anh Văn</span><span class="tab-short">Anh</span></button>
-    <button class="subject-tab" data-subject="toan" onclick="switchSubject('toan')"><i class="fas fa-square-root-variable"></i> <span class="tab-full">Toán Học</span><span class="tab-short">Toán</span></button>
-  </div>
-  <div id="ly" class="subject-panel" style="--tab:#2563eb;--card-color:#3b82f6;">
-  <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Vật Lý:</strong> Đã thi xong</div>
-  <div class="grid">
-    <div class="card">
-      <div class="card-color-bar"></div>
-      <div class="card-body">
-        <div class="card-top"><div class="card-icon"><i class="fas fa-pen-fancy"></i></div><h3>Trắc nghiệm</h3><span class="status done"></span></div>
-        <p class="card-desc">Bài ôn tập trắc nghiệm môn Vật Lý.</p>
-        <div class="btn-row"><a class="btn" href="../cauhoi/filetest.html?de=vatli.json" onclick="loadQuiz(this,'../cauhoi/filetest.html?de=vatli.json'); return false;">Làm bài</a></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="sinh" class="subject-panel" style="--tab:#16a34a;--card-color:#16a34a;">
-  <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Sinh Học:</strong> Chuẩn bị ôn tập</div>
-  <div class="grid">
-    <div class="card" style="--card-index:1">
-      <div class="card-color-bar"></div>
-      <div class="card-body">
-        <div class="card-top"><div class="card-icon"><i class="fas fa-dna"></i></div><h3>Trắc nghiệm</h3><span class="status done"></span></div>
-        <p class="card-desc">Bài ôn tập trắc nghiệm môn Sinh Học.</p>
-        <div class="btn-row"><a class="btn" href="../cauhoi/filetest.html?de=sinhhoc.json" onclick="loadQuiz(this,'../cauhoi/filetest.html?de=sinhhoc.json'); return false;">Làm bài</a></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="tin" class="subject-panel" style="--tab:#7c3aed;--card-color:#7c3aed;">
-  <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Tin Học:</strong> Ôn tập chứng chỉ MOS</div>
-  <div class="grid">
-    <div class="card" style="--card-index:0">
-      <div class="card-color-bar"></div>
-      <div class="card-body">
-        <div class="card-top"><div class="card-icon"><i class="fas fa-file-word"></i></div><h3>Ôn Tập MOS</h3><span class="status done"></span></div>
-        <p class="card-desc">Ôn tập chứng chỉ MOS và các kỹ năng liên quan về Word, Excel, PowerPoint.</p>
-        <div class="btn-row"><a class="btn" href="mos-video-hub.html" onclick="loadQuiz(this,'mos-video-hub.html'); return false;">Mở</a></div>
-      </div>
-    </div>
-    <div class="card" style="--card-index:1">
-      <div class="card-color-bar"></div>
-      <div class="card-body">
-        <div class="card-top"><div class="card-icon" style="background:#a78bfa;"><i class="fas fa-calculator"></i></div><h3>Luyện Tập Word</h3><span class="status pending"></span></div>
-        <p class="card-desc">Bài luyện tập kỹ năng sử dụng Microsoft Word nâng cao.</p>
-        <div class="btn-row"><a class="btn disabled" href="#">Sắp ra mắt</a></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="su" class="subject-panel" style="--tab:#ea580c;--card-color:#ea580c;">
-  <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Lịch Sử:</strong> Chủ đề 8 & 9</div>
-  <div class="grid">
-    <div class="card" style="--card-index:0">
-      <div class="card-color-bar"></div>
-      <div class="card-body">
-        <div class="card-top"><div class="card-icon"><i class="fas fa-scroll"></i></div><h3>Trắc nghiệm</h3><span class="status done"></span></div>
-        <p class="card-desc">Chủ đề 8. LỊCH SỬ ĐỐI NGOẠI CỦA VIỆT NAM THỜI CẬN – HIỆN ĐẠI</p>
-        <div class="btn-row"><a class="btn" href="../cauhoi/filetest.html?de=questions.json" onclick="loadQuiz(this,'../cauhoi/filetest.html?de=questions.json'); return false;">Làm bài</a></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="hoa" class="subject-panel" style="--tab:#dc2626;--card-color:#dc2626;">
-  <div class="subject-notice"><i class="fas fa-fire"></i> <strong>Thông báo môn Hoá Học:</strong> CHỐT ĐÁP ÁN 👊</div>
-  <div class="grid">
-    <div class="card" style="--card-index:0">
-      <div class="card-color-bar"></div>
-      <div class="card-body">
-        <div class="card-top"><div class="card-icon"><i class="fas fa-flask"></i></div><h3>Trắc nghiệm P1</h3><span class="status done"></span></div>
-        <p class="card-desc">Bài ôn tập trắc nghiệm môn Hoá Học.</p>
-        <div class="btn-row"><a class="btn" href="../cauhoi/filetest.html?de=hoahoc.json" onclick="loadQuiz(this,'../cauhoi/filetest.html?de=hoahoc.json'); return false;">Làm bài</a></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="anh" class="subject-panel" style="--tab:#0891b2;--card-color:#0891b2;">
-  <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Anh Văn:</strong> Tổng ôn ngữ pháp</div>
-  <div class="grid">
-    <div class="card" style="--card-index:0">
-      <div class="card-color-bar"></div>
-      <div class="card-body">
-        <div class="card-top"><div class="card-icon"><i class="fas fa-language"></i></div><h3>Phần 1</h3><span class="status done"></span></div>
-        <p class="card-desc">Điền lỗ ngắn + Sắp xếp hội thoại</p>
-        <div class="btn-row"><a class="btn" href="../cauhoi/questionenglish.html?de=english.json" onclick="loadQuiz(this,'../cauhoi/questionenglish.html?de=english.json'); return false;">Làm bài</a></div>
-      </div>
-    </div>
-    <div class="card" style="--card-index:1">
-      <div class="card-color-bar"></div>
-      <div class="card-body">
-        <div class="card-top"><div class="card-icon"><i class="fas fa-play"></i></div><h3>TỔNG ÔN NGỮ PHÁP</h3><span class="status done"></span></div>
-        <p class="card-desc">Video tổng ôn ngữ pháp tiếng Anh.</p>
-        <div class="btn-row"><a class="btn" href="#" onclick="loadGrammarPlayer(this); return false;">Xem video</a></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="toan" class="subject-panel" style="--tab:#4f46e5;--card-color:#4f46e5;">
-  <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Toán Học:</strong> Chuẩn bị ôn tập</div>
-  <div class="grid">
-    <div class="card" style="--card-index:0">
-      <div class="card-color-bar"></div>
-      <div class="card-body">
-        <div class="card-top"><div class="card-icon"><i class="fas fa-square-root-variable"></i></div><h3>Trắc nghiệm</h3><span class="status pending"></span></div>
-        <p class="card-desc">Bài ôn tập trắc nghiệm môn Toán Học.</p>
-        <div class="btn-row"><a class="btn" href="../cauhoi/filetest.html?de=toanhoc.json" onclick="loadQuiz(this,'../cauhoi/filetest.html?de=toanhoc.json'); return false;">Làm bài</a></div>
-      </div>
-    </div>
-    <div class="card" style="--card-index:1">
-      <div class="card-color-bar"></div>
-      <div class="card-body">
-        <div class="card-top"><div class="card-icon"><i class="fas fa-play"></i></div><h3>TỔNG ÔN GIẢI TÍCH 1</h3><span class="status done"></span></div>
-        <p class="card-desc">Video tổng ôn Giải tích 1.</p>
-        <div class="btn-row"><a class="btn" href="#" onclick="loadMathPlayer(this); return false;">Xem video</a></div>
-      </div>
-    </div>
-    <div class="card" style="--card-index:2">
-      <div class="card-color-bar"></div>
-      <div class="card-body">
-        <div class="card-top"><div class="card-icon"><i class="fas fa-th"></i></div><h3>TOÁN MA TRẬN</h3><span class="status done"></span></div>
-        <p class="card-desc">Tổng hợp 5 buổi toán cao cấp: Ma trận, Định thức, Nghịch đảo, Hạng, Lũy thừa bậc cao.</p>
-        <div class="btn-row"><a class="btn" href="#" onclick="loadMatrixPlayer(this); return false;">Xem video</a></div>
-      </div>
-    </div>
-  </div>
-</div>
+  <!-- Tabs + panels + cards được render từ phonghoc-data.js (code bên dưới) -->
+  <div class="subject-tabs" id="subjectTabs"></div>
+  <div id="subjectPanels"></div>
 </div>
 
 <div id="quiz"></div>
 
 <script>
+/* ============================================================
+   PHÒNG HỌC - LOGIC
+   ------------------------------------------------------------
+   Dữ liệu (môn học / card / khóa video) nằm ở phonghoc-data.js.
+   File này chứa: render tabs/cards từ data + trình phát video
+   (YouTube API, Google Drive, PDF) + nhúng bài test (loadQuiz).
+   ============================================================ */
+
 function applyCardDominoEffect() {
   document.querySelectorAll('.grid').forEach(function(grid) {
     var cards = grid.querySelectorAll('.card');
@@ -532,9 +405,98 @@ function closeQuiz() {
   }
 }
 
-/* ===== YOUTUBE VIDEO PLAYER ===== */
+/* ===== ESCAPE HELPER ===== */
+function escHtml(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+function escJs(s) {
+  return String(s == null ? "" : s).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
 
-/* --- YouTube IFrame Player API: theo dõi tiến độ xem để tick "đã xem" --- */
+/* ============================================================
+   RENDER TABS + PANELS + CARDS từ window.PHONGHOC_SUBJECTS
+   ============================================================ */
+function renderCard(c) {
+  var iconStyle = c.iconBg ? ' style="background:' + escHtml(c.iconBg) + '"' : "";
+  var statusCls = c.status === "pending" ? "pending" : "done";
+
+  var btn;
+  if (c.disabled) {
+    btn = '<a class="btn disabled" href="#">Sắp ra mắt</a>';
+  } else if (c.action && c.action.type === "video") {
+    btn = '<a class="btn" href="#" onclick="openCourse(this,\'' + escJs(c.action.course) +
+      '\'); return false;">' + escHtml(c.btnLabel || "Xem video") + '</a>';
+  } else if (c.action && c.action.url) {
+    btn = '<a class="btn" href="#" onclick="loadQuiz(this,\'' + escJs(c.action.url) +
+      '\'); return false;">' + escHtml(c.btnLabel || "Làm bài") + '</a>';
+  } else {
+    btn = '<a class="btn disabled" href="#">Sắp ra mắt</a>';
+  }
+
+  return (
+    '<div class="card">' +
+      '<div class="card-color-bar"></div>' +
+      '<div class="card-body">' +
+        '<div class="card-top">' +
+          '<div class="card-icon"' + iconStyle + '><i class="fas ' + escHtml(c.icon || "fa-book") + '"></i></div>' +
+          '<h3>' + escHtml(c.title) + '</h3>' +
+          '<span class="status ' + statusCls + '"></span>' +
+        '</div>' +
+        '<p class="card-desc">' + escHtml(c.description) + '</p>' +
+        '<div class="btn-row">' + btn + '</div>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+function renderPhongHoc() {
+  var subjects = window.PHONGHOC_SUBJECTS || [];
+  var tabsHtml = "";
+  var panelsHtml = "";
+
+  subjects.forEach(function (s) {
+    tabsHtml +=
+      '<button class="subject-tab" data-subject="' + escHtml(s.id) +
+      '" onclick="switchSubject(\'' + escJs(s.id) + '\')">' +
+        '<i class="fas ' + escHtml(s.icon) + '"></i> ' +
+        '<span class="tab-full">' + escHtml(s.name) + '</span>' +
+        '<span class="tab-short">' + escHtml(s.short || s.name) + '</span>' +
+      '</button>';
+
+    var noticeHtml = "";
+    if (s.notice) {
+      noticeHtml =
+        '<div class="subject-notice"><i class="fas ' + escHtml(s.notice.icon || "fa-bell") + '"></i> ' +
+        (s.notice.html || "") +
+        '</div>';
+    }
+    var cardsHtml = (s.cards || []).map(renderCard).join("");
+
+    panelsHtml +=
+      '<div id="' + escHtml(s.id) + '" class="subject-panel" style="--tab:' + escHtml(s.tabColor) +
+      ';--card-color:' + escHtml(s.cardColor || s.tabColor) + ';">' +
+        noticeHtml +
+        '<div class="grid">' + cardsHtml + '</div>' +
+      '</div>';
+  });
+
+  var tabsWrap = document.getElementById("subjectTabs");
+  var panelsWrap = document.getElementById("subjectPanels");
+  if (tabsWrap) tabsWrap.innerHTML = tabsHtml;
+  if (panelsWrap) panelsWrap.innerHTML = panelsHtml;
+
+  if (typeof applyCardDominoEffect === "function") applyCardDominoEffect();
+}
+
+/* ============================================================
+   TRÌNH PHÁT VIDEO (mục lục sidebar + YouTube IFrame API)
+   ============================================================ */
+
+/* --- YouTube IFrame Player API: theo dõi tiến độ xem để tick "đã xem" ---
+   Chỉ video YouTube được track (xem >= 75% mới tính, lưu ID xuống DB).
+   Google Drive / PDF chỉ mở xem trực tiếp, không track. */
 var ytPlayer = null;
 var currentVideoId = null;
 var watchProgressTimer = null;
@@ -670,12 +632,15 @@ function initSidebarTicks() {
 }
 
 function switchSidebarVideo(item) {
-  var videoId = item.getAttribute("data-video");
-  if (!videoId) return;
+  var raw = item.getAttribute("data-video");
+  if (!raw) return;
+  var videoId = extractVideoId(raw);
   document.querySelectorAll(".grammar-sidebar-item").forEach(function(el) {
     el.classList.remove("active");
   });
   item.classList.add("active");
+
+  /* Đang ở chế độ PDF -> dựng lại khung player */
   var frame = document.querySelector(".video-frame");
   if (frame && frame.classList.contains("pdf-mode")) {
     if (ytPlayer && typeof ytPlayer.destroy === "function") {
@@ -688,9 +653,23 @@ function switchSidebarVideo(item) {
     ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", videoId); });
     return;
   }
+
   currentVideoId = videoId;
   if (ytPlayer && typeof ytPlayer.loadVideoById === "function") {
     ytPlayer.loadVideoById(videoId);
+  } else {
+    /* FIX: fallback iframe tĩnh (YouTube API không tải được) trước đây
+       chỉ đổi highlight mà không đổi video -> dựng lại player thủ công.
+       Nhánh này cũng xử lý lúc vừa thoát khỏi chế độ Drive/PDF. */
+    stopWatchTimer();
+    if (ytPlayer && typeof ytPlayer.destroy === "function") {
+      try { ytPlayer.destroy(); } catch (e) {}
+    }
+    ytPlayer = null;
+    if (frame) {
+      frame.innerHTML = '<div id="ytPlayerHost"></div>';
+      ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", videoId); });
+    }
   }
 }
 
@@ -704,6 +683,58 @@ function switchSidebarPdf(item) {
   showPdfPlayer(pdf);
 }
 
+/* ===== GOOGLE DRIVE (video/tài liệu trong mục lục) ===== */
+
+/* Chấp nhận: link file /file/d/<ID>/view... , link ?id=<ID>,
+   link thư mục /drive/folders/<ID>, hoặc ID trần */
+function getDriveFileId(url) {
+  if (!url) return "";
+  var s = String(url).trim();
+  var m = s.match(/\/file\/d\/([\w-]+)/);
+  if (m && m[1]) return m[1];
+  m = s.match(/\/folders\/([\w-]+)/);
+  if (m && m[1]) return m[1];
+  m = s.match(/[?&]id=([\w-]+)/);
+  if (m && m[1]) return m[1];
+  if (/^[\w-]{20,}$/.test(s)) return s;
+  return "";
+}
+
+function getDriveEmbedUrl(url) {
+  var id = getDriveFileId(url);
+  if (!id) return url ? String(url).trim() : "";
+  /* Link thư mục -> dạng xem lưới để duyệt tài liệu trong iframe */
+  if (/\/folders\//.test(String(url))) {
+    return "https://drive.google.com/embeddedfolderview?id=" + id + "#grid";
+  }
+  return "https://drive.google.com/file/d/" + id + "/preview";
+}
+
+function showDrivePlayer(driveUrl) {
+  stopWatchTimer();
+  if (ytPlayer && typeof ytPlayer.destroy === "function") {
+    try { ytPlayer.destroy(); } catch (e) {}
+  }
+  ytPlayer = null;
+  currentVideoId = null;
+  var frame = document.querySelector(".video-frame");
+  if (!frame) return;
+  frame.classList.remove("pdf-mode");
+  frame.innerHTML =
+    '<iframe src="' + escHtml(getDriveEmbedUrl(driveUrl)) +
+    '" title="Google Drive" allow="autoplay; encrypted-media" allowfullscreen="true"></iframe>';
+}
+
+function switchSidebarDrive(item) {
+  var drive = item.getAttribute("data-drive");
+  if (!drive) return;
+  document.querySelectorAll(".grammar-sidebar-item").forEach(function(el) {
+    el.classList.remove("active");
+  });
+  item.classList.add("active");
+  showDrivePlayer(drive);
+}
+
 function getPdfEmbedUrl(url) {
   if (!url) return "";
   var m = String(url).match(/\/file\/d\/([^/?#]+)/);
@@ -713,13 +744,24 @@ function getPdfEmbedUrl(url) {
 
 function showPdfPlayer(pdfUrl) {
   stopWatchTimer();
-  if (ytPlayer && typeof ytPlayer.destroy === "function") ytPlayer.destroy();
+  if (ytPlayer && typeof ytPlayer.destroy === "function") {
+    try { ytPlayer.destroy(); } catch (e) {}
+  }
   ytPlayer = null;
   currentVideoId = null;
   var frame = document.querySelector(".video-frame");
   if (!frame) return;
   frame.classList.add("pdf-mode");
-  frame.innerHTML = '<iframe src="' + getPdfEmbedUrl(pdfUrl) + '" title="Tài liệu PDF"></iframe>';
+  frame.innerHTML = '<iframe src="' + escHtml(getPdfEmbedUrl(pdfUrl)) + '" title="Tài liệu PDF"></iframe>';
+}
+
+/* Chấp nhận cả ID YouTube lẫn link đầy đủ (watch/youtu.be/shorts/embed) */
+function extractVideoId(v) {
+  var s = String(v == null ? "" : v).trim();
+  if (/^[\w-]{11}$/.test(s)) return s;
+  var embed = getYoutubeEmbedUrl(s);
+  var m = embed && embed.match(/\/embed\/([\w-]+)$/);
+  return m ? m[1] : s;
 }
 
 function getYoutubeEmbedUrl(url) {
@@ -761,96 +803,55 @@ function getYoutubeIframeHtml(embedUrl) {
   `;
 }
 
-function getVideoEmbedHtml(url) {
-  if (!url) {
-    return "";
-  }
-
-  const youtubeEmbedUrl = getYoutubeEmbedUrl(url);
-  if (youtubeEmbedUrl) {
-    return getYoutubeIframeHtml(youtubeEmbedUrl);
-  }
-
-  return "";
-}
-
-function loadVideo(btn, url) {
+/* ============================================================
+   MỞ KHÓA VIDEO (đọc nội dung từ window.VIDEO_COURSES)
+   ============================================================ */
+function openCourse(el, courseId) {
   document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
-  var card = btn.closest(".card");
+  var card = el ? el.closest(".card") : null;
   if (card) card.classList.add("active-card");
 
-  var embedUrl = getYoutubeEmbedUrl(url);
-  if (!embedUrl) {
-    lhToast("Link video không hợp lệ.", 'error');
+  var courses = window.VIDEO_COURSES || [];
+  var course = null;
+  for (var i = 0; i < courses.length; i++) {
+    if (courses[i].id === courseId) { course = courses[i]; break; }
+  }
+  if (!course) {
+    if (window.lhToast) lhToast("Không tìm thấy khóa học video: " + courseId, 'error');
     return;
   }
 
-  document.getElementById("quiz").innerHTML =
-    '<div class="video-box">' +
-      '<div class="video-topbar">' +
-        '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng video</button>' +
-      '</div>' +
-      '<div class="video-frame">' +
-        getYoutubeIframeHtml(embedUrl) +
-      '</div>' +
-    '</div>';
+  var mathCls = course.math ? " math-sidebar-item" : "";
+  var itemsHtml = "";
+  var firstItem = null;
 
-  setTimeout(function() {
-    var q = document.getElementById("quiz");
-    if (q) q.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, 50);
-}
-
-function loadGrammarPlayer(el) {
-  document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
-  var card = el ? el.closest(".card") : null;
-  if (card) card.classList.add("active-card");
-
-  document.getElementById("quiz").innerHTML =
-    '<div class="video-box">' +
-      '<div class="video-topbar">' +
-        '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng video</button>' +
-      '</div>' +
-      '<div class="grammar-player-content">' +
-        '<div class="video-frame">' +
-          '<div id="ytPlayerHost"></div>' +
-        '</div>' +
-        '<div class="grammar-sidebar">' +
-          '<div class="grammar-sidebar-header">Mục lục<span class="watched-counter"></span></div>' +
-          '<ul class="grammar-sidebar-list">' +
-            '<li class="grammar-sidebar-item active" data-video="H8Fcn9XpDic" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> So sánh</li>' +
-            '<li class="grammar-sidebar-item" data-video="RQb4H9iBup0" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Thì của động từ</li>' +
-            '<li class="grammar-sidebar-item" data-video="K8743i3Lx6E" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Câu bị động</li>' +
-            '<li class="grammar-sidebar-item" data-video="xmL6XgE2xE0" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Mệnh đề quan hệ</li>' +
-            '<li class="grammar-sidebar-item" data-video="dh06Qd5uPRI" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Động từ khuyết thiếu</li>' +
-            '<li class="grammar-sidebar-item" data-video="_Ce2kBuivNA" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Từ loại</li>' +
-            '<li class="grammar-sidebar-item" data-video="G7TBLDeFIuM" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Câu điều kiện</li>' +
-            '<li class="grammar-sidebar-item" data-video="3Q6MtuYtc00" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Liên từ</li>' +
-            '<li class="grammar-sidebar-item" data-video="fW3j-JhEHzE" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Lượng từ</li>' +
-            '<li class="grammar-sidebar-item" data-video="BtXJGT_6efk" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Word Form</li>' +
-            '<li class="grammar-sidebar-item" data-video="XwvUbIkt1ZQ" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Câu tường thuật</li>' +
-            '<li class="grammar-sidebar-item" data-video="Q8kKYTVKa4c" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Mạo từ</li>' +
-            '<li class="grammar-sidebar-item" data-video="r1lvjKxSyTk" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Sự phối thì</li>' +
-            '<li class="grammar-sidebar-item" data-video="5IHP4GYrDpw" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Word Order</li>' +
-            '<li class="grammar-sidebar-item" data-pdf="../cauhoi/tongonav.pdf" onclick="switchSidebarPdf(this)"><i class="fas fa-file-pdf"></i> Tài liệu tổng ôn</li>' +
-          '</ul>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-
-  initSidebarTicks();
-  ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", "H8Fcn9XpDic"); });
-
-  setTimeout(function() {
-    var q = document.getElementById("quiz");
-    if (q) q.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, 50);
-}
-
-function loadMathPlayer(el) {
-  document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
-  var card = el ? el.closest(".card") : null;
-  if (card) card.classList.add("active-card");
+  (course.items || []).forEach(function(it, idx) {
+    var activeCls = idx === 0 ? " active" : "";
+    if (it.pending) {
+      itemsHtml +=
+        '<li class="grammar-sidebar-item' + mathCls + ' math-pending"><i class="fas fa-hourglass-half"></i> ' +
+        escHtml(it.label) + '<span class="math-pending-tag">Chưa có video</span></li>';
+      return;
+    }
+    if (it.video) {
+      itemsHtml +=
+        '<li class="grammar-sidebar-item' + mathCls + activeCls + '" data-video="' + escHtml(it.video) +
+        '" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> ' + escHtml(it.label) + '</li>';
+    } else if (it.pdf) {
+      itemsHtml +=
+        '<li class="grammar-sidebar-item' + mathCls + activeCls + '" data-pdf="' + escHtml(it.pdf) +
+        '" onclick="switchSidebarPdf(this)"><i class="fas fa-file-pdf"></i> ' + escHtml(it.label) + '</li>';
+    } else if (it.drive) {
+      itemsHtml +=
+        '<li class="grammar-sidebar-item' + mathCls + activeCls + '" data-drive="' + escHtml(it.drive) +
+        '" onclick="switchSidebarDrive(this)"><i class="fas ' +
+        (/folders\//.test(String(it.drive || "")) ? "fa-folder-open" : "fa-file-video") +
+        '"></i> ' + escHtml(it.label) + '</li>';
+    } else {
+      return;
+    }
+    if (idx === 0) firstItem = it;
+  });
 
   document.getElementById("quiz").innerHTML =
     '<div class="video-box">' +
@@ -863,26 +864,21 @@ function loadMathPlayer(el) {
         '</div>' +
         '<div class="grammar-sidebar">' +
           '<div class="grammar-sidebar-header">Mục lục<span class="watched-counter"></span></div>' +
-          '<ul class="grammar-sidebar-list">' +
-            '<li class="grammar-sidebar-item math-sidebar-item active" data-video="2H-XDZ3lB6g" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B1: Giới hạn hàm số</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="_cljZgXg2WM" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B2: Giới hạn hàm số (tiếp)</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="ZRYN2Bhi6p4" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Luyện tập giới hạn hàm số</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="uxFFDiWAOYQ" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B3: Một số dạng hàm số quan trọng</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="ZfaqXVhJEh4" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B4: Đại lượng vô cùng bé - vô cùng lớn</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="RUbMStw8tJs" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B5: Các tiêu chuẩn tồn tại giới hạn dãy số</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="w7ME28JrHuA" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B6: Dãy số theo kiểu quy nạp</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="n6VxD511CLM" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B7: Dãy số - Giới hạn dãy số</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="z9IXS93zAjg" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> Luyện tập dãy số</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item math-pending"><i class="fas fa-hourglass-half"></i> B8: Mệnh đề và các phép toán mệnh đề<span class="math-pending-tag">Chưa có video</span></li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="VuFcNmS4myw" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B9: PP L\'Hospital - giới hạn hàm số mũ</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-pdf="../cauhoi/Gi%E1%BB%9Bi%20h%E1%BA%A1n%20h%C3%A0m%20s%E1%BB%91%20-%20Nh%E1%BA%ADp%20m%C3%B4n%20bu%E1%BB%95i%201%20-%20Live-%C4%91%C3%A3%20g%E1%BB%99p.pdf" onclick="switchSidebarPdf(this)"><i class="fas fa-file-pdf"></i> Tài liệu giải tích 1</li>' +
-          '</ul>' +
+          '<ul class="grammar-sidebar-list">' + itemsHtml + '</ul>' +
         '</div>' +
       '</div>' +
     '</div>';
 
   initSidebarTicks();
-  ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", "2H-XDZ3lB6g"); });
+
+  if (firstItem && firstItem.pdf) {
+    showPdfPlayer(firstItem.pdf);
+  } else if (firstItem && firstItem.drive) {
+    showDrivePlayer(firstItem.drive);
+  } else if (firstItem && firstItem.video) {
+    var firstVideoId = extractVideoId(firstItem.video);
+    ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", firstVideoId); });
+  }
 
   setTimeout(function() {
     var q = document.getElementById("quiz");
@@ -890,44 +886,17 @@ function loadMathPlayer(el) {
   }, 50);
 }
 
-function loadMatrixPlayer(el) {
-  document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
-  var card = el ? el.closest(".card") : null;
-  if (card) card.classList.add("active-card");
-
-  document.getElementById("quiz").innerHTML =
-    '<div class="video-box">' +
-      '<div class="video-topbar">' +
-        '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng video</button>' +
-      '</div>' +
-      '<div class="grammar-player-content">' +
-        '<div class="video-frame">' +
-          '<div id="ytPlayerHost"></div>' +
-        '</div>' +
-        '<div class="grammar-sidebar">' +
-          '<div class="grammar-sidebar-header">Mục lục<span class="watched-counter"></span></div>' +
-          '<ul class="grammar-sidebar-list">' +
-            '<li class="grammar-sidebar-item math-sidebar-item active" data-video="WqmuR6hhzIo" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B1: Ma trận - Các phép toán</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="vLS9UWTIE6U" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B2: Định thức ma trận</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="ti61DhllUnE" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B3: Ma trận nghịch đảo</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="KMSsoeCds7E" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B4: Hạng ma trận</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-video="gwJaJ_5AU0Q" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> B5: Nâng cao - Lũy thừa bậc cao ma trận</li>' +
-            '<li class="grammar-sidebar-item math-sidebar-item" data-pdf="../cauhoi/%5BD%C3%A3n%20D%C3%B2ng%5D%20-%2010%20bu%E1%BB%95i%20to%C3%A1n%20cao%20c%E1%BA%A5p%20ma%20tr%E1%BA%ADn.pdf" onclick="switchSidebarPdf(this)"><i class="fas fa-file-pdf"></i> Tài liệu</li>' +
-          '</ul>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-
-  initSidebarTicks();
-  ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", "WqmuR6hhzIo"); });
-
-  setTimeout(function() {
-    var q = document.getElementById("quiz");
-    if (q) q.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, 50);
+/* ===== KHỞI TẠO RENDER ===== */
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", renderPhongHoc);
+} else {
+  renderPhongHoc();
 }
-
 </script>
+
+<!-- Dữ liệu phòng học: sửa file này khi thêm/sửa môn học, card, khóa video -->
+<script src="phonghoc-data.js"></script>
+
 <script type="module">
 import { logAppError } from "../log-errors.js";
 window.logAppError = logAppError;
