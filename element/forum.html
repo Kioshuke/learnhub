@@ -977,6 +977,19 @@ body.dark-mode .pagination-info { color: #64748b; }
   .pagination-bar { gap: 4px; }
   .pagination-bar button { min-width: 32px; height: 30px; font-size: 12px; }
 }
+
+/* ===== GIẢM CHUYỂN ĐỘNG ===== */
+body.cc-reduced *,
+body.cc-reduced *::before,
+body.cc-reduced *::after {
+  animation-duration: 0.01s !important;
+  transition-duration: 0.08s !important;
+}
+
+body.cc-reduced .skeleton-bar,
+body.cc-reduced [class*="skeleton"] {
+  animation: none !important;
+}
 </style>
 <script src="../version/version-check.js" defer></script>
 <script src="../toast.js"></script>
@@ -2004,11 +2017,17 @@ window.addEventListener('message', async function(event) {
     if (event.data.value) document.body.classList.add('dark-mode');
     else document.body.classList.remove('dark-mode');
   }
+  if (event.data && event.data.type === 'REDUCED_MOTION') {
+    document.body.classList.toggle('cc-reduced', !!event.data.value);
+  }
 });
 
-// Fallback: đọc dark mode từ localStorage khi mở standalone
+// Fallback: đọc dark mode + reduced motion từ localStorage khi mở standalone
 if (localStorage.getItem("darkMode") === "on") {
   document.body.classList.add("dark-mode");
+}
+if (localStorage.getItem("cc_reduce") === "on") {
+  document.body.classList.add("cc-reduced");
 }
 </script>
 

@@ -111,10 +111,14 @@
     if (current === target) return;
 
     if (current) {
-      current.classList.add("cc-leave");
-      setTimeout(function () {
-        current.classList.remove("cc-pane-active", "cc-leave");
-      }, 300);
+      if (document.body.classList.contains("cc-reduced")) {
+        current.classList.remove("cc-pane-active");
+      } else {
+        current.classList.add("cc-leave");
+        setTimeout(function () {
+          current.classList.remove("cc-pane-active", "cc-leave");
+        }, 300);
+      }
     }
     target.classList.add("cc-pane-active");
     setNavActive(name);
@@ -130,7 +134,7 @@
   }
 
   function notifyPrefChange(message) {
-    try { lhToast(message, { type: "info", title: "Giao diện", sound: false, durationMs: 2500 }); } catch (e) {}
+    try { lhToast(message, { type: "info", title: "Giao diện", durationMs: 2500 }); } catch (e) {}
   }
 
   function bindPrefs() {
@@ -152,6 +156,7 @@
         notifyPrefChange(prefs.reduce
           ? "Đã bật giảm chuyển động — giao diện nhẹ hơn."
           : "Đã tắt giảm chuyển động — đầy đủ hiệu ứng.");
+        try { if (typeof window.syncReducedMotionToIframes === "function") window.syncReducedMotionToIframes(); } catch (e) {}
       });
     }
   }

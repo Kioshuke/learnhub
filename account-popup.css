@@ -1213,6 +1213,10 @@ body.cc-reduced .cc-track-eq span {
 /* ===== GIẢM CHUYỂN ĐỘNG (body.cc-reduced) =====
    Animation vào ra của popup đã được gate sẵn bằng :not(.cc-reduced)
    ở rule #userPopup.cc-pop phía trên, nên không cần override gì thêm ở đây. */
+body.cc-reduced .cc-pane.cc-pane-active,
+body.cc-reduced .cc-pane.cc-leave {
+  animation: none !important;
+}
 
 @media (max-width: 480px) {
   #userPopup {

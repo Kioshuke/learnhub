@@ -540,6 +540,53 @@
       .hero { flex-direction: column; align-items: flex-start; gap: 14px; padding: 18px; }
       .hero-stat { align-self: stretch; justify-content: center; }
     }
+
+    /* ===== GIẢM CHUYỂN ĐỘNG ===== */
+    body.cc-reduced *,
+    body.cc-reduced *::before,
+    body.cc-reduced *::after {
+      animation-duration: 0.01s !important;
+      transition-duration: 0.08s !important;
+    }
+
+    /* ===== PHÂN TRANG (chỉ khi giảm chuyển động) ===== */
+    .pagination-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      margin-top: 18px;
+    }
+    .pagination-bar button {
+      min-width: 34px;
+      height: 34px;
+      border: 1px solid var(--line-strong);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+    }
+    .pagination-bar button:hover:not(:disabled) {
+      background: var(--primary);
+      color: #fff;
+    }
+    .pagination-bar button:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    .pagination-bar button.pg-active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .pagination-bar .pg-info {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 6px;
+    }
   </style>
 <script src="../version/version-check.js" defer></script>
 </head>
@@ -566,6 +613,7 @@
   </div>
 
   <div id="cardsGrid" class="cards-grid"></div>
+  <div id="paginationBar" class="pagination-bar" style="display:none;"></div>
 
   <div id="emptyState" class="empty-state" style="display:none;">
     <div class="fa-solid fa-folder-open"></div>
@@ -634,12 +682,13 @@
   var chipsEl = document.getElementById("categoryChips");
   var gridEl = document.getElementById("cardsGrid");
   var emptyEl = document.getElementById("emptyState");
+  var paginationBar = document.getElementById("paginationBar");
   var detailView = document.getElementById("detailView");
   var frame = document.getElementById("detailFrame");
   var spinner = document.getElementById("detailSpinner");
   var fallback = document.getElementById("detailFallback");
 
-  var state = { q: "", cat: "all", activeId: null, activeDoc: null };
+  var state = { q: "", cat: "all", activeId: null, activeDoc: null, page: 1 };
 
   var SOURCE_LABEL = { drive: "Google Drive", direct: "File trực tiếp", storage: "Kho lưu trữ" };
 
@@ -782,6 +831,7 @@
       b.dataset.cat = c;
       b.addEventListener("click", function () {
         state.cat = c;
+        state.page = 1;
         renderChips();
         renderGrid();
       });
@@ -801,16 +851,24 @@
 
   function renderGrid() {
     var list = filteredDocs();
+    var reduced = document.body.classList.contains("cc-reduced");
+    var perPage = 12;
+    var totalPages = Math.ceil(list.length / perPage) || 1;
+    if (state.page > totalPages) state.page = totalPages;
+    if (state.page < 1) state.page = 1;
+    var start = (state.page - 1) * perPage;
+    var pageList = list.slice(start, start + perPage);
+
     gridEl.innerHTML = "";
     emptyEl.style.display = list.length ? "none" : "block";
 
-    list.forEach(function (doc, i) {
+    pageList.forEach(function (doc, i) {
       var st = fileStyle(doc);
       var card = document.createElement("div");
       card.className = "doc-card" + (state.activeId === doc.id ? " active" : "");
       var catColor = categoryColor(doc.category);
       if (catColor) card.style.setProperty("--cat", catColor);
-      card.style.animationDelay = Math.min(i, 12) * 40 + "ms";
+      if (!reduced) card.style.animationDelay = (i * 40) + "ms";
       card.innerHTML =
         '<div class="doc-card-top">' +
           '<span class="file-ico" style="background:' + st.bg + ';"><i class="' + st.icon + '"></i></span>' +
@@ -824,6 +882,47 @@
       card.addEventListener("click", function () { openDetail(doc); });
       gridEl.appendChild(card);
     });
+
+    renderPagination(totalPages, list.length);
+  }
+
+  function renderPagination(total, totalItems) {
+    if (total <= 1) {
+      paginationBar.style.display = "none";
+      return;
+    }
+    paginationBar.style.display = "flex";
+    paginationBar.innerHTML = "";
+
+    var prev = document.createElement("button");
+    prev.type = "button";
+    prev.textContent = "‹";
+    prev.disabled = state.page <= 1;
+    prev.addEventListener("click", function () { state.page--; renderGrid(); });
+    paginationBar.appendChild(prev);
+
+    for (var p = 1; p <= total; p++) {
+      (function (pg) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = pg;
+        if (pg === state.page) btn.className = "pg-active";
+        btn.addEventListener("click", function () { state.page = pg; renderGrid(); });
+        paginationBar.appendChild(btn);
+      })(p);
+    }
+
+    var next = document.createElement("button");
+    next.type = "button";
+    next.textContent = "›";
+    next.disabled = state.page >= total;
+    next.addEventListener("click", function () { state.page++; renderGrid(); });
+    paginationBar.appendChild(next);
+
+    var info = document.createElement("span");
+    info.className = "pg-info";
+    info.textContent = state.page + "/" + total + " (" + totalItems + ")";
+    paginationBar.appendChild(info);
   }
 
   function openDetail(doc) {
@@ -906,6 +1005,7 @@
 
   searchInput.addEventListener("input", function () {
     state.q = searchInput.value;
+    state.page = 1;
     renderGrid();
   });
 
@@ -919,6 +1019,11 @@
     if (event.data.type === "DARK_MODE") {
       document.body.classList.toggle("dark-mode", !!event.data.value);
     }
+    if (event.data.type === "REDUCED_MOTION") {
+      document.body.classList.toggle("cc-reduced", !!event.data.value);
+      state.page = 1;
+      renderGrid();
+    }
     if (event.data.type === "LEARNHUB_USER") {
       window.learnHubUser = event.data.user;
     }
@@ -926,6 +1031,10 @@
 
   if (localStorage.getItem("darkMode") === "on") {
     document.body.classList.add("dark-mode");
+  }
+  if (localStorage.getItem("cc_reduce") === "on") {
+    document.body.classList.add("cc-reduced");
+    state.page = 1;
   }
 })();
 </script>

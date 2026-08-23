@@ -726,13 +726,34 @@ function sendDarkModeToIframe(isDark) {
     });
 }
 
-// 1. Load lại trạng thái cũ khi vừa mở web — luôn sync dark mode khi iframe reload
+// Đồng bộ trạng thái "giảm chuyển động" sang iframe
+const reducedMotionFrames = [
+    document.getElementById("forumFrame"),
+    document.getElementById("taiLieuFrame")
+].filter(Boolean);
+
+function sendReducedMotionToIframe(isReduced) {
+    reducedMotionFrames.forEach((frame) => {
+        if (frame && frame.contentWindow) {
+            frame.contentWindow.postMessage({ type: 'REDUCED_MOTION', value: isReduced }, '*');
+        }
+    });
+}
+
+window.syncReducedMotionToIframes = function () {
+    const isReduced = document.body.classList.contains("cc-reduced");
+    sendReducedMotionToIframe(isReduced);
+};
+
+// 1. Load lại trạng thái cũ khi vừa mở web — luôn sync dark mode + reduced motion khi iframe reload
 if(toggle){
-    const syncDarkModeOnLoad = (frame) => {
+    const syncOnLoad = (frame) => {
         if(!frame) return;
         frame.addEventListener("load", () => {
             const isDark = document.body.classList.contains("dark-mode");
             if(isDark) sendDarkModeToIframe(true);
+            const isReduced = document.body.classList.contains("cc-reduced");
+            if(isReduced) sendReducedMotionToIframe(true);
             if(typeof sendUserToAllFrames === "function") sendUserToAllFrames();
         }, { once: false });
     };
@@ -740,9 +761,9 @@ if(toggle){
     if(localStorage.getItem("darkMode") === "on"){
         document.body.classList.add("dark-mode");
         toggle.checked = true;
-        darkModeFrames.forEach(syncDarkModeOnLoad);
+        darkModeFrames.forEach(syncOnLoad);
     } else {
-        darkModeFrames.forEach(syncDarkModeOnLoad);
+        darkModeFrames.forEach(syncOnLoad);
     }
 
     // 2. Khi bấm nút gạt
@@ -763,7 +784,6 @@ if(toggle){
           lhToast(isDark ? "Đã bật chế độ tối." : "Đã tắt chế độ tối — quay lại giao diện sáng.", {
             type: "info",
             title: isDark ? "Chế độ tối" : "Chế độ sáng",
-            sound: false,
             durationMs: 2500
           });
         } catch (e) {}

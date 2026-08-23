@@ -60,7 +60,7 @@
   /* ---- CSS ---- */
   var CSS = [
     ".lh-toast-container{position:fixed;top:20px;right:20px;z-index:2147483400;display:flex;flex-direction:column;gap:12px;pointer-events:none;max-width:calc(100vw - 40px)}",
-    ".lh-toast{position:relative;display:flex;align-items:center;background:#fff;border-radius:4px;box-shadow:0 4px 15px rgba(0,0,0,0.05),0 1px 3px rgba(0,0,0,0.02);padding:16px 20px;width:100%;max-width:400px;overflow:hidden;pointer-events:auto;transform:translateX(120%);opacity:0;transition:transform .3s ease,opacity .3s ease}",
+    ".lh-toast{position:relative;display:flex;align-items:center;background:#fff;border-radius:4px;box-shadow:0 4px 15px rgba(0,0,0,0.05),0 1px 3px rgba(0,0,0,0.02);padding:16px 20px;width:100%;min-width:280px;max-width:400px;overflow:hidden;pointer-events:auto;transform:translateX(120%);opacity:0;transition:transform .3s ease,opacity .3s ease}",
     ".lh-toast.lh-in{transform:translateX(0);opacity:1}",
     ".lh-toast.lh-out{transform:translateX(40%);opacity:0}",
     ".lh-toast::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}",
@@ -96,7 +96,7 @@
     ".lh-btn-cancel:hover{background:#e2e8f0}",
     ".lh-btn-danger{background:#ef4444;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}",
     ".lh-btn-danger:hover{background:#dc2626}",
-    "@media(max-width:768px){.lh-toast-container{top:92px;right:14px;left:auto}.lh-toast{max-width:min(400px,calc(100vw - 28px))}}"
+    "@media(max-width:768px){.lh-toast-container{top:92px;right:14px;left:auto}.lh-toast{min-width:240px;max-width:min(400px,calc(100vw - 28px))}}"
   ].join("\n");
 
   var booted = false;
