@@ -190,7 +190,26 @@ window.LH_VERSION = "1.26.8.2.22.3"; // ← release.bat tự thay giá trị nà
     reloadBtn.type = "button";
     reloadBtn.className = "lh-vcheck-reload";
     reloadBtn.textContent = "Tải lại ngay";
-    reloadBtn.addEventListener("click", function () { location.reload(); });
+    reloadBtn.addEventListener("click", function () {
+      // Xoá sạch Cache Storage (service worker) trước khi reload để lần load
+      // sau chắc chắn nhận bản mới, tránh hiện banner "Tải lại" lặp 2 lần.
+      var reloaded = false;
+      var go = function () {
+        if (reloaded) return;
+        reloaded = true;
+        location.reload();
+      };
+      setTimeout(go, 2000);
+      try {
+        if (window.caches && caches.keys) {
+          caches.keys().then(function (keys) {
+            return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+          }).catch(function () {}).then(go, go);
+          return;
+        }
+      } catch (e) {}
+      go();
+    });
 
     var laterBtn = document.createElement("button");
     laterBtn.type = "button";

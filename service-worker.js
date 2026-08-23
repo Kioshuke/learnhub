@@ -5,7 +5,7 @@
    - Bỏ qua mọi request cross-origin (Supabase, CDN, YouTube...)
    ============================================================ */
 
-const CACHE_VERSION = "learnhub-v4";
+const CACHE_VERSION = "learnhub-v5";
 
 const CORE_ASSETS = [
   "/",
@@ -53,13 +53,21 @@ self.addEventListener("fetch", (event) => {
     || url.pathname === "/"
     || url.pathname.endsWith(".html");
 
-  if (isNavigation) {
-    // Trang HTML: ưu tiên mạng để luôn nhận bản mới sau deploy, offline thì dùng cache
+  // File phiên bản (version-check.js, version.json) luôn ưu tiên mạng:
+  // nếu để cache-first thì sau khi reload trang vẫn chạy LH_VERSION cũ
+  // trong khi version.json đã mới => banner "Tải lại" hiện lặp lại 2 lần.
+  const isVersionAsset = url.pathname.indexOf("/version/") === 0;
+
+  if (isNavigation || isVersionAsset) {
+    // Trang HTML + file phiên bản: ưu tiên mạng để luôn nhận bản mới sau deploy, offline thì dùng cache
     event.respondWith(
       fetch(req)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
+          // Không cache các URL poll có query (?t=timestamp) — tránh phình Cache Storage
+          if (isNavigation && !url.search) {
+            const copy = res.clone();
+            caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
+          }
           return res;
         })
         .catch(() =>

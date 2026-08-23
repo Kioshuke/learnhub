@@ -679,6 +679,17 @@ const willOpen = getComputedStyle(pop).display === "none";
 pop.style.display = willOpen ? "block" : "none";
 const ov = document.getElementById("ccOverlay");
 if(ov) ov.classList.toggle("cc-overlay-open", willOpen);
+if(willOpen && !document.body.classList.contains("cc-reduced")){
+  pop.classList.remove("cc-pop");
+  void pop.offsetWidth;
+  pop.classList.add("cc-pop");
+  const stopPopAnim = () => {
+    pop.classList.remove("cc-pop");
+    pop.removeEventListener("animationend", stopPopAnim);
+  };
+  pop.addEventListener("animationend", stopPopAnim);
+  setTimeout(stopPopAnim, 400);
+}
 }
 function updateProgress(percent){
   const fill = document.getElementById("progressFill");
@@ -748,6 +759,14 @@ if(toggle){
         
         // Gửi tín hiệu ngay lập tức sang iframe
         sendDarkModeToIframe(isDark);
+        try {
+          lhToast(isDark ? "Đã bật chế độ tối." : "Đã tắt chế độ tối — quay lại giao diện sáng.", {
+            type: "info",
+            title: isDark ? "Chế độ tối" : "Chế độ sáng",
+            sound: false,
+            durationMs: 2500
+          });
+        } catch (e) {}
     });
 }
 // Gán sự kiện click cho tất cả các nút trong Menu

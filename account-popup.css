@@ -40,6 +40,13 @@ body.dark-mode {
   color: var(--text-main);
   font-family: 'Inter', Arial, sans-serif;
   transform-origin: top right;
+}
+
+/* Animation vào ra CHỈ chạy khi JS chủ động thêm class .cc-pop lúc mở popup,
+   và bị loại khỏi element ngay khi chạy xong. Nhờ vậy việc gạt bật/tắt
+   "Giảm chuyển động" không bao giờ đổi animation-name trên popup đang mở
+   (đổi animation-name = trình duyệt chạy lại animation => popup nháy). */
+body:not(.cc-reduced) #userPopup.cc-pop {
   animation: ccPop 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -626,22 +633,22 @@ body.cc-glass-off {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: 3px;
+  margin-bottom: 6px;
 }
 
 .cc-track {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
-  padding: 8px 9px;
-  border-radius: 13px;
+  padding: 5px 8px;
+  border-radius: 12px;
   border: 1px solid transparent;
   background: transparent;
   text-align: left;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
 }
 
 .cc-track:hover {
@@ -654,25 +661,25 @@ body.cc-glass-off {
 }
 
 .cc-track-icon {
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   flex: none;
-  border-radius: 11px;
+  border-radius: 9px;
   background: var(--cc-soft);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .cc-track-name {
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 700;
   color: var(--text-main);
 }
 
 .cc-track-sub {
-  font-size: 11.5px;
+  font-size: 10.5px;
   color: var(--text-sub);
 }
 
@@ -680,13 +687,13 @@ body.cc-glass-off {
   display: flex;
   align-items: flex-end;
   gap: 2px;
-  height: 14px;
+  height: 12px;
   margin-left: auto;
   flex: none;
 }
 
 .cc-track-eq span {
-  width: 3px;
+  width: 2px;
   border-radius: 2px;
   background: var(--cc-accent);
   animation: ccEq 1s ease infinite;
@@ -706,7 +713,7 @@ body.cc-reduced .cc-track-eq span {
 }
 
 .cc-player {
-  padding: 10px;
+  padding: 7px;
   border-radius: 16px;
   background: var(--cc-row);
   border: 1px solid var(--cc-border);
@@ -715,36 +722,40 @@ body.cc-reduced .cc-track-eq span {
 .cc-player-top {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
 .cc-now-icon {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   flex: none;
-  border-radius: 13px;
+  border-radius: 10px;
   background: var(--cc-soft);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 16px;
 }
 
 .cc-now-title {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 700;
   color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cc-now-sub {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-sub);
 }
 
 .cc-progress {
   position: relative;
-  height: 6px;
-  margin: 12px 0 4px;
+  height: 4px;
+  margin-bottom: 2px;
   border-radius: 99px;
   background: var(--cc-track);
   cursor: pointer;
@@ -760,49 +771,56 @@ body.cc-reduced .cc-track-eq span {
 .cc-progress-times {
   display: flex;
   justify-content: space-between;
-  font-size: 10.5px;
+  font-size: 10px;
   color: var(--text-sub);
   font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+}
+
+.cc-player-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
 }
 
 .cc-player-btns {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 8px;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .cc-pb {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: 1px solid var(--cc-border);
   background: transparent;
   color: var(--text-main);
-  font-size: 15px;
+  font-size: 12px;
   line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
 }
 
 .cc-pb:hover {
   background: var(--cc-soft);
   color: var(--cc-accent);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .cc-pb-main {
-  width: 52px;
-  height: 52px;
+  width: 38px;
+  height: 38px;
   border: none;
   background: var(--cc-accent);
   color: #ffffff;
-  font-size: 18px;
-  box-shadow: 0 8px 22px color-mix(in srgb, var(--cc-accent) 40%, transparent);
+  font-size: 14px;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--cc-accent) 30%, transparent);
 }
 
 .cc-pb-main:hover {
@@ -813,13 +831,15 @@ body.cc-reduced .cc-track-eq span {
 .cc-volume {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
 }
 
 .cc-volume input[type="range"] {
   flex: 1;
-  height: 4px;
+  min-width: 0;
+  height: 3px;
   -webkit-appearance: none;
   appearance: none;
   border-radius: 99px;
@@ -829,16 +849,16 @@ body.cc-reduced .cc-track-eq span {
 
 .cc-volume input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--cc-accent);
   cursor: pointer;
 }
 
 .cc-volume input[type="range"]::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
+  width: 10px;
+  height: 10px;
   border: none;
   border-radius: 50%;
   background: var(--cc-accent);
@@ -846,23 +866,28 @@ body.cc-reduced .cc-track-eq span {
 }
 
 .cc-player-error {
-  margin-top: 8px;
-  font-size: 11px;
+  margin-top: 4px;
+  font-size: 10.5px;
   color: #ef4444;
   text-align: center;
 }
 
 .cc-custom-url {
   display: flex;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.cc-custom-wrap {
+  flex: 1;
+  min-width: 0;
+  position: relative;
 }
 
 .cc-custom-input {
-  flex: 1;
-  min-width: 0;
-  padding: 8px 11px;
-  border-radius: 12px;
+  width: 100%;
+  padding: 7px 28px 7px 10px;
+  border-radius: 10px;
   border: 1px solid var(--cc-border);
   background: var(--cc-row);
   color: var(--text-main);
@@ -881,14 +906,40 @@ body.cc-reduced .cc-track-eq span {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--cc-accent) 20%, transparent);
 }
 
+.cc-custom-clear {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.cc-custom-clear:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
 .cc-custom-play {
   flex: none;
-  padding: 0 14px;
+  padding: 0 12px;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--cc-accent);
   color: #ffffff;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   transition: filter 0.2s ease, transform 0.2s ease;
@@ -897,13 +948,6 @@ body.cc-reduced .cc-track-eq span {
 .cc-custom-play:hover {
   filter: brightness(1.08);
   transform: translateY(-1px);
-}
-
-.cc-custom-hint {
-  margin-top: 6px;
-  font-size: 10.5px;
-  color: var(--text-sub);
-  text-align: center;
 }
 
 .cc-focus-widget {
@@ -1167,12 +1211,8 @@ body.cc-reduced .cc-track-eq span {
 }
 
 /* ===== GIẢM CHUYỂN ĐỘNG (body.cc-reduced) =====
-   CHỈ giảm animation (popup mở tức thì, không scale/translate).
-   KHÔNG đụng vào kính mờ hay màu nền — muốn tắt kính mờ hãy dùng
-   nút "Kính mờ" riêng (cc-glass-off, tự đổi nền đặc tương ứng). */
-body.cc-reduced #userPopup {
-  animation: none !important;
-}
+   Animation vào ra của popup đã được gate sẵn bằng :not(.cc-reduced)
+   ở rule #userPopup.cc-pop phía trên, nên không cần override gì thêm ở đây. */
 
 @media (max-width: 480px) {
   #userPopup {

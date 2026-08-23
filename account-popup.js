@@ -129,6 +129,10 @@
     });
   }
 
+  function notifyPrefChange(message) {
+    try { lhToast(message, { type: "info", title: "Giao diện", sound: false, durationMs: 2500 }); } catch (e) {}
+  }
+
   function bindPrefs() {
     const glass = document.getElementById("ccGlassToggle");
     if (glass) {
@@ -136,6 +140,7 @@
         prefs.glass = glass.checked;
         localStorage.setItem(STORE_KEYS.glass, prefs.glass ? "on" : "off");
         document.body.classList.toggle("cc-glass-off", !prefs.glass);
+        notifyPrefChange(prefs.glass ? "Đã bật hiệu ứng kính mờ." : "Đã tắt hiệu ứng kính mờ.");
       });
     }
     const reduce = document.getElementById("ccReduceToggle");
@@ -144,6 +149,9 @@
         prefs.reduce = reduce.checked;
         localStorage.setItem(STORE_KEYS.reduce, prefs.reduce ? "on" : "off");
         document.body.classList.toggle("cc-reduced", prefs.reduce);
+        notifyPrefChange(prefs.reduce
+          ? "Đã bật giảm chuyển động — giao diện nhẹ hơn."
+          : "Đã tắt giảm chuyển động — đầy đủ hiệu ứng.");
       });
     }
   }
@@ -270,6 +278,9 @@
     if (popup) popup.style.display = "none";
     renderFocus();
     startFocusTimer();
+    try {
+      lhToast("Focus Mode đã bật! Tập trung hết mình trong " + focus.selected + " phút nhé 💪", { type: "success", title: "Focus Mode", durationMs: 4500 });
+    } catch (e) {}
     if ("Notification" in window && Notification.permission === "default") {
       try { Notification.requestPermission(); } catch (e) {}
     }
@@ -566,6 +577,7 @@
             updateMusicUI();
             const err = document.getElementById("ccYtError");
             if (err) err.textContent = "Video không khả dụng. Bạn có thể thử nguồn khác.";
+            if (music.isCustom) notifyMusic("Video không khả dụng. Hãy thử link khác nhé!", "error");
           }
         }
       });
@@ -666,13 +678,18 @@
     return "Nhạc tùy chỉnh";
   }
 
+  function notifyMusic(message, type) {
+    try { lhToast(message, { type: type || "info", title: "Âm nhạc" }); } catch (e) {}
+  }
+
   function playCustom() {
     const input = document.getElementById("ccCustomUrl");
     const err = document.getElementById("ccYtError");
     const url = input ? input.value.trim() : "";
     if (err) err.textContent = "";
     if (!url) {
-      if (err) err.textContent = "Hãy dán link YouTube hoặc link nhạc vào ô trên.";
+      if (input) input.focus();
+      notifyMusic("Bạn chưa dán link nào cả! Hãy dán link YouTube hoặc link nhạc vào ô trên.", "warning");
       return;
     }
     const id = extractYoutubeId(url);
@@ -691,6 +708,7 @@
             if (d && d.title) music.customName = d.title;
           } catch (e) {}
           updateMusicUI();
+          notifyMusic('Đang phát từ link của bạn: "' + (music.customName || "Nhạc tùy chỉnh") + '"', "success");
           setTimeout(function () {
             if (music.isCustom && !music.customName) {
               try {
@@ -709,7 +727,7 @@
           if (!ok) {
             music.playing = false;
             updateMusicUI();
-            if (err) err.textContent = "Không thể kết nối YouTube.";
+            notifyMusic("Không thể kết nối YouTube. Kiểm tra mạng rồi thử lại nhé!", "error");
           } else {
             run();
           }
@@ -727,14 +745,15 @@
       music.audio.play().then(function () {
         music.playing = true;
         updateMusicUI();
+        notifyMusic('Đang phát từ link của bạn: "' + music.customName + '"', "success");
       }).catch(function () {
         music.playing = false;
         updateMusicUI();
-        if (err) err.textContent = "Không phát được link này. Hãy thử link YouTube.";
+        notifyMusic("Không phát được link này. Hãy thử link YouTube nhé!", "error");
       });
       return;
     }
-    if (err) err.textContent = "Không nhận diện được link.";
+    notifyMusic("Không nhận diện được link. Hãy kiểm tra lại đường dẫn nhé!", "error");
   }
 
   function updateMusicUI() {
@@ -746,15 +765,17 @@
 
     if (music.isCustom) {
       if (nowTitle) nowTitle.textContent = music.customName || "Nhạc tùy chỉnh";
-      if (nowSub) nowSub.textContent = music.sourceType === "audio" ? "Đang phát link trực tiếp" : "Đang phát link YouTube";
-      if (nowIcon) nowIcon.textContent = "🎵";
+      var sourceIcons = { yt: '<i class="fa-brands fa-youtube" style="color:#ff0000"></i>', audio: "🎵" };
+      var sourceLabels = { yt: "Đang phát từ YouTube", audio: "Đang phát link trực tiếp" };
+      if (nowSub) nowSub.textContent = sourceLabels[music.sourceType] || "Nhạc tùy chỉnh";
+      if (nowIcon) nowIcon.innerHTML = sourceIcons[music.sourceType] || "🎵";
     } else {
       const track = TRACKS[music.index];
       if (nowTitle) nowTitle.textContent = track.name;
       if (nowSub) nowSub.textContent = track.sub;
       if (nowIcon) nowIcon.textContent = track.icon;
     }
-    if (playBtn) playBtn.textContent = music.playing ? "⏸" : "▶";
+    if (playBtn) playBtn.innerHTML = music.playing ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
 
     tracks.forEach(function (t, i) {
       t.classList.toggle("cc-active", !music.isCustom && i === music.index);
@@ -789,11 +810,25 @@
 
     if (vol) {
       vol.value = music.volume;
+
+      var volIcon = document.getElementById("ccVolumeIcon");
+      function updateVolumeIcon(v) {
+        if (!volIcon) return;
+        var cls = v <= 0 ? "fa-volume-xmark"
+          : v <= 33 ? "fa-volume-off"
+          : v <= 66 ? "fa-volume-low"
+          : "fa-volume-high";
+        volIcon.className = "fa-solid " + cls;
+        volIcon.style.color = v <= 0 ? "#ef4444" : "";
+      }
+      updateVolumeIcon(music.volume);
+
       vol.addEventListener("input", function () {
         music.volume = Number(vol.value);
         localStorage.setItem(STORE_KEYS.volume, String(music.volume));
         if (music.player) music.player.setVolume(music.volume);
         if (music.audio && music.audio.src) music.audio.volume = music.volume / 100;
+        updateVolumeIcon(music.volume);
       });
     }
 
@@ -837,6 +872,7 @@
 
     const customPlay = document.getElementById("ccCustomPlay");
     const customUrl = document.getElementById("ccCustomUrl");
+    const customClear = document.getElementById("ccCustomClear");
     if (customPlay) customPlay.addEventListener("click", playCustom);
     if (customUrl) {
       customUrl.addEventListener("keydown", function (e) {
@@ -844,6 +880,16 @@
           e.preventDefault();
           playCustom();
         }
+      });
+    }
+    if (customClear && customUrl) {
+      customClear.addEventListener("click", function () {
+        customUrl.value = "";
+        customClear.style.display = "none";
+        customUrl.focus();
+      });
+      customUrl.addEventListener("input", function () {
+        customClear.style.display = customUrl.value ? "flex" : "none";
       });
     }
     if (music.audio) {

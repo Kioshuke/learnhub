@@ -1,0 +1,5 @@
+# Cấu hình header cho Cloudflare Pages
+# File phiên bản luôn được browser revalidate trước khi dùng cache,
+# đảm bảo sau khi bấm "Tải lại ngay" là nhận đúng bản mới.
+/version/*
+  Cache-Control: no-cache

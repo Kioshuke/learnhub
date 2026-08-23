@@ -1281,22 +1281,26 @@ fetch('footer.html').then(r => r.text()).then(html => {
           </div>
           <div class="cc-progress" id="ccProgress"><div class="cc-progress-fill" id="ccProgressFill"></div></div>
           <div class="cc-progress-times"><span id="ccCurTime">00:00</span><span id="ccDurTime">--:--</span></div>
-          <div class="cc-player-btns">
-            <button class="cc-pb" id="ccPrevBtn" type="button" aria-label="Bài trước">⏮</button>
-            <button class="cc-pb cc-pb-main" id="ccPlayBtn" type="button" aria-label="Phát / Tạm dừng">▶</button>
-            <button class="cc-pb" id="ccNextBtn" type="button" aria-label="Bài kế tiếp">⏭</button>
-          </div>
-          <div class="cc-volume">
-            <span>🔊</span>
-            <input id="ccVolume" type="range" min="0" max="100" step="1">
+          <div class="cc-player-controls">
+            <div class="cc-player-btns">
+              <button class="cc-pb" id="ccPrevBtn" type="button" aria-label="Bài trước"><i class="fa-solid fa-backward-step"></i></button>
+              <button class="cc-pb cc-pb-main" id="ccPlayBtn" type="button" aria-label="Phát / Tạm dừng"><i class="fa-solid fa-play"></i></button>
+              <button class="cc-pb" id="ccNextBtn" type="button" aria-label="Bài kế tiếp"><i class="fa-solid fa-forward-step"></i></button>
+            </div>
+            <div class="cc-volume">
+              <i class="fa-solid fa-volume-high" id="ccVolumeIcon" style="font-size:12px;color:var(--text-sub);flex-shrink:0;transition:color 0.2s;"></i>
+              <input id="ccVolume" type="range" min="0" max="100" step="1">
+            </div>
           </div>
           <div class="cc-player-error" id="ccYtError"></div>
         </div>
         <div class="cc-custom-url">
-          <input class="cc-custom-input" id="ccCustomUrl" type="text" placeholder="Dán link YouTube / nhạc bất kỳ..." autocomplete="off">
+          <div class="cc-custom-wrap">
+            <input class="cc-custom-input" id="ccCustomUrl" type="text" placeholder="Dán link YouTube hoặc link nhạc..." autocomplete="off">
+            <button class="cc-custom-clear" id="ccCustomClear" type="button" title="Xoá link" aria-label="Xoá link"><i class="fa-solid fa-xmark"></i></button>
+          </div>
           <button class="cc-custom-play" id="ccCustomPlay" type="button">Phát</button>
         </div>
-        <div class="cc-custom-hint">Hỗ trợ link YouTube hoặc link nhạc trực tiếp (mp3, m4a...).</div>
         <div id="ccYtPlayer" style="position:fixed;left:-9999px;top:0;width:200px;height:200px;pointer-events:none;"></div>
         <audio id="ccCustomAudio" preload="none"></audio>
       </div>
