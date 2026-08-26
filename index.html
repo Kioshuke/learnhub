@@ -785,6 +785,175 @@ function startAccessGuards(user){
       .subscribe();
   } catch (e) {}
 
+  // ==================== NOTIFICATION BELL ====================
+  (async function(){
+    const bell = document.getElementById('notifBell');
+    const badge = document.getElementById('notifBadge');
+    const dropdown = document.getElementById('notifDropdown');
+    const list = document.getElementById('notifList');
+    if (!bell || !badge || !dropdown) return;
+
+    const bellTypeColors = { info:"#2563eb", warning:"#d97706", error:"#ef4444", success:"#16a34a" };
+    const bellTypeIcons = { info:"fa-solid fa-circle-info", warning:"fa-solid fa-triangle-exclamation", error:"fa-solid fa-circle-xmark", success:"fa-solid fa-circle-check" };
+
+    function updateBadge(show, count) {
+      if (!badge) return;
+      if (show) {
+        badge.style.display = "flex";
+        badge.textContent = count || "";
+        badge.style.animation = "none";
+        void badge.offsetWidth;
+        badge.style.animation = "";
+      } else {
+        badge.style.display = "none";
+        badge.textContent = "";
+      }
+    }
+
+    function openNotifDetail(nd) {
+      var overlay = document.getElementById("notifDetailOverlay");
+      if (!overlay) return;
+      document.getElementById("notifDetailTitle").textContent = nd.title || "Hộp Thư";
+      document.getElementById("notifDetailMsg").textContent = nd.message || "";
+      document.getElementById("notifDetailIcon").src = "pictures/newlogo.png";
+      var dateStr = "";
+      var dateVal = nd.created_at || nd.updated_at;
+      if (dateVal) {
+        var d = new Date(dateVal);
+        dateStr = d.toLocaleDateString("vi-VN",{day:"2-digit",month:"2-digit",year:"numeric"}) + " " + d.toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"});
+      }
+      document.getElementById("notifDetailDate").textContent = dateStr;
+      overlay.style.display = "flex";
+      dropdown.classList.remove("open");
+    }
+
+    window.closeNotifDetail = function() {
+      var overlay = document.getElementById("notifDetailOverlay");
+      if (overlay) overlay.style.display = "none";
+    };
+
+    window.openNotifDetail = openNotifDetail;
+
+    var detailOverlay = document.getElementById("notifDetailOverlay");
+    if (detailOverlay) {
+      detailOverlay.addEventListener("click", function(e) {
+        if (e.target === detailOverlay) window.closeNotifDetail();
+      });
+    }
+
+    function timeAgo(date) {
+      var diff = Math.floor((Date.now() - date.getTime()) / 1000);
+      if (diff < 60) return "Vừa xong";
+      if (diff < 3600) return Math.floor(diff / 60) + " phút trước";
+      if (diff < 86400) return Math.floor(diff / 3600) + " giờ trước";
+      return Math.floor(diff / 86400) + " ngày trước";
+    }
+
+    // Load mailbox messages on page load
+    let unreadCount = 0;
+    async function loadMailbox() {
+      try {
+        const { data: messages, error } = await supabase
+          .from("mailbox_messages")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(20);
+        if (error) throw error;
+        list.innerHTML = "";
+        unreadCount = 0;
+        if (!messages || messages.length === 0) {
+          // Welcome letter khi mailbox trống
+          var welcomeItem = document.createElement("div");
+          welcomeItem.className = "notif-dd-item";
+          welcomeItem.innerHTML = '<div class="notif-dd-item-icon" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#2563eb"><i class="fa-solid fa-envelope-open-text"></i></div>'
+            + '<div class="notif-dd-item-body">'
+            + '<div class="notif-dd-item-title">Thư Chào Mừng</div>'
+            + '<div class="notif-dd-item-msg">Chào mừng bạn đến với LearnHub!</div>'
+            + '</div>';
+          welcomeItem._nd = {
+            title: "💌 Chào mừng bạn đến với LearnHub Platform!",
+            message: "Chào bạn,\n\nChào mừng bạn đến với LearnHub Platform - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên.\n\nĐây là hộp thư nơi bạn nhận được các thông báo quan trọng từ Ban Quản Trị như cập nhật tính năng mới, lịch thi, thông báo hệ thống và nhiều tin tức khác.\n\nHãy nhấn vào biểu tượng chuông ở header bất cứ lúc nào để kiểm tra hộp thư nhé!\n\nTrân trọng,\nĐội ngũ phát triển LearnHub",
+            created_at: new Date().toISOString()
+          };
+          welcomeItem.addEventListener("click", function() { openNotifDetail(this._nd); });
+          list.appendChild(welcomeItem);
+        } else {
+          messages.forEach(function(msg) {
+            if (!msg.is_read) unreadCount++;
+            var item = document.createElement("div");
+            item.className = "notif-dd-item";
+            item.innerHTML = '<div class="notif-dd-item-icon" style="background:#eff6ff;color:#2563eb"><i class="fa-solid fa-envelope"></i></div>'
+              + '<div class="notif-dd-item-body">'
+              + '<div class="notif-dd-item-title">' + escapeHtml(msg.title || "Thông báo") + '</div>'
+              + '<div class="notif-dd-item-msg">' + escapeHtml((msg.message || "").substring(0, 80)) + '</div>'
+              + (msg.created_at ? '<div class="notif-dd-item-time">' + timeAgo(new Date(msg.created_at)) + '</div>' : '')
+              + '</div>';
+            item._nd = { title: msg.title, message: msg.message, created_at: msg.created_at, _id: msg.id };
+            item.addEventListener("click", function() { openNotifDetail(this._nd); });
+            list.appendChild(item);
+          });
+        }
+        updateBadge(unreadCount > 0, unreadCount);
+      } catch(e) {
+        console.warn("Mailbox load error:", e);
+      }
+    }
+    loadMailbox();
+
+    // Listen for new mailbox messages (realtime INSERT)
+    try {
+      supabase.channel("mailbox-realtime")
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "mailbox_messages" }, function(payload) {
+          var msg = payload.new;
+          var item = document.createElement("div");
+          item.className = "notif-dd-item";
+          item.innerHTML = '<div class="notif-dd-item-icon" style="background:#eff6ff;color:#2563eb"><i class="fa-solid fa-envelope"></i></div>'
+            + '<div class="notif-dd-item-body">'
+            + '<div class="notif-dd-item-title">' + escapeHtml(msg.title || "Thông báo") + '</div>'
+            + '<div class="notif-dd-item-msg">' + escapeHtml((msg.message || "").substring(0, 80)) + '</div>'
+            + '<div class="notif-dd-item-time">Vừa xong</div>'
+            + '</div>';
+          item._nd = { title: msg.title, message: msg.message, created_at: msg.created_at, _id: msg.id };
+          item.addEventListener("click", function() { openNotifDetail(this._nd); });
+          // Bỏ "Chưa có thông báo" placeholder nếu có
+          var empty = list.querySelector(".notif-dd-empty");
+          if (empty) empty.remove();
+          // Bỏ welcome letter nếu có
+          var welcome = list.querySelector(".notif-dd-item-icon");
+          if (welcome && list.children.length === 1) list.innerHTML = "";
+          list.insertBefore(item, list.firstChild);
+          unreadCount++;
+          updateBadge(true, unreadCount);
+        })
+        .subscribe();
+    } catch(e){}
+
+    // Toggle dropdown
+    bell.addEventListener("click", function(e) {
+      e.stopPropagation();
+      dropdown.classList.toggle("open");
+    });
+
+    // Close on click outside
+    document.addEventListener("click", function(e) {
+      var bw = document.getElementById("notifBellWrap");
+      var dd = document.getElementById("notifDropdown");
+      if (!dd) return;
+      if (bw && bw.contains(e.target)) return;
+      dd.classList.remove("open");
+    });
+  })();
+
+  // Global: clear badge — đánh dấu tất cả thư đã đọc
+  window.clearNotifBadge = function() {
+    var badge = document.getElementById('notifBadge');
+    if (badge) { badge.style.display = 'none'; badge.textContent = ''; }
+    unreadCount = 0;
+    try {
+      supabase.from("mailbox_messages").update({ is_read: true }).eq("is_read", false).then(function(){});
+    } catch(e){}
+  };
+
   // Welcome popup guard.
   try {
     welcomeGuardChannel = supabase.channel("guard-welcome")

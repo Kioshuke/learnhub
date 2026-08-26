@@ -519,6 +519,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         Gửi thông báo
       </button>
+      <button class="sidebar-link" data-admin-tab="mailbox">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Hộp Thư
+      </button>
       <div class="sidebar-label">Cài đặt</div>
       <button class="sidebar-link" data-admin-tab="welcomePopup">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
@@ -626,6 +630,39 @@
         <button class="btn btn-primary" id="sendBroadcastBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Gửi thông báo</button>
         <button class="btn btn-soft" id="clearBroadcastBtn">Tắt thông báo hiện tại</button>
       </div>
+    </section>
+
+    <!-- MAILBOX TAB -->
+    <section class="panel tab-panel hidden" id="mailboxTabPanel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Hộp Thư</div>
+          <div class="panel-desc" style="margin-bottom:0">Gửi thư永久 đến hộp thư của user. Khác với thông báo realtime — thư sẽ được lưu lại và user có thể xem lại bất kỳ lúc nào.</div>
+        </div>
+      </div>
+      <div class="broadcast-layout">
+        <div class="broadcast-col">
+          <div class="field-row" style="margin-top:0"><input id="mailboxTitleInput" class="input" type="text" placeholder="Tiêu đề thư"></div>
+          <div class="field-row"><textarea id="mailboxMessageInput" class="input" rows="5" style="min-height:130px" placeholder="Nội dung thư..."></textarea></div>
+          <div class="field-row"><input id="mailboxTargetEmailInput" class="input" type="email" placeholder="Email người nhận riêng (để trống = gửi tất cả)" disabled></div>
+        </div>
+        <div class="broadcast-col">
+          <div class="radio-section" style="margin-top:0">
+            <label class="radio-section-label">Chế độ gửi</label>
+            <div class="radio-group">
+              <label class="radio-option"><input type="radio" name="mailboxTargetMode" value="all" checked><span>Toàn bộ user</span></label>
+              <label class="radio-option"><input type="radio" name="mailboxTargetMode" value="single"><span>Gửi riêng</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-primary" id="sendMailboxBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Gửi thư
+        </button>
+      </div>
+      <div id="mailboxHistory" style="margin-top:20px"></div>
     </section>
 
     <!-- WELCOME POPUP TAB -->
@@ -943,6 +980,7 @@ let currentPage = 1;
 const adminTabButtons = document.querySelectorAll("[data-admin-tab]");
 const usersTabPanel = document.getElementById("usersTabPanel");
 const broadcastsTabPanel = document.getElementById("broadcastsTabPanel");
+const mailboxTabPanel = document.getElementById("mailboxTabPanel");
 const welcomePopupTabPanel = document.getElementById("welcomePopupTabPanel");
 const broadcastTargetEmailInput = document.getElementById("broadcastTargetEmailInput");
 const welcomePopupTitleInput = document.getElementById("welcomePopupTitleInput");
@@ -997,6 +1035,7 @@ const pageTitles = {
   users: ["Quản lý user", "Quản lý whitelist, khóa/mở khóa user."],
   rename: ["Tên hiển thị", "Đổi tên hiển thị cho từng user đã có tài khoản."],
   broadcasts: ["Gửi thông báo", "Gửi thông báo realtime đến toàn bộ user hoặc từng người."],
+  mailbox: ["Hộp Thư", "Gửi thư đến hộp thư của user. Thư được lưu lại và xem lại bất kỳ lúc nào."],
   welcomePopup: ["Popup chào mừng", "Chỉnh popup hiển thị sau khi user đăng nhập."],
   ticker: ["Dòng chữ chạy", "Chỉnh nội dung và tốc độ dòng chữ chạy trên cùng web chính."],
   maintenance: ["Bảo trì hệ thống", "Bật/tắt chế độ bảo trì toàn hệ thống."],
@@ -1011,6 +1050,7 @@ function switchAdminTab(tab) {
   usersTabPanel.classList.toggle("hidden", tab !== "users");
   renameTabPanel.classList.toggle("hidden", tab !== "rename");
   broadcastsTabPanel.classList.toggle("hidden", tab !== "broadcasts");
+  mailboxTabPanel.classList.toggle("hidden", tab !== "mailbox");
   welcomePopupTabPanel.classList.toggle("hidden", tab !== "welcomePopup");
   tickerTabPanel.classList.toggle("hidden", tab !== "ticker");
   maintenanceTabPanel.classList.toggle("hidden", tab !== "maintenance");
@@ -1022,6 +1062,7 @@ function switchAdminTab(tab) {
   pageTitle.textContent = t[0];
   pageSubtitle.textContent = t[1];
   if (tab === "welcomePopup") loadWelcomePopupForm();
+  if (tab === "mailbox") loadMailboxHistory();
   if (tab === "ticker") loadTickerForm();
   if (tab === "maintenance") loadMaintenanceForm();
   if (tab === "registration") loadRegistrationForm();
@@ -1267,6 +1308,68 @@ document.getElementById("clearBroadcastBtn").addEventListener("click", async () 
   try { await supabase.from("broadcast_current").upsert({ id: true, active: false, updated_at: new Date().toISOString(), sender: adminEmail }, { onConflict: "id" }); showNotice("Đã tắt thông báo hiện tại.", "success"); }
   catch(e) { console.error(e); showNotice("Không tắt được thông báo.", "error"); }
 });
+
+// ==================== MAILBOX ====================
+const mailboxTargetEmailInput = document.getElementById("mailboxTargetEmailInput");
+
+document.querySelectorAll('input[name="mailboxTargetMode"]').forEach(r => {
+  r.addEventListener("change", () => {
+    const s = r.value === "single";
+    mailboxTargetEmailInput.disabled = !s;
+    if (!s) mailboxTargetEmailInput.value = "";
+  });
+});
+
+document.getElementById("sendMailboxBtn").addEventListener("click", async () => {
+  const ti = document.getElementById("mailboxTitleInput");
+  const mi = document.getElementById("mailboxMessageInput");
+  const mp = document.querySelector('input[name="mailboxTargetMode"]:checked');
+  const title = String(ti.value || "").trim();
+  const message = String(mi.value || "").trim();
+  const tm = mp ? mp.value : "all";
+  const te = normalizeEmail(mailboxTargetEmailInput.value);
+  if (!message) { showNotice("Vui lòng nhập nội dung thư.", "error"); return; }
+  if (tm === "single" && (!te || !te.includes("@"))) { showNotice("Vui lòng nhập email hợp lệ.", "error"); return; }
+  try {
+    await supabase.from("mailbox_messages").insert({
+      title: title || "Thông báo từ Admin",
+      message: message,
+      sender: adminEmail,
+      target_mode: tm,
+      target_email: tm === "single" ? te : null
+    });
+    ti.value = "";
+    mi.value = "";
+    document.querySelector('input[name="mailboxTargetMode"][value="all"]').checked = true;
+    mailboxTargetEmailInput.value = "";
+    mailboxTargetEmailInput.disabled = true;
+    showNotice(tm === "single" ? `Đã gửi thư đến ${te}.` : "Đã gửi thư đến tất cả user.", "success");
+    loadMailboxHistory();
+  } catch (e) { console.error(e); showNotice("Gửi thư thất bại.", "error"); }
+});
+
+async function loadMailboxHistory() {
+  const container = document.getElementById("mailboxHistory");
+  if (!container) return;
+  try {
+    const { data: messages } = await supabase.from("mailbox_messages").select("*").order("created_at", { ascending: false }).limit(10);
+    if (!messages || messages.length === 0) { container.innerHTML = '<p style="color:var(--text-2);font-size:13px">Chưa có thư nào.</p>'; return; }
+    let html = '<div style="font-weight:700;font-size:14px;margin-bottom:10px">Thư đã gửi gần đây</div>';
+    messages.forEach(m => {
+      const d = new Date(m.created_at);
+      const dateStr = d.toLocaleDateString("vi-VN") + " " + d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+      html += `<div style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;font-size:13px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <b>${escapeHtml(m.title || "Không tiêu đề")}</b>
+          <span style="color:var(--text-2);font-size:11px">${dateStr}</span>
+        </div>
+        <div style="color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml((m.message || "").substring(0, 100))}</div>
+        <div style="color:var(--text-2);font-size:11px;margin-top:4px">Gửi đến: ${m.target_mode === "all" ? "Tất cả" : m.target_email || "?"}</div>
+      </div>`;
+    });
+    container.innerHTML = html;
+  } catch (e) { container.innerHTML = '<p style="color:var(--text-2);font-size:13px">Không tải được lịch sử.</p>'; }
+}
 
 async function loadWelcomePopupForm() {
   try {

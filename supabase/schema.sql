@@ -114,6 +114,20 @@ create table if not exists public.broadcast_welcome (
   updated_by text
 );
 
+-- Hộp thư: lưu永久 nhiều tin nhắn, tách biệt khỏi broadcast realtime.
+create table if not exists public.mailbox_messages (
+  id         uuid primary key default gen_random_uuid(),
+  title      text not null default '',
+  message    text not null default '',
+  sender     text not null default 'admin',
+  target_mode text not null default 'all',
+  target_email text,
+  is_read    boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists mailbox_messages_created_at_idx on public.mailbox_messages (created_at desc);
+
 -- Cấu hình dòng chữ chạy trên cùng web chính (nội dung + tốc độ).
 create table if not exists public.ticker_settings (
   id            boolean primary key default true check (id),
@@ -218,6 +232,7 @@ alter table public.forum_events enable row level security;
 alter table public.schedule_settings enable row level security;
 alter table public.watched_videos enable row level security;
 alter table public.error_logs enable row level security;
+alter table public.mailbox_messages enable row level security;
 alter table public.registration_settings enable row level security;
 
 -- ============================== FUNCTIONS & TRIGGERS ==============================
@@ -607,6 +622,22 @@ drop policy if exists broadcast_welcome_write_admin on public.broadcast_welcome;
 create policy broadcast_welcome_write_admin on public.broadcast_welcome
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
+drop policy if exists mailbox_select on public.mailbox_messages;
+create policy mailbox_select on public.mailbox_messages
+  for select to authenticated using (true);
+
+drop policy if exists mailbox_insert_admin on public.mailbox_messages;
+create policy mailbox_insert_admin on public.mailbox_messages
+  for insert to authenticated with check (public.is_admin());
+
+drop policy if exists mailbox_update_admin on public.mailbox_messages;
+create policy mailbox_update_admin on public.mailbox_messages
+  for update to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists mailbox_delete_admin on public.mailbox_messages;
+create policy mailbox_delete_admin on public.mailbox_messages
+  for delete to authenticated using (public.is_admin());
+
 drop policy if exists ticker_select on public.ticker_settings;
 create policy ticker_select on public.ticker_settings
   for select to authenticated using (true);
@@ -818,7 +849,8 @@ begin
     'public.maintenance_settings',
     'public.ticker_settings',
     'public.schedule_settings',
-    'public.error_logs'
+    'public.error_logs',
+    'public.mailbox_messages'
   ] loop
     if not exists (
       select 1 from pg_publication_tables

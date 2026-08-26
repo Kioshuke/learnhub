@@ -12,6 +12,21 @@
 <div class="header-user">
   <span class="header-location">📍 Tân Hồng - Đồng Tháp</span>
   <span class="header-time" id="currentTime"></span>
+  <div class="notif-bell-wrap" id="notifBellWrap">
+    <button class="notif-bell" id="notifBell" title="Hộp Thư">
+      <i class="fa-solid fa-bell"></i>
+      <span class="notif-badge" id="notifBadge" style="display:none"></span>
+    </button>
+    <div class="notif-dropdown" id="notifDropdown">
+      <div class="notif-dd-head">
+        <span>Hộp Thư</span>
+        <button class="notif-dd-clear" id="notifClearBtn" onclick="clearNotifBadge()" title="Đánh dấu đã đọc"><i class="fa-solid fa-check-double"></i></button>
+      </div>
+      <div class="notif-dd-list" id="notifList">
+        <div class="notif-dd-empty">Chưa có thông báo mới</div>
+      </div>
+    </div>
+  </div>
   <div class="user-right">
     <div class="user-text">
       <span id="welcomeText"></span>
@@ -28,6 +43,22 @@
 <div class="ticker-text">
 Chào mừng bạn đã đến với LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.
 </div>
+</div>
+<div class="notif-detail-overlay" id="notifDetailOverlay">
+  <div class="notif-detail-box">
+    <button class="notif-detail-x" onclick="closeNotifDetail()">&times;</button>
+    <div class="notif-detail-inner">
+      <div class="notif-detail-header"><h3 id="notifDetailTitle"></h3></div>
+      <div class="notif-detail-meta">
+        <div class="notif-detail-sender">
+          <img class="notif-detail-sender-avatar" id="notifDetailIcon" src="pictures/newlogo.png" alt="Admin">
+          <span class="notif-detail-sender-name">Ban Quản Trị LearnHub</span>
+        </div>
+        <span class="notif-detail-date" id="notifDetailDate"></span>
+      </div>
+      <div class="notif-detail-body"><p id="notifDetailMsg"></p></div>
+    </div>
+  </div>
 </div>
 <script>
 document.addEventListener('click',function(e){

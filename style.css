@@ -537,6 +537,59 @@ body.dark-mode .header-time { color:#fff; background:rgba(255,255,255,0.08); }
 .header-user .avatar-box img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
 .header-user .online-pulse { position:absolute; bottom:-1px; right:-1px; width:10px; height:10px; background:#00e676; border-radius:50%; border:2px solid #fff; z-index:1; }
 
+/* ==================== NOTIFICATION BELL ==================== */
+.notif-bell-wrap{position:relative}
+.notif-bell{background:none;border:none;cursor:pointer;position:relative;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;color:#eab308 !important;transition:background .15s}
+.notif-bell i{color:#eab308 !important}
+.notif-bell:hover{background:rgba(0,0,0,.06)}
+.notif-badge{position:absolute;top:-2px;right:-4px;min-width:16px;height:16px;background:#ef4444;color:#fff;border-radius:8px;font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;padding:0 4px;border:2px solid #fff;line-height:1}
+@keyframes notifPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{box-shadow:0 0 0 4px rgba(239,68,68,0)}}
+.notif-dropdown{position:absolute;top:calc(100% + 6px);right:-4px;width:290px;background:var(--card-bg,#fff);border:1px solid var(--footer-border,#e2e8f0);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.1);display:none;z-index:2000;overflow:hidden}
+.notif-dropdown.open{display:block;animation:notifDropIn .2s ease}
+.notif-dd-head{display:flex;justify-content:space-between;align-items:center;padding:3px 8px;font-size:13px !important;font-weight:700;color:var(--text-main,#0f172a);border-bottom:1px solid var(--footer-border,#e2e8f0)}
+.notif-dd-clear{background:none;border:none;font-size:13px !important;color:#2563eb;cursor:pointer;font-weight:600;padding:2px 4px;border-radius:4px;line-height:1}
+.notif-dd-clear:hover{background:rgba(37,99,235,.08)}
+.notif-dd-list{max-height:220px;overflow-y:auto;padding:6px}
+.notif-dd-empty{padding:16px;text-align:center;font-size:12px;color:var(--text-sub,#94a3b8)}
+.notif-dd-item{display:flex;gap:8px;padding:8px 10px;border-radius:10px;transition:background .15s;cursor:pointer}
+.notif-dd-item:hover{background:rgba(0,0,0,.03)}
+.notif-dd-item-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px}
+.notif-dd-item-body{flex:1;min-width:0}
+.notif-dd-item-title{font-size:14px;font-weight:700;color:var(--text-main,#0f172a);margin-bottom:2px}
+.notif-dd-item-msg{font-size:14px;color:var(--text-sub,#64748b);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.notif-dd-item-time{font-size:11px;color:var(--text-sub,#94a3b8);margin-top:3px}
+@keyframes notifDropIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+body.dark-mode .notif-bell,body.dark-mode .notif-bell i{color:#facc15 !important}
+body.dark-mode .notif-bell:hover{background:rgba(255,255,255,.08)}
+body.dark-mode .notif-badge{border-color:#1e293b}
+body.dark-mode .notif-dd-item:hover{background:rgba(255,255,255,.05)}
+@media(max-width:768px){.notif-dropdown{position:absolute;top:calc(100% + 6px);right:0;left:auto;width:280px;z-index:9999}.menu{z-index:9999}}
+
+/* NOTIFICATION DETAIL POPUP — airmail letter */
+.notif-detail-overlay{position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,.65);display:none;align-items:center;justify-content:center;padding:24px}
+.notif-detail-box{width:100%;max-width:680px;min-width:320px;border-radius:16px;box-shadow:0 20px 45px rgba(0,0,0,.4),0 4px 12px rgba(0,0,0,.2);position:relative;overflow:hidden;padding:16px;background-image:repeating-linear-gradient(-45deg,#ef4444 0px,#ef4444 16px,#fff 16px,#fff 32px,#2563eb 32px,#2563eb 48px,#fff 48px,#fff 64px)}
+.notif-detail-inner{background:#fff;border-radius:10px;padding:36px 40px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);position:relative;min-height:200px;display:flex;flex-direction:column;overflow:hidden}
+.notif-detail-inner::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:260px;height:260px;background-image:url('pictures/logoweb.webp');background-size:contain;background-repeat:no-repeat;background-position:center;opacity:.12;pointer-events:none;z-index:0}
+.notif-detail-header{border-bottom:2px solid #f1f5f9;padding-bottom:18px;margin-bottom:22px;position:relative;z-index:1}
+.notif-detail-header h3{margin:0;font-size:20px;font-weight:800;color:#0f172a;line-height:1.4}
+.notif-detail-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;font-size:14px;color:#64748b;position:relative;z-index:1}
+.notif-detail-sender{display:flex;align-items:center;gap:12px}
+.notif-detail-sender-avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;box-shadow:0 3px 8px rgba(79,70,229,.3);flex-shrink:0}
+.notif-detail-sender-name{font-weight:700;color:#0f172a;font-size:14.5px}
+.notif-detail-body{font-size:15.5px;color:#334155;line-height:1.75;flex:1;position:relative;z-index:1;word-break:break-word}
+.notif-detail-body p{margin:0}
+.notif-detail-date{font-weight:500}
+.notif-detail-x{position:absolute;top:12px;right:14px;width:32px;height:32px;border:none;border-radius:50%;background:rgba(0,0,0,.06);color:#64748b;font-size:20px;font-weight:700;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:all .2s ease;line-height:1}
+.notif-detail-x:hover{background:rgba(239,68,68,.12);color:#ef4444;transform:scale(1.1)}
+.notif-detail-x:active{transform:scale(.95)}
+body.dark-mode .notif-detail-inner{background:#1e293b}
+body.dark-mode .notif-detail-inner::before{opacity:.06}
+body.dark-mode .notif-detail-header{border-bottom-color:#334155}
+body.dark-mode .notif-detail-header h3{color:#f1f5f9}
+body.dark-mode .notif-detail-meta{color:#94a3b8}
+body.dark-mode .notif-detail-sender-name{color:#e2e8f0}
+body.dark-mode .notif-detail-body{color:#cbd5e1}
+
 @media(max-width:700px){
     .header-user .header-location,
     .header-user .header-time { display:none; }
@@ -569,9 +622,10 @@ body.dark-mode .hamburger span { background:#ddd; }
 @media(max-width:700px){
     .hamburger { display:none !important; }
     .menu {
-        position:static;
+        position:relative;
         gap:0;
         padding:8px 10px;
+        z-index:9999;
     }
     .menu-brand {
         flex:0 0 auto !important;
