@@ -183,6 +183,10 @@ body.dark-mode {
   background: var(--footer-link-hover);
 }
 .lh-social-icons a.fb:hover{ background: #1877f2; }
+.lh-social-icons a.zl{ font-weight: 900; font-size: 20px; font-family: 'Inter', system-ui, sans-serif; letter-spacing: -1px; }
+.lh-social-icons a.zl .zl-z{ display: inline-block; font-style: normal; }
+.lh-social-icons a.zl:hover{ background: #0068FF; }
+.lh-social-icons a.zl:hover .zl-z{ color: #fff; }
 .lh-social-icons a.yt:hover{ background: #ff0000; }
 .lh-social-icons a.tk:hover{ background: var(--footer-text-strong); }
 .lh-social-icons a.cm:hover{ background: #10b981; }

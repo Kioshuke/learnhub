@@ -457,6 +457,26 @@ $$;
 revoke execute on function public.cleanup_error_logs(int) from public;
 grant execute on function public.cleanup_error_logs(int) to authenticated;
 
+-- Cho phép user tự xóa tài khoản auth của mình (sau khi đã xóa profile ở client).
+-- SECURITY DEFINER để gọi được auth.users từ role authenticated.
+create or replace function public.delete_own_account()
+returns void
+language plpgsql security definer
+set search_path = public, auth
+as $$
+declare
+  uid uuid := auth.uid();
+begin
+  if uid is null then
+    raise exception 'Không tìm thấy phiên đăng nhập!';
+  end if;
+  delete from auth.users where id = uid;
+end;
+$$;
+
+revoke execute on function public.delete_own_account() from public;
+grant execute on function public.delete_own_account() to authenticated;
+
 -- ============================== POLICIES ==============================
 
 drop policy if exists users_select on public.users;

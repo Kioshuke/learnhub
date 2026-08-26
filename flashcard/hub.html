@@ -649,6 +649,30 @@
       border-radius: 12px;
     }
 
+    /* ===== EMPTY STATE ===== */
+    .hub-empty {
+      text-align: center;
+      padding: 60px 20px 50px;
+      animation: sectionFadeIn 0.45s ease both;
+    }
+    .hub-empty-icon {
+      width: 80px; height: 80px; margin: 0 auto 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(124,58,237,0.1));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      animation: maintenancePulse 2.5s ease-in-out infinite;
+    }
+    .hub-empty h3 { margin: 0 0 8px; font-size: 18px; color: var(--text-main); font-weight: 700; }
+    .hub-empty p { margin: 0 auto; max-width: 380px; font-size: 14px; color: var(--text-sub); line-height: 1.6; }
+    .hub-empty .hub-empty-contact {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 16px; padding: 10px 20px; border-radius: 12px;
+      background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.2);
+      color: #2563eb; font-size: 13px; font-weight: 600;
+      text-decoration: none; transition: all 0.2s ease;
+    }
+    .hub-empty .hub-empty-contact:hover { background: rgba(37,99,235,0.14); transform: translateY(-1px); }
     @media (max-width: 860px) {
       .topic-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1060,8 +1084,22 @@
       const isSingleSection = filterValue !== "all";
       const visibleCardCount = getVisibleCardCount();
 
-      sections
-        .filter((section) => filterValue === "all" || section.key === filterValue)
+      const filtered = sections.filter((section) => filterValue === "all" || section.key === filterValue);
+
+      if (filtered.length === 0) {
+        hubSections.innerHTML = `
+          <div class="hub-empty">
+            <div class="hub-empty-icon">📭</div>
+            <h3>Chưa có nội dung</h3>
+            <p>Bộ lọc này hiện chưa có flashcard nào. Vui lòng liên hệ Admin để được hỗ trợ và cập nhật nội dung mới nhất.</p>
+            <a class="hub-empty-contact" href="mailto:learnhubplatform@gmail.com">
+              <i class="fas fa-envelope"></i> Liên hệ Admin
+            </a>
+          </div>`;
+        return;
+      }
+
+      filtered
         .forEach((section, sectionIndex) => {
           const block = document.createElement("section");
           block.className = "section-block";

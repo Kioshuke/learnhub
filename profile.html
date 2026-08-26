@@ -10,6 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" defer></script>
     
     <script>
         tailwind.config = {
@@ -368,9 +369,14 @@
 
             <!-- PROFILE DETAIL -->
             <section id="user-profile-section" class="lh-card p-4 sm:p-5 space-y-2.5">
-                <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
-                    <span class="lh-tile-icon" style="background:var(--tint-blue);color:var(--blue-accent)"><i class="fas fa-id-card"></i></span> Hồ Sơ Chi Tiết
-                </h3>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+                        <span class="lh-tile-icon" style="background:var(--tint-blue);color:var(--blue-accent)"><i class="fas fa-id-card"></i></span> Hồ Sơ Chi Tiết
+                    </h3>
+                    <button onclick="openSettingsModal(); setTimeout(() => switchSettingsTab('danger'), 100)" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:scale-105" style="background:rgba(239,68,68,0.08);color:#ef4444;border:1px solid rgba(239,68,68,0.2)">
+                        <i class="fas fa-trash-can text-[10px]"></i> Xóa tài khoản
+                    </button>
+                </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
                     <div class="flex flex-col items-center sm:items-start text-center sm:text-left gap-2">
@@ -565,6 +571,12 @@
                 <button type="button" onclick="switchSettingsTab('password')" id="tab-btn-password" class="lh-tab">
                     <i class="fas fa-lock mr-1"></i> Mật khẩu
                 </button>
+                <button type="button" onclick="switchSettingsTab('security')" id="tab-btn-security" class="lh-tab">
+                    <i class="fas fa-shield-halved mr-1"></i> Bảo mật
+                </button>
+                <button type="button" onclick="switchSettingsTab('danger')" id="tab-btn-danger" class="lh-tab">
+                    <i class="fas fa-triangle-exclamation mr-1"></i> Nguy hiểm
+                </button>
             </div>
 
             <form id="settings-form" onsubmit="saveSettings(event)" class="space-y-3.5">
@@ -647,6 +659,106 @@
                     </button>
                 </div>
             </form>
+
+            <!-- SECURITY / 2FA TAB -->
+            <div id="security-form" class="space-y-3.5 hidden">
+                <div class="rounded-xl p-3.5" style="background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.2)">
+                    <div class="flex items-start gap-2.5">
+                        <span class="mt-0.5 flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(37,99,235,0.12);color:#2563eb"><i class="fas fa-shield-halved text-xs"></i></span>
+                        <div>
+                            <h4 class="text-sm font-bold" style="color:#2563eb">Xác thực 2 lớp (2FA)</h4>
+                            <p class="text-xs mt-1 leading-relaxed" style="color:var(--text-sub)">Bảo vệ tài khoản bằng ứng dụng xác thực (Google Authenticator, Authy...). Mỗi lần đăng nhập, bạn cần nhập mã từ ứng dụng.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2FA Status -->
+                <div id="mfa-status-box">
+                    <div id="mfa-loading" class="text-center py-3 text-xs" style="color:var(--text-sub)">
+                        <i class="fas fa-spinner fa-spin mr-1"></i> Đang kiểm tra trạng thái 2FA...
+                    </div>
+                    <div id="mfa-disabled" class="hidden">
+                        <div class="flex items-center justify-between p-3 rounded-xl" style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.15)">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-circle-xmark" style="color:#ef4444;font-size:16px"></i>
+                                <span class="text-sm font-semibold" style="color:var(--text)">Chưa bật 2FA</span>
+                            </div>
+                            <button onclick="startMfaEnroll()" class="lh-btn text-xs" style="background:#2563eb;color:#fff;padding:7px 14px;border-radius:8px;font-weight:700">
+                                <i class="fas fa-plus mr-1"></i> Bật 2FA
+                            </button>
+                        </div>
+                    </div>
+                    <div id="mfa-enabled" class="hidden">
+                        <div class="flex items-center justify-between p-3 rounded-xl" style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.15)">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-circle-check" style="color:#10b981;font-size:16px"></i>
+                                <span class="text-sm font-semibold" style="color:var(--text)">2FA đã bật</span>
+                            </div>
+                            <button onclick="unenrollMfa()" class="lh-btn text-xs" style="background:rgba(239,68,68,0.1);color:#ef4444;padding:7px 14px;border-radius:8px;font-weight:700;border:1px solid rgba(239,68,68,0.2)">
+                                <i class="fas fa-trash-can mr-1"></i> Tắt 2FA
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2FA Enrollment Flow -->
+                <div id="mfa-enroll-box" class="hidden space-y-3">
+                    <div class="text-center">
+                        <p class="text-xs mb-2" style="color:var(--text-sub)">Quét mã QR bằng ứng dụng xác thực</p>
+                        <div id="mfa-qr-wrap" class="inline-block p-3 bg-white rounded-xl border" style="border-color:var(--card-border)">
+                            <canvas id="mfa-qr-canvas"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="lh-label" style="color:var(--text-sub)">Hoặc nhập thủ công key:</label>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="mfa-secret-display" readonly class="lh-input text-xs font-mono" style="flex:1;background:#f8fafc">
+                            <button onclick="copyMfaSecret()" class="lh-btn text-xs" style="padding:7px 10px;border-radius:8px;background:rgba(37,99,235,0.1);color:#2563eb"><i class="fas fa-copy"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="lh-label" style="color:#ef4444">Nhập mã 6 chữ số từ ứng dụng</label>
+                        <input type="text" id="mfa-verify-code" maxlength="6" inputmode="numeric" placeholder="000000" class="lh-input" style="text-align:center;font-size:20px;letter-spacing:6px;font-weight:700;border-color:rgba(37,99,235,0.3)">
+                    </div>
+                    <div class="flex gap-2 pt-1">
+                        <button onclick="cancelMfaEnroll()" class="lh-btn lh-btn-ghost w-1/2">Hủy</button>
+                        <button onclick="verifyMfaEnroll()" id="btn-mfa-verify" class="lh-btn w-1/2" style="background:#2563eb;color:#fff;font-weight:700">
+                            <i class="fas fa-check mr-1"></i> Xác nhận
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="danger-form" class="space-y-3.5 hidden">
+                <div class="rounded-xl p-3.5" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2)">
+                    <div class="flex items-start gap-2.5">
+                        <span class="mt-0.5 flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(239,68,68,0.12);color:#ef4444"><i class="fas fa-triangle-exclamation text-xs"></i></span>
+                        <div>
+                            <h4 class="text-sm font-bold" style="color:#ef4444">Xóa vĩnh viễn tài khoản</h4>
+                            <p class="text-xs mt-1 leading-relaxed" style="color:var(--text-sub)">Hành động này không thể hoàn tác. Toàn bộ dữ liệu của bạn sẽ bị xóa vĩnh viễn trong vòng 7 ngày, bao gồm: hồ sơ, lịch sử làm bài, bài viết diễn đàn và mọi dữ liệu liên quan.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="lh-label" style="color:#ef4444">Nhập mật khẩu để xác nhận</label>
+                    <input type="password" id="input-delete-password" placeholder="••••••••" class="lh-input" style="border-color:rgba(239,68,68,0.3)">
+                </div>
+
+                <div>
+                    <label class="lh-label" style="color:#ef4444">Gõ <b>xoa tai khoan</b> để xác nhận</label>
+                    <input type="text" id="input-delete-confirm" placeholder="xoa tai khoan" class="lh-input" style="border-color:rgba(239,68,68,0.3)">
+                </div>
+
+                <div class="flex gap-2 pt-2.5 border-t" style="border-color:var(--card-border)">
+                    <button type="button" onclick="closeSettingsModal()" class="lh-btn lh-btn-ghost w-1/2">
+                        Hủy bỏ
+                    </button>
+                    <button type="button" onclick="deleteOwnAccount()" id="btn-delete-account" class="lh-btn w-1/2" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.25);font-weight:700;cursor:pointer;opacity:0.5;pointer-events:none">
+                        <i class="fas fa-trash-can mr-1"></i> Xóa tài khoản
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1190,28 +1302,44 @@
             switchSettingsTab('info');
         }
 
+        settingsModal.addEventListener('click', function(e) {
+            if (e.target === settingsModal) closeSettingsModal();
+        });
+
         window.switchSettingsTab = function(tab) {
             const infoForm = document.getElementById('settings-form');
             const passwordForm = document.getElementById('password-form');
+            const securityForm = document.getElementById('security-form');
+            const dangerForm = document.getElementById('danger-form');
             const btnInfo = document.getElementById('tab-btn-info');
             const btnPassword = document.getElementById('tab-btn-password');
+            const btnSecurity = document.getElementById('tab-btn-security');
+            const btnDanger = document.getElementById('tab-btn-danger');
             const activeClasses = ['lh-tab-active', 'text-lh-primary', 'shadow-sm'];
             const inactiveClasses = ['text-gray-500'];
 
+            [btnInfo, btnPassword, btnSecurity, btnDanger].forEach(b => {
+                if (b) { b.classList.remove(...activeClasses); b.classList.add(...inactiveClasses); }
+            });
+            [infoForm, passwordForm, securityForm, dangerForm].forEach(f => { if (f) f.classList.add('hidden'); });
+
             if (tab === 'password') {
-                infoForm.classList.add('hidden');
                 passwordForm.classList.remove('hidden');
                 btnPassword.classList.add(...activeClasses);
                 btnPassword.classList.remove(...inactiveClasses);
-                btnInfo.classList.remove(...activeClasses);
-                btnInfo.classList.add(...inactiveClasses);
+            } else if (tab === 'security') {
+                securityForm.classList.remove('hidden');
+                btnSecurity.classList.add(...activeClasses);
+                btnSecurity.classList.remove(...inactiveClasses);
+                checkMfaStatus();
+            } else if (tab === 'danger') {
+                dangerForm.classList.remove('hidden');
+                btnDanger.classList.add(...activeClasses);
+                btnDanger.classList.remove(...inactiveClasses);
             } else {
-                passwordForm.classList.add('hidden');
                 infoForm.classList.remove('hidden');
                 btnInfo.classList.add(...activeClasses);
                 btnInfo.classList.remove(...inactiveClasses);
-                btnPassword.classList.remove(...activeClasses);
-                btnPassword.classList.add(...inactiveClasses);
             }
         }
 
@@ -1223,6 +1351,146 @@
             document.getElementById('input-old-password').value = "";
             document.getElementById('input-new-password').value = "";
             document.getElementById('input-confirm-password').value = "";
+            document.getElementById('input-delete-password').value = "";
+            document.getElementById('input-delete-confirm').value = "";
+            const delBtn = document.getElementById('btn-delete-account');
+            if (delBtn) { delBtn.disabled = false; delBtn.style.opacity = '0.5'; delBtn.style.pointerEvents = 'none'; delBtn.innerHTML = '<i class="fas fa-trash-can mr-1"></i> Xóa tài khoản'; }
+            // Reset MFA enrollment state
+            const enrollBox = document.getElementById('mfa-enroll-box');
+            if (enrollBox) enrollBox.classList.add('hidden');
+            const verifyInput = document.getElementById('mfa-verify-code');
+            if (verifyInput) verifyInput.value = '';
+        }
+
+        /* ===== 2FA / MFA ===== */
+        let currentMfaFactorId = null;
+
+        async function checkMfaStatus() {
+            const loading = document.getElementById('mfa-loading');
+            const disabledBox = document.getElementById('mfa-disabled');
+            const enabledBox = document.getElementById('mfa-enabled');
+            if (!loading) return;
+
+            loading.classList.remove('hidden');
+            disabledBox.classList.add('hidden');
+            enabledBox.classList.add('hidden');
+
+            try {
+                const { data, error } = await supabase.auth.mfa.listFactors();
+                if (error) throw error;
+
+                const totpFactors = data.totp || [];
+                const verified = totpFactors.find(f => f.status === 'verified');
+
+                loading.classList.add('hidden');
+                if (verified) {
+                    currentMfaFactorId = verified.id;
+                    enabledBox.classList.remove('hidden');
+                } else {
+                    disabledBox.classList.remove('hidden');
+                }
+            } catch (e) {
+                console.error('[MFA] listFactors error:', e);
+                loading.classList.add('hidden');
+                disabledBox.classList.remove('hidden');
+            }
+        }
+
+        async function startMfaEnroll() {
+            const enrollBox = document.getElementById('mfa-enroll-box');
+            const disabledBox = document.getElementById('mfa-disabled');
+
+            try {
+                const { data, error } = await supabase.auth.mfa.enroll({
+                    factorType: 'totp',
+                    friendlyName: 'LearnHub Authenticator'
+                });
+                if (error) throw error;
+
+                const { totp_uri, secret, id } = data;
+                currentMfaFactorId = id;
+
+                // Show secret
+                document.getElementById('mfa-secret-display').value = secret || '';
+
+                // Generate QR code
+                const canvas = document.getElementById('mfa-qr-canvas');
+                if (window.QRCode && canvas) {
+                    canvas.innerHTML = '';
+                    QRCode.toCanvas(canvas, totp_uri, { width: 180, margin: 2 }, function(err) {
+                        if (err) console.error('[MFA] QR error:', err);
+                    });
+                }
+
+                disabledBox.classList.add('hidden');
+                enrollBox.classList.remove('hidden');
+            } catch (e) {
+                console.error('[MFA] enroll error:', e);
+                window.showToast(e.message || 'Không thể bắt đầu thiết lập 2FA', 'error');
+            }
+        }
+
+        function cancelMfaEnroll() {
+            document.getElementById('mfa-enroll-box').classList.add('hidden');
+            document.getElementById('mfa-verify-code').value = '';
+            document.getElementById('mfa-disabled').classList.remove('hidden');
+        }
+
+        function copyMfaSecret() {
+            const secret = document.getElementById('mfa-secret-display').value;
+            if (secret) {
+                navigator.clipboard.writeText(secret).then(() => {
+                    window.showToast('Đã sao chép key!', 'success');
+                });
+            }
+        }
+
+        async function verifyMfaEnroll() {
+            const code = document.getElementById('mfa-verify-code').value.trim();
+            const btn = document.getElementById('btn-mfa-verify');
+
+            if (!code || code.length !== 6) {
+                return window.showToast('Vui lòng nhập mã 6 chữ số!', 'warning');
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang xác nhận...';
+
+            try {
+                const { error } = await supabase.auth.mfa.challengeAndVerify({
+                    factorId: currentMfaFactorId,
+                    code: code
+                });
+                if (error) throw error;
+
+                window.showToast('Đã bật 2FA thành công!', 'success');
+                document.getElementById('mfa-enroll-box').classList.add('hidden');
+                document.getElementById('mfa-verify-code').value = '';
+                checkMfaStatus();
+            } catch (e) {
+                console.error('[MFA] verify error:', e);
+                window.showToast(e.message || 'Mã không đúng, vui lòng thử lại!', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check mr-1"></i> Xác nhận';
+            }
+        }
+
+        async function unenrollMfa() {
+            if (!currentMfaFactorId) return;
+            if (!confirm('Bạn có chắc muốn tắt 2FA? Bảo mật tài khoản sẽ bị giảm.')) return;
+
+            try {
+                const { error } = await supabase.auth.mfa.unenroll({ factorId: currentMfaFactorId });
+                if (error) throw error;
+
+                window.showToast('Đã tắt 2FA', 'success');
+                currentMfaFactorId = null;
+                checkMfaStatus();
+            } catch (e) {
+                console.error('[MFA] unenroll error:', e);
+                window.showToast(e.message || 'Không thể tắt 2FA', 'error');
+            }
         }
 
         function formatTimer(totalSeconds) {
@@ -1398,7 +1666,6 @@
             if (textNewPassword !== confirmPassword) return window.showToast("Mật khẩu mới không trùng khớp!", "error");
             if (textNewPassword.length < 6) return window.showToast("Mật khẩu mới phải từ 6 ký tự trở lên!", "warning");
 
-            // Xác minh mật khẩu cũ bằng signInWithPassword
             const email = supabase.auth.getUser().then(({ data }) => data.user?.email).catch(() => null);
             email.then((userEmail) => {
                 if (!userEmail) return window.showToast("Không tìm thấy email tài khoản!", "error");
@@ -1415,6 +1682,55 @@
                             .catch(err => window.showToast("Lỗi đổi mật khẩu: " + err.message, "error"));
                     });
             });
+        }
+
+        // ===== DELETE ACCOUNT =====
+        const deleteConfirmInput = document.getElementById('input-delete-confirm');
+        const deleteBtn = document.getElementById('btn-delete-account');
+        if (deleteConfirmInput && deleteBtn) {
+            deleteConfirmInput.addEventListener('input', function() {
+                const ok = this.value.trim().toLowerCase() === 'xoa tai khoan';
+                deleteBtn.style.opacity = ok ? '1' : '0.5';
+                deleteBtn.style.pointerEvents = ok ? 'auto' : 'none';
+            });
+        }
+
+        window.deleteOwnAccount = async function() {
+            const password = document.getElementById('input-delete-password').value;
+            const confirmText = document.getElementById('input-delete-confirm').value.trim().toLowerCase();
+
+            if (!password) return window.showToast("Vui lòng nhập mật khẩu để xác nhận!", "warning");
+            if (confirmText !== 'xoa tai khoan') return window.showToast("Vui lòng gõ 'xoa tai khoan' để xác nhận!", "warning");
+
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang xử lý...';
+
+            try {
+                const { data: userData } = await supabase.auth.getUser();
+                const userEmail = userData?.user?.email;
+                if (!userEmail) throw new Error("Không tìm thấy tài khoản!");
+
+                const { error: authError } = await supabase.auth.signInWithPassword({ email: userEmail, password: password });
+                if (authError) throw new Error("Mật khẩu không chính xác!");
+
+                const { error: deleteProfileError } = await supabase.from("users").delete().eq("id", currentUserId);
+                if (deleteProfileError) console.warn("Xóa profile:", deleteProfileError.message);
+
+                const { error: authDeleteError } = await supabase.rpc('delete_own_account');
+                if (authDeleteError) {
+                    console.warn("RPC delete_own_account:", authDeleteError.message);
+                    await supabase.auth.signOut();
+                } else {
+                    await supabase.auth.signOut();
+                }
+
+                window.showToast("Tài khoản đã được xóa. Bạn sẽ thoát trong giây lát...", "success");
+                setTimeout(() => { window.location.href = "login.html"; }, 2500);
+            } catch (err) {
+                window.showToast(err.message || "Không thể xóa tài khoản!", "error");
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = '<i class="fas fa-trash-can mr-1"></i> Xóa tài khoản';
+            }
         }
     </script>
 
