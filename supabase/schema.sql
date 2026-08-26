@@ -1058,3 +1058,10 @@ revoke execute on function public.users_cleanup_stale_online(bigint) from public
 grant execute on function public.users_begin_online(text) to authenticated;
 grant execute on function public.users_finalize_online(text) to authenticated;
 grant execute on function public.users_cleanup_stale_online(bigint) to authenticated;
+
+-- ============================================================
+-- Migration: Append signature to existing mailbox messages
+-- ============================================================
+update public.mailbox_messages
+set message = message || '<p style="margin-top:24px">Trân trọng,<br><strong>Đội ngũ phát triển!</strong></p>'
+where message not like '%Trân trọng%Đội ngũ phát triển%';

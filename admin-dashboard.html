@@ -1321,6 +1321,7 @@ document.querySelectorAll('input[name="mailboxTargetMode"]').forEach(r => {
 });
 
 document.getElementById("sendMailboxBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("sendMailboxBtn");
   const ti = document.getElementById("mailboxTitleInput");
   const mi = document.getElementById("mailboxMessageInput");
   const mp = document.querySelector('input[name="mailboxTargetMode"]:checked');
@@ -1330,22 +1331,32 @@ document.getElementById("sendMailboxBtn").addEventListener("click", async () => 
   const te = normalizeEmail(mailboxTargetEmailInput.value);
   if (!message) { showNotice("Vui lòng nhập nội dung thư.", "error"); return; }
   if (tm === "single" && (!te || !te.includes("@"))) { showNotice("Vui lòng nhập email hợp lệ.", "error"); return; }
+  var mailboxSignature = '<p style="margin-top:24px">Trân trọng,<br><strong>Đội ngũ phát triển!</strong></p>';
+  var fullMessage = message + mailboxSignature;
   try {
-    await supabase.from("mailbox_messages").insert({
-      title: title || "Thông báo từ Admin",
-      message: message,
-      sender: adminEmail,
-      target_mode: tm,
-      target_email: tm === "single" ? te : null
-    });
+    if (btn.dataset.mode === "edit" && ti.dataset.editId) {
+      await supabase.from("mailbox_messages").update({ title: title || "Thông báo từ Admin", message: fullMessage }).eq("id", ti.dataset.editId);
+      showNotice("Đã cập nhật thư.", "success");
+      delete ti.dataset.editId;
+      btn.textContent = "Gửi thư";
+      delete btn.dataset.mode;
+    } else {
+      await supabase.from("mailbox_messages").insert({
+        title: title || "Thông báo từ Admin",
+        message: fullMessage,
+        sender: adminEmail,
+        target_mode: tm,
+        target_email: tm === "single" ? te : null
+      });
+      showNotice(tm === "single" ? `Đã gửi thư đến ${te}.` : "Đã gửi thư đến tất cả user.", "success");
+    }
     ti.value = "";
     mi.value = "";
     document.querySelector('input[name="mailboxTargetMode"][value="all"]').checked = true;
     mailboxTargetEmailInput.value = "";
     mailboxTargetEmailInput.disabled = true;
-    showNotice(tm === "single" ? `Đã gửi thư đến ${te}.` : "Đã gửi thư đến tất cả user.", "success");
     loadMailboxHistory();
-  } catch (e) { console.error(e); showNotice("Gửi thư thất bại.", "error"); }
+  } catch (e) { console.error(e); showNotice("Thao tác thất bại: " + (e.message || e), "error"); }
 });
 
 async function loadMailboxHistory() {
@@ -1365,11 +1376,39 @@ async function loadMailboxHistory() {
         </div>
         <div style="color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml((m.message || "").substring(0, 100))}</div>
         <div style="color:var(--text-2);font-size:11px;margin-top:4px">Gửi đến: ${m.target_mode === "all" ? "Tất cả" : m.target_email || "?"}</div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button onclick="mailboxEditMsg('${m.id}')" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer">Sửa</button>
+          <button onclick="mailboxDeleteMsg('${m.id}')" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer">Xoá</button>
+        </div>
       </div>`;
     });
     container.innerHTML = html;
   } catch (e) { container.innerHTML = '<p style="color:var(--text-2);font-size:13px">Không tải được lịch sử.</p>'; }
 }
+
+window.mailboxDeleteMsg = async function(id) {
+  if (!confirm("Xoá thư này?")) return;
+  try {
+    const { error } = await supabase.from("mailbox_messages").delete().eq("id", id);
+    if (error) throw error;
+    showNotice("Đã xoá thư.", "success");
+    loadMailboxHistory();
+  } catch(e) { showNotice("Xoá thất bại: " + (e.message || e), "error"); }
+};
+
+window.mailboxEditMsg = async function(id) {
+  const ti = document.getElementById("mailboxTitleInput");
+  const mi = document.getElementById("mailboxMessageInput");
+  try {
+    const { data: m, error } = await supabase.from("mailbox_messages").select("*").eq("id", id).single();
+    if (error || !m) throw error || new Error("Không tìm thấy");
+    ti.value = m.title || "";
+    mi.value = m.message || "";
+    ti.dataset.editId = id;
+    document.getElementById("sendMailboxBtn").textContent = "Cập nhật";
+    document.getElementById("sendMailboxBtn").dataset.mode = "edit";
+  } catch(e) { showNotice("Không tải được thư: " + (e.message || e), "error"); }
+};
 
 async function loadWelcomePopupForm() {
   try {
