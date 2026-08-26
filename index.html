@@ -77,6 +77,89 @@ window.addEventListener("beforeinstallprompt", function (e) {
   </div>
 </div>
 </div>
+<!-- ONBOARDING MODAL — hiện lần đầu sau đăng ký -->
+<div id="onboarding-overlay" style="display:none;position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);justify-content:center;align-items:center;padding:20px">
+  <div class="onb-box">
+    <button class="onb-close" onclick="dismissOnboarding()" title="Bỏ qua">&times;</button>
+    <!-- Step 1 -->
+    <div class="onb-step onb-active" data-step="1">
+      <div class="onb-icon-wrap" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe)">
+        <i class="fa-solid fa-rocket" style="font-size:32px;color:#2563eb"></i>
+      </div>
+      <h3>Chào mừng bạn đến với LearnHub!</h3>
+      <p>Nền tảng học tập thông minh giúp bạn ôn thi hiệu quả, tra cứu tài liệu và kết nối cùng cộng đồng học sinh.</p>
+    </div>
+    <!-- Step 2 -->
+    <div class="onb-step" data-step="2">
+      <div class="onb-icon-wrap" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0)">
+        <i class="fa-solid fa-wand-magic-sparkles" style="font-size:32px;color:#16a34a"></i>
+      </div>
+      <h3>Khám phá tính năng</h3>
+      <div class="onb-features">
+        <div class="onb-feat"><span style="background:#eff6ff;color:#2563eb"><i class="fa-solid fa-flask"></i></span><b>LearnHub Test</b><small>Thi thử thông minh</small></div>
+        <div class="onb-feat"><span style="background:#f0fdf4;color:#16a34a"><i class="fa-solid fa-layer-group"></i></span><b>Smart Flashcard</b><small>Học từ vựng hiệu quả</small></div>
+        <div class="onb-feat"><span style="background:#faf5ff;color:#7c3aed"><i class="fa-solid fa-comments"></i></span><b>Forum</b><small>Trao đổi & hỏi đáp</small></div>
+        <div class="onb-feat"><span style="background:#fff7ed;color:#ea580c"><i class="fa-solid fa-robot"></i></span><b>Hubie AI</b><small>Trợ lý học tập 24/7</small></div>
+      </div>
+    </div>
+    <!-- Step 3 -->
+    <div class="onb-step" data-step="3">
+      <div class="onb-icon-wrap" style="background:linear-gradient(135deg,#fef3c7,#fde68a)">
+        <i class="fa-solid fa-party-horn" style="font-size:32px;color:#d97706"></i>
+      </div>
+      <h3>Sẵn sàng chưa?</h3>
+      <p>Bắt đầu hành trình học tập ngay thôi! Bạn có thể tùy chỉnh trải nghiệm trong mục <b>Hồ sơ → Thiết lập tài khoản</b> bất kỳ lúc nào.</p>
+    </div>
+    <!-- Dots + buttons -->
+    <div class="onb-footer">
+      <div class="onb-dots">
+        <span class="onb-dot onb-active" data-dot="1"></span>
+        <span class="onb-dot" data-dot="2"></span>
+        <span class="onb-dot" data-dot="3"></span>
+      </div>
+      <div class="onb-actions">
+        <button class="onb-btn onb-btn-ghost" onclick="dismissOnboarding()">Bỏ qua</button>
+        <button class="onb-btn onb-btn-primary" onclick="nextOnboardingStep()">Tiếp tục</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  let onbStep = 1;
+  const totalSteps = 3;
+  function showOnboarding() {
+    const ov = document.getElementById('onboarding-overlay');
+    if (!ov) return;
+    ov.style.display = 'flex';
+    onbStep = 1;
+    updateOnbStep();
+  }
+  function updateOnbStep() {
+    document.querySelectorAll('.onb-step').forEach(el => {
+      el.classList.toggle('onb-active', Number(el.dataset.step) === onbStep);
+    });
+    document.querySelectorAll('.onb-dot').forEach(el => {
+      el.classList.toggle('onb-active', Number(el.dataset.dot) === onbStep);
+    });
+    const nextBtn = document.querySelector('.onb-btn-primary');
+    if (nextBtn) nextBtn.textContent = onbStep === totalSteps ? 'Bắt đầu học!' : 'Tiếp tục';
+  }
+  window.nextOnboardingStep = function() {
+    if (onbStep >= totalSteps) { dismissOnboarding(); return; }
+    onbStep++;
+    updateOnbStep();
+  };
+  window.dismissOnboarding = function() {
+    const ov = document.getElementById('onboarding-overlay');
+    if (ov) ov.style.display = 'none';
+    try { localStorage.setItem('learnhub_onboarded_' + (window.currentLearnHubUser?.uid || ''), '1'); } catch(e){}
+  };
+  window._showOnboarding = showOnboarding;
+})();
+</script>
+
 <!-- loginBox đã được tách sang login.html -->
 
 
@@ -851,6 +934,14 @@ if(user){
   // vì bên trong đã có:
 
   applyUserToUI(userData);
+
+  // ✅ ONBOARDING — hiện modal chào mừng lần đầu tiên
+  try {
+    const onbKey = 'learnhub_onboarded_' + user.id;
+    if (!localStorage.getItem(onbKey)) {
+      setTimeout(function(){ if (typeof window._showOnboarding === 'function') window._showOnboarding(); }, 800);
+    }
+  } catch(e){}
 
   // ✅ WELCOME BACK POPUP — hiện 1 lần mỗi lần mở trang
   if (!welcomeShown) {
