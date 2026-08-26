@@ -10,7 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -1365,6 +1365,13 @@
         /* ===== 2FA / MFA ===== */
         let currentMfaFactorId = null;
 
+        window.checkMfaStatus = checkMfaStatus;
+        window.startMfaEnroll = startMfaEnroll;
+        window.cancelMfaEnroll = cancelMfaEnroll;
+        window.copyMfaSecret = copyMfaSecret;
+        window.verifyMfaEnroll = verifyMfaEnroll;
+        window.unenrollMfa = unenrollMfa;
+
         async function checkMfaStatus() {
             const loading = document.getElementById('mfa-loading');
             const disabledBox = document.getElementById('mfa-disabled');
@@ -1401,13 +1408,40 @@
             const disabledBox = document.getElementById('mfa-disabled');
 
             try {
+                let totp_uri, secret, id;
+
+                // Try enrolling new factor
                 const { data, error } = await supabase.auth.mfa.enroll({
                     factorType: 'totp',
                     friendlyName: 'LearnHub Authenticator'
                 });
-                if (error) throw error;
 
-                const { totp_uri, secret, id } = data;
+                if (error) {
+                    // If factor already exists (duplicate name), clean up old unverified factors and retry
+                    if (error.message && error.message.includes('already exists')) {
+                        const { data: factors } = await supabase.auth.mfa.listFactors();
+                        const totpFactors = (factors.totp || []).filter(f => f.status === 'unverified');
+                        for (const f of totpFactors) {
+                            await supabase.auth.mfa.unenroll({ factorId: f.id });
+                        }
+                        // Retry enrollment
+                        const retry = await supabase.auth.mfa.enroll({
+                            factorType: 'totp',
+                            friendlyName: 'LearnHub Authenticator'
+                        });
+                        if (retry.error) throw retry.error;
+                        totp_uri = retry.data.totp_uri;
+                        secret = retry.data.secret;
+                        id = retry.data.id;
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    totp_uri = data.totp_uri;
+                    secret = data.secret;
+                    id = data.id;
+                }
+
                 currentMfaFactorId = id;
 
                 // Show secret
@@ -1415,11 +1449,17 @@
 
                 // Generate QR code
                 const canvas = document.getElementById('mfa-qr-canvas');
-                if (window.QRCode && canvas) {
+                const qrWrap = document.getElementById('mfa-qr-wrap');
+                if (canvas && window.QRCode && window.QRCode.toCanvas) {
                     canvas.innerHTML = '';
                     QRCode.toCanvas(canvas, totp_uri, { width: 180, margin: 2 }, function(err) {
-                        if (err) console.error('[MFA] QR error:', err);
+                        if (err) {
+                            console.error('[MFA] QR error:', err);
+                            qrWrap.innerHTML = '<p style="color:#ef4444;font-size:12px;padding:20px">Không thể tạo mã QR. Hãy nhập key thủ công bên dưới.</p>';
+                        }
                     });
+                } else if (qrWrap) {
+                    qrWrap.innerHTML = '<p style="color:#ef4444;font-size:12px;padding:20px">Không thể tạo mã QR. Hãy nhập key thủ công bên dưới.</p>';
                 }
 
                 disabledBox.classList.add('hidden');
