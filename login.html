@@ -1224,6 +1224,8 @@ import { getMaintenance, subscribeMaintenance, emailAllowed, isRegistrationOpen,
 import { redirectToResetPage, isPasswordRecovery } from "./reset-password.js";
 import { logAppError } from "./log-errors.js";
 
+window.supabase = supabase;
+
 // Đăng ký ngay lập tức (trước mọi await bên dưới) để không lỡ sự kiện
 // PASSWORD_RECOVERY khi user bấm link đặt lại mật khẩu từ email.
 supabase.auth.onAuthStateChange((event) => {
@@ -1361,7 +1363,7 @@ function showLoginSuccess(message, redirectMs = 3000) {
     if (remaining <= 0) {
       clearInterval(countdownInterval);
       countdownInterval = null;
-      window.location.href = '/index.html';
+      window.location.replace('/index.html');
     } else if (toast) {
       toast.update(`${message} Chuyển hướng sau ${remaining}s...`);
     }
@@ -1828,13 +1830,11 @@ onAuthChange(async (event, session) => {
       }
       // Cập nhật hồ sơ (user mới nằm thẳng trên Supabase) rồi vào trang chủ
       await finalizeSession(user);
-      const mfaNeeded = await checkMfaAfterLogin();
-      if (mfaNeeded) return;
-      // Nhánh này chỉ chạy khi trang vừa load đã có sẵn session
       window.location.replace("/index.html");
     } catch(e) {
       console.error("Finalize login lỗi:", e);
       processingLogin = false;
+      showAuthNotice("Đã có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.", "error", "Lỗi");
     }
     return;
   }
@@ -1937,12 +1937,6 @@ window.emailLogin = async function() {
       return;
     }
     await finalizeSession(user);
-    const mfaNeeded = await checkMfaAfterLogin();
-    if (mfaNeeded) {
-      setBtnLoading(btn, false);
-      processingLogin = false;
-      return;
-    }
     showLoginSuccess("Đăng nhập thành công!");
   } catch(error) {
     console.error("Lỗi đăng nhập:", error);
@@ -2307,111 +2301,6 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("service-worker.js").catch(function () {});
   });
 }
-</script>
-
-<!-- MFA TOTP Verification Modal -->
-<div id="mfaVerifyModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);justify-content:center;align-items:center;padding:20px">
-  <div style="background:#fff;border-radius:20px;padding:32px;max-width:380px;width:100%;box-shadow:0 25px 60px rgba(0,0,0,.3);text-align:center;animation:mfaPopIn .3s cubic-bezier(.34,1.56,.64,1)">
-    <div style="width:56px;height:56px;margin:0 auto 16px;border-radius:14px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);display:flex;align-items:center;justify-content:center;font-size:24px;color:#2563eb">
-      <i class="fas fa-shield-halved"></i>
-    </div>
-    <h3 style="margin:0 0 6px;font-size:18px;font-weight:800;color:#0f172a">Xác thực 2 lớp</h3>
-    <p style="margin:0 0 20px;font-size:13px;color:#64748b;line-height:1.5">Nhập mã 6 chữ số từ ứng dụng xác thực của bạn</p>
-    <input type="text" id="mfaLoginCode" maxlength="6" inputmode="numeric" placeholder="000000"
-      style="width:100%;padding:14px;text-align:center;font-size:24px;font-weight:700;letter-spacing:8px;border:2px solid #e2e8f0;border-radius:12px;outline:none;font-family:inherit;transition:border-color .2s,box-shadow .2s"
-      onfocus="this.style.borderColor='#2563eb';this.style.boxShadow='0 0 0 4px rgba(37,99,235,.12)'"
-      onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'"
-    >
-    <span id="mfaLoginError" style="display:block;margin-top:8px;font-size:12px;color:#ef4444;font-weight:600"></span>
-    <div style="display:flex;gap:10px;margin-top:18px">
-      <button onclick="mfaLoginCancel()" style="flex:1;padding:12px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;color:#64748b;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s">Hủy</button>
-      <button onclick="mfaLoginVerify()" id="mfaLoginBtn" style="flex:1;padding:12px;border:none;border-radius:12px;background:#2563eb;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s">Xác nhận</button>
-    </div>
-    <p style="margin:16px 0 0;font-size:12px;color:#94a3b8">Không còn доступ ứng dụng? Liên hệ admin để tắt 2FA.</p>
-  </div>
-</div>
-<style>
-@keyframes mfaPopIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
-</style>
-<script>
-let mfaPendingFactors = [];
-
-async function checkMfaAfterLogin() {
-  try {
-    const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (error) throw error;
-    const { currentLevel, nextLevel } = data;
-    if (nextLevel === 'aal2' && currentLevel === 'aal1') {
-      const { data: factorsData } = await supabase.auth.mfa.listFactors();
-      mfaPendingFactors = (factorsData.totp || []).filter(f => f.status === 'verified');
-      if (mfaPendingFactors.length > 0) {
-        showMfaLoginModal();
-        return true;
-      }
-    }
-    return false;
-  } catch (e) {
-    console.error('[MFA] check error:', e);
-    return false;
-  }
-}
-
-function showMfaLoginModal() {
-  document.getElementById('mfaVerifyModal').style.display = 'flex';
-  const input = document.getElementById('mfaLoginCode');
-  input.value = '';
-  document.getElementById('mfaLoginError').textContent = '';
-  setTimeout(() => input.focus(), 100);
-}
-
-function mfaLoginCancel() {
-  document.getElementById('mfaVerifyModal').style.display = 'none';
-  supabase.auth.signOut();
-  processingLogin = false;
-}
-
-async function mfaLoginVerify() {
-  const code = document.getElementById('mfaLoginCode').value.trim();
-  const errEl = document.getElementById('mfaLoginError');
-  const btn = document.getElementById('mfaLoginBtn');
-
-  if (!code || code.length !== 6) {
-    errEl.textContent = 'Vui lòng nhập mã 6 chữ số';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = '...';
-  errEl.textContent = '';
-
-  try {
-    const factor = mfaPendingFactors[0];
-    const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({ factorId: factor.id });
-    if (challengeError) throw challengeError;
-
-    const { error: verifyError } = await supabase.auth.mfa.verify({
-      factorId: factor.id,
-      challengeId: challengeData.id,
-      code: code
-    });
-    if (verifyError) throw verifyError;
-
-    document.getElementById('mfaVerifyModal').style.display = 'none';
-    window.location.replace('/index.html');
-  } catch (e) {
-    console.error('[MFA] verify login error:', e);
-    errEl.textContent = 'Mã không đúng, vui lòng thử lại';
-    document.getElementById('mfaLoginCode').value = '';
-    document.getElementById('mfaLoginCode').focus();
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Xác nhận';
-  }
-}
-
-document.getElementById('mfaLoginCode').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') mfaLoginVerify();
-});
 </script>
 </body>
 </html>
