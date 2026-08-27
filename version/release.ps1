@@ -101,7 +101,20 @@ try {
     $js = [regex]::Replace($js, $pattern, ('window.LH_VERSION = "' + $newVersion + '"'))
     [System.IO.File]::WriteAllText($jsPath, $js, $utf8NoBom)
 
-    # ---------- 8. Commit + push TOÀN BỘ thay đổi (như push.bat) + kèm version mới ----------
+    # ---------- 8. Tự bump CACHE_VERSION trong service-worker.js ----------
+    $swPath = Join-Path $root "service-worker.js"
+    if (-not (Test-Path $swPath)) { throw "Không tìm thấy service-worker.js" }
+    $sw = [System.IO.File]::ReadAllText($swPath)
+    $swPattern = 'CACHE_VERSION\s*=\s*"learnhub-v(\d+)"'
+    if ($sw -notmatch $swPattern) { throw "Không tìm thấy CACHE_VERSION trong service-worker.js" }
+    $sw = [regex]::Replace($sw, $swPattern, {
+        param($m)
+        $newNum = [int]$m.Groups[1].Value + 1
+        'CACHE_VERSION = "learnhub-v' + $newNum + '"'
+    })
+    [System.IO.File]::WriteAllText($swPath, $sw, $utf8NoBom)
+
+    # ---------- 9. Commit + push TOÀN BỘ thay đổi (như push.bat) + kèm version mới ----------
     git add .
     git commit -m "release v$newVersion ($updatedVi)"
     git push origin main

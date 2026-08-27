@@ -5,7 +5,7 @@
    - Bỏ qua mọi request cross-origin (Supabase, CDN, YouTube...)
    ============================================================ */
 
-const CACHE_VERSION = "learnhub-v5";
+const CACHE_VERSION = "learnhub-v6";
 
 const CORE_ASSETS = [
   "/",
@@ -18,6 +18,8 @@ const CORE_ASSETS = [
   "/toast.js",
   "/supabase-config.js",
   "/manifest.json",
+  "/service-worker.js",
+  "/version/version-check.js",
   "/pictures/favicon.png",
   "/pictures/icons/icon-192.png",
   "/pictures/icons/icon-512.png"

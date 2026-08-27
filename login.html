@@ -2298,7 +2298,9 @@ window.emailRegister = async function() {
 /* PWA: đăng ký service worker */
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("service-worker.js").catch(function () {});
+    navigator.serviceWorker.register("service-worker.js")
+      .then(function (reg) { reg.update(); })
+      .catch(function () {});
   });
 }
 </script>

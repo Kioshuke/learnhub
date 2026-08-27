@@ -1977,7 +1977,9 @@ fetch('footer.html').then(r => r.text()).then(html => {
 /* PWA: đăng ký service worker (bỏ qua im lặng nếu môi trường không hỗ trợ) */
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("service-worker.js").catch(function () {});
+    navigator.serviceWorker.register("service-worker.js")
+      .then(function (reg) { reg.update(); })
+      .catch(function () {});
   });
 }
 </script>
