@@ -1092,10 +1092,19 @@
                     document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
 
                     const now = Date.now();
-                    const baseTimer = Number(data.online_timer || 0);
-                    let effectiveTimer = baseTimer;
-                    if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
-                        effectiveTimer += Math.floor((now - data.online_start_time) / 1000);
+                    const weekKey = getWeekKey();
+                    const weekStart = getWeekStartMs();
+                    const userWeekKey = data.online_week_key || "";
+                    let effectiveTimer = 0;
+                    if (userWeekKey === weekKey) {
+                        effectiveTimer = Number(data.online_timer || 0);
+                        if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
+                            const sessionStart = Math.max(data.online_start_time, weekStart);
+                            effectiveTimer += Math.floor((now - sessionStart) / 1000);
+                        }
+                    } else if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
+                        const sessionStart = Math.max(data.online_start_time, weekStart);
+                        effectiveTimer = Math.floor((now - sessionStart) / 1000);
                     }
                     setOnlineDisplay(effectiveTimer, 'view-' + userId);
 
@@ -1156,10 +1165,19 @@
                     document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
 
                     const now = Date.now();
-                    const baseTimer = Number(data.online_timer || 0);
-                    let effectiveTimer = baseTimer;
-                    if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
-                        effectiveTimer += Math.floor((now - data.online_start_time) / 1000);
+                    const weekKey = getWeekKey();
+                    const weekStart = getWeekStartMs();
+                    const userWeekKey = data.online_week_key || "";
+                    let effectiveTimer = 0;
+                    if (userWeekKey === weekKey) {
+                        effectiveTimer = Number(data.online_timer || 0);
+                        if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
+                            const sessionStart = Math.max(data.online_start_time, weekStart);
+                            effectiveTimer += Math.floor((now - sessionStart) / 1000);
+                        }
+                    } else if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
+                        const sessionStart = Math.max(data.online_start_time, weekStart);
+                        effectiveTimer = Math.floor((now - sessionStart) / 1000);
                     }
                     setOnlineDisplay(effectiveTimer, 'own');
 
@@ -1275,6 +1293,26 @@
             document.getElementById('input-delete-confirm').value = "";
             const delBtn = document.getElementById('btn-delete-account');
             if (delBtn) { delBtn.disabled = false; delBtn.style.opacity = '0.5'; delBtn.style.pointerEvents = 'none'; delBtn.innerHTML = '<i class="fas fa-trash-can mr-1"></i> Xóa tài khoản'; }
+        }
+
+        // Đồng bộ logic tính tuần với leaderboard (element/leaderboard.html)
+        function getWeekKey() {
+            const now = new Date();
+            const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const y = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            const w = Math.ceil((((d - y) / 864e5) + 1) / 7);
+            return `${d.getUTCFullYear()}-W${String(w).padStart(2, '0')}`;
+        }
+
+        function getWeekStartMs() {
+            const now = new Date();
+            const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() - dayNum + 1);
+            d.setUTCHours(0, 0, 0, 0);
+            return d.getTime();
         }
 
         function formatTimer(totalSeconds) {
