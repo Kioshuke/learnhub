@@ -575,7 +575,15 @@ body.dark-mode .notif-dd-item:hover{background:rgba(255,255,255,.05)}
 
 /* NOTIFICATION DETAIL POPUP — airmail letter */
 .notif-detail-overlay{position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,.65);display:none;align-items:center;justify-content:center;padding:24px}
+.notif-detail-overlay.opening{display:flex;animation:notifOverlayIn .3s ease forwards}
+.notif-detail-overlay.closing{display:flex;animation:notifOverlayOut .25s ease forwards}
+@keyframes notifOverlayIn{from{opacity:0}to{opacity:1}}
+@keyframes notifOverlayOut{from{opacity:1}to{opacity:0}}
 .notif-detail-box{width:100%;max-width:680px;min-width:320px;border-radius:16px;box-shadow:0 20px 45px rgba(0,0,0,.4),0 4px 12px rgba(0,0,0,.2);position:relative;overflow:hidden;padding:16px;background-image:repeating-linear-gradient(-45deg,#ef4444 0px,#ef4444 16px,#fff 16px,#fff 32px,#2563eb 32px,#2563eb 48px,#fff 48px,#fff 64px)}
+.notif-detail-overlay.opening .notif-detail-box{animation:notifLetterIn .45s cubic-bezier(.34,1.56,.64,1) forwards}
+.notif-detail-overlay.closing .notif-detail-box{animation:notifLetterOut .25s ease forwards}
+@keyframes notifLetterIn{0%{opacity:0;transform:translateY(40px) scale(.92)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes notifLetterOut{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(30px) scale(.95)}}
 .notif-detail-inner{background:#fff;border-radius:10px;padding:36px 40px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);position:relative;min-height:200px;display:flex;flex-direction:column;overflow:hidden}
 .notif-detail-inner::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:260px;height:260px;background-image:url('pictures/logoweb.webp');background-size:contain;background-repeat:no-repeat;background-position:center;opacity:.12;pointer-events:none;z-index:0}
 .notif-detail-header{border-bottom:2px solid #f1f5f9;padding-bottom:18px;margin-bottom:22px;position:relative;z-index:1}
@@ -584,8 +592,9 @@ body.dark-mode .notif-dd-item:hover{background:rgba(255,255,255,.05)}
 .notif-detail-sender{display:flex;align-items:center;gap:12px}
 .notif-detail-sender-avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;box-shadow:0 3px 8px rgba(79,70,229,.3);flex-shrink:0}
 .notif-detail-sender-name{font-weight:700;color:#0f172a;font-size:14.5px}
-.notif-detail-body{font-size:15.5px;color:#334155;line-height:1.75;flex:1;position:relative;z-index:1;word-break:break-word}
+.notif-detail-body{font-size:15.5px;color:#334155;line-height:22px;flex:1;position:relative;z-index:1;word-break:break-word;min-height:264px;background-image:repeating-linear-gradient(transparent,transparent 21px,#e2e8f0 21px,#e2e8f0 22px);background-position:0 -1px}
 .notif-detail-body p{margin:0}
+body.dark-mode .notif-detail-body{background-image:repeating-linear-gradient(transparent,transparent 27px,#334155 27px,#334155 28px)}
 .notif-detail-date{font-weight:500}
 .notif-detail-x{position:absolute;top:12px;right:14px;width:32px;height:32px;border:none;border-radius:50%;background:rgba(0,0,0,.06);color:#64748b;font-size:20px;font-weight:700;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:all .2s ease;line-height:1}
 .notif-detail-x:hover{background:rgba(239,68,68,.12);color:#ef4444;transform:scale(1.1)}

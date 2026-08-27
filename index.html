@@ -227,7 +227,8 @@ fetch('header.html').then(r=>r.text()).then(html=>{
           dateStr = d.toLocaleDateString("vi-VN",{day:"2-digit",month:"2-digit",year:"numeric"}) + " " + d.toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"});
         }
         document.getElementById("notifDetailDate").textContent = dateStr;
-        overlay.style.display = "flex";
+        overlay.classList.remove("closing");
+        overlay.classList.add("opening");
         dropdown.classList.remove("open");
       } catch(e) {
         if (window.logAppError) window.logAppError({ source: "mailbox", category: "ui", level: "error", code: "OPEN_FAIL", message: "Loi khi mo popup thu: " + (e.message || e), detail: { title: nd.title } });
@@ -237,7 +238,14 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 
     window.closeNotifDetail = function() {
       var overlay = document.getElementById("notifDetailOverlay");
-      if (overlay) overlay.style.display = "none";
+      if (!overlay) return;
+      if (overlay.classList.contains("closing")) return;
+      overlay.classList.remove("opening");
+      overlay.classList.add("closing");
+      overlay.addEventListener("animationend", function handler() {
+        overlay.removeEventListener("animationend", handler);
+        overlay.classList.remove("closing");
+      });
     };
 
     window.openNotifDetail = openNotifDetail;
