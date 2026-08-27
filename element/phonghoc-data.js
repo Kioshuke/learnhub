@@ -197,11 +197,27 @@ window.PHONGHOC_SUBJECTS = [
     cards: [
       {
         id: "anh-phan-1",
-        title: "Phần 1",
-        description: "Điền lỗ ngắn + Sắp xếp hội thoại",
+        title: "ĐỀ ĐÁNH GIÁ NĂNG LỰC ĐẦU VÀO 1",
+        description: "Tiếng Anh · Đọc hiểu – Viết – Sử dụng ngôn ngữ",
         icon: "fa-language",
         status: "done",
         action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=english.json" }
+      },
+      {
+        id: "anh-dauvao-2",
+        title: "ĐỀ ĐÁNH GIÁ NĂNG LỰC ĐẦU VÀO 2",
+        description: "Tiếng Anh · Đọc hiểu – Viết – Sử dụng ngôn ngữ",
+        icon: "fa-language",
+        status: "done",
+        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=dauvao2.json" }
+      },
+      {
+        id: "anh-dauvao-3",
+        title: "ĐỀ ĐÁNH GIÁ NĂNG LỰC ĐẦU VÀO 3",
+        description: "Tiếng Anh · Đọc hiểu – Viết – Sử dụng ngôn ngữ",
+        icon: "fa-language",
+        status: "done",
+        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=dauvao3.json" }
       },
       {
         id: "anh-ngu-phap",
