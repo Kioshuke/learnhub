@@ -822,6 +822,16 @@ body.dark-mode .lh-toast-mini .lh-toast-message b { color: #4ade80 !important; }
         max-width: min(320px, calc(100vw - 28px)) !important;
     }
 }
+/* ===== [LearnHub Test] Phần nghe (listening) ===== */
+.listening-player audio {
+    width: 100%;
+    height: 42px;
+    border-radius: 8px;
+}
+body.dark-mode .listening-player {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
 </style>
 </head>
 <body>
@@ -1168,7 +1178,9 @@ async function loadQuestions() {
         examTimeLimitSeconds = Math.round((topLimit || sectionLimit) * 60);
 
         questionsData = data.map(section => {
-            const sectionQuestions = shuffle(section.questions).map(q => {
+            // 🔥 [Tiếng Anh] Phần nghe giữ nguyên thứ tự câu theo audio; các phần khác vẫn shuffle
+            const sourceQuestions = (section.type === 'listening') ? section.questions : shuffle(section.questions);
+            const sectionQuestions = sourceQuestions.map(q => {
                 totalQuestions++; 
                 
                 if (q.type === 'multiple' && q.answers) {
@@ -1208,6 +1220,9 @@ async function loadQuestions() {
                 sectionTitle: section.sectionTitle,
                 sectionDesc: section.sectionDesc,
                 passage: section.passage,
+                type: section.type,              // 🔥 [Tiếng Anh] 'listening' = phần nghe
+                audio: section.audio,            // 🔥 [Tiếng Anh] URL mp3 hoặc mảng các track nghe
+                listenTitle: section.listenTitle, // 🔥 [Tiếng Anh] Tiêu đề ngắn cho phần nghe
                 questions: sectionQuestions
             };
         });
@@ -1267,6 +1282,31 @@ function renderQuiz() {
             quizHtml += `
                 <div style="background: var(--card); padding: 15px; border-radius: 10px; margin-bottom: 15px; line-height: 1.7; border-left: 4px solid var(--primary); font-size: 0.95rem;">
                     ${section.passage}
+                </div>`;
+        }
+
+        // 🔥 [Tiếng Anh] Phần nghe: hiển thị audio player (1 hoặc nhiều track) ở đầu section
+        if (section.type === 'listening' || (section.audio && String(section.audio).length > 0)) {
+            const tracks = Array.isArray(section.audio) ? section.audio : [section.audio];
+            const audioHtml = tracks.map((tr, i) => {
+                const url = (typeof tr === 'string') ? tr : tr.url;
+                const label = (typeof tr === 'string') ? (tracks.length > 1 ? `Bài nghe ${i + 1}` : "") : (tr.title || `Bài nghe ${i + 1}`);
+                return `<div style="${tracks.length > 1 ? 'margin-bottom: 10px;' : ''}">
+                    ${label ? `<div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 4px; color: var(--text-sub);">${label}</div>` : ''}
+                    <audio controls preload="metadata" controlsList="nodownload" style="width: 100%;">
+                        <source src="${url}">
+                    </audio>
+                </div>`;
+            }).join('');
+            quizHtml += `
+                <div class="listening-player" style="background: var(--card); padding: 14px 16px; border-radius: 12px; margin-bottom: 16px; border: 1px solid var(--tf-border);">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-weight: 700; font-size: 0.92rem; color: var(--text);">
+                        <span style="background: var(--primary); color: #fff; border-radius: 8px; padding: 4px 10px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-headphones"></i> Phần Nghe
+                        </span>
+                        <span style="font-size: 0.85rem; font-weight: 600;">${section.listenTitle || "Bấm play, nghe và trả lời các câu hỏi bên dưới"}</span>
+                    </div>
+                    ${audioHtml}
                 </div>`;
         }
         

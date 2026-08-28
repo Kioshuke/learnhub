@@ -1,8 +1,225 @@
 [
   {
-    "sectionTitle": "PHẦN 1: KỸ NĂNG ĐỌC - PASSAGE 1",
-    "sectionDesc": "Read the following passage and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 1 to 10.",
-    "timeLimit": 50,
+    "sectionTitle": "PHẦN 1: KỸ NĂNG NGHE - PART 1: BÀI NÓI & THÔNG BÁO NGẮN",
+    "sectionDesc": "Listen to short talks and announcements and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 1 to 8.",
+    "type": "listening",
+    "listenTitle": "Part 1: Short talks and announcements",
+    "timeLimit": 0,
+    "audio": "https://static-assets.prepcdn.com/content-management-system/Part_1_Listening_87386e8c4b.mp3",
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "What is the new closing time for the City Museum on Fridays?",
+        "answers": [
+          "6:00 PM",
+          "7:00 PM",
+          "8:00 PM",
+          "9:00 PM"
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Which gate does the flight to Singapore depart from?",
+        "answers": [
+          "Gate 10",
+          "Gate 15",
+          "Gate 20",
+          "Gate 25"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "What is the main purpose of the announcement?",
+        "answers": [
+          "To announce a staff meeting",
+          "To inform about an IT system upgrade",
+          "To advertise a new product",
+          "To report a security issue"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Where should participants register for the marathon?",
+        "answers": [
+          "At the main entrance",
+          "Online",
+          "At the City Hall",
+          "At the sports center"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "When will the lecture on modern history be held?",
+        "answers": [
+          "Tuesday morning",
+          "Wednesday afternoon",
+          "Thursday morning",
+          "Friday afternoon"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "What is a special feature of the new coffee shop?",
+        "answers": [
+          "Free Wi-Fi access",
+          "A selection of imported teas",
+          "Live acoustic music",
+          "Discounted pastries"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "How long will the road closure on Main Street last?",
+        "answers": [
+          "Until the end of the day",
+          "For 24 hours",
+          "For the entire week",
+          "Until Friday morning"
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "What must new employees complete before starting work?",
+        "answers": [
+          "A fitness test",
+          "An online training module",
+          "A background check",
+          "A face-to-face interview"
+        ],
+        "correct": 1
+      }
+    ]
+  },
+  {
+    "sectionTitle": "PHẦN 1: KỸ NĂNG NGHE - PART 2: HỘI THOẠI NGẮN",
+    "sectionDesc": "Listen to a short conversation and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 9 to 12.",
+    "type": "listening",
+    "listenTitle": "Part 2: Short conversation",
+    "timeLimit": 0,
+    "audio": "https://static-assets.prepcdn.com/content-management-system/conversation_3_fde1839cc1.wav",
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "What is the man's original reservation length?",
+        "answers": [
+          "One night",
+          "Two nights",
+          "Three nights",
+          "One week"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Why does the man want to stay for an extra night?",
+        "answers": [
+          "He is waiting for a flight.",
+          "His plans have changed.",
+          "He wants a free breakfast.",
+          "He is waiting for a friend."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "What specific type of room does the man confirm he wants to keep?",
+        "answers": [
+          "A smoking room with a city view.",
+          "A non-smoking room with a sea view.",
+          "A suite with a balcony.",
+          "A room with complimentary Wi-Fi."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "What is included with the room?",
+        "answers": [
+          "Free parking",
+          "Dinner service",
+          "Complimentary breakfast",
+          "Free gym access"
+        ],
+        "correct": 2
+      }
+    ]
+  },
+  {
+    "sectionTitle": "PHẦN 1: KỸ NĂNG NGHE - PART 3: ĐOẠN HỘI THOẠI DÀI",
+    "sectionDesc": "Listen to a long conversation/talk and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 13 to 17.",
+    "type": "listening",
+    "listenTitle": "Part 3: Long conversation",
+    "timeLimit": 0,
+    "audio": "https://static-assets.prepcdn.com/content-management-system/talk_3_139a9f57eb.wav",
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "What is the main topic of the presentation?",
+        "answers": [
+          "The history of coffee consumption",
+          "The economic impact of the coffee industry",
+          "The health risks of caffeine",
+          "The process of coffee cultivation"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Where does the speaker suggest coffee was first discovered?",
+        "answers": [
+          "South America",
+          "Arabia",
+          "Africa",
+          "Asia"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "What is the significance of the \"Bean Belt\"?",
+        "answers": [
+          "It's the region where most coffee is exported.",
+          "It's the primary area for processing coffee beans.",
+          "It's the geographical zone suitable for growing coffee.",
+          "It's the historical trade route for coffee."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "What is the \"wet method\" of coffee processing described as?",
+        "answers": [
+          "Cheaper and faster",
+          "More labor-intensive and quality-focused",
+          "Requiring minimal water",
+          "Suitable for all types of beans"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "What does the speaker suggest about coffee as a crop?",
+        "answers": [
+          "It is very easy to grow and maintain.",
+          "It requires specific climate conditions.",
+          "It has become less popular recently.",
+          "It provides few job opportunities."
+        ],
+        "correct": 1
+      }
+    ]
+  },
+  {
+    "sectionTitle": "PHẦN 2: KỸ NĂNG ĐỌC - PASSAGE 1",
+    "sectionDesc": "Read the following passage and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 18 to 27.",
+    "timeLimit": 70,
     "passage": "In recent years, higher education institutions across Vietnam have increasingly adopted blended learning, a model that combines traditional face-to-face classroom instruction with online educational activities. This hybrid approach aims to provide students with greater flexibility while maintaining the social and interactive benefits of direct contact with lecturers and peers.<br><br>One of the <b>principal</b> advantages of blended learning is that it allows students to learn at their own pace. Digital platforms enable undergraduates to review recorded lectures, access course materials, and complete quizzes outside regular class hours. Consequently, students who require additional time to grasp complex concepts can replay videos or reread articles as many times as necessary. Lecturers can also monitor individual progress through analytics tools, identifying struggling students early in the semester and offering targeted academic support. Furthermore, online forums and discussion boards encourage quieter students, who might feel <b>intimidated</b> speaking in front of a crowded lecture hall, to share their thoughts and contribute to academic discussions.<br><br>Despite these distinct benefits, the implementation of blended learning is not without obstacles. First, it requires reliable internet access and suitable digital devices, which may pose financial difficulties for students from disadvantaged socioeconomic backgrounds. Second, the success of this model heavily relies on self-discipline and effective time management skills. Without direct supervision, some learners struggle to maintain concentration and frequently postpone <b>their</b> coursework until deadlines approach. Furthermore, some faculty members face challenges adapting traditional syllabi into interactive digital formats without formal training.<br><br>To overcome these drawbacks, universities are taking proactive steps. Many institutions now offer digital literacy workshops during orientation week to equip freshmen with essential technical skills. Additionally, academic advisors provide guidance on time management strategies to help students build consistent study habits. When supported by adequate infrastructure and training, blended learning can significantly enhance the quality of higher education, preparing students for an increasingly digital workforce.",
     "questions": [
       {
@@ -118,8 +335,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 1: KỸ NĂNG ĐỌC - PASSAGE 2",
-    "sectionDesc": "Read the following passage and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 11 to 20.",
+    "sectionTitle": "PHẦN 2: KỸ NĂNG ĐỌC - PASSAGE 2",
+    "sectionDesc": "Read the following passage and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 28 to 37.",
     "timeLimit": 0,
     "passage": "The Mekong Delta, often referred to as the rice bowl of Vietnam, is a crucial agricultural region responsible for a vast portion of the country's food production and rice exports. However, in recent decades, this vibrant ecological region has faced <b>unprecedented</b> challenges due to climate change, sea-level rise, and environmental degradation. Severe droughts, coupled with increasing saltwater intrusion, have threatened crop yields and disrupted the livelihoods of millions of farming households who depend directly on agriculture.<br><br>Saltwater intrusion occurs when rising sea levels force seawater further inland into freshwater rivers and canals, especially during the dry season. This phenomenon drastically reduces the availability of fresh water necessary for irrigating rice paddies and orchards. In response to this existential threat, agricultural scientists and local communities in the Mekong Delta have actively developed and implemented innovative sustainable farming strategies aimed at enhancing climate resilience.<br><br>One of the most notable adaptations is the transition from intensive, multi-crop rice monoculture to integrated farming models, such as the rice-shrimp rotation system. In this eco-friendly model, farmers cultivate rice during the rainy season when freshwater is abundant. During the dry season, when saline levels in water bodies rise, <b>they</b> switch to raising brackish-water shrimp. This seasonal alternation not only reduces reliance on chemical fertilizers and pesticides but also generates significantly higher household income compared to traditional rice farming alone.<br><br>Furthermore, researchers are breeding and distributing new climate-resilient crop varieties. Drought-resistant and salt-tolerant rice strains have been successfully introduced across several provinces, allowing farmers to maintain stable yields even under <b>adverse</b> environmental conditions. Coupled with these biological innovations, advanced irrigation technologies-such as smart water monitoring sensors and drip irrigation-are being deployed to optimize water consumption and minimize waste. These sensors provide real-time data on soil moisture and salinity, enabling farmers to make informed decisions regarding irrigation timing.<br><br>Despite these initial successes, transitioning to sustainable agricultural practices on a regional scale requires continuous effort and substantial resources. Smallholder farmers frequently encounter financial barriers when purchasing new equipment or adopting unfamiliar techniques. In addition, price volatility in international commodity markets often makes farmers hesitant to invest in long-term sustainable infrastructure. Moreover, inadequate infrastructure in remote rural areas hinders the distribution of fresh water and limits market access for high-value agricultural products.<br><br>To address these systemic obstacles, comprehensive policy frameworks are being established. Government initiatives, supported by international non-governmental organizations, are offering financial subsidies, low-interest loans, and technical training programs for local farming communities. By fostering collaboration between policymakers, scientists, and farmers, the Mekong Delta is steadily modernizing its agricultural sector. Embracing sustainable techniques not only protects the delicate ecological balance of the region but also guarantees long-term national food security in an unpredictable global climate.",
     "questions": [
@@ -236,8 +453,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 2: KỸ NĂNG VIẾT - DẠNG 1",
-    "sectionDesc": "Mark the letter A, B, C, or D to indicate the sentence that best builds upon the given prompts (câu 21-25).",
+    "sectionTitle": "PHẦN 3: KỸ NĂNG VIẾT - DẠNG 1",
+    "sectionDesc": "Mark the letter A, B, C, or D to indicate the sentence that best builds upon the given prompts (câu 38-42).",
     "timeLimit": 0,
     "questions": [
       {
@@ -278,8 +495,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 2: KỸ NĂNG VIẾT - DẠNG 2",
-    "sectionDesc": "Mark the letter A, B, C, or D to indicate the correct sequence of sentences to form a meaningful paragraph (câu 26).",
+    "sectionTitle": "PHẦN 3: KỸ NĂNG VIẾT - DẠNG 2",
+    "sectionDesc": "Mark the letter A, B, C, or D to indicate the correct sequence of sentences to form a meaningful paragraph (câu 43).",
     "timeLimit": 0,
     "questions": [
       {
@@ -297,8 +514,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 3: SỬ DỤNG NGÔN NGỮ - PART 1",
-    "sectionDesc": "Word Choice, Word Forms, Collocations, Phrasal Verbs (câu 27-31).",
+    "sectionTitle": "PHẦN 4: SỬ DỤNG NGÔN NGỮ - PART 1",
+    "sectionDesc": "Word Choice, Word Forms, Collocations, Phrasal Verbs (câu 44-48).",
     "timeLimit": 0,
     "questions": [
       {
@@ -359,8 +576,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 3: SỬ DỤNG NGÔN NGỮ - PART 2",
-    "sectionDesc": "Tenses, If Clause, Inversion, Reduction of Relative Clauses (câu 32-36).",
+    "sectionTitle": "PHẦN 4: SỬ DỤNG NGÔN NGỮ - PART 2",
+    "sectionDesc": "Tenses, If Clause, Inversion, Reduction of Relative Clauses (câu 49-53).",
     "timeLimit": 0,
     "questions": [
       {
@@ -421,8 +638,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 3: SỬ DỤNG NGÔN NGỮ - PART 3",
-    "sectionDesc": "Talks and Responses (câu 37-41).",
+    "sectionTitle": "PHẦN 4: SỬ DỤNG NGÔN NGỮ - PART 3",
+    "sectionDesc": "Talks and Responses (câu 54-58).",
     "timeLimit": 0,
     "questions": [
       {
