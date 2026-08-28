@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ thống Luyện thi</title>
+    <script src="../toast.js"></script>
     <style>
         :root {
             /* Lấy chính xác tone màu từ file chính của bạn */
@@ -773,6 +774,54 @@ body.dark-mode .ans-label:hover {
         opacity: 0;
     }
 }
+/* ===== [LearnHub Test] Mini toast "Đã lưu đáp án" — tái sử dụng lhToast ===== */
+.lh-toast-mini {
+    min-width: 0 !important;
+    width: auto !important;
+    max-width: 320px !important;
+    padding: 8px 14px !important;
+    border-radius: 10px !important;
+}
+.lh-toast-mini .lh-toast-icon {
+    font-size: 14px !important;
+    margin-right: 8px !important;
+}
+.lh-toast-mini .lh-toast-title {
+    font-size: 16px !important;
+    margin-bottom: 0 !important;
+    color: var(--primary) !important;
+}
+.lh-toast-mini .lh-toast-message {
+    font-size: 12px !important;
+}
+.lh-toast-mini .lh-toast-message b {
+    color: #22c55e !important;
+    font-weight: 800 !important;
+}
+.lh-toast-mini .lh-toast-close {
+    display: none !important;
+}
+body.dark-mode .lh-toast-mini {
+    background: #1e293b !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35) !important;
+}
+body.dark-mode .lh-toast-mini .lh-toast-title { color: #60a5fa !important; }
+body.dark-mode .lh-toast-mini .lh-toast-message { color: #94a3b8 !important; }
+body.dark-mode .lh-toast-mini .lh-toast-message b { color: #4ade80 !important; }
+/* Mobile: hiện toast nhỏ ở trên cùng bên phải màn hình */
+@media (max-width: 768px) {
+    .lh-toast-container {
+        top: 12px !important;
+        right: 14px !important;
+        left: auto !important;
+        margin: 0 !important;
+        align-items: flex-end !important;
+    }
+    .lh-toast-mini {
+        min-width: 0 !important;
+        max-width: min(320px, calc(100vw - 28px)) !important;
+    }
+}
 </style>
 </head>
 <body>
@@ -1350,6 +1399,40 @@ function renderQuiz() {
     updateProgress();
 }
     // 4. Các hàm bổ trợ xử lý trạng thái làm bài
+    // 🔥 [LearnHub Test] Mini toast xác nhận đã lưu đáp án (tái sử dụng lhToast từ ../toast.js)
+    let activeAnswerToast = null;
+    let lastToastKey = "";
+    let lastToastTime = 0;
+    function showAnswerToast(qIdx, answerText) {
+        if (typeof window.lhToast !== "function") return;
+        // Chặn kích hoạt kép: <label> chứa <input radio> bắn onclick 2 lần
+        const key = `${qIdx}:${answerText}`;
+        const now = Date.now();
+        if (key === lastToastKey && now - lastToastTime < 100) return;
+        lastToastKey = key;
+        lastToastTime = now;
+
+        // Chỉ giữ 1 mini toast duy nhất: xóa toast cũ ngay để không xếp chồng/nhảy lên
+        if (activeAnswerToast) {
+            try { if (activeAnswerToast.el) activeAnswerToast.el.remove(); } catch (e) {}
+            activeAnswerToast = null;
+        }
+        try {
+            const handle = window.lhToast(`Đã lưu đáp án ${answerText}`, {
+                type: "success",
+                title: `Câu ${qIdx + 1}`,
+                durationMs: 1500,
+                sound: false
+            });
+            activeAnswerToast = handle;
+            if (handle && handle.el) {
+                handle.el.classList.add("lh-toast-mini");
+                const msgEl = handle.el.querySelector(".lh-toast-message");
+                if (msgEl) msgEl.innerHTML = `Đã lưu đáp án <b>${answerText}</b>`;
+            }
+        } catch (e) {}
+    }
+
     function selectAnswer(el, qIdx, subIdx) {
         // 🔥 Nếu đang khóa thì không làm gì
         if (document.getElementById("quiz-container").classList.contains("quiz-locked")) return;
@@ -1361,6 +1444,10 @@ function renderQuiz() {
             const group = `q-${qIdx}-${subIdx}`;
             document.querySelectorAll(`input[name="${group}"]`).forEach(input => input.parentElement.classList.remove('selected'));
             el.classList.add('selected');
+
+            // 🔥 Mini toast xác nhận đã lưu đáp án (câu con của passage)
+            const subSel = el.querySelector('input');
+            if (subSel) showAnswerToast(qIdx, String.fromCharCode(65 + parseInt(subSel.value, 10)));
 
             // Đánh dấu xong khi đã trả lời đủ tất cả câu con
             const card = document.getElementById(`card-${qIdx}`);
@@ -1375,6 +1462,11 @@ function renderQuiz() {
 
         document.querySelectorAll(`input[name="question-${qIdx}"]`).forEach(input => input.parentElement.classList.remove('selected'));
         el.classList.add('selected');
+
+        // 🔥 Mini toast xác nhận đã lưu đáp án (câu trắc nghiệm thường)
+        const selInput = el.querySelector('input');
+        if (selInput) showAnswerToast(qIdx, String.fromCharCode(65 + parseInt(selInput.value, 10)));
+
         markDone(qIdx);
     }
 
