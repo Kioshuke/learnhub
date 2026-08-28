@@ -608,6 +608,16 @@ body.dark-mode .ans-label:hover {
         @media (max-width: 600px) { .skel-answers-grid { grid-template-columns: 1fr; } }
         .skel-ans { height: 46px; border-radius: 12px; }
         .skel-nav-item { aspect-ratio: 1; border-radius: 8px; }
+        /* Skeleton giống cấu trúc 1 đề: thanh header bar + vùng nội dung + menu mục lục */
+        .skel-headerbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; background: var(--card); padding: 16px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 16px; flex-wrap: wrap; }
+        .skel-headerbar-left { flex: 1; min-width: 180px; display: flex; flex-direction: column; gap: 8px; }
+        .skel-hb-title { height: 18px; width: 42%; border-radius: 6px; }
+        .skel-hb-sub { height: 12px; width: 60%; border-radius: 6px; }
+        .skel-headerbar-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .skel-hb-timer { height: 40px; width: 160px; border-radius: 12px; }
+        .skel-hb-btn { height: 40px; width: 120px; border-radius: 12px; }
+        .skel-audio { height: 46px; border-radius: 12px; margin-top: 12px; }
+        @media (max-width: 600px) { .skel-hb-sub { display: none; } .skel-hb-timer { width: 120px; } .skel-hb-btn { width: 100px; } }
         .short-input:focus {
             outline: none;
             border-color: var(--primary) !important;
@@ -885,27 +895,20 @@ if (window !== window.parent) {
     </header>
     <div class="main-layout">
     <div class="quiz-section" id="quiz-container">
-        <div class="question-card">
-            <div class="skel-bar skel-q-badge"></div>
-            <div class="skel-bar skel-q-line w-90"></div>
-            <div class="skel-bar skel-q-line w-70"></div>
-            <div class="skel-answers-grid">
-                <div class="skel-bar skel-ans"></div>
-                <div class="skel-bar skel-ans"></div>
-                <div class="skel-bar skel-ans"></div>
-                <div class="skel-bar skel-ans"></div>
+        <div class="skel-headerbar">
+            <div class="skel-headerbar-left">
+                <div class="skel-bar skel-hb-title"></div>
+                <div class="skel-bar skel-hb-sub"></div>
+            </div>
+            <div class="skel-headerbar-right">
+                <div class="skel-bar skel-hb-timer"></div>
+                <div class="skel-bar skel-hb-btn"></div>
             </div>
         </div>
         <div class="question-card">
             <div class="skel-bar skel-q-badge"></div>
             <div class="skel-bar skel-q-line w-90"></div>
-            <div class="skel-bar skel-q-line w-70"></div>
-            <div class="skel-answers-grid">
-                <div class="skel-bar skel-ans"></div>
-                <div class="skel-bar skel-ans"></div>
-                <div class="skel-bar skel-ans"></div>
-                <div class="skel-bar skel-ans"></div>
-            </div>
+            <div class="skel-bar skel-audio"></div>
         </div>
         <div class="question-card">
             <div class="skel-bar skel-q-badge"></div>
