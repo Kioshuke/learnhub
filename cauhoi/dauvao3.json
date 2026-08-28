@@ -1,8 +1,225 @@
 [
   {
-    "sectionTitle": "PHẦN 1: KỸ NĂNG ĐỌC - PASSAGE 1",
-    "sectionDesc": "Read the following passage and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 1 to 10.",
-    "timeLimit": 50,
+    "sectionTitle": "PHẦN 1: KỸ NĂNG NGHE - PART 1: BÀI NÓI & THÔNG BÁO NGẮN",
+    "sectionDesc": "Listen to short talks and announcements and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 1 to 8.",
+    "type": "listening",
+    "listenTitle": "Part 1: Short talks and announcements",
+    "timeLimit": 0,
+    "audio": "https://media.zim.vn/647ebfdb60c8e2c4c591b18c/t1-part1.mp3",
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "What is the purpose of the message?",
+        "answers": [
+          "To schedule a checkup",
+          "To delay a meeting",
+          "To confirm an appointment",
+          "To request some files"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "What is being advertised?",
+        "answers": [
+          "A city tour",
+          "A spa package",
+          "A hotel",
+          "A hospital"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "According to the announcement, what will be built near Berryville?",
+        "answers": [
+          "A university",
+          "A high school",
+          "A new hospital wing",
+          "An airport terminal"
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Who is this announcement probably for?",
+        "answers": [
+          "Factory employees",
+          "Office managers",
+          "Safety supervisors",
+          "Hotel workers"
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "What is the purpose of the message?",
+        "answers": [
+          "To make a reservation at a restaurant",
+          "To ask about a new employee",
+          "To invite a co-worker for dinner",
+          "To offer a ride home"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "What is this message about?",
+        "answers": [
+          "A new security policy",
+          "The business hours",
+          "An office relocation",
+          "A permanent closure"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "What is the purpose of the message?",
+        "answers": [
+          "To make an appointment",
+          "To offer a position",
+          "To cancel an interview",
+          "To confirm receipt of an application"
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Who is the speaker?",
+        "answers": [
+          "A new employee",
+          "The founder",
+          "The chairman of the board",
+          "The personnel director"
+        ],
+        "correct": 1
+      }
+    ]
+  },
+  {
+    "sectionTitle": "PHẦN 1: KỸ NĂNG NGHE - PART 2: HỘI THOẠI NGẮN",
+    "sectionDesc": "Listen to a short conversation and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 9 to 12.",
+    "type": "listening",
+    "listenTitle": "Part 2: Short conversation",
+    "timeLimit": 0,
+    "audio": "https://static-assets.prepcdn.com/content-management-system/conversation_1_f8fc035126.wav",
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "What was the man initially thinking of buying for Sarah?",
+        "answers": [
+          "A watch",
+          "A scarf",
+          "A book",
+          "A piece of jewelry"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Why does the woman reject the man’s first idea?",
+        "answers": [
+          "It is too expensive.",
+          "Sarah doesn’t enjoy that item.",
+          "Sarah already owns many of them.",
+          "It is not suitable for the season."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Why do the speakers decide that a scarf is a good choice?",
+        "answers": [
+          "It fits the man’s budget.",
+          "Sarah needs one for her job.",
+          "Sarah loves fashion, and winter is approaching.",
+          "They can buy it tonight."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "When will the speakers go to buy the gift?",
+        "answers": [
+          "Tonight",
+          "Next week",
+          "Tomorrow morning",
+          "Tomorrow afternoon"
+        ],
+        "correct": 2
+      }
+    ]
+  },
+  {
+    "sectionTitle": "PHẦN 1: KỸ NĂNG NGHE - PART 3: ĐOẠN HỘI THOẠI DÀI",
+    "sectionDesc": "Listen to a long conversation/talk and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 13 to 17.",
+    "type": "listening",
+    "listenTitle": "Part 3: Long conversation",
+    "timeLimit": 0,
+    "audio": "https://static-assets.prepcdn.com/content-management-system/talk_1_530ac43873.wav",
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "What is the talk mainly about?",
+        "answers": [
+          "The history of the internet",
+          "The dangers of social media",
+          "The importance of digital citizenship",
+          "New technology trends"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "What does the speaker emphasize about online privacy?",
+        "answers": [
+          "It is guaranteed by most websites.",
+          "It is less important for younger users.",
+          "Users need to actively manage their settings.",
+          "Personal information is rarely shared."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "What is a suggested way to combat cyberbullying?",
+        "answers": [
+          "Ignoring the bully",
+          "Posting a public response",
+          "Reporting the content and blocking the user",
+          "Asking friends to intervene"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "According to the speaker, what is a ‘digital footprint’?",
+        "answers": [
+          "The total amount of time spent online.",
+          "The unique search history of a user.",
+          "The permanent record of one’s online activities.",
+          "The number of followers a person has."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "What is the speaker’s concluding advice?",
+        "answers": [
+          "To limit screen time",
+          "To think before posting",
+          "To use strong passwords only",
+          "To avoid all social media"
+        ],
+        "correct": 1
+      }
+    ]
+  },
+  {
+    "sectionTitle": "PHẦN 2: KỸ NĂNG ĐỌC - PASSAGE 1",
+    "sectionDesc": "Read the following passage and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 18 to 27.",
+    "timeLimit": 70,
     "passage": "In the modern digital economy, remote work and flexible working arrangements have transformed traditional workplace structures across the globe. Driven by advancements in cloud computing, high-speed internet, and collaborative communication software, many companies have transitioned toward hybrid or fully remote operational models. This shift offers significant benefits to both employers and employees, though it also introduces complex operational and psychological challenges.<br><br>One of the main advantages of remote work is the enhanced flexibility it <b>grants</b> to workers. Employees no longer face lengthy daily commutes, allowing <b>them</b> to better balance professional responsibilities with family life and personal commitments. Furthermore, organizations can recruit talented individuals from anywhere in the world without being restricted by geographical boundaries. Studies also indicate that operating remotely can lead to higher job satisfaction and reduced overhead costs for businesses, as companies require smaller physical office spaces.<br><br>However, working remotely is not without significant drawbacks. A major concern is the blurring of boundaries between professional obligations and personal life. Without a physical workplace, many employees feel compelled to answer emails and complete tasks outside regular working hours, leading to emotional exhaustion and burnout. Additionally, remote environments can hinder spontaneous collaboration and <b>diminish</b> company culture. Employees may experience feelings of isolation and disconnect from their colleagues, which can negatively affect teamwork and organizational loyalty.<br><br>To mitigate these drawbacks, forward-thinking organizations are implementing proactive workplace strategies. Companies are establishing clear rules regarding digital communication, encouraging employees to disconnect completely after working hours. Furthermore, regular virtual team-building activities and occasional in-person gatherings are organized to maintain strong interpersonal connections. By promoting a healthy work-life balance and providing adequate technological support, businesses can foster a productive and sustainable remote workforce.",
     "questions": [
       {
@@ -118,8 +335,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 1: KỸ NĂNG ĐỌC - PASSAGE 2",
-    "sectionDesc": "Read the following passage and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 11 to 20.",
+    "sectionTitle": "PHẦN 2: KỸ NĂNG ĐỌC - PASSAGE 2",
+    "sectionDesc": "Read the following passage and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 28 to 37.",
     "timeLimit": 0,
     "passage": "Plastic pollution has reached critical levels in global oceans, posing a grave threat to marine biodiversity, coastal economies, and human health. Millions of tons of synthetic plastic waste enter marine ecosystems annually through rivers, improper land-based waste disposal, and commercial shipping activities. Because conventional plastics are non-biodegradable, they <b>persist</b> in the marine environment for centuries, gradually fragmenting into toxic microscopic particles known as microplastics.<br><br>Microplastics, defined as plastic particles smaller than five millimeters in diameter, present a unique ecological hazard. Marine organisms—ranging from tiny zooplankton and shellfish to large whales—frequently mistake microplastics for food. Ingestion of these non-nutritive particles can cause physical blockages in internal organs, malnutrition, and chemical toxicity, as plastics readily absorb persistent organic pollutants from surrounding seawater. Consequently, toxic substances bioaccumulate up the marine food chain, eventually posing health risks to humans who consume seafood.<br><br>Addressing this <b>pervasive</b> environmental crisis requires coordinated international action and innovative waste management infrastructure. Many coastal nations are enacting strict regulatory bans on single-use plastics, such as plastic straws, carrier bags, and microbeads in cosmetic products. Simultaneously, scientific researchers are pioneering circular economy solutions, including the development of biodegradable bioplastics derived from seaweed and plant polymers. These eco-friendly materials break down naturally in ocean water without leaving harmful chemical residues.<br><br>In addition to regulatory bans and material innovations, ocean cleanup technologies are being deployed worldwide. Advanced floating barrier systems designed to intercept riverine plastic before <b>it</b> reaches open seas have shown promising results in major Asian river estuaries. Furthermore, community-led beach cleanup initiatives help raise public awareness regarding consumer waste reduction and proper recycling habits.<br><br>Despite these promising advancements, achieving a long-term solution requires continuous global collaboration and financial investment. Developing economies often lack the capital necessary to construct modern municipal recycling plants. Therefore, international financial institutions and developed nations must provide technical assistance and funding to help vulnerable regions build sustainable waste infrastructure. Only through a comprehensive approach combining legislation, technological innovation, and public engagement can global marine environments be effectively preserved.",
     "questions": [
@@ -236,8 +453,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 2: KỸ NĂNG VIẾT - DẠNG 1",
-    "sectionDesc": "Mark the letter A, B, C, or D to indicate the sentence that best builds upon the given prompts (câu 21-25).",
+    "sectionTitle": "PHẦN 3: KỸ NĂNG VIẾT - DẠNG 1",
+    "sectionDesc": "Mark the letter A, B, C, or D to indicate the sentence that best builds upon the given prompts (câu 38-42).",
     "timeLimit": 0,
     "questions": [
       {
@@ -278,8 +495,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 2: KỸ NĂNG VIẾT - DẠNG 2",
-    "sectionDesc": "Mark the letter A, B, C, or D to indicate the correct sequence of sentences to form a meaningful paragraph (câu 26).",
+    "sectionTitle": "PHẦN 3: KỸ NĂNG VIẾT - DẠNG 2",
+    "sectionDesc": "Mark the letter A, B, C, or D to indicate the correct sequence of sentences to form a meaningful paragraph (câu 43).",
     "timeLimit": 0,
     "questions": [
       {
@@ -297,8 +514,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 3: SỬ DỤNG NGÔN NGỮ - PART 1",
-    "sectionDesc": "Word Choice, Word Forms, Collocations, Phrasal Verbs (câu 27-31).",
+    "sectionTitle": "PHẦN 4: SỬ DỤNG NGÔN NGỮ - PART 1",
+    "sectionDesc": "Word Choice, Word Forms, Collocations, Phrasal Verbs (câu 44-48).",
     "timeLimit": 0,
     "questions": [
       {
@@ -359,8 +576,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 3: SỬ DỤNG NGÔN NGỮ - PART 2",
-    "sectionDesc": "Tenses, If Clause, Inversion, Reduction of Relative Clauses (câu 32-36).",
+    "sectionTitle": "PHẦN 4: SỬ DỤNG NGÔN NGỮ - PART 2",
+    "sectionDesc": "Tenses, If Clause, Inversion, Reduction of Relative Clauses (câu 49-53).",
     "timeLimit": 0,
     "questions": [
       {
@@ -421,8 +638,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 3: SỬ DỤNG NGÔN NGỮ - PART 3",
-    "sectionDesc": "Talks and Responses (câu 37-41).",
+    "sectionTitle": "PHẦN 4: SỬ DỤNG NGÔN NGỮ - PART 3",
+    "sectionDesc": "Talks and Responses (câu 54-58).",
     "timeLimit": 0,
     "questions": [
       {

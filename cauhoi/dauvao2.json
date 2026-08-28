@@ -1,8 +1,225 @@
 [
   {
-    "sectionTitle": "PHẦN 1: KỸ NĂNG ĐỌC - PASSAGE 1",
-    "sectionDesc": "Read the following passage and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 1 to 10.",
-    "timeLimit": 50,
+    "sectionTitle": "PHẦN 1: KỸ NĂNG NGHE - PART 1: BÀI NÓI & THÔNG BÁO NGẮN",
+    "sectionDesc": "Listen to short talks and announcements and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 1 to 8.",
+    "type": "listening",
+    "listenTitle": "Part 1: Short talks and announcements",
+    "timeLimit": 0,
+    "audio": "de2thongbaohoithoaingan.mp3",
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "What is the reason for the call?",
+        "answers": [
+          "To get Mr. Clifford’s contact information.",
+          "To receive payment for a service.",
+          "To discuss available Internet packages.",
+          "To set up and installation date."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Where was the first facility?",
+        "answers": [
+          "Portland.",
+          "Milton.",
+          "Rochester.",
+          "St. Louis."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "What is the man calling about?",
+        "answers": [
+          "A piece of luggage.",
+          "An airline delay.",
+          "A document.",
+          "A travel itinerary."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Who most likely is the speaker?",
+        "answers": [
+          "A cook.",
+          "A receptionist.",
+          "A waiter.",
+          "A food critic."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "From when will St. Paul Street be closed to vehicles?",
+        "answers": [
+          "November 9.",
+          "November 10.",
+          "November 12.",
+          "Next weekend."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "What type of event is being held?",
+        "answers": [
+          "A sporting event.",
+          "An awards ceremony.",
+          "A concert.",
+          "A theatrical performance."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "What is the caller waiting for?",
+        "answers": [
+          "A medical prescription.",
+          "A payment invoice.",
+          "Test results.",
+          "Hospital forms."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "How does the master bedroom differ from the other rooms?",
+        "answers": [
+          "It was decorated first.",
+          "It is much bigger than the others.",
+          "It has more furniture.",
+          "It looks more modern."
+        ],
+        "correct": 3
+      }
+    ]
+  },
+  {
+    "sectionTitle": "PHẦN 1: KỸ NĂNG NGHE - PART 2: HỘI THOẠI NGẮN",
+    "sectionDesc": "Listen to a short conversation and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 9 to 12.",
+    "type": "listening",
+    "listenTitle": "Part 2: Short conversation",
+    "timeLimit": 0,
+    "audio": "https://static-assets.prepcdn.com/content-management-system/conversation_2_899e468ede.wav",
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "What is the man’s main problem?",
+        "answers": [
+          "He missed a crucial deadline.",
+          "He is stressed about a project.",
+          "He is too sick to give a presentation.",
+          "He lost his notes for the presentation."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "What does the woman suggest the man should do?",
+        "answers": [
+          "Try to get better quickly.",
+          "Go to the doctor right away.",
+          "Inform the manager immediately.",
+          "Ask a colleague to substitute for him."
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Who does the woman suggest could cover the presentation?",
+        "answers": [
+          "The manager",
+          "Lisa",
+          "John",
+          "Another department head"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "What is the man planning to do right after calling his colleague?",
+        "answers": [
+          "Prepare his presentation.",
+          "Go home and rest.",
+          "Tell the manager about his flu.",
+          "Review the project with Lisa."
+        ],
+        "correct": 1
+      }
+    ]
+  },
+  {
+    "sectionTitle": "PHẦN 1: KỸ NĂNG NGHE - PART 3: ĐOẠN HỘI THOẠI DÀI",
+    "sectionDesc": "Listen to a long conversation/talk and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 13 to 17.",
+    "type": "listening",
+    "listenTitle": "Part 3: Long conversation",
+    "timeLimit": 0,
+    "audio": "https://static-assets.prepcdn.com/content-management-system/talk_2_ed0bcd4502.wav",
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "What is the lecture primarily discussing?",
+        "answers": [
+          "Types of ancient architecture",
+          "The construction of the pyramids",
+          "Engineering in the modern world",
+          "The role of Roman roads"
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "What characteristic of Roman roads is highlighted?",
+        "answers": [
+          "Their complex drainage systems",
+          "Their use of light, local materials",
+          "Their incredible straightness and durability",
+          "Their innovative use of concrete"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "How did the Romans primarily use their roads?",
+        "answers": [
+          "For public leisure and trade",
+          "For transporting heavy building materials",
+          "For quickly moving troops and officials",
+          "For agricultural purposes"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "What does the speaker mention about Roman bridges?",
+        "answers": [
+          "They were often destroyed by floods.",
+          "They were built entirely of wood.",
+          "Some are still in use today.",
+          "They relied on modern steel supports."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "What is the overall tone of the lecture regarding Roman engineering?",
+        "answers": [
+          "Critical",
+          "Neutral",
+          "Admiring",
+          "Indifferent"
+        ],
+        "correct": 2
+      }
+    ]
+  },
+  {
+    "sectionTitle": "PHẦN 2: KỸ NĂNG ĐỌC - PASSAGE 1",
+    "sectionDesc": "Read the following passage and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 18 to 27.",
+    "timeLimit": 70,
     "passage": "Artificial intelligence (AI) is rapidly altering the landscape of modern education, introducing new tools that change how students learn and teachers instruct. Intelligent tutoring systems, automated grading software, and personalized learning platforms are becoming commonplace in tertiary education. These technological advancements offer promising opportunities to enhance academic outcomes, yet they also present significant pedagogical and ethical concerns.<br><br>Primary among the benefits of AI in education is its ability to customize learning experiences for individual students. Traditional classroom instruction often struggles to <b>accommodate</b> diverse learning speeds, leaving advanced students bored and struggling students behind. AI-driven platforms analyze student performance data in real time, adjusting the difficulty of tasks and providing immediate feedback. Consequently, undergraduates can master foundational concepts before progressing to more complex material. Furthermore, automated administrative tools relieve faculty members from repetitive grading, allowing them to dedicate more time to mentoring and interactive teaching.<br><br>However, the widespread integration of AI tools is accompanied by critical challenges. A primary concern is the potential over-reliance on automated tools for academic tasks, which may <b>undermine</b> students' critical thinking and problem-solving abilities. When learners depend on AI generators to draft essays or solve mathematical problems, <b>they</b> risk losing essential cognitive skills. Additionally, issues surrounding data privacy and algorithmic bias pose serious threats. AI systems trained on flawed historical data may perpetuate unfair evaluations against certain student demographics.<br><br>To harness the benefits of AI while mitigating its risks, higher education institutions must establish comprehensive ethical guidelines. Universities should focus on teaching AI literacy, guiding students to use technological tools responsibly as aids rather than replacements for original thought. By striking a balanced approach between innovation and traditional critical pedagogy, educators can prepare students to navigate an increasingly automated future.",
     "questions": [
       {
@@ -118,8 +335,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 1: KỸ NĂNG ĐỌC - PASSAGE 2",
-    "sectionDesc": "Read the following passage and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 11 to 20.",
+    "sectionTitle": "PHẦN 2: KỸ NĂNG ĐỌC - PASSAGE 2",
+    "sectionDesc": "Read the following passage and mark the letter A, B, C, or D to indicate the correct answer to each of the questions from 28 to 37.",
     "timeLimit": 0,
     "passage": "Ecotourism has emerged as one of the fastest-growing sectors within the global travel industry, particularly in biodiversity-rich regions across Southeast Asia. Unlike conventional mass tourism, which often leads to environmental <b>degradation</b> and cultural commercialization, ecotourism emphasizes responsible travel to natural areas. Its core objectives are conserving the environment, sustaining the well-being of local communities, and providing educational experiences for travelers.<br><br>The fundamental principle of ecotourism lies in minimizing the negative impacts associated with traditional travel. Large-scale tourism often places immense pressure on local infrastructure, generating excessive waste, depleting fresh water resources, and disturbing delicate ecosystems. In contrast, genuine ecotourism ventures implement strict sustainability measures. These include utilizing renewable energy sources, constructing eco-lodges from locally sourced materials, and enforcing strict limits on visitor numbers to fragile habitats.<br><br>Beyond environmental conservation, ecotourism plays a <b>pivotal</b> role in socio-economic development for rural populations. In many developing nations, communities residing near national parks or wildlife reserves historically relied on resource exploitation, such as illegal logging or poaching, to sustain <b>their</b> livelihoods. Ecotourism creates viable economic alternatives by employing local residents as tour guides, hospitality staff, and conservation rangers. Furthermore, a portion of tourism revenues is frequently reinvested into community infrastructure, funding local schools, healthcare clinics, and clean water projects.<br><br>However, the expansion of ecotourism is not without challenges. A significant concern is '<b>greenwashing</b>', a deceptive marketing practice where conventional tourism operators claim to be eco-friendly without implementing meaningful sustainable practices. This misleading strategy not only deceives conscientious travelers but also damages the credibility of genuine environmental initiatives. Moreover, unmanaged visitor influxes—even under the banner of ecotourism—can still cause habitat fragmentation, soil erosion, and wildlife behavioral changes.<br><br>To ensure the long-term viability of ecotourism, stringent regulatory standards and certification systems must be established. Local governments must collaborate with environmental experts and indigenous leaders to enforce environmental protection laws and set visitor capacity limits. Additionally, educating tourists about local customs and ecological ethics is crucial. When executed properly, ecotourism serves as a powerful catalyst for environmental stewardship and sustainable economic empowerment.",
     "questions": [
@@ -236,8 +453,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 2: KỸ NĂNG VIẾT - DẠNG 1",
-    "sectionDesc": "Mark the letter A, B, C, or D to indicate the sentence that best builds upon the given prompts (câu 21-25).",
+    "sectionTitle": "PHẦN 3: KỸ NĂNG VIẾT - DẠNG 1",
+    "sectionDesc": "Mark the letter A, B, C, or D to indicate the sentence that best builds upon the given prompts (câu 38-42).",
     "timeLimit": 0,
     "questions": [
       {
@@ -278,8 +495,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 2: KỸ NĂNG VIẾT - DẠNG 2",
-    "sectionDesc": "Mark the letter A, B, C, or D to indicate the correct sequence of sentences to form a meaningful paragraph (câu 26).",
+    "sectionTitle": "PHẦN 3: KỸ NĂNG VIẾT - DẠNG 2",
+    "sectionDesc": "Mark the letter A, B, C, or D to indicate the correct sequence of sentences to form a meaningful paragraph (câu 43).",
     "timeLimit": 0,
     "questions": [
       {
@@ -297,8 +514,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 3: SỬ DỤNG NGÔN NGỮ - PART 1",
-    "sectionDesc": "Word Choice, Word Forms, Collocations, Phrasal Verbs (câu 27-31).",
+    "sectionTitle": "PHẦN 4: SỬ DỤNG NGÔN NGỮ - PART 1",
+    "sectionDesc": "Word Choice, Word Forms, Collocations, Phrasal Verbs (câu 44-48).",
     "timeLimit": 0,
     "questions": [
       {
@@ -359,8 +576,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 3: SỬ DỤNG NGÔN NGỮ - PART 2",
-    "sectionDesc": "Tenses, If Clause, Inversion, Reduction of Relative Clauses (câu 32-36).",
+    "sectionTitle": "PHẦN 4: SỬ DỤNG NGÔN NGỮ - PART 2",
+    "sectionDesc": "Tenses, If Clause, Inversion, Reduction of Relative Clauses (câu 49-53).",
     "timeLimit": 0,
     "questions": [
       {
@@ -421,8 +638,8 @@
     ]
   },
   {
-    "sectionTitle": "PHẦN 3: SỬ DỤNG NGÔN NGỮ - PART 3",
-    "sectionDesc": "Talks and Responses (câu 37-41).",
+    "sectionTitle": "PHẦN 4: SỬ DỤNG NGÔN NGỮ - PART 3",
+    "sectionDesc": "Talks and Responses (câu 54-58).",
     "timeLimit": 0,
     "questions": [
       {
