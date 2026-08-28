@@ -1792,17 +1792,6 @@ function getCurrentWeekKey() {
   return `${d.getUTCFullYear()}-W${String(weekNum).padStart(2, '0')}`;
 }
 
-// Mốc đầu tuần (thứ Hai 00:00 UTC) — khớp getWeekStartMs() trong profile/leaderboard.
-// Dùng khi reset online để đặt online_start_time đúng mốc tuần, tránh lẫn thời gian tuần cũ.
-function getCurrentWeekStartMs() {
-  const now = new Date();
-  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() - dayNum + 1);
-  d.setUTCHours(0, 0, 0, 0);
-  return d.getTime();
-}
-
 async function loadWeeklyResetForm() {
   const currentWeek = getCurrentWeekKey();
   weeklyResetCurrentWeek.textContent = currentWeek;
@@ -1886,12 +1875,14 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
 
       // Reset thời gian online
       if(resetTime){
-        const weekStart = getCurrentWeekStartMs();
         const { data: users } = await supabase.from("users").select("id");
         for (const s of (users || [])) {
+          // online_start_time = 0 để profile/leaderboard KHÔNG tự cộng phần phiên đang online
+          // (condition `online_start_time > 0` fail) -> hiển thị về 0 ngay lập tức.
+          // Phiên online của user sẽ đếm lại từ đầu khi họ mở lại (users_begin_online thấy start=0).
           await supabase.from("users").update({
             online_timer: 0,
-            online_start_time: weekStart,
+            online_start_time: 0,
             online_week_key: currentWeek
           }).eq("id", s.id);
           if(!resetScore) count++;
