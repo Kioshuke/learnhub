@@ -372,7 +372,7 @@
                     <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
                         <span class="lh-tile-icon" style="background:var(--tint-blue);color:var(--blue-accent)"><i class="fas fa-id-card"></i></span> Hồ Sơ Chi Tiết
                     </h3>
-                    <button onclick="openSettingsModal(); setTimeout(() => switchSettingsTab('danger'), 100)" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:scale-105" style="background:rgba(239,68,68,0.08);color:#ef4444;border:1px solid rgba(239,68,68,0.2)">
+                    <button id="delete-account-quick-btn" onclick="openSettingsModal(); setTimeout(() => switchSettingsTab('danger'), 100)" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:scale-105" style="background:rgba(239,68,68,0.08);color:#ef4444;border:1px solid rgba(239,68,68,0.2)">
                         <i class="fas fa-trash-can text-[10px]"></i> Xóa tài khoản
                     </button>
                 </div>
@@ -1116,6 +1116,10 @@
                     const settingsBtn = document.getElementById('settings-btn');
                     if (settingsBtn) settingsBtn.style.display = 'none';
 
+                    // Ẩn nút Xóa tài khoản khi xem profile người khác
+                    const deleteQuickBtn = document.getElementById('delete-account-quick-btn');
+                    if (deleteQuickBtn) deleteQuickBtn.style.display = 'none';
+
                     // Load stats của user đang xem
                     loadStatsForUser(userId);
                 }
@@ -1199,6 +1203,10 @@
                     // Hiển thị nút settings khi xem profile của mình
                     const settingsBtn = document.getElementById('settings-btn');
                     if (settingsBtn) settingsBtn.style.display = 'flex';
+
+                    // Hiển thị lại nút Xóa tài khoản khi xem profile của mình
+                    const deleteQuickBtn = document.getElementById('delete-account-quick-btn');
+                    if (deleteQuickBtn) deleteQuickBtn.style.display = 'inline-flex';
 
                     // Load stats của chính mình
                     loadStatsForUser(currentUserId);
