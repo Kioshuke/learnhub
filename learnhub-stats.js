@@ -6,27 +6,17 @@
 // ============================================================================
 
 import { supabase } from "./supabase-config.js";
+import { getWeekKey, getWeekStartMs } from "./week-math.js";
 
 function getCurrentWeekKey() {
-  const now = new Date();
-  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  const weekNum = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-  return `${d.getUTCFullYear()}-W${String(weekNum).padStart(2, '0')}`;
+  return getWeekKey();
 }
 
 // Same logic as getWeekStartMs() trong profile.html / element/leaderboard.html:
 // mốc đầu tuần (thứ Hai, 00:00 UTC) — dùng để reset online_start_time đúng mốc tuần mới
 // khi hệ thống tự reset hàng tuần (tránh lẫn thời gian tuần cũ -> "sai số giờ" online).
 function getCurrentWeekStartMs() {
-  const now = new Date();
-  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() - dayNum + 1);
-  d.setUTCHours(0, 0, 0, 0);
-  return d.getTime();
+  return getWeekStartMs();
 }
 
 function nowIso() {

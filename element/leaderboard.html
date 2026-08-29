@@ -255,6 +255,7 @@
 
     <script type="module">
         import { supabase, createLearnHubClient } from "../supabase-config.js";
+        import { getWeekKey, getWeekStartMs, formatTimer } from "../week-math.js";
 
         let activeSupabase = supabase;
         let myId = null;
@@ -280,34 +281,7 @@
             }
         });
 
-        function getWeekKey() {
-            const now = new Date();
-            const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-            const dayNum = d.getUTCDay() || 7;
-            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-            const y = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-            const w = Math.ceil((((d - y) / 864e5) + 1) / 7);
-            return `${d.getUTCFullYear()}-W${String(w).padStart(2, '0')}`;
-        }
-
         function esc(t) { return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-        function formatTimer(totalSeconds) {
-            totalSeconds = Math.max(0, Math.floor(totalSeconds));
-            const h = Math.floor(totalSeconds / 3600);
-            const m = Math.floor((totalSeconds % 3600) / 60);
-            const s = totalSeconds % 60;
-            return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-        }
-
-        function getWeekStartMs() {
-            const now = new Date();
-            const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-            const dayNum = d.getUTCDay() || 7;
-            d.setUTCDate(d.getUTCDate() - dayNum + 1);
-            d.setUTCHours(0, 0, 0, 0);
-            return d.getTime();
-        }
 
         function ringAva(photo, name, size, ringCls) {
             const fs = Math.round(size * .38);

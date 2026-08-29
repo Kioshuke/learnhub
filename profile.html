@@ -704,6 +704,7 @@
     <script type="module">
         import { supabase } from "./supabase-config.js";
         import { onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession } from "./supabase-helpers.js";
+        import { getWeekKey, getWeekStartMs, formatTimer } from "./week-math.js";
 
         const settingsModal = document.getElementById('settings-modal');
         let settingsEditing = false;
@@ -1301,34 +1302,6 @@
             document.getElementById('input-delete-confirm').value = "";
             const delBtn = document.getElementById('btn-delete-account');
             if (delBtn) { delBtn.disabled = false; delBtn.style.opacity = '0.5'; delBtn.style.pointerEvents = 'none'; delBtn.innerHTML = '<i class="fas fa-trash-can mr-1"></i> Xóa tài khoản'; }
-        }
-
-        // Đồng bộ logic tính tuần với leaderboard (element/leaderboard.html)
-        function getWeekKey() {
-            const now = new Date();
-            const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-            const dayNum = d.getUTCDay() || 7;
-            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-            const y = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-            const w = Math.ceil((((d - y) / 864e5) + 1) / 7);
-            return `${d.getUTCFullYear()}-W${String(w).padStart(2, '0')}`;
-        }
-
-        function getWeekStartMs() {
-            const now = new Date();
-            const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-            const dayNum = d.getUTCDay() || 7;
-            d.setUTCDate(d.getUTCDate() - dayNum + 1);
-            d.setUTCHours(0, 0, 0, 0);
-            return d.getTime();
-        }
-
-        function formatTimer(totalSeconds) {
-            totalSeconds = Math.max(0, Math.floor(totalSeconds || 0));
-            const h = Math.floor(totalSeconds / 3600);
-            const m = Math.floor((totalSeconds % 3600) / 60);
-            const s = totalSeconds % 60;
-            return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
         }
 
         // SỬA LẠI: Hàm format đảm bảo hiển thị đúng cấu trúc DD/MM/YYYY chuẩn chỉnh lên giao diện
