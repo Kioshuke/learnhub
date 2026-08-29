@@ -595,14 +595,6 @@ if(user){
 
   applyUserToUI(userData);
 
-  // ✅ ONBOARDING — hiện modal chào mừng lần đầu tiên
-  try {
-    const onbKey = 'learnhub_onboarded_' + user.id;
-    if (!localStorage.getItem(onbKey)) {
-      setTimeout(function(){ if (typeof window._showOnboarding === 'function') window._showOnboarding(); }, 800);
-    }
-  } catch(e){}
-
   // ✅ WELCOME BACK POPUP — hiện 1 lần mỗi lần mở trang
   if (!welcomeShown) {
     welcomeShown = true;

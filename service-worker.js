@@ -5,14 +5,13 @@
    - Bỏ qua mọi request cross-origin (Supabase, CDN, YouTube...)
    ============================================================ */
 
-const CACHE_VERSION = "learnhub-v9";
+const CACHE_VERSION = "learnhub-v10";
 
 const CORE_ASSETS = [
   "/",
   "/index.html",
   "/login.html",
   "/element/giaodien.css",
-  "/account-popup.js",
   "/script.js",
   "/toast.js",
   "/supabase-config.js",
