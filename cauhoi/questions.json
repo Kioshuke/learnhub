@@ -28,5 +28,34 @@
         "correct": 2
       }
     ]
+  },
+  {
+    "sectionTitle": "PHẦN II. CÂU HỎI ĐÚNG / SAI",
+    "sectionDesc": "Với mỗi câu dưới đây, hãy chọn <b>Đúng (Đ)</b> hoặc <b>Sai (S)</b>:",
+    "timeLimit": 0,
+    "questions": [
+      {
+        "type": "true_false",
+        "question": "Cho biết mỗi câu sau đây là đúng hay sai:",
+        "subQuestions": [
+          { "text": "Trái Đất quay quanh Mặt Trời.", "correct": 1 },
+          { "text": "Nước sôi ở 100°C tại mực nước biển.", "correct": 1 },
+          { "text": "1 + 1 = 3.", "correct": 0 },
+          { "text": "Việt Nam nằm ở châu Á.", "correct": 1 }
+        ]
+      }
+    ]
+  },
+  {
+    "sectionTitle": "PHẦN III. CÂU HỎI TỰ LUẬN",
+    "sectionDesc": "Nhập câu trả lời của bạn vào ô bên dưới:",
+    "timeLimit": 0,
+    "questions": [
+      {
+        "type": "short_answer",
+        "question": "Ngôn ngữ lập trình dùng để tạo cấu trúc web là gì? (viết tắt 4 chữ cái)",
+        "correctAnswer": "html"
+      }
+    ]
   }
 ]

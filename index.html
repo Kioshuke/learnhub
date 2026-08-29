@@ -1523,6 +1523,13 @@ window.addEventListener("beforeunload", () => {
   }
 });
 window.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "LOCK_PAGE_SCROLL") {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+  } else if (event.data && event.data.type === "UNLOCK_PAGE_SCROLL") {
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+  }
   if (event.data && event.data.type === "CLOSE_QUIZ_SCROLL_TOP") {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }

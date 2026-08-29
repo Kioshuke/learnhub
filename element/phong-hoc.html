@@ -332,14 +332,29 @@ window.addEventListener('message', function(event) {
   }
 });
 
+function lockPageScroll() {
+  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
+}
+
+function unlockPageScroll() {
+  document.body.style.overflow = '';
+  document.documentElement.style.overflow = '';
+}
+
 function loadQuiz(btn, link) {
   document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
   var card = btn.closest(".card");
   if (card) card.classList.add("active-card");
 
+  lockPageScroll();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "LOCK_PAGE_SCROLL" }, "*");
+  }
+
   document.getElementById("quiz").innerHTML =
     '<div class="quiz-box" style="position:relative; width:100%; height:100vh; max-height:100vh; overflow:hidden; margin:0; padding:0; border-left:0; border-right:0; border-radius:0;">' +
-      '<iframe id="quizFrame" src="' + link + '" style="display:none; width:100%; height:100%; border:0; outline:0; margin:0; padding:0;"></iframe>' +
+      '<iframe id="quizFrame" src="' + link + '" style="display:none; width:100%; height:100%; border:0; outline:0; margin:0; padding:0; overscroll-behavior:contain;"></iframe>' +
       '<div class="quiz-header" style="position:absolute; top:8px; left:8px; right:auto; z-index:9999; pointer-events:auto; padding:0;">' +
         '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng bài</button>' +
       '</div>' +
@@ -400,7 +415,9 @@ function closeQuiz() {
   currentVideoId = null;
   document.getElementById("quiz").innerHTML = "";
   document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
+  unlockPageScroll();
   if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "UNLOCK_PAGE_SCROLL" }, "*");
     window.parent.postMessage({ type: "CLOSE_QUIZ_SCROLL_TOP" }, "*");
   }
 }

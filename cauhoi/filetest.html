@@ -1265,10 +1265,10 @@ function renderQuiz() {
                                 </div>
                                 <div class="tf-options" style="display: flex; gap: 5px; flex-shrink: 0;">
                                     <label style="cursor:pointer; display:flex; align-items:center; gap:3px; background: transparent; padding:4px 10px; border-radius:6px; border: 1.2px solid var(--tf-border); font-size: 0.85rem;">
-                                        <input type="radio" name="tf-${globalIdx}-${subIdx}" value="1" onclick="checkTFDone(${globalIdx})"> <b>Đ</b>
+                                        <input type="radio" name="tf-${globalIdx}-${subIdx}" value="1" onclick="tfSelect(${globalIdx}, ${subIdx}, 1)"> <b>Đ</b>
                                     </label>
                                     <label style="cursor:pointer; display:flex; align-items:center; gap:3px; background: transparent; padding:4px 10px; border-radius:6px; border: 1.2px solid var(--tf-border); font-size: 0.85rem;">
-                                        <input type="radio" name="tf-${globalIdx}-${subIdx}" value="0" onclick="checkTFDone(${globalIdx})"> <b>S</b>
+                                        <input type="radio" name="tf-${globalIdx}-${subIdx}" value="0" onclick="tfSelect(${globalIdx}, ${subIdx}, 0)"> <b>S</b>
                                     </label>
                                 </div>
                             </div>
@@ -1277,7 +1277,7 @@ function renderQuiz() {
             } 
             else if (item.type === 'short_answer') {
                 window.totalMaxScore += 1;
-                answersContent = `<input type="text" class="short-input" placeholder="Nhập đáp án..." oninput="markDone(${globalIdx})" data-qidx="${globalIdx}" style="width: 100%; box-sizing: border-box; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; outline: none; font-size: 0.9rem;">`;
+                answersContent = `<input type="text" class="short-input" placeholder="Nhập đáp án..." oninput="markDone(${globalIdx})" onblur="shortToast(${globalIdx})" data-qidx="${globalIdx}" style="width: 100%; box-sizing: border-box; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; outline: none; font-size: 0.9rem;">`;
             }
 
             quizHtml += `
@@ -1358,6 +1358,47 @@ function renderQuiz() {
         const totalSub = card.querySelectorAll('.tf-row').length;
 
         if (checked.length === totalSub) markDone(globalIdx);
+    }
+
+    // hỗ trợ toast cho công việc tương tác (dùng chung activeAnswerToast để chỉ giữ 1 toast)
+    function pushToast(title, messageHtml, isSuccess) {
+        if (typeof window.lhToast !== "function") return;
+        if (activeAnswerToast) {
+            try { if (activeAnswerToast.el) activeAnswerToast.el.remove(); } catch (e) {}
+            activeAnswerToast = null;
+        }
+        try {
+            const handle = window.lhToast(isSuccess ? "Đã lưu đáp án" : "Thông báo", {
+                type: isSuccess ? "success" : "info",
+                title: title,
+                durationMs: 1500,
+                sound: false
+            });
+            activeAnswerToast = handle;
+            if (handle && handle.el) {
+                handle.el.classList.add("lh-toast-mini");
+                const msgEl = handle.el.querySelector(".lh-toast-message");
+                if (msgEl) msgEl.innerHTML = messageHtml;
+            }
+        } catch (e) {}
+    }
+
+    // 🔥 [Đúng/Sai] chọn 1 ý -> toast thông báo ý nào đã chọn Đúng/Sai
+    function tfSelect(globalIdx, subIdx, val) {
+        if (document.getElementById("quiz-container").classList.contains("quiz-locked")) return;
+        const label = val === 1 ? "Đúng" : "Sai";
+        const letter = String.fromCharCode(97 + subIdx);
+        pushToast(`Câu ${globalIdx + 1}`, `Ý <b>${letter}</b> đã chọn <b>${label}</b>`, true);
+        checkTFDone(globalIdx);
+    }
+
+    // 🔥 [Tự luận] khi gõ xong (rời ô) -> toast đã lưu đáp án
+    function shortToast(qIdx) {
+        if (document.getElementById("quiz-container").classList.contains("quiz-locked")) return;
+        const input = document.querySelector(`input[data-qidx="${qIdx}"]`);
+        if (input && input.value && input.value.trim() !== "") {
+            pushToast(`Câu ${qIdx + 1}`, `Đã lưu <b>đáp án tự luận</b>`, true);
+        }
     }
 
     function markDone(qIdx) {
