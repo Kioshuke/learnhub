@@ -157,6 +157,12 @@
   .auth-eye-btn:hover{color:#2563eb}
   #loginBox .auth-input-group input[type="password"]{padding-right:52px}
   .auth-field-error{display:none;font-size:12px;color:#ef4444;margin:-6px 0 10px 4px;font-weight:600}
+  .auth-caps-hint{display:none;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:#d97706;margin:-6px 0 10px 4px}
+  .auth-caps-hint.show{display:inline-flex}
+  .auth-terms{display:flex;align-items:flex-start;gap:8px;margin:14px 0 16px;font-size:12.5px;color:#64748b;line-height:1.5;text-align:left}
+  .auth-terms input{margin-top:2px;accent-color:#2563eb;width:15px;height:15px;flex-shrink:0;cursor:pointer}
+  .auth-terms a{color:#2563eb;font-weight:600;text-decoration:underline}
+  .auth-terms a:hover{color:#1d4ed8}
   .auth-btn-spinner{
     display:inline-block;vertical-align:-2px;margin-right:8px;
     width:15px;height:15px;border-radius:50%;
@@ -750,6 +756,17 @@
     .auth-below-shine,.auth-below-ripple{display:none!important}
     .auth-scroll-down::before{display:none}
     .auth-scroll-down{animation:none!important}
+    /* Mobile: hiện luôn nội dung giới thiệu, không chờ cuộn/reveal */
+    .auth-below.auth-below--show .auth-below-head,
+    .auth-below.auth-below--show .auth-below-stat,
+    .auth-below.auth-below--show .auth-below-point,
+    .auth-below.auth-below--show .auth-below-card{animation:none;opacity:1;transform:none}
+    .auth-below:not(.auth-below--show) .auth-below-head,
+    .auth-below:not(.auth-below--show) .auth-below-stat,
+    .auth-below:not(.auth-below--show) .auth-below-point,
+    .auth-below:not(.auth-below--show) .auth-below-card{opacity:1;transform:none}
+    .auth-below-card .auth-below-icon{animation:none}
+    .auth-below-icon{transition:none}
   }
   @media (max-width:560px){
     .auth-below{padding:40px 14px 52px}
@@ -870,23 +887,6 @@
     <div class="auth-title auth-anim-item">Chào mừng trở lại!</div>
 
     <div id="authLoginPanel" class="auth-panel auth-anim-item">
-      <button class="auth-login-btn" onclick="googleLogin()">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" height="18" loading="lazy">
-        <span>Tiếp tục với Google</span>
-      </button>
-
-      <button class="auth-login-btn auth-login-btn--soon" type="button" disabled style="margin-top:14px;" title="Tính năng sắp ra mắt">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" width="18" height="18" loading="lazy">
-        <span>Tiếp tục với Facebook <span class="auth-soon-tag">Sắp có</span></span>
-      </button>
-
-      <button class="auth-login-btn auth-login-btn--soon" type="button" disabled style="margin-top:14px;" title="Tính năng sắp ra mắt">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" width="18" height="18" loading="lazy">
-        <span>Tiếp tục với Microsoft <span class="auth-soon-tag">Sắp có</span></span>
-      </button>
-
-      <div class="auth-divider">hoặc</div>
-
       <form onsubmit="event.preventDefault();emailLogin()">
       <div class="auth-input-group">
         <input type="email" id="loginEmail" required autocomplete="email">
@@ -900,11 +900,19 @@
         <button type="button" class="auth-eye-btn" onclick="togglePassword('loginPassword', this)" tabindex="-1" aria-label="Hiện/ẩn mật khẩu"><i class="fa-solid fa-eye"></i></button>
       </div>
       <span class="auth-field-error" id="loginPasswordError"></span>
+      <span class="auth-caps-hint" id="capsHintLogin">Caps Lock đang bật — mật khẩu sẽ viết HOA</span>
 
       <button type="button" class="auth-forgot-link" onclick="showForgotPassword()">Quên mật khẩu?</button>
 
       <button type="submit" class="auth-submit" id="loginSubmitBtn">Đăng nhập</button>
       </form>
+
+      <div class="auth-divider">hoặc</div>
+
+      <button class="auth-login-btn" onclick="googleLogin()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" height="18" loading="lazy">
+        <span>Tiếp tục với Google</span>
+      </button>
     </div>
 
     <div class="auth-footer auth-anim-item">© 2026 LearnHub Platform | All rights reserved!</div>
@@ -981,6 +989,7 @@
         <button type="button" class="auth-eye-btn" onclick="togglePassword('registerPassword', this)" tabindex="-1" aria-label="Hiện/ẩn mật khẩu"><i class="fa-solid fa-eye"></i></button>
       </div>
       <span class="auth-field-error" id="registerPasswordError"></span>
+      <span class="auth-caps-hint" id="capsHintReg">Caps Lock đang bật — mật khẩu sẽ viết HOA</span>
 
       <div class="auth-input-group">
         <input type="password" id="registerConfirmPassword" required autocomplete="new-password">
@@ -988,6 +997,7 @@
         <button type="button" class="auth-eye-btn" onclick="togglePassword('registerConfirmPassword', this)" tabindex="-1" aria-label="Hiện/ẩn mật khẩu"><i class="fa-solid fa-eye"></i></button>
       </div>
       <span class="auth-field-error" id="registerConfirmPasswordError"></span>
+      <span class="auth-caps-hint" id="capsHintRegCfm">Caps Lock đang bật — mật khẩu sẽ viết HOA</span>
 
       <!-- Ô Ảnh đại diện đồng bộ hiệu ứng floating label -->
       <div class="auth-input-group">
@@ -995,6 +1005,11 @@
         <label>Link ảnh đại diện (tuỳ chọn)</label>
       </div>
       <span class="auth-field-error" id="registerPhotoError"></span>
+
+      <label class="auth-terms">
+        <input type="checkbox" id="registerTerms">
+        <span>Tôi đã đọc và đồng ý với <a href="element/dieu-khoan.html" target="_blank" rel="noopener">Điều khoản sử dụng</a> và <a href="element/chinh-sach-bao-mat.html" target="_blank" rel="noopener">Chính sách bảo mật</a>.</span>
+      </label>
 
       <button type="submit" class="auth-submit" id="registerSubmitBtn">Đăng ký</button>
       </form>
@@ -1030,8 +1045,8 @@
       </div>
 
       <div class="auth-overlay">
-        <h1 id="authSlideTitle">LearnHub - Nang cap cach ban hoc</h1>
-        <p id="authSlideDesc">On thi nhanh • Giao dien hien dai • Toi uu trai nghiem</p>
+        <h1 id="authSlideTitle">LearnHub – Nâng cấp cách bạn học</h1>
+        <p id="authSlideDesc">Ôn thi nhanh • Giao diện hiện đại • Tối ưu trải nghiệm</p>
       </div>
     </div>
   </div>
@@ -1328,6 +1343,22 @@ function setBtnLoading(btn, loading) {
   const el = document.getElementById(id);
   if (el) el.addEventListener("input", () => setFieldError(id, ""));
 });
+
+function bindCapsLockHint(inputId, hintId) {
+  const input = document.getElementById(inputId);
+  const hint = document.getElementById(hintId);
+  if (!input || !hint) return;
+  function sync(e) {
+    const on = !!(e && e.getModifierState && e.getModifierState("CapsLock"));
+    hint.classList.toggle("show", on);
+  }
+  input.addEventListener("keydown", sync);
+  input.addEventListener("keyup", sync);
+  input.addEventListener("blur", () => hint.classList.remove("show"));
+}
+bindCapsLockHint("loginPassword", "capsHintLogin");
+bindCapsLockHint("registerPassword", "capsHintReg");
+bindCapsLockHint("registerConfirmPassword", "capsHintRegCfm");
 
 document.getElementById("otpCode").addEventListener("input", function() {
   const v = this.value.replace(/\D/g, "");
@@ -1653,7 +1684,7 @@ function retriggerAnim(container) {
 
 function switchAuthTab(type) {
   if (type === "register" && !registrationOpen) {
-    showAuthNotice("Đăng ký hiện đang đóng. Vui lòng liên hệ admin nếu bạn cần cấp tài khoản.", "warning", "Đăng ký bị đóng");
+    showAuthNotice("Đăng ký hiện đang đóng. Nếu bạn cần tài khoản, hãy liên hệ quản trị viên.", "warning", "Đăng ký bị đóng");
     return;
   }
   const authShell = document.getElementById("authShell");
@@ -1815,7 +1846,7 @@ onAuthChange(async (event, session) => {
       const allowed = await emailAllowed(user.email);
       if (!allowed) {
         logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED", message: "User không nằm trong whitelist cố đăng nhập (OAuth/quay lại khi có session).", email: user.email });
-        showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập", 4500);
+        showAuthNotice("Email này chưa được cấp quyền truy cập LearnHub. Nếu cần tài khoản, hãy liên hệ quản trị viên.", "error", "Không có quyền truy cập", 4500);
         await supabase.auth.signOut();
         processingLogin = false;
         return;
@@ -1824,7 +1855,7 @@ onAuthChange(async (event, session) => {
       const row = await getUserRow(user.id);
       if (row && row.disabled) {
         logAppError({ source: "login", category: "disabled", level: "warning", code: "DISABLED", message: "Tài khoản bị khóa cố đăng nhập (OAuth/quay lại khi có session).", email: user.email, detail: { name: row.name || "" } });
-        showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa", 4500);
+        showAuthNotice("Tài khoản của bạn đang bị khóa. Hãy liên hệ quản trị viên để được hỗ trợ.", "error", "Tài khoản bị khóa", 4500);
         await supabase.auth.signOut();
         processingLogin = false;
         return;
@@ -1920,8 +1951,8 @@ window.emailLogin = async function() {
     const user = data.user;
     if (!await emailAllowed(user.email)) {
       logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED", message: "Đăng nhập email/mật khẩu bằng email không nằm trong whitelist.", email: user.email });
-      showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập", 4500);
-      setFieldError("loginEmail", "Email chưa được cấp quyền truy cập");
+      showAuthNotice("Email này chưa được cấp quyền truy cập LearnHub. Nếu cần tài khoản, hãy liên hệ quản trị viên.", "error", "Không có quyền truy cập", 4500);
+      setFieldError("loginEmail", "Email chưa được cấp quyền truy cập — liên hệ quản trị viên");
       await supabase.auth.signOut();
       processingLogin = false;
       setBtnLoading(btn, false);
@@ -1930,8 +1961,8 @@ window.emailLogin = async function() {
     const row = await getUserRow(user.id);
     if (row && row.disabled) {
       logAppError({ source: "login", category: "disabled", level: "warning", code: "DISABLED", message: "Đăng nhập email/mật khẩu bằng tài khoản bị khóa.", email: user.email, detail: { name: row.name || "" } });
-      showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa", 4500);
-      setFieldError("loginEmail", "Tài khoản đang bị khóa");
+      showAuthNotice("Tài khoản của bạn đang bị khóa. Hãy liên hệ quản trị viên để được hỗ trợ.", "error", "Tài khoản bị khóa", 4500);
+      setFieldError("loginEmail", "Tài khoản đang bị khóa — liên hệ quản trị viên");
       await supabase.auth.signOut();
       processingLogin = false;
       setBtnLoading(btn, false);
@@ -1987,16 +2018,20 @@ window.emailRegister = async function() {
     showAuthNotice("Vui lòng kiểm tra lại thông tin", "error", "Thiếu thông tin");
     return;
   }
+  if (!document.getElementById("registerTerms") || !document.getElementById("registerTerms").checked) {
+    showAuthNotice("Bạn cần đồng ý với Điều khoản sử dụng và Chính sách bảo mật để đăng ký.", "error", "Chưa đồng ý điều khoản");
+    return;
+  }
   if (!registrationOpen && !await emailAllowed(email)) {
     logAppError({ source: "login", category: "whitelist", level: "warning", code: "REG_CLOSED", message: "Đăng ký bị đóng, email không nằm trong whitelist.", email: email });
     setFieldError("registerEmail", "Đăng ký hiện đang đóng");
-    showAuthNotice("Đăng ký hiện đang đóng. Vui lòng liên hệ admin nếu bạn cần tài khoản.", "error", "Đăng ký bị đóng");
+    showAuthNotice("Đăng ký hiện đang đóng. Nếu bạn cần tài khoản, hãy liên hệ quản trị viên.", "error", "Đăng ký bị đóng");
     return;
   }
   if (!await emailAllowed(email)) {
     logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED_SIGNUP", message: "Cố đăng ký bằng email không nằm trong whitelist.", email: email });
-    setFieldError("registerEmail", "Email chưa được cấp quyền truy cập");
-    showAuthNotice("Email này không nằm trong danh sách được cấp quyền. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập");
+    setFieldError("registerEmail", "Email chưa được cấp quyền đăng ký");
+    showAuthNotice("Email này chưa được cấp quyền đăng ký. Nếu cần tài khoản, hãy liên hệ quản trị viên.", "error", "Không có quyền truy cập");
     return;
   }
 

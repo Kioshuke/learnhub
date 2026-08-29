@@ -1286,7 +1286,7 @@ box-shadow:0 10px 24px rgba(37,99,235,0.22);
 font-size:30px;
 font-weight:800;
 line-height:1.2;
-margin-bottom:10px;
+margin-bottom:24px;
 background:linear-gradient(135deg,#2563eb,#1d4ed8);
 -webkit-background-clip:text;
 background-clip:text;
@@ -2586,7 +2586,8 @@ bottom:84px !important;
 /* ===== LOGIN/REGISTER MOBILE ===== */
 @media (max-width: 900px){
   #loginBox .auth-shell{
-    min-height:100vh;
+    height:auto;
+    min-height:0;
     border-radius:0;
   }
 
@@ -2637,7 +2638,7 @@ bottom:84px !important;
 
   #loginBox .auth-title{
     font-size:22px;
-    margin-bottom:12px;
+    margin-bottom:18px;
   }
 
   #loginBox .auth-login-btn,
