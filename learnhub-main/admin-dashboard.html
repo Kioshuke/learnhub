@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -19,7 +19,6 @@
       --sidebar-border: #1e293b;
       --bg: #f1f5f9;
       --surface: #ffffff;
-      --surface-2: #f8fafc;
       --border: #e2e8f0;
       --text: #0f172a;
       --text-2: #475569;
@@ -59,7 +58,7 @@
       display:flex;align-items:center;gap:11px;padding:10px 14px;border-radius:var(--r-sm);
       font-size:13px;font-weight:500;color:var(--sidebar-text);cursor:pointer;
       transition:all var(--tr);border:none;background:none;width:100%;text-align:left;
-      font-family:inherit;height:34px;flex-shrink:0;
+      font-family:inherit;
     }
     .sidebar-link svg{width:18px;height:18px;flex-shrink:0;opacity:.7}
     .sidebar-link:hover{background:var(--sidebar-hover);color:#e2e8f0}
@@ -67,22 +66,12 @@
     .sidebar-link.active{background:var(--sidebar-active);color:var(--sidebar-text-active);font-weight:600;box-shadow:0 2px 8px rgba(37,99,235,0.3)}
     .sidebar-link.active svg{opacity:1}
     .sidebar-link.active + .sidebar-link,.sidebar-link + .sidebar-link.active{margin-top:2px}
-    .sidebar-badge{
-      margin-left:auto;min-width:18px;height:18px;padding:0 5px;
-      border-radius:4px;background:var(--red);color:#fff;
-      font-size:10px;font-weight:700;display:none;
-      align-items:center;justify-content:center;line-height:1;
-    }
-    .sidebar-badge.all-fixed{background:#475569}
-    .sidebar-badge.visible{display:inline-flex}
-    .sidebar-badge.on{background:var(--green)}
-    .sidebar-badge.off{background:var(--red)}
 
     .sidebar-footer{
       padding:14px 16px;border-top:1px solid var(--sidebar-border);
       display:flex;align-items:center;gap:10px;
     }
-    .sidebar-footer-avatar{width:34px;height:34px;border-radius:10px;background:#1e293b;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--sidebar-text);font-size:14px;font-weight:700;object-fit:cover}
+    .sidebar-footer-avatar{width:34px;height:34px;border-radius:10px;background:#1e293b;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--sidebar-text);font-size:14px;font-weight:700}
     .sidebar-footer-info{flex:1;min-width:0}
     .sidebar-footer-name{font-size:12.5px;font-weight:600;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .sidebar-footer-email{font-size:11px;color:var(--sidebar-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -94,7 +83,7 @@
     .sidebar-logout svg{width:18px;height:18px}
 
     /* ================= MAIN CONTENT ================= */
-    .main{margin-left:var(--sidebar-w);flex:1;min-width:0;min-height:100vh;padding:24px 28px 48px}
+    .main{margin-left:var(--sidebar-w);flex:1;min-height:100vh;padding:24px 28px 48px}
 
     .main-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:16px}
     .main-title{font-size:22px;font-weight:800;letter-spacing:-.02em}
@@ -115,7 +104,21 @@
     .btn-soft{background:#eff6ff;color:var(--blue)}.btn-soft:hover{background:#dbeafe}
     .btn-danger{background:#fef2f2;color:var(--red)}.btn-danger:hover{background:#fee2e2}
     .btn-success{background:#f0fdf4;color:var(--green)}.btn-success:hover{background:#dcfce7}
-.btn-warning{background:#fffbeb;color:#92400e}.btn-warning:hover{background:#fef3c7}
+    .btn-warning{background:#fffbeb;color:#92400e}.btn-warning:hover{background:#fef3c7}
+
+    /* ================= TOAST ================= */
+    .notice{
+      position:fixed;top:20px;right:20px;z-index:9999;width:360px;max-width:calc(100vw - 40px);
+      padding:14px 18px;border-radius:var(--r);border:1px solid transparent;
+      font-size:13.5px;font-weight:500;line-height:1.5;box-shadow:var(--shadow-md);
+      transform:translateX(120%);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .25s ease;
+      opacity:0;pointer-events:none;display:flex;align-items:center;gap:10px;
+    }
+    .notice.show{transform:translateX(0);opacity:1;pointer-events:auto}
+    .notice.info{background:#eff6ff;color:#1e40af;border-color:#bfdbfe}
+    .notice.success{background:#f0fdf4;color:#166534;border-color:#bbf7d0}
+    .notice.error{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
+    .notice.warn{background:#fffbeb;color:#92400e;border-color:#fde68a}
 
     /* ================= STAT CARDS ================= */
     .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
@@ -170,34 +173,6 @@
     .field-row+.field-row{margin-top:12px}
     .field-row .input{min-width:180px;flex:1 1 180px}
 
-    /* ================= SCHEDULE EVENTS ================= */
-    .schedule-week-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 14px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm)}
-    #scheduleTabPanel{overflow:hidden}
-    .schedule-week-label{text-align:center;font-weight:800;color:var(--text);font-size:14px}
-    .schedule-week-label small{display:block;margin-top:2px;color:var(--text-3);font-size:11px;font-weight:600}
-    .schedule-week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;max-width:100%;overflow:hidden;padding-bottom:6px}
-    .schedule-day-column{min-height:280px;padding:10px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface-2)}
-    .schedule-day-column.is-today{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,235,.1)}
-    .schedule-day-column.is-sunday{background:#fff8e5;border-color:#f5c451}
-    .schedule-day-head{display:flex;align-items:center;justify-content:space-between;gap:6px;padding-bottom:9px;margin-bottom:9px;border-bottom:1px solid var(--border)}
-    .schedule-day-name{font-size:12px;font-weight:800;color:var(--text)}
-    .schedule-day-date{font-size:11px;color:var(--text-3);font-weight:600}
-    .schedule-day-add{border:0;background:transparent;color:var(--blue);font-size:18px;font-weight:800;cursor:pointer;line-height:1;padding:0 3px}
-    .schedule-day-empty{padding:18px 4px;text-align:center;color:var(--text-3);font-size:12px}
-    .schedule-event-row{position:relative;display:block;padding:9px;margin-bottom:8px;border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:10px;background:var(--surface);animation:fadeUp .2s ease;cursor:pointer}
-    .schedule-event-row.type-thi{border-left-color:#dc2626}
-    .schedule-event-row .se-delete{position:absolute;top:7px;right:7px;width:22px;height:22px;padding:0;border:0;border-radius:6px;background:#fee2e2;color:#dc2626;cursor:pointer;font-weight:800}
-    .admin-schedule-tag{display:inline-block;font-size:10px;font-weight:800;border-radius:999px;padding:3px 7px;background:#dbeafe;color:#2563eb}.admin-schedule-tag.thi{background:#fee2e2;color:#dc2626}
-    .admin-schedule-top{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-right:24px}
-    .admin-schedule-session{flex-shrink:0;display:inline-block;font-size:10px;font-weight:800;border-radius:999px;padding:3px 7px}.admin-schedule-session.morning{background:#fff3c4;color:#b45309}.admin-schedule-session.noon{background:#fee2e2;color:#dc2626}.admin-schedule-session.afternoon{background:#dbeafe;color:#2563eb}.admin-schedule-session.evening{background:#ede9fe;color:#6d28d9}
-    .admin-schedule-subj{margin-left:auto;flex-shrink:0;font-size:10px;font-weight:700;color:#fff;border-radius:999px;padding:3px 7px}
-    .admin-schedule-title{margin:6px 0 3px;font-size:12px;font-weight:800;color:var(--text)}.admin-schedule-time{font-size:11px;color:var(--text-3)}.admin-schedule-note{margin-top:4px;font-size:11px;color:var(--text-2)}
-    .schedule-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.56);backdrop-filter:blur(4px)}.schedule-modal.show{display:flex}
-    .schedule-modal-card{width:min(100%,520px);max-height:calc(100vh - 36px);overflow:auto;background:var(--surface);border-radius:20px;box-shadow:0 24px 70px rgba(15,23,42,.3)}
-    .schedule-modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;color:#fff;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:20px 20px 0 0}.schedule-modal-head h3{margin:0;font-size:18px}.schedule-modal-close{width:32px;height:32px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:22px;cursor:pointer}
-    .schedule-modal-body{padding:18px 20px}.schedule-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.schedule-modal-field label{display:block;margin:0 0 6px;font-size:12px;font-weight:800;color:var(--text-2)}.schedule-modal-field.full{grid-column:1/-1}.schedule-modal-actions{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border)}
-    @media(max-width:700px){.schedule-week-grid{grid-template-columns:repeat(7,minmax(150px,1fr));overflow-x:auto}.schedule-week-nav .btn{padding:8px 10px;font-size:12px}.schedule-modal-grid{grid-template-columns:1fr}}
-
     /* ================= TABLE ================= */
     .sheet-wrap{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--surface)}
     .sheet-scroll{overflow:auto;max-height:640px}
@@ -239,7 +214,7 @@
     .identity-email{color:var(--text-3);font-size:12px;word-break:break-word}
     .mini-meta{color:var(--text-3);font-size:11.5px;line-height:1.5}
 
-    .status-stack{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:nowrap;white-space:nowrap}
+    .status-stack{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
     .dot-indicator{width:10px;height:10px;border-radius:50%;flex-shrink:0}
     .dot-green{background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.4)}
     .dot-red{background:#ef4444;box-shadow:0 0 6px rgba(239,68,68,.4)}
@@ -296,7 +271,7 @@
     .role-option .check-icon{margin-left:auto;width:14px;height:14px;color:var(--blue);opacity:0;transition:opacity .12s}
     .role-option.active .check-icon{opacity:1}
 
-    .row-actions{display:flex;gap:6px;flex-wrap:nowrap;align-items:center;white-space:nowrap}
+    .row-actions{display:flex;gap:6px;flex-wrap:wrap}
     .row-actions .btn{padding:7px 10px;font-size:12px}
     .empty{padding:32px 16px;text-align:center;color:var(--text-3);font-size:13.5px}
 
@@ -317,7 +292,6 @@
 
     /* ================= TOGGLE ================= */
     .toggle-switch{position:relative;display:inline-flex;align-items:center;gap:10px;cursor:pointer}
-    .toggle-switch input{opacity:0;width:0;height:0;position:absolute}
     .toggle-slider{position:relative;width:48px;height:26px;background:#cbd5e1;border-radius:999px;transition:background .3s;flex-shrink:0}
     .toggle-slider::before{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:transform .3s;box-shadow:0 1px 4px rgba(0,0,0,.12)}
     .toggle-switch input:checked+.toggle-slider{background:linear-gradient(135deg,#f59e0b,#d97706)}
@@ -335,38 +309,6 @@
     .confirm-btn{border:none;border-radius:var(--r-sm);padding:10px 20px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all var(--tr)}
     .confirm-btn-cancel{background:#f1f5f9;color:var(--text-2)}.confirm-btn-cancel:hover{background:#e2e8f0}
     .confirm-btn-confirm{background:var(--red);color:#fff}.confirm-btn-confirm:hover{background:#b91c1c;transform:translateY(-1px)}
-
-    /* Log detail modal */
-    .log-detail-head{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      padding:14px 20px;border-radius:18px 18px 0 0;margin:-28px -26px 16px;
-      color:#fff;
-    }
-    .log-detail-head-left{display:flex;align-items:center;gap:10px;min-width:0}
-    .log-detail-head .confirm-title{color:#fff;margin:0;font-size:16px;letter-spacing:-.2px}
-    .log-detail-chip{
-      flex-shrink:0;padding:3px 11px;border-radius:999px;
-      font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
-      background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.35);
-    }
-    .log-detail-head .btn-soft{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.3)}
-    .log-detail-head .btn-soft:hover{background:rgba(255,255,255,.28);color:#fff}
-    .log-detail-grid{
-      display:grid;grid-template-columns:1fr 1fr;gap:8px;
-      padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
-      margin-bottom:12px;
-    }
-    .log-detail-grid .cell{
-      min-width:0;border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;
-      background:var(--surface-2);
-    }
-    .log-detail-grid .cell.span2{grid-column:1 / -1}
-    .log-detail-key{
-      font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
-      padding:4px 10px;color:var(--text-2);
-      background:var(--border);
-    }
-    .log-detail-val{padding:7px 10px;font-size:12px;color:var(--text);word-break:break-word;font-weight:600;line-height:1.45}
 
     /* ================= LOGIN ================= */
     .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;width:100%}
@@ -446,7 +388,6 @@
     }
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
   </style>
-<script src="toast.js"></script>
 </head>
 <body>
 
@@ -499,7 +440,7 @@
   <!-- SIDEBAR -->
   <nav class="sidebar">
     <div class="sidebar-brand">
-      <img src="pictures/favicon.png" alt="Logo">
+      <img src="pictures/newlogo.png" alt="Logo">
       <div>
         <div class="sidebar-brand-text">LearnHub</div>
         <div class="sidebar-brand-sub">Admin Dashboard</div>
@@ -519,50 +460,27 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         Gửi thông báo
       </button>
-      <button class="sidebar-link" data-admin-tab="mailbox">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        Hộp Thư
-      </button>
       <div class="sidebar-label">Cài đặt</div>
       <button class="sidebar-link" data-admin-tab="welcomePopup">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         Popup chào mừng
       </button>
-      <button class="sidebar-link" data-admin-tab="ticker">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="14" y2="15"/><line x1="16" y1="21" x2="16" y2="3"/></svg>
-        Dòng chữ chạy
-      </button>
-      <button class="sidebar-link" data-admin-tab="schedule">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="8 14 11 17 16 12"/></svg>
-        Lịch học &amp; thi
-      </button>
-      <button class="sidebar-link" data-admin-tab="registration">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-        Đăng ký
-        <span class="sidebar-badge" id="registrationBadge"></span>
-      </button>
-      <button class="sidebar-link" data-admin-tab="maintenance" id="maintenanceSidebarLink">
+      <button class="sidebar-link" data-admin-tab="maintenance">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Bảo trì hệ thống
-        <span class="sidebar-badge" id="maintenanceBadge"></span>
       </button>
       <button class="sidebar-link" data-admin-tab="weeklyReset">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 6 9 6 9z"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 18 9 18 9z"/><path d="M4 22h16"/><path d="M10 22V8h4v14"/><path d="M6 22V6h4v16"/></svg>
         BXH &amp; Reset tuần
       </button>
       <div class="sidebar-label">Hệ thống</div>
-      <button class="sidebar-link" data-admin-tab="errorLogs" id="errorLogsSidebarLink">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        Lỗi hệ thống
-        <span class="sidebar-badge" id="errorLogsBadge"></span>
-      </button>
-      <button class="sidebar-link" onclick="location.href='/index.html'">
+      <button class="sidebar-link" onclick="location.href='index.html'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         Về trang chính
       </button>
     </div>
     <div class="sidebar-footer">
-      <img class="sidebar-footer-avatar" src="pictures/newlogo.png" alt="Admin">
+      <div class="sidebar-footer-avatar">A</div>
       <div class="sidebar-footer-info">
         <div class="sidebar-footer-name">Admin</div>
         <div class="sidebar-footer-email">learnhubadmin@gmail.com</div>
@@ -586,14 +504,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           Nạp whitelist
         </button>
-        <input type="file" id="whitelistFileInput" accept=".txt,.csv,.text" style="display:none">
         <button class="btn btn-primary" id="refreshBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
           Làm mới
-        </button>
-        <button class="btn btn-danger" id="logoutAllBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Đăng xuất tất cả
         </button>
       </div>
     </div>
@@ -632,113 +545,21 @@
       </div>
     </section>
 
-    <!-- MAILBOX TAB -->
-    <section class="panel tab-panel hidden" id="mailboxTabPanel">
-      <div class="panel-head">
-        <div>
-          <div class="panel-title">Hộp Thư</div>
-          <div class="panel-desc" style="margin-bottom:0">Gửi thư đến hộp thư của tất cả user. Thư sẽ được lưu lại và user có thể xem lại bất kỳ lúc nào.</div>
-        </div>
-      </div>
-      <div class="broadcast-layout">
-        <div class="broadcast-col">
-          <div class="field-row" style="margin-top:0"><input id="mailboxTitleInput" class="input" type="text" placeholder="Tiêu đề thư"></div>
-          <div class="field-row"><textarea id="mailboxMessageInput" class="input" rows="5" style="min-height:130px" placeholder="Nội dung thư..."></textarea></div>
-          <div style="display:flex;gap:8px;margin-top:4px">
-            <button class="btn btn-primary" id="sendMailboxBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              Gửi thư
-            </button>
-          </div>
-        </div>
-        <div class="broadcast-col">
-          <div id="mailboxHistory"></div>
-        </div>
-      </div>
-    </section>
-
     <!-- WELCOME POPUP TAB -->
     <section class="panel tab-panel hidden" id="welcomePopupTabPanel">
       <div class="panel-head"><div><div class="panel-title">Popup chào mừng</div><div class="panel-desc" style="margin-bottom:0">Hiển thị sau khi user đăng nhập. Hỗ trợ HTML (&lt;b&gt;, &lt;br&gt;, &lt;i&gt;).</div></div></div>
-      <div class="broadcast-layout">
-        <div class="broadcast-col">
-          <div class="field-row" style="margin-top:0"><input id="welcomePopupTitleInput" class="input" type="text" placeholder="Tiêu đề popup (VD: 📢 Thông báo)"></div>
-          <div class="field-row"><textarea id="welcomePopupMessageInput" class="input" rows="6" style="min-height:150px" placeholder="Nội dung popup..."></textarea></div>
-        </div>
-        <div class="broadcast-col">
-          <div class="radio-section" style="margin-top:0">
-            <label class="radio-section-label">Trạng thái</label>
-            <label class="toggle-switch" style="margin-left:2px">
-              <input id="welcomePopupActiveInput" type="checkbox" checked>
-              <span class="toggle-slider"></span>
-              <span style="font-size:13px;font-weight:600">Bật popup (hiện sau khi đăng nhập)</span>
-            </label>
-          </div>
-          <div class="radio-section">
-            <label class="radio-section-label">Tần suất hiển thị</label>
-            <div class="radio-group">
-              <label class="radio-option"><input type="radio" name="welcomePopupShowMode" value="every_time" checked><span>Mỗi lần vào web</span></label>
-              <label class="radio-option"><input type="radio" name="welcomePopupShowMode" value="daily"><span>Lần đầu trong ngày</span></label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:8px">
+      <div class="field-row" style="margin-top:0"><input id="welcomePopupTitleInput" class="input" type="text" placeholder="Tiêu đề popup"></div>
+      <div class="field-row"><textarea id="welcomePopupMessageInput" class="input" rows="6" style="min-height:140px" placeholder="Nội dung popup..."></textarea></div>
+      <label style="display:flex;align-items:center;gap:8px;margin:8px 0 16px;font-weight:600;font-size:13px;cursor:pointer">
+        <input id="welcomePopupActiveInput" type="checkbox" checked style="accent-color:var(--blue);width:16px;height:16px">
+        Bật popup (hiện sau khi user đăng nhập)
+      </label>
+      <div style="display:flex;gap:8px">
         <button class="btn btn-primary" id="saveWelcomePopupBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Lưu popup</button>
         <button class="btn btn-soft" id="disableWelcomePopupBtn">Tắt popup</button>
       </div>
       <p class="panel-desc" id="welcomePopupMeta" style="margin-top:12px;margin-bottom:0"></p>
     </section>
-
-    <!-- TICKER TAB -->
-    <section class="panel tab-panel hidden" id="tickerTabPanel">
-      <div class="panel-head"><div><div class="panel-title">Dòng chữ chạy</div><div class="panel-desc" style="margin-bottom:0">Chỉnh nội dung và tốc độ dòng chữ chạy trên cùng web chính. Áp dụng realtime ngay khi lưu.</div></div></div>
-      <div class="field-row" style="margin-top:0"><input id="tickerTextInput" class="input" type="text" placeholder="Nội dung dòng chữ chạy..."></div>
-      <div style="margin:14px 0 4px;display:flex;align-items:center;justify-content:space-between;gap:16px">
-        <label for="tickerSpeedInput" style="font-weight:600;font-size:13px;color:var(--text-2)">Tốc độ chạy (giây/vòng — nhỏ = nhanh)</label>
-        <span id="tickerSpeedValue" style="font-weight:800;color:var(--blue);font-size:14px">18s</span>
-      </div>
-      <input id="tickerSpeedInput" type="range" min="5" max="60" step="1" value="18" style="width:100%;accent-color:var(--blue)">
-      <div style="display:flex;gap:8px;margin-top:16px">
-        <button class="btn btn-primary" id="saveTickerBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Lưu &amp; áp dụng</button>
-        <button class="btn btn-soft" id="refreshTickerBtn">Làm mới</button>
-      </div>
-      <p class="panel-desc" id="tickerMeta" style="margin-top:12px;margin-bottom:0"></p>
-    </section>
-
-    <!-- SCHEDULE TAB -->
-    <section class="panel tab-panel hidden" id="scheduleTabPanel">
-      <div class="panel-head"><div><div class="panel-title">Lịch học &amp; lịch thi</div><div class="panel-desc" style="margin-bottom:0">Hiển thị đầu trang Phòng Học. Người dùng bấm chọn môn thì lịch tự thu lại. Áp dụng realtime ngay khi lưu.</div></div></div>
-      <div class="schedule-week-nav">
-        <button class="btn btn-soft" id="schedulePrevWeekBtn">← Tuần trước</button>
-        <div class="schedule-week-label" id="scheduleWeekLabel">Đang tải tuần...</div>
-        <div style="display:flex;gap:8px"><button class="btn btn-soft" id="scheduleTodayBtn">Tuần này</button><button class="btn btn-soft" id="scheduleNextWeekBtn">Tuần sau →</button></div>
-      </div>
-      <div id="scheduleEventsList"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
-        <button class="btn btn-soft" id="addScheduleEventBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Thêm lịch đầu tuần</button>
-        <button class="btn btn-primary" id="saveScheduleBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Lưu &amp; áp dụng</button>
-        <button class="btn btn-soft" id="refreshScheduleBtn">Làm mới</button>
-      </div>
-      <p class="panel-desc" id="scheduleMeta" style="margin-top:12px;margin-bottom:0"></p>
-    </section>
-
-    <div class="schedule-modal" id="scheduleEventModal" role="dialog" aria-modal="true" aria-labelledby="scheduleModalTitle">
-      <div class="schedule-modal-card">
-        <div class="schedule-modal-head"><h3 id="scheduleModalTitle">📅 Thêm lịch học / lịch thi</h3><button class="schedule-modal-close" type="button" onclick="closeScheduleModal()" aria-label="Đóng">×</button></div>
-        <div class="schedule-modal-body"><div class="schedule-modal-grid">
-          <div class="schedule-modal-field"><label for="scheduleModalDate">Ngày</label><input class="input" id="scheduleModalDate" type="date"></div>
-          <div class="schedule-modal-field"><label for="scheduleModalSubject">Môn học</label><select class="select" id="scheduleModalSubject"></select></div>
-          <div class="schedule-modal-field"><label for="scheduleModalType">Loại lịch</label><select class="select" id="scheduleModalType"><option value="hoc">📚 Lịch học</option><option value="thi">📝 Lịch thi</option></select></div>
-          <div class="schedule-modal-field"><label for="scheduleModalSession">Buổi học</label><select class="select" id="scheduleModalSession"><option value="morning">🌅 Sáng</option><option value="noon">☀️ Trưa</option><option value="afternoon">🌤️ Chiều</option><option value="evening">🌙 Tối</option></select></div>
-          <div class="schedule-modal-field"><label for="scheduleModalStart">Bắt đầu</label><input class="input" id="scheduleModalStart" type="time" value="08:00"></div>
-          <div class="schedule-modal-field"><label for="scheduleModalEnd">Kết thúc</label><input class="input" id="scheduleModalEnd" type="time" value="10:00"></div>
-          <div class="schedule-modal-field full"><label for="scheduleModalTitleInput">Nội dung</label><input class="input" id="scheduleModalTitleInput" type="text" placeholder="VD: Ôn tập chương 1"></div>
-          <div class="schedule-modal-field full"><label for="scheduleModalNote">Ghi chú (tùy chọn)</label><input class="input" id="scheduleModalNote" type="text" placeholder="VD: Phòng A1 / Mang máy tính"></div>
-        </div></div>
-        <div class="schedule-modal-actions"><button class="btn btn-soft" type="button" onclick="closeScheduleModal()">Hủy</button><button class="btn btn-primary" type="button" id="saveScheduleModalBtn">Thêm vào lịch</button></div>
-      </div>
-    </div>
 
     <!-- MAINTENANCE TAB -->
     <section class="panel tab-panel hidden" id="maintenanceTabPanel">
@@ -751,19 +572,6 @@
         <button class="btn btn-soft" id="refreshMaintenanceBtn">Làm mới</button>
       </div>
       <p class="panel-desc" id="maintenanceMeta" style="margin-top:12px;margin-bottom:0"></p>
-    </section>
-
-    <!-- REGISTRATION TAB -->
-    <section class="panel tab-panel hidden" id="registrationTabPanel">
-      <div class="panel-head"><div><div class="panel-title">Đăng ký tài khoản</div><div class="panel-desc" style="margin-bottom:0">Bật/tắt chức năng đăng ký mới. User trong whitelist vẫn đăng ký được khi tắt.</div></div></div>
-      <div id="registrationStatusBanner" style="border-radius:var(--r-sm);padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:13px">Đang tải trạng thái...</div>
-      <div style="margin-bottom:18px"><label class="toggle-switch"><input id="registrationEnabledInput" type="checkbox" style="display:none"><span class="toggle-slider"></span><span style="font-weight:600;font-size:14px">Cho phép đăng ký tài khoản mới</span></label></div>
-      <div class="field-row"><textarea id="registrationMessageInput" class="input" rows="3" style="min-height:80px" placeholder="Thông báo hiển thị khi đăng ký bị đóng..."></textarea></div>
-      <div style="display:flex;gap:8px;margin-top:14px">
-        <button class="btn btn-danger" id="saveRegistrationBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Lưu &amp; áp dụng</button>
-        <button class="btn btn-soft" id="refreshRegistrationBtn">Làm mới</button>
-      </div>
-      <p class="panel-desc" id="registrationMeta" style="margin-top:12px;margin-bottom:0"></p>
     </section>
 
     <!-- WEEKLY RESET + LEADERBOARD TAB -->
@@ -793,33 +601,16 @@
               <div id="weeklyResetLastBy" style="font-size:13px;font-weight:600;color:var(--text)">—</div>
             </div>
           </div>
-          <div style="display:flex;gap:8px;margin-bottom:14px">
-            <label style="display:flex;align-items:center;gap:6px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text);flex:1;user-select:none">
-              <input type="checkbox" id="resetScoreCheck" checked style="accent-color:var(--blue);width:15px;height:15px">
-              Điểm số
-            </label>
-            <label style="display:flex;align-items:center;gap:6px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text);flex:1;user-select:none">
-              <input type="checkbox" id="resetTimeCheck" checked style="accent-color:var(--blue);width:15px;height:15px">
-              Thời gian online
-            </label>
-          </div>
           <button class="btn btn-danger" id="manualResetBtn" style="width:100%;justify-content:center">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
             Reset ngay bây giờ
           </button>
-          <p style="margin-top:10px;color:var(--text-3);font-size:11.5px;line-height:1.5;text-align:center">Chọn mục cần reset trước khi nhấn nút. Điểm sẽ bắt đầu tích lũy lại từ đầu.</p>
+          <p style="margin-top:10px;color:var(--text-3);font-size:11.5px;line-height:1.5;text-align:center">Reset thủ công sẽ xóa toàn bộ điểm và bắt đầu tuần mới.</p>
         </div>
 
         <!-- PHẢI: Leaderboard iframe -->
         <div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <span style="font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em">Bảng xếp hạng tuần</span>
-            <button class="btn btn-soft" onclick="document.getElementById('leaderboardFrame').src='element/leaderboard.html?t='+Date.now()" style="padding:4px 10px;font-size:11px">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-              Làm mới
-            </button>
-          </div>
-          <iframe id="leaderboardFrame" src="element/leaderboard.html" style="width:100%;height:520px;border:none;border-radius:var(--r-sm);border:1px solid var(--border)" loading="lazy"></iframe>
+          <iframe src="leaderboard.html" style="width:100%;height:520px;border:none;border-radius:var(--r-sm);border:1px solid var(--border)" loading="lazy"></iframe>
         </div>
       </div>
     </section>
@@ -861,53 +652,6 @@
       </div>
       <div id="renameListBody"></div>
     </section>
-
-    <!-- ERROR LOGS -->
-    <section class="panel tab-panel hidden" id="errorLogsTabPanel">
-      <div class="panel-head">
-        <div>
-          <div class="panel-title">Lỗi hệ thống</div>
-          <div class="panel-desc" style="margin-bottom:0">Lỗi từ user và tính năng (whitelist, khóa user, AI, tải bài test). Log quá 7 ngày tự xóa.</div>
-        </div>
-      </div>
-      <div id="errorLogsStats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px"></div>
-      <div class="toolbar">
-        <input id="errorLogsSearchInput" class="input" type="search" placeholder="Tìm theo email, nguồn, mã lỗi, nội dung...">
-        <select id="errorLogsLevelSelect" class="select">
-          <option value="all">Mọi mức độ</option>
-          <option value="warning">Cảnh báo</option>
-          <option value="error">Nghiêm trọng</option>
-          <option value="info">Bình thường</option>
-        </select>
-        <select id="errorLogsStatusSelect" class="select">
-          <option value="all">Mọi trạng thái</option>
-          <option value="open">Còn lỗi</option>
-          <option value="fixed">Đã fix</option>
-        </select>
-        <select id="errorLogsCategorySelect" class="select">
-          <option value="all">Mọi loại</option>
-          <option value="ai">Lỗi AI</option>
-          <option value="whitelist">Whitelist</option>
-          <option value="disabled">Khóa user</option>
-          <option value="feature">Tính năng</option>
-          <option value="auth">Xác thực</option>
-          <option value="test">Tải bài test</option>
-        </select>
-        <button class="btn btn-soft" id="errorLogsRefreshBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-          Làm mới
-        </button>
-        <div class="pagination" id="errorLogsPagination"></div>
-      </div>
-      <div class="sheet-wrap">
-        <div class="sheet-scroll">
-          <table class="sheet-table">
-            <thead><tr><th>Thời gian</th><th>Mức độ</th><th>Loại</th><th>User</th><th>Mã lỗi</th><th>Nội dung</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
-            <tbody id="errorLogsTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
   </div>
 </div>
 
@@ -924,20 +668,605 @@
   </div>
 </div>
 
-<!-- LOG DETAIL MODAL -->
-<div id="logDetailModal" class="confirm-modal">
-  <div class="confirm-card" style="max-width:680px;text-align:left">
-    <div class="log-detail-head" id="logDetailHead">
-      <div class="log-detail-head-left">
-        <span class="log-detail-chip" id="logDetailLevelChip">Cảnh báo</span>
-        <h3 class="confirm-title" id="logDetailTitle">Chi tiết log</h3>
-      </div>
-      <button class="btn btn-soft" onclick="closeLogDetail()" style="padding:6px 14px;font-size:12px">✕ Đóng</button>
-    </div>
-    <div id="logDetailBody" style="font-size:13px;line-height:1.6;color:var(--text-2);max-height:60vh;overflow:auto"></div>
-  </div>
-</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { initializeAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, onSnapshot, doc, setDoc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-<script type="module" src="admin-dashboard.js"></script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCOelxKPrcSeiLpYN2WwYPWysHwZjZLd9c",
+  authDomain: "onthi12-thpttanhong.firebaseapp.com",
+  projectId: "onthi12-thpttanhong",
+  storageBucket: "onthi12-thpttanhong.firebasestorage.app",
+  messagingSenderId: "922115936320",
+  appId: "1:922115936320:web:67b86c06af9149ff584fa5"
+};
+
+const defaultAllowList = [
+  "quanhao678@gmail.com","huunhan170908@gmail.com","thanhcong0976888@gmail.com",
+  "duchieu0383377967@gmail.com","tanphat131008@gmail.com","lebaonguyen3003@gmail.com",
+  "lamhuynhanh456@gmail.com","nguyenquyenthdt2021@gmail.com","baonhiho.n2008@gmail.com",
+  "baotran150308@gmail.com","leducanh2022jojo@gmail.com","quynhnhu07052020@gmail.com",
+  "nguyenthimynhan202011@gmail.com","kienquoc2021dt@gmail.com","pnpthuy.2811@gmail.com",
+  "bangbang4951@gmail.com","xmai9839@gmail.com","learnhubadmin@gmail.com"
+];
+
+const adminEmail = "learnhubadmin@gmail.com";
+
+const app = initializeApp(firebaseConfig, "learnhub-admin-dashboard");
+const auth = initializeAuth(app, { persistence: inMemoryPersistence });
+const db = getFirestore(app);
+let allowDocs = [];
+let userDocs = [];
+let unsubscribeAllow = null;
+let unsubscribeUsers = null;
+
+const noticeEl = document.getElementById("notice");
+const loginView = document.getElementById("loginView");
+const dashboardView = document.getElementById("dashboardView");
+const totalUsersEl = document.getElementById("totalUsers");
+const onlineUsersEl = document.getElementById("onlineUsers");
+const disabledUsersEl = document.getElementById("disabledUsers");
+const totalWhitelistEl = document.getElementById("totalWhitelist");
+const directoryTableBody = document.getElementById("directoryTableBody");
+const directorySearchInput = document.getElementById("directorySearchInput");
+const directoryFilterSelect = document.getElementById("directoryFilterSelect");
+const directoryPagination = document.getElementById("directoryPagination");
+const PAGE_SIZE = 15;
+let currentPage = 1;
+const adminTabButtons = document.querySelectorAll("[data-admin-tab]");
+const usersTabPanel = document.getElementById("usersTabPanel");
+const broadcastsTabPanel = document.getElementById("broadcastsTabPanel");
+const welcomePopupTabPanel = document.getElementById("welcomePopupTabPanel");
+const broadcastTargetEmailInput = document.getElementById("broadcastTargetEmailInput");
+const welcomePopupTitleInput = document.getElementById("welcomePopupTitleInput");
+const welcomePopupMessageInput = document.getElementById("welcomePopupMessageInput");
+const welcomePopupActiveInput = document.getElementById("welcomePopupActiveInput");
+const welcomePopupMeta = document.getElementById("welcomePopupMeta");
+const maintenanceTabPanel = document.getElementById("maintenanceTabPanel");
+const maintenanceEnabledInput = document.getElementById("maintenanceEnabledInput");
+const maintenanceMessageInput = document.getElementById("maintenanceMessageInput");
+const maintenanceStatusBanner = document.getElementById("maintenanceStatusBanner");
+const maintenanceMeta = document.getElementById("maintenanceMeta");
+const renameTabPanel = document.getElementById("renameTabPanel");
+const renameSearchInput = document.getElementById("renameSearchInput");
+const renameListBody = document.getElementById("renameListBody");
+const weeklyResetTabPanel = document.getElementById("weeklyResetTabPanel");
+const weeklyResetCurrentWeek = document.getElementById("weeklyResetCurrentWeek");
+const weeklyResetLastTime = document.getElementById("weeklyResetLastTime");
+const weeklyResetLastBy = document.getElementById("weeklyResetLastBy");
+const weeklyResetStatusBanner = document.getElementById("weeklyResetStatusBanner");
+const pageTitle = document.getElementById("pageTitle");
+const pageSubtitle = document.getElementById("pageSubtitle");
+
+const pageTitles = {
+  users: ["Quản lý user", "Quản lý whitelist, khóa/mở khóa user."],
+  rename: ["Tên hiển thị", "Đổi tên hiển thị cho từng user đã có tài khoản."],
+  broadcasts: ["Gửi thông báo", "Gửi thông báo realtime đến toàn bộ user hoặc từng người."],
+  welcomePopup: ["Popup chào mừng", "Chỉnh popup hiển thị sau khi user đăng nhập."],
+  maintenance: ["Bảo trì hệ thống", "Bật/tắt chế độ bảo trì toàn hệ thống."],
+  weeklyReset: ["BXH & Reset tuần", "Bảng xếp hạng học viên và reset điểm theo tuần."]
+};
+
+function switchAdminTab(tab) {
+  adminTabButtons.forEach(b => b.classList.toggle("active", b.dataset.adminTab === tab));
+  usersTabPanel.classList.toggle("hidden", tab !== "users");
+  renameTabPanel.classList.toggle("hidden", tab !== "rename");
+  broadcastsTabPanel.classList.toggle("hidden", tab !== "broadcasts");
+  welcomePopupTabPanel.classList.toggle("hidden", tab !== "welcomePopup");
+  maintenanceTabPanel.classList.toggle("hidden", tab !== "maintenance");
+  weeklyResetTabPanel.classList.toggle("hidden", tab !== "weeklyReset");
+  const t = pageTitles[tab] || ["", ""];
+  pageTitle.textContent = t[0];
+  pageSubtitle.textContent = t[1];
+  if (tab === "welcomePopup") loadWelcomePopupForm();
+  if (tab === "maintenance") loadMaintenanceForm();
+  if (tab === "rename") renderRenameList();
+  if (tab === "weeklyReset") loadWeeklyResetForm();
+  // close mobile sidebar
+  document.querySelector('.sidebar').classList.remove('open');
+  document.querySelector('.sidebar-overlay').classList.remove('active');
+}
+
+adminTabButtons.forEach(b => b.addEventListener("click", () => switchAdminTab(b.dataset.adminTab)));
+
+document.querySelectorAll('input[name="broadcastTargetMode"]').forEach(r => {
+  r.addEventListener("change", () => {
+    const s = r.value === "single";
+    broadcastTargetEmailInput.disabled = !s;
+    if (!s) broadcastTargetEmailInput.value = "";
+  });
+});
+
+function showNotice(message, type = "info") {
+  const ns = new Audio('sound/realtimesound.mp3');
+  ns.volume = 0.5;
+  ns.play().catch(() => {});
+  noticeEl.className = `notice ${type} show`;
+  noticeEl.textContent = message;
+  clearTimeout(showNotice.timer);
+  showNotice.timer = setTimeout(() => noticeEl.classList.remove("show"), 3200);
+}
+
+function normalizeEmail(e) { return String(e || "").trim().toLowerCase(); }
+function emailDocId(e) { return encodeURIComponent(normalizeEmail(e)); }
+
+function formatDate(v) {
+  if (!v) return "Chưa có";
+  let d = typeof v === "number" ? new Date(v) : v?.toDate ? v.toDate() : new Date(v);
+  if (Number.isNaN(d.getTime())) return "Chưa có";
+  return d.toLocaleString("vi-VN");
+}
+
+function escapeHtml(t) {
+  return String(t || "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
+}
+
+async function seedDefaultAllowList() {
+  const snap = await getDocs(collection(db, "accessList"));
+  if (!snap.empty) { showNotice("Whitelist Firestore đã có dữ liệu rồi.", "info"); return; }
+  await Promise.all(defaultAllowList.map(e => setDoc(doc(db, "accessList", emailDocId(e)), { email: normalizeEmail(e), enabled: true, addedAt: new Date().toISOString(), source: "default-seed" }, { merge: true })));
+  showNotice("Đã nạp whitelist mặc định lên Firestore.", "success");
+}
+
+function updateStats() {
+  totalUsersEl.textContent = String(userDocs.length);
+  totalWhitelistEl.textContent = String(allowDocs.length);
+  onlineUsersEl.textContent = String(userDocs.filter(i => i.online).length);
+  disabledUsersEl.textContent = String(userDocs.filter(i => i.disabled).length);
+}
+
+function buildDirectoryRows() {
+  const aMap = new Map(allowDocs.map(i => [normalizeEmail(i.email), i]));
+  const uMap = new Map(); userDocs.forEach(i => { if (i.email) uMap.set(normalizeEmail(i.email), i); });
+  const all = new Set([...aMap.keys(), ...uMap.keys()]);
+  const rows = [];
+  all.forEach(email => {
+    const a = aMap.get(email), u = uMap.get(email);
+    rows.push({
+      email, uid: u?.uid || "", name: u?.name || u?.email || a?.email || "Chưa có tên",
+      photo: u?.photo || "https://i.imgur.com/6VBx3io.png", role: u?.role || "Thành viên",
+      online: Boolean(u?.online), disabled: Boolean(u?.disabled),
+      whitelisted: a ? a.enabled !== false : false, allowId: a?.id || emailDocId(email),
+      lastLogin: u?.lastLogin || "", lastActive: u?.lastActive || "",
+      createdAt: u?.createdAt || "", updatedAt: u?.updatedAt || a?.updatedAt || "",
+      hasUserDoc: Boolean(u)
+    });
+  });
+  return rows.sort((a, b) => normalizeEmail(a.name).localeCompare(normalizeEmail(b.name)));
+}
+
+function renderDirectory() {
+  const kw = normalizeEmail(directorySearchInput.value), fl = directoryFilterSelect.value;
+  const filtered = buildDirectoryRows().filter(i => {
+    const h = [i.uid, i.name, i.email].map(v => normalizeEmail(v)).join(" ");
+    if (kw && !h.includes(kw)) return false;
+    if (fl === "whitelisted" && !i.whitelisted) return false;
+    if (fl === "not-whitelisted" && i.whitelisted) return false;
+    if (fl === "disabled" && !i.disabled) return false;
+    return true;
+  });
+  const total = filtered.length, totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (currentPage > totalPages) currentPage = totalPages;
+  const start = (currentPage - 1) * PAGE_SIZE, paged = filtered.slice(start, start + PAGE_SIZE);
+  if (!paged.length) { directoryTableBody.innerHTML = `<tr><td colspan="5"><div class="empty">${total ? "Trang này không có user." : "Chưa có người dùng nào khớp bộ lọc."}</div></td></tr>`; renderPagination(total, totalPages); return; }
+  directoryTableBody.innerHTML = paged.map(i => {
+    const su = escapeHtml(i.uid), se = escapeHtml(i.email||""), sn = escapeHtml(i.name||i.email||"Chưa đặt tên"), sp = escapeHtml(i.photo||"https://i.imgur.com/6VBx3io.png");
+    const chips = [`<span class="dot-indicator ${i.whitelisted?'dot-green':'dot-red'}"></span>`, i.disabled?`<span class="chip red">Đã khóa</span>`:``, i.online?`<span class="chip green">Online</span>`:``].filter(Boolean).join("");
+    const cr = i.role || "Thành viên";
+    return `<tr>
+      <td><div class="identity-cell"><img class="mini-avatar" src="${sp}" alt=""><div><div class="identity-name">${sn}</div><div class="identity-email">${se||"Chưa có email"}</div><div class="mini-meta">UID: ${su||"Chưa có"}${i.hasUserDoc?"":"<br>Chưa tạo hồ sơ"}</div></div></div></td>
+      <td><div class="status-stack">${chips}</div></td>
+      <td>${i.hasUserDoc?`<div class="role-select" data-uid="${su}" data-role="${cr}"><div class="role-trigger"><span class="role-dot ${cr==='Admin'?'r-admin':cr==='Giáo viên'?'r-teacher':'r-member'}"></span><span class="role-label">${cr}</span></div><div class="role-dropdown" role="menu" aria-label="Chọn vai trò">${["Thành viên","Giáo viên","Admin"].map(r=>`<div class="role-option${r===cr?' active':''}" data-role="${r}" role="menuitem"><span class="role-dot"></span>${r}<svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`).join("")}</div></div>`:`<div class="mini-meta">Chưa kích hoạt</div>`}</td>
+      <td><div class="mini-meta"><b>Đăng nhập cuối:</b> ${formatDate(i.lastLogin)}<br><b>Hoạt động cuối:</b> ${formatDate(i.lastActive)}<br><b>Tạo lúc:</b> ${formatDate(i.createdAt)}</div></td>
+      <td><div class="row-actions"><button class="btn ${i.whitelisted?"btn-warning":"btn-success"}" onclick="toggleWhitelist('${escapeHtml(i.allowId)}',${i.whitelisted})">${i.whitelisted?"Tắt whitelist":"Cấp quyền"}</button>${i.hasUserDoc?`<button class="btn ${i.disabled?"btn-success":"btn-warning"}" onclick="toggleDisable('${su}',${i.disabled?"true":"false"})">${i.disabled?"Mở khóa":"Khóa user"}</button>`:``}<button class="btn btn-danger" onclick="deleteUserData('${su}','${se}')">${i.hasUserDoc?"Xóa user":"Xóa email"}</button></div></td>
+    </tr>`;
+  }).join("");
+  renderPagination(total, totalPages);
+}
+
+function renderPagination(total, totalPages) {
+  if (totalPages <= 1) { directoryPagination.innerHTML = `<div class="pagination-info">Tổng: ${total} user</div>`; return; }
+  const from = (currentPage - 1) * PAGE_SIZE + 1, to = Math.min(currentPage * PAGE_SIZE, total);
+  let btns = "";
+  btns += `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?"disabled":""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>`;
+  const pages = [];
+  pages.push(1);
+  if (currentPage > 3) pages.push("...");
+  for (let p = Math.max(2, currentPage - 1); p <= Math.min(totalPages - 1, currentPage + 1); p++) pages.push(p);
+  if (currentPage < totalPages - 2) pages.push("...");
+  if (totalPages > 1) pages.push(totalPages);
+  pages.forEach(p => {
+    if (p === "...") btns += `<span class="page-ellipsis">...</span>`;
+    else btns += `<button class="page-btn${p===currentPage?' active':''}" onclick="goPage(${p})">${p}</button>`;
+  });
+  btns += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?"disabled":""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>`;
+  directoryPagination.innerHTML = `<div class="pagination-info">Hiển thị ${from}–${to} / ${total} user</div><div class="pagination-controls">${btns}</div>`;
+}
+window.goPage = (p) => { currentPage = p; renderDirectory(); };
+
+function renderRenameList() {
+  const kw = normalizeEmail(renameSearchInput.value);
+  const users = buildDirectoryRows().filter(i => i.hasUserDoc).filter(i => {
+    if (!kw) return true;
+    return [i.uid, i.name, i.email].map(v => normalizeEmail(v)).join(" ").includes(kw);
+  });
+  if (!users.length) { renameListBody.innerHTML = `<div class="empty">Không tìm thấy user nào${kw ? " khớp bộ lọc" : ""}.</div>`; return; }
+  renameListBody.innerHTML = users.map(i => {
+    const su = escapeHtml(i.uid), se = escapeHtml(i.email||""), sn = escapeHtml(i.name||i.email||""), sp = escapeHtml(i.photo||"https://i.imgur.com/6VBx3io.png");
+    return `<div class="rename-row">
+      <img src="${sp}" alt="">
+      <div class="rename-info"><div class="rename-name">${sn}</div><div class="rename-email">${se||"Chưa có email"}</div></div>
+      <div class="rename-field"><input id="rename-${su}" class="input" type="text" value="${sn}" placeholder="Tên mới"><button class="btn btn-primary" onclick="renameUser('${su}')">Lưu</button></div>
+    </div>`;
+  }).join("");
+}
+renameSearchInput.addEventListener("input", renderRenameList);
+
+async function refreshCollections() {
+  const [as, us] = await Promise.all([getDocs(collection(db, "accessList")), getDocs(collection(db, "users"))]);
+  allowDocs = as.docs.map(d => ({id:d.id,...d.data()})).sort((a,b)=>normalizeEmail(a.email).localeCompare(normalizeEmail(b.email)));
+  userDocs = us.docs.map(d => ({uid:d.id,...d.data()})).sort((a,b)=>normalizeEmail(a.name||a.email).localeCompare(normalizeEmail(b.name||b.email)));
+  updateStats(); renderDirectory(); renderRenameList();
+}
+
+function startRealtime() {
+  if (unsubscribeAllow) unsubscribeAllow(); if (unsubscribeUsers) unsubscribeUsers();
+  unsubscribeAllow = onSnapshot(collection(db, "accessList"), s => {
+    allowDocs = s.docs.map(d => ({id:d.id,...d.data()})).sort((a,b)=>normalizeEmail(a.email).localeCompare(normalizeEmail(b.email)));
+    updateStats(); renderDirectory(); renderRenameList();
+  });
+  unsubscribeUsers = onSnapshot(collection(db, "users"), s => {
+    userDocs = s.docs.map(d => ({uid:d.id,...d.data()})).sort((a,b)=>normalizeEmail(a.name||a.email).localeCompare(normalizeEmail(b.name||b.email)));
+    updateStats(); renderDirectory(); renderRenameList();
+  });
+}
+
+async function ensureAdmin(user) {
+  if (!user?.email || normalizeEmail(user.email) !== adminEmail) {
+    showNotice("Email này không có quyền vào dashboard admin.", "error");
+    await signOut(auth); return false;
+  }
+  return true;
+}
+
+document.getElementById("adminLoginBtn").addEventListener("click", async () => {
+  try {
+    const email = normalizeEmail(document.getElementById("adminEmailInput").value);
+    const password = document.getElementById("adminPasswordInput").value;
+    if (email !== adminEmail) { showNotice("Chỉ được đăng nhập bằng learnhubadmin@gmail.com", "error"); return; }
+    if (!password) { showNotice("Vui lòng nhập mật khẩu admin.", "error"); return; }
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    console.error(error);
+    let message = "Đăng nhập admin thất bại.";
+    if (error.code==="auth/invalid-credential"||error.code==="auth/wrong-password") message="Sai mật khẩu hoặc tài khoản admin không hợp lệ.";
+    else if (error.code==="auth/too-many-requests") message="Đăng nhập quá nhiều lần. Vui lòng thử lại sau.";
+    showNotice(message, "error");
+  }
+});
+
+document.getElementById("logoutBtn").addEventListener("click", async () => { await signOut(auth); });
+document.getElementById("seedBtn").addEventListener("click", seedDefaultAllowList);
+document.getElementById("refreshBtn").addEventListener("click", refreshCollections);
+
+document.getElementById("sendBroadcastBtn").addEventListener("click", async () => {
+  const ti = document.getElementById("broadcastTitleInput"), mi = document.getElementById("broadcastMessageInput");
+  const tp = document.querySelector('input[name="broadcastType"]:checked'), dp = document.querySelector('input[name="broadcastDuration"]:checked');
+  const mp = document.querySelector('input[name="broadcastTargetMode"]:checked');
+  const title = String(ti.value||"").trim(), message = String(mi.value||"").trim();
+  const tm = mp?mp.value:"all", te = normalizeEmail(broadcastTargetEmailInput.value);
+  if (!message) { showNotice("Vui lòng nhập nội dung thông báo.", "error"); return; }
+  if (tm==="single"&&(!te||!te.includes("@"))) { showNotice("Vui lòng nhập email hợp lệ.", "error"); return; }
+  try {
+    const now = new Date().toISOString();
+    await setDoc(doc(db,"broadcasts","current"),{id:now,title:title||"Thông báo",message,type:tp?tp.value:"info",durationMs:Number(dp?dp.value:3000),targetMode:tm,targetEmail:tm==="single"?te:"",active:true,updatedAt:now,sender:adminEmail},{merge:true});
+    ti.value=""; mi.value="";
+    document.querySelector('input[name="broadcastType"][value="info"]').checked=true;
+    document.querySelector('input[name="broadcastDuration"][value="3000"]').checked=true;
+    document.querySelector('input[name="broadcastTargetMode"][value="all"]').checked=true;
+    broadcastTargetEmailInput.value=""; broadcastTargetEmailInput.disabled=true;
+    showNotice(tm==="single"?`Đã gửi thông báo đến ${te}.`:"Đã gửi thông báo đến toàn bộ user đang mở LearnHub.","success");
+  } catch(e) { console.error(e); showNotice("Gửi thông báo thất bại.", "error"); }
+});
+
+document.getElementById("clearBroadcastBtn").addEventListener("click", async () => {
+  try { await setDoc(doc(db,"broadcasts","current"),{active:false,updatedAt:new Date().toISOString(),sender:adminEmail},{merge:true}); showNotice("Đã tắt thông báo hiện tại.", "success"); }
+  catch(e) { console.error(e); showNotice("Không tắt được thông báo.", "error"); }
+});
+
+async function loadWelcomePopupForm() {
+  try {
+    const s = await getDoc(doc(db,"broadcasts","welcomePopup"));
+    if (!s.exists()) { welcomePopupTitleInput.value="📢 Thông báo"; welcomePopupMessageInput.value="CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM"; welcomePopupActiveInput.checked=true; welcomePopupMeta.textContent="Chưa có bản lưu. Lưu lần đầu để áp dụng."; return; }
+    const d=s.data()||{}; welcomePopupTitleInput.value=d.title||"📢 Thông báo"; welcomePopupMessageInput.value=d.message||""; welcomePopupActiveInput.checked=d.active!==false;
+    welcomePopupMeta.textContent=d.updatedAt?`Cập nhật: ${formatDate(d.updatedAt)}${d.updatedBy?` · bởi ${d.updatedBy}`:""}`:"";
+  } catch(e) { console.error(e); showNotice("Không tải được popup.", "error"); }
+}
+
+document.getElementById("saveWelcomePopupBtn").addEventListener("click", async () => {
+  const title=String(welcomePopupTitleInput.value||"").trim(), message=String(welcomePopupMessageInput.value||"").trim(), active=welcomePopupActiveInput.checked;
+  if (!message) { showNotice("Vui lòng nhập nội dung popup.", "error"); return; }
+  try {
+    const now=new Date().toISOString();
+    await setDoc(doc(db,"broadcasts","welcomePopup"),{title:title||"📢 Thông báo",message,active,updatedAt:now,updatedBy:adminEmail},{merge:true});
+    welcomePopupMeta.textContent=`Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`; showNotice("Đã lưu popup cố định.", "success");
+  } catch(e) { console.error(e); showNotice("Lưu popup thất bại.", "error"); }
+});
+
+document.getElementById("disableWelcomePopupBtn").addEventListener("click", async () => {
+  try {
+    const now=new Date().toISOString();
+    await setDoc(doc(db,"broadcasts","welcomePopup"),{active:false,updatedAt:now,updatedBy:adminEmail},{merge:true});
+    welcomePopupActiveInput.checked=false; welcomePopupMeta.textContent=`Đã tắt popup · ${formatDate(now)}`; showNotice("Đã tắt popup cố định.", "success");
+  } catch(e) { console.error(e); showNotice("Không tắt được popup.", "error"); }
+});
+
+function renderMaintenanceBanner(d) {
+  const on=Boolean(d&&d.enabled);
+  maintenanceStatusBanner.textContent=on?"🔴 ĐANG BẬT BẢO TRÌ — Toàn bộ user bị chặn truy cập.":"🟢 Đang tắt — Web hoạt động bình thường.";
+  maintenanceStatusBanner.style.background=on?"#fee2e2":"#dcfce7"; maintenanceStatusBanner.style.color=on?"#b91c1c":"#166534";
+  maintenanceStatusBanner.style.border=on?"1px solid #fecaca":"1px solid #bbf7d0";
+}
+
+async function loadMaintenanceForm() {
+  try {
+    const s=await getDoc(doc(db,"settings","maintenance")), d=s.exists()?(s.data()||{}):{};
+    maintenanceEnabledInput.checked=Boolean(d.enabled); maintenanceMessageInput.value=d.message||""; renderMaintenanceBanner(d);
+    maintenanceMeta.textContent=d.updatedAt?`Cập nhật: ${formatDate(d.updatedAt)}${d.updatedBy?` · bởi ${d.updatedBy}`:""}`:"Chưa từng bật bảo trì.";
+  } catch(e) { console.error(e); showNotice("Không tải được trạng thái bảo trì.", "error"); }
+}
+
+document.getElementById("saveMaintenanceBtn").addEventListener("click", async () => {
+  const enabled=maintenanceEnabledInput.checked, message=String(maintenanceMessageInput.value||"").trim();
+  const modal=document.getElementById("confirmModal"), mI=document.getElementById("confirmModalIcon"), mT=document.getElementById("confirmModalTitle");
+  const mM=document.getElementById("confirmModalMessage"), cB=document.getElementById("confirmModalConfirm");
+  if (enabled) { mI.textContent="⚠️"; mT.textContent="Bật chế độ bảo trì?"; mM.textContent="Toàn bộ user sẽ bị đăng xuất và mọi truy cập mới bị chặn. Tiếp tục?"; }
+  else { mI.textContent="✅"; mT.textContent="Tắt chế độ bảo trì?"; mM.textContent="User có thể đăng nhập và truy cập web bình thường. Tiếp tục?"; }
+  modal.classList.add("active");
+  const onConfirm = async () => {
+    modal.classList.remove("active"); cB.removeEventListener("click",onConfirm); document.getElementById("confirmModalCancel").removeEventListener("click",onCancel);
+    try {
+      const now=new Date().toISOString();
+      await setDoc(doc(db,"settings","maintenance"),{enabled,message,updatedAt:now,updatedBy:adminEmail},{merge:true});
+      renderMaintenanceBanner({enabled}); maintenanceMeta.textContent=`Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
+      showNotice(enabled?"Đã BẬT bảo trì.":"Đã TẮT bảo trì.","success"); await loadMaintenanceForm();
+    } catch(e) { console.error(e); showNotice("Cập nhật bảo trì thất bại.", "error"); }
+  };
+  const onCancel = () => { modal.classList.remove("active"); cB.removeEventListener("click",onConfirm); document.getElementById("confirmModalCancel").removeEventListener("click",onCancel); maintenanceEnabledInput.checked=!enabled; };
+  cB.addEventListener("click",onConfirm); document.getElementById("confirmModalCancel").addEventListener("click",onCancel);
+});
+
+document.getElementById("refreshMaintenanceBtn").addEventListener("click", loadMaintenanceForm);
+
+document.getElementById("addWhitelistBtn").addEventListener("click", async () => {
+  const input=document.getElementById("allowEmailInput"), email=normalizeEmail(input.value);
+  if (!email||!email.includes("@")) { showNotice("Vui lòng nhập email hợp lệ.", "error"); return; }
+  await setDoc(doc(db,"accessList",emailDocId(email)),{email,enabled:true,addedAt:new Date().toISOString(),updatedAt:new Date().toISOString()},{merge:true});
+  input.value=""; showNotice("Đã thêm email vào whitelist.", "success");
+});
+
+directorySearchInput.addEventListener("input", () => { currentPage = 1; renderDirectory(); });
+directoryFilterSelect.addEventListener("change", () => { currentPage = 1; renderDirectory(); });
+
+window.toggleWhitelist = async (docId, cur) => {
+  await setDoc(doc(db,"accessList",docId),{email:normalizeEmail(decodeURIComponent(docId)),enabled:!cur,updatedAt:new Date().toISOString()},{merge:true});
+  showNotice(cur?"Đã tắt quyền email này.":"Đã bật lại quyền email này.", "success");
+};
+window.removeWhitelist = async (docId) => {
+  if (!confirm("Xóa email này khỏi whitelist?")) return;
+  await deleteDoc(doc(db,"accessList",docId)); showNotice("Đã xóa email khỏi whitelist.", "success");
+};
+window.renameUser = async (uid) => {
+  const input=document.getElementById(`rename-${uid}`), name=String(input?.value||"").trim();
+  if (name.length<2) { showNotice("Tên phải có ít nhất 2 ký tự.", "error"); return; }
+  await updateDoc(doc(db,"users",uid),{name,updatedAt:new Date().toISOString()}); showNotice("Đã cập nhật tên user.", "success");
+};
+window.toggleDisable = async (uid, cur) => {
+  if (!uid) return; await updateDoc(doc(db,"users",uid),{disabled:!cur,online:false,updatedAt:new Date().toISOString()});
+  showNotice(cur?"Đã mở khóa user.":"Đã disable user.", "success");
+};
+window.changeUserRole = async (uid, role) => {
+  if (!uid) return; try { await updateDoc(doc(db,"users",uid),{role,updatedAt:new Date().toISOString()}); showNotice(`Đã chuyển quyền thành: ${role}`, "success"); }
+  catch(e) { console.error(e); showNotice("Không thể cập nhật quyền.", "error"); }
+};
+function openRoleDropdown(trigger) {
+  const wrap = trigger.closest(".role-select");
+  if (!wrap) return;
+  const dd = wrap.querySelector(".role-dropdown");
+  if (!dd) return;
+  const wasOpen = dd.classList.contains("open");
+  document.querySelectorAll(".role-dropdown.open").forEach(d => {
+    d.classList.remove("open");
+    d.style.top = "";
+    d.style.left = "";
+    d.style.transform = "";
+  });
+  if (!wasOpen) {
+    const r = trigger.getBoundingClientRect();
+    dd.style.left = `${Math.min(r.left, window.innerWidth - 190)}px`;
+    dd.style.top = `${Math.max(8, r.top - 8)}px`;
+    dd.style.transform = "translateY(-100%)";
+    dd.classList.add("open");
+  }
+}
+window.toggleRoleDropdown = (trigger) => {
+  openRoleDropdown(trigger);
+};
+window.pickRole = async (uid, role, source) => {
+  const wrap = source?.closest ? source.closest(".role-select") : source;
+  if (!wrap) return;
+  const dd = wrap.querySelector(".role-dropdown");
+  if (dd) dd.classList.remove("open");
+  if (wrap.dataset.role === role) return;
+  await changeUserRole(uid, role);
+  wrap.dataset.role = role;
+  const trigger = wrap.querySelector(".role-trigger");
+  const dot = trigger?.querySelector(".role-dot");
+  const label = trigger?.querySelector(".role-label");
+  if (dot) dot.className = "role-dot " + (role==='Admin'?'r-admin':role==='Giáo viên'?'r-teacher':'r-member');
+  if (label) label.textContent = role;
+  wrap.querySelectorAll(".role-option").forEach(o => o.classList.toggle("active", o.dataset.role === role));
+};
+directoryTableBody.addEventListener("click", (e) => {
+  const trigger = e.target.closest(".role-trigger");
+  if (trigger) {
+    e.stopPropagation();
+    openRoleDropdown(trigger);
+    return;
+  }
+
+  const option = e.target.closest(".role-option");
+  if (option) {
+    e.stopPropagation();
+    const wrap = option.closest(".role-select");
+    const uid = wrap?.dataset?.uid || "";
+    const role = option.dataset.role;
+    if (wrap && role) {
+      void window.pickRole(uid, role, option);
+    }
+  }
+});
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".role-select")) {
+    document.querySelectorAll(".role-dropdown.open").forEach(d => {
+      d.classList.remove("open");
+      d.style.top = "";
+      d.style.left = "";
+      d.style.transform = "";
+    });
+  }
+});
+window.deleteUserData = async (uid, email) => {
+  const has=Boolean(uid);
+  if (!confirm(has?"Xóa hồ sơ Firestore và gỡ khỏi whitelist?":"Xóa email khỏi whitelist?")) return;
+  if (has) await deleteDoc(doc(db,"users",uid));
+  const ne=normalizeEmail(email);
+  if (ne) { const r=doc(db,"accessList",emailDocId(ne)), s=await getDoc(r); if (s.exists()) await deleteDoc(r); }
+  showNotice(has?"Đã xóa hồ sơ user và gỡ whitelist.":"Đã xóa email khỏi whitelist.", "success");
+};
+
+// ================= WEEKLY RESET =================
+function getCurrentWeekKey() {
+  const now = new Date();
+  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNum = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  return `${d.getUTCFullYear()}-W${String(weekNum).padStart(2, '0')}`;
+}
+
+async function loadWeeklyResetForm() {
+  const currentWeek = getCurrentWeekKey();
+  weeklyResetCurrentWeek.textContent = currentWeek;
+  try {
+    const snap = await getDoc(doc(db, "settings", "weeklyReset"));
+    if (snap.exists()) {
+      const d = snap.data();
+      weeklyResetLastTime.textContent = d.lastResetAt ? formatDate(d.lastResetAt) : "Chưa từng reset thủ công";
+      weeklyResetLastBy.textContent = d.lastResetBy || "—";
+      weeklyResetStatusBanner.textContent = `Tuần ${currentWeek} · Đã reset ${d.resetCount || 0} lần`;
+      weeklyResetStatusBanner.style.background = "#eff6ff";
+      weeklyResetStatusBanner.style.color = "#1e40af";
+      weeklyResetStatusBanner.style.border = "1px solid #bfdbfe";
+    } else {
+      weeklyResetLastTime.textContent = "Chưa từng reset thủ công";
+      weeklyResetLastBy.textContent = "—";
+      weeklyResetStatusBanner.textContent = `Tuần ${currentWeek} · Chưa có lần reset thủ công nào`;
+      weeklyResetStatusBanner.style.background = "#f8fafc";
+      weeklyResetStatusBanner.style.color = "#64748b";
+      weeklyResetStatusBanner.style.border = "1px solid #e2e8f0";
+    }
+  } catch (e) {
+    console.error(e);
+    weeklyResetStatusBanner.textContent = "Không tải được thông tin reset.";
+    weeklyResetStatusBanner.style.background = "#fef2f2";
+    weeklyResetStatusBanner.style.color = "#b91c1c";
+    weeklyResetStatusBanner.style.border = "1px solid #fecaca";
+  }
+}
+
+document.getElementById("manualResetBtn").addEventListener("click", async () => {
+  const modal = document.getElementById("confirmModal");
+  const mI = document.getElementById("confirmModalIcon");
+  const mT = document.getElementById("confirmModalTitle");
+  const mM = document.getElementById("confirmModalMessage");
+  const cB = document.getElementById("confirmModalConfirm");
+
+  mI.textContent = "⚠️";
+  mT.textContent = "Reset toàn bộ điểm?";
+  mM.textContent = "Hành động này sẽ đặt totalScore, totalTests, bestScore của TẤT CẢ user về 0. Điểm sẽ bắt đầu tích lũy lại từ đầu. Bạn có chắc?";
+  modal.classList.add("active");
+
+  const onConfirm = async () => {
+    modal.classList.remove("active");
+    cB.removeEventListener("click", onConfirm);
+    document.getElementById("confirmModalCancel").removeEventListener("click", onCancel);
+
+    const btn = document.getElementById("manualResetBtn");
+    btn.disabled = true;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Đang reset...';
+
+    try {
+      const currentWeek = getCurrentWeekKey();
+      const statsSnap = await getDocs(collection(db, "testStats"));
+      let count = 0;
+
+      for (const d of statsSnap.docs) {
+        await setDoc(doc(db, "testStats", d.id), {
+          totalTests: 0,
+          totalScore: 0,
+          bestScore: 0,
+          weekKey: currentWeek,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+        count++;
+      }
+
+      const now = new Date().toISOString();
+      const resetSnap = await getDoc(doc(db, "settings", "weeklyReset"));
+      const prevCount = resetSnap.exists() ? (resetSnap.data().resetCount || 0) : 0;
+
+      await setDoc(doc(db, "settings", "weeklyReset"), {
+        lastResetAt: now,
+        lastResetBy: adminEmail,
+        resetCount: prevCount + 1,
+        usersReset: count
+      }, { merge: true });
+
+      showNotice(`Đã reset điểm thành công cho ${count} user.`, "success");
+      await loadWeeklyResetForm();
+    } catch (e) {
+      console.error(e);
+      showNotice("Reset điểm thất bại.", "error");
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Reset ngay bây giờ';
+  };
+
+  const onCancel = () => {
+    modal.classList.remove("active");
+    cB.removeEventListener("click", onConfirm);
+    document.getElementById("confirmModalCancel").removeEventListener("click", onCancel);
+  };
+
+  cB.addEventListener("click", onConfirm);
+  document.getElementById("confirmModalCancel").addEventListener("click", onCancel);
+});
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    if (unsubscribeAllow) unsubscribeAllow(); if (unsubscribeUsers) unsubscribeUsers();
+    loginView.style.display="flex"; dashboardView.classList.add("hidden"); return;
+  }
+  const ok = await ensureAdmin(user); if (!ok) return;
+  document.getElementById("adminPasswordInput").value="";
+  loginView.style.display="none"; dashboardView.classList.remove("hidden"); dashboardView.style.display="flex";
+  await refreshCollections(); startRealtime();
+});
+</script>
+<div id="notice" class="notice info"></div>
 </body>
 </html>

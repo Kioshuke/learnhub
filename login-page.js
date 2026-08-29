@@ -1,4 +1,4 @@
-﻿
+﻿﻿
 import { supabase } from "./supabase-config.js";
 import { getMaintenance, subscribeMaintenance, emailAllowed, isRegistrationOpen, getUserRow, onAuthChange, finalizeSession } from "./supabase-helpers.js";
 import { redirectToResetPage, isPasswordRecovery } from "./reset-password.js";
@@ -6,15 +6,15 @@ import { logAppError } from "./log-errors.js";
 
 window.supabase = supabase;
 
-// ÄÄƒng kÃ½ ngay láº­p tá»©c (trÆ°á»›c má»i await bÃªn dÆ°á»›i) Ä‘á»ƒ khÃ´ng lá»¡ sá»± kiá»‡n
-// PASSWORD_RECOVERY khi user báº¥m link Ä‘áº·t láº¡i máº­t kháº©u tá»« email.
+// Đăng ký ngay lập tức (trước mọi await bên dưới) để không lỡ sự kiện
+// PASSWORD_RECOVERY khi user bấm link đặt lại mật khẩu từ email.
 supabase.auth.onAuthStateChange((event) => {
   isPasswordRecovery(event);
 });
 
 let maintenanceState = { enabled: false, message: "", initialized: false };
 
-// Check ngay khi load trang (await â€” náº¿u báº­t thÃ¬ redirect ngay, khÃ´ng cháº¡y tiáº¿p)
+// Check ngay khi load trang (await — nếu bật thì redirect ngay, không chạy tiếp)
 try {
   console.log("[MAINTENANCE] Checking maintenance status on load...");
   const _m = await getMaintenance();
@@ -36,7 +36,7 @@ isRegistrationOpen().then(ok => {
   window.registrationOpen = ok;
 }).catch(e => console.error("Registration check error:", e));
 
-// Láº¯ng nghe realtime: báº­t â†’ redirect maintenance.html, táº¯t â†’ redirect login.html
+// Lắng nghe realtime: bật → redirect maintenance.html, tắt → redirect login.html
 try {
   subscribeMaintenance((data) => {
     const wasEnabled = maintenanceState.enabled;
@@ -47,7 +47,7 @@ try {
       window.location.replace('maintenance.html');
     } else if (!maintenanceState.enabled && wasEnabled) {
       console.log("[MAINTENANCE] Maintenance just turned OFF");
-      // Chá»‰ redirect vá» login náº¿u khÃ´ng pháº£i Ä‘ang á»Ÿ login.html
+      // Chỉ redirect về login nếu không phải đang ở login.html
       if (!location.pathname.endsWith('/login.html') && !location.pathname.endsWith('login.html')) {
         console.log("[MAINTENANCE] Redirecting to login.html");
         window.location.replace('login.html');
@@ -96,10 +96,10 @@ function setBtnLoading(btn, loading) {
   if (loading) {
     btn.dataset.orig = btn.dataset.orig || btn.textContent;
     btn.disabled = true;
-    btn.innerHTML = '<span class="auth-btn-spinner"></span>Äang xá»­ lÃ½...';
+    btn.innerHTML = '<span class="auth-btn-spinner"></span>Đang xử lý...';
   } else {
     btn.disabled = false;
-    btn.innerHTML = btn.dataset.orig || "Tiáº¿p tá»¥c";
+    btn.innerHTML = btn.dataset.orig || "Tiếp tục";
   }
 }
 
@@ -131,9 +131,9 @@ function showLoginSuccess(message, redirectMs = 3000) {
   let remaining = Math.ceil(redirectMs / 1000);
   let toast = null;
   if (window.lhToast) {
-    toast = lhToast(`${message} Chuyá»ƒn hÆ°á»›ng sau ${remaining}s...`, {
+    toast = lhToast(`${message} Chuyển hướng sau ${remaining}s...`, {
       type: "success",
-      title: "ThÃ nh cÃ´ng",
+      title: "Thành công",
       durationMs: redirectMs,
       sound: "thongbao"
     });
@@ -145,12 +145,12 @@ function showLoginSuccess(message, redirectMs = 3000) {
       countdownInterval = null;
       window.location.replace('/index.html');
     } else if (toast) {
-      toast.update(`${message} Chuyá»ƒn hÆ°á»›ng sau ${remaining}s...`);
+      toast.update(`${message} Chuyển hướng sau ${remaining}s...`);
     }
   }, 1000);
 }
 
-// Fallback: náº¿u mp3 bá»‹ cháº·n/lá»—i táº£i thÃ¬ kÃªu beep báº±ng WebAudio API (luÃ´n available sau gesture)
+// Fallback: nếu mp3 bị chặn/lỗi tải thì kêu beep bằng WebAudio API (luôn available sau gesture)
 let _noticeAudioCtx = null;
 function playFallbackBeep() {
   try {
@@ -179,7 +179,7 @@ function playNotificationSound(soundId = "thongbaoSound") {
   const base = document.getElementById(soundId);
   if (!base) { playFallbackBeep(); return; }
   let audio = base;
-  // ThÃ´ng bÃ¡o trÆ°á»›c chÆ°a phÃ¡t xong -> dÃ¹ng báº£n clone Ä‘á»ƒ chá»“ng tiáº¿ng, khÃ´ng cáº¯t nhau
+  // Thông báo trước chưa phát xong -> dùng bản clone để chồng tiếng, không cắt nhau
   if (!base.paused && !base.ended && base.currentTime > 0) {
     try { audio = base.cloneNode(); } catch (e) { audio = base; }
   }
@@ -192,11 +192,11 @@ audio.volume = 1;
   if (p && p.then) p.then(() => audio.removeEventListener("error", fail)).catch(fail);
 }
 
-// Má»Ÿ khoÃ¡ autoplay sau láº§n tÆ°Æ¡ng tÃ¡c Ä‘áº§u tiÃªn cá»§a ngÆ°á»i dÃ¹ng.
-// KhÃ´ng cÃ³ bÆ°á»›c nÃ y, thÃ´ng bÃ¡o tá»« onAuthChange (restore session) bá»‹ trÃ¬nh duyá»‡t cháº·n tiáº¿ng.
-// QUAN TRá»ŒNG: listener click á»Ÿ document cháº¡y SAU onclick cá»§a nÃºt (event bubbling),
-// nÃªn náº¿u khÃ´ng guard thÃ¬ nÃ³ sáº½ mute/táº£i láº¡i audio mÃ  thÃ´ng bÃ¡o vá»«a báº¯t Ä‘áº§u phÃ¡t
-// -> tiáº¿ng popup bá»‹ nuá»‘t máº¥t. LuÃ´n bá» qua náº¿u audio Ä‘ang phÃ¡t tiáº¿ng tháº­t.
+// Mở khoá autoplay sau lần tương tác đầu tiên của người dùng.
+// Không có bước này, thông báo từ onAuthChange (restore session) bị trình duyệt chặn tiếng.
+// QUAN TRỌNG: listener click ở document chạy SAU onclick của nút (event bubbling),
+// nên nếu không guard thì nó sẽ mute/tải lại audio mà thông báo vừa bắt đầu phát
+// -> tiếng popup bị nuốt mất. Luôn bỏ qua nếu audio đang phát tiếng thật.
 (function unlockAudio() {
   const ids = ["thongbaoSound"];
   function tryUnlock() {
@@ -204,7 +204,7 @@ audio.volume = 1;
     ids.forEach(function (id) {
       const a = document.getElementById(id);
       if (!a) return;
-      // Äang phÃ¡t thÃ´ng bÃ¡o tháº­t -> trÃ¬nh duyá»‡t Ä‘Ã£ cho phÃ©p tiáº¿ng, Ä‘á»«ng Ä‘á»¥ng vÃ o
+      // Đang phát thông báo thật -> trình duyệt đã cho phép tiếng, đừng đụng vào
       if (!a.paused && !a.muted && a.volume > 0) { loaded = true; return; }
       a.muted = true;
       a.volume = 0;
@@ -212,9 +212,9 @@ audio.volume = 1;
         const p = a.play();
         if (p && p.then) {
           p.then(function () {
-            // Náº¿u cÃ³ má»™t play() tháº­t (cÃ³ tiáº¿ng) Ä‘ang cháº¡y trong cÃ¹ng lÆ°á»£t click
-            // (vd: báº¥m ÄÄƒng nháº­p bá»‹ lá»—i â†’ hiá»‡n thÃ´ng bÃ¡o), KHÃ”NG pause Ä‘á»ƒ
-            // trÃ¡nh nuá»‘t máº¥t tiáº¿ng cá»§a thÃ´ng bÃ¡o.
+            // Nếu có một play() thật (có tiếng) đang chạy trong cùng lượt click
+            // (vd: bấm Đăng nhập bị lỗi → hiện thông báo), KHÔNG pause để
+            // tránh nuốt mất tiếng của thông báo.
             if (a.muted === true) {
               a.pause();
               a.currentTime = 0;
@@ -226,7 +226,7 @@ loaded = true;
         }
       } catch (e) {}
     });
-    // Warm-up luÃ´n WebAudio context cho fallback beep
+    // Warm-up luôn WebAudio context cho fallback beep
     try {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (AC) {
@@ -321,29 +321,29 @@ function startResendCooldown() {
   const btn = document.getElementById("otpResendBtn");
   let sec = 60;
   btn.disabled = true;
-  btn.textContent = "Gá»­i láº¡i mÃ£ (" + sec + "s)";
+  btn.textContent = "Gửi lại mã (" + sec + "s)";
   otpResendCooldown = setInterval(() => {
     sec--;
     if (sec <= 0) {
       clearInterval(otpResendCooldown);
       btn.disabled = false;
-      btn.textContent = "Gá»­i láº¡i mÃ£";
+      btn.textContent = "Gửi lại mã";
       return;
     }
-    btn.textContent = "Gá»­i láº¡i mÃ£ (" + sec + "s)";
+    btn.textContent = "Gửi lại mã (" + sec + "s)";
   }, 1000);
 }
 
 window.sendOTP = async function() {
   const email = document.getElementById("registerEmail").value.trim();
   if (!email) {
-    showAuthNotice("Vui lÃ²ng nháº­p email trÆ°á»›c", "error", "Thiáº¿u email");
+    showAuthNotice("Vui lòng nhập email trước", "error", "Thiếu email");
     return;
   }
   setFieldError("otpCode", "");
   const btn = document.getElementById("sendOtpBtn");
   btn.disabled = true;
-  btn.textContent = "Äang gá»­i...";
+  btn.textContent = "Đang gửi...";
 
   otpGenerated = generateOTP();
   otpExpiry = Date.now() + OTP_EXPIRE_MS;
@@ -359,16 +359,16 @@ window.sendOTP = async function() {
       email: email
     });
     document.getElementById("otpSection").style.display = "block";
-    btn.textContent = "ÄÃ£ gá»­i mÃ£ âœ“";
+    btn.textContent = "Đã gửi mã ✓";
     startOTPCountdown();
     startResendCooldown();
     const otpFocus = document.getElementById("otpCode");
     if (otpFocus) otpFocus.focus();
   } catch(err) {
     console.error("OTP send error:", err);
-    showAuthNotice("Gá»­i mÃ£ tháº¥t báº¡i. Vui lÃ²ng thá»­ láº¡i.", "error", "Lá»—i gá»­i mÃ£");
+    showAuthNotice("Gửi mã thất bại. Vui lòng thử lại.", "error", "Lỗi gửi mã");
     btn.disabled = false;
-    btn.textContent = "Nháº­n mÃ£";
+    btn.textContent = "Nhận mã";
   }
 };
 
@@ -394,12 +394,12 @@ window.resendOTP = async function() {
     });
     startOTPCountdown();
     startResendCooldown();
-    showAuthNotice("MÃ£ má»›i Ä‘Ã£ gá»­i Ä‘áº¿n email cá»§a báº¡n", "success", "Gá»­i láº¡i thÃ nh cÃ´ng");
+    showAuthNotice("Mã mới đã gửi đến email của bạn", "success", "Gửi lại thành công");
   } catch(err) {
     console.error("OTP resend error:", err);
-    showAuthNotice("Gá»­i láº¡i mÃ£ tháº¥t báº¡i", "error", "Lá»—i");
+    showAuthNotice("Gửi lại mã thất bại", "error", "Lỗi");
     btn.disabled = false;
-    btn.textContent = "Gá»­i láº¡i mÃ£";
+    btn.textContent = "Gửi lại mã";
   }
 };
 
@@ -415,8 +415,8 @@ function resetOTPState() {
   const resendBtn = document.getElementById("otpResendBtn");
   const countdownEl = document.getElementById("otpCountdown");
   if (otpSection) otpSection.style.display = "none";
-  if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = "Nháº­n mÃ£"; }
-  if (resendBtn) { resendBtn.disabled = false; resendBtn.textContent = "Gá»­i láº¡i mÃ£"; }
+  if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = "Nhận mã"; }
+  if (resendBtn) { resendBtn.disabled = false; resendBtn.textContent = "Gửi lại mã"; }
   if (countdownEl) countdownEl.textContent = "15:00";
   const otpInput = document.getElementById("otpCode");
   if (otpInput) otpInput.value = "";
@@ -432,7 +432,7 @@ function retriggerAnim(container) {
 
 function switchAuthTab(type) {
   if (type === "register" && !registrationOpen) {
-    showAuthNotice("ÄÄƒng kÃ½ hiá»‡n Ä‘ang Ä‘Ã³ng. Vui lÃ²ng liÃªn há»‡ admin náº¿u báº¡n cáº§n cáº¥p tÃ i khoáº£n.", "warning", "ÄÄƒng kÃ½ bá»‹ Ä‘Ã³ng");
+    showAuthNotice("Đăng ký hiện đang đóng. Vui lòng liên hệ admin nếu bạn cần cấp tài khoản.", "warning", "Đăng ký bị đóng");
     return;
   }
   const authShell = document.getElementById("authShell");
@@ -455,14 +455,14 @@ function switchAuthTab(type) {
 }
 
 function authComingSoon() {
-  showAuthNotice("TÃ­nh nÄƒng nÃ y Ä‘ang phÃ¡t triá»ƒn. Hiá»‡n táº¡i báº¡n váº«n Ä‘Äƒng nháº­p báº±ng Google nhÆ° cÅ©.", "info", "TÃ­nh nÄƒng sáº¯p ra máº¯t");
+  showAuthNotice("Tính năng này đang phát triển. Hiện tại bạn vẫn đăng nhập bằng Google như cũ.", "info", "Tính năng sắp ra mắt");
 }
 
 const authSlideData = [
-  { title: "LearnHub â€“ NÃ¢ng cáº¥p cÃ¡ch báº¡n há»c", desc: "Ã”n thi nhanh â€¢ Giao diá»‡n hiá»‡n Ä‘áº¡i â€¢ Tá»‘i Æ°u tráº£i nghiá»‡m" },
-  { title: "Giao diá»‡n chÃ­nh - Hubie AI", desc: "Trá»£ lÃ½ AI há»— trá»£ há»c táº­p vÃ  tra tá»« Ä‘iá»ƒn Anh - Viá»‡t cÃ¹ng giao diá»‡n trá»±c quan Ä‘áº§y Ä‘á»§ tÃ­nh nÄƒng" },
-  { title: "LearnHub Forum", desc: "Trao Ä‘á»•i â€¢ Há»i Ä‘Ã¡p â€¢ Káº¿t ná»‘i há»c sinh nhÆ° má»™t trang MXH" },
-  { title: "TÃ­nh nÄƒng Smart FlashCard", desc: "Há»c tá»« vá»±ng thÃ´ng minh vá»›i nhiá»u thá»ƒ loáº¡i há»c táº­p, tá»« vá»±ng Ä‘a dáº¡ng" }
+  { title: "LearnHub – Nâng cấp cách bạn học", desc: "Ôn thi nhanh • Giao diện hiện đại • Tối ưu trải nghiệm" },
+  { title: "Giao diện chính - Hubie AI", desc: "Trợ lý AI hỗ trợ học tập và tra từ điển Anh - Việt cùng giao diện trực quan đầy đủ tính năng" },
+  { title: "LearnHub Forum", desc: "Trao đổi • Hỏi đáp • Kết nối học sinh như một trang MXH" },
+  { title: "Tính năng Smart FlashCard", desc: "Học từ vựng thông minh với nhiều thể loại học tập, từ vựng đa dạng" }
 ];
 let authSlideIndex = 0;
 let authSlideTimer = null;
@@ -527,7 +527,7 @@ window.switchAuthTab = switchAuthTab;
 window.authComingSoon = authComingSoon;
 window.showAuthNotice = showAuthNotice;
 
-/* ---------- QUÃŠN Máº¬T KHáº¨U / Äáº¶T Láº I Máº¬T KHáº¨U ---------- */
+/* ---------- QUÊN MẬT KHẨU / ĐẶT LẠI MẬT KHẨU ---------- */
 
 window.closeModal = function(id) {
   const el = document.getElementById(id);
@@ -546,38 +546,38 @@ window.sendPasswordReset = async function() {
   const email = document.getElementById("forgotEmail").value.trim();
   const btn = document.getElementById("forgotSendBtn");
   if (!email) {
-    showAuthNotice("Vui lÃ²ng nháº­p email", "error", "Thiáº¿u email");
+    showAuthNotice("Vui lòng nhập email", "error", "Thiếu email");
     return;
   }
   btn.disabled = true;
-  btn.textContent = "Äang gá»­i...";
+  btn.textContent = "Đang gửi...";
   try {
     const base = window.location.origin + window.location.pathname;
     const redirectTo = base.substring(0, base.lastIndexOf("/") + 1) + "reset-password.html";
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
     if (error) throw error;
     closeModal("forgotModal");
-    showAuthNotice("LiÃªn káº¿t Ä‘áº·t láº¡i máº­t kháº©u Ä‘Ã£ Ä‘Æ°á»£c gá»­i. Vui lÃ²ng kiá»ƒm tra email!", "success", "ÄÃ£ gá»­i", 2600, "thongbaoSound", "fa-envelope");
+    showAuthNotice("Liên kết đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email!", "success", "Đã gửi", 2600, "thongbaoSound", "fa-envelope");
     document.getElementById("forgotEmail").value = "";
 
-    // Äáº¿m ngÆ°á»£c 10s trÆ°á»›c khi cho báº¥m láº¡i
+    // Đếm ngược 10s trước khi cho bấm lại
     let countdown = 10;
-    btn.textContent = `Gá»­i láº¡i (${countdown}s)`;
+    btn.textContent = `Gửi lại (${countdown}s)`;
     const interval = setInterval(() => {
       countdown--;
       if (countdown > 0) {
-        btn.textContent = `Gá»­i láº¡i (${countdown}s)`;
+        btn.textContent = `Gửi lại (${countdown}s)`;
       } else {
         clearInterval(interval);
         btn.disabled = false;
-        btn.textContent = "Gá»­i liÃªn káº¿t Ä‘áº·t láº¡i";
+        btn.textContent = "Gửi liên kết đặt lại";
       }
     }, 1000);
   } catch (error) {
-    console.error("Lá»—i gá»­i liÃªn káº¿t Ä‘áº·t láº¡i máº­t kháº©u:", error);
-    showAuthNotice("Gá»­i liÃªn káº¿t tháº¥t báº¡i: " + error.message, "error", "Lá»—i");
+    console.error("Lỗi gửi liên kết đặt lại mật khẩu:", error);
+    showAuthNotice("Gửi liên kết thất bại: " + error.message, "error", "Lỗi");
     btn.disabled = false;
-    btn.textContent = "Gá»­i liÃªn káº¿t Ä‘áº·t láº¡i";
+    btn.textContent = "Gửi liên kết đặt lại";
   }
 };
 
@@ -590,31 +590,31 @@ onAuthChange(async (event, session) => {
   if (user && !processingLogin) {
     processingLogin = true;
     try {
-      // Kiá»ƒm tra whitelist
+      // Kiểm tra whitelist
       const allowed = await emailAllowed(user.email);
       if (!allowed) {
-        logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED", message: "User khÃ´ng náº±m trong whitelist cá»‘ Ä‘Äƒng nháº­p (OAuth/quay láº¡i khi cÃ³ session).", email: user.email });
-        showAuthNotice("TÃ i khoáº£n nÃ y khÃ´ng Ä‘Æ°á»£c cáº¥p quyá»n truy cáº­p. Vui lÃ²ng liÃªn há»‡ admin.", "error", "KhÃ´ng cÃ³ quyá»n truy cáº­p", 4500);
+        logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED", message: "User không nằm trong whitelist cố đăng nhập (OAuth/quay lại khi có session).", email: user.email });
+        showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập", 4500);
         await supabase.auth.signOut();
         processingLogin = false;
         return;
       }
-      // Kiá»ƒm tra tÃ i khoáº£n bá»‹ khÃ³a
+      // Kiểm tra tài khoản bị khóa
       const row = await getUserRow(user.id);
       if (row && row.disabled) {
-        logAppError({ source: "login", category: "disabled", level: "warning", code: "DISABLED", message: "TÃ i khoáº£n bá»‹ khÃ³a cá»‘ Ä‘Äƒng nháº­p (OAuth/quay láº¡i khi cÃ³ session).", email: user.email, detail: { name: row.name || "" } });
-        showAuthNotice("TÃ i khoáº£n cá»§a báº¡n Ä‘ang bá»‹ vÃ´ hiá»‡u hÃ³a. Vui lÃ²ng liÃªn há»‡ admin.", "error", "TÃ i khoáº£n bá»‹ khÃ³a", 4500);
+        logAppError({ source: "login", category: "disabled", level: "warning", code: "DISABLED", message: "Tài khoản bị khóa cố đăng nhập (OAuth/quay lại khi có session).", email: user.email, detail: { name: row.name || "" } });
+        showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa", 4500);
         await supabase.auth.signOut();
         processingLogin = false;
         return;
       }
-      // Cáº­p nháº­t há»“ sÆ¡ (user má»›i náº±m tháº³ng trÃªn Supabase) rá»“i vÃ o trang chá»§
+      // Cập nhật hồ sơ (user mới nằm thẳng trên Supabase) rồi vào trang chủ
       await finalizeSession(user);
       window.location.replace("/index.html");
     } catch(e) {
-      console.error("Finalize login lá»—i:", e);
+      console.error("Finalize login lỗi:", e);
       processingLogin = false;
-      showAuthNotice("ÄÃ£ cÃ³ lá»—i xáº£y ra khi Ä‘Äƒng nháº­p. Vui lÃ²ng thá»­ láº¡i.", "error", "Lá»—i");
+      showAuthNotice("Đã có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.", "error", "Lỗi");
     }
     return;
   }
@@ -622,7 +622,7 @@ onAuthChange(async (event, session) => {
     document.getElementById("loginBox").style.display = "flex";
     const params = new URLSearchParams(window.location.search);
     if (params.get("loggedout") === "1") {
-      showAuthNotice("ÄÄƒng xuáº¥t thÃ nh cÃ´ng!", "success", "ThÃ nh cÃ´ng");
+      showAuthNotice("Đăng xuất thành công!", "success", "Thành công");
       window.history.replaceState({}, '', 'login.html');
     }
   }
@@ -638,9 +638,9 @@ window.googleLogin = async function() {
     });
     if (error) throw error;
   } catch(error) {
-    console.error("Lá»—i Google Login:", error);
+    console.error("Lỗi Google Login:", error);
     processingLogin = false;
-    showAuthNotice("ÄÄƒng nháº­p chÆ°a thÃ nh cÃ´ng: " + error.message, "error", "ÄÃ£ xáº£y ra lá»—i");
+    showAuthNotice("Đăng nhập chưa thành công: " + error.message, "error", "Đã xảy ra lỗi");
   }
 };
 
@@ -654,9 +654,9 @@ window.facebookLogin = async function() {
     });
     if (error) throw error;
   } catch(error) {
-    console.error("Lá»—i Facebook Login:", error);
+    console.error("Lỗi Facebook Login:", error);
     processingLogin = false;
-    showAuthNotice("ÄÄƒng nháº­p chÆ°a thÃ nh cÃ´ng: " + error.message, "error", "ÄÃ£ xáº£y ra lá»—i");
+    showAuthNotice("Đăng nhập chưa thành công: " + error.message, "error", "Đã xảy ra lỗi");
   }
 };
 
@@ -670,9 +670,9 @@ window.microsoftLogin = async function() {
     });
     if (error) throw error;
   } catch(error) {
-    console.error("Lá»—i Microsoft Login:", error);
+    console.error("Lỗi Microsoft Login:", error);
     processingLogin = false;
-    showAuthNotice("ÄÄƒng nháº­p chÆ°a thÃ nh cÃ´ng: " + error.message, "error", "ÄÃ£ xáº£y ra lá»—i");
+    showAuthNotice("Đăng nhập chưa thành công: " + error.message, "error", "Đã xảy ra lỗi");
   }
 };
 
@@ -682,12 +682,12 @@ window.emailLogin = async function() {
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
   let invalid = false, focusId = null;
-  if (!email) { setFieldError("loginEmail", "Vui lÃ²ng nháº­p email"); focusId = "loginEmail"; invalid = true; }
-  else if (!emailRe.test(email)) { setFieldError("loginEmail", "Email khÃ´ng há»£p lá»‡"); focusId = "loginEmail"; invalid = true; }
-  if (!password) { setFieldError("loginPassword", "Vui lÃ²ng nháº­p máº­t kháº©u"); focusId = focusId || "loginPassword"; invalid = true; }
+  if (!email) { setFieldError("loginEmail", "Vui lòng nhập email"); focusId = "loginEmail"; invalid = true; }
+  else if (!emailRe.test(email)) { setFieldError("loginEmail", "Email không hợp lệ"); focusId = "loginEmail"; invalid = true; }
+  if (!password) { setFieldError("loginPassword", "Vui lòng nhập mật khẩu"); focusId = focusId || "loginPassword"; invalid = true; }
   if (invalid) {
     if (focusId) { shakeAuthBox(focusId); document.getElementById(focusId).focus(); }
-    showAuthNotice("Vui lÃ²ng kiá»ƒm tra láº¡i thÃ´ng tin", "error", "Thiáº¿u thÃ´ng tin");
+    showAuthNotice("Vui lòng kiểm tra lại thông tin", "error", "Thiếu thông tin");
     return;
   }
   const btn = document.getElementById("loginSubmitBtn");
@@ -698,9 +698,9 @@ window.emailLogin = async function() {
     if (error) throw error;
     const user = data.user;
     if (!await emailAllowed(user.email)) {
-      logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED", message: "ÄÄƒng nháº­p email/máº­t kháº©u báº±ng email khÃ´ng náº±m trong whitelist.", email: user.email });
-      showAuthNotice("TÃ i khoáº£n nÃ y khÃ´ng Ä‘Æ°á»£c cáº¥p quyá»n truy cáº­p. Vui lÃ²ng liÃªn há»‡ admin.", "error", "KhÃ´ng cÃ³ quyá»n truy cáº­p", 4500);
-      setFieldError("loginEmail", "Email chÆ°a Ä‘Æ°á»£c cáº¥p quyá»n truy cáº­p");
+      logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED", message: "Đăng nhập email/mật khẩu bằng email không nằm trong whitelist.", email: user.email });
+      showAuthNotice("Tài khoản này không được cấp quyền truy cập. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập", 4500);
+      setFieldError("loginEmail", "Email chưa được cấp quyền truy cập");
       await supabase.auth.signOut();
       processingLogin = false;
       setBtnLoading(btn, false);
@@ -708,38 +708,38 @@ window.emailLogin = async function() {
     }
     const row = await getUserRow(user.id);
     if (row && row.disabled) {
-      logAppError({ source: "login", category: "disabled", level: "warning", code: "DISABLED", message: "ÄÄƒng nháº­p email/máº­t kháº©u báº±ng tÃ i khoáº£n bá»‹ khÃ³a.", email: user.email, detail: { name: row.name || "" } });
-      showAuthNotice("TÃ i khoáº£n cá»§a báº¡n Ä‘ang bá»‹ vÃ´ hiá»‡u hÃ³a. Vui lÃ²ng liÃªn há»‡ admin.", "error", "TÃ i khoáº£n bá»‹ khÃ³a", 4500);
-      setFieldError("loginEmail", "TÃ i khoáº£n Ä‘ang bá»‹ khÃ³a");
+      logAppError({ source: "login", category: "disabled", level: "warning", code: "DISABLED", message: "Đăng nhập email/mật khẩu bằng tài khoản bị khóa.", email: user.email, detail: { name: row.name || "" } });
+      showAuthNotice("Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.", "error", "Tài khoản bị khóa", 4500);
+      setFieldError("loginEmail", "Tài khoản đang bị khóa");
       await supabase.auth.signOut();
       processingLogin = false;
       setBtnLoading(btn, false);
       return;
     }
     await finalizeSession(user);
-    showLoginSuccess("ÄÄƒng nháº­p thÃ nh cÃ´ng!");
+    showLoginSuccess("Đăng nhập thành công!");
   } catch(error) {
-    console.error("Lá»—i Ä‘Äƒng nháº­p:", error);
+    console.error("Lỗi đăng nhập:", error);
     processingLogin = false;
     setBtnLoading(btn, false);
-    let message = "ÄÄƒng nháº­p tháº¥t báº¡i";
+    let message = "Đăng nhập thất bại";
     const msg = String(error.message || "");
     if (error.code === 'invalid_credentials' || /invalid login credentials/i.test(msg)) {
-      message = "Email hoáº·c máº­t kháº©u khÃ´ng Ä‘Ãºng";
-      setFieldError("loginPassword", "Email hoáº·c máº­t kháº©u khÃ´ng Ä‘Ãºng");
+      message = "Email hoặc mật khẩu không đúng";
+      setFieldError("loginPassword", "Email hoặc mật khẩu không đúng");
       shakeAuthBox("loginPassword");
       const pwInput = document.getElementById("loginPassword");
       pwInput.focus(); pwInput.select();
     } else if (error.code === 'invalid_email' || /invalid email/i.test(msg)) {
-      message = "Email khÃ´ng há»£p lá»‡";
-      setFieldError("loginEmail", "Email khÃ´ng há»£p lá»‡");
+      message = "Email không hợp lệ";
+      setFieldError("loginEmail", "Email không hợp lệ");
     } else if (error.code === 'email_not_confirmed') {
-      message = "Email chÆ°a Ä‘Æ°á»£c xÃ¡c nháº­n";
-      setFieldError("loginEmail", "Email chÆ°a Ä‘Æ°á»£c xÃ¡c nháº­n");
+      message = "Email chưa được xác nhận";
+      setFieldError("loginEmail", "Email chưa được xác nhận");
     } else if (error.code === 'rate_limit_exceeded' || /too many requests|rate limit/i.test(msg)) {
-      message = "ÄÄƒng nháº­p quÃ¡ nhiá»u láº§n. Vui lÃ²ng thá»­ láº¡i sau";
+      message = "Đăng nhập quá nhiều lần. Vui lòng thử lại sau";
     }
-    showAuthNotice(message, "error", "ÄÄƒng nháº­p tháº¥t báº¡i");
+    showAuthNotice(message, "error", "Đăng nhập thất bại");
   }
 };
 
@@ -753,69 +753,69 @@ window.emailRegister = async function() {
   const otpSection = document.getElementById("otpSection");
 
   let invalid = false, focusId = null;
-  if (!name) { setFieldError("registerName", "Vui lÃ²ng nháº­p tÃªn hiá»ƒn thá»‹"); focusId = "registerName"; invalid = true; }
-  else if (name.length < 2) { setFieldError("registerName", "TÃªn pháº£i cÃ³ Ã­t nháº¥t 2 kÃ½ tá»±"); focusId = "registerName"; invalid = true; }
-  if (!email) { setFieldError("registerEmail", "Vui lÃ²ng nháº­p email"); focusId = focusId || "registerEmail"; invalid = true; }
-  else if (!emailRe.test(email)) { setFieldError("registerEmail", "Email khÃ´ng há»£p lá»‡"); focusId = focusId || "registerEmail"; invalid = true; }
-  if (!password) { setFieldError("registerPassword", "Vui lÃ²ng nháº­p máº­t kháº©u"); focusId = focusId || "registerPassword"; invalid = true; }
-  else if (password.length < 6) { setFieldError("registerPassword", "Máº­t kháº©u pháº£i cÃ³ Ã­t nháº¥t 6 kÃ½ tá»±"); focusId = focusId || "registerPassword"; invalid = true; }
-  if (!confirmPassword) { setFieldError("registerConfirmPassword", "Vui lÃ²ng nháº­p láº¡i máº­t kháº©u"); focusId = focusId || "registerConfirmPassword"; invalid = true; }
-  else if (confirmPassword !== password) { setFieldError("registerConfirmPassword", "Máº­t kháº©u nháº­p láº¡i khÃ´ng khá»›p"); focusId = focusId || "registerConfirmPassword"; invalid = true; }
+  if (!name) { setFieldError("registerName", "Vui lòng nhập tên hiển thị"); focusId = "registerName"; invalid = true; }
+  else if (name.length < 2) { setFieldError("registerName", "Tên phải có ít nhất 2 ký tự"); focusId = "registerName"; invalid = true; }
+  if (!email) { setFieldError("registerEmail", "Vui lòng nhập email"); focusId = focusId || "registerEmail"; invalid = true; }
+  else if (!emailRe.test(email)) { setFieldError("registerEmail", "Email không hợp lệ"); focusId = focusId || "registerEmail"; invalid = true; }
+  if (!password) { setFieldError("registerPassword", "Vui lòng nhập mật khẩu"); focusId = focusId || "registerPassword"; invalid = true; }
+  else if (password.length < 6) { setFieldError("registerPassword", "Mật khẩu phải có ít nhất 6 ký tự"); focusId = focusId || "registerPassword"; invalid = true; }
+  if (!confirmPassword) { setFieldError("registerConfirmPassword", "Vui lòng nhập lại mật khẩu"); focusId = focusId || "registerConfirmPassword"; invalid = true; }
+  else if (confirmPassword !== password) { setFieldError("registerConfirmPassword", "Mật khẩu nhập lại không khớp"); focusId = focusId || "registerConfirmPassword"; invalid = true; }
   if (invalid) {
     if (focusId) { shakeAuthBox(focusId); document.getElementById(focusId).focus(); }
-    showAuthNotice("Vui lÃ²ng kiá»ƒm tra láº¡i thÃ´ng tin", "error", "Thiáº¿u thÃ´ng tin");
+    showAuthNotice("Vui lòng kiểm tra lại thông tin", "error", "Thiếu thông tin");
     return;
   }
   if (!registrationOpen && !await emailAllowed(email)) {
-    logAppError({ source: "login", category: "whitelist", level: "warning", code: "REG_CLOSED", message: "ÄÄƒng kÃ½ bá»‹ Ä‘Ã³ng, email khÃ´ng náº±m trong whitelist.", email: email });
-    setFieldError("registerEmail", "ÄÄƒng kÃ½ hiá»‡n Ä‘ang Ä‘Ã³ng");
-    showAuthNotice("ÄÄƒng kÃ½ hiá»‡n Ä‘ang Ä‘Ã³ng. Vui lÃ²ng liÃªn há»‡ admin náº¿u báº¡n cáº§n tÃ i khoáº£n.", "error", "ÄÄƒng kÃ½ bá»‹ Ä‘Ã³ng");
+    logAppError({ source: "login", category: "whitelist", level: "warning", code: "REG_CLOSED", message: "Đăng ký bị đóng, email không nằm trong whitelist.", email: email });
+    setFieldError("registerEmail", "Đăng ký hiện đang đóng");
+    showAuthNotice("Đăng ký hiện đang đóng. Vui lòng liên hệ admin nếu bạn cần tài khoản.", "error", "Đăng ký bị đóng");
     return;
   }
   if (!await emailAllowed(email)) {
-    logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED_SIGNUP", message: "Cá»‘ Ä‘Äƒng kÃ½ báº±ng email khÃ´ng náº±m trong whitelist.", email: email });
-    setFieldError("registerEmail", "Email chÆ°a Ä‘Æ°á»£c cáº¥p quyá»n truy cáº­p");
-    showAuthNotice("Email nÃ y khÃ´ng náº±m trong danh sÃ¡ch Ä‘Æ°á»£c cáº¥p quyá»n. Vui lÃ²ng liÃªn há»‡ admin.", "error", "KhÃ´ng cÃ³ quyá»n truy cáº­p");
+    logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED_SIGNUP", message: "Cố đăng ký bằng email không nằm trong whitelist.", email: email });
+    setFieldError("registerEmail", "Email chưa được cấp quyền truy cập");
+    showAuthNotice("Email này không nằm trong danh sách được cấp quyền. Vui lòng liên hệ admin.", "error", "Không có quyền truy cập");
     return;
   }
 
   const photoValue = document.getElementById("registerPhoto").value.trim();
   if (photoValue && !/^https?:\/\/\S+$/i.test(photoValue)) {
-    setFieldError("registerPhoto", "áº¢nh Ä‘áº¡i diá»‡n pháº£i lÃ  Ä‘Æ°á»ng dáº«n http(s) há»£p lá»‡");
+    setFieldError("registerPhoto", "Ảnh đại diện phải là đường dẫn http(s) hợp lệ");
     shakeAuthBox("registerPhoto"); document.getElementById("registerPhoto").focus();
-    showAuthNotice("áº¢nh Ä‘áº¡i diá»‡n pháº£i lÃ  Ä‘Æ°á»ng dáº«n http(s) há»£p lá»‡", "error", "URL áº£nh khÃ´ng há»£p lá»‡");
+    showAuthNotice("Ảnh đại diện phải là đường dẫn http(s) hợp lệ", "error", "URL ảnh không hợp lệ");
     return;
   }
 
   if (otpSection.style.display === "none" || !otpSection.style.display) {
-    showAuthNotice("Vui lÃ²ng nháº¥n 'Nháº­n mÃ£' Ä‘á»ƒ xÃ¡c minh email trÆ°á»›c", "error", "ChÆ°a xÃ¡c minh email");
+    showAuthNotice("Vui lòng nhấn 'Nhận mã' để xác minh email trước", "error", "Chưa xác minh email");
     return;
   }
 
   const code = otpInput.value.trim();
   if (!code || code.length !== 6) {
-    setFieldError("otpCode", "Vui lÃ²ng nháº­p mÃ£ xÃ¡c nháº­n 6 chá»¯ sá»‘");
+    setFieldError("otpCode", "Vui lòng nhập mã xác nhận 6 chữ số");
     shakeAuthBox("otpCode"); otpInput.focus();
-    showAuthNotice("Vui lÃ²ng nháº­p mÃ£ xÃ¡c nháº­n 6 chá»¯ sá»‘", "error", "Thiáº¿u mÃ£ xÃ¡c nháº­n");
+    showAuthNotice("Vui lòng nhập mã xác nhận 6 chữ số", "error", "Thiếu mã xác nhận");
     return;
   }
   if (Date.now() > otpExpiry) {
-    setFieldError("otpCode", "MÃ£ Ä‘Ã£ háº¿t háº¡n. Nháº¥n 'Gá»­i láº¡i mÃ£'");
-    showAuthNotice("MÃ£ xÃ¡c nháº­n Ä‘Ã£ háº¿t háº¡n. Vui lÃ²ng nháº¥n 'Gá»­i láº¡i mÃ£'", "error", "MÃ£ háº¿t háº¡n");
+    setFieldError("otpCode", "Mã đã hết hạn. Nhấn 'Gửi lại mã'");
+    showAuthNotice("Mã xác nhận đã hết hạn. Vui lòng nhấn 'Gửi lại mã'", "error", "Mã hết hạn");
     return;
   }
   if (code !== otpGenerated) {
     const serverResult = await verifyOTPOnServer(email, code);
     if (serverResult === false) {
-      setFieldError("otpCode", "MÃ£ xÃ¡c nháº­n khÃ´ng Ä‘Ãºng");
+      setFieldError("otpCode", "Mã xác nhận không đúng");
       shakeAuthBox("otpCode"); otpInput.focus(); otpInput.select();
-      showAuthNotice("MÃ£ xÃ¡c nháº­n khÃ´ng Ä‘Ãºng. Vui lÃ²ng kiá»ƒm tra láº¡i", "error", "Sai mÃ£");
+      showAuthNotice("Mã xác nhận không đúng. Vui lòng kiểm tra lại", "error", "Sai mã");
       return;
     }
     if (serverResult === null) {
-      setFieldError("otpCode", "MÃ£ xÃ¡c nháº­n khÃ´ng Ä‘Ãºng");
+      setFieldError("otpCode", "Mã xác nhận không đúng");
       shakeAuthBox("otpCode"); otpInput.focus(); otpInput.select();
-      showAuthNotice("MÃ£ xÃ¡c nháº­n khÃ´ng Ä‘Ãºng. Vui lÃ²ng kiá»ƒm tra láº¡i", "error", "Sai mÃ£");
+      showAuthNotice("Mã xác nhận không đúng. Vui lòng kiểm tra lại", "error", "Sai mã");
       return;
     }
   }
@@ -833,7 +833,7 @@ window.emailRegister = async function() {
       id: user.id, email: user.email, name: name, photo: photoUrl,
       last_login: nowIso, online: false, created_at: nowIso
     }, { onConflict: "id" });
-    showAuthNotice("ÄÄƒng kÃ½ thÃ nh cÃ´ng! Vui lÃ²ng Ä‘Äƒng nháº­p.", "success", "ThÃ nh cÃ´ng");
+    showAuthNotice("Đăng ký thành công! Vui lòng đăng nhập.", "success", "Thành công");
     document.getElementById("registerName").value = "";
     document.getElementById("registerEmail").value = "";
     document.getElementById("registerPassword").value = "";
@@ -846,26 +846,26 @@ window.emailRegister = async function() {
     switchAuthTab('login');
     document.getElementById("loginEmail").value = email;
   } catch(error) {
-    console.error("Lá»—i Ä‘Äƒng kÃ½:", error);
+    console.error("Lỗi đăng ký:", error);
     processingLogin = false;
     setBtnLoading(btn, false);
-    let message = "ÄÄƒng kÃ½ tháº¥t báº¡i";
+    let message = "Đăng ký thất bại";
     const msg = String(error.message || "");
     if (error.code === 'user_already_exists' || /already registered|already been registered/i.test(msg)) {
-      message = "Email nÃ y Ä‘Ã£ Ä‘Æ°á»£c Ä‘Äƒng kÃ½";
-      setFieldError("registerEmail", "Email nÃ y Ä‘Ã£ Ä‘Æ°á»£c Ä‘Äƒng kÃ½");
+      message = "Email này đã được đăng ký";
+      setFieldError("registerEmail", "Email này đã được đăng ký");
     } else if (error.code === 'invalid_email' || /invalid email/i.test(msg)) {
-      message = "Email khÃ´ng há»£p lá»‡";
-      setFieldError("registerEmail", "Email khÃ´ng há»£p lá»‡");
+      message = "Email không hợp lệ";
+      setFieldError("registerEmail", "Email không hợp lệ");
     } else if (error.code === 'weak_password' || /password should be at least|weak password/i.test(msg)) {
-      message = "Máº­t kháº©u quÃ¡ yáº¿u (cáº§n Ã­t nháº¥t 6 kÃ½ tá»±)";
-      setFieldError("registerPassword", "Máº­t kháº©u quÃ¡ yáº¿u (cáº§n Ã­t nháº¥t 6 kÃ½ tá»±)");
+      message = "Mật khẩu quá yếu (cần ít nhất 6 ký tự)";
+      setFieldError("registerPassword", "Mật khẩu quá yếu (cần ít nhất 6 ký tự)");
     }
-    showAuthNotice(message, "error", "ÄÄƒng kÃ½ tháº¥t báº¡i");
+    showAuthNotice(message, "error", "Đăng ký thất bại");
   }
 };
 
-/* ---------- REVEAL SECTION GIá»šI THIá»†U KHI CUá»˜N VÃ€O VIEWPORT ---------- */
+/* ---------- REVEAL SECTION GIỚI THIỆU KHI CUỘN VÀO VIEWPORT ---------- */
 (function initAuthBelowReveal() {
   const below = document.querySelector(".auth-below");
   if (!below) return;
@@ -881,7 +881,7 @@ window.emailRegister = async function() {
   io.observe(below);
 })();
 
-/* ---------- NÃšT CUá»˜N XUá»NG KHU TÃNH NÄ‚NG (hiá»‡n khi á»Ÿ Ä‘áº§u trang) ---------- */
+/* ---------- NÚT CUỘN XUỐNG KHU TÍNH NĂNG (hiện khi ở đầu trang) ---------- */
 (function initAuthScrollDown() {
   const btn = document.getElementById("authScrollDown");
   const below = document.querySelector(".auth-below");
@@ -893,7 +893,7 @@ window.emailRegister = async function() {
   btn.addEventListener("click", () => below.scrollIntoView({ behavior: "smooth" }));
 })();
 
-/* ---------- NÃšT CUá»˜N LÃŠN Äáº¦U TRANG (khu giá»›i thiá»‡u bÃªn dÆ°á»›i) ---------- */
+/* ---------- NÚT CUỘN LÊN ĐẦU TRANG (khu giới thiệu bên dưới) ---------- */
 (function initAuthBelowUp() {
   const btn = document.getElementById("authBelowUp");
   const below = document.querySelector(".auth-below");
@@ -979,7 +979,7 @@ window.emailRegister = async function() {
   if (statsRow) io.observe(statsRow);
 })();
 
-/* ---------- AUTO HOVER CARDS: tá»± Ä‘á»™ng highlight tá»«ng card ---------- */
+/* ---------- AUTO HOVER CARDS: tự động highlight từng card ---------- */
 (function initAutoHoverCards() {
   if (window.matchMedia("(max-width:768px)").matches) return;
   const grid = document.querySelector(".auth-below-grid");
@@ -1028,7 +1028,7 @@ window.emailRegister = async function() {
     card.addEventListener("touchstart", pauseAuto, { passive: true });
   });
 
-  // Báº¯t Ä‘áº§u khi grid scroll vÃ o viewport
+  // Bắt đầu khi grid scroll vào viewport
   const io = new IntersectionObserver(entries => {
     entries.forEach(en => {
       if (en.isIntersecting) { startAuto(); io.disconnect(); }

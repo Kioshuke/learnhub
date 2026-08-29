@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<meta name="google-site-verification" content="T8hlEJb2HT-iCvVbHPeribVXAyr7x9ShD570c1TR710" />
+<link rel="icon" href="pictures/favicon.png" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="pictures/favicon.png">
+<link rel="apple-touch-icon" href="pictures/favicon.png">
+
+<meta name="theme-color" content="#1a73e8">
+<title>Trung Tâm Trợ Giúp - LearnHub Platform</title>
+<meta name="description" content="Câu hỏi thường gặp về LearnHub Platform - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên.">
+
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="style.css">
+
+<style>
+  /* Ẩn thanh cuộn bên phải nhưng vẫn cho phép cuộn trang */
+  html, body {
+    overflow-x: hidden; /* Chống tràn chiều ngang tuyệt đối */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  *, *:before, *:after {
+    box-sizing: inherit;
+  }
+  
+  html::-webkit-scrollbar, body::-webkit-scrollbar {
+    display: none; /* Ẩn thanh cuộn trên Chrome, Safari, Edge */
+  }
+
+  html, body {
+    -ms-overflow-style: none;  /* Ẩn thanh cuộn trên IE và Edge cũ */
+    scrollbar-width: none;  /* Ẩn thanh cuộn trên Firefox */
+  }
+
+  /* FAQ Page Specific Styles */
+  body {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    padding-top: 110px; /* Thêm phần đệm để không bị header fixed che khuất nội dung trên desktop */
+  }
+
+  .faq-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  .faq-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .faq-header h1 {
+    font-size: 36px;
+    color: #1a73e8;
+    margin-bottom: 10px;
+  }
+
+  .faq-header p {
+    color: #64748b;
+    font-size: 16px;
+  }
+
+  .faq-category {
+    margin-bottom: 30px;
+  }
+
+  .faq-category-title {
+    font-size: 22px;
+    color: #1a73e8;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .faq-category-title i {
+    color: #3b82f6;
+  }
+
+  .faq-item {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .faq-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: #3b82f6;
+  }
+
+  .faq-question {
+    padding: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: #334155;
+    font-size: 16px;
+    background: #ffffff;
+    transition: background 0.3s ease;
+  }
+
+  .faq-question:hover {
+    background: #f8fafc;
+  }
+
+  .faq-question i {
+    color: #3b82f6;
+    transition: transform 0.3s ease;
+  }
+
+  .faq-item.active .faq-question i {
+    transform: rotate(180deg);
+  }
+
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    padding: 0 20px;
+    background: #f8fafc;
+    color: #64748b;
+    line-height: 1.6;
+  }
+
+  .faq-item.active .faq-answer {
+    max-height: 500px;
+    padding: 20px;
+  }
+
+  /* Tối ưu hóa Header Navigation Style - CỐ ĐỊNH CỨNG FIXED PHẲNG ĐỀU */
+  .faq-header-nav {
+    background: linear-gradient(135deg, #1a73e8 0%, #2563eb 100%);
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(26, 115, 232, 0.12);
+    position: fixed; 
+    top: 0;
+    left: 0;
+    right: 0; /* Căng đều sang mép phải */
+    width: 100%;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+  }
+
+  .faq-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+  }
+
+  .faq-nav-brand img {
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 3px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .faq-nav-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .faq-nav-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.3px;
+  }
+
+  .faq-nav-subtitle {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .faq-nav-actions {
+    display: flex;
+    align-items: center;
+  }
+
+  .faq-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.25s ease;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+
+  .faq-nav-btn:hover {
+    background: #ffffff;
+    color: #1a73e8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: 768px) {
+    body {
+      padding-top: 190px; /* Đẩy khoảng trống rộng hơn phù hợp với chiều cao header mobile */
+    }
+
+    .faq-header-nav {
+      padding: 20px;
+      flex-direction: column;
+      gap: 14px;
+      text-align: center;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .faq-nav-brand {
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .faq-nav-text {
+      align-items: center;
+      text-align: center;
+    }
+
+    .faq-nav-title {
+      font-size: 20px;
+    }
+
+    .faq-nav-actions {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .faq-nav-btn {
+      width: auto;
+      min-width: 160px;
+      justify-content: center;
+    }
+  }
+
+  /* Feedback Popup Styles */
+  .lh-popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .lh-popup-overlay.active {
+    display: flex;
+  }
+
+  .lh-popup-content {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: popupSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes popupSlideIn {
+    from {
+      transform: scale(0.9) translateY(-20px);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .lh-popup-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .lh-popup-close:hover {
+    background: rgba(0, 0, 0, 0.15);
+    color: #1e293b;
+    transform: rotate(90deg);
+  }
+
+  .lh-popup-iframe {
+    width: 100%;
+    height: 600px;
+    border: none;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .lh-popup-overlay {
+      padding: 16px;
+    }
+
+    .lh-popup-iframe {
+      height: 550px;
+    }
+  }
+
+  /* Footer Integration */
+  .lh-footer {
+    margin-top: 60px;
+    padding: 32px 32px 20px 32px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.02);
+  }
+
+  .lh-footer-main {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.2fr;
+    gap: 32px;
+    padding-bottom: 24px;
+  }
+
+  .lh-footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .lh-footer-brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .lh-footer-brand-logo img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+  }
+
+  .lh-footer-brand-logo h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #0066cc;
+    letter-spacing: -0.5px;
+  }
+
+  .lh-footer-brand p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #64748b;
+    max-width: 300px;
+  }
+
+  .lh-footer-col h4 {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0066cc;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .lh-footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .lh-footer-links a {
+    text-decoration: none;
+    font-size: 14px;
+    color: #64748b;
+    transition: all 0.2s ease;
+    display: inline-block;
+  }
+
+  .lh-footer-links a:hover {
+    color: #3b82f6;
+    transform: translateX(4px);
+  }
+
+  .lh-social-icons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .lh-social-icons a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 18px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .lh-social-icons a:hover {
+    transform: translateY(-3px);
+    color: #ffffff;
+    background: #3b82f6;
+  }
+
+  .lh-social-icons a.fb:hover { background: #1877f2; }
+  .lh-social-icons a.yt:hover { background: #ff0000; }
+  .lh-social-icons a.tk:hover { background: #000000; }
+  .lh-social-icons a.cm:hover { background: #10b981; }
+
+  .lh-contact-info li {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.5;
+  }
+
+  .lh-contact-info strong {
+    color: #334155;
+  }
+
+  .lh-footer-bottom {
+    padding-top: 18px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #94a3b8;
+  }
+
+  .lh-footer-bottom-links {
+    display: flex;
+    gap: 20px;
+  }
+
+  .lh-footer-bottom-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .lh-footer-bottom-links a:hover {
+    color: #0066cc;
+  }
+
+  @media (max-width: 768px) {
+    .lh-footer-main {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    .lh-footer-bottom {
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+    }
+
+    .lh-footer-bottom-links {
+      justify-content: center;
+    }
+
+    .faq-header h1 {
+      font-size: 28px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="faq-header-nav">
+  <a href="https://learnhubpf.pages.dev" class="faq-nav-brand">
+    <img src="pictures/logoweb.webp" width="50" height="50" alt="Logo LearnHub">
+    <div class="faq-nav-text">
+      <span class="faq-nav-title">LearnHub Platform</span>
+      <span class="faq-nav-subtitle">Trung Tâm Trợ Giúp Kỹ Thuật</span>
+    </div>
+  </a>
+  <div class="faq-nav-actions">
+    <a href="https://learnhubpf.pages.dev" class="faq-nav-btn">
+      <i class="fa-solid fa-home"></i>
+      <span>Về trang chủ</span>
+    </a>
+  </div>
+</div>
+
+<!-- FAQ Content -->
+<div class="faq-container">
+  <div class="faq-header">
+    <h1>Trung Tâm Trợ Giúp -❓Các Câu Hỏi Thường Gặp</h1>
+    <p>Tìm câu trả lời về tính năng, công nghệ và cách vận hành hệ thống LearnHub Platform</p>
+  </div>
+
+  <!-- Category 1: Tài khoản & đăng nhập -->
+  <div class="faq-category">
+    <div class="faq-category-title">
+      <i class="fa-solid fa-user-circle"></i>
+      <span>1. Tài khoản & Đăng nhập</span>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Web này có bắt buộc cần tài khoản không?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Có. Để sử dụng đầy đủ các tiện ích nâng cao như tham gia làm bài kiểm tra, lưu trữ điểm số cá nhân, đồng bộ hóa lịch sử tiến trình và xem bảng xếp hạng học tập, bạn bắt buộc cần đăng nhập hệ thống.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Nền tảng sử dụng công nghệ đăng nhập gì?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Hệ thống tích hợp giải pháp xác thực bảo mật <strong>Firebase Authentication</strong>. Hiện tại, LearnHub mở cổng đăng nhập nhanh bằng tài khoản Google. Các phương thức bổ sung như Email riêng hay kết nối GitHub đang được cấu hình xây dựng.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Dữ liệu học tập có bị ảnh hưởng khi đổi thiết bị không?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Không. Toàn bộ tiến trình làm bài và hồ sơ học tập liên kết chặt chẽ với ID tài khoản của bạn trên cơ sở dữ liệu đám mây, do đó thông tin sẽ giữ nguyên vẹn trên mọi thiết bị.
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 2: Hệ thống kiểm tra & Quiz module -->
+  <div class="faq-category">
+    <div class="faq-category-title">
+      <i class="fa-solid fa-clipboard-list"></i>
+      <span>2. Hệ thống kiểm tra & Quiz module</span>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Cơ chế hiển thị và đồng bộ bài Quiz hoạt động thế nào?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Các bài kiểm tra được hiển thị độc lập thông qua module nhúng an toàn. Nhờ công nghệ liên kết dữ liệu, kết quả làm bài sau khi hoàn tất sẽ lập tức truyền tải tự động và đồng bộ về máy chủ hệ thống chính để lưu điểm.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Hệ thống hỗ trợ các loại câu hỏi nào?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        LearnHub hỗ trợ linh hoạt 3 dạng cấu trúc câu hỏi chính bao gồm:
+        <ul style="margin: 10px 0; padding-left: 20px;">
+          <li>Trắc nghiệm chọn đáp án đúng (Multiple Choice)</li>
+          <li>Lựa chọn Đúng hoặc Sai (True / False)</li>
+          <li>Tự luận ngắn điền từ vào ô trống (Short Answer)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Nếu vô tình thoát trình duyệt giữa chừng, bài làm có bị mất không?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Hiện tại tính năng tự động sao lưu tiến trình tạm thời (Auto-save) đang được nâng cấp thử nghiệm. Để tránh mất dữ liệu không mong muốn khi gặp sự cố, bạn nên hoàn thành bài quiz liên tục và hạn chế tải lại trang trong khi làm.
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 3: Trợ lý ảo Chatbot thông minh -->
+  <div class="faq-category">
+    <div class="faq-category-title">
+      <i class="fa-solid fa-robot"></i>
+      <span>3. Trợ lý ảo Chatbot trực tuyến</span>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Chatbot của LearnHub có thể hỗ trợ những gì?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Trợ lý ảo thông minh được tích hợp trực tiếp để giải đáp nhanh các thắc mắc của bạn về cấu trúc bài học, hướng dẫn thao tác tính năng kỹ thuật trên web và định hướng giải quyết các sự cố cơ bản một cách tức thì.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Làm thế nào để làm mới hoặc xóa lịch sử chat hiện tại?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Khi bạn đóng popup chatbot hoặc tải lại trang web chính, phiên làm việc (Session) của chatbot sẽ được tự động làm mới để sẵn sàng tiếp nhận luồng câu hỏi mới của bạn.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Khung chat hiển thị lỗi "Không thể kết nối" hoặc trang trắng?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Lỗi này xảy ra khi tài nguyên file <code>chatbot.html</code> chưa được tải xuống đầy đủ do kết nối mạng yếu. Bạn chỉ cần tắt popup khung chat, đợi 5 giây rồi nhấn lại vào biểu tượng avatar chatbot ở góc màn hình.
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 4: Hạ tầng kỹ thuật & Giao tiếp mạng -->
+  <div class="faq-category">
+    <div class="faq-category-title">
+      <i class="fa-solid fa-cogs"></i>
+      <span>4. Hạ tầng kỹ thuật & Giao tiếp mạng</span>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Tại sau nền tảng lại sử dụng giải pháp nhúng Iframe?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Sử dụng Iframe giúp cô lập môi trường chạy các bài kiểm tra phức tạp, bảo vệ an toàn cho hệ thống lõi khỏi các nguy cơ can thiệp mã độc, đồng thời giúp tải mượt mà các module học tập phân tán.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Cơ chế truyền nhận thông tin postMessage hoạt động ra sao?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Đây là giao thức giao tiếp bảo mật đa nguồn chéo. Khi bạn hoàn tất bài làm trong Iframe, một chuỗi sự kiện được mã hóa chứa thông tin định danh và điểm số sẽ được phát đi một chiều an toàn tới trang web chủ quản LearnHub để ghi nhận.
+      </div>
+    </div>
+  </div>
+
+  <!-- Category 5: Xử lý sự cố & Đóng góp ý kiến -->
+  <div class="faq-category">
+    <div class="faq-category-title">
+      <i class="fa-solid fa-life-ring"></i>
+      <span>5. Xử lý sự cố & Đóng góp ý kiến</span>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Hệ thống không ghi nhận điểm hoặc báo lỗi phiên làm việc?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Nguyên nhân chủ yếu do token xác thực đăng nhập bị hết hạn sau thời gian dài không tương tác. Hãy đăng xuất tài khoản, xóa bộ nhớ đệm trình duyệt, đăng nhập lại và thực hiện làm bài để hệ thống thiết lập lại cổng kết nối.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        Tôi muốn báo lỗi hệ thống hoặc đóng góp ý kiến nâng cấp?
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        Chúng tôi rất trân trọng mọi ý kiến đóng góp. Bạn có thể sử dụng tính năng <strong>"Góp ý ý kiến"</strong> tại menu chân trang để mở form phản hồi, hoặc gửi thông tin trực tiếp đến hòm thư hỗ trợ kỹ thuật ở phần Footer.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div id="lh-footer-placeholder"></div>
+<script>
+fetch('footer.html').then(r => r.text()).then(html => {
+  document.getElementById('lh-footer-placeholder').innerHTML = html;
+});
+</script>
+
+<!-- Chat Button -->
+<div id="chatOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9998; background: rgba(0,0,0,0.1);"></div>
+
+<div id="chatButton" style="
+  position:fixed;
+  width:65px;
+  height:65px;
+  border-radius:50%;
+  overflow:hidden;
+  cursor: pointer;
+  z-index:9999;
+  box-shadow:0 6px 18px rgba(0,0,0,0.25);
+  left: 20px;
+  bottom: 20px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+">
+  <img src="pictures/chatboiavt.png" style="width:100%; height:100%; object-fit:cover; pointer-events: none;">
+</div>
+
+<iframe id="chatbotFrame" src="chatbot.html" style="
+    display:none; 
+    position:fixed; 
+    bottom:95px; 
+    left:20px;
+    width:350px; 
+    height:500px; 
+    border:none; 
+    border-radius:12px; 
+    box-shadow:0 8px 25px rgba(0,0,0,0.2); 
+    z-index:9999;
+"></iframe>
+
+<!-- Feedback Popup -->
+<div id="lh-feedback-overlay" class="lh-popup-overlay" onclick="closeFeedbackModalByOverlay(event)">
+  <div class="lh-popup-content">
+    <button class="lh-popup-close" onclick="closeFeedbackModal()" title="Đóng">&times;</button>
+    <iframe src="gop-y.html" class="lh-popup-iframe"></iframe>
+  </div>
+</div>
+
+<script src="script.js" defer></script>
+<script>
+  // FAQ Accordion functionality
+  document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', () => {
+      const faqItem = question.parentElement;
+      const isActive = faqItem.classList.contains('active');
+
+      // Close all other FAQ items
+      document.querySelectorAll('.faq-item').forEach(item => {
+        item.classList.remove('active');
+      });
+
+      // Toggle current item
+      if (!isActive) {
+        faqItem.classList.add('active');
+      }
+    });
+  });
+
+  // Logic Toggle Đóng / Mở Chatbot trực tiếp hoàn chỉnh
+  const chatButton = document.getElementById('chatButton');
+  const chatbotFrame = document.getElementById('chatbotFrame');
+  const chatOverlay = document.getElementById('chatOverlay');
+
+  if (chatButton && chatbotFrame) {
+    chatButton.addEventListener('click', () => {
+      if (chatbotFrame.style.display === 'none' || chatbotFrame.style.display === '') {
+        chatbotFrame.style.display = 'block';
+        if (chatOverlay) chatOverlay.style.display = 'block';
+      } else {
+        chatbotFrame.style.display = 'none';
+        if (chatOverlay) chatOverlay.style.display = 'none';
+      }
+    });
+  }
+
+  if (chatOverlay) {
+    chatOverlay.addEventListener('click', () => {
+      chatbotFrame.style.display = 'none';
+      chatOverlay.style.display = 'none';
+    });
+  }
+
+  // Feedback Modal Functions
+  function openFeedbackModal() {
+    const overlay = document.getElementById('lh-feedback-overlay');
+    if (overlay) {
+      overlay.classList.add('active');
+      document.body.classList.add('no-scroll');
+    }
+  }
+
+  function closeFeedbackModal() {
+    const overlay = document.getElementById('lh-feedback-overlay');
+    if (overlay) {
+      overlay.classList.remove('active');
+      document.body.classList.remove('no-scroll');
+    }
+  }
+
+  function closeFeedbackModalByOverlay(event) {
+    if (event.target.id === 'lh-feedback-overlay') {
+      closeFeedbackModal();
+    }
+  }
+
+  // Close modal on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeFeedbackModal();
+    }
+  });
+</script>
+
+</body>
+</html> 

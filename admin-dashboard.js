@@ -1,20 +1,20 @@
-﻿
+﻿﻿
 import { createLearnHubClient } from "./supabase-config.js";
 
-// Admin dÃ¹ng client vá»›i storage key riÃªng Ä‘á»ƒ khÃ´ng Ä‘Ã¡nh lá»™n account vá»›i web chÃ­nh
+// Admin dùng client với storage key riêng để không đánh lộn account với web chính
 const supabase = createLearnHubClient({ storageKey: "learnhub-admin-auth" });
 
 const adminEmail = "learnhubadmin@gmail.com";
 let allowDocs = [];
 let userDocs = [];
 
-// Finalize/cleanup thá»i gian online qua RPC atomic (chá»‘ng máº¥t giá» + online áº£o).
+// Finalize/cleanup thời gian online qua RPC atomic (chống mất giờ + online ảo).
 async function adminFinalizeOnline(uid) {
   if (!uid) return;
-  try { const { error } = await supabase.rpc("users_finalize_online", { p_uid: uid }); if (error) throw error; } catch (e) { console.error("[admin] finalize online lá»—i:", e); }
+  try { const { error } = await supabase.rpc("users_finalize_online", { p_uid: uid }); if (error) throw error; } catch (e) { console.error("[admin] finalize online lỗi:", e); }
 }
 async function adminCleanupStaleOnline() {
-  try { const { error } = await supabase.rpc("users_cleanup_stale_online", { p_stale_ms: 120000 }); if (error) throw error; } catch (e) { console.error("[admin] cleanup stale online lá»—i:", e); }
+  try { const { error } = await supabase.rpc("users_cleanup_stale_online", { p_stale_ms: 120000 }); if (error) throw error; } catch (e) { console.error("[admin] cleanup stale online lỗi:", e); }
 }
 
 const loginView = document.getElementById("loginView");
@@ -84,17 +84,17 @@ let errorLogsPage = 1;
 let errorLogsChannel = null;
 
 const pageTitles = {
-  users: ["Quáº£n lÃ½ user", "Quáº£n lÃ½ whitelist, khÃ³a/má»Ÿ khÃ³a user."],
-  rename: ["TÃªn hiá»ƒn thá»‹", "Äá»•i tÃªn hiá»ƒn thá»‹ cho tá»«ng user Ä‘Ã£ cÃ³ tÃ i khoáº£n."],
-  broadcasts: ["Gá»­i thÃ´ng bÃ¡o", "Gá»­i thÃ´ng bÃ¡o realtime Ä‘áº¿n toÃ n bá»™ user hoáº·c tá»«ng ngÆ°á»i."],
-  mailbox: ["Há»™p ThÆ°", "Gá»­i thÆ° Ä‘áº¿n há»™p thÆ° cá»§a user. ThÆ° Ä‘Æ°á»£c lÆ°u láº¡i vÃ  xem láº¡i báº¥t ká»³ lÃºc nÃ o."],
-  welcomePopup: ["Popup chÃ o má»«ng", "Chá»‰nh popup hiá»ƒn thá»‹ sau khi user Ä‘Äƒng nháº­p."],
-  ticker: ["DÃ²ng chá»¯ cháº¡y", "Chá»‰nh ná»™i dung vÃ  tá»‘c Ä‘á»™ dÃ²ng chá»¯ cháº¡y trÃªn cÃ¹ng web chÃ­nh."],
-  maintenance: ["Báº£o trÃ¬ há»‡ thá»‘ng", "Báº­t/táº¯t cháº¿ Ä‘á»™ báº£o trÃ¬ toÃ n há»‡ thá»‘ng."],
-  registration: ["ÄÄƒng kÃ½", "Báº­t/táº¯t chá»©c nÄƒng Ä‘Äƒng kÃ½ tÃ i khoáº£n má»›i."],
-  weeklyReset: ["BXH & Reset tuáº§n", "Báº£ng xáº¿p háº¡ng há»c viÃªn vÃ  reset Ä‘iá»ƒm theo tuáº§n."],
-  schedule: ["Lá»‹ch há»c & thi", "Chá»‰nh lá»‹ch há»c vÃ  lá»‹ch thi hiá»ƒn thá»‹ trÃªn trang PhÃ²ng Há»c."],
-  errorLogs: ["Lá»—i há»‡ thá»‘ng", "Xem lá»—i tá»« user vÃ  tÃ­nh nÄƒng, Ä‘Ã¡nh dáº¥u Ä‘Ã£ fix hoáº·c xÃ³a."]
+  users: ["Quản lý user", "Quản lý whitelist, khóa/mở khóa user."],
+  rename: ["Tên hiển thị", "Đổi tên hiển thị cho từng user đã có tài khoản."],
+  broadcasts: ["Gửi thông báo", "Gửi thông báo realtime đến toàn bộ user hoặc từng người."],
+  mailbox: ["Hộp Thư", "Gửi thư đến hộp thư của user. Thư được lưu lại và xem lại bất kỳ lúc nào."],
+  welcomePopup: ["Popup chào mừng", "Chỉnh popup hiển thị sau khi user đăng nhập."],
+  ticker: ["Dòng chữ chạy", "Chỉnh nội dung và tốc độ dòng chữ chạy trên cùng web chính."],
+  maintenance: ["Bảo trì hệ thống", "Bật/tắt chế độ bảo trì toàn hệ thống."],
+  registration: ["Đăng ký", "Bật/tắt chức năng đăng ký tài khoản mới."],
+  weeklyReset: ["BXH & Reset tuần", "Bảng xếp hạng học viên và reset điểm theo tuần."],
+  schedule: ["Lịch học & thi", "Chỉnh lịch học và lịch thi hiển thị trên trang Phòng Học."],
+  errorLogs: ["Lỗi hệ thống", "Xem lỗi từ user và tính năng, đánh dấu đã fix hoặc xóa."]
 };
 
 function switchAdminTab(tab) {
@@ -147,9 +147,9 @@ function showNotice(message, type = "info") {
 function normalizeEmail(e) { return String(e || "").trim().toLowerCase(); }
 
 function formatDate(v) {
-  if (!v) return "ChÆ°a cÃ³";
+  if (!v) return "Chưa có";
   let d = typeof v === "number" ? new Date(v) : new Date(v);
-  if (Number.isNaN(d.getTime())) return "ChÆ°a cÃ³";
+  if (Number.isNaN(d.getTime())) return "Chưa có";
   return d.toLocaleString("vi-VN");
 }
 
@@ -164,22 +164,22 @@ async function importWhitelistFromFile(file) {
       .map(e => normalizeEmail(e))
       .filter(e => e && e.includes("@") && e.includes("."))
   )];
-  if (!emails.length) { showNotice("File khÃ´ng cÃ³ email há»£p lá»‡.", "error"); return; }
+  if (!emails.length) { showNotice("File không có email hợp lệ.", "error"); return; }
   const { data } = await supabase.from("access_list").select("email");
   const existing = new Set((data || []).map(d => normalizeEmail(d.email)));
   const newEmails = emails.filter(e => !existing.has(e));
-  if (!newEmails.length) { showNotice(`Táº¥t cáº£ ${emails.length} email Ä‘Ã£ cÃ³ trong whitelist.`, "info"); return; }
+  if (!newEmails.length) { showNotice(`Tất cả ${emails.length} email đã có trong whitelist.`, "info"); return; }
   let added = 0;
   for (const e of newEmails) {
     await supabase.from("access_list").upsert({ email: e, enabled: true, source: "file-import", added_at: new Date().toISOString() }, { onConflict: "email" });
     added++;
   }
-  showNotice(`ÄÃ£ náº¡p ${added} email má»›i tá»« file (bá» qua ${emails.length - added} email Ä‘Ã£ tá»“n táº¡i).`, "success");
+  showNotice(`Đã nạp ${added} email mới từ file (bỏ qua ${emails.length - added} email đã tồn tại).`, "success");
 }
 
 function updateStats() {
   const now = Date.now();
-  const THRESHOLD = 10000; // presence theo heartbeat: quÃ¡ 10s khÃ´ng cÃ³ tÃ­n hiá»‡u = offline
+  const THRESHOLD = 10000; // presence theo heartbeat: quá 10s không có tín hiệu = offline
   totalUsersEl.textContent = String(userDocs.length);
   totalWhitelistEl.textContent = String(allowDocs.length);
   onlineUsersEl.textContent = String(userDocs.filter(i => i.online && i.last_active && (now - i.last_active) < THRESHOLD).length);
@@ -192,12 +192,12 @@ function buildDirectoryRows() {
   const all = new Set([...aMap.keys(), ...uMap.keys()]);
   const rows = [];
   const now = Date.now();
-  const THRESHOLD = 10000; // presence theo heartbeat: quÃ¡ 10s khÃ´ng cÃ³ tÃ­n hiá»‡u = offline
+  const THRESHOLD = 10000; // presence theo heartbeat: quá 10s không có tín hiệu = offline
   all.forEach(email => {
     const a = aMap.get(email), u = uMap.get(email);
     rows.push({
-      email, uid: u?.id || "", name: u?.name || u?.email || a?.email || "ChÆ°a cÃ³ tÃªn",
-      photo: u?.photo || "https://i.imgur.com/6VBx3io.png", role: u?.role || "ThÃ nh viÃªn",
+      email, uid: u?.id || "", name: u?.name || u?.email || a?.email || "Chưa có tên",
+      photo: u?.photo || "https://i.imgur.com/6VBx3io.png", role: u?.role || "Thành viên",
       online: Boolean(u?.online) && u?.last_active && (now - u.last_active) < THRESHOLD, disabled: Boolean(u?.disabled),
       whitelisted: a ? a.enabled !== false : false, allowId: a?.email || email,
       lastLogin: u?.last_login || "", lastActive: u?.last_active || "",
@@ -221,24 +221,24 @@ function renderDirectory() {
   const total = filtered.length, totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   if (currentPage > totalPages) currentPage = totalPages;
   const start = (currentPage - 1) * PAGE_SIZE, paged = filtered.slice(start, start + PAGE_SIZE);
-  if (!paged.length) { directoryTableBody.innerHTML = `<tr><td colspan="5"><div class="empty">${total ? "Trang nÃ y khÃ´ng cÃ³ user." : "ChÆ°a cÃ³ ngÆ°á»i dÃ¹ng nÃ o khá»›p bá»™ lá»c."}</div></td></tr>`; renderPagination(total, totalPages); return; }
+  if (!paged.length) { directoryTableBody.innerHTML = `<tr><td colspan="5"><div class="empty">${total ? "Trang này không có user." : "Chưa có người dùng nào khớp bộ lọc."}</div></td></tr>`; renderPagination(total, totalPages); return; }
   directoryTableBody.innerHTML = paged.map(i => {
-    const su = escapeHtml(i.uid), se = escapeHtml(i.email||""), sn = escapeHtml(i.name||i.email||"ChÆ°a Ä‘áº·t tÃªn"), sp = escapeHtml(i.photo||"https://i.imgur.com/6VBx3io.png");
-    const chips = [`<span class="dot-indicator ${i.whitelisted?'dot-green':'dot-red'}"></span>`, i.disabled?`<span class="chip red">ÄÃ£ khÃ³a</span>`:``, i.online?`<span class="chip green">Online</span>`:``].filter(Boolean).join("");
-    const cr = i.role || "ThÃ nh viÃªn";
+    const su = escapeHtml(i.uid), se = escapeHtml(i.email||""), sn = escapeHtml(i.name||i.email||"Chưa đặt tên"), sp = escapeHtml(i.photo||"https://i.imgur.com/6VBx3io.png");
+    const chips = [`<span class="dot-indicator ${i.whitelisted?'dot-green':'dot-red'}"></span>`, i.disabled?`<span class="chip red">Đã khóa</span>`:``, i.online?`<span class="chip green">Online</span>`:``].filter(Boolean).join("");
+    const cr = i.role || "Thành viên";
     return `<tr>
-      <td><div class="identity-cell"><img class="mini-avatar" src="${sp}" alt=""><div><div class="identity-name">${sn}</div><div class="identity-email">${se||"ChÆ°a cÃ³ email"}</div><div class="mini-meta">UID: ${su||"ChÆ°a cÃ³"}${i.hasUserDoc?"":"<br>ChÆ°a táº¡o há»“ sÆ¡"}</div></div></div></td>
+      <td><div class="identity-cell"><img class="mini-avatar" src="${sp}" alt=""><div><div class="identity-name">${sn}</div><div class="identity-email">${se||"Chưa có email"}</div><div class="mini-meta">UID: ${su||"Chưa có"}${i.hasUserDoc?"":"<br>Chưa tạo hồ sơ"}</div></div></div></td>
       <td><div class="status-stack">${chips}</div></td>
-      <td>${i.hasUserDoc?`<div class="role-select" data-uid="${su}" data-role="${cr}"><div class="role-trigger"><span class="role-dot ${cr==='Admin'?'r-admin':cr==='GiÃ¡o viÃªn'?'r-teacher':'r-member'}"></span><span class="role-label">${cr}</span></div><div class="role-dropdown" role="menu" aria-label="Chá»n vai trÃ²">${["ThÃ nh viÃªn","GiÃ¡o viÃªn","Admin"].map(r=>`<div class="role-option${r===cr?' active':''}" data-role="${r}" role="menuitem"><span class="role-dot"></span>${r}<svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`).join("")}</div></div>`:`<div class="mini-meta">ChÆ°a kÃ­ch hoáº¡t</div>`}</td>
-      <td><div class="mini-meta"><b>ÄÄƒng nháº­p cuá»‘i:</b> ${formatDate(i.lastLogin)}<br><b>Hoáº¡t Ä‘á»™ng cuá»‘i:</b> ${formatDate(i.lastActive)}<br><b>Táº¡o lÃºc:</b> ${formatDate(i.createdAt)}</div></td>
-      <td><div class="row-actions"><button class="btn ${i.whitelisted?"btn-warning":"btn-success"}" onclick="toggleWhitelist('${escapeHtml(i.allowId)}',${i.whitelisted})">${i.whitelisted?"Táº¯t whitelist":"Cáº¥p quyá»n"}</button>${i.hasUserDoc?`<button class="btn ${i.disabled?"btn-success":"btn-warning"}" onclick="toggleDisable('${su}',${i.disabled?"true":"false"})">${i.disabled?"Má»Ÿ khÃ³a":"KhÃ³a user"}</button>`:``}<button class="btn btn-danger" onclick="deleteUserData('${su}','${se}')">${i.hasUserDoc?"XÃ³a user":"XÃ³a email"}</button></div></td>
+      <td>${i.hasUserDoc?`<div class="role-select" data-uid="${su}" data-role="${cr}"><div class="role-trigger"><span class="role-dot ${cr==='Admin'?'r-admin':cr==='Giáo viên'?'r-teacher':'r-member'}"></span><span class="role-label">${cr}</span></div><div class="role-dropdown" role="menu" aria-label="Chọn vai trò">${["Thành viên","Giáo viên","Admin"].map(r=>`<div class="role-option${r===cr?' active':''}" data-role="${r}" role="menuitem"><span class="role-dot"></span>${r}<svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`).join("")}</div></div>`:`<div class="mini-meta">Chưa kích hoạt</div>`}</td>
+      <td><div class="mini-meta"><b>Đăng nhập cuối:</b> ${formatDate(i.lastLogin)}<br><b>Hoạt động cuối:</b> ${formatDate(i.lastActive)}<br><b>Tạo lúc:</b> ${formatDate(i.createdAt)}</div></td>
+      <td><div class="row-actions"><button class="btn ${i.whitelisted?"btn-warning":"btn-success"}" onclick="toggleWhitelist('${escapeHtml(i.allowId)}',${i.whitelisted})">${i.whitelisted?"Tắt whitelist":"Cấp quyền"}</button>${i.hasUserDoc?`<button class="btn ${i.disabled?"btn-success":"btn-warning"}" onclick="toggleDisable('${su}',${i.disabled?"true":"false"})">${i.disabled?"Mở khóa":"Khóa user"}</button>`:``}<button class="btn btn-danger" onclick="deleteUserData('${su}','${se}')">${i.hasUserDoc?"Xóa user":"Xóa email"}</button></div></td>
     </tr>`;
   }).join("");
   renderPagination(total, totalPages);
 }
 
 function renderPagination(total, totalPages) {
-  if (totalPages <= 1) { directoryPagination.innerHTML = `<div class="pagination-info">Tá»•ng: ${total} user</div>`; return; }
+  if (totalPages <= 1) { directoryPagination.innerHTML = `<div class="pagination-info">Tổng: ${total} user</div>`; return; }
   const from = (currentPage - 1) * PAGE_SIZE + 1, to = Math.min(currentPage * PAGE_SIZE, total);
   let btns = "";
   btns += `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?"disabled":""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>`;
@@ -253,7 +253,7 @@ function renderPagination(total, totalPages) {
     else btns += `<button class="page-btn${p===currentPage?' active':''}" onclick="goPage(${p})">${p}</button>`;
   });
   btns += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?"disabled":""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>`;
-  directoryPagination.innerHTML = `<div class="pagination-info">Hiá»ƒn thá»‹ ${from}â€“${to} / ${total} user</div><div class="pagination-controls">${btns}</div>`;
+  directoryPagination.innerHTML = `<div class="pagination-info">Hiển thị ${from}–${to} / ${total} user</div><div class="pagination-controls">${btns}</div>`;
 }
 window.goPage = (p) => { currentPage = p; renderDirectory(); };
 
@@ -263,13 +263,13 @@ function renderRenameList() {
     if (!kw) return true;
     return [i.uid, i.name, i.email].map(v => normalizeEmail(v)).join(" ").includes(kw);
   });
-  if (!users.length) { renameListBody.innerHTML = `<div class="empty">KhÃ´ng tÃ¬m tháº¥y user nÃ o${kw ? " khá»›p bá»™ lá»c" : ""}.</div>`; return; }
+  if (!users.length) { renameListBody.innerHTML = `<div class="empty">Không tìm thấy user nào${kw ? " khớp bộ lọc" : ""}.</div>`; return; }
   renameListBody.innerHTML = users.map(i => {
     const su = escapeHtml(i.uid), se = escapeHtml(i.email||""), sn = escapeHtml(i.name||i.email||""), sp = escapeHtml(i.photo||"https://i.imgur.com/6VBx3io.png");
     return `<div class="rename-row">
       <img src="${sp}" alt="">
-      <div class="rename-info"><div class="rename-name">${sn}</div><div class="rename-email">${se||"ChÆ°a cÃ³ email"}</div></div>
-      <div class="rename-field"><input id="rename-${su}" class="input" type="text" value="${sn}" placeholder="TÃªn má»›i"><button class="btn btn-primary" onclick="renameUser('${su}')">LÆ°u</button></div>
+      <div class="rename-info"><div class="rename-name">${sn}</div><div class="rename-email">${se||"Chưa có email"}</div></div>
+      <div class="rename-field"><input id="rename-${su}" class="input" type="text" value="${sn}" placeholder="Tên mới"><button class="btn btn-primary" onclick="renameUser('${su}')">Lưu</button></div>
     </div>`;
   }).join("");
 }
@@ -287,7 +287,7 @@ async function refreshCollections() {
 
 async function ensureAdmin(user) {
   if (!user?.email || normalizeEmail(user.email) !== adminEmail) {
-    showNotice("Email nÃ y khÃ´ng cÃ³ quyá»n vÃ o dashboard admin.", "error");
+    showNotice("Email này không có quyền vào dashboard admin.", "error");
     await supabase.auth.signOut(); return false;
   }
   return true;
@@ -297,16 +297,16 @@ document.getElementById("adminLoginBtn").addEventListener("click", async () => {
   try {
     const email = normalizeEmail(document.getElementById("adminEmailInput").value);
     const password = document.getElementById("adminPasswordInput").value;
-    if (email !== adminEmail) { showNotice("Chá»‰ Ä‘Æ°á»£c Ä‘Äƒng nháº­p báº±ng learnhubadmin@gmail.com", "error"); return; }
-    if (!password) { showNotice("Vui lÃ²ng nháº­p máº­t kháº©u admin.", "error"); return; }
+    if (email !== adminEmail) { showNotice("Chỉ được đăng nhập bằng learnhubadmin@gmail.com", "error"); return; }
+    if (!password) { showNotice("Vui lòng nhập mật khẩu admin.", "error"); return; }
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
   } catch (error) {
     console.error(error);
-    let message = "ÄÄƒng nháº­p admin tháº¥t báº¡i.";
+    let message = "Đăng nhập admin thất bại.";
     const em = String(error?.message || "");
-    if (em.includes("Invalid login credentials")) message = "Sai máº­t kháº©u hoáº·c tÃ i khoáº£n admin khÃ´ng há»£p lá»‡.";
-    else if (em.includes("rate limit")) message = "ÄÄƒng nháº­p quÃ¡ nhiá»u láº§n. Vui lÃ²ng thá»­ láº¡i sau.";
+    if (em.includes("Invalid login credentials")) message = "Sai mật khẩu hoặc tài khoản admin không hợp lệ.";
+    else if (em.includes("rate limit")) message = "Đăng nhập quá nhiều lần. Vui lòng thử lại sau.";
     showNotice(message, "error");
   }
 });
@@ -330,14 +330,14 @@ document.getElementById("sendBroadcastBtn").addEventListener("click", async () =
   const mp = document.querySelector('input[name="broadcastTargetMode"]:checked');
   const title = String(ti.value||"").trim(), message = String(mi.value||"").trim();
   const tm = mp?mp.value:"all", te = normalizeEmail(broadcastTargetEmailInput.value);
-  if (!message) { showNotice("Vui lÃ²ng nháº­p ná»™i dung thÃ´ng bÃ¡o.", "error"); return; }
-  if (tm==="single"&&(!te||!te.includes("@"))) { showNotice("Vui lÃ²ng nháº­p email há»£p lá»‡.", "error"); return; }
+  if (!message) { showNotice("Vui lòng nhập nội dung thông báo.", "error"); return; }
+  if (tm==="single"&&(!te||!te.includes("@"))) { showNotice("Vui lòng nhập email hợp lệ.", "error"); return; }
   try {
     const now = new Date().toISOString();
     await supabase.from("broadcast_current").upsert({
       id: true,
       broadcast_id: now,
-      title: title||"ThÃ´ng bÃ¡o",
+      title: title||"Thông báo",
       message,
       type: tp?tp.value:"info",
       duration_ms: Number(dp?dp.value:3000),
@@ -352,13 +352,13 @@ document.getElementById("sendBroadcastBtn").addEventListener("click", async () =
     document.querySelector('input[name="broadcastDuration"][value="3000"]').checked=true;
     document.querySelector('input[name="broadcastTargetMode"][value="all"]').checked=true;
     broadcastTargetEmailInput.value=""; broadcastTargetEmailInput.disabled=true;
-    showNotice(tm==="single"?`ÄÃ£ gá»­i thÃ´ng bÃ¡o Ä‘áº¿n ${te}.`:"ÄÃ£ gá»­i thÃ´ng bÃ¡o Ä‘áº¿n toÃ n bá»™ user Ä‘ang má»Ÿ LearnHub.","success");
-  } catch(e) { console.error(e); showNotice("Gá»­i thÃ´ng bÃ¡o tháº¥t báº¡i.", "error"); }
+    showNotice(tm==="single"?`Đã gửi thông báo đến ${te}.`:"Đã gửi thông báo đến toàn bộ user đang mở LearnHub.","success");
+  } catch(e) { console.error(e); showNotice("Gửi thông báo thất bại.", "error"); }
 });
 
 document.getElementById("clearBroadcastBtn").addEventListener("click", async () => {
-  try { await supabase.from("broadcast_current").upsert({ id: true, active: false, updated_at: new Date().toISOString(), sender: adminEmail }, { onConflict: "id" }); showNotice("ÄÃ£ táº¯t thÃ´ng bÃ¡o hiá»‡n táº¡i.", "success"); }
-  catch(e) { console.error(e); showNotice("KhÃ´ng táº¯t Ä‘Æ°á»£c thÃ´ng bÃ¡o.", "error"); }
+  try { await supabase.from("broadcast_current").upsert({ id: true, active: false, updated_at: new Date().toISOString(), sender: adminEmail }, { onConflict: "id" }); showNotice("Đã tắt thông báo hiện tại.", "success"); }
+  catch(e) { console.error(e); showNotice("Không tắt được thông báo.", "error"); }
 });
 
 // ==================== MAILBOX ====================
@@ -368,30 +368,30 @@ document.getElementById("sendMailboxBtn").addEventListener("click", async () => 
   const mi = document.getElementById("mailboxMessageInput");
   const title = String(ti.value || "").trim();
   const message = String(mi.value || "").trim();
-  if (!message) { showNotice("Vui lÃ²ng nháº­p ná»™i dung thÆ°.", "error"); return; }
-  var mailboxSignature = '<p style="margin-top:24px">TrÃ¢n trá»ng,<br><strong>Äá»™i ngÅ© phÃ¡t triá»ƒn!</strong></p>';
+  if (!message) { showNotice("Vui lòng nhập nội dung thư.", "error"); return; }
+  var mailboxSignature = '<p style="margin-top:24px">Trân trọng,<br><strong>Đội ngũ phát triển!</strong></p>';
   var fullMessage = message + mailboxSignature;
   try {
     if (btn.dataset.mode === "edit" && ti.dataset.editId) {
-      await supabase.from("mailbox_messages").update({ title: title || "ThÃ´ng bÃ¡o tá»« Admin", message: fullMessage }).eq("id", ti.dataset.editId);
-      showNotice("ÄÃ£ cáº­p nháº­t thÆ°.", "success");
+      await supabase.from("mailbox_messages").update({ title: title || "Thông báo từ Admin", message: fullMessage }).eq("id", ti.dataset.editId);
+      showNotice("Đã cập nhật thư.", "success");
       delete ti.dataset.editId;
-      btn.textContent = "Gá»­i thÆ°";
+      btn.textContent = "Gửi thư";
       delete btn.dataset.mode;
     } else {
       await supabase.from("mailbox_messages").insert({
-        title: title || "ThÃ´ng bÃ¡o tá»« Admin",
+        title: title || "Thông báo từ Admin",
         message: fullMessage,
         sender: adminEmail,
         target_mode: "all",
         target_email: null
       });
-      showNotice("ÄÃ£ gá»­i thÆ° Ä‘áº¿n táº¥t cáº£ user.", "success");
+      showNotice("Đã gửi thư đến tất cả user.", "success");
     }
     ti.value = "";
     mi.value = "";
     loadMailboxHistory();
-  } catch (e) { console.error(e); showNotice("Thao tÃ¡c tháº¥t báº¡i: " + (e.message || e), "error"); }
+  } catch (e) { console.error(e); showNotice("Thao tác thất bại: " + (e.message || e), "error"); }
 });
 
 async function loadMailboxHistory() {
@@ -399,35 +399,35 @@ async function loadMailboxHistory() {
   if (!container) return;
   try {
     const { data: messages } = await supabase.from("mailbox_messages").select("*").order("created_at", { ascending: false }).limit(10);
-    if (!messages || messages.length === 0) { container.innerHTML = '<p style="color:var(--text-2);font-size:13px">ChÆ°a cÃ³ thÆ° nÃ o.</p>'; return; }
-    let html = '<div style="font-weight:700;font-size:14px;margin-bottom:10px">ThÆ° Ä‘Ã£ gá»­i</div>';
+    if (!messages || messages.length === 0) { container.innerHTML = '<p style="color:var(--text-2);font-size:13px">Chưa có thư nào.</p>'; return; }
+    let html = '<div style="font-weight:700;font-size:14px;margin-bottom:10px">Thư đã gửi</div>';
     messages.forEach(m => {
       const d = new Date(m.created_at);
       const dateStr = d.toLocaleDateString("vi-VN") + " " + d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
       html += `<div style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;font-size:13px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <b style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin-right:8px">${escapeHtml(m.title || "KhÃ´ng tiÃªu Ä‘á»")}</b>
+          <b style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin-right:8px">${escapeHtml(m.title || "Không tiêu đề")}</b>
           <span style="color:var(--text-2);font-size:11px;white-space:nowrap">${dateStr}</span>
         </div>
         <div style="color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml((m.message || "").replace(/<[^>]+>/g,"").substring(0, 100))}</div>
         <div style="display:flex;gap:6px;margin-top:8px">
-          <button onclick="mailboxEditMsg('${m.id}')" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer">Sá»­a</button>
-          <button onclick="mailboxDeleteMsg('${m.id}')" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer">XoÃ¡</button>
+          <button onclick="mailboxEditMsg('${m.id}')" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer">Sửa</button>
+          <button onclick="mailboxDeleteMsg('${m.id}')" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer">Xoá</button>
         </div>
       </div>`;
     });
     container.innerHTML = html;
-  } catch (e) { container.innerHTML = '<p style="color:var(--text-2);font-size:13px">KhÃ´ng táº£i Ä‘Æ°á»£c lá»‹ch sá»­.</p>'; }
+  } catch (e) { container.innerHTML = '<p style="color:var(--text-2);font-size:13px">Không tải được lịch sử.</p>'; }
 }
 
 window.mailboxDeleteMsg = async function(id) {
-  if (!confirm("XoÃ¡ thÆ° nÃ y?")) return;
+  if (!confirm("Xoá thư này?")) return;
   try {
     const { error } = await supabase.from("mailbox_messages").delete().eq("id", id);
     if (error) throw error;
-    showNotice("ÄÃ£ xoÃ¡ thÆ°.", "success");
+    showNotice("Đã xoá thư.", "success");
     loadMailboxHistory();
-  } catch(e) { showNotice("XoÃ¡ tháº¥t báº¡i: " + (e.message || e), "error"); }
+  } catch(e) { showNotice("Xoá thất bại: " + (e.message || e), "error"); }
 };
 
 window.mailboxEditMsg = async function(id) {
@@ -435,44 +435,44 @@ window.mailboxEditMsg = async function(id) {
   const mi = document.getElementById("mailboxMessageInput");
   try {
     const { data: m, error } = await supabase.from("mailbox_messages").select("*").eq("id", id).single();
-    if (error || !m) throw error || new Error("KhÃ´ng tÃ¬m tháº¥y");
+    if (error || !m) throw error || new Error("Không tìm thấy");
     ti.value = m.title || "";
     mi.value = m.message || "";
     ti.dataset.editId = id;
-    document.getElementById("sendMailboxBtn").textContent = "Cáº­p nháº­t";
+    document.getElementById("sendMailboxBtn").textContent = "Cập nhật";
     document.getElementById("sendMailboxBtn").dataset.mode = "edit";
-  } catch(e) { showNotice("KhÃ´ng táº£i Ä‘Æ°á»£c thÆ°: " + (e.message || e), "error"); }
+  } catch(e) { showNotice("Không tải được thư: " + (e.message || e), "error"); }
 };
 
 async function loadWelcomePopupForm() {
   try {
     const { data: d } = await supabase.from("broadcast_welcome").select("*").eq("id", true).maybeSingle();
-    if (!d) { welcomePopupTitleInput.value="ðŸ“¢ ThÃ´ng bÃ¡o"; welcomePopupMessageInput.value="Cáº¢M Æ N CÃC Báº N ÄÃƒ TIN TÆ¯á»žNG VÃ€ Sá»¬ Dá»¤NG Há»† SINH THÃI LEARNHUB PLATFORM"; welcomePopupActiveInput.checked=true; document.querySelector('input[name="welcomePopupShowMode"][value="every_time"]').checked=true; welcomePopupMeta.textContent="ChÆ°a cÃ³ báº£n lÆ°u. LÆ°u láº§n Ä‘áº§u Ä‘á»ƒ Ã¡p dá»¥ng."; return; }
-    welcomePopupTitleInput.value=d.title||"ðŸ“¢ ThÃ´ng bÃ¡o"; welcomePopupMessageInput.value=d.message||""; welcomePopupActiveInput.checked=d.active!==false;
+    if (!d) { welcomePopupTitleInput.value="📢 Thông báo"; welcomePopupMessageInput.value="CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM"; welcomePopupActiveInput.checked=true; document.querySelector('input[name="welcomePopupShowMode"][value="every_time"]').checked=true; welcomePopupMeta.textContent="Chưa có bản lưu. Lưu lần đầu để áp dụng."; return; }
+    welcomePopupTitleInput.value=d.title||"📢 Thông báo"; welcomePopupMessageInput.value=d.message||""; welcomePopupActiveInput.checked=d.active!==false;
     const mode=d.show_mode==="daily"?"daily":"every_time";
     document.querySelector(`input[name="welcomePopupShowMode"][value="${mode}"]`).checked=true;
-    welcomePopupMeta.textContent=d.updated_at?`Cáº­p nháº­t: ${formatDate(d.updated_at)}${d.updated_by?` Â· bá»Ÿi ${d.updated_by}`:""}`:"";
-  } catch(e) { console.error(e); showNotice("KhÃ´ng táº£i Ä‘Æ°á»£c popup.", "error"); }
+    welcomePopupMeta.textContent=d.updated_at?`Cập nhật: ${formatDate(d.updated_at)}${d.updated_by?` · bởi ${d.updated_by}`:""}`:"";
+  } catch(e) { console.error(e); showNotice("Không tải được popup.", "error"); }
 }
 
 document.getElementById("saveWelcomePopupBtn").addEventListener("click", async () => {
   const title=String(welcomePopupTitleInput.value||"").trim(), message=String(welcomePopupMessageInput.value||"").trim(), active=welcomePopupActiveInput.checked;
   const showModeRadio=document.querySelector('input[name="welcomePopupShowMode"]:checked');
   const showMode=showModeRadio?showModeRadio.value:"every_time";
-  if (!message) { showNotice("Vui lÃ²ng nháº­p ná»™i dung popup.", "error"); return; }
+  if (!message) { showNotice("Vui lòng nhập nội dung popup.", "error"); return; }
   try {
     const now=new Date().toISOString();
-    await supabase.from("broadcast_welcome").upsert({ id: true, title: title||"ðŸ“¢ ThÃ´ng bÃ¡o", message, active, show_mode: showMode, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
-    welcomePopupMeta.textContent=`Cáº­p nháº­t: ${formatDate(now)} Â· bá»Ÿi ${adminEmail}`; showNotice("ÄÃ£ lÆ°u popup cá»‘ Ä‘á»‹nh.", "success");
-  } catch(e) { console.error(e); showNotice("LÆ°u popup tháº¥t báº¡i.", "error"); }
+    await supabase.from("broadcast_welcome").upsert({ id: true, title: title||"📢 Thông báo", message, active, show_mode: showMode, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
+    welcomePopupMeta.textContent=`Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`; showNotice("Đã lưu popup cố định.", "success");
+  } catch(e) { console.error(e); showNotice("Lưu popup thất bại.", "error"); }
 });
 
 document.getElementById("disableWelcomePopupBtn").addEventListener("click", async () => {
   try {
     const now=new Date().toISOString();
     await supabase.from("broadcast_welcome").upsert({ id: true, active: false, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
-    welcomePopupActiveInput.checked=false; welcomePopupMeta.textContent=`ÄÃ£ táº¯t popup Â· ${formatDate(now)}`; showNotice("ÄÃ£ táº¯t popup cá»‘ Ä‘á»‹nh.", "success");
-  } catch(e) { console.error(e); showNotice("KhÃ´ng táº¯t Ä‘Æ°á»£c popup.", "error"); }
+    welcomePopupActiveInput.checked=false; welcomePopupMeta.textContent=`Đã tắt popup · ${formatDate(now)}`; showNotice("Đã tắt popup cố định.", "success");
+  } catch(e) { console.error(e); showNotice("Không tắt được popup.", "error"); }
 });
 
 tickerSpeedInput.addEventListener("input", () => {
@@ -483,41 +483,41 @@ async function loadTickerForm() {
   try {
     const { data: d } = await supabase.from("ticker_settings").select("*").eq("id", true).maybeSingle();
     if (!d) {
-      tickerTextInput.value="LearnHub - Há»‡ sinh thÃ¡i há»c táº­p trá»±c tuyáº¿n dÃ nh cho há»c sinh vÃ  sinh viÃªn. Cung cáº¥p tÃ i liá»‡u, bÃ i kiá»ƒm tra, cÃ´ng cá»¥ Ã´n táº­p vÃ  nhiá»u tiá»‡n Ã­ch há»— trá»£ há»c táº­p hiá»‡n Ä‘áº¡i trÃªn má»™t ná»n táº£ng duy nháº¥t.";
+      tickerTextInput.value="LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.";
       tickerSpeedInput.value="18"; tickerSpeedValue.textContent="18s";
-      tickerMeta.textContent="ChÆ°a cÃ³ báº£n lÆ°u. LÆ°u láº§n Ä‘áº§u Ä‘á»ƒ Ã¡p dá»¥ng.";
+      tickerMeta.textContent="Chưa có bản lưu. Lưu lần đầu để áp dụng.";
       return;
     }
     tickerTextInput.value=d.text||"";
     tickerSpeedInput.value=String(d.speed_seconds||18);
     tickerSpeedValue.textContent=`${tickerSpeedInput.value}s`;
-    tickerMeta.textContent=d.updated_at?`Cáº­p nháº­t: ${formatDate(d.updated_at)}${d.updated_by?` Â· bá»Ÿi ${d.updated_by}`:""}`:"";
-  } catch(e) { console.error(e); showNotice("KhÃ´ng táº£i Ä‘Æ°á»£c cáº¥u hÃ¬nh dÃ²ng chá»¯.", "error"); }
+    tickerMeta.textContent=d.updated_at?`Cập nhật: ${formatDate(d.updated_at)}${d.updated_by?` · bởi ${d.updated_by}`:""}`:"";
+  } catch(e) { console.error(e); showNotice("Không tải được cấu hình dòng chữ.", "error"); }
 }
 
 document.getElementById("saveTickerBtn").addEventListener("click", async () => {
   const text=String(tickerTextInput.value||"").trim();
   const speed=Math.max(5, Math.min(60, Number(tickerSpeedInput.value)||18));
-  if (!text) { showNotice("Vui lÃ²ng nháº­p ná»™i dung dÃ²ng chá»¯.", "error"); return; }
+  if (!text) { showNotice("Vui lòng nhập nội dung dòng chữ.", "error"); return; }
   try {
     const now=new Date().toISOString();
     await supabase.from("ticker_settings").upsert({ id: true, text, speed_seconds: speed, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
-    tickerMeta.textContent=`Cáº­p nháº­t: ${formatDate(now)} Â· bá»Ÿi ${adminEmail}`;
-    showNotice("ÄÃ£ lÆ°u dÃ²ng chá»¯ cháº¡y.", "success");
-  } catch(e) { console.error(e); showNotice("LÆ°u dÃ²ng chá»¯ tháº¥t báº¡i.", "error"); }
+    tickerMeta.textContent=`Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
+    showNotice("Đã lưu dòng chữ chạy.", "success");
+  } catch(e) { console.error(e); showNotice("Lưu dòng chữ thất bại.", "error"); }
 });
 
 document.getElementById("refreshTickerBtn").addEventListener("click", loadTickerForm);
 
-// ================= SCHEDULE (Lá»ŠCH Há»ŒC & THI) =================
+// ================= SCHEDULE (LỊCH HỌC & THI) =================
 const SCHEDULE_SUBJECTS = [
-  { value: "ly", label: "Váº­t LÃ½" },
-  { value: "sinh", label: "Sinh Há»c" },
-  { value: "tin", label: "Tin Há»c" },
-  { value: "su", label: "Lá»‹ch Sá»­" },
-  { value: "hoa", label: "HoÃ¡ Há»c" },
-  { value: "anh", label: "Anh VÄƒn" },
-  { value: "toan", label: "ToÃ¡n Há»c" }
+  { value: "ly", label: "Vật Lý" },
+  { value: "sinh", label: "Sinh Học" },
+  { value: "tin", label: "Tin Học" },
+  { value: "su", label: "Lịch Sử" },
+  { value: "hoa", label: "Hoá Học" },
+  { value: "anh", label: "Anh Văn" },
+  { value: "toan", label: "Toán Học" }
 ];
 
 function scheduleSubjectOptions(sel) {
@@ -533,12 +533,12 @@ function scheduleEventId() { return crypto.randomUUID ? crypto.randomUUID() : "e
 function scheduleEditorCard(e) {
   const id = e.id || scheduleEventId();
   const session = e.session || guessScheduleSession(e.time);
-  const sessionInfo = { morning: ["ðŸŒ…", "SÃ¡ng"], noon: ["â˜€ï¸", "TrÆ°a"], afternoon: ["ðŸŒ¤ï¸", "Chiá»u"], evening: ["ðŸŒ™", "Tá»‘i"] }[session] || ["ðŸ•’", "Buá»•i há»c"];
-  const time = [e.time, e.endTime].filter(Boolean).join(" â€“ ") || "ChÆ°a chá»n giá»";
-  const subjInfo = { ly: ["LÃ½", "#2563eb"], sinh: ["Sinh", "#16a34a"], tin: ["Tin", "#7c3aed"], su: ["Sá»­", "#ea580c"], hoa: ["HoÃ¡", "#dc2626"], anh: ["Anh", "#0891b2"], toan: ["ToÃ¡n", "#4f46e5"] }[e.subject] || [String(e.subject || "MÃ´n"), "#2563eb"];
+  const sessionInfo = { morning: ["🌅", "Sáng"], noon: ["☀️", "Trưa"], afternoon: ["🌤️", "Chiều"], evening: ["🌙", "Tối"] }[session] || ["🕒", "Buổi học"];
+  const time = [e.time, e.endTime].filter(Boolean).join(" – ") || "Chưa chọn giờ";
+  const subjInfo = { ly: ["Lý", "#2563eb"], sinh: ["Sinh", "#16a34a"], tin: ["Tin", "#7c3aed"], su: ["Sử", "#ea580c"], hoa: ["Hoá", "#dc2626"], anh: ["Anh", "#0891b2"], toan: ["Toán", "#4f46e5"] }[e.subject] || [String(e.subject || "Môn"), "#2563eb"];
   return `<div class="schedule-event-row ${e.type === "thi" ? "type-thi" : ""}" style="border-left-color:${subjInfo[1]}" data-id="${escapeHtml(id)}" data-date="${escapeHtml(e.date)}">
-    <button class="se-delete" type="button" title="XÃ³a lá»‹ch" onclick="removeScheduleEvent('${escapeHtml(id)}')">Ã—</button>
-    <div onclick="editScheduleEvent('${escapeHtml(id)}')"><div class="admin-schedule-top"><span class="admin-schedule-tag ${e.type === "thi" ? "thi" : ""}">${e.type === "thi" ? "Thi" : "Há»c"}</span><span class="admin-schedule-session ${session}">${sessionInfo[0]} ${sessionInfo[1]}</span><span class="admin-schedule-subj" style="background:${subjInfo[1]}">${escapeHtml(subjInfo[0])}</span></div><div class="admin-schedule-title">${escapeHtml(e.title || "")}</div><div class="admin-schedule-time">ðŸ•’ ${escapeHtml(time)}</div>${e.note ? `<div class="admin-schedule-note">${escapeHtml(e.note)}</div>` : ""}</div>
+    <button class="se-delete" type="button" title="Xóa lịch" onclick="removeScheduleEvent('${escapeHtml(id)}')">×</button>
+    <div onclick="editScheduleEvent('${escapeHtml(id)}')"><div class="admin-schedule-top"><span class="admin-schedule-tag ${e.type === "thi" ? "thi" : ""}">${e.type === "thi" ? "Thi" : "Học"}</span><span class="admin-schedule-session ${session}">${sessionInfo[0]} ${sessionInfo[1]}</span><span class="admin-schedule-subj" style="background:${subjInfo[1]}">${escapeHtml(subjInfo[0])}</span></div><div class="admin-schedule-title">${escapeHtml(e.title || "")}</div><div class="admin-schedule-time">🕒 ${escapeHtml(time)}</div>${e.note ? `<div class="admin-schedule-note">${escapeHtml(e.note)}</div>` : ""}</div>
   </div>`;
 }
 
@@ -548,11 +548,11 @@ function renderScheduleEvents() {
   const today = toIsoDate(new Date());
   const weekDates = Array.from({ length: 7 }, (_, i) => toIsoDate(addDays(scheduleWeekStart, i)));
   const label = document.getElementById("scheduleWeekLabel");
-  if (label) label.innerHTML = `Tuáº§n Ä‘ang chá»‰nh<small>${weekDates[0].split("-").reverse().join("/")} â€“ ${weekDates[6].split("-").reverse().join("/")}</small>`;
+  if (label) label.innerHTML = `Tuần đang chỉnh<small>${weekDates[0].split("-").reverse().join("/")} – ${weekDates[6].split("-").reverse().join("/")}</small>`;
   scheduleEventsList.innerHTML = '<div class="schedule-week-grid">' + weekDates.map((date, i) => {
     const dayEvents = scheduleEvents.filter(e => e && e.date === date);
     const classes = "schedule-day-column" + (date === today ? " is-today" : "") + (i === 6 ? " is-sunday" : "");
-    return `<div class="${classes}"><div class="schedule-day-head"><div><div class="schedule-day-name">${weekdays[i]}</div><div class="schedule-day-date">${date.split("-").reverse().slice(0, 2).join("/")}</div></div><button class="schedule-day-add" type="button" title="ThÃªm lá»‹ch ngÃ y nÃ y" onclick="addScheduleEvent('${date}')">+</button></div>${dayEvents.length ? dayEvents.map(scheduleEditorCard).join("") : '<div class="schedule-day-empty">ChÆ°a cÃ³ lá»‹ch</div>'}</div>`;
+    return `<div class="${classes}"><div class="schedule-day-head"><div><div class="schedule-day-name">${weekdays[i]}</div><div class="schedule-day-date">${date.split("-").reverse().slice(0, 2).join("/")}</div></div><button class="schedule-day-add" type="button" title="Thêm lịch ngày này" onclick="addScheduleEvent('${date}')">+</button></div>${dayEvents.length ? dayEvents.map(scheduleEditorCard).join("") : '<div class="schedule-day-empty">Chưa có lịch</div>'}</div>`;
   }).join("") + "</div>";
 }
 
@@ -567,7 +567,7 @@ function guessScheduleSession(time) {
 function openScheduleModal(date, eventId) {
   const event = eventId ? scheduleEvents.find(e => e.id === eventId) : null;
   scheduleEditingEventId = event ? event.id : null;
-  document.getElementById("scheduleModalTitle").textContent = event ? "âœï¸ Chá»‰nh sá»­a lá»‹ch" : "ðŸ“… ThÃªm lá»‹ch há»c / lá»‹ch thi";
+  document.getElementById("scheduleModalTitle").textContent = event ? "✏️ Chỉnh sửa lịch" : "📅 Thêm lịch học / lịch thi";
   document.getElementById("scheduleModalDate").value = event ? event.date : (date || toIsoDate(scheduleWeekStart));
   document.getElementById("scheduleModalSubject").innerHTML = scheduleSubjectOptions(event ? event.subject : "ly");
   document.getElementById("scheduleModalType").value = event ? event.type : "hoc";
@@ -586,7 +586,7 @@ window.closeScheduleModal = closeScheduleModal;
 document.getElementById("saveScheduleModalBtn").addEventListener("click", () => {
   const date = document.getElementById("scheduleModalDate").value;
   const title = document.getElementById("scheduleModalTitleInput").value.trim();
-  if (!date || !title) { showNotice("Vui lÃ²ng chá»n ngÃ y vÃ  nháº­p ná»™i dung lá»‹ch.", "warning"); return; }
+  if (!date || !title) { showNotice("Vui lòng chọn ngày và nhập nội dung lịch.", "warning"); return; }
   const time = document.getElementById("scheduleModalStart").value;
   const nextEvent = { id: scheduleEditingEventId || scheduleEventId(), date, subject: document.getElementById("scheduleModalSubject").value, type: document.getElementById("scheduleModalType").value, session: document.getElementById("scheduleModalSession").value || guessScheduleSession(time), time, endTime: document.getElementById("scheduleModalEnd").value, title, note: document.getElementById("scheduleModalNote").value.trim() };
   if (scheduleEditingEventId) scheduleEvents = scheduleEvents.map(e => e.id === scheduleEditingEventId ? nextEvent : e); else scheduleEvents.push(nextEvent);
@@ -605,17 +605,17 @@ async function loadScheduleForm() {
     const { data: d } = await supabase.from("schedule_settings").select("*").eq("id", true).maybeSingle();
     scheduleEvents = (d && Array.isArray(d.events)) ? d.events.map(e => ({ id: e.id || scheduleEventId(), ...e })) : [];
     renderScheduleEvents();
-    scheduleMeta.textContent = d && d.updated_at ? `Cáº­p nháº­t: ${formatDate(d.updated_at)}${d.updated_by ? ` Â· bá»Ÿi ${d.updated_by}` : ""}` : "ChÆ°a cÃ³ báº£n lÆ°u. LÆ°u láº§n Ä‘áº§u Ä‘á»ƒ Ã¡p dá»¥ng.";
+    scheduleMeta.textContent = d && d.updated_at ? `Cập nhật: ${formatDate(d.updated_at)}${d.updated_by ? ` · bởi ${d.updated_by}` : ""}` : "Chưa có bản lưu. Lưu lần đầu để áp dụng.";
   } catch (e) {
     console.error(e);
-    showNotice("KhÃ´ng táº£i Ä‘Æ°á»£c lá»‹ch há»c & thi.", "error");
+    showNotice("Không tải được lịch học & thi.", "error");
   }
 }
 
 document.getElementById("saveScheduleBtn").addEventListener("click", async () => {
   const dropped = scheduleEvents.filter(Boolean).filter(e => !e.date || !String(e.title || "").trim()).length;
   const events = scheduleEvents.filter(e => e && e.date && String(e.title || "").trim());
-  if (dropped > 0) showNotice(`CÃ³ ${dropped} lá»‹ch thiáº¿u ngÃ y/tiÃªu Ä‘á» sáº½ bá»‹ bá» qua khi lÆ°u.`, "warning");
+  if (dropped > 0) showNotice(`Có ${dropped} lịch thiếu ngày/tiêu đề sẽ bị bỏ qua khi lưu.`, "warning");
 
   try {
     const now = new Date().toISOString();
@@ -628,11 +628,11 @@ document.getElementById("saveScheduleBtn").addEventListener("click", async () =>
     }, { onConflict: "id" });
     scheduleEvents = events;
     renderScheduleEvents();
-    scheduleMeta.textContent = `Cáº­p nháº­t: ${formatDate(now)} Â· bá»Ÿi ${adminEmail}`;
-    showNotice("ÄÃ£ lÆ°u lá»‹ch há»c & thi.", "success");
+    scheduleMeta.textContent = `Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
+    showNotice("Đã lưu lịch học & thi.", "success");
   } catch (e) {
     console.error(e);
-    showNotice("LÆ°u lá»‹ch tháº¥t báº¡i. Kiá»ƒm tra láº¡i báº£ng schedule_settings Ä‘Ã£ táº¡o chÆ°a.", "error");
+    showNotice("Lưu lịch thất bại. Kiểm tra lại bảng schedule_settings đã tạo chưa.", "error");
   }
 });
 
@@ -640,7 +640,7 @@ document.getElementById("refreshScheduleBtn").addEventListener("click", loadSche
 
 function renderMaintenanceBanner(d) {
   const on=Boolean(d&&d.enabled);
-  maintenanceStatusBanner.textContent=on?"ðŸ”´ ÄANG Báº¬T Báº¢O TRÃŒ â€” ToÃ n bá»™ user bá»‹ cháº·n truy cáº­p.":"ðŸŸ¢ Äang táº¯t â€” Web hoáº¡t Ä‘á»™ng bÃ¬nh thÆ°á»ng.";
+  maintenanceStatusBanner.textContent=on?"🔴 ĐANG BẬT BẢO TRÌ — Toàn bộ user bị chặn truy cập.":"🟢 Đang tắt — Web hoạt động bình thường.";
   maintenanceStatusBanner.style.background=on?"#fee2e2":"#dcfce7"; maintenanceStatusBanner.style.color=on?"#b91c1c":"#166534";
   maintenanceStatusBanner.style.border=on?"1px solid #fecaca":"1px solid #bbf7d0";
 }
@@ -649,9 +649,9 @@ async function loadMaintenanceForm() {
   try {
     const { data: d } = await supabase.from("maintenance_settings").select("*").eq("id", true).maybeSingle();
     maintenanceEnabledInput.checked=Boolean(d && d.enabled); maintenanceMessageInput.value=(d && d.message)||""; renderMaintenanceBanner(d||{});
-    maintenanceMeta.textContent=d && d.updated_at ? `Cáº­p nháº­t: ${formatDate(d.updated_at)}${d.updated_by?` Â· bá»Ÿi ${d.updated_by}`:""}`:"ChÆ°a tá»«ng báº­t báº£o trÃ¬.";
+    maintenanceMeta.textContent=d && d.updated_at ? `Cập nhật: ${formatDate(d.updated_at)}${d.updated_by?` · bởi ${d.updated_by}`:""}`:"Chưa từng bật bảo trì.";
     updateMaintenanceBadge(d && d.enabled);
-  } catch(e) { console.error(e); showNotice("KhÃ´ng táº£i Ä‘Æ°á»£c tráº¡ng thÃ¡i báº£o trÃ¬.", "error"); }
+  } catch(e) { console.error(e); showNotice("Không tải được trạng thái bảo trì.", "error"); }
 }
 
 function updateMaintenanceBadge(enabled) {
@@ -669,15 +669,15 @@ document.getElementById("saveMaintenanceBtn").addEventListener("click", () => {
     try {
       const now = new Date().toISOString();
       await supabase.from("maintenance_settings").upsert({ id: true, enabled, message, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
-      renderMaintenanceBanner({ enabled }); maintenanceMeta.textContent = `Cáº­p nháº­t: ${formatDate(now)} Â· bá»Ÿi ${adminEmail}`;
+      renderMaintenanceBanner({ enabled }); maintenanceMeta.textContent = `Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
       updateMaintenanceBadge(enabled);
-      showNotice(enabled ? "ÄÃ£ Báº¬T báº£o trÃ¬." : "ÄÃ£ Táº®T báº£o trÃ¬.", "success"); await loadMaintenanceForm();
-    } catch (e) { console.error(e); showNotice("Cáº­p nháº­t báº£o trÃ¬ tháº¥t báº¡i.", "error"); }
+      showNotice(enabled ? "Đã BẬT bảo trì." : "Đã TẮT bảo trì.", "success"); await loadMaintenanceForm();
+    } catch (e) { console.error(e); showNotice("Cập nhật bảo trì thất bại.", "error"); }
   };
   if (enabled) {
-    openConfirmDialog("Báº­t cháº¿ Ä‘á»™ báº£o trÃ¬?", "ToÃ n bá»™ user sáº½ bá»‹ Ä‘Äƒng xuáº¥t vÃ  má»i truy cáº­p má»›i bá»‹ cháº·n. Tiáº¿p tá»¥c?", apply);
+    openConfirmDialog("Bật chế độ bảo trì?", "Toàn bộ user sẽ bị đăng xuất và mọi truy cập mới bị chặn. Tiếp tục?", apply);
   } else {
-    openConfirmDialog("Táº¯t cháº¿ Ä‘á»™ báº£o trÃ¬?", "User cÃ³ thá»ƒ Ä‘Äƒng nháº­p vÃ  truy cáº­p web bÃ¬nh thÆ°á»ng. Tiáº¿p tá»¥c?", apply);
+    openConfirmDialog("Tắt chế độ bảo trì?", "User có thể đăng nhập và truy cập web bình thường. Tiếp tục?", apply);
   }
 });
 
@@ -689,7 +689,7 @@ function renderRegistrationBanner(d) {
   const on = d && d.enabled;
   registrationStatusBanner.style.background = on ? "rgba(34,197,94,.12)" : "rgba(239,68,68,.10)";
   registrationStatusBanner.style.color = on ? "#16a34a" : "#dc2626";
-  registrationStatusBanner.textContent = on ? "âœ… ÄÄƒng kÃ½ Ä‘ang Má»ž â€” user má»›i cÃ³ thá»ƒ Ä‘Äƒng kÃ½." : "ðŸš« ÄÄƒng kÃ½ Ä‘ang ÄÃ“NG â€” chá»‰ user trong whitelist má»›i Ä‘Äƒng kÃ½ Ä‘Æ°á»£c.";
+  registrationStatusBanner.textContent = on ? "✅ Đăng ký đang MỞ — user mới có thể đăng ký." : "🚫 Đăng ký đang ĐÓNG — chỉ user trong whitelist mới đăng ký được.";
 }
 
 function updateRegistrationBadge(enabled) {
@@ -707,9 +707,9 @@ async function loadRegistrationForm() {
     registrationEnabledInput.checked = Boolean(d && d.enabled);
     registrationMessageInput.value = (d && d.message) || "";
     renderRegistrationBanner(d || {});
-    registrationMeta.textContent = d && d.updated_at ? `Cáº­p nháº­t: ${formatDate(d.updated_at)}${d.updated_by ? ` Â· bá»Ÿi ${d.updated_by}` : ""}` : "ChÆ°a tá»«ng chá»‰nh sá»­a.";
+    registrationMeta.textContent = d && d.updated_at ? `Cập nhật: ${formatDate(d.updated_at)}${d.updated_by ? ` · bởi ${d.updated_by}` : ""}` : "Chưa từng chỉnh sửa.";
     updateRegistrationBadge(d && d.enabled);
-  } catch (e) { console.error(e); showNotice("KhÃ´ng táº£i Ä‘Æ°á»£c tráº¡ng thÃ¡i Ä‘Äƒng kÃ½.", "error"); }
+  } catch (e) { console.error(e); showNotice("Không tải được trạng thái đăng ký.", "error"); }
 }
 
 document.getElementById("saveRegistrationBtn").addEventListener("click", () => {
@@ -718,15 +718,15 @@ document.getElementById("saveRegistrationBtn").addEventListener("click", () => {
     try {
       const now = new Date().toISOString();
       await supabase.from("registration_settings").upsert({ id: true, enabled, message, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
-      renderRegistrationBanner({ enabled }); registrationMeta.textContent = `Cáº­p nháº­t: ${formatDate(now)} Â· bá»Ÿi ${adminEmail}`;
+      renderRegistrationBanner({ enabled }); registrationMeta.textContent = `Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
       updateRegistrationBadge(enabled);
-      showNotice(enabled ? "ÄÃ£ Má»ž Ä‘Äƒng kÃ½." : "ÄÃ£ ÄÃ“NG Ä‘Äƒng kÃ½.", "success"); await loadRegistrationForm();
-    } catch (e) { console.error(e); showNotice("Cáº­p nháº­t tráº¡ng thÃ¡i Ä‘Äƒng kÃ½ tháº¥t báº¡i.", "error"); }
+      showNotice(enabled ? "Đã MỞ đăng ký." : "Đã ĐÓNG đăng ký.", "success"); await loadRegistrationForm();
+    } catch (e) { console.error(e); showNotice("Cập nhật trạng thái đăng ký thất bại.", "error"); }
   };
   if (!enabled) {
-    openConfirmDialog("ÄÃ³ng Ä‘Äƒng kÃ½?", "User má»›i sáº½ khÃ´ng thá»ƒ Ä‘Äƒng kÃ½ (trá»« khi cÃ³ trong whitelist). Tiáº¿p tá»¥c?", apply);
+    openConfirmDialog("Đóng đăng ký?", "User mới sẽ không thể đăng ký (trừ khi có trong whitelist). Tiếp tục?", apply);
   } else {
-    openConfirmDialog("Má»Ÿ Ä‘Äƒng kÃ½?", "User má»›i cÃ³ thá»ƒ Ä‘Äƒng kÃ½ tÃ i khoáº£n. Tiáº¿p tá»¥c?", apply);
+    openConfirmDialog("Mở đăng ký?", "User mới có thể đăng ký tài khoản. Tiếp tục?", apply);
   }
 });
 
@@ -734,9 +734,9 @@ document.getElementById("refreshRegistrationBtn").addEventListener("click", load
 
 document.getElementById("addWhitelistBtn").addEventListener("click", async () => {
   const input=document.getElementById("allowEmailInput"), email=normalizeEmail(input.value);
-  if (!email||!email.includes("@")) { showNotice("Vui lÃ²ng nháº­p email há»£p lá»‡.", "error"); return; }
+  if (!email||!email.includes("@")) { showNotice("Vui lòng nhập email hợp lệ.", "error"); return; }
   await supabase.from("access_list").upsert({ email, enabled: true, added_at: new Date().toISOString(), updated_at: new Date().toISOString() }, { onConflict: "email" });
-  input.value=""; showNotice("ÄÃ£ thÃªm email vÃ o whitelist.", "success");
+  input.value=""; showNotice("Đã thêm email vào whitelist.", "success");
 });
 
 directorySearchInput.addEventListener("input", () => { currentPage = 1; renderDirectory(); });
@@ -744,26 +744,26 @@ directoryFilterSelect.addEventListener("change", () => { currentPage = 1; render
 
 window.toggleWhitelist = async (email, cur) => {
   await supabase.from("access_list").upsert({ email, enabled: !cur, updated_at: new Date().toISOString() }, { onConflict: "email" });
-  showNotice(cur?"ÄÃ£ táº¯t quyá»n email nÃ y.":"ÄÃ£ báº­t láº¡i quyá»n email nÃ y.", "success");
+  showNotice(cur?"Đã tắt quyền email này.":"Đã bật lại quyền email này.", "success");
 };
 window.removeWhitelist = async (email) => {
-  if (!(await lhConfirm("XÃ³a email nÃ y khá»i whitelist?"))) return;
-  await supabase.from("access_list").delete().eq("email", email); showNotice("ÄÃ£ xÃ³a email khá»i whitelist.", "success");
+  if (!(await lhConfirm("Xóa email này khỏi whitelist?"))) return;
+  await supabase.from("access_list").delete().eq("email", email); showNotice("Đã xóa email khỏi whitelist.", "success");
 };
 window.renameUser = async (uid) => {
   const input=document.getElementById(`rename-${uid}`), name=String(input?.value||"").trim();
-  if (name.length<2) { showNotice("TÃªn pháº£i cÃ³ Ã­t nháº¥t 2 kÃ½ tá»±.", "error"); return; }
-  await supabase.from("users").update({ name, updated_at: new Date().toISOString() }).eq("id", uid); showNotice("ÄÃ£ cáº­p nháº­t tÃªn user.", "success");
+  if (name.length<2) { showNotice("Tên phải có ít nhất 2 ký tự.", "error"); return; }
+  await supabase.from("users").update({ name, updated_at: new Date().toISOString() }).eq("id", uid); showNotice("Đã cập nhật tên user.", "success");
 };
 window.toggleDisable = async (uid, cur) => {
   if (!uid) return;
-  if(!cur){ await adminFinalizeOnline(uid); } // finalize giá» online Ä‘ang cháº¡y trÆ°á»›c khi khÃ³a, khÃ´ng máº¥t cÃ´ng sá»©c
+  if(!cur){ await adminFinalizeOnline(uid); } // finalize giờ online đang chạy trước khi khóa, không mất công sức
   await supabase.from("users").update({ disabled: !cur, online: false, updated_at: new Date().toISOString() }).eq("id", uid);
-  showNotice(cur?"ÄÃ£ má»Ÿ khÃ³a user.":"ÄÃ£ disable user.", "success");
+  showNotice(cur?"Đã mở khóa user.":"Đã disable user.", "success");
 };
 window.changeUserRole = async (uid, role) => {
-  if (!uid) return; try { await supabase.from("users").update({ role, updated_at: new Date().toISOString() }).eq("id", uid); showNotice(`ÄÃ£ chuyá»ƒn quyá»n thÃ nh: ${role}`, "success"); }
-  catch(e) { console.error(e); showNotice("KhÃ´ng thá»ƒ cáº­p nháº­t quyá»n.", "error"); }
+  if (!uid) return; try { await supabase.from("users").update({ role, updated_at: new Date().toISOString() }).eq("id", uid); showNotice(`Đã chuyển quyền thành: ${role}`, "success"); }
+  catch(e) { console.error(e); showNotice("Không thể cập nhật quyền.", "error"); }
 };
 function openRoleDropdown(trigger) {
   const wrap = trigger.closest(".role-select");
@@ -799,7 +799,7 @@ window.pickRole = async (uid, role, source) => {
   const trigger = wrap.querySelector(".role-trigger");
   const dot = trigger?.querySelector(".role-dot");
   const label = trigger?.querySelector(".role-label");
-  if (dot) dot.className = "role-dot " + (role==='Admin'?'r-admin':role==='GiÃ¡o viÃªn'?'r-teacher':'r-member');
+  if (dot) dot.className = "role-dot " + (role==='Admin'?'r-admin':role==='Giáo viên'?'r-teacher':'r-member');
   if (label) label.textContent = role;
   wrap.querySelectorAll(".role-option").forEach(o => o.classList.toggle("active", o.dataset.role === role));
 };
@@ -834,11 +834,11 @@ document.addEventListener("click", (e) => {
 });
 window.deleteUserData = async (uid, email) => {
   const has=Boolean(uid);
-  if (!(await lhConfirm(has?"XÃ³a há»“ sÆ¡ vÃ  gá»¡ khá»i whitelist?":"XÃ³a email khá»i whitelist?"))) return;
+  if (!(await lhConfirm(has?"Xóa hồ sơ và gỡ khỏi whitelist?":"Xóa email khỏi whitelist?"))) return;
   if (has) await supabase.from("users").delete().eq("id", uid);
   const ne=normalizeEmail(email);
   if (ne) { const { data } = await supabase.from("access_list").select("email").eq("email", ne).maybeSingle(); if (data) await supabase.from("access_list").delete().eq("email", ne); }
-  showNotice(has?"ÄÃ£ xÃ³a há»“ sÆ¡ user vÃ  gá»¡ whitelist.":"ÄÃ£ xÃ³a email khá»i whitelist.", "success");
+  showNotice(has?"Đã xóa hồ sơ user và gỡ whitelist.":"Đã xóa email khỏi whitelist.", "success");
 };
 
 // ================= WEEKLY RESET =================
@@ -858,23 +858,23 @@ async function loadWeeklyResetForm() {
   try {
     const { data: d } = await supabase.from("weekly_reset").select("*").eq("id", true).maybeSingle();
     if (d) {
-      weeklyResetLastTime.textContent = d.last_reset_at ? formatDate(d.last_reset_at) : "ChÆ°a tá»«ng reset";
-      weeklyResetLastBy.textContent = d.last_reset_by || "â€”";
-      weeklyResetStatusBanner.textContent = `Tuáº§n ${currentWeek} Â· ÄÃ£ reset ${d.reset_count || 0} láº§n`;
+      weeklyResetLastTime.textContent = d.last_reset_at ? formatDate(d.last_reset_at) : "Chưa từng reset";
+      weeklyResetLastBy.textContent = d.last_reset_by || "—";
+      weeklyResetStatusBanner.textContent = `Tuần ${currentWeek} · Đã reset ${d.reset_count || 0} lần`;
       weeklyResetStatusBanner.style.background = "#eff6ff";
       weeklyResetStatusBanner.style.color = "#1e40af";
       weeklyResetStatusBanner.style.border = "1px solid #bfdbfe";
     } else {
-      weeklyResetLastTime.textContent = "ChÆ°a tá»«ng reset";
-      weeklyResetLastBy.textContent = "â€”";
-      weeklyResetStatusBanner.textContent = `Tuáº§n ${currentWeek} Â· ChÆ°a tá»«ng reset`;
+      weeklyResetLastTime.textContent = "Chưa từng reset";
+      weeklyResetLastBy.textContent = "—";
+      weeklyResetStatusBanner.textContent = `Tuần ${currentWeek} · Chưa từng reset`;
       weeklyResetStatusBanner.style.background = "#f8fafc";
       weeklyResetStatusBanner.style.color = "#64748b";
       weeklyResetStatusBanner.style.border = "1px solid #e2e8f0";
     }
   } catch (e) {
     console.error(e);
-    weeklyResetStatusBanner.textContent = "KhÃ´ng táº£i Ä‘Æ°á»£c thÃ´ng tin reset.";
+    weeklyResetStatusBanner.textContent = "Không tải được thông tin reset.";
     weeklyResetStatusBanner.style.background = "#fef2f2";
     weeklyResetStatusBanner.style.color = "#b91c1c";
     weeklyResetStatusBanner.style.border = "1px solid #fecaca";
@@ -886,7 +886,7 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
   const resetTime = document.getElementById("resetTimeCheck").checked;
 
   if(!resetScore && !resetTime){
-    showNotice("Vui lÃ²ng chá»n Ã­t nháº¥t má»™t má»¥c cáº§n reset.", "warning");
+    showNotice("Vui lòng chọn ít nhất một mục cần reset.", "warning");
     return;
   }
 
@@ -897,12 +897,12 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
   const cB = document.getElementById("confirmModalConfirm");
 
   const targets = [];
-  if(resetScore) targets.push("Ä‘iá»ƒm sá»‘");
-  if(resetTime) targets.push("thá»i gian online");
+  if(resetScore) targets.push("điểm số");
+  if(resetTime) targets.push("thời gian online");
 
-  mI.textContent = "âš ï¸";
+  mI.textContent = "⚠️";
   mT.textContent = `Reset ${targets.join(" & ")}?`;
-  mM.textContent = `HÃ nh Ä‘á»™ng nÃ y sáº½ reset ${targets.join(" vÃ  ")}. Báº¡n cÃ³ cháº¯c?`;
+  mM.textContent = `Hành động này sẽ reset ${targets.join(" và ")}. Bạn có chắc?`;
   modal.classList.add("active");
 
   const onConfirm = async () => {
@@ -912,13 +912,13 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
 
     const btn = document.getElementById("manualResetBtn");
     btn.disabled = true;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Äang reset...';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Đang reset...';
 
     try {
       const currentWeek = getCurrentWeekKey();
       let count = 0;
 
-      // Reset Ä‘iá»ƒm sá»‘
+      // Reset điểm số
       if(resetScore){
         const { data: stats } = await supabase.from("test_stats").select("user_id");
         for (const s of (stats || [])) {
@@ -933,13 +933,13 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
         }
       }
 
-      // Reset thá»i gian online
+      // Reset thời gian online
       if(resetTime){
         const { data: users } = await supabase.from("users").select("id");
         for (const s of (users || [])) {
-          // online_start_time = 0 Ä‘á»ƒ profile/leaderboard KHÃ”NG tá»± cá»™ng pháº§n phiÃªn Ä‘ang online
-          // (condition `online_start_time > 0` fail) -> hiá»ƒn thá»‹ vá» 0 ngay láº­p tá»©c.
-          // PhiÃªn online cá»§a user sáº½ Ä‘áº¿m láº¡i tá»« Ä‘áº§u khi há» má»Ÿ láº¡i (users_begin_online tháº¥y start=0).
+          // online_start_time = 0 để profile/leaderboard KHÔNG tự cộng phần phiên đang online
+          // (condition `online_start_time > 0` fail) -> hiển thị về 0 ngay lập tức.
+          // Phiên online của user sẽ đếm lại từ đầu khi họ mở lại (users_begin_online thấy start=0).
           await supabase.from("users").update({
             online_timer: 0,
             online_start_time: 0,
@@ -963,15 +963,15 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
         reset_targets: targets.join(", ")
       }, { onConflict: "id" });
 
-      showNotice(`ÄÃ£ reset ${targets.join(" & ")} thÃ nh cÃ´ng cho ${count} user.`, "success");
+      showNotice(`Đã reset ${targets.join(" & ")} thành công cho ${count} user.`, "success");
       await loadWeeklyResetForm();
     } catch (e) {
       console.error(e);
-      showNotice("Reset tháº¥t báº¡i.", "error");
+      showNotice("Reset thất bại.", "error");
     }
 
     btn.disabled = false;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Reset ngay bÃ¢y giá»';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Reset ngay bây giờ';
   };
 
   const onCancel = () => {
@@ -986,7 +986,7 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
 
 document.getElementById("logoutAllBtn").addEventListener("click", async () => {
   const onlineCount = userDocs.filter(i => i.online && i.last_active && (Date.now() - i.last_active) < 10000).length;
-  if(onlineCount === 0){ showNotice("KhÃ´ng cÃ³ user nÃ o Ä‘ang online.", "info"); return; }
+  if(onlineCount === 0){ showNotice("Không có user nào đang online.", "info"); return; }
 
   const modal = document.getElementById("confirmModal");
   const mI = document.getElementById("confirmModalIcon");
@@ -994,9 +994,9 @@ document.getElementById("logoutAllBtn").addEventListener("click", async () => {
   const mM = document.getElementById("confirmModalMessage");
   const cB = document.getElementById("confirmModalConfirm");
 
-  mI.textContent = "âš ï¸";
-  mT.textContent = `ÄÄƒng xuáº¥t ${onlineCount} user Ä‘ang online?`;
-  mM.textContent = "Táº¥t cáº£ user Ä‘ang online sáº½ bá»‹ Ä‘Ã¡nh dáº¥u offline. User Ä‘ang má»Ÿ tab sáº½ tá»± Ä‘á»™ng online láº¡i sau 5 giÃ¢y.";
+  mI.textContent = "⚠️";
+  mT.textContent = `Đăng xuất ${onlineCount} user đang online?`;
+  mM.textContent = "Tất cả user đang online sẽ bị đánh dấu offline. User đang mở tab sẽ tự động online lại sau 5 giây.";
   modal.classList.add("active");
 
   const onConfirm = async () => {
@@ -1006,7 +1006,7 @@ document.getElementById("logoutAllBtn").addEventListener("click", async () => {
 
     const btn = document.getElementById("logoutAllBtn");
     btn.disabled = true;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Äang xá»­ lÃ½...';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Đang xử lý...';
 
     try {
       const { data: users } = await supabase.from("users").select("id, online");
@@ -1017,14 +1017,14 @@ document.getElementById("logoutAllBtn").addEventListener("click", async () => {
           count++;
         }
       }
-      showNotice(`ÄÃ£ Ä‘Äƒng xuáº¥t ${count} user.`, "success");
+      showNotice(`Đã đăng xuất ${count} user.`, "success");
     } catch (e) {
       console.error(e);
-      showNotice("ÄÄƒng xuáº¥t táº¥t cáº£ tháº¥t báº¡i.", "error");
+      showNotice("Đăng xuất tất cả thất bại.", "error");
     }
 
     btn.disabled = false;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>ÄÄƒng xuáº¥t táº¥t cáº£';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Đăng xuất tất cả';
   };
 
   const onCancel = () => {
@@ -1039,8 +1039,8 @@ document.getElementById("logoutAllBtn").addEventListener("click", async () => {
 
 // ============================== ERROR LOGS ==============================
 const ERROR_LOG_PAGE_SIZE = 15;
-const ERROR_LOG_LEVELS = { error: ["NghiÃªm trá»ng", "var(--red)"], warning: ["Cáº£nh bÃ¡o", "var(--amber)"], info: ["BÃ¬nh thÆ°á»ng", "var(--blue)"] };
-const ERROR_LOG_CATS = { ai: "AI", whitelist: "Whitelist", disabled: "KhÃ³a user", auth: "XÃ¡c thá»±c", feature: "TÃ­nh nÄƒng", test: "Táº£i bÃ i test" };
+const ERROR_LOG_LEVELS = { error: ["Nghiêm trọng", "var(--red)"], warning: ["Cảnh báo", "var(--amber)"], info: ["Bình thường", "var(--blue)"] };
+const ERROR_LOG_CATS = { ai: "AI", whitelist: "Whitelist", disabled: "Khóa user", auth: "Xác thực", feature: "Tính năng", test: "Tải bài test" };
 let errorLogsLoaded = false;
 
 async function loadErrorLogs() {
@@ -1054,7 +1054,7 @@ async function loadErrorLogs() {
 }
 
 async function fetchErrorLogs(preservePage = false) {
-  errorLogsTableBody.innerHTML = `<tr><td colspan="8"><div class="empty">Äang táº£i log...</div></td></tr>`;
+  errorLogsTableBody.innerHTML = `<tr><td colspan="8"><div class="empty">Đang tải log...</div></td></tr>`;
   try {
     const { data, error } = await supabase
       .from("error_logs")
@@ -1067,7 +1067,7 @@ async function fetchErrorLogs(preservePage = false) {
     renderErrorLogs();
   } catch (e) {
     console.error(e);
-    errorLogsTableBody.innerHTML = `<tr><td colspan="8"><div class="empty">KhÃ´ng táº£i Ä‘Æ°á»£c log. Kiá»ƒm tra quyá»n admin hoáº·c báº£ng <b>error_logs</b> chÆ°a Ä‘Æ°á»£c táº¡o trong Supabase (xem supabase/schema.sql).</div></td></tr>`;
+    errorLogsTableBody.innerHTML = `<tr><td colspan="8"><div class="empty">Không tải được log. Kiểm tra quyền admin hoặc bảng <b>error_logs</b> chưa được tạo trong Supabase (xem supabase/schema.sql).</div></td></tr>`;
     renderErrorLogsStats([]);
   }
 }
@@ -1094,7 +1094,7 @@ function renderErrorLogsStats() {
   const warn = errorLogsData.filter(l => l.level === "warning").length;
   const info = errorLogsData.filter(l => l.level === "info").length;
   const card = (label, value, color) => `<div style="padding:10px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);min-width:110px"><div style="font-size:20px;font-weight:800;color:${color}">${value}</div><div style="font-size:10.5px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.04em">${label}</div></div>`;
-  errorLogsStats.innerHTML = card("CÃ²n lá»—i", open, "var(--red)") + card("NghiÃªm trá»ng", err, "var(--red)") + card("Cáº£nh bÃ¡o", warn, "var(--amber)") + card("BÃ¬nh thÆ°á»ng", info, "var(--blue)");
+  errorLogsStats.innerHTML = card("Còn lỗi", open, "var(--red)") + card("Nghiêm trọng", err, "var(--red)") + card("Cảnh báo", warn, "var(--amber)") + card("Bình thường", info, "var(--blue)");
   const badge = document.getElementById("errorLogsBadge");
   if (badge) {
     const total = errorLogsData.length;
@@ -1112,13 +1112,13 @@ function renderErrorLogs() {
   const start = (errorLogsPage - 1) * ERROR_LOG_PAGE_SIZE;
   const paged = filtered.slice(start, start + ERROR_LOG_PAGE_SIZE);
   if (!paged.length) {
-    errorLogsTableBody.innerHTML = `<tr><td colspan="8"><div class="empty">${total ? "Trang nÃ y khÃ´ng cÃ³ log." : "ChÆ°a cÃ³ log nÃ o khá»›p bá»™ lá»c."}</div></td></tr>`;
+    errorLogsTableBody.innerHTML = `<tr><td colspan="8"><div class="empty">${total ? "Trang này không có log." : "Chưa có log nào khớp bộ lọc."}</div></td></tr>`;
     renderErrorLogsPagination(total, totalPages);
     return;
   }
   errorLogsTableBody.innerHTML = paged.map(l => {
-    const lv = ERROR_LOG_LEVELS[l.level] || ["â€”", "var(--text-3)"];
-    const cat = ERROR_LOG_CATS[l.category] || escapeHtml(l.category || "â€”");
+    const lv = ERROR_LOG_LEVELS[l.level] || ["—", "var(--text-3)"];
+    const cat = ERROR_LOG_CATS[l.category] || escapeHtml(l.category || "—");
     const fixed = l.status === "fixed";
     const detail = (l.detail && typeof l.detail === "object") ? l.detail : {};
     const detailSnippet = detail.models || detail.model || "";
@@ -1127,15 +1127,15 @@ function renderErrorLogs() {
       <td><div class="mini-meta" style="white-space:nowrap">${formatDate(l.created_at)}</div></td>
       <td><span style="display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;color:#fff;background:${lv[1]};white-space:nowrap">${lv[0]}</span></td>
       <td><span class="mini-meta" style="white-space:nowrap">${cat}</span></td>
-      <td><span class="mini-meta">${escapeHtml(l.email || "â€”")}</span></td>
-      <td><code style="font-size:11px;white-space:nowrap">${escapeHtml(l.code || "â€”")}</code></td>
-      <td><div class="mini-meta" style="max-width:260px;cursor:pointer" onclick="viewErrorLogDetail('${sid}')" title="Báº¥m Ä‘á»ƒ xem ná»™i dung Ä‘áº§y Ä‘á»§"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--blue);text-decoration:underline;text-decoration-style:dotted">${escapeHtml(l.message || "â€”")}</div>${detailSnippet ? `<div style="color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px">${escapeHtml(detailSnippet)}</div>` : ""}</div></td>
-      <td style="white-space:nowrap">${fixed ? `<span class="chip green" style="min-width:58px;text-align:center;display:inline-block">ÄÃ£ fix</span>` : `<span class="chip red" style="min-width:58px;text-align:center;display:inline-block">CÃ²n lá»—i</span>`}</td>
+      <td><span class="mini-meta">${escapeHtml(l.email || "—")}</span></td>
+      <td><code style="font-size:11px;white-space:nowrap">${escapeHtml(l.code || "—")}</code></td>
+      <td><div class="mini-meta" style="max-width:260px;cursor:pointer" onclick="viewErrorLogDetail('${sid}')" title="Bấm để xem nội dung đầy đủ"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--blue);text-decoration:underline;text-decoration-style:dotted">${escapeHtml(l.message || "—")}</div>${detailSnippet ? `<div style="color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px">${escapeHtml(detailSnippet)}</div>` : ""}</div></td>
+      <td style="white-space:nowrap">${fixed ? `<span class="chip green" style="min-width:58px;text-align:center;display:inline-block">Đã fix</span>` : `<span class="chip red" style="min-width:58px;text-align:center;display:inline-block">Còn lỗi</span>`}</td>
       <td><div class="row-actions">
-        <button class="btn ${fixed ? "btn-soft" : "btn-success"}" onclick="toggleErrorLogFixed('${sid}', ${fixed})" title="${fixed ? "Má»Ÿ láº¡i" : "ÄÃ¡nh dáº¥u Ä‘Ã£ fix"}" style="padding:8px 10px">
+        <button class="btn ${fixed ? "btn-soft" : "btn-success"}" onclick="toggleErrorLogFixed('${sid}', ${fixed})" title="${fixed ? "Mở lại" : "Đánh dấu đã fix"}" style="padding:8px 10px">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
-        <button class="btn btn-danger" onclick="deleteErrorLog('${sid}')" title="XÃ³a log" style="padding:8px 10px">
+        <button class="btn btn-danger" onclick="deleteErrorLog('${sid}')" title="Xóa log" style="padding:8px 10px">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
         </button>
       </div></td>
@@ -1145,7 +1145,7 @@ function renderErrorLogs() {
 }
 
 function renderErrorLogsPagination(total, totalPages) {
-  if (totalPages <= 1) { errorLogsPagination.innerHTML = `<div class="pagination-info">Tá»•ng: ${total} log</div>`; return; }
+  if (totalPages <= 1) { errorLogsPagination.innerHTML = `<div class="pagination-info">Tổng: ${total} log</div>`; return; }
   const from = (errorLogsPage - 1) * ERROR_LOG_PAGE_SIZE + 1, to = Math.min(errorLogsPage * ERROR_LOG_PAGE_SIZE, total);
   let btns = `<button class="page-btn" onclick="goErrorLogsPage(${errorLogsPage - 1})" ${errorLogsPage === 1 ? "disabled" : ""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>`;
   const pages = [1];
@@ -1158,7 +1158,7 @@ function renderErrorLogsPagination(total, totalPages) {
     else btns += `<button class="page-btn${p === errorLogsPage ? " active" : ""}" onclick="goErrorLogsPage(${p})">${p}</button>`;
   });
   btns += `<button class="page-btn" onclick="goErrorLogsPage(${errorLogsPage + 1})" ${errorLogsPage === totalPages ? "disabled" : ""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>`;
-  errorLogsPagination.innerHTML = `<div class="pagination-info">Hiá»ƒn thá»‹ ${from}â€“${to} / ${total} log</div><div class="pagination-controls">${btns}</div>`;
+  errorLogsPagination.innerHTML = `<div class="pagination-info">Hiển thị ${from}–${to} / ${total} log</div><div class="pagination-controls">${btns}</div>`;
 }
 window.goErrorLogsPage = (p) => { errorLogsPage = p; renderErrorLogs(); };
 
@@ -1168,11 +1168,11 @@ window.toggleErrorLogFixed = async (id, fixed) => {
     ? { status: "fixed", resolved_by: adminEmail, resolved_at: new Date().toISOString() }
     : { status: "open", resolved_by: null, resolved_at: null };
   const { error } = await supabase.from("error_logs").update(update).eq("id", id);
-  if (error) { console.error(error); showNotice("KhÃ´ng cáº­p nháº­t Ä‘Æ°á»£c log.", "error"); return; }
+  if (error) { console.error(error); showNotice("Không cập nhật được log.", "error"); return; }
   const item = errorLogsData.find(x => x.id === id);
   if (item) item.status = target ? "fixed" : "open";
   renderErrorLogs();
-  showNotice(target ? "ÄÃ£ Ä‘Ã¡nh dáº¥u log Ä‘Ã£ fix." : "ÄÃ£ má»Ÿ láº¡i log.", "success");
+  showNotice(target ? "Đã đánh dấu log đã fix." : "Đã mở lại log.", "success");
 };
 
 let confirmDialogHandler = null;
@@ -1180,7 +1180,7 @@ function openConfirmDialog(title, message, onYes) {
   const modal = document.getElementById("confirmModal");
   const cB = document.getElementById("confirmModalConfirm");
   const cC = document.getElementById("confirmModalCancel");
-  document.getElementById("confirmModalIcon").textContent = "âš ï¸";
+  document.getElementById("confirmModalIcon").textContent = "⚠️";
   document.getElementById("confirmModalTitle").textContent = title;
   document.getElementById("confirmModalMessage").textContent = message;
   if (confirmDialogHandler) {
@@ -1200,12 +1200,12 @@ function openConfirmDialog(title, message, onYes) {
 }
 
 window.deleteErrorLog = (id) => {
-  openConfirmDialog("XÃ³a log nÃ y?", "Log sáº½ bá»‹ xÃ³a vÄ©nh viá»…n vÃ  khÃ´ng thá»ƒ khÃ´i phá»¥c.", async () => {
+  openConfirmDialog("Xóa log này?", "Log sẽ bị xóa vĩnh viễn và không thể khôi phục.", async () => {
     const { error } = await supabase.from("error_logs").delete().eq("id", id);
-    if (error) { console.error(error); showNotice("XÃ³a log tháº¥t báº¡i.", "error"); return; }
+    if (error) { console.error(error); showNotice("Xóa log thất bại.", "error"); return; }
     errorLogsData = errorLogsData.filter(x => x.id !== id);
     renderErrorLogs();
-    showNotice("ÄÃ£ xÃ³a log.", "success");
+    showNotice("Đã xóa log.", "success");
   });
 };
 
@@ -1213,7 +1213,7 @@ function viewErrorLogDetail(id) {
   const l = errorLogsData.find(x => x.id === id);
   if (!l) return;
   const detail = (l.detail && typeof l.detail === "object") ? l.detail : {};
-  const lvl = ERROR_LOG_LEVELS[l.level] || ["â€”", "var(--text-3)"];
+  const lvl = ERROR_LOG_LEVELS[l.level] || ["—", "var(--text-3)"];
   const levelColor = lvl[1];
   const fixed = l.status === "fixed";
   const statusColor = fixed ? "var(--green)" : "var(--red)";
@@ -1221,25 +1221,25 @@ function viewErrorLogDetail(id) {
   const head = document.getElementById("logDetailHead");
   head.style.background = `linear-gradient(135deg, ${levelColor} 0%, color-mix(in srgb, ${levelColor} 65%, #0f172a) 100%)`;
   document.getElementById("logDetailLevelChip").textContent = lvl[0];
-  document.getElementById("logDetailTitle").textContent = l.code ? `Chi tiáº¿t log Â· ${l.code}` : "Chi tiáº¿t log";
+  document.getElementById("logDetailTitle").textContent = l.code ? `Chi tiết log · ${l.code}` : "Chi tiết log";
 
   const cell = (k, v, cls = "") => `<div class="cell ${cls}"><div class="log-detail-key">${escapeHtml(k)}</div><div class="log-detail-val">${v}</div></div>`;
   const grid = [
-    cell("Thá»i gian", escapeHtml(formatDate(l.created_at))),
-    cell("Má»©c Ä‘á»™", `<span style="color:${levelColor};font-weight:800">${lvl[0]}</span>`),
-    cell("Loáº¡i", escapeHtml(ERROR_LOG_CATS[l.category] || l.category || "â€”")),
-    cell("Nguá»“n", escapeHtml(l.source || "â€”")),
-    cell("User", escapeHtml(l.email || "â€”")),
-    cell("MÃ£ lá»—i", `<code style="font-size:12px;font-weight:700">${escapeHtml(l.code || "â€”")}</code>`),
-    cell("Tráº¡ng thÃ¡i", `<span style="color:${statusColor};font-weight:800">${fixed ? "ÄÃ£ fix" : "CÃ²n lá»—i"}</span>`),
-    cell("URL", escapeHtml(l.url || "â€”"), "span2")
+    cell("Thời gian", escapeHtml(formatDate(l.created_at))),
+    cell("Mức độ", `<span style="color:${levelColor};font-weight:800">${lvl[0]}</span>`),
+    cell("Loại", escapeHtml(ERROR_LOG_CATS[l.category] || l.category || "—")),
+    cell("Nguồn", escapeHtml(l.source || "—")),
+    cell("User", escapeHtml(l.email || "—")),
+    cell("Mã lỗi", `<code style="font-size:12px;font-weight:700">${escapeHtml(l.code || "—")}</code>`),
+    cell("Trạng thái", `<span style="color:${statusColor};font-weight:800">${fixed ? "Đã fix" : "Còn lỗi"}</span>`),
+    cell("URL", escapeHtml(l.url || "—"), "span2")
   ].join("");
 
   let html = `<div class="log-detail-grid">${grid}</div>`;
-  html += `<div style="margin-bottom:14px"><div class="log-detail-key">Ná»™i dung Ä‘áº§y Ä‘á»§</div><div style="margin-top:4px;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);white-space:pre-wrap;word-break:break-word;color:var(--text);font-size:13px;line-height:1.6">${escapeHtml(l.message || "â€”")}</div></div>`;
+  html += `<div style="margin-bottom:14px"><div class="log-detail-key">Nội dung đầy đủ</div><div style="margin-top:4px;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);white-space:pre-wrap;word-break:break-word;color:var(--text);font-size:13px;line-height:1.6">${escapeHtml(l.message || "—")}</div></div>`;
   const entries = Object.entries(detail);
   if (entries.length) {
-    html += `<div class="log-detail-key" style="margin-bottom:4px">ThÃ´ng tin thÃªm (detail)</div><pre style="background:#0f172a;color:#e2e8f0;border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;font-size:12px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin:0">${escapeHtml(JSON.stringify(detail, null, 2))}</pre>`;
+    html += `<div class="log-detail-key" style="margin-bottom:4px">Thông tin thêm (detail)</div><pre style="background:#0f172a;color:#e2e8f0;border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;font-size:12px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin:0">${escapeHtml(JSON.stringify(detail, null, 2))}</pre>`;
   }
   document.getElementById("logDetailBody").innerHTML = html;
   document.getElementById("logDetailModal").classList.add("active");
@@ -1321,7 +1321,7 @@ if (leaderboardFrame) {
   leaderboardFrame.addEventListener("load", sendAdminSessionToLeaderboard);
 }
 
-// Tá»± refresh dashboard + quÃ©t user online háº¿t háº¡n (crash) má»—i 30s â†’ chá»‘ng bÃ¡o online áº£o.
+// Tự refresh dashboard + quét user online hết hạn (crash) mỗi 30s → chống báo online ảo.
 setInterval(async () => {
   if (loginView.style.display === "flex") return;
   await adminCleanupStaleOnline();

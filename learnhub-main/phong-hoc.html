@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<link rel="icon" href="pictures/favicon.png" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="pictures/favicon.png">
+<meta name="theme-color" content="#1a73e8">
+<title>Phòng Học - LearnHub Platform</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
+<style>
+:root{
+  --bg:transparent;--text:#111827;--text-sub:#6b7280;--border:#e5e7eb;
+  --card-bg:#ffffff;--card-border:#e2e5ec;
+  --notice-bg:#f0f4ff;--notice-border:#d0daf0;
+  --quiz-bg:#ffffff;--quiz-border:#e5e7eb;
+}
+body.dark-mode{
+  --bg:transparent;--text:#f1f5f9;--text-sub:#94a3b8;--border:#1e293b;
+  --card-bg:#1e293b;--card-border:#334155;
+  --notice-bg:#1e293b;--notice-border:#334155;
+  --quiz-bg:#1e293b;--quiz-border:#334155;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;min-height:100vh;font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;}
+html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;}
+body{padding:4px 6px 12px;}
+iframe{width:100%;border:none !important;outline:none !important;display:block;}
+
+/* Specific iframe sizing for quiz inserted into #quiz */
+#quiz iframe, .quiz-box iframe {
+  width: 100%;
+  height: 70vh;
+  min-height: 420px;
+  border: none !important;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== SUBJECT TABS ===== */
+.subject-tabs{display:flex;gap:4px;overflow-x:auto;padding:0 0 8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}
+.subject-tabs::-webkit-scrollbar{display:none;}
+.subject-tab{flex:1 1 0;min-width:0;padding:8px 4px;border-radius:10px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--card-bg);color:var(--text-sub);cursor:pointer;transition:all 0.2s;scroll-snap-align:start;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.subject-tab:hover{border-color:var(--tab);color:var(--tab);}
+.subject-tab.active{color:#fff;border-color:transparent;}
+.subject-tab[data-subject="ly"]{--tab:#2563eb;}.subject-tab[data-subject="ly"].active{background:#2563eb;}
+.subject-tab[data-subject="sinh"]{--tab:#16a34a;}.subject-tab[data-subject="sinh"].active{background:#16a34a;}
+.subject-tab[data-subject="tin"]{--tab:#7c3aed;}.subject-tab[data-subject="tin"].active{background:#7c3aed;}
+.subject-tab[data-subject="su"]{--tab:#ea580c;}.subject-tab[data-subject="su"].active{background:#ea580c;}
+.subject-tab[data-subject="hoa"]{--tab:#dc2626;}.subject-tab[data-subject="hoa"].active{background:#dc2626;}
+.subject-tab[data-subject="anh"]{--tab:#0891b2;}.subject-tab[data-subject="anh"].active{background:#0891b2;}
+.subject-tab[data-subject].active{box-shadow:0 4px 12px color-mix(in srgb,var(--tab) 35%,transparent);}
+
+/* ===== PANELS ===== */
+.subject-panel{display:none;}
+.subject-panel.active{display:block;}
+
+/* ===== NOTICE ===== */
+.subject-notice{background:var(--notice-bg);border:1px solid var(--notice-border);border-left:4px solid var(--tab,var(--blue,#2563eb));border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:14px;color:var(--text-sub);display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.subject-notice i{font-size:15px;flex-shrink:0;color:var(--tab,var(--blue,#2563eb));}
+.subject-notice strong{color:var(--text);}
+
+/* ===== GRID ===== */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;width:100%;}
+
+/* ===== CARD ===== */
+.card{
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:16px;
+  padding:0;
+  display:flex;flex-direction:column;
+  transition:transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  position:relative;overflow:hidden;
+  animation:cardFadeIn 0.28s ease both;
+  animation-delay:calc(var(--card-index, 0) * 0.06s);
+}
+@keyframes cardFadeIn{
+  from{opacity:0;transform:translateY(8px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.card-color-bar{
+  height:4px;width:100%;
+  background:linear-gradient(90deg,var(--card-color),color-mix(in srgb,var(--card-color) 50%,white));
+}
+.card-body{padding:12px 12px 14px;display:flex;flex-direction:column;gap:6px;}
+.card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px color-mix(in srgb,var(--card-color,#2563eb) 12%,transparent);
+  border-color:color-mix(in srgb,var(--card-color,#2563eb) 35%,var(--card-border));
+}
+.card.active-card{
+  border-color:color-mix(in srgb,var(--card-color,#2563eb) 45%,var(--card-border));
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--card-color,#2563eb) 18%,transparent),0 8px 28px color-mix(in srgb,var(--card-color,#2563eb) 14%,transparent);
+}
+
+.card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.card-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;background:var(--card-color,#2563eb);flex-shrink:0;}
+.card h3{margin:0;font-size:15px;font-weight:700;color:var(--text);line-height:1.3;flex:1 1 0;}
+.card-desc{font-size:13px;color:var(--text-sub);line-height:1.5;margin:0;}
+
+/* ===== STATUS ===== */
+.status{flex-shrink:0;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;white-space:nowrap;padding:4px 10px;border-radius:20px;}
+.status.done{background:rgba(16,185,129,0.1);color:#10b981;}
+.status.done::before{content:"";width:7px;height:7px;border-radius:50%;background:#10b981;flex-shrink:0;}
+.status.done::after{content:"Hoàn thành";}
+.status.pending{background:rgba(245,158,11,0.1);color:#d97706;}
+.status.pending::before{content:"";width:7px;height:7px;border-radius:50%;background:#d97706;flex-shrink:0;}
+.status.pending::after{content:"Chưa hoàn thành";}
+
+/* ===== BUTTON ===== */
+.card .btn-row{margin-top:8px;}
+.card .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;color:#fff;background:var(--card-color,#2563eb);transition:all 0.2s;cursor:pointer;border:none;}
+.card .btn:hover{filter:brightness(1.1);box-shadow:0 4px 14px color-mix(in srgb,var(--card-color,#2563eb) 35%,transparent);}
+.card .btn.disabled{opacity:0.5;pointer-events:none;}
+
+/* ===== DARK MODE ===== */
+body.dark-mode .card{box-shadow:0 2px 8px rgba(0,0,0,0.25);}
+body.dark-mode .card:hover{box-shadow:0 8px 28px color-mix(in srgb,var(--card-color,#2563eb) 20%,rgba(0,0,0,0.3));}
+body.dark-mode .card-color-bar{background:linear-gradient(90deg,var(--card-color),color-mix(in srgb,var(--card-color) 60%,#0f172a));}
+body.dark-mode .subject-notice{border-color:var(--notice-border);}
+
+@media (max-width:768px){
+  body{padding:2px 4px 10px;}
+  .subject-tabs{gap:3px;padding-bottom:6px;}
+  .subject-tab{padding:8px 4px;font-size:11px;border-radius:9px;}
+  .grid{grid-template-columns:1fr;gap:8px;}
+  .card{border-radius:12px;box-shadow:none;animation:cardFadeInMobile 0.16s ease both;animation-delay:calc(var(--card-index, 0) * 0.04s);}
+  .card:hover{transform:none;box-shadow:none;}
+  .card-body{padding:10px 10px 12px;gap:6px;}
+  .card h3{font-size:14px;}
+  .card-desc{font-size:12px;line-height:1.4;}
+  .card .btn{padding:8px 14px;font-size:13px;}
+  .quiz-box{margin-top:12px;border-radius:6px;}
+  .quiz-header{padding:6px 6px 8px;}
+}
+@keyframes cardFadeInMobile{
+  from{opacity:0;transform:translateY(4px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .card,.card:hover,.subject-tab{transition:none !important;animation:none !important;}
+}
+
+/* ===== QUIZ ===== */
+.quiz-box{margin-top:20px;background:var(--quiz-bg);border:1px solid var(--quiz-border);border-radius:10px;overflow:hidden;}
+.quiz-header{padding:8px 8px;display:flex;justify-content:flex-start;border-bottom:1px solid var(--quiz-border);}
+.quiz-btn{padding:6px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:13px;}
+.close-btn{background:#ef4444;color:#fff;}
+.skel-bar{background:var(--border);border-radius:8px;height:16px;margin-bottom:8px;}
+.skel-quiz-topbar{display:flex;gap:12px;margin-bottom:14px;}
+.skel-quiz-card{height:200px;border-radius:14px;margin-bottom:12px;}
+.skel-quiz-row{display:flex;gap:10px;}
+.loader{padding:20px;}
+</style>
+</head>
+<body>
+
+<div class="subject-tabs" id="subjectTabs">
+  <button class="subject-tab active" data-subject="ly" onclick="switchSubject('ly')"><i class="fas fa-atom"></i> Vật Lý</button>
+  <button class="subject-tab" data-subject="sinh" onclick="switchSubject('sinh')"><i class="fas fa-leaf"></i> Sinh Học</button>
+  <button class="subject-tab" data-subject="tin" onclick="switchSubject('tin')"><i class="fas fa-laptop-code"></i> Tin Học</button>
+  <button class="subject-tab" data-subject="su" onclick="switchSubject('su')"><i class="fas fa-landmark"></i> Lịch Sử</button>
+  <button class="subject-tab" data-subject="hoa" onclick="switchSubject('hoa')"><i class="fas fa-flask"></i> Hoá Học</button>
+  <button class="subject-tab" data-subject="anh" onclick="switchSubject('anh')"><i class="fas fa-language"></i> Anh Văn</button>
+</div>
+
+<div id="ly" class="subject-panel active" style="--tab:#2563eb;--card-color:#3b82f6;">
+  <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Vật Lý:</strong> Đã thi xong</div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-color-bar"></div>
+      <div class="card-body">
+        <div class="card-top"><div class="card-icon"><i class="fas fa-pen-fancy"></i></div><h3>Trắc nghiệm</h3><span class="status done"></span></div>
+        <p class="card-desc">Bài ôn tập trắc nghiệm môn Vật Lý.</p>
+        <div class="btn-row"><a class="btn" href="filetest.html?de=cauhoi/vatli.json" onclick="loadQuiz(this,'filetest.html?de=cauhoi/vatli.json'); return false;">Làm bài</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="sinh" class="subject-panel" style="--tab:#16a34a;--card-color:#16a34a;">
+  <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Sinh Học:</strong> Chuẩn bị ôn tập</div>
+  <div class="grid">
+    <div class="card" style="--card-index:1">
+      <div class="card-color-bar"></div>
+      <div class="card-body">
+        <div class="card-top"><div class="card-icon"><i class="fas fa-dna"></i></div><h3>Trắc nghiệm</h3><span class="status done"></span></div>
+        <p class="card-desc">Bài ôn tập trắc nghiệm môn Sinh Học.</p>
+        <div class="btn-row"><a class="btn" href="filetest.html?de=cauhoi/sinhhoc.json" onclick="loadQuiz(this,'filetest.html?de=cauhoi/sinhhoc.json'); return false;">Làm bài</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="tin" class="subject-panel" style="--tab:#7c3aed;--card-color:#7c3aed;">
+  <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Tin Học:</strong> Ôn tập chứng chỉ MOS</div>
+  <div class="grid">
+    <div class="card" style="--card-index:0">
+      <div class="card-color-bar"></div>
+      <div class="card-body">
+        <div class="card-top"><div class="card-icon"><i class="fas fa-file-word"></i></div><h3>Ôn Tập MOS</h3><span class="status done"></span></div>
+        <p class="card-desc">Ôn tập chứng chỉ MOS và các kỹ năng liên quan về Word, Excel, PowerPoint.</p>
+        <div class="btn-row"><a class="btn" href="mos-video-hub.html" onclick="loadQuiz(this,'mos-video-hub.html'); return false;">Mở</a></div>
+      </div>
+    </div>
+    <div class="card" style="--card-index:1">
+      <div class="card-color-bar"></div>
+      <div class="card-body">
+        <div class="card-top"><div class="card-icon" style="background:#a78bfa;"><i class="fas fa-calculator"></i></div><h3>Luyện Tập Word</h3><span class="status pending"></span></div>
+        <p class="card-desc">Bài luyện tập kỹ năng sử dụng Microsoft Word nâng cao.</p>
+        <div class="btn-row"><a class="btn disabled" href="#">Sắp ra mắt</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="su" class="subject-panel" style="--tab:#ea580c;--card-color:#ea580c;">
+  <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Lịch Sử:</strong> Chủ đề 8 & 9</div>
+  <div class="grid">
+    <div class="card" style="--card-index:0">
+      <div class="card-color-bar"></div>
+      <div class="card-body">
+        <div class="card-top"><div class="card-icon"><i class="fas fa-scroll"></i></div><h3>Trắc nghiệm</h3><span class="status done"></span></div>
+        <p class="card-desc">Chủ đề 8. LỊCH SỬ ĐỐI NGOẠI CỦA VIỆT NAM THỜI CẬN – HIỆN ĐẠI</p>
+        <div class="btn-row"><a class="btn" href="filetest.html?de=cauhoi/questions.json" onclick="loadQuiz(this,'filetest.html?de=cauhoi/questions.json'); return false;">Làm bài</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="hoa" class="subject-panel" style="--tab:#dc2626;--card-color:#dc2626;">
+  <div class="subject-notice"><i class="fas fa-fire"></i> <strong>Thông báo môn Hoá Học:</strong> CHỐT ĐÁP ÁN 👊</div>
+  <div class="grid">
+    <div class="card" style="--card-index:0">
+      <div class="card-color-bar"></div>
+      <div class="card-body">
+        <div class="card-top"><div class="card-icon"><i class="fas fa-flask"></i></div><h3>Trắc nghiệm P1</h3><span class="status done"></span></div>
+        <p class="card-desc">Bài ôn tập trắc nghiệm môn Hoá Học.</p>
+        <div class="btn-row"><a class="btn" href="filetest.html?de=cauhoi/hoahoc.json" onclick="loadQuiz(this,'filetest.html?de=cauhoi/hoahoc.json'); return false;">Làm bài</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="anh" class="subject-panel" style="--tab:#0891b2;--card-color:#0891b2;">
+  <div class="subject-notice"><i class="fas fa-bell"></i> <strong>Thông báo môn Anh Văn:</strong> Phần 1</div>
+  <div class="grid">
+    <div class="card" style="--card-index:0">
+      <div class="card-color-bar"></div>
+      <div class="card-body">
+        <div class="card-top"><div class="card-icon"><i class="fas fa-language"></i></div><h3>Phần 1</h3><span class="status done"></span></div>
+        <p class="card-desc">Điền lỗ ngắn + Sắp xếp hội thoại</p>
+        <div class="btn-row"><a class="btn" href="cauhoi/questionenglish.html?de=english.json" onclick="loadQuiz(this,'cauhoi/questionenglish.html?de=english.json'); return false;">Làm bài</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="quiz"></div>
+
+<script>
+function applyCardDominoEffect() {
+  document.querySelectorAll('.grid').forEach(function(grid) {
+    var cards = grid.querySelectorAll('.card');
+    if (cards.length <= 1) {
+      cards.forEach(function(card) {
+        card.style.removeProperty('--card-index');
+      });
+      return;
+    }
+    cards.forEach(function(card, index) {
+      card.style.setProperty('--card-index', index);
+    });
+  });
+}
+
+function switchSubject(id) {
+  var quizEl = document.getElementById("quiz");
+  if (quizEl && quizEl.innerHTML.trim() !== "") {
+    closeQuiz();
+  }
+  document.querySelectorAll('.subject-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.subject-tab[data-subject="' + id + '"]').classList.add('active');
+  document.querySelectorAll('.subject-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  applyCardDominoEffect();
+}
+
+window.learnHubUser = null;
+
+window.addEventListener('DOMContentLoaded', applyCardDominoEffect);
+window.addEventListener('load', applyCardDominoEffect);
+window.addEventListener('message', function(event) {
+  if (!event.data) return;
+  if (event.data.type === 'LEARNHUB_USER') {
+    window.learnHubUser = event.data.user;
+  }
+  if (event.data.type === 'LEARNHUB_TEST_RESULT') {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage(event.data, '*');
+    }
+  }
+  if (event.data.type === 'DARK_MODE') {
+    document.body.classList.toggle('dark-mode', !!event.data.value);
+  }
+});
+
+function loadQuiz(btn, link) {
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
+  var card = btn.closest(".card");
+  if (card) card.classList.add("active-card");
+
+  document.getElementById("quiz").innerHTML =
+    '<div class="quiz-box" style="position:relative; width:100%; height:100vh; max-height:100vh; overflow:hidden; margin:0; padding:0; border-left:0; border-right:0; border-radius:0;">' +
+      '<iframe id="quizFrame" src="' + link + '" style="display:none; width:100%; height:100%; border:0; outline:0; margin:0; padding:0;"></iframe>' +
+      '<div class="quiz-header" style="position:absolute; top:8px; left:8px; right:auto; z-index:9999; pointer-events:auto; padding:0;">' +
+        '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng bài</button>' +
+      '</div>' +
+      '<div class="loader" id="loader" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:5000; background:rgba(255,255,255,0.85);">' +
+        '<div style="width:100%; max-width:900px; padding:20px;">' +
+          '<div class="skel-quiz-topbar"><div class="skel-bar" style="width:90px;height:24px;border-radius:8px;"></div><div class="skel-bar" style="width:60px;height:24px;border-radius:8px;"></div></div>' +
+          '<div class="skel-bar" style="width:100%;height:16px;margin-bottom:8px;"></div>' +
+          '<div class="skel-bar" style="width:70%;height:16px;margin-bottom:16px;"></div>' +
+          '<div class="skel-bar skel-quiz-card"></div>' +
+          '<div class="skel-quiz-row"><div class="skel-bar" style="width:90px;height:42px;border-radius:12px;"></div><div class="skel-bar" style="width:90px;height:42px;border-radius:12px;"></div><div class="skel-bar" style="width:90px;height:42px;border-radius:12px;"></div></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  setTimeout(function() {
+    var q = document.getElementById("quiz");
+    if (q) q.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 50);
+
+  var iframe = document.getElementById("quizFrame");
+  var loader = document.getElementById("loader");
+
+  iframe.onload = function() {
+    loader.style.display = "none";
+    iframe.style.display = "block";
+    if (window.learnHubUser) {
+      iframe.contentWindow.postMessage({ type: "LEARNHUB_USER", user: window.learnHubUser }, "*");
+    }
+    document.getElementById("quiz").scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+}
+
+function closeQuiz() {
+  document.getElementById("quiz").innerHTML = "";
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "CLOSE_QUIZ_SCROLL_TOP" }, "*");
+  }
+}
+</script>
+</body>
+</html>

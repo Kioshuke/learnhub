@@ -1,0 +1,31 @@
+[
+  {
+    "sectionTitle": "PHẦN I. CÂU HỎI TRẮC NGHIỆM",
+    "sectionDesc": "Lệnh: Chọn <b>một</b> đáp án chính xác nhất trong các phương án trả lời sau:",
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "Thủ đô của <b>Việt Nam</b> hiện nay là thành phố nào?",
+        "answers": ["Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Cần Thơ"],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Trong lập trình Web, <u>HTML</u> đóng vai trò là gì?",
+        "answers": [
+          "Ngôn ngữ lập trình logic",
+          "Ngôn ngữ <i>đánh dấu văn bản</i> tạo cấu trúc trang",
+          "Hệ quản trị cơ sở dữ liệu",
+          "Giao thức truyền tải dữ liệu"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Biểu thức <i>2 + 2 * 2</i> có kết quả là:",
+        "answers": ["4", "8", "6", "0"],
+        "correct": 2
+      }
+    ]
+  }
+]
