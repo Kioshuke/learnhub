@@ -103,43 +103,6 @@ window.LH_VERSION = "1.26.8.27"; // ← release.bat tự thay giá trị này, K
   }
 
   // ---------- TOAST UI (góc phải dưới + thanh chạy thời gian) ----------
-  function ensureStyles() {
-    if (document.getElementById("lh-vcheck-style")) return;
-    var st = document.createElement("style");
-    st.id = "lh-vcheck-style";
-    st.textContent =
-      ".lh-vcheck{position:fixed;right:18px;bottom:18px;z-index:2147483400;display:flex;align-items:center;gap:12px;" +
-      "max-width:380px;padding:14px 16px 17px;border-radius:16px;background:#fff;border:1px solid #e2e8f0;" +
-      "box-shadow:0 12px 40px rgba(15,23,42,.18);font-family:inherit;overflow:hidden;" +
-      "transform:translateY(24px);opacity:0;animation:lhVcheckIn .35s cubic-bezier(.2,.7,.3,1) forwards}" +
-      "@keyframes lhVcheckIn{to{transform:translateY(0);opacity:1}}" +
-      ".lh-vcheck--hide{animation:lhVcheckOut .3s ease forwards}" +
-      "@keyframes lhVcheckOut{from{transform:translateY(0);opacity:1}to{transform:translateX(80px);opacity:0}}" +
-      ".lh-vcheck-icon{font-size:26px;line-height:1;flex-shrink:0}" +
-      ".lh-vcheck-body{display:flex;flex-direction:column;gap:2px;min-width:0}" +
-      ".lh-vcheck-body strong{font-size:13.5px;color:#0f172a;font-weight:800;letter-spacing:-.1px}" +
-      ".lh-vcheck-body span{font-size:12px;color:#64748b;line-height:1.45}" +
-      ".lh-vcheck-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}" +
-      ".lh-vcheck-reload{border:none;border-radius:10px;padding:8px 14px;" +
-      "background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;font-size:12.5px;font-weight:700;" +
-      "cursor:pointer;font-family:inherit;white-space:nowrap;transition:filter .2s ease,transform .2s ease}" +
-      ".lh-vcheck-reload:hover{filter:brightness(1.08);transform:translateY(-1px)}" +
-      ".lh-vcheck-later{border:none;background:none;color:#94a3b8;font-size:11.5px;font-weight:600;" +
-      "cursor:pointer;font-family:inherit;padding:2px}" +
-      ".lh-vcheck-later:hover{color:#475569;text-decoration:underline}" +
-      ".lh-vcheck-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:#e2e8f0}" +
-      ".lh-vcheck-bar{display:block;height:100%;width:100%;background:linear-gradient(90deg,#2563eb,#7c3aed);" +
-      "animation:lhVcheckBar " + (AUTO_HIDE_MS / 1000) + "s linear forwards}" +
-      "@keyframes lhVcheckBar{from{width:100%}to{width:0}}" +
-      "body.dark-mode .lh-vcheck{background:#1e293b;border-color:#334155;box-shadow:0 12px 40px rgba(0,0,0,.5)}" +
-      "body.dark-mode .lh-vcheck-body strong{color:#f1f5f9}" +
-      "body.dark-mode .lh-vcheck-body span{color:#94a3b8}" +
-      "body.dark-mode .lh-vcheck-progress{background:#334155}" +
-      "@media (max-width:560px){.lh-vcheck{left:12px;right:12px;bottom:12px;max-width:none}}" +
-      "@media (prefers-reduced-motion:reduce){.lh-vcheck{animation:none;opacity:1;transform:none}" +
-      ".lh-vcheck--hide{animation:none;display:none}.lh-vcheck-bar{animation:none;width:50%}}";
-    document.head.appendChild(st);
-  }
 
   function clearTimers() {
     if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
@@ -161,7 +124,6 @@ window.LH_VERSION = "1.26.8.27"; // ← release.bat tự thay giá trị này, K
   }
 
   function showBanner(version) {
-    ensureStyles();
     if (bannerEl && shownVersion === version) return; // đang hiện đúng bản này → giữ nguyên nhịp 30s
     clearTimers();
     if (bannerEl) hideBanner();
@@ -224,6 +186,7 @@ window.LH_VERSION = "1.26.8.27"; // ← release.bat tự thay giá trị này, K
     progress.className = "lh-vcheck-progress";
     var bar = document.createElement("i");
     bar.className = "lh-vcheck-bar";
+    bar.style.animationDuration = (AUTO_HIDE_MS / 1000) + "s";
     progress.appendChild(bar);
 
     actions.appendChild(reloadBtn);

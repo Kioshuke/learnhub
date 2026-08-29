@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LearnHub Forum</title>
   <link rel="icon" href="../pictures/favicon.png" sizes="any">
-  <link rel="stylesheet" href="../style.css">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
 
 <style>
@@ -718,93 +718,70 @@ button:active { transform: translateY(0); }
 .skel-reply { width: 50px; height: 22px; border-radius: 999px; }
 
 /* ================= DARK MODE ================= */
-body.dark-mode {
-  --bg: #0f172a;
-  --surface: #1e293b;
-  --surface-soft: #1a2332;
-  --text: #f1f5f9;
-  --sub: #94a3b8;
-  --muted: #64748b;
-  --line: #334155;
-  --line-strong: #475569;
-  --shadow: 0 6px 18px rgba(0,0,0,0.3);
-  --shadow-soft: 0 2px 9px rgba(0,0,0,0.25);
-}
 
-body.dark-mode { background: linear-gradient(180deg, #0f172a, #1a2332); }
-body.dark-mode .container { background: transparent; }
-body.dark-mode .header { background: linear-gradient(135deg, #1e3a5f, #0c4a4e); box-shadow: 0 8px 22px rgba(0,0,0,0.3); }
-body.dark-mode .logo { color: #f1f5f9; }
-body.dark-mode .header-meta { color: #94a3b8; }
-body.dark-mode .user-box { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.15); }
 
-body.dark-mode .post-box { background: #1e293b; border-color: #334155; }
-body.dark-mode .post-box .char-counter { color: #64748b; }
 
-body.dark-mode .post {
-  background: #1e293b;
-  border-color: #334155;
-  box-shadow: 0 2px 9px rgba(0,0,0,0.25);
-}
-body.dark-mode .post:hover { border-color: #475569; box-shadow: 0 8px 18px rgba(0,0,0,0.3); }
-body.dark-mode .post.current-user-post { border-color: rgba(59,130,246,0.4); box-shadow: 0 4px 14px rgba(59,130,246,0.15); }
-body.dark-mode .post.admin-post-card { border-color: rgba(239,68,68,0.4) !important; background: linear-gradient(180deg, #2a1515, #1e293b) !important; }
 
-body.dark-mode .meta { color: #94a3b8; }
-body.dark-mode .meta b { color: #60a5fa; }
-body.dark-mode .meta b.admin-name { color: #f87171 !important; }
-body.dark-mode .meta .admin-badge { background: rgba(239,68,68,0.15) !important; color: #f87171 !important; border-color: rgba(239,68,68,0.3); }
-body.dark-mode .meta .current-user-name { background: linear-gradient(135deg, #3b82f6, #0d9488); }
 
-body.dark-mode .post div[style*="white-space: pre-wrap;"],
-body.dark-mode .reply div[style*="white-space: pre-wrap;"] { color: #e2e8f0; }
 
-body.dark-mode .actions { border-top-color: #334155; }
-body.dark-mode .reply-btn, body.dark-mode .reaction-trigger, body.dark-mode .reaction-detail-btn { color: #94a3b8; }
-body.dark-mode .reply-btn:hover, body.dark-mode .reaction-trigger:hover, body.dark-mode .reaction-detail-btn:hover { color: #60a5fa; background: rgba(59,130,246,0.1); }
 
-body.dark-mode .replies-wrapper { color: #94a3b8; }
-body.dark-mode .reply-thread-toggle { color: #94a3b8; }
-body.dark-mode .reply-thread-toggle:hover { color: #60a5fa; }
 
-body.dark-mode .reply {
-  background: rgba(255,255,255,0.03);
-  border-left-color: #3b82f6;
-}
-body.dark-mode .reply.admin-reply-card { border-left-color: #ef4444 !important; background: rgba(239,68,68,0.05) !important; }
 
-body.dark-mode .reply-status-container { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.2); }
 
-body.dark-mode textarea {
-  background: rgba(255,255,255,0.05);
-  color: #e2e8f0;
-  border-color: #334155;
-}
-body.dark-mode textarea:focus { border-color: #3b82f6; }
-body.dark-mode textarea::placeholder { color: #64748b; }
 
-body.dark-mode .edit-btn { color: #34d399; background: rgba(16,185,129,0.1); }
-body.dark-mode .delete-btn { color: #f87171; background: rgba(239,68,68,0.1); }
-body.dark-mode .edit-btn:hover { background: rgba(16,185,129,0.2); }
-body.dark-mode .delete-btn:hover { background: rgba(239,68,68,0.2); }
 
-body.dark-mode .post.current-user-post::before { color: #60a5fa; background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); }
 
-body.dark-mode .reaction-detail-text { color: #e2e8f0; }
-body.dark-mode .reaction-detail-user { color: #e2e8f0; }
-body.dark-mode .reaction-detail-type { color: #94a3b8; }
 
-body.dark-mode #posts .skel-bar { background: rgba(255,255,255,0.06); }
 
-body.dark-mode .mute-btn { background: rgba(255,255,255,0.08); color: #94a3b8; border-color: #334155; }
-body.dark-mode .mute-btn:hover { background: rgba(255,255,255,0.12); color: #e2e8f0; }
 
-body.dark-mode .modal-overlay { background: rgba(0,0,0,0.6); }
-body.dark-mode .modal-content { background: #1e293b; border-color: #334155; }
-body.dark-mode .modal-content h3 { color: #f1f5f9; }
-body.dark-mode .modal-content p { color: #94a3b8; }
-body.dark-mode .modal-close { color: #94a3b8; }
-body.dark-mode .modal-close:hover { color: #f87171; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ===== SEARCH & SORT (trong post-actions-bar) ===== */
 .search-box {
@@ -940,19 +917,19 @@ body.dark-mode .modal-close:hover { color: #f87171; }
 }
 
 /* ===== DARK MODE: TOOLBAR & PAGINATION ===== */
-body.dark-mode .search-box { background: rgba(255,255,255,0.05); border-color: #475569; }
-body.dark-mode .search-box input { color: #e2e8f0; }
-body.dark-mode .search-box input::placeholder { color: #64748b; }
-body.dark-mode .actions-right select { background: rgba(255,255,255,0.05); border-color: #475569; color: #e2e8f0; }
 
-body.dark-mode .post.pinned-post { border-color: rgba(245,158,11,0.4) !important; background: linear-gradient(180deg, #2a2008, #1e293b) !important; }
-body.dark-mode .pin-badge { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; border-color: rgba(245,158,11,0.3); }
-body.dark-mode .pin-btn { background: rgba(245,158,11,0.12); color: #fbbf24; }
-body.dark-mode .pin-btn:hover { background: rgba(245,158,11,0.22); }
 
-body.dark-mode .pagination-bar button { background: #1e293b; border-color: #475569; color: #e2e8f0; }
-body.dark-mode .pagination-bar button:hover:not(.active):not(:disabled) { background: rgba(59,130,246,0.15); border-color: #3b82f6; color: #60a5fa; }
-body.dark-mode .pagination-info { color: #64748b; }
+
+
+
+
+
+
+
+
+
+
+
 
 @media (max-width: 560px) {
   .post-actions-bar {
@@ -1018,6 +995,9 @@ body.cc-reduced [class*="skeleton"] {
 </style>
 <script src="../version/version-check.js" defer></script>
 <script src="../toast.js"></script>
+
+
+  <link rel="stylesheet" href="giaodien.css">
 </head>
 <body class="app-ready">
 
@@ -1098,8 +1078,8 @@ body.cc-reduced [class*="skeleton"] {
 
 <script type="module">
 /* ================= SUPABASE CONFIG ================= */
-import { supabase } from "../supabase-config.js";
-import { beginOnlineSession } from "../supabase-helpers.js";
+import { supabase, beginOnlineSession, logAppError } from "../supabase-config.js";
+window.logAppError = logAppError;
 
 /* ================= BIẾN TOÀN CỤC ================= */
 let currentUser = null;
@@ -1422,6 +1402,7 @@ async function sendPost(){
     scheduleLoadPosts();
   } catch (e) {
     console.error("Lỗi gửi bài viết:", e);
+    if (window.logAppError) window.logAppError({ source: "forum", category: "action", level: "error", code: "POST_FAIL", message: "Đăng bài viết thất bại: " + (e.message || e), detail: { textLength: text.length, hasImage } });
     showModal("Lỗi", "Gửi bài viết thất bại. Vui lòng thử lại.", false, "", null);
     if (submitBtn){ submitBtn.disabled = false; submitBtn.innerHTML = originalHtml; }
     return;

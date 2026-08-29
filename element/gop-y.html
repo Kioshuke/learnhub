@@ -343,13 +343,15 @@
           submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Thử lại';
           errorBox.style.display = 'block';
           errorBox.innerText = '😓 Đã có lỗi xảy ra. Vui lòng kiểm tra lại!';
+          if (window.logAppError) window.logAppError({ source: "gop-y", category: "action", level: "error", code: "FEEDBACK_SEND_FAIL", message: "Gửi góp ý bằng emailjs thất bại.", detail: { err: String((err && (err.message || err.text)) || err || "") } });
           console.log(JSON.stringify(err));
         });
     });
   </script>
 
   <script type="module">
-    import { supabase } from "../supabase-config.js";
+    import { supabase, logAppError } from "../supabase-config.js";
+    window.logAppError = logAppError;
 
     // Tự động điền email (và tên) của user đang đăng nhập vào form góp ý.
     // Session Supabase nằm trong localStorage chung cùng nguồn gốc, nên iframe

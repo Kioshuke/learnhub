@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://www.googleapis.com">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="style.css">
+
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>emailjs.init("Opbj2MlP6Dvp9ZsG5");</script>
 
@@ -815,6 +815,9 @@
 </style>
 <script src="version/version-check.js" defer></script>
 <script src="toast.js"></script>
+
+
+<link rel="stylesheet" href="element/giaodien.css">
 </head>
 <body>
 
@@ -1219,10 +1222,8 @@
 </div>
 
 <script type="module">
-import { supabase } from "./supabase-config.js";
-import { getMaintenance, subscribeMaintenance, emailAllowed, isRegistrationOpen, getUserRow, onAuthChange, finalizeSession } from "./supabase-helpers.js";
+import { supabase, getMaintenance, subscribeMaintenance, emailAllowed, isRegistrationOpen, getUserRow, onAuthChange, finalizeSession, logAppError } from "./supabase-config.js";
 import { redirectToResetPage, isPasswordRecovery } from "./reset-password.js";
-import { logAppError } from "./log-errors.js";
 
 window.supabase = supabase;
 

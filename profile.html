@@ -52,23 +52,7 @@
             --tint-violet: rgba(139,92,246,0.10);
             --tint-amber: rgba(245,158,11,0.12);
         }
-        body.dark-mode {
-            --bg-main: #0f172a;
-            --bg-pattern: #1e293b;
-            --text-main: #f1f5f9;
-            --text-sub: #cbd5f5;
-            --card-bg: linear-gradient(135deg, #1e293b, #0f172a);
-            --card-border: rgba(51,65,85,0.6);
-            --card-shadow: 0 8px 24px rgba(0,0,0,0.3);
-            --blue-accent: #3b82f6;
-            --popup-bg: rgba(30,41,59,0.92);
-            --footer-border: #334155;
-            --input-bg: #1e293b;
-            --tint-blue: rgba(59,130,246,0.16);
-            --tint-green: rgba(52,211,153,0.14);
-            --tint-violet: rgba(167,139,250,0.16);
-            --tint-amber: rgba(251,191,36,0.14);
-        }
+
         html, body {
             scrollbar-width: none;
             -ms-overflow-style: none;
@@ -123,9 +107,7 @@
             transform: translateY(-1px);
             box-shadow: 0 12px 26px rgba(2,12,27,0.09);
         }
-        body.dark-mode .lh-card:hover {
-            box-shadow: 0 12px 26px rgba(0,0,0,0.32);
-        }
+
         .lh-tile-icon {
             width: 24px;
             height: 24px;
@@ -153,9 +135,7 @@
             border-radius: 12px;
             overflow: hidden;
         }
-        body.dark-mode .lh-frame-box {
-            background: rgba(15,23,42,0.45);
-        }
+
         .lh-status-badge {
             display: inline-flex;
             align-items: center;
@@ -169,10 +149,7 @@
             white-space: nowrap;
             flex-shrink: 0;
         }
-        body.dark-mode .lh-status-badge {
-            background: rgba(16,185,129,0.15);
-            color: #34d399;
-        }
+
 
         /* ===== SKELETON LOADING ===== */
         .skeleton {
@@ -284,9 +261,7 @@
             transform: translateY(-1px);
             box-shadow: 0 10px 20px rgba(37,99,235,0.35);
         }
-        body.dark-mode .lh-btn-primary {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-        }
+
         .lh-tabs {
             display: flex;
             gap: 4px;
@@ -310,24 +285,18 @@
             color: var(--blue-accent);
             box-shadow: 0 2px 6px rgba(2,12,27,0.08);
         }
-        body.dark-mode select.lh-input option {
-            background: #1e293b;
-            color: #f1f5f9;
-        }
+
 
         /* ===== DARK MODE tweaks cho nội dung render động ===== */
-        body.dark-mode #users-grid img { border-color: #334155; }
-        body.dark-mode #users-grid span { color: #cbd5f5; }
-        body.dark-mode #users-grid [class*="border-blue-200"] {
-            border-color: rgba(59,130,246,0.4);
-            background: rgba(59,130,246,0.08);
-        }
-        body.dark-mode #profile-role-badge {
-            background: rgba(15,23,42,0.4);
-        }
+
+
+
+
     </style>
 <script src="version/version-check.js" defer></script>
 <script src="toast.js"></script>
+
+  <link rel="stylesheet" href="element/giaodien.css">
 </head>
 <body class="min-h-screen">
 
@@ -702,8 +671,8 @@
     </script>
 
     <script type="module">
-        import { supabase } from "./supabase-config.js";
-        import { onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession } from "./supabase-helpers.js";
+import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession, logAppError } from "./supabase-config.js";
+        window.logAppError = logAppError;
         import { getWeekKey, getWeekStartMs, formatTimer } from "./week-math.js";
 
         const settingsModal = document.getElementById('settings-modal');

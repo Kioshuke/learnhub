@@ -14,11 +14,7 @@
   --card-bg:#ffffff;--card-border:#e2e5ec;
   --notice-bg:#f0f4ff;--notice-border:#d0daf0;
 }
-body.dark-mode{
-  --text:#f1f5f9;--text-sub:#94a3b8;--border:#1e293b;
-  --card-bg:#1e293b;--card-border:#334155;
-  --notice-bg:#1e293b;--notice-border:#334155;
-}
+
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{width:100%;min-height:100vh;font-family:'Inter','Segoe UI',sans-serif;background:transparent;color:var(--text);overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;}
 html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;}
@@ -70,13 +66,15 @@ body{padding:0;}
 @media(max-width:640px){.schedule-week-grid{grid-template-columns:repeat(7,minmax(128px,1fr))}.schedule-week-nav button{padding:6px 7px;font-size:11px}}
 
 /* ===== DARK MODE ===== */
-body.dark-mode .schedule-day.sunday{background:#31290f;border-color:#6b5316;}
-body.dark-mode .schedule-item-session.morning{background:#3a2f12;color:#fcd34d;}
-body.dark-mode .schedule-item-session.noon{background:#3b1a1a;color:#fca5a5;}
-body.dark-mode .schedule-item-session.afternoon{background:#17233f;color:#93c5fd;}
-body.dark-mode .schedule-item-session.evening{background:#241a3d;color:#c4b5fd;}
+
+
+
+
+
 </style>
 <script src="../version/version-check.js" defer></script>
+
+  <link rel="stylesheet" href="giaodien.css">
 </head>
 <body>
 
@@ -97,7 +95,8 @@ body.dark-mode .schedule-item-session.evening{background:#241a3d;color:#c4b5fd;}
 </div>
 
 <script type="module">
-import { supabase } from "../supabase-config.js";
+import { supabase, logAppError } from "../supabase-config.js";
+window.logAppError = logAppError;
 
 const SUBJECTS = {
   ly:   { short: "Lý",   color: "#2563eb" },

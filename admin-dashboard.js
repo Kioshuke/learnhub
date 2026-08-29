@@ -1,5 +1,6 @@
-﻿﻿
-import { createLearnHubClient } from "./supabase-config.js";
+﻿
+import { createLearnHubClient, logAppError } from "./supabase-config.js";
+window.logAppError = logAppError;
 
 // Admin dùng client với storage key riêng để không đánh lộn account với web chính
 const supabase = createLearnHubClient({ storageKey: "learnhub-admin-auth" });
@@ -11,10 +12,10 @@ let userDocs = [];
 // Finalize/cleanup thời gian online qua RPC atomic (chống mất giờ + online ảo).
 async function adminFinalizeOnline(uid) {
   if (!uid) return;
-  try { const { error } = await supabase.rpc("users_finalize_online", { p_uid: uid }); if (error) throw error; } catch (e) { console.error("[admin] finalize online lỗi:", e); }
+  try { const { error } = await supabase.rpc("users_finalize_online", { p_uid: uid }); if (error) throw error; } catch (e) { console.error("[admin] finalize online lỗi:", e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_FINALIZE_ONLINE_FAIL", message: "Finalize online của user thất bại: " + (e.message || e), detail: { uid } }); }
 }
 async function adminCleanupStaleOnline() {
-  try { const { error } = await supabase.rpc("users_cleanup_stale_online", { p_stale_ms: 120000 }); if (error) throw error; } catch (e) { console.error("[admin] cleanup stale online lỗi:", e); }
+  try { const { error } = await supabase.rpc("users_cleanup_stale_online", { p_stale_ms: 120000 }); if (error) throw error; } catch (e) { console.error("[admin] cleanup stale online lỗi:", e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_CLEANUP_FAIL", message: "Cleanup stale online thất bại: " + (e.message || e) }); }
 }
 
 const loginView = document.getElementById("loginView");
@@ -302,7 +303,7 @@ document.getElementById("adminLoginBtn").addEventListener("click", async () => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
   } catch (error) {
-    console.error(error);
+    console.error(error); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((error && error.message) || error || "") });
     let message = "Đăng nhập admin thất bại.";
     const em = String(error?.message || "");
     if (em.includes("Invalid login credentials")) message = "Sai mật khẩu hoặc tài khoản admin không hợp lệ.";
@@ -353,12 +354,12 @@ document.getElementById("sendBroadcastBtn").addEventListener("click", async () =
     document.querySelector('input[name="broadcastTargetMode"][value="all"]').checked=true;
     broadcastTargetEmailInput.value=""; broadcastTargetEmailInput.disabled=true;
     showNotice(tm==="single"?`Đã gửi thông báo đến ${te}.`:"Đã gửi thông báo đến toàn bộ user đang mở LearnHub.","success");
-  } catch(e) { console.error(e); showNotice("Gửi thông báo thất bại.", "error"); }
+  } catch(e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Gửi thông báo thất bại.", "error"); }
 });
 
 document.getElementById("clearBroadcastBtn").addEventListener("click", async () => {
   try { await supabase.from("broadcast_current").upsert({ id: true, active: false, updated_at: new Date().toISOString(), sender: adminEmail }, { onConflict: "id" }); showNotice("Đã tắt thông báo hiện tại.", "success"); }
-  catch(e) { console.error(e); showNotice("Không tắt được thông báo.", "error"); }
+  catch(e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Không tắt được thông báo.", "error"); }
 });
 
 // ==================== MAILBOX ====================
@@ -391,7 +392,7 @@ document.getElementById("sendMailboxBtn").addEventListener("click", async () => 
     ti.value = "";
     mi.value = "";
     loadMailboxHistory();
-  } catch (e) { console.error(e); showNotice("Thao tác thất bại: " + (e.message || e), "error"); }
+  } catch (e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Thao tác thất bại: " + (e.message || e), "error"); }
 });
 
 async function loadMailboxHistory() {
@@ -452,7 +453,7 @@ async function loadWelcomePopupForm() {
     const mode=d.show_mode==="daily"?"daily":"every_time";
     document.querySelector(`input[name="welcomePopupShowMode"][value="${mode}"]`).checked=true;
     welcomePopupMeta.textContent=d.updated_at?`Cập nhật: ${formatDate(d.updated_at)}${d.updated_by?` · bởi ${d.updated_by}`:""}`:"";
-  } catch(e) { console.error(e); showNotice("Không tải được popup.", "error"); }
+  } catch(e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Không tải được popup.", "error"); }
 }
 
 document.getElementById("saveWelcomePopupBtn").addEventListener("click", async () => {
@@ -464,7 +465,7 @@ document.getElementById("saveWelcomePopupBtn").addEventListener("click", async (
     const now=new Date().toISOString();
     await supabase.from("broadcast_welcome").upsert({ id: true, title: title||"📢 Thông báo", message, active, show_mode: showMode, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
     welcomePopupMeta.textContent=`Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`; showNotice("Đã lưu popup cố định.", "success");
-  } catch(e) { console.error(e); showNotice("Lưu popup thất bại.", "error"); }
+  } catch(e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Lưu popup thất bại.", "error"); }
 });
 
 document.getElementById("disableWelcomePopupBtn").addEventListener("click", async () => {
@@ -472,7 +473,7 @@ document.getElementById("disableWelcomePopupBtn").addEventListener("click", asyn
     const now=new Date().toISOString();
     await supabase.from("broadcast_welcome").upsert({ id: true, active: false, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
     welcomePopupActiveInput.checked=false; welcomePopupMeta.textContent=`Đã tắt popup · ${formatDate(now)}`; showNotice("Đã tắt popup cố định.", "success");
-  } catch(e) { console.error(e); showNotice("Không tắt được popup.", "error"); }
+  } catch(e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Không tắt được popup.", "error"); }
 });
 
 tickerSpeedInput.addEventListener("input", () => {
@@ -492,7 +493,7 @@ async function loadTickerForm() {
     tickerSpeedInput.value=String(d.speed_seconds||18);
     tickerSpeedValue.textContent=`${tickerSpeedInput.value}s`;
     tickerMeta.textContent=d.updated_at?`Cập nhật: ${formatDate(d.updated_at)}${d.updated_by?` · bởi ${d.updated_by}`:""}`:"";
-  } catch(e) { console.error(e); showNotice("Không tải được cấu hình dòng chữ.", "error"); }
+  } catch(e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Không tải được cấu hình dòng chữ.", "error"); }
 }
 
 document.getElementById("saveTickerBtn").addEventListener("click", async () => {
@@ -504,7 +505,7 @@ document.getElementById("saveTickerBtn").addEventListener("click", async () => {
     await supabase.from("ticker_settings").upsert({ id: true, text, speed_seconds: speed, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
     tickerMeta.textContent=`Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
     showNotice("Đã lưu dòng chữ chạy.", "success");
-  } catch(e) { console.error(e); showNotice("Lưu dòng chữ thất bại.", "error"); }
+  } catch(e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Lưu dòng chữ thất bại.", "error"); }
 });
 
 document.getElementById("refreshTickerBtn").addEventListener("click", loadTickerForm);
@@ -607,7 +608,7 @@ async function loadScheduleForm() {
     renderScheduleEvents();
     scheduleMeta.textContent = d && d.updated_at ? `Cập nhật: ${formatDate(d.updated_at)}${d.updated_by ? ` · bởi ${d.updated_by}` : ""}` : "Chưa có bản lưu. Lưu lần đầu để áp dụng.";
   } catch (e) {
-    console.error(e);
+    console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") });
     showNotice("Không tải được lịch học & thi.", "error");
   }
 }
@@ -631,7 +632,7 @@ document.getElementById("saveScheduleBtn").addEventListener("click", async () =>
     scheduleMeta.textContent = `Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
     showNotice("Đã lưu lịch học & thi.", "success");
   } catch (e) {
-    console.error(e);
+    console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") });
     showNotice("Lưu lịch thất bại. Kiểm tra lại bảng schedule_settings đã tạo chưa.", "error");
   }
 });
@@ -651,7 +652,7 @@ async function loadMaintenanceForm() {
     maintenanceEnabledInput.checked=Boolean(d && d.enabled); maintenanceMessageInput.value=(d && d.message)||""; renderMaintenanceBanner(d||{});
     maintenanceMeta.textContent=d && d.updated_at ? `Cập nhật: ${formatDate(d.updated_at)}${d.updated_by?` · bởi ${d.updated_by}`:""}`:"Chưa từng bật bảo trì.";
     updateMaintenanceBadge(d && d.enabled);
-  } catch(e) { console.error(e); showNotice("Không tải được trạng thái bảo trì.", "error"); }
+  } catch(e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Không tải được trạng thái bảo trì.", "error"); }
 }
 
 function updateMaintenanceBadge(enabled) {
@@ -672,7 +673,7 @@ document.getElementById("saveMaintenanceBtn").addEventListener("click", () => {
       renderMaintenanceBanner({ enabled }); maintenanceMeta.textContent = `Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
       updateMaintenanceBadge(enabled);
       showNotice(enabled ? "Đã BẬT bảo trì." : "Đã TẮT bảo trì.", "success"); await loadMaintenanceForm();
-    } catch (e) { console.error(e); showNotice("Cập nhật bảo trì thất bại.", "error"); }
+    } catch (e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Cập nhật bảo trì thất bại.", "error"); }
   };
   if (enabled) {
     openConfirmDialog("Bật chế độ bảo trì?", "Toàn bộ user sẽ bị đăng xuất và mọi truy cập mới bị chặn. Tiếp tục?", apply);
@@ -709,7 +710,7 @@ async function loadRegistrationForm() {
     renderRegistrationBanner(d || {});
     registrationMeta.textContent = d && d.updated_at ? `Cập nhật: ${formatDate(d.updated_at)}${d.updated_by ? ` · bởi ${d.updated_by}` : ""}` : "Chưa từng chỉnh sửa.";
     updateRegistrationBadge(d && d.enabled);
-  } catch (e) { console.error(e); showNotice("Không tải được trạng thái đăng ký.", "error"); }
+  } catch (e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Không tải được trạng thái đăng ký.", "error"); }
 }
 
 document.getElementById("saveRegistrationBtn").addEventListener("click", () => {
@@ -721,7 +722,7 @@ document.getElementById("saveRegistrationBtn").addEventListener("click", () => {
       renderRegistrationBanner({ enabled }); registrationMeta.textContent = `Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
       updateRegistrationBadge(enabled);
       showNotice(enabled ? "Đã MỞ đăng ký." : "Đã ĐÓNG đăng ký.", "success"); await loadRegistrationForm();
-    } catch (e) { console.error(e); showNotice("Cập nhật trạng thái đăng ký thất bại.", "error"); }
+    } catch (e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Cập nhật trạng thái đăng ký thất bại.", "error"); }
   };
   if (!enabled) {
     openConfirmDialog("Đóng đăng ký?", "User mới sẽ không thể đăng ký (trừ khi có trong whitelist). Tiếp tục?", apply);
@@ -763,7 +764,7 @@ window.toggleDisable = async (uid, cur) => {
 };
 window.changeUserRole = async (uid, role) => {
   if (!uid) return; try { await supabase.from("users").update({ role, updated_at: new Date().toISOString() }).eq("id", uid); showNotice(`Đã chuyển quyền thành: ${role}`, "success"); }
-  catch(e) { console.error(e); showNotice("Không thể cập nhật quyền.", "error"); }
+  catch(e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Không thể cập nhật quyền.", "error"); }
 };
 function openRoleDropdown(trigger) {
   const wrap = trigger.closest(".role-select");
@@ -873,7 +874,7 @@ async function loadWeeklyResetForm() {
       weeklyResetStatusBanner.style.border = "1px solid #e2e8f0";
     }
   } catch (e) {
-    console.error(e);
+    console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") });
     weeklyResetStatusBanner.textContent = "Không tải được thông tin reset.";
     weeklyResetStatusBanner.style.background = "#fef2f2";
     weeklyResetStatusBanner.style.color = "#b91c1c";
@@ -966,7 +967,7 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
       showNotice(`Đã reset ${targets.join(" & ")} thành công cho ${count} user.`, "success");
       await loadWeeklyResetForm();
     } catch (e) {
-      console.error(e);
+      console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") });
       showNotice("Reset thất bại.", "error");
     }
 
@@ -1019,7 +1020,7 @@ document.getElementById("logoutAllBtn").addEventListener("click", async () => {
       }
       showNotice(`Đã đăng xuất ${count} user.`, "success");
     } catch (e) {
-      console.error(e);
+      console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") });
       showNotice("Đăng xuất tất cả thất bại.", "error");
     }
 
@@ -1066,7 +1067,7 @@ async function fetchErrorLogs(preservePage = false) {
     if (!preservePage) errorLogsPage = 1;
     renderErrorLogs();
   } catch (e) {
-    console.error(e);
+    console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") });
     errorLogsTableBody.innerHTML = `<tr><td colspan="8"><div class="empty">Không tải được log. Kiểm tra quyền admin hoặc bảng <b>error_logs</b> chưa được tạo trong Supabase (xem supabase/schema.sql).</div></td></tr>`;
     renderErrorLogsStats([]);
   }
@@ -1168,7 +1169,7 @@ window.toggleErrorLogFixed = async (id, fixed) => {
     ? { status: "fixed", resolved_by: adminEmail, resolved_at: new Date().toISOString() }
     : { status: "open", resolved_by: null, resolved_at: null };
   const { error } = await supabase.from("error_logs").update(update).eq("id", id);
-  if (error) { console.error(error); showNotice("Không cập nhật được log.", "error"); return; }
+  if (error) { console.error(error); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((error && error.message) || error || "") }); showNotice("Không cập nhật được log.", "error"); return; }
   const item = errorLogsData.find(x => x.id === id);
   if (item) item.status = target ? "fixed" : "open";
   renderErrorLogs();
@@ -1202,7 +1203,7 @@ function openConfirmDialog(title, message, onYes) {
 window.deleteErrorLog = (id) => {
   openConfirmDialog("Xóa log này?", "Log sẽ bị xóa vĩnh viễn và không thể khôi phục.", async () => {
     const { error } = await supabase.from("error_logs").delete().eq("id", id);
-    if (error) { console.error(error); showNotice("Xóa log thất bại.", "error"); return; }
+    if (error) { console.error(error); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((error && error.message) || error || "") }); showNotice("Xóa log thất bại.", "error"); return; }
     errorLogsData = errorLogsData.filter(x => x.id !== id);
     renderErrorLogs();
     showNotice("Đã xóa log.", "success");

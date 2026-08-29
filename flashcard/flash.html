@@ -2470,133 +2470,75 @@ body::after {
 }
 
 /* ===== DARK MODE ===== */
-body.dark-mode {
-  --bg-1: #0f172a;
-  --bg-2: #1e293b;
-  --bg-3: #334155;
-  --panel: rgba(30, 41, 59, 0.88);
-  --panel-strong: rgba(30, 41, 59, 0.92);
-  --line: rgba(100, 116, 139, 0.3);
-  --text-main: #f1f5f9;
-  --text-sub: #94a3b8;
-}
 
-body.dark-mode {
-  background:
-    radial-gradient(circle at 12% 10%, rgba(236, 72, 153, 0.08), transparent 26%),
-    radial-gradient(circle at 84% 14%, rgba(37, 99, 235, 0.08), transparent 30%),
-    radial-gradient(circle at 68% 86%, rgba(245, 158, 11, 0.06), transparent 34%),
-    linear-gradient(135deg, #0f172a 0%, #1a1a2e 44%, #0f172a 100%);
-  background-attachment: fixed;
-}
 
-body.dark-mode body::before { opacity: 0.03; }
-body.dark-mode body::after { opacity: 0.05; }
 
-body.dark-mode #menu {
-  background: rgba(30, 41, 59, 0.92);
-  border-color: rgba(100, 116, 139, 0.3);
-  box-shadow: 0 14px 30px rgba(0,0,0,0.35);
-}
-body.dark-mode #menu button { color: #94a3b8; }
-body.dark-mode #menu button:hover:not(.active-nav) { background: rgba(59, 130, 246, 0.12); color: #60a5fa; }
-body.dark-mode #menu button.active-nav { background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important; }
 
-body.dark-mode #backToHubBtn { box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
 
-body.dark-mode #progressContainer {
-  background: rgba(30, 41, 59, 0.92);
-  border-color: #334155;
-}
-body.dark-mode #progressText { color: #60a5fa; }
-body.dark-mode #progressOuter { background: #1e293b; }
 
-body.dark-mode #topicBanner {
-  background: rgba(30, 41, 59, 0.85);
-  border-color: rgba(59, 130, 246, 0.2);
-  color: #94a3b8;
-}
-body.dark-mode #topicBanner span { color: #e2e8f0; }
 
-body.dark-mode .flash-front,
-body.dark-mode .flash-back {
-  background: rgba(30, 41, 59, 0.92) !important;
-  box-shadow: 0 18px 35px rgba(0,0,0,0.35) !important;
-  border-color: rgba(100, 116, 139, 0.2);
-}
-body.dark-mode .flash-front { color: #f1f5f9; }
-body.dark-mode .flash-back {
-  background: linear-gradient(140deg, rgba(30, 41, 59, 0.96), rgba(37, 99, 235, 0.12)) !important;
-  color: #93c5fd;
-}
 
-body.dark-mode .speaker-icon { background: rgba(59, 130, 246, 0.12); color: #60a5fa; }
-body.dark-mode .speaker-icon:hover { background: #4f46e5; color: white; }
-body.dark-mode .dict-icon { background: rgba(59, 130, 246, 0.12); color: #60a5fa; }
-body.dark-mode .dict-icon:hover { background: #4f46e5; color: white; }
 
-body.dark-mode .nav-arrow { background: #1e293b; color: #60a5fa; }
 
-body.dark-mode .game-shell {
-  background: rgba(30, 41, 59, 0.74);
-  border-color: rgba(100, 116, 139, 0.25);
-}
-body.dark-mode .game-start-card {
-  background: linear-gradient(160deg, rgba(30, 41, 59, 0.95), rgba(30, 41, 59, 0.88));
-  border-color: #334155;
-}
-body.dark-mode .game-start-card h2 { color: #a5b4fc; }
-body.dark-mode .game-start-card p { color: #94a3b8; }
 
-body.dark-mode .match-card {
-  background: rgba(30, 41, 59, 0.9);
-  color: #e2e8f0;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-}
-body.dark-mode .match-card:hover { background: rgba(30, 41, 59, 0.95); border-color: #6366f1; color: #a5b4fc; }
-body.dark-mode .match-card.selected { background: rgba(99, 102, 241, 0.12); border-color: #6366f1; }
 
-body.dark-mode .blast-box {
-  background: rgba(30, 41, 59, 0.88);
-  border-color: #334155;
-}
-body.dark-mode .question { color: #f1f5f9; }
-body.dark-mode .options button {
-  background: #1e293b;
-  color: #94a3b8;
-  border-color: #334155;
-}
-body.dark-mode .options button:hover { background: #2d3a4e; border-color: #6366f1; color: #a5b4fc; }
 
-body.dark-mode .popup { background: rgba(0,0,0,0.6); }
-body.dark-mode .popup-box {
-  background: linear-gradient(150deg, rgba(30, 41, 59, 0.96), rgba(30, 41, 59, 0.92));
-  box-shadow: 0 18px 32px rgba(0,0,0,0.4);
-}
-body.dark-mode .popup-box h2 { color: #a5b4fc; }
-body.dark-mode .popup-box p { color: #94a3b8; }
 
-body.dark-mode .settings-modal { background: rgba(0,0,0,0.5); }
-body.dark-mode .settings-box {
-  background: #1e293b;
-  border-color: #334155;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-}
-body.dark-mode .settings-header h3 { color: #60a5fa; }
-body.dark-mode .settings-close { background: #b91c1c; color: #fff; }
-body.dark-mode .settings-close:hover { background: #991b1b; }
-body.dark-mode .setting-item { border-bottom-color: #334155; }
-body.dark-mode .setting-label { color: #e2e8f0; }
-body.dark-mode .setting-desc { color: #64748b; }
-body.dark-mode .toggle-slider { background-color: #475569; }
 
-body.dark-mode #music-control { background: #1e293b; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
-body.dark-mode #score,
-body.dark-mode .streak-badge { color: #f1f5f9; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
 <script src="../version/version-check.js" defer></script>
 <script src="../toast.js"></script>
+
+  <link rel="stylesheet" href="../element/giaodien.css">
 </head>
 
 <body>

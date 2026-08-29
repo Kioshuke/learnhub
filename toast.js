@@ -58,55 +58,12 @@
   }
 
   /* ---- CSS ---- */
-  var CSS = [
-    ".lh-toast-container{position:fixed;top:20px;right:20px;z-index:2147483400;display:flex;flex-direction:column;gap:12px;pointer-events:none;max-width:calc(100vw - 40px)}",
-    ".lh-toast{position:relative;display:flex;align-items:center;background:#fff;border-radius:4px;box-shadow:0 4px 15px rgba(0,0,0,0.05),0 1px 3px rgba(0,0,0,0.02);padding:16px 20px;width:100%;min-width:280px;max-width:400px;overflow:hidden;pointer-events:auto;transform:translateX(120%);opacity:0;transition:transform .3s ease,opacity .3s ease}",
-    ".lh-toast.lh-in{transform:translateX(0);opacity:1}",
-    ".lh-toast.lh-out{transform:translateX(40%);opacity:0}",
-    ".lh-toast::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}",
-    ".lh-toast-info::before{background-color:#3b82f6}",
-    ".lh-toast-success::before{background-color:#22c55e}",
-    ".lh-toast-warning::before{background-color:#eab308}",
-    ".lh-toast-error::before{background-color:#ef4444}",
-    ".lh-toast-icon{font-size:20px;margin-right:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}",
-    ".lh-toast-info .lh-toast-icon{color:#3b82f6}",
-    ".lh-toast-success .lh-toast-icon{color:#22c55e}",
-    ".lh-toast-warning .lh-toast-icon{color:#eab308}",
-    ".lh-toast-error .lh-toast-icon{color:#ef4444}",
-    ".lh-toast-icon .lh-wave{display:inline-block;transform-origin:75% 80%;animation:lhWave 1.2s ease-in-out infinite}",
-    "@keyframes lhWave{0%,100%{transform:rotate(0deg)}25%{transform:rotate(16deg)}55%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}",
-    ".lh-toast-content{flex:1;min-width:0}",
-    ".lh-toast-title{margin:0 0 2px 0;font-size:14px;font-weight:700;color:#1f2937}",
-    ".lh-toast-message{margin:0;font-size:13px;color:#6b7280;word-wrap:break-word}",
-    ".lh-toast-close{background:transparent;border:none;font-size:16px;color:#9ca3af;cursor:pointer;padding:4px;margin-left:12px;transition:color .2s;flex-shrink:0}",
-    ".lh-toast-close:hover{color:#374151}",
-    ".lh-toast-progress{position:absolute;left:0;bottom:0;height:3px;width:100%;transform-origin:left;background-color:#3b82f6}",
-    ".lh-toast:hover .lh-toast-progress{animation-play-state:paused!important}",
-    "@keyframes lh-progress-shrink{from{transform:scaleX(1)}to{transform:scaleX(0)}}",
-    /* Confirm modal */
-    ".lh-confirm-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:2147483500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .2s ease}",
-    ".lh-confirm-overlay.lh-in{opacity:1}",
-    ".lh-confirm-card{position:relative;background:#fff;border-radius:8px;box-shadow:0 20px 60px rgba(15,23,42,.25);padding:24px 24px 20px;width:100%;max-width:380px;overflow:hidden;transform:scale(.95);transition:transform .2s ease}",
-    ".lh-confirm-overlay.lh-in .lh-confirm-card{transform:scale(1)}",
-    ".lh-confirm-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background-color:#ef4444}",
-    ".lh-confirm-title{margin:0 0 8px 0;font-size:16px;font-weight:700;color:#1f2937}",
-    ".lh-confirm-message{margin:0 0 20px 0;font-size:14px;color:#6b7280;line-height:1.5;word-wrap:break-word}",
-    ".lh-confirm-actions{display:flex;justify-content:flex-end;gap:10px}",
-    ".lh-btn-cancel{background:#f1f5f9;color:#475569;border:none;border-radius:8px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}",
-    ".lh-btn-cancel:hover{background:#e2e8f0}",
-    ".lh-btn-danger{background:#ef4444;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}",
-    ".lh-btn-danger:hover{background:#dc2626}",
-    "@media(max-width:768px){.lh-toast-container{top:92px;right:14px;left:auto}.lh-toast{min-width:240px;max-width:min(400px,calc(100vw - 28px))}}"
-  ].join("\n");
 
   var booted = false;
   function boot() {
     if (booted) return;
     booted = true;
     ensureFontAwesome();
-    var style = document.createElement("style");
-    style.textContent = CSS;
-    document.head.appendChild(style);
   }
 
   function getContainer() {

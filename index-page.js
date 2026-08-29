@@ -1,10 +1,7 @@
 
-import { supabase } from "./supabase-config.js";
-import { SUPABASE_URL } from "./supabase-config.js";
-import { getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession } from "./supabase-helpers.js";
+import { supabase, SUPABASE_URL, getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession, logAppError } from "./supabase-config.js";
 import { createUserStats, updateUserStats } from "./learnhub-stats.js";
 import { isPasswordRecovery } from "./reset-password.js";
-import { logAppError } from "./log-errors.js";
 window.logAppError = logAppError;
 window.supabaseClient = supabase;
 window.escapeHtml = escapeHtml;

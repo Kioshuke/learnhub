@@ -53,10 +53,11 @@ window.addEventListener("beforeinstallprompt", function (e) {
 <link rel="preconnect" href="https://www.googleapis.com">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="account-popup.css">
+
+<link rel="stylesheet" href="element/giaodien.css">
 <script src="version/version-check.js" defer></script>
 <script src="toast.js"></script>
+
 </head>
 <body class="app-ready">
 <audio id="offtest" src="sound/preview_4.mp3" preload="auto" hidden></audio>
@@ -640,12 +641,9 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 
 
 <script type="module">
-import { supabase } from "./supabase-config.js";
-import { SUPABASE_URL } from "./supabase-config.js";
-import { getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession } from "./supabase-helpers.js";
+import { supabase, SUPABASE_URL, getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession, logAppError } from "./supabase-config.js";
 import { createUserStats, updateUserStats } from "./learnhub-stats.js";
 import { isPasswordRecovery } from "./reset-password.js";
-import { logAppError } from "./log-errors.js";
 window.logAppError = logAppError;
 window.supabaseClient = supabase;
 window.escapeHtml = escapeHtml;

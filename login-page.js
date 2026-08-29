@@ -1,8 +1,6 @@
-﻿﻿
-import { supabase } from "./supabase-config.js";
-import { getMaintenance, subscribeMaintenance, emailAllowed, isRegistrationOpen, getUserRow, onAuthChange, finalizeSession } from "./supabase-helpers.js";
+﻿
+import { supabase, getMaintenance, subscribeMaintenance, emailAllowed, isRegistrationOpen, getUserRow, onAuthChange, finalizeSession, logAppError } from "./supabase-config.js";
 import { redirectToResetPage, isPasswordRecovery } from "./reset-password.js";
-import { logAppError } from "./log-errors.js";
 
 window.supabase = supabase;
 

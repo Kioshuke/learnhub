@@ -15,12 +15,7 @@
   --notice-bg:#f0f4ff;--notice-border:#d0daf0;
   --quiz-bg:#ffffff;--quiz-border:#e5e7eb;
 }
-body.dark-mode{
-  --bg:transparent;--text:#f1f5f9;--text-sub:#94a3b8;--border:#1e293b;
-  --card-bg:#1e293b;--card-border:#334155;
-  --notice-bg:#1e293b;--notice-border:#334155;
-  --quiz-bg:#1e293b;--quiz-border:#334155;
-}
+
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{width:100%;min-height:100vh;font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;}
 html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;}
@@ -143,10 +138,10 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
 .card .btn.disabled{opacity:0.5;pointer-events:none;}
 
 /* ===== DARK MODE ===== */
-body.dark-mode .card{box-shadow:0 2px 8px rgba(0,0,0,0.25);}
-body.dark-mode .card:hover{box-shadow:0 8px 28px color-mix(in srgb,var(--card-color,#2563eb) 20%,rgba(0,0,0,0.3));}
-body.dark-mode .card-color-bar{background:linear-gradient(90deg,var(--card-color),color-mix(in srgb,var(--card-color) 60%,#0f172a));}
-body.dark-mode .subject-notice{border-color:var(--notice-border);}
+
+
+
+
 
 .tab-short{display:none;}
 @media (max-width:768px){
@@ -236,6 +231,8 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
 </style>
 <script src="../version/version-check.js" defer></script>
 <script src="../toast.js"></script>
+
+  <link rel="stylesheet" href="giaodien.css">
 </head>
 <body>
 
@@ -915,7 +912,7 @@ if (document.readyState === "loading") {
 <script src="phonghoc-data.js"></script>
 
 <script type="module">
-import { logAppError } from "../log-errors.js";
+import { logAppError } from "../supabase-config.js";
 window.logAppError = logAppError;
 </script>
 </body>

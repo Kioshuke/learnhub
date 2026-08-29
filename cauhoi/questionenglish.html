@@ -46,42 +46,7 @@
             color: var(--text);
             transition: all 0.3s ease; /* Hiệu ứng chuyển màu mượt */
         }
-        body.dark-mode {
-                background:
-        radial-gradient(circle at top left, rgba(59,130,246,0.08), transparent 35%),
-        radial-gradient(circle at top right, rgba(14,165,233,0.06), transparent 30%),
-        #071120;
-            --bg: #071120;
-            --minibox: rgba(17, 25, 40, 0.75);
-            --bg-pattern: #0f1b2d;
 
-            --text: #f8fafc;
-            --text-sub: #94a3b8;
-
-            --card: rgba(15, 23, 42, 0.78);
-            --card-gradient: linear-gradient(
-                145deg,
-                rgba(17, 25, 40, 0.88),
-                rgba(10, 18, 32, 0.92)
-            );
-
-            --primary: #3b82f6;
-            --primary-light: rgba(59, 130, 246, 0.12);
-
-            --info: #60a5fa;
-            --success-light: rgba(34, 197, 94, 0.14);
-            --danger-light: rgba(239, 68, 68, 0.14);
-
-            --anshover: rgba(255,255,255,0.04);
-            --answrong: rgba(127, 29, 29, 0.28);
-
-            --tf-bg: rgba(15, 23, 42, 0.6);
-            --tf-hover: rgba(255,255,255,0.03);
-            --tf-border: rgba(255,255,255,0.06);
-
-            --true-asw: #4ade80;
-            --false-asw: #f87171;
-        }
         .container { max-width: 1600px; margin: 0 auto; padding: 0 20px; }
 
         header {
@@ -151,27 +116,15 @@
             animation: shake 0.5s ease-in-out infinite;
         }
 
-        body.dark-mode .timer-box {
-            background: rgba(59,130,246,0.12);
-            color: #60a5fa;
-        }
-        body.dark-mode .timer-box.timer-warning {
-            background: rgba(234,179,8,0.14);
-            color: #facc15;
-        }
-        body.dark-mode .timer-box.timer-danger {
-            background: rgba(239,68,68,0.16);
-            color: #f87171;
-        }
+
+
+
 
         #timeSpentBox.time-danger {
             background: #fee2e2 !important;
             color: #ef4444 !important;
         }
-        body.dark-mode #timeSpentBox.time-danger {
-            background: rgba(239,68,68,0.16) !important;
-            color: #f87171 !important;
-        }
+
 
         @media (max-width: 1024px) {
             header {
@@ -264,58 +217,17 @@
                 white-space: nowrap;
             }
         }
-        body.dark-mode .question-card,
-        body.dark-mode .sidebar,
-        body.dark-mode header {
-            background: rgba(15, 23, 42, 0.72);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow:
-                0 10px 30px rgba(0,0,0,0.25),
-                inset 0 1px 0 rgba(255,255,255,0.03);
-        }
-        body.dark-mode .quiz-section > div[style*="background: #eff6ff"] {
-    background: rgba(255,255,255,0.06) !important;
-    color: #60a5fa !important;
-    border-left: 5px solid #3b82f6 !important;
-    border: 1px solid rgba(96,165,250,0.18) !important;
-    backdrop-filter: blur(12px);
-}
-body.dark-mode .option,
-body.dark-mode .ans-label {
-    background: rgba(255,255,255,0.025);
-    border: 1.5px solid rgba(255,255,255,0.10);
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.03),
-        0 2px 8px rgba(0,0,0,0.12);
-}
 
-body.dark-mode .option:hover,
-body.dark-mode .ans-label:hover {
-    background: rgba(59,130,246,0.08);
-    border-color: rgba(96,165,250,0.45);
-    transform: translateY(-2px);
-    box-shadow:
-        0 0 0 1px rgba(96,165,250,0.12),
-        0 8px 20px rgba(0,0,0,0.18);
-}
 
-        body.dark-mode .nav-item {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.06);
-        }
 
-        body.dark-mode .nav-item.done {
-            background: rgba(59,130,246,0.14);
-            border-color: #3b82f6;
-            color: #60a5fa;
-        }
+
+
+
+
+
+
         
-        body.dark-mode .leaderboard-embed {
-            background: rgba(15, 23, 42, 0.72);
-            border: 1px solid rgba(255,255,255,0.06);
-        }
+
 
         /* Nút bấm */
         button {
@@ -612,10 +524,7 @@ body.dark-mode .ans-label:hover {
             animation: skeletonShimmer 1.4s ease infinite;
             border-radius: 8px;
         }
-        body.dark-mode .skel-bar {
-            background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 37%, rgba(255,255,255,0.06) 63%);
-            background-size: 400% 100%;
-        }
+
         .skel-q-badge { width: 64px; height: 20px; border-radius: 15px; margin-bottom: 12px; }
         .skel-q-line { height: 16px; margin-bottom: 8px; }
         .skel-q-line.w-90 { width: 90%; }
@@ -645,9 +554,7 @@ body.dark-mode .ans-label:hover {
             color: var(--text) !important;
             background: var(--card) !important;
         }
-        body.dark-mode .cloze-input {
-            border-color: rgba(255,255,255,0.14) !important;
-        }
+
         .cloze-answer-tip {
             font-weight: 700;
         }
@@ -827,13 +734,10 @@ body.dark-mode .ans-label:hover {
 .lh-toast-mini .lh-toast-close {
     display: none !important;
 }
-body.dark-mode .lh-toast-mini {
-    background: #1e293b !important;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.35) !important;
-}
-body.dark-mode .lh-toast-mini .lh-toast-title { color: #60a5fa !important; }
-body.dark-mode .lh-toast-mini .lh-toast-message { color: #94a3b8 !important; }
-body.dark-mode .lh-toast-mini .lh-toast-message b { color: #4ade80 !important; }
+
+
+
+
 /* Mobile: hiện toast nhỏ ở trên cùng bên phải màn hình */
 @media (max-width: 768px) {
     .lh-toast-container {
@@ -854,11 +758,10 @@ body.dark-mode .lh-toast-mini .lh-toast-message b { color: #4ade80 !important; }
     height: 42px;
     border-radius: 8px;
 }
-body.dark-mode .listening-player {
-    background: #1e293b !important;
-    border-color: #334155 !important;
-}
+
 </style>
+
+  <link rel="stylesheet" href="../element/giaodien.css">
 </head>
 <body>
 
@@ -2087,7 +1990,7 @@ function launchFireworkBurst(burstIndex) {
 loadQuestions();
 </script>
 <script type="module">
-import { logAppError } from "../log-errors.js";
+import { logAppError } from "../supabase-config.js";
 window.logAppError = logAppError;
 </script>
 <div id="confetti-container"></div>
