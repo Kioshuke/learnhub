@@ -213,9 +213,9 @@
 
         @media (max-width: 768px) {
             header {
-                padding: 6px 10px;
+                padding: 6px 8px;
                 margin-bottom: 10px;
-                gap: 0;
+                gap: 6px;
                 flex-wrap: nowrap;
                 position: relative;
             }
@@ -224,28 +224,44 @@
                 display: none !important;
             }
 
+            .user-area {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .user-area #learnHubUserBadge {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: 0.75rem;
+            }
+
+            .user-area #learnHubUserBadge .badge-label {
+                display: none !important;
+            }
+
             #action-button-container {
-                width: 100%;
+                flex: 1;
                 display: flex;
                 justify-content: flex-end;
                 gap: 8px;
             }
 
             #timerBox {
-                position: absolute;
-                left: 50%;
-                transform: translateX(-50%);
+                position: static;
+                transform: none;
             }
 
             .timer-box {
-                font-size: 0.8rem;
-                padding: 5px 10px;
+                font-size: 0.72rem;
+                padding: 4px 8px;
                 gap: 4px;
             }
 
             #action-button-container .btn {
-                padding: 6px 12px;
-                font-size: 0.78rem;
+                padding: 5px 10px;
+                font-size: 0.75rem;
+                white-space: nowrap;
             }
         }
         body.dark-mode .question-card,
@@ -858,17 +874,20 @@ if (window !== window.parent) {
         gap: 10px; 
         flex-wrap: wrap;
     ">
-        <div class="logo-area" style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 200px;">
-            <h2 style="margin: 0; font-size: 1rem; font-weight: 800; color: var(--primary); letter-spacing: 0.3px;">
-                LearnHub Test 📝
-            </h2>
+        <div class="user-area" style="display: flex; align-items: center; flex: 1; min-width: 0; overflow: hidden;">
             <div id="learnHubUserBadge" style="display: none; font-size: 0.85rem; font-weight: 500; color: var(--text-sub);">
                 <i class="fas fa-user-circle" style="margin-right: 4px; color: var(--primary);"></i>
-                Đang làm bài: <strong id="learnHubUserName" style="color: var(--text); font-weight: 600;"></strong>
+                <span class="badge-label">Đang làm bài:</span> <strong id="learnHubUserName" style="color: var(--text); font-weight: 600;"></strong>
             </div>
         </div>
 
-        <div id="action-button-container" style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
+        <div class="logo-area" style="display: flex; align-items: center; justify-content: center; flex: 1; min-width: 0; overflow: hidden;">
+            <h2 style="margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                LearnHub Test 📝
+            </h2>
+        </div>
+
+        <div id="action-button-container" style="display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-shrink: 0; flex: 1; min-width: 0;">
             
             <div id="timerBox" style="display: none;">
                 <div class="timer-box" style="
@@ -1295,7 +1314,7 @@ function renderQuiz() {
         });
     });
 
-    quizContainer.innerHTML = quizHtml;
+    quizContainer.innerHTML = quizHtml + '<div class="quiz-end-marker" style="display:flex; align-items:center; justify-content:center; gap:14px; margin:38px 0 8px; padding:0 8px; user-select:none;"><div style="flex:1; height:1px; background:linear-gradient(to right, transparent, var(--primary), var(--primary));"></div><span style="font-family:inherit; font-weight:800; font-size:1rem; letter-spacing:4px; color:var(--primary); white-space:nowrap;">Hết</span><div style="flex:1; height:1px; background:linear-gradient(to left, transparent, var(--primary), var(--primary));"></div></div>';
     navContainer.innerHTML = navHtml;
     updateProgress();
 }
