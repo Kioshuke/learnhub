@@ -1,5 +1,6 @@
 ﻿
-import { createLearnHubClient, logAppError } from "./supabase-config.js";
+import { createLearnHubClient, logAppError, escapeHtml } from "./supabase-config.js";
+import { getWeekKey } from "./week-math.js";
 window.logAppError = logAppError;
 
 // Admin dùng client với storage key riêng để không đánh lộn account với web chính
@@ -152,10 +153,6 @@ function formatDate(v) {
   let d = typeof v === "number" ? new Date(v) : new Date(v);
   if (Number.isNaN(d.getTime())) return "Chưa có";
   return d.toLocaleString("vi-VN");
-}
-
-function escapeHtml(t) {
-  return String(t || "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
 }
 
 async function importWhitelistFromFile(file) {
@@ -843,18 +840,8 @@ window.deleteUserData = async (uid, email) => {
 };
 
 // ================= WEEKLY RESET =================
-function getCurrentWeekKey() {
-  const now = new Date();
-  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  const weekNum = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-  return `${d.getUTCFullYear()}-W${String(weekNum).padStart(2, '0')}`;
-}
-
 async function loadWeeklyResetForm() {
-  const currentWeek = getCurrentWeekKey();
+  const currentWeek = getWeekKey();
   weeklyResetCurrentWeek.textContent = currentWeek;
   try {
     const { data: d } = await supabase.from("weekly_reset").select("*").eq("id", true).maybeSingle();
@@ -916,7 +903,7 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
     btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Đang reset...';
 
     try {
-      const currentWeek = getCurrentWeekKey();
+      const currentWeek = getWeekKey();
       let count = 0;
 
       // Reset điểm số

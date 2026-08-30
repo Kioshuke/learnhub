@@ -6,6 +6,8 @@
   <title>LearnHub Flashcard</title>
   <link rel="icon" href="../pictures/favicon.png" sizes="any">
 
+  <link rel="stylesheet" href="../element/giaodien.css">
+
   <style>
     :root {
       --primary: #2563eb;
@@ -554,11 +556,6 @@
     }
 
     /* ===== SKELETON LOADING (cho lưới thẻ chủ đề, tránh giật khi dựng DOM nặng) ===== */
-    @keyframes skeletonShimmer {
-      0% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
     .skel-bar {
       background: linear-gradient(90deg, #e2e9f5 25%, #f2f6fc 37%, #e2e9f5 63%);
       background-size: 400% 100%;
@@ -766,9 +763,6 @@
   </style>
 <script src="../version/version-check.js" defer></script>
 <script src="../toast.js"></script>
-
-
-  <link rel="stylesheet" href="../element/giaodien.css">
 </head>
 <body class="app-ready">
   <div class="wrap">

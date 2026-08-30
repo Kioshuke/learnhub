@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ thống Luyện thi</title>
+<title>Hệ thống Luyện thi</title>
+    <link rel="stylesheet" href="../element/giaodien.css">
     <script src="../toast.js"></script>
     <style>
         :root {
@@ -403,7 +404,7 @@
         .true-answer-highlight { border: 2px solid var(--info) !important; background: var(--primary-light) !important; }
         .true-answer-highlight::after { content: "✓ Đáp án đúng"; position: absolute; right: 8px; top: 2px; font-size: 0.65rem; color: var(--info); font-weight: bold; }
 
-        .btn { padding: 10px 22px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.88rem; }
+        .btn { margin: 0; padding: 10px 22px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.88rem; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,115,232,0.3); }
         .btn-reload { background: var(--info); color: white; }
@@ -514,11 +515,7 @@
         @media (max-width: 600px) { .answers-grid { grid-template-columns: 1fr; }}
 
         /* ===== SKELETON LOADING (trong lúc fetch JSON đề thi + dựng DOM câu hỏi) ===== */
-        @keyframes skeletonShimmer {
-            0% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .skel-bar {
+.skel-bar {
             background: linear-gradient(90deg, #e2e9f5 25%, #f2f6fc 37%, #e2e9f5 63%);
             background-size: 400% 100%;
             animation: skeletonShimmer 1.4s ease infinite;
@@ -743,8 +740,6 @@
     }
 }
 </style>
-
-  <link rel="stylesheet" href="../element/giaodien.css">
 </head>
 <body>
 

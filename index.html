@@ -570,7 +570,6 @@ const TRUSTED_ORIGIN = location.origin;
 let currentSupabaseUser = null;
 let activeInterval = null;
 let onlineTimerInterval = null;
-const previewMode = new URLSearchParams(window.location.search).get("preview") === "1";
 
 // ================= MAINTENANCE MODE (realtime, đọc từ Supabase maintenance_settings) =================
 let maintenanceState = { enabled: false, message: "", initialized: false };
@@ -758,13 +757,13 @@ const nameEl = document.getElementById("popupName");
 if(nameEl) nameEl.innerText = user.displayName || "Bạn";
 
 const emailEl = document.getElementById("popupEmail");
-if(emailEl) emailEl.innerText = user.email || "preview@local.test";
+if(emailEl) emailEl.innerText = user.email || "";
 
 const quoteEl = document.getElementById("popupQuote");
 if(quoteEl) quoteEl.innerText = quote;
 
 document.getElementById("welcomeText").innerText = "Chúc bạn một ngày tốt lành,";
-document.getElementById("userName").innerText = user.displayName || "Preview User";
+document.getElementById("userName").innerText = user.displayName || "Bạn";
 
 const avatar = user.photoURL || "https://i.imgur.com/6VBx3io.png";
 
@@ -788,31 +787,6 @@ if (popupAvatar) {
 function showContent(){
   document.getElementById("mainContent").classList.add("show");
   appLoadingComplete = true;
-}
-
-function enterPreviewMode(){
-  const previewUser = {
-    uid: "preview-user",
-    displayName: "Preview User",
-    email: "preview@local.test",
-    photoURL: "https://i.imgur.com/6VBx3io.png"
-  };
-
-  applyUserToUI(previewUser);
-
-  const forumIframe = document.getElementById("forumFrame");
-  if (forumIframe && forumIframe.contentWindow) {
-    forumIframe.contentWindow.postMessage({
-      type: "USER_INFO",
-      user: {
-        uid: previewUser.uid,
-        name: previewUser.displayName,
-        role: previewUser.role || "member"
-      }
-    }, TRUSTED_ORIGIN);
-  }
-
-  showContent();
 }
 
 let accessGuardInterval = null;
@@ -1027,11 +1001,6 @@ const user = session?.user ?? null;
 currentSupabaseUser = user ? { id: user.id, email: user.email } : null;
 
 if(isPasswordRecovery(event)) return;
-
-if(previewMode){
-  enterPreviewMode();
-  return;
-}
 
 if(user){
   if (maintenanceState.initialized && maintenanceState.enabled) {
@@ -1381,7 +1350,6 @@ window.addEventListener("beforeunload", () => {
     updateStatus(false);
   }
 });
-// --- Dán đoạn này vào CUỐI thẻ <script type="module"> trong index.html ---
   window.supabaseClient = supabase;
   window.getCurrentLearnHubUser = () => window.currentLearnHubUser || null;
 

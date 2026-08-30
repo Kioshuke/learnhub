@@ -729,7 +729,8 @@ function sendDarkModeToIframe(isDark) {
 // Đồng bộ trạng thái "giảm chuyển động" sang iframe
 const reducedMotionFrames = [
     document.getElementById("forumFrame"),
-    document.getElementById("taiLieuFrame")
+    document.getElementById("taiLieuFrame"),
+    document.getElementById("chatbotFrame")
 ].filter(Boolean);
 
 function sendReducedMotionToIframe(isReduced) {
@@ -791,8 +792,6 @@ if(toggle){
 }
 // Gán sự kiện click cho tất cả các nút trong Menu
 /* ================= TỐI ƯU CHO PAGESPEED ================= */
-let isFirstLoad = true;
-
 // Hàm phát nhạc thông minh hơn
 function playSound(id) {
     const audio = document.getElementById(id);

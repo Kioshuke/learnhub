@@ -815,37 +815,6 @@ gap:25px;
   color: color-mix(in srgb, #475569 78%, var(--card-color) 22%);
   font-size:14px;
 }
-#ly .card{
-  --card-color: #3b82f6; /* 🔵 Lý */
-}
-
-#sinh .card{
-  --card-color: #16a34a; /* 🟢 Sinh */
-}
-
-#tin .card{
-  --card-color: #f59e0b; /* 🟡 Tin */
-}
-
-#su .card{
-  --card-color: #dc2626; /* 🔴 Sử */
-}
-
-#hoa .card{
-  --card-color: #9333ea; /* 🟣 Hoá */
-}
-
-#anh .card{
-  --card-color: #ec4899; /* 💖 Anh */
-}
-
-#bxh .card{
-  --card-color: #0ea5e9; /* 🌊 Forum */
-}
-
-#home .card{
-  --card-color: #f97316; /* 🟠 Lịch */
-}
 
 
 
@@ -2221,10 +2190,10 @@ z-index: 10;
 /* Màu theo từng môn */
 #ly .subject-notice{ --subject-color: #3b82f6; }
 #sinh .subject-notice{ --subject-color: #16a34a; }
-#tin .subject-notice{ --subject-color: #f59e0b; }
-#su .subject-notice{ --subject-color: #dc2626; }
-#hoa .subject-notice{ --subject-color: #9333ea; }
-#anh .subject-notice{ --subject-color: #ec4899; }
+#tin .subject-notice{ --subject-color: #7c3aed; }
+#su .subject-notice{ --subject-color: #ea580c; }
+#hoa .subject-notice{ --subject-color: #dc2626; }
+#anh .subject-notice{ --subject-color: #db2777; }
 #bxh .subject-notice{ --subject-color: #0ea5e9; }
 #flash .subject-notice{ --subject-color: #2563eb; }
 #home .subject-notice{ --subject-color: #f97316; }
@@ -2581,6 +2550,35 @@ bottom:84px !important;
 
 /* Tablet adjustments */
 
+}
+
+/* ===== CHATBOT WINDOW - HIỆU ỨNG MỞ =====
+   Chạy mỗi khi #chatbotFrame / #chatOverlay chuyển display:none -> block.
+   Bật "Giảm chuyển động" (body.cc-reduced) => mở ngay lập tức, không animation. */
+#chatbotFrame{
+  animation:lhChatPop 0.25s ease-out;
+  transform-origin:right bottom;
+}
+#chatOverlay{
+  animation:lhChatFade 0.2s ease-out;
+}
+@keyframes lhChatPop{
+  from{opacity:0;transform:scale(0.92) translateY(10px);}
+  to{opacity:1;transform:scale(1) translateY(0);}
+}
+@keyframes lhChatFade{
+  from{opacity:0;}
+  to{opacity:1;}
+}
+body.cc-reduced #chatbotFrame,
+body.cc-reduced #chatOverlay{
+  animation:none !important;
+}
+@media (prefers-reduced-motion: reduce){
+  #chatbotFrame,
+  #chatOverlay{
+    animation:none !important;
+  }
 }
 
 /* ===== LOGIN/REGISTER MOBILE ===== */
@@ -5587,21 +5585,6 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
       background: linear-gradient(135deg, #f59e0b, #b45309);
     }
 
-    body.dark-mode .loading-overlay { background: rgba(15, 23, 42, 0.85); }
-
-    body.dark-mode .loading-box {
-      background: linear-gradient(145deg, rgba(30, 41, 59, 0.98), rgba(30, 41, 59, 0.92));
-      border-color: #334155;
-    }
-
-    body.dark-mode .loading-title { color: #60a5fa; }
-
-    body.dark-mode .loading-text { color: #94a3b8; }
-
-    body.dark-mode .skel-bar { background: linear-gradient(90deg, #1e293b 25%, #2d3a4e 37%, #1e293b 63%); }
-
-    body.dark-mode .skel-card { background: rgba(30, 41, 59, 0.6); border-color: #334155; }
-
     body.dark-mode .loading-overlay { background: rgba(0, 0, 0, 0.65); }
 
     body.dark-mode .loading-box {
@@ -5612,6 +5595,10 @@ body.dark-mode .subject-notice{border-color:var(--notice-border);}
     body.dark-mode .loading-title { color: #f1f5f9; }
 
     body.dark-mode .loading-text { color: #94a3b8; }
+
+    body.dark-mode .skel-bar { background: linear-gradient(90deg, #1e293b 25%, #2d3a4e 37%, #1e293b 63%); }
+
+    body.dark-mode .skel-card { background: rgba(30, 41, 59, 0.6); border-color: #334155; }
 
 /* --- 5.7 flashcard/flash.html --- */
 body.dark-mode {

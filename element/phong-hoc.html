@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#1a73e8">
 <title>Phòng Học - LearnHub Platform</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="giaodien.css">
 <style>
 :root{
   --bg:transparent;--text:#111827;--text-sub:#6b7280;--border:#e5e7eb;
@@ -69,8 +70,8 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
 .subject-tab[data-subject="tin"]{--tab:#7c3aed;}.subject-tab[data-subject="tin"].active{background:#7c3aed;}
 .subject-tab[data-subject="su"]{--tab:#ea580c;}.subject-tab[data-subject="su"].active{background:#ea580c;}
 .subject-tab[data-subject="hoa"]{--tab:#dc2626;}.subject-tab[data-subject="hoa"].active{background:#dc2626;}
-.subject-tab[data-subject="anh"]{--tab:#0891b2;}.subject-tab[data-subject="anh"].active{background:#0891b2;}
-.subject-tab[data-subject="toan"]{--tab:#4f46e5;}.subject-tab[data-subject="toan"].active{background:#4f46e5;}
+.subject-tab[data-subject="anh"]{--tab:#db2777;}.subject-tab[data-subject="anh"].active{background:#db2777;}
+  .subject-tab[data-subject="toan"]{--tab:#06b6d4;}.subject-tab[data-subject="toan"].active{background:#06b6d4;}
 .subject-tab[data-subject].active{box-shadow:0 4px 12px color-mix(in srgb,var(--tab) 35%,transparent);}
 
 /* ===== NOTICE ===== */
@@ -121,23 +122,31 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
 .card-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;background:var(--card-color,#2563eb);flex-shrink:0;}
 .card h3{margin:0;font-size:16px;font-weight:700;color:var(--text);line-height:1.4;flex:1 1 0;}
 .card-desc{font-size:14px;color:var(--text-sub);line-height:1.5;margin:0;}
+.card{padding-bottom:0 !important;}
+.card::before,.card::after{content:none;}
+.card p{color:var(--text-sub);margin:0;font-size:14px;line-height:1.5;}
 
 /* ===== STATUS ===== */
-.status{flex-shrink:0;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;white-space:nowrap;padding:4px 10px;border-radius:20px;}
+.status{flex-shrink:0;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;white-space:nowrap;padding:4px 10px;border-radius:20px;position:static;pointer-events:auto;}
 .status.done{background:rgba(16,185,129,0.1);color:#10b981;}
-.status.done::before{content:"";width:7px;height:7px;border-radius:50%;background:#10b981;flex-shrink:0;}
+.status.done::before{content:"";width:7px;height:7px;border-radius:50%;background:#10b981;flex-shrink:0;box-shadow:none;animation:none;}
 .status.done::after{content:"Hoàn thành";}
 .status.pending{background:rgba(245,158,11,0.1);color:#d97706;}
-.status.pending::before{content:"";width:7px;height:7px;border-radius:50%;background:#d97706;flex-shrink:0;}
+.status.pending::before{content:"";width:7px;height:7px;border-radius:50%;background:#d97706;flex-shrink:0;box-shadow:none;animation:none;}
 .status.pending::after{content:"Chưa hoàn thành";}
 
 /* ===== BUTTON ===== */
 .card .btn-row{margin-top:8px;}
-.card .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;color:#fff;background:var(--card-color,#2563eb);transition:all 0.2s;cursor:pointer;border:none;}
+.card .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;color:#fff;background:var(--card-color,#2563eb);transition:all 0.2s;cursor:pointer;border:none;position:static;margin:0;}
 .card .btn:hover{filter:brightness(1.1);box-shadow:0 4px 14px color-mix(in srgb,var(--card-color,#2563eb) 35%,transparent);}
 .card .btn.disabled{opacity:0.5;pointer-events:none;}
 
 /* ===== DARK MODE ===== */
+
+/* Tab môn: (dark mode) giữ đúng màu từng môn — ko bị rule cam #ff6b35 trong giaodien.css đè */
+body.dark-mode .subject-tab:hover{border-color:var(--tab);color:var(--tab);}
+body.dark-mode .subject-tab.active{color:#fff;border-color:transparent;}
+body.dark-mode .subject-tab.active:hover{color:#fff;border-color:var(--tab);}
 
 
 
@@ -231,8 +240,6 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
 </style>
 <script src="../version/version-check.js" defer></script>
 <script src="../toast.js"></script>
-
-  <link rel="stylesheet" href="giaodien.css">
 </head>
 <body>
 

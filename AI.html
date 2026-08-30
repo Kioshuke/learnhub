@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LearnHub AI - Hubie</title>
+<title>LearnHub AI - Hubie</title>
+  <link rel="stylesheet" href="element/giaodien.css">
     <style>
         /* ===== CHUNG ===== */
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -77,7 +78,8 @@
             40% { transform: scale(1.0); }
         }
 
-        .status { font-size: 11px; color: #888; text-align: center; padding: 4px; background: #fafafa; border-bottom: 1px solid #eee; flex-shrink: 0; }
+        .status { font-size: 11px; color: #888; text-align: center; padding: 4px; background: #fafafa; border-bottom: 1px solid #eee; flex-shrink: 0; position: static; display: block; pointer-events: auto; }
+        .status::before { content: none; }
 
         .input-container { display: flex; flex-direction: column; background: #fff; border-top: 1px solid #eee; flex-shrink: 0; }
 
@@ -177,21 +179,36 @@
 
         /* ===== MODAL ===== */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
-        .modal-content { background: white; border-radius: 12px; width: 100%; max-width: 280px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: fadeIn 0.2s ease-out; }
+        .modal-content { background: white; border-radius: 12px; width: 100%; max-width: 280px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: modalFadeIn 0.2s ease-out; }
         .modal-title { font-size: 15px; font-weight: 600; color: #1a73e8; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
         .modal-body { font-size: 13px; color: #4a4a4a; line-height: 1.45; }
         .modal-body ul { margin-left: 16px; margin-top: 4px; }
         .modal-close-btn { display: block; width: 100%; margin-top: 12px; padding: 6px; background: #1a73e8; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
         .modal-close-btn:hover { background: #1557b0; }
 
-        @keyframes fadeIn {
+@keyframes modalFadeIn {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
+
+        /* Bật "Giảm chuyển động" (từ trang chính hoặc hệ điều hành) => bỏ animation, hiện liền */
+        .lh-rm .modal-content,
+        .lh-rm .typing-dot,
+        html.lh-rm body { animation: none !important; }
     </style>
 <script src="toast.js"></script>
-
-  <link rel="stylesheet" href="element/giaodien.css">
+<script>
+/* Đồng bộ "Giảm chuyển động" từ trang chính (body.cc-reduced) hoặc hệ điều hành */
+(function () {
+    function applyReduced(on) { document.documentElement.classList.toggle("lh-rm", on); }
+    var mq = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mq && mq.addEventListener) mq.addEventListener("change", function (e) { applyReduced(e.matches); });
+    window.addEventListener("message", function (e) {
+        if (e.data && e.data.type === "REDUCED_MOTION") applyReduced(e.data.value === true);
+    });
+    applyReduced(mq ? mq.matches : false);
+})();
+</script>
 </head>
 <body>
 
@@ -287,9 +304,9 @@
 </div>
 
 <script>
-// 🔒 API Key được ẩn trên Cloudflare Worker - không暴露 trên frontend
+// 🔒 API Key được ẩn trên Cloudflare Worker - không bao giờ lộ ra trên frontend
     const WORKER_URL = "https://hubie-proxy.quanhao678.workers.dev";
-    // ⚠️ Sau khi deploy deepl-proxy-worker.js lên Cloudflare, dán URL worker vào đây
+    // DEEPL_PROXY_URL: proxy dịch máy DeepL chạy trên Cloudflare Worker
     const DEEPL_PROXY_URL = "https://deepl-proxy.quanhao678.workers.dev";
 
     let chatHistory = JSON.parse(localStorage.getItem("hubie_chat_history")) || [];

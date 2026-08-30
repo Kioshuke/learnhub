@@ -191,8 +191,8 @@ window.PHONGHOC_SUBJECTS = [
     name: "Anh Văn",
     short: "Anh",
     icon: "fa-language",
-    tabColor: "#0891b2",
-    cardColor: "#0891b2",
+    tabColor: "#db2777",
+    cardColor: "#db2777",
     notice: { icon: "fa-bell", html: "<strong>Thông báo môn Anh Văn:</strong> Tổng ôn ngữ pháp" },
     cards: [
       {
@@ -236,8 +236,8 @@ window.PHONGHOC_SUBJECTS = [
     name: "Toán Học",
     short: "Toán",
     icon: "fa-square-root-variable",
-    tabColor: "#4f46e5",
-    cardColor: "#4f46e5",
+    tabColor: "#06b6d4",
+    cardColor: "#06b6d4",
     notice: { icon: "fa-bell", html: "<strong>Thông báo môn Toán Học:</strong> Chuẩn bị ôn tập" },
     cards: [
       {
