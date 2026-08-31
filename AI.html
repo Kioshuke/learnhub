@@ -335,8 +335,14 @@
 
     const MODEL_QUEUE = [
         { id: "gemma-4-31b-it", name: "Gemma 4 31B" },
+        { id: "inkling", name: "Inkling" },
+        { id: "gemma-4-26b-a4b-it", name: "Gemma 4 26B" },
+        { id: "nemotron-3-ultra", name: "Nemotron 3 Ultra" },
+        { id: "minimax-m3", name: "MiniMax M3" },
+        { id: "glm-5.2", name: "GLM 5.2" },
         { id: "nemotron-3-super", name: "Nemotron 3 Super" },
-        { id: "gemma-4-26b-a4b-it", name: "Gemma 4 26B" }
+        { id: "inkling-small", name: "Inkling Small" },
+        { id: "nemotron-3-nano", name: "Nemotron 3 Nano" }
     ];
 
     // ==================== CHỌN CHẾ ĐỘ ====================
@@ -568,7 +574,7 @@
         const requestBody = {
             contents: chatHistory,
             systemInstruction: { parts: [{ text: systemInstructionText }] },
-            generationConfig: { temperature: 0.7, maxOutputTokens: 1000 }
+            generationConfig: { temperature: 0.7, maxOutputTokens: 3000 }
         };
 
         const typingIndicator = showTypingIndicator();
