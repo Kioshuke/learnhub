@@ -6,17 +6,10 @@
 // ============================================================================
 
 import { supabase } from "./supabase-config.js";
-import { getWeekKey, getWeekStartMs } from "./week-math.js";
+import { getWeekKey } from "./week-math.js";
 
 function getCurrentWeekKey() {
   return getWeekKey();
-}
-
-// Same logic as getWeekStartMs() trong profile.html / element/leaderboard.html:
-// mốc đầu tuần (thứ Hai, 00:00 UTC) — dùng để reset online_start_time đúng mốc tuần mới
-// khi hệ thống tự reset hàng tuần (tránh lẫn thời gian tuần cũ -> "sai số giờ" online).
-function getCurrentWeekStartMs() {
-  return getWeekStartMs();
 }
 
 function nowIso() {
@@ -24,19 +17,16 @@ function nowIso() {
 }
 
 // Ghi nhận lần reset tự động đầu tiên của tuần mới (lần reset thứ 2+ trong tuần sẽ bị bỏ qua ở DB)
-// Truyền luôn p_week_start (epoch ms đầu tuần mới) để DB reset online_start_time đúng mốc
-// tuần mới — chống cộng nhầm thời gian tuần cũ vào tuần mới khi phiên online kéo dài xuyên tuần.
 function recordAutoWeeklyReset(weekKey) {
-  supabase.rpc("record_auto_weekly_reset", { p_week_key: weekKey, p_week_start: getCurrentWeekStartMs() })
+  supabase.rpc("record_auto_weekly_reset", { p_week_key: weekKey })
     .then(() => {})
     .catch((e) => console.log("[learnhub-stats] Ghi nhận auto reset lỗi:", e));
 }
 
 async function resetUserOnlineWeek(uid, weekKey) {
-  const weekStart = getCurrentWeekStartMs();
   await supabase.from("users").update({
     online_timer: 0,
-    online_start_time: weekStart,
+    online_start_time: 0,
     online_week_key: weekKey
   }).eq("id", uid);
 }

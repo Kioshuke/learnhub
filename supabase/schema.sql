@@ -571,7 +571,11 @@ create policy weekly_reset_write_admin on public.weekly_reset
 -- Ghi nhận lần reset tự động của tuần mới (kích hoạt bởi user đầu tiên đăng nhập/làm bài
 -- trong tuần mới — điểm cũ tự reset qua week_key). Chỉ ghi 1 lần/tuần: nếu week_key đã
 -- khớp tuần hiện tại thì bỏ qua. Security definer để user thường ghi được dù RLS chỉ cho admin.
-create or replace function public.record_auto_weekly_reset(p_week_key text, p_week_start bigint default 0)
+-- Reset toàn bộ online_timer về 0 và gắn online_week_key tuần mới.
+-- online_start_time = 0: users_begin_online thấy start=0 → nhánh fresh-start set start=now.
+-- KHÔNG set = weekStart vì gây race condition: begin_online (chạy cùng page load) set
+-- start=now rồi reset ghi đè lại weekStart → leaderboard tính (now - weekStart) = sai số giờ.
+create or replace function public.record_auto_weekly_reset(p_week_key text)
 returns void
 language plpgsql security definer
 set search_path = public
@@ -579,20 +583,9 @@ as $$
 declare
   v_count int;
 begin
-  -- Reset online_timer + online_week_key cho toàn bộ user.
-  -- Quan trọng (fix "sai số giờ"): cũng reset online_start_time về MỐC ĐẦU TUẦN MỚI chứ KHÔNG
-  -- phải về 0 và không giữ nguyên tuần cũ:
-  --   - Giữ nguyên online_start_time tuần cũ -> users_begin_online (nhánh stale-recovery) sẽ
-  --     cộng cả thời gian tuần cũ (start -> last_active) vào online_timer của TUẦN MỚI
-  --     -> bị thổi phồng thời gian online ("sai số giờ") và lệch giữa profile / leaderboard.
-  --   - Set về 0 -> condition `online_start_time > 0` ở frontend (profile/leaderboard) sai,
-  --     không cộng được phần phiên đang online.
-  --   - Set về p_week_start (epoch ms mốc đầu tuần mới, UTC) -> vừa > 0, vừa khiến mọi phần
-  --     recovery/finalize sau này chỉ tính được phần online TRONG tuần mới (không lẫn tuần cũ).
-  -- Nếu client không truyền p_week_start, fallback bỏ qua (không đụng online_start_time).
   update public.users
      set online_timer      = 0,
-         online_start_time = case when p_week_start > 0 then p_week_start else online_start_time end,
+         online_start_time = 0,
          online_week_key   = p_week_key
    where (online_week_key is distinct from p_week_key);
 
@@ -614,8 +607,8 @@ begin
 end;
 $$;
 
-revoke execute on function public.record_auto_weekly_reset(text, bigint) from public;
-grant execute on function public.record_auto_weekly_reset(text, bigint) to authenticated;
+revoke execute on function public.record_auto_weekly_reset(text) from public;
+grant execute on function public.record_auto_weekly_reset(text) to authenticated;
 
 drop policy if exists broadcast_current_select on public.broadcast_current;
 create policy broadcast_current_select on public.broadcast_current
