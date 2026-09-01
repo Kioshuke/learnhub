@@ -335,14 +335,13 @@
 
     const MODEL_QUEUE = [
         { id: "gemma-4-31b-it", name: "Gemma 4 31B" },
-        { id: "inkling", name: "Inkling" },
         { id: "gemma-4-26b-a4b-it", name: "Gemma 4 26B" },
-        { id: "nemotron-3-ultra", name: "Nemotron 3 Ultra" },
         { id: "minimax-m3", name: "MiniMax M3" },
         { id: "glm-5.2", name: "GLM 5.2" },
+        { id: "nemotron-3-ultra", name: "Nemotron 3 Ultra" },
         { id: "nemotron-3-super", name: "Nemotron 3 Super" },
-        { id: "inkling-small", name: "Inkling Small" },
-        { id: "nemotron-3-nano", name: "Nemotron 3 Nano" }
+        { id: "nemotron-3-nano", name: "Nemotron 3 Nano" },
+        { id: "openrouter-free", name: "Auto Router" }
     ];
 
     // ==================== CHỌN CHẾ ĐỘ ====================
@@ -515,7 +514,10 @@
                 })
             });
             const data = await response.json();
-            if (data.error && (data.error.code === 429 || data.error.code === 404)) {
+            // Tự đổi model dự phòng khi gặp các lỗi: hết lượt (429), model không tồn tại (404),
+            // bị chặn (403), hoặc lỗi máy chủ (5xx)
+            const retriableCodes = [429, 404, 403, 500, 502, 503];
+            if (data.error && retriableCodes.includes(data.error.code)) {
                 errorLog.push({ code: data.error.code, message: data.error.message });
                 return await fetchWithBackup(requestBody, modelIndex + 1, errorLog);
             }
