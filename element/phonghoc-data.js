@@ -220,6 +220,30 @@ window.PHONGHOC_SUBJECTS = [
         action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=dauvao3.json" }
       },
       {
+        id: "anh-ontap-phan1",
+        title: "ÔN TẬP PHẦN 1",
+        description: "Word Choice – Word Form – Collocation – Phrasal Verb",
+        icon: "fa-language",
+        status: "done",
+        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap.json" }
+      },
+      {
+        id: "anh-ontap-phan2",
+        title: "ÔN TẬP PHẦN 2",
+        description: "Tenses – Conditional – Inversion – Reduced Relative Clauses",
+        icon: "fa-language",
+        status: "done",
+        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap2.json" }
+      },
+      {
+        id: "anh-ontap-phan3",
+        title: "ÔN TẬP PHẦN 3",
+        description: "Sentence Construction – Communication",
+        icon: "fa-language",
+        status: "done",
+        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap3.json" }
+      },
+      {
         id: "anh-ngu-phap",
         title: "TỔNG ÔN NGỮ PHÁP",
         description: "Video tổng ôn ngữ pháp tiếng Anh.",

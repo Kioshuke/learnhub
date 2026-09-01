@@ -1,0 +1,286 @@
+[
+  {
+    "sectionTitle": "ÔN TẬP PHẦN 3 · DỰNG CÂU - SENTENCE CONSTRUCTION",
+    "sectionDesc": "Bộ đề HOMEWORK môn Anh Văn - Phần 3. Gồm 2 phần: Sentence Construction (dựng câu) và Communication (hội thoại). Phần này: viết lại câu hoàn chỉnh theo các từ gợi ý.",
+    "timeLimit": 0,
+    "questions": [
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "every afternoon / Peter / play / basketball / friends.",
+        "correctAnswer": "Every afternoon, Peter plays basketball with his friends.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "my sister / study / at / university / Ho Chi Minh City.",
+        "correctAnswer": "My sister studies at a university in Ho Chi Minh City.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "the children / usually / have / lunch / at / school.",
+        "correctAnswer": "The children usually have lunch at school.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "last Saturday / we / visit / our / old teacher / countryside.",
+        "correctAnswer": "Last Saturday, we visited our old teacher in the countryside.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "Anna / enjoy / read / books / about / history.",
+        "correctAnswer": "Anna enjoys reading books about history.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "my parents / buy / fresh vegetables / at / local market / every weekend.",
+        "correctAnswer": "My parents buy fresh vegetables at the local market every weekend.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "David / finish / his homework / before / dinner / yesterday.",
+        "correctAnswer": "David finished his homework before dinner yesterday.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "the manager / speak / English / very well / at / work.",
+        "correctAnswer": "The manager speaks English very well at work.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "I / want / go / to / beach / but / my brother / prefer / stay / home.",
+        "correctAnswer": "I want to go to the beach, but my brother prefers to stay at home.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "Lisa / finish / her assignment / and / she / send / it / to / teacher / tomorrow.",
+        "correctAnswer": "Lisa will finish her assignment and send it to her teacher tomorrow.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "today / the weather / be / very hot / so / we / decide / stay / indoors.",
+        "correctAnswer": "Today, the weather is very hot, so we decide to stay indoors.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "you / can / order / pizza / or / you / can / cook / dinner / at / home.",
+        "correctAnswer": "You can order pizza, or you can cook dinner at home.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "Tom / feel / tired / but / he / continue / work / on / project / tonight.",
+        "correctAnswer": "Tom feels tired, but he will continue working on the project tonight.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "Mary / clean / the kitchen / and / her husband / wash / the dishes / every day.",
+        "correctAnswer": "Mary cleans the kitchen, and her husband washes the dishes every day.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "we / want / go / shopping / but / the stores / be / closed / last week.",
+        "correctAnswer": "We wanted to go shopping, but the stores were closed last week.",
+        "rows": 2
+      }
+    ]
+  },
+  {
+    "sectionTitle": "ÔN TẬP PHẦN 3 · HỘI THOẠI - COMMUNICATION",
+    "sectionDesc": "Bộ đề HOMEWORK môn Anh Văn - Phần 3. Gồm 2 phần: Sentence Construction (dựng câu) và Communication (hội thoại). Phần này: chọn câu trả lời phù hợp trong hội thoại.",
+    "timeLimit": 0,
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "Nam: Could you help me carry these books upstairs?<br>Mai: &quot;___________&quot;",
+        "answers": [
+          "Sure. I'll help you.",
+          "That's a good idea.",
+          "I'd love to, but it's delicious.",
+          "You're welcome."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Tom: Would you mind opening the window?<br>Anna: &quot;___________&quot;",
+        "answers": [
+          "Yes, I would like it.",
+          "Not at all.",
+          "Never mind.",
+          "That's a good idea."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Peter: I can't hear the teacher very well.<br>John: &quot;___________&quot;",
+        "answers": [
+          "I'd love to hear it.",
+          "That's all right, thank you.",
+          "You should sit closer to the front.",
+          "You're welcome for the teacher."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Lan: Let's go to the cinema this evening.<br>Susan: &quot;___________&quot;",
+        "answers": [
+          "We don't have any film.",
+          "Let's take the seat.",
+          "You went to the theater.",
+          "I've seen the film already."
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "David: Why don't we have dinner at that new restaurant?<br>Mike: &quot;___________&quot;",
+        "answers": [
+          "I've already eaten there twice this week.",
+          "I had dinner at six yesterday.",
+          "You should cook at the restaurant.",
+          "The restaurant was eating dinner."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Jenny: How about going to the beach this weekend?<br>Linda: &quot;___________&quot;",
+        "answers": [
+          "The beach was very crowded yesterday.",
+          "That sounds great, but I have to work on Saturday.",
+          "You can swim very well.",
+          "I went to the beach by bus yesterday."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Paul: Would you like to join us for lunch?<br>Mary: &quot;___________&quot;",
+        "answers": [
+          "That's all right. You helped me.",
+          "I'd like lunch yesterday.",
+          "Yes, I'd love to.",
+          "Yes, I liked lunch yesterday."
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Jack: Shall I carry that box for you?<br>Lucy: &quot;___________&quot;",
+        "answers": [
+          "Yes, I carried it yesterday.",
+          "That's a good suggestion for dinner.",
+          "No, I didn't carry the box.",
+          "No, thanks. I can manage it myself."
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Anna: I'm sorry I broke your favorite cup.<br>Lisa: &quot;___________&quot;",
+        "answers": [
+          "That's all right. It was an accident.",
+          "That's a good idea. Let's buy dinner.",
+          "You're welcome. I bought it yesterday.",
+          "Yes, I'd love to break another one."
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "Mark: Thanks for helping me with my presentation.<br>Tom: &quot;___________&quot;",
+        "answers": [
+          "Never mind. I was late.",
+          "You're welcome. I'm glad I could help.",
+          "That's a good idea for your presentation.",
+          "I'm sorry. I can't present it."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Sarah: I've been feeling really tired lately.<br>Emma: &quot;___________&quot;",
+        "answers": [
+          "I agree that you were tired yesterday.",
+          "That's all right. I don't feel tired.",
+          "You should get more sleep and take some time to relax.",
+          "Would you like to feel tired?"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "Alex: I think students should use their phones less in class.<br>Ben: &quot;___________&quot;",
+        "answers": [
+          "Would you like me to use your phone?",
+          "I'm sorry to use my phone yesterday.",
+          "That's all right. I don't have a phone.",
+          "I completely agree. They can be very distracting."
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Jane: I think studying online is more convenient than studying in a classroom.<br>Mary: &quot;___________&quot;",
+        "answers": [
+          "I'm not sure I agree. I think face-to-face classes are more interactive.",
+          "I'm sorry I studied online.",
+          "That's right. I studied online last night.",
+          "Would you like to study in the classroom yesterday?"
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "David: I'm afraid I've lost your book.<br>Susan: &quot;___________&quot;",
+        "answers": [
+          "You're welcome. I really enjoyed reading it.",
+          "Don't worry about it. I can buy another copy.",
+          "Yes, please. I lost my book yesterday.",
+          "That's a good idea. Let's lose another one."
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "Minh: I'm going to the library to study for tomorrow's test.<br>Nam: &quot;___________&quot;",
+        "answers": [
+          "I'm sorry, the test was tomorrow.",
+          "You studied at the library yesterday.",
+          "Why don't we study together?",
+          "I don't think the library has any books."
+        ],
+        "correct": 2
+      }
+    ]
+  }
+]

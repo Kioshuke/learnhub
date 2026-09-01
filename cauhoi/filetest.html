@@ -1352,12 +1352,24 @@ function startExamTimer() {
     const submitBtn = document.getElementById('submitBtn');
     if (submitBtn) submitBtn.style.display = 'inline-flex';
 
-    // Nếu đề không khai báo thời gian làm bài thì bỏ qua phần đồng hồ
-    if (!examTimeLimitSeconds || examTimeLimitSeconds <= 0) return;
-
-    remainingSeconds = examTimeLimitSeconds;
+    // Nếu đề không khai báo thời gian làm bài thì vẫn hiện khung đồng hồ
+    // nhưng ghi "Vô hạn" thay vì chạy đếm ngược.
     const timerBox = document.getElementById('timerBox');
     timerBox.style.display = 'flex';
+
+    if (!examTimeLimitSeconds || examTimeLimitSeconds <= 0) {
+        const timerText = document.getElementById('timerText');
+        if (timerText) timerText.innerText = 'Vô hạn';
+        const innerTimerVisual = timerBox.querySelector('.timer-box');
+        if (innerTimerVisual) {
+            innerTimerVisual.classList.remove('timer-warning', 'timer-danger');
+            innerTimerVisual.style.background = 'var(--primary-light)';
+            innerTimerVisual.style.color = 'var(--primary)';
+        }
+        return;
+    }
+
+    remainingSeconds = examTimeLimitSeconds;
     updateTimerDisplay();
 
     timerInterval = setInterval(() => {
