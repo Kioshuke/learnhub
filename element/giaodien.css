@@ -1956,6 +1956,47 @@ transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events:none;
 }
 
+/* ===== DEEP LINK OVERLAY - màn che loading khi mở bài test qua deep link ===== */
+#deepLinkOverlay{
+  position:fixed;
+  inset:0;
+  z-index:100000;
+  background:rgba(10,14,22,.55);
+  -webkit-backdrop-filter:blur(2px);
+  backdrop-filter:blur(2px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.deep-link-box{
+  background:var(--bg, #ffffff);
+  border-radius:var(--r-md, 16px);
+  padding:32px 44px;
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+  max-width:min(92vw, 380px);
+}
+#deepLinkOverlay .loading-dots{
+  height:60px;
+}
+#deepLinkOverlay .loading-dot{
+  width:22px;
+  height:22px;
+}
+#deepLinkText{
+  margin:12px 0 0;
+  font-size:15px;
+  font-weight:600;
+  color:var(--text, #1f2937);
+}
+body.dark-mode .deep-link-box{
+  background:var(--bg, #111827);
+}
+body.dark-mode #deepLinkText{
+  color:var(--text, #f3f4f6);
+}
+
 /* ===== MAIN CONTENT TRANSITION - PERFORMANCE OPTIMIZED ===== */
 #mainContent{
   opacity:0;

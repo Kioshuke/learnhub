@@ -218,6 +218,10 @@ document.addEventListener('DOMContentLoaded', function(){
       tries++;
       if(!window.currentLearnHubUser && tries < 32) return;
       clearInterval(iv);
+      // Hiện màn che ngay khi user đã đăng nhập (trước khi chuyển tab phòng học) để chặn bấm lung tung
+      if(open === "phong-hoc" && openQuizDe){
+        if(typeof showDeepLinkOverlay === "function") showDeepLinkOverlay(true);
+      }
       setTimeout(function(){
         if(open === "leaderboard"){
           if(typeof openLeaderboardModal === "function") openLeaderboardModal();
@@ -232,22 +236,54 @@ document.addEventListener('DOMContentLoaded', function(){
   } catch(e){}
 });
 
+/* === Màn che loading khi mở bài test qua deep link (?open=phong-hoc&de=...) === */
+var _dlOverlay = null;
+var _dlOverlayTimer = null;
+function showDeepLinkOverlay(on){
+  if(!_dlOverlay){
+    var dv = document.createElement("div");
+    dv.id = "deepLinkOverlay";
+    dv.innerHTML =
+      '<div class="deep-link-box">' +
+        '<div class="loading-dots">' +
+          '<span class="loading-dot"></span>' +
+          '<span class="loading-dot"></span>' +
+          '<span class="loading-dot"></span>' +
+          '<span class="loading-dot"></span>' +
+        '</div>' +
+        '<p id="deepLinkText">Đang mở bài test...</p>' +
+      '</div>';
+    document.body.appendChild(dv);
+    _dlOverlay = dv;
+  }
+  if(on){
+    _dlOverlay.style.display = "flex";
+    if(_dlOverlayTimer) { clearTimeout(_dlOverlayTimer); _dlOverlayTimer = null; }
+    // An toàn: nếu mở lỗi vẫn tự ẩn sau 6s để không kẹt màn che
+    _dlOverlayTimer = setTimeout(function(){ showDeepLinkOverlay(false); }, 6000);
+  } else {
+    _dlOverlay.style.display = "none";
+    if(_dlOverlayTimer) { clearTimeout(_dlOverlayTimer); _dlOverlayTimer = null; }
+  }
+}
+
 /* === Mở thẳng một bài test trong phòng học qua deep link (?open=phong-hoc&de=...) === */
 function requestOpenQuiz(de){
   var frame = document.getElementById("phongHocFrame");
-  if(!frame || !frame.contentWindow){ return; }
+  if(!frame || !frame.contentWindow){ showDeepLinkOverlay(false); return; }
   var acked = false;
   window.addEventListener("message", function handler(ev){
     if(!ev.data || ev.data.type !== "OPEN_QUIZ_ACK") return;
     acked = true;
     clearInterval(rv);
     window.removeEventListener("message", handler);
+    showDeepLinkOverlay(false);
   });
   var rv = setInterval(function(){
     if(acked) { clearInterval(rv); return; }
     try { if(frame.contentWindow) frame.contentWindow.postMessage({ type: "OPEN_QUIZ", de: de }, "*"); } catch(e){}
   }, 250);
-  setTimeout(function(){ if(!acked) clearInterval(rv); }, 12000);
+  setTimeout(function(){ if(!acked) { clearInterval(rv); showDeepLinkOverlay(false); } }, 12000);
   try { if(frame.contentWindow) frame.contentWindow.postMessage({ type: "OPEN_QUIZ", de: de }, "*"); } catch(e){}
 }
 
