@@ -136,7 +136,9 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
 .status.pending::after{content:"Chưa hoàn thành";}
 
 /* ===== BUTTON ===== */
-.card .btn-row{margin-top:auto;padding-top:8px;}
+.card .btn-row{margin-top:auto;padding-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.card .btn-copy-icon{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;font-size:13px;color:var(--text-sub);background:var(--notice-bg);border:1px solid var(--card-border);cursor:pointer;text-decoration:none;transition:all 0.2s;flex-shrink:0;}
+.card .btn-copy-icon:hover{color:var(--text);border-color:var(--card-color,#2563eb);}
 .card .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;color:#fff;background:var(--card-color,#2563eb);transition:all 0.2s;cursor:pointer;border:none;position:static;margin:0;}
 .card .btn:hover{filter:brightness(1.1);box-shadow:0 4px 14px color-mix(in srgb,var(--card-color,#2563eb) 35%,transparent);}
 .card .btn.disabled{opacity:0.5;pointer-events:none;}
@@ -334,6 +336,12 @@ window.addEventListener('message', function(event) {
       sf.contentWindow.postMessage({ type: 'DARK_MODE', value: !!event.data.value }, '*');
     }
   }
+  if (event.data.type === 'OPEN_QUIZ') {
+    var found = openQuizByDe(event.data.de);
+    if (found && window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'OPEN_QUIZ_ACK', ok: true }, '*');
+    }
+  }
 });
 
 function lockPageScroll() {
@@ -346,9 +354,68 @@ function unlockPageScroll() {
   document.documentElement.style.overflow = '';
 }
 
+function stripJsonExt(name) {
+  return String(name || "").replace(/\.json$/i, "");
+}
+
+function getQuizDeFromUrl(url) {
+  var m = String(url || "").match(/[?&]de=([^&]+)/);
+  return m ? stripJsonExt(decodeURIComponent(m[1])) : "";
+}
+
+function openQuizByDe(de) {
+  var target = String(de || "").trim();
+  if (!target) return false;
+  target = stripJsonExt(target);
+  var subjects = window.PHONGHOC_SUBJECTS || [];
+  var foundCard = null;
+  var foundSubject = null;
+  subjects.forEach(function (s) {
+    (s.cards || []).forEach(function (c) {
+      if (!c.action || !c.action.url) return;
+      var cardDe = getQuizDeFromUrl(c.action.url);
+      if (!cardDe || cardDe !== target) return;
+      if (!foundCard) { foundCard = c; foundSubject = s; }
+    });
+  });
+  if (!foundCard || !foundSubject) return false;
+  if (typeof switchSubject === "function") switchSubject(foundSubject.id);
+  var quizEl = document.getElementById("quiz");
+  if (quizEl) quizEl.innerHTML = "";
+  loadQuiz({ closest: function () { return null; } }, foundCard.action.url);
+  return true;
+}
+
+function copyQuizLink(btn, link) {
+  var flashBtn = function() {
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i>';
+    setTimeout(function() { btn.innerHTML = orig; }, 1800);
+  };
+  var done = function() {
+    flashBtn();
+    if (window.lhToast) lhToast("Đã copy link bài test", { type: "success", title: "Đã copy", durationMs: 1600, sound: false });
+  };
+  var fallback = function() {
+    var ta = document.createElement("textarea");
+    ta.value = link;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); done(); } catch (e) {}
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(link).then(done, fallback);
+  } else {
+    fallback();
+  }
+}
+
 function loadQuiz(btn, link) {
   document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
-  var card = btn.closest(".card");
+  var card = btn && btn.closest ? btn.closest(".card") : null;
   if (card) card.classList.add("active-card");
 
   lockPageScroll();
@@ -444,6 +511,7 @@ function renderCard(c) {
   var statusCls = c.status === "pending" ? "pending" : "done";
 
   var btn;
+  var copyLink = "";
   if (c.disabled) {
     btn = '<a class="btn disabled" href="#">Sắp ra mắt</a>';
   } else if (c.action && c.action.type === "video") {
@@ -452,9 +520,18 @@ function renderCard(c) {
   } else if (c.action && c.action.url) {
     btn = '<a class="btn" href="#" onclick="loadQuiz(this,\'' + escJs(c.action.url) +
       '\'); return false;">' + escHtml(c.btnLabel || "Làm bài") + '</a>';
+    var cardDe = getQuizDeFromUrl(c.action.url);
+    if (cardDe) {
+      copyLink = location.origin + "/index.html?open=phong-hoc&de=" + cardDe;
+    }
   } else {
     btn = '<a class="btn disabled" href="#">Sắp ra mắt</a>';
   }
+
+  var copyBtn = copyLink
+    ? '<a class="btn-copy-icon" href="#" title="Copy link bài test" onclick="copyQuizLink(this,\'' + escJs(copyLink) +
+      '\'); return false;"><i class="fas fa-link"></i></a>'
+    : "";
 
   return (
     '<div class="card">' +
@@ -466,7 +543,7 @@ function renderCard(c) {
           '<span class="status ' + statusCls + '"></span>' +
         '</div>' +
         '<p class="card-desc">' + escHtml(c.description) + '</p>' +
-        '<div class="btn-row">' + btn + '</div>' +
+        '<div class="btn-row">' + btn + copyBtn + '</div>' +
       '</div>' +
     '</div>'
   );
@@ -913,10 +990,19 @@ if (document.readyState === "loading") {
 } else {
   renderPhongHoc();
 }
+
 </script>
 
 <!-- Dữ liệu phòng học: sửa file này khi thêm/sửa môn học, card, khóa video -->
 <script src="phonghoc-data.js"></script>
+
+<script>
+setTimeout(function() {
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "PHONGHOC_READY" }, "*");
+  }
+}, 100);
+</script>
 
 <script type="module">
 import { logAppError } from "../supabase-config.js";

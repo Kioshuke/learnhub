@@ -211,6 +211,7 @@ document.addEventListener('DOMContentLoaded', function(){
     if(!open) return;
     var validTabs = ["phong-hoc", "flash", "forum", "tai-lieu", "leaderboard"];
     if(validTabs.indexOf(open) === -1) return;
+    var openQuizDe = params.get("de");
     history.replaceState(null, "", window.location.pathname);
     var tries = 0;
     var iv = setInterval(function(){
@@ -223,10 +224,32 @@ document.addEventListener('DOMContentLoaded', function(){
           return;
         }
         if(typeof show === "function") show(open);
+        if(open === "phong-hoc" && openQuizDe){
+          requestOpenQuiz(openQuizDe);
+        }
       }, 300);
     }, 250);
   } catch(e){}
 });
+
+/* === Mở thẳng một bài test trong phòng học qua deep link (?open=phong-hoc&de=...) === */
+function requestOpenQuiz(de){
+  var frame = document.getElementById("phongHocFrame");
+  if(!frame || !frame.contentWindow){ return; }
+  var acked = false;
+  window.addEventListener("message", function handler(ev){
+    if(!ev.data || ev.data.type !== "OPEN_QUIZ_ACK") return;
+    acked = true;
+    clearInterval(rv);
+    window.removeEventListener("message", handler);
+  });
+  var rv = setInterval(function(){
+    if(acked) { clearInterval(rv); return; }
+    try { if(frame.contentWindow) frame.contentWindow.postMessage({ type: "OPEN_QUIZ", de: de }, "*"); } catch(e){}
+  }, 250);
+  setTimeout(function(){ if(!acked) clearInterval(rv); }, 12000);
+  try { if(frame.contentWindow) frame.contentWindow.postMessage({ type: "OPEN_QUIZ", de: de }, "*"); } catch(e){}
+}
 
 function updateTabScrollTopBtn(){
   const btn = document.getElementById("tabScrollTopBtn");
