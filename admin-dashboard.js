@@ -56,6 +56,10 @@ const registrationEnabledInput = document.getElementById("registrationEnabledInp
 const registrationMessageInput = document.getElementById("registrationMessageInput");
 const registrationStatusBanner = document.getElementById("registrationStatusBanner");
 const registrationMeta = document.getElementById("registrationMeta");
+const whitelistTabPanel = document.getElementById("whitelistTabPanel");
+const whitelistEnabledInput = document.getElementById("whitelistEnabledInput");
+const whitelistStatusBanner = document.getElementById("whitelistStatusBanner");
+const whitelistMeta = document.getElementById("whitelistMeta");
 const renameTabPanel = document.getElementById("renameTabPanel");
 const renameSearchInput = document.getElementById("renameSearchInput");
 const renameListBody = document.getElementById("renameListBody");
@@ -94,6 +98,7 @@ const pageTitles = {
   ticker: ["Dòng chữ chạy", "Chỉnh nội dung và tốc độ dòng chữ chạy trên cùng web chính."],
   maintenance: ["Bảo trì hệ thống", "Bật/tắt chế độ bảo trì toàn hệ thống."],
   registration: ["Đăng ký", "Bật/tắt chức năng đăng ký tài khoản mới."],
+  whitelist: ["Bật/Tắt Whitelist", "Bật = cần cấp quyền email; Tắt = đăng nhập Google không cần whitelist."],
   weeklyReset: ["BXH & Reset tuần", "Bảng xếp hạng học viên và reset điểm theo tuần."],
   schedule: ["Lịch học & thi", "Chỉnh lịch học và lịch thi hiển thị trên trang Phòng Học."],
   errorLogs: ["Lỗi hệ thống", "Xem lỗi từ user và tính năng, đánh dấu đã fix hoặc xóa."]
@@ -109,6 +114,7 @@ function switchAdminTab(tab) {
   tickerTabPanel.classList.toggle("hidden", tab !== "ticker");
   maintenanceTabPanel.classList.toggle("hidden", tab !== "maintenance");
   registrationTabPanel.classList.toggle("hidden", tab !== "registration");
+  whitelistTabPanel.classList.toggle("hidden", tab !== "whitelist");
   weeklyResetTabPanel.classList.toggle("hidden", tab !== "weeklyReset");
   scheduleTabPanel.classList.toggle("hidden", tab !== "schedule");
   errorLogsTabPanel.classList.toggle("hidden", tab !== "errorLogs");
@@ -120,6 +126,7 @@ function switchAdminTab(tab) {
   if (tab === "ticker") loadTickerForm();
   if (tab === "maintenance") loadMaintenanceForm();
   if (tab === "registration") loadRegistrationForm();
+  if (tab === "whitelist") loadWhitelistForm();
   if (tab === "rename") renderRenameList();
   if (tab === "weeklyReset") loadWeeklyResetForm();
   if (tab === "schedule") loadScheduleForm();
@@ -729,6 +736,56 @@ document.getElementById("saveRegistrationBtn").addEventListener("click", () => {
 });
 
 document.getElementById("refreshRegistrationBtn").addEventListener("click", loadRegistrationForm);
+
+// ---------- WHITELIST TOGGLE (bật/tắt whitelist toàn cục) ----------
+function renderWhitelistBanner(d) {
+  if (!whitelistStatusBanner) return;
+  const on = d && d.enabled !== false;
+  whitelistStatusBanner.style.background = on ? "rgba(34,197,94,.12)" : "rgba(239,68,68,.10)";
+  whitelistStatusBanner.style.color = on ? "#16a34a" : "#dc2626";
+  whitelistStatusBanner.textContent = on
+    ? "🛡️ Whitelist đang BẬT — chỉ email được cấp quyền mới đăng nhập/đăng ký."
+    : "🌐 Whitelist đang TẮT — đăng nhập Google không cần whitelist; đăng ký tùy theo nút 'Cho phép đăng ký'.";
+}
+
+function updateWhitelistBadge(enabled) {
+  const badge = document.getElementById("whitelistBadge");
+  if (!badge) return;
+  badge.textContent = enabled ? "On" : "Off";
+  badge.classList.add("visible");
+  badge.classList.toggle("on", Boolean(enabled));
+  badge.classList.toggle("off", !enabled);
+}
+
+async function loadWhitelistForm() {
+  try {
+    const { data: d } = await supabase.from("whitelist_settings").select("*").eq("id", true).maybeSingle();
+    whitelistEnabledInput.checked = d ? d.enabled !== false : true;
+    renderWhitelistBanner(d || {});
+    whitelistMeta.textContent = d && d.updated_at ? `Cập nhật: ${formatDate(d.updated_at)}${d.updated_by ? ` · bởi ${d.updated_by}` : ""}` : "Chưa từng chỉnh sửa.";
+    updateWhitelistBadge(d ? d.enabled !== false : true);
+  } catch (e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Không tải được trạng thái whitelist.", "error"); }
+}
+
+document.getElementById("saveWhitelistBtn").addEventListener("click", () => {
+  const enabled = whitelistEnabledInput.checked;
+  const apply = async () => {
+    try {
+      const now = new Date().toISOString();
+      await supabase.from("whitelist_settings").upsert({ id: true, enabled, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
+      renderWhitelistBanner({ enabled }); whitelistMeta.textContent = `Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
+      updateWhitelistBadge(enabled);
+      showNotice(enabled ? "Đã BẬT whitelist." : "Đã TẮT whitelist.", "success"); await loadWhitelistForm();
+    } catch (e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Cập nhật whitelist thất bại.", "error"); }
+  };
+  if (enabled) {
+    openConfirmDialog("Bật whitelist?", "Chỉ email được cấp quyền mới đăng nhập/đăng ký. Tiếp tục?", apply);
+  } else {
+    openConfirmDialog("Tắt whitelist?", "Mọi email đều có thể đăng nhập Google; việc đăng ký tùy theo nút 'Cho phép đăng ký'. Tiếp tục?", apply);
+  }
+});
+
+document.getElementById("refreshWhitelistBtn").addEventListener("click", loadWhitelistForm);
 
 document.getElementById("addWhitelistBtn").addEventListener("click", async () => {
   const input=document.getElementById("allowEmailInput"), email=normalizeEmail(input.value);

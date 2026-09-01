@@ -1230,7 +1230,7 @@
 </div>
 
 <script type="module">
-import { supabase, getMaintenance, subscribeMaintenance, emailAllowed, isRegistrationOpen, getUserRow, onAuthChange, finalizeSession, logAppError } from "./supabase-config.js";
+import { supabase, getMaintenance, subscribeMaintenance, emailAllowed, isWhitelistEnabled, isRegistrationOpen, getUserRow, onAuthChange, finalizeSession, logAppError } from "./supabase-config.js";
 import { redirectToResetPage, isPasswordRecovery } from "./reset-password.js";
 
 window.supabase = supabase;
@@ -2015,7 +2015,10 @@ window.emailRegister = async function() {
     showAuthNotice("Bạn cần đồng ý với Điều khoản sử dụng và Chính sách bảo mật để đăng ký.", "error", "Chưa đồng ý điều khoản");
     return;
   }
-  if (!registrationOpen && !await emailAllowed(email)) {
+  const wlOn = await isWhitelistEnabled();
+  // Khi whitelist BẬT: vẫn giữ hành vi cũ (cần whitelist, user trong whitelist đăng ký được dù đóng).
+  // Khi whitelist TẮT: đăng ký đóng -> không đăng ký (chỉ đăng nhập Google); đăng ký mở -> không cần whitelist.
+  if (!registrationOpen && (wlOn ? !await emailAllowed(email) : true)) {
     logAppError({ source: "login", category: "whitelist", level: "warning", code: "REG_CLOSED", message: "Đăng ký bị đóng, email không nằm trong whitelist.", email: email });
     setFieldError("registerEmail", "Đăng ký hiện đang đóng");
     showAuthNotice("Đăng ký hiện đang đóng. Nếu bạn cần tài khoản, hãy liên hệ quản trị viên.", "error", "Đăng ký bị đóng");

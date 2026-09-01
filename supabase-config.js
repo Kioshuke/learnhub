@@ -105,10 +105,48 @@ export function subscribeMaintenance(cb) {
 // ---------- WHITELIST EMAIL ----------
 // Cache: { result: boolean, ts: number }
 let _whitelistCache = { result: null, ts: 0 };
-const WHITELIST_CACHE_TTL = 60000; // 60s
+const WHITELIST_CACHE_TTL = 5000; // 5s
+
+// Cơ chế bật/tắt whitelist toàn cục (admin dashboard).
+// - BẬT (mặc định): phải nằm trong whitelist mới đăng nhập/đăng ký được.
+// - TẮT: ai cũng đăng nhập Google được; đăng ký tùy theo nút "Cho phép đăng ký".
+// Lưu ở bảng whitelist_settings { id=true, enabled, updated_at, updated_by }.
+let _wlEnabledCache = { result: null, ts: 0, inflight: null };
+const WL_ENABLED_TTL = 5000; // 5s
+
+export async function isWhitelistEnabled() {
+  const now = Date.now();
+  if (_wlEnabledCache.result !== null && (now - _wlEnabledCache.ts) < WL_ENABLED_TTL) {
+    return _wlEnabledCache.result;
+  }
+  if (_wlEnabledCache.inflight) return _wlEnabledCache.inflight;
+  _wlEnabledCache.inflight = (async () => {
+    try {
+      const { data, error } = await supabase
+        .from("whitelist_settings")
+        .select("enabled")
+        .eq("id", true)
+        .maybeSingle();
+      if (error) throw error;
+      // Mặc định BẬT nếu chưa từng lưu (giữ hành vi cũ an toàn)
+      const ok = data ? data.enabled !== false : true;
+      _wlEnabledCache = { result: ok, ts: Date.now(), inflight: null };
+      return ok;
+    } catch (e) {
+      console.warn("[supabase-helpers] isWhitelistEnabled lỗi:", e && e.message || e);
+      _wlEnabledCache.inflight = null;
+      // Mặc định an toàn: vẫn bật whitelist nếu không đọc được setting
+      return true;
+    }
+  })();
+  try { return await _wlEnabledCache.inflight; } finally { _wlEnabledCache.inflight = null; }
+}
 
 export async function emailAllowed(email) {
   if (!email) return false;
+  // Nếu whitelist toàn cục ĐANG TẮT -> cho phép mọi email (không cần check RPC)
+  const wl = await isWhitelistEnabled();
+  if (wl === false) return true;
   const now = Date.now();
   // Dùng cache nếu < TTL
   if (_whitelistCache.result !== null && (now - _whitelistCache.ts) < WHITELIST_CACHE_TTL) {
