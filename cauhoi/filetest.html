@@ -1199,7 +1199,7 @@ function renderQuiz() {
             } 
             else if (item.type === 'short_answer') {
                 window.totalMaxScore += 1;
-                answersContent = `<input type="text" class="short-input" placeholder="Nhập đáp án..." oninput="markDone(${globalIdx})" onblur="shortToast(${globalIdx})" data-qidx="${globalIdx}" style="width: 100%; box-sizing: border-box; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; outline: none; font-size: 0.9rem;">`;
+                answersContent = `<textarea class="short-input writing-input" placeholder="Nhập câu trả lời của bạn..." oninput="markDone(${globalIdx})" onblur="shortToast(${globalIdx})" data-qidx="${globalIdx}" rows="${item.rows || 3}" style="width: 100%; box-sizing: border-box; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; outline: none; font-size: 0.95rem; resize: vertical; font-family: inherit; line-height: 1.6;"></textarea>`;
             }
 
             quizHtml += `
@@ -1317,7 +1317,7 @@ function renderQuiz() {
     // 🔥 [Tự luận] khi gõ xong (rời ô) -> toast đã lưu đáp án
     function shortToast(qIdx) {
         if (document.getElementById("quiz-container").classList.contains("quiz-locked")) return;
-        const input = document.querySelector(`input[data-qidx="${qIdx}"]`);
+        const input = document.querySelector(`[data-qidx="${qIdx}"]`);
         if (input && input.value && input.value.trim() !== "") {
             pushToast(`Câu ${qIdx + 1}`, `Đã lưu <b>đáp án tự luận</b>`, true);
         }
@@ -1468,7 +1468,7 @@ function handleFinalSubmit(autoSubmitted = false) {
                 }
             }
             else if (item.type === 'short_answer') {
-                const inputEl = document.querySelector(`input[data-qidx="${globalIdx}"]`);
+                const inputEl = document.querySelector(`[data-qidx="${globalIdx}"]`);
                 const val = inputEl ? inputEl.value.trim().toLowerCase() : "";
                 if (val === item.correctAnswer.toLowerCase()) {
                     userScore += basePerQuestion;

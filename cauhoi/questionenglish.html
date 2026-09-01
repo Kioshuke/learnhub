@@ -1284,7 +1284,7 @@ function renderQuiz() {
                     </div>` : '';
                 answersContent = `
                     ${promptHtml}
-                    <textarea class="short-input writing-input" placeholder="Nhập câu trả lời của bạn..." oninput="markDone(${globalIdx})" data-qidx="${globalIdx}" rows="${item.rows || 3}" style="width: 100%; box-sizing: border-box; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; outline: none; font-size: 0.95rem; resize: vertical; font-family: inherit; line-height: 1.6;"></textarea>`;
+                    <textarea class="short-input writing-input" placeholder="Nhập câu trả lời của bạn..." oninput="markDone(${globalIdx})" onblur="shortToast(${globalIdx})" data-qidx="${globalIdx}" rows="${item.rows || 3}" style="width: 100%; box-sizing: border-box; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; outline: none; font-size: 0.95rem; resize: vertical; font-family: inherit; line-height: 1.6;"></textarea>`;
             }
             // 🔥 [Tiếng Anh] Đọc hiểu: 1 đoạn văn (passage) + nhiều câu hỏi trắc nghiệm con
             else if (item.type === 'passage') {
@@ -1445,6 +1445,16 @@ function renderQuiz() {
         document.getElementById(`nav-${qIdx}`).classList.add('done');
         updateProgress();
     }
+
+    // 🔥 [Tự luận] khi gõ xong (rời ô) -> toast đã lưu đáp án
+    function shortToast(qIdx) {
+        if (document.getElementById("quiz-container").classList.contains("quiz-locked")) return;
+        const input = document.querySelector(`[data-qidx="${qIdx}"]`);
+        if (input && input.value && input.value.trim() !== "") {
+            showAnswerToast(qIdx, "câu trả lời");
+        }
+    }
+
 
     function updateProgress(isFinished, score = 0) {
         const textEl = document.getElementById('progressText');
