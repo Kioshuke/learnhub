@@ -244,6 +244,14 @@ window.PHONGHOC_SUBJECTS = [
         action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap3.json" }
       },
       {
+        id: "anh-ontap-phan4",
+        title: "ÔN TẬP PHẦN 4",
+        description: "Sentence Ordering – Sắp xếp câu thành đoạn văn",
+        icon: "fa-language",
+        status: "done",
+        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap4.json" }
+      },
+      {
         id: "anh-ngu-phap",
         title: "TỔNG ÔN NGỮ PHÁP",
         description: "Video tổng ôn ngữ pháp tiếng Anh.",

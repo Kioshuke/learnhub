@@ -394,7 +394,7 @@ function copyQuizLink(btn, link) {
   };
   var done = function() {
     flashBtn();
-    if (window.lhToast) lhToast("Đã copy link bài test", { type: "success", title: "Đã copy", durationMs: 1600, sound: false });
+    if (window.lhToast) lhToast("Đã copy link bài test", { type: "success", title: "Đã copy", durationMs: 1600, sound: "thongbao" });
   };
   var fallback = function() {
     var ta = document.createElement("textarea");
@@ -522,7 +522,7 @@ function renderCard(c) {
       '\'); return false;">' + escHtml(c.btnLabel || "Làm bài") + '</a>';
     var cardDe = getQuizDeFromUrl(c.action.url);
     if (cardDe) {
-      copyLink = location.origin + "/index.html?open=phong-hoc&de=" + cardDe;
+      copyLink = location.origin + "/?open=phong-hoc&de=" + cardDe;
     }
   } else {
     btn = '<a class="btn disabled" href="#">Sắp ra mắt</a>';
