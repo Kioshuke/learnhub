@@ -674,8 +674,7 @@ function showAuthNotice(message, type = "info", title = "", durationMs = 2600, s
       type: type === "warn" ? "warning" : type,
       title: title || undefined,
       durationMs: Math.max(1200, Number(durationMs) || 2600),
-      icon: icon || undefined,
-      sound: /realtime/i.test(soundId || "") ? "realtime" : "thongbao"
+      icon: icon || undefined
     });
   }
 }

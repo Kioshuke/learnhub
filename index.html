@@ -871,8 +871,7 @@ function forceLogoutWithCountdown(message, title, redirectMs = 5000){
     toast = lhToast(`${message} Đang đăng xuất sau ${remaining}s...`, {
       type: "error",
       title: title || "Phiên đăng nhập đã hết hiệu lực",
-      durationMs: redirectMs,
-      sound: "thongbao"
+      durationMs: redirectMs
     });
   }
 

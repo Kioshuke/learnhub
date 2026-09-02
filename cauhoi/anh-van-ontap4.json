@@ -1,122 +1,256 @@
 [
   {
+    "sectionTitle": "ÔN TẬP PHẦN 4 · DỰNG CÂU - SENTENCE BUILDING",
+    "sectionDesc": "Bộ đề HOMEWORK môn Anh Văn - Phần 4. Phần này: viết câu hoàn chỉnh dựa trên các từ gợi ý.",
+    "timeLimit": 0,
+    "questions": [
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "Lan / usually / get up / early / morning / go / school / bus.",
+        "correctAnswer": "Lan usually gets up early in the morning and goes to school by bus.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "my father / work / hospital / near / our house.",
+        "correctAnswer": "My father works at a hospital near our house.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "the students / often / discuss / their homework / after / class.",
+        "correctAnswer": "The students often discuss their homework after class.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "last Sunday / we / visit / a famous museum / city center.",
+        "correctAnswer": "Last Sunday, we visited a famous museum in the city center.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "Sarah / not / like / drink / coffee / because / it / taste / bitter.",
+        "correctAnswer": "Sarah does not like drinking coffee because it tastes bitter.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "my brother / enjoy / play / football / but / he / not / have / much / free time.",
+        "correctAnswer": "My brother enjoys playing football, but he does not have much free time.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "they / buy / new furniture / for / their apartment / last month.",
+        "correctAnswer": "They bought new furniture for their apartment last month.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "Tom / usually / study / library / because / it / be / quiet.",
+        "correctAnswer": "Tom usually studies in the library because it is quiet.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "If / you / practice / English / regularly / you / improve / speaking skills.",
+        "correctAnswer": "If you practice English regularly, you will improve your speaking skills.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "Mai / feel / tired / but / she / continue / work / on / project / tonight.",
+        "correctAnswer": "Mai feels tired, but she will continue working on the project tonight.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "we / stay / home / because / it / rain / heavily / yesterday.",
+        "correctAnswer": "We stayed at home because it rained heavily yesterday.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "although / John / be / very busy / he / help / his parents / with / housework.",
+        "correctAnswer": "Although John is very busy, he helps his parents with the housework.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "you / can / take / bus / to university / or / you / ride / bicycle.",
+        "correctAnswer": "You can take the bus to university, or you can ride a bicycle.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "she / want / buy / new phone / but / she / not / have / enough money.",
+        "correctAnswer": "She wants to buy a new phone, but she does not have enough money.",
+        "rows": 2
+      },
+      {
+        "type": "short_answer",
+        "title": "Viết câu hoàn chỉnh",
+        "question": "If / the weather / be / nice / tomorrow / we / go / camping / with / friends.",
+        "correctAnswer": "If the weather is nice tomorrow, we will go camping with our friends.",
+        "rows": 2
+      }
+    ]
+  },
+  {
     "sectionTitle": "ÔN TẬP PHẦN 4 · SẮP XẾP CÂU - SENTENCE ORDERING",
-    "sectionDesc": "Bộ đề HOMEWORK môn Anh Văn - Phần 4. Phần này: sắp xếp các câu (A–D) theo thứ tự đúng để tạo thành một đoạn văn hoàn chỉnh.",
+    "sectionDesc": "Bộ đề HOMEWORK môn Anh Văn - Phần 4. Phần này: sắp xếp các câu (A–E) theo thứ tự đúng để tạo thành một đoạn văn hoàn chỉnh.",
     "timeLimit": 0,
     "questions": [
       {
         "type": "multiple",
-        "question": "A. In addition, reading improves your vocabulary and concentration.<br>B. Reading books is a great way to broaden your knowledge.<br>C. Therefore, you should make reading a daily habit.<br>D. It helps you understand the world and people better.<br><br>Choose the correct order of the sentences.",
-        "answers": [
-          "B – D – A – C",
-          "B – A – D – C",
-          "D – B – A – C",
-          "B – D – C – A"
-        ],
-        "correct": 0
-      },
-      {
-        "type": "multiple",
-        "question": "A. This habit also makes revision before exams much easier.<br>B. Taking notes in class can help students remember lessons better.<br>C. As a result, students who take notes often perform better.<br>D. For example, they can write down important points and key ideas.<br><br>Choose the correct order of the sentences.",
+        "question": "A. For example, students can use educational websites to review their lessons.<br>B. The Internet is a useful tool for students.<br>C. Therefore, students can use the Internet to support their learning.<br>D. It gives them access to a large amount of information.<br><br>Choose the correct order of the sentences.",
         "answers": [
           "B – A – D – C",
           "B – D – A – C",
           "D – B – A – C",
-          "B – D – C – A"
+          "A – B – D – C"
         ],
         "correct": 1
       },
       {
         "type": "multiple",
-        "question": "A. In addition, recycling saves natural resources like water and energy.<br>B. Recycling is important for protecting the environment.<br>C. It helps reduce the amount of waste sent to landfills.<br>D. Therefore, everyone should recycle regularly.<br><br>Choose the correct order of the sentences.",
+        "question": "A. As a result, they may feel tired during the day.<br>B. Getting enough sleep is important for students.<br>C. For example, students who sleep too little may have difficulty concentrating.<br>D. Therefore, students should develop healthy sleeping habits.<br><br>Choose the correct order of the sentences.",
         "answers": [
           "B – A – C – D",
-          "B – C – A – D",
-          "C – B – A – D",
-          "B – C – D – A"
-        ],
-        "correct": 1
-      },
-      {
-        "type": "multiple",
-        "question": "A. For example, they can use the quiet morning to review their lessons.<br>B. Waking up early has many benefits for students.<br>C. In addition, they have more time to get ready without rushing.<br>D. Therefore, students should try to wake up early every day.<br><br>Choose the correct order of the sentences.",
-        "answers": [
-          "B – C – A – D",
-          "B – A – C – D",
-          "A – B – C – D",
-          "B – A – D – C"
-        ],
-        "correct": 1
-      },
-      {
-        "type": "multiple",
-        "question": "A. In addition, teamwork teaches people how to listen and communicate well.<br>B. Working in a team helps people solve problems faster.<br>C. Each member can bring different skills and ideas.<br>D. As a result, good teamwork often leads to better results.<br><br>Choose the correct order of the sentences.",
-        "answers": [
-          "B – C – A – D",
-          "B – A – C – D",
-          "C – B – A – D",
-          "B – C – D – A"
-        ],
-        "correct": 0
-      },
-      {
-        "type": "multiple",
-        "question": "A. In addition, songs make it easier to remember vocabulary.<br>B. Listening to English songs is a fun way to improve your English.<br>C. It helps you learn new words and natural pronunciation.<br>D. Therefore, you should listen to English music regularly.<br><br>Choose the correct order of the sentences.",
-        "answers": [
-          "B – A – C – D",
-          "C – B – A – D",
-          "B – C – A – D",
-          "B – C – D – A"
-        ],
-        "correct": 2
-      },
-      {
-        "type": "multiple",
-        "question": "A. In addition, it can improve their reading and thinking skills.<br>B. Reading the news helps people understand what is happening around them.<br>C. It keeps them updated on important events and social issues.<br>D. Therefore, students should read the news every day.<br><br>Choose the correct order of the sentences.",
-        "answers": [
-          "C – B – A – D",
-          "B – C – A – D",
-          "B – A – C – D",
-          "B – C – D – A"
-        ],
-        "correct": 1
-      },
-      {
-        "type": "multiple",
-        "question": "A. For example, they can cover medical bills or urgent repairs.<br>B. Saving money is an important habit for everyone.<br>C. It helps people prepare for unexpected expenses.<br>D. As a result, they feel more secure about the future.<br><br>Choose the correct order of the sentences.",
-        "answers": [
-          "B – C – A – D",
-          "C – B – A – D",
-          "B – A – C – D",
-          "B – C – D – A"
-        ],
-        "correct": 0
-      },
-      {
-        "type": "multiple",
-        "question": "A. For example, water helps carry nutrients and remove waste.<br>B. Drinking enough water is essential for good health.<br>C. It helps the body function properly every day.<br>D. Therefore, you should drink water regularly throughout the day.<br><br>Choose the correct order of the sentences.",
-        "answers": [
-          "B – A – C – D",
-          "C – B – A – D",
-          "B – C – A – D",
-          "B – C – D – A"
-        ],
-        "correct": 2
-      },
-      {
-        "type": "multiple",
-        "question": "A. However, they can also distract students from their lessons.<br>B. Smartphones can be very useful at school.<br>C. Students can use them to search for information quickly.<br>D. Therefore, students should use them wisely.<br><br>Choose the correct order of the sentences.",
-        "answers": [
-          "C – B – A – D",
           "B – C – D – A",
+          "C – B – A – D",
+          "B – C – A – D"
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "A. However, using social media too much can have negative effects.<br>B. Social media is popular among young people.<br>C. It allows them to communicate with friends easily.<br>D. Therefore, young people should use social media responsibly.<br><br>Choose the correct order of the sentences.",
+        "answers": [
           "B – C – A – D",
-          "B – A – C – D"
+          "B – A – C – D",
+          "C – B – A – D",
+          "B – C – D – A"
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "A. This makes it easier for students to study at their own pace.<br>B. Online learning has become popular among university students.<br>C. In addition, many courses provide recorded lessons.<br>D. Students can access learning materials from almost anywhere.<br><br>Choose the correct order of the sentences.",
+        "answers": [
+          "B – C – D – A",
+          "B – D – C – A",
+          "D – B – C – A",
+          "B – A – D – C"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "A. For this reason, students need to manage their time carefully.<br>B. University students have many responsibilities.<br>C. They have to attend classes and complete assignments.<br>D. They may also take part in social activities.<br><br>Choose the correct order of the sentences.",
+        "answers": [
+          "B – C – D – A",
+          "B – D – C – A",
+          "C – B – D – A",
+          "B – C – A – D"
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "A. For example, walking for thirty minutes a day can improve physical fitness.<br>B. Regular exercise is important for a healthy lifestyle.<br>C. It can also help reduce stress.<br>D. Therefore, people should exercise regularly.<br><br>Choose the correct order of the sentences.",
+        "answers": [
+          "B – C – A – D",
+          "A – B – C – D",
+          "B – A – C – D",
+          "B – D – A – C"
         ],
         "correct": 2
       },
       {
         "type": "multiple",
-        "question": "A. You can choose fresh ingredients and control the amount of salt.<br>B. Cooking at home is usually healthier than eating out.<br>C. In addition, cooking at home can save you money.<br>D. Therefore, you should try to cook more meals at home.<br><br>Choose the correct order of the sentences.",
+        "question": "A. However, eating too much fast food can cause health problems.<br>B. Fast food is popular because it is convenient.<br>C. People can buy it quickly when they are busy.<br>D. Therefore, people should not eat fast food too often.<br><br>Choose the correct order of the sentences.",
+        "answers": [
+          "B – C – A – D",
+          "B – A – C – D",
+          "C – B – A – D",
+          "B – C – D – A"
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "A. These activities allow them to learn about different cultures.<br>B. Traveling can be an educational experience.<br>C. For example, tourists can try local food and talk to local people.<br>D. They can also understand different ways of life better.<br><br>Choose the correct order of the sentences.",
+        "answers": [
+          "B – A – C – D",
+          "C – B – A – D",
+          "B – A – D – C",
+          "B – C – A – D"
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "A. As a result, they may have more job opportunities.<br>B. Learning a foreign language has many benefits.<br>C. It can improve people's communication skills.<br>D. In addition, many employers value foreign language skills.<br><br>Choose the correct order of the sentences.",
+        "answers": [
+          "B – D – C – A",
+          "C – B – D – A",
+          "B – C – D – A",
+          "B – C – A – D"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "A. For example, students can prepare their school materials the night before.<br>B. Good time management can make students' lives easier.<br>C. This habit can save time in the morning.<br>D. It can also reduce stress.<br><br>Choose the correct order of the sentences.",
+        "answers": [
+          "B – A – C – D",
+          "B – C – A – D",
+          "A – B – C – D",
+          "B – A – D – C"
+        ],
+        "correct": 0
+      },
+      {
+        "type": "multiple",
+        "question": "A. As a result, more people choose to shop online.<br>B. Online shopping has become increasingly popular.<br>C. Customers can compare prices easily.<br>D. In addition, many websites offer home delivery.<br><br>Choose the correct order of the sentences.",
+        "answers": [
+          "B – D – C – A",
+          "B – C – D – A",
+          "C – B – D – A",
+          "B – C – A – D"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "A. This can make it difficult for them to concentrate.<br>B. Many office workers spend long hours sitting at their desks.<br>C. As a result, they may experience physical discomfort.<br>D. Therefore, they should take regular breaks.<br><br>Choose the correct order of the sentences.",
+        "answers": [
+          "B – A – C – D",
+          "B – C – A – D",
+          "A – B – C – D",
+          "B – C – D – A"
+        ],
+        "correct": 1
+      },
+      {
+        "type": "multiple",
+        "question": "A. For instance, students can join clubs or volunteer in community activities.<br>B. Making new friends can be easy at university.<br>C. These activities give them opportunities to meet new people.<br>D. Therefore, joining social activities can help students build relationships.<br><br>Choose the correct order of the sentences.",
         "answers": [
           "B – C – A – D",
           "A – B – C – D",
@@ -127,47 +261,25 @@
       },
       {
         "type": "multiple",
-        "question": "A. This also helps them develop confidence in speaking.<br>B. Group discussions help students understand lessons more deeply.<br>C. They can exchange ideas and learn from each other.<br>D. As a result, group work is very valuable in class.<br><br>Choose the correct order of the sentences.",
+        "question": "A. However, excessive use of technology can cause problems.<br>B. Technology has changed the way people work and communicate.<br>C. For example, too much screen time may cause eye strain.<br>D. Therefore, people should use technology responsibly.<br><br>Choose the correct order of the sentences.",
         "answers": [
           "B – C – A – D",
           "B – A – C – D",
-          "C – B – A – D",
-          "B – C – D – A"
-        ],
-        "correct": 0
-      },
-      {
-        "type": "multiple",
-        "question": "A. For example, you can walk to nearby places instead of taking a car.<br>B. Walking instead of driving is good for both health and the environment.<br>C. It helps you stay active and reduce air pollution.<br>D. Therefore, people should walk more often.<br><br>Choose the correct order of the sentences.",
-        "answers": [
-          "B – A – C – D",
-          "B – C – A – D",
-          "C – B – A – D",
-          "B – C – D – A"
+          "A – B – C – D",
+          "B – A – D – C"
         ],
         "correct": 1
       },
       {
         "type": "multiple",
-        "question": "A. In addition, achieving small goals builds their confidence.<br>B. Setting goals helps students achieve academic success.<br>C. Clear goals give them direction and motivation.<br>D. Therefore, students should set both short-term and long-term goals.<br><br>Choose the correct order of the sentences.",
+        "question": "A. Finally, these habits can help students become more independent learners.<br>B. Developing good study habits is important for academic success.<br>C. For example, students should review their lessons regularly.<br>D. They should also set clear study goals.<br>E. These practices can help them use their study time effectively.<br><br>Choose the correct order of the sentences.",
         "answers": [
-          "B – C – A – D",
-          "B – A – C – D",
-          "C – B – A – D",
-          "B – C – D – A"
+          "B – D – C – E – A",
+          "C – B – D – E – A",
+          "B – C – E – D – A",
+          "B – C – D – E – A"
         ],
-        "correct": 0
-      },
-      {
-        "type": "multiple",
-        "question": "A. In addition, studying together keeps everyone motivated.<br>B. Learning English with friends can make studying more fun.<br>C. They can practice speaking and correct each other's mistakes.<br>D. Therefore, finding a good study partner is a helpful idea.<br><br>Choose the correct order of the sentences.",
-        "answers": [
-          "B – A – C – D",
-          "B – C – A – D",
-          "C – B – A – D",
-          "B – C – D – A"
-        ],
-        "correct": 1
+        "correct": 3
       }
     ]
   }

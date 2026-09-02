@@ -1382,7 +1382,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
             supabase.from("users").update(updatedProfile).eq("id", currentUserId)
                 .then(() => {
                     document.getElementById('profile-birth-display').innerText = formatDate(inputBirthVal);
-                    window.showToast("Cài đặt hồ sơ của bạn đã được lưu lại thành công!", "success");
+                    window.showToast("Đã lưu thông tin hồ sơ thành công!", "success");
                     closeSettingsModal();
                 })
                 .catch((error) => {

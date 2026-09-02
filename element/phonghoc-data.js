@@ -246,7 +246,7 @@ window.PHONGHOC_SUBJECTS = [
       {
         id: "anh-ontap-phan4",
         title: "ÔN TẬP PHẦN 4",
-        description: "Sentence Ordering – Sắp xếp câu thành đoạn văn",
+        description: "Sentence Building – Sentence Ordering",
         icon: "fa-language",
         status: "done",
         action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap4.json" }
