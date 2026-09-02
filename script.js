@@ -278,6 +278,13 @@ function requestOpenQuiz(de){
     clearInterval(rv);
     window.removeEventListener("message", handler);
     showDeepLinkOverlay(false);
+    if(ev.data.ok === false){
+      var missingDe = ev.data.de || de;
+      if(typeof lhToast === "function"){
+        lhToast("Bài test không tồn tại hoặc đã bị xóa.", { type: "error", title: "404", durationMs: 4000 });
+      }
+      setTimeout(function(){ window.location.href = "/404.html?open=phong-hoc&de=" + encodeURIComponent(missingDe); }, 800);
+    }
   });
   var rv = setInterval(function(){
     if(acked) { clearInterval(rv); return; }

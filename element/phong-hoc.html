@@ -338,8 +338,8 @@ window.addEventListener('message', function(event) {
   }
   if (event.data.type === 'OPEN_QUIZ') {
     var found = openQuizByDe(event.data.de);
-    if (found && window.parent && window.parent !== window) {
-      window.parent.postMessage({ type: 'OPEN_QUIZ_ACK', ok: true }, '*');
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'OPEN_QUIZ_ACK', ok: !!found, de: String(event.data.de || "") }, '*');
     }
   }
 });
