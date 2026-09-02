@@ -233,6 +233,8 @@ body.cc-reduced .radar-bg .target{animation:none;opacity:0;}
   border-radius:6px;padding:0 6px;font-family:monospace;font-size:12px;
 }
 @keyframes toastIn{from{opacity:0;transform:translate(-50%,-14px);}to{opacity:1;transform:translate(-50%,0);}}
+/* Đẩy main xuống khi hiện toast để không bị che chữ badge "Lỗi 404" */
+body.lh-has-toast main{padding-top:88px;}
 </style>
 </head>
 <body>
@@ -352,7 +354,11 @@ window.addEventListener("storage", function (e) {
     'Có thể nó đã bị đổi tên hoặc gỡ xuống. Bạn hãy vào phòng học để chọn bài khác nhé!</span>' +
     '<button type="button" aria-label="Đóng" style="background:none;border:none;cursor:pointer;color:var(--sub);font-size:14px;margin-left:auto;padding:0 0 0 8px;" onclick="this.parentNode.remove()"><i class="fa-solid fa-xmark"></i></button>';
   document.body.appendChild(t);
-  setTimeout(function () { if (t.parentNode) t.remove(); }, 10000);
+  document.body.classList.add("lh-has-toast");
+  setTimeout(function () {
+    if (t.parentNode) t.remove();
+    document.body.classList.remove("lh-has-toast");
+  }, 10000);
 })();
 </script>
 
