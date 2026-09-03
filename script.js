@@ -1195,7 +1195,8 @@ if (chatBtnEl) {
     { id: "PRAGLqfNK1o", name: "Jazz", sub: "Bossa nova ngọt ngào, ấm áp", icon: "🎷" }
   ];
 
-  const ADMIN_PANEL_URL = "/admin-dashboard.html";
+  const ADMIN_PANEL_URL = "/administrator.html";
+  const TEACHER_PANEL_URL = "/teacher.html";
 
   let popup = document.getElementById("userPopup");
   let rail = document.getElementById("ccRail");
@@ -1210,6 +1211,7 @@ if (chatBtnEl) {
     music: "#db2777",
     install: "#0ea5e9",
     admin: "#dc2626",
+    teacher: "#2563eb",
     logout: "#ef4444"
   };
 
@@ -1261,6 +1263,11 @@ if (chatBtnEl) {
     }
     if (name === "admin") {
       window.open(ADMIN_PANEL_URL, "_blank");
+      if (popup) popup.style.display = "none";
+      return;
+    }
+    if (name === "teacher") {
+      window.open(TEACHER_PANEL_URL, "_blank");
       if (popup) popup.style.display = "none";
       return;
     }
@@ -2112,6 +2119,10 @@ if (chatBtnEl) {
         const adminBtn = document.getElementById("ccNavAdmin");
         if (adminBtn) {
           adminBtn.style.display = "";
+        }
+        const teachBtn = document.getElementById("ccNavTeacher");
+        if (teachBtn) {
+          teachBtn.style.display = (role === "Giáo viên" || role === "giáo viên") ? "" : "none";
         }
         if (window.currentLearnHubUser) {
           window.currentLearnHubUser.role = role;

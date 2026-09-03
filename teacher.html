@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnHub · Giáo viên</title>
+  <link rel="stylesheet" href="./element/giaodien.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    body { margin: 0; background: #f1f5f9; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #0f172a; }
+    .tc-topbar { background: #2563eb; color: #fff; padding: 18px 28px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 10px rgba(37,99,235,.25); }
+    .tc-topbar h1 { margin: 0; font-size: 20px; font-weight: 800; }
+    .tc-topbar .sub { font-size: 13px; opacity: .85; }
+    .tc-topbar .logo { background: #fff; color: #2563eb; border-radius: 10px; width: 40px; height: 40px; display: grid; place-items: center; font-weight: 900; font-size: 20px; }
+    .tc-wrap { max-width: 920px; margin: 30px auto; padding: 0 20px; }
+    .tc-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 4px 14px rgba(15,23,42,.06); }
+    .tc-login { max-width: 420px; margin: 60px auto; padding: 32px; text-align: center; }
+    .tc-login .icon { font-size: 46px; color: #2563eb; margin-bottom: 12px; }
+    .tc-login h2 { margin: 0 0 6px; }
+    .tc-login p { color: #475569; font-size: 14px; margin-bottom: 20px; }
+    a.btn { display: inline-block; background: #2563eb; color: #fff; padding: 11px 22px; border-radius: 9px; text-decoration: none; font-weight: 700; }
+    a.btn:hover { background: #1d4ed8; }
+    .tc-status { display: flex; align-items: center; gap: 8px; color: #dc2626; font-weight: 700; }
+    .tc-placeholder { padding: 40px; text-align: center; color: #64748b; }
+    .tc-placeholder .big { font-size: 40px; margin-bottom: 10px; }
+    .tc-badge { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div id="tcApp" style="display:none">
+    <div class="tc-topbar">
+      <div class="logo">LH</div>
+      <div>
+        <h1>Khu vực Giáo viên</h1>
+        <div class="sub">LearnHub · Quản lý lớp học &amp; nội dung giảng dạy</div>
+      </div>
+      <div style="margin-left:auto" id="tcUserBadge"></div>
+    </div>
+    <div class="tc-wrap">
+      <div class="tc-card tc-placeholder">
+        <div class="big">📚</div>
+        <p>Khu vực giáo viên đang được xây dựng.<br>Trang này sẽ sớm có các công cụ soạn bài, quản lý lớp học và theo dõi kết quả học sinh.</p>
+        <a class="btn" href="./index.html">← Về trang chính</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="tcDenied" style="display:none">
+    <div class="tc-card tc-login">
+      <div class="icon"><i class="fa-solid fa-user-lock"></i></div>
+      <h2>Không có quyền truy cập</h2>
+      <p>Tài khoản của bạn không phải là Giáo viên hoặc Admin. Khu vực này chỉ dành cho giảng viên.</p>
+      <a class="btn" href="./index.html">← Về trang chính</a>
+    </div>
+  </div>
+
+  <div id="tcLoading" style="display:none">
+    <div class="tc-card tc-login">
+      <div class="icon"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+      <h2>Đang kiểm tra quyền...</h2>
+      <p>Vui lòng chờ trong giây lát.</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase, getUserRow, escapeHtml } from "./supabase-config.js";
+
+    const tcApp = document.getElementById("tcApp");
+    const tcDenied = document.getElementById("tcDenied");
+    const tcLoading = document.getElementById("tcLoading");
+    const tcUserBadge = document.getElementById("tcUserBadge");
+    let accessChecked = false;
+
+    function show(which) {
+      tcApp.style.display = which === "app" ? "" : "none";
+      tcDenied.style.display = which === "denied" ? "" : "none";
+      tcLoading.style.display = which === "loading" ? "" : "none";
+    }
+
+    function isTeacherRole(role) {
+      return role === "Giáo viên" || role === "giáo viên";
+    }
+    function isAdminRole(role) {
+      return role === "Admin" || role === "admin";
+    }
+
+    async function guard() {
+      if (accessChecked) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session || !session.user) { show("denied"); accessChecked = true; return; }
+      const row = await getUserRow(session.user.id);
+      const role = row?.role || "";
+      const isAdmin = isAdminRole(role);
+      const isTeacher = isTeacherRole(role) || isAdmin;
+      if (!isTeacher) { show("denied"); accessChecked = true; return; }
+      if (isAdmin) {
+        tcUserBadge.innerHTML = `<span class="tc-badge">${escapeHtml(row.email || "")} · Admin</span>`;
+      } else {
+        tcUserBadge.innerHTML = `<span class="tc-badge">${escapeHtml(row.name || row.email || "")}</span>`;
+      }
+      show("app");
+      accessChecked = true;
+    }
+
+    show("loading");
+    guard();
+  </script>
+</body>
+</html>

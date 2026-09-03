@@ -254,6 +254,23 @@ $$;
 revoke execute on function public.is_admin() from public;
 grant execute on function public.is_admin() to authenticated;
 
+-- Kiểm tra user hiện tại có phải GIÁO VIÊN không (role='Giáo viên' hoặc là admin vì admin quản lý mọi thứ).
+create or replace function public.is_teacher()
+returns boolean
+language sql stable security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.users
+    where id = auth.uid()::text
+      and (lower(role) = 'giáo viên' or public.is_admin())
+  );
+$$;
+
+-- is_teacher: chỉ authenticated cần dùng (trong policy). anon/PUBLIC bị chặn.
+revoke execute on function public.is_teacher() from public;
+grant execute on function public.is_teacher() to authenticated;
+
 -- Kiểm tra email có trong whitelist không (dùng trước khi đăng ký, không lộ bảng access_list).
 create or replace function public.is_email_allowed(p_email text)
 returns boolean
