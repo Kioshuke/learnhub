@@ -88,28 +88,58 @@ sống động nhất khi bảo vệ.
 
 ---
 
-### 1.3 Quản lý LỚP HỌC
+### 1.3 Quản lý LỚP HỌC — ✅ LÕI ĐÃ LÀM (SQL + GIAO DIỆN)
 
-**Mô tả:** Cho phép giáo viên tạo lớp, sinh **mã mời**, học sinh nhập mã để tham gia.
-Từ đó giao bài và theo dõi kết quả theo từng lớp.
+**Mô tả:** Cho phép giáo viên tạo lớp, sinh **mã mời**, học sinh tham gia theo 2 cách.
+Đây là nền để sau này **giao bài / theo dõi kết quả theo từng lớp** (1.2 d + 2.2).
 
-**Cách hoạt động:**
-- Giáo viên tạo lớp: đặt tên, hệ thống sinh **mã mời 6 ký tự**.
-- Học sinh ở trang học sinh nhập mã → vào lớp.
-- Giáo viên xem danh sách thành viên lớp, giao bài cho lớp.
+**Cách hoạt động (phạm vi đã chốt — lõi lớp học):**
+- **Giáo viên** (`teacher.html`): tạo lớp (tên + khối) → hệ thống sinh **mã mời 6 ký tự**.
+  Xem danh sách lớp của mình (tên, khối, mã mời, số thành viên, số yêu cầu chờ).
+  Mở chi tiết lớp → xem thành viên + yêu cầu tham gia, **duyệt / từ chối / gỡ** học sinh.
+- **Học sinh** (tab "Lớp học" trong modal Thiết lập của `profile.html`):
+  - Cách 1: nhập **mã mời** → vào lớp **ngay** (status `approved`).
+  - Cách 2: chọn **khối** (10/11/12 — dòng tự do) → chọn **lớp** → gửi yêu cầu,
+    status `pending`, chờ giáo viên duyệt.
+  - Hiển thị "Lớp học của tôi" kèm trạng thái Đã vào / Đang chờ duyệt.
 
-**Bảng dữ liệu mới cần thêm:**
+**Bảng dữ liệu ĐÃ THÊM** (tạo trong `supabase/classes.sql`, đã đưa vào `schema.sql`):
 ```
-classes          (id, teacher_id, name, invite_code, created_at)
-class_members    (class_id, user_id, joined_at)
-class_assignments(class_id, quiz_set_id, due_date)
-quiz_sets        (id, teacher_id, title, subject, created_at)
-quiz_questions   (id, quiz_set_id, question, options jsonb, correct_index, difficulty)
-submissions      (id, user_id, quiz_set_id, score, answers jsonb, submitted_at)
+classes        (id, teacher_id, name, block, invite_code, created_at)
+class_members  (id, class_id FK cascade, user_id, status approved|pending, joined_at,
+                unique(class_id, user_id))
 ```
+RLS: bật trên cả 2 bảng + policy `classes_no_direct` / `class_members_no_direct`
+(`for all to authenticated using (false)`) — **mọi thao tác qua RPC security definer**
+để không lộ mã mời / danh sách lớp khi chưa được phép.
 
-**Lý do:** Mô hình "lớp học" là khái niệm rất thân thuộc với giảng viên sư phạm,
-cho thấy bạn hiểu thực tế giảng dạy (theo lớp, theo mã mời giống Google Classroom).
+**9 RPC đã tạo** (đều `security definer`, `revoke public; grant authenticated`):
+- `create_class(name, block)` — GV tạo lớp, sinh mã 6 ký tự duy nhất.
+- `list_blocks()` / `list_classes_in_block(block)` — học sinh duyệt khối+lớp (không lộ mã).
+- `join_class_by_code(code)` — vào ngay (approved) khi đúng mã.
+- `request_join_class(class_id)` — gửi yêu cầu (pending).
+- `my_classes()` — lớp của học sinh (profile).
+- `teacher_classes()` — lớp của GV + `member_count`/`pending_count`.
+- `class_members_of(class_id)` — thành viên + yêu cầu (chỉ GV lớp đó).
+- `set_class_member(member_id, 'approve'|'remove')` — duyệt/từ chối/gỡ (chỉ GV lớp đó).
+
+**Đã thực hiện (frontend):**
+- ✅ `supabase/classes.sql`: tạo bảng + RLS + 9 RPC (bản rút gọn; bỏ `delete_class`,
+  `_is_class_teacher`, `approve_class_member`, `remove_class_member` — gộp vào `set_class_member`).
+- ✅ `teacher.html`: thay placeholder bằng UI đầy đủ — tạo lớp, danh sách lớp, chi tiết + duyệt thành viên.
+- ✅ `profile.html`: thêm tab "Lớp học" trong modal Thiết lập — xem lớp, nhập mã mời,
+  chọn khối+lớp gửi yêu cầu; load danh sách khối khi mở modal.
+
+**Lưu ý khi triển khai:** hàm RPC phụ thuộc `public.is_teacher()` → chạy 1.1 trước.
+Để test: (1) admin gán 1 tài khoản role `Giáo viên`; (2) GV vào `teacher.html` tạo lớp;
+(3) học sinh vào profile → tab Lớp học → nhập mã (vào ngay) hoặc chọn khối+lớp (chờ duyệt);
+(4) GV duyệt trong chi tiết lớp.
+
+**Chưa làm (nối tiếp sau):** giao bài cho lớp + theo dõi kết quả theo lớp (1.2 d, 2.2),
+thuộc phần "đánh giá" của quy trình **DẠY – HỌC – ĐÁNH GIÁ**.
+
+**Lý do:** Mô hình "lớp học" rất thân thuộc với giảng viên sư phạm, cho thấy bạn hiểu
+thực tế giảng dạy (theo lớp, theo mã mời giống Google Classroom).
 
 ---
 
@@ -191,6 +221,8 @@ nhìn thấy tiến bộ.
 ## GH CHÚ KỸ THUẬT (tránh làm hỏng code cũ)
 
 - **Không tự đổi role**: trigger chặn; mọi đổi role chỉ qua admin.
+- **SQL lớp học** ở `supabase/classes.sql` (cũng đã được đưa vào `schema.sql`) — chỉ chạy RPC sau khi có `is_teacher()`.
+- **Bảng lớp học** (`classes`, `class_members`) chặn RLS trực tiếp — mọi thao tác qua RPC security definer.
 - **Hàm quyền mới** (`is_teacher()`) phải tự kiểm tra bên trong, không tin client.
 - **`is_admin()`** chỉ nhận `role='admin'` hoặc email `learnhubadmin@gmail.com`.
 - **`filetest.html`** hiện đọc JSON tĩnh — nếu chuyển DB phải giữ tương thích.

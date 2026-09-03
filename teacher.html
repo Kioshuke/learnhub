@@ -8,22 +8,63 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
     body { margin: 0; background: #f1f5f9; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #0f172a; }
-    .tc-topbar { background: #2563eb; color: #fff; padding: 18px 28px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 10px rgba(37,99,235,.25); }
+    .tc-topbar { background: linear-gradient(135deg, #0e7490, #0891b2); color: #fff; padding: 18px 28px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 10px rgba(8,145,178,.25); }
     .tc-topbar h1 { margin: 0; font-size: 20px; font-weight: 800; }
     .tc-topbar .sub { font-size: 13px; opacity: .85; }
-    .tc-topbar .logo { background: #fff; color: #2563eb; border-radius: 10px; width: 40px; height: 40px; display: grid; place-items: center; font-weight: 900; font-size: 20px; }
-    .tc-wrap { max-width: 920px; margin: 30px auto; padding: 0 20px; }
+    .tc-topbar .logo { background: #fff; color: #0891b2; border-radius: 10px; width: 40px; height: 40px; display: grid; place-items: center; font-weight: 900; font-size: 20px; }
+    .tc-wrap { max-width: 980px; margin: 30px auto; padding: 0 20px; }
     .tc-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 4px 14px rgba(15,23,42,.06); }
     .tc-login { max-width: 420px; margin: 60px auto; padding: 32px; text-align: center; }
-    .tc-login .icon { font-size: 46px; color: #2563eb; margin-bottom: 12px; }
+    .tc-login .icon { font-size: 46px; color: #0891b2; margin-bottom: 12px; }
     .tc-login h2 { margin: 0 0 6px; }
     .tc-login p { color: #475569; font-size: 14px; margin-bottom: 20px; }
-    a.btn { display: inline-block; background: #2563eb; color: #fff; padding: 11px 22px; border-radius: 9px; text-decoration: none; font-weight: 700; }
-    a.btn:hover { background: #1d4ed8; }
-    .tc-status { display: flex; align-items: center; gap: 8px; color: #dc2626; font-weight: 700; }
-    .tc-placeholder { padding: 40px; text-align: center; color: #64748b; }
-    .tc-placeholder .big { font-size: 40px; margin-bottom: 10px; }
-    .tc-badge { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 700; }
+    a.btn { display: inline-block; background: #0891b2; color: #fff; padding: 11px 22px; border-radius: 9px; text-decoration: none; font-weight: 700; }
+    a.btn:hover { background: #0e7490; }
+    .tc-badge { background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc; border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 700; }
+
+    .tc-section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .tc-section-head h2 { margin: 0; font-size: 18px; font-weight: 800; }
+    .tc-section-head .muted { color: #64748b; font-size: 13px; }
+
+    .tc-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; padding: 18px; }
+    .tc-form input, .tc-form select { border: 1px solid #cbd5e1; border-radius: 9px; padding: 10px 12px; font-size: 14px; outline: none; }
+    .tc-form input:focus, .tc-form select:focus { border-color: #0891b2; box-shadow: 0 0 0 3px rgba(8,145,178,.15); }
+    .tc-form button { background: #0891b2; color: #fff; border: 0; border-radius: 9px; padding: 10px 18px; font-weight: 700; cursor: pointer; }
+    .tc-form button:hover { background: #0e7490; }
+    .tc-form button:disabled { opacity: .6; cursor: not-allowed; }
+
+    .tc-class-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+    .tc-class { border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; background: #fff; cursor: pointer; transition: all .18s ease; }
+    .tc-class:hover { border-color: #0891b2; box-shadow: 0 6px 16px rgba(8,145,178,.12); transform: translateY(-1px); }
+    .tc-class .name { font-weight: 800; font-size: 15px; }
+    .tc-class .meta { color: #64748b; font-size: 12.5px; margin-top: 4px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .tc-class .code { font-family: ui-monospace, monospace; background: #ecfeff; color: #0e7490; border-radius: 6px; padding: 1px 7px; font-weight: 700; letter-spacing: .5px; }
+    .tc-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 2px 8px; }
+    .tc-chip.pending { background: #fef3c7; color: #b45309; }
+    .tc-chip.members { background: #e0f2fe; color: #0369a1; }
+
+    .tc-detail-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+    .tc-detail-head h2 { margin: 0; font-size: 18px; }
+    .tc-detail-head .back { background: transparent; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-weight: 600; }
+    .tc-detail-head .back:hover { background: #f1f5f9; }
+
+    .tc-mem { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 8px; }
+    .tc-mem .ava { width: 34px; height: 34px; border-radius: 50%; background: #e2e8f0; display: grid; place-items: center; font-weight: 800; color: #475569; flex-shrink: 0; overflow: hidden; }
+    .tc-mem .ava img { width: 100%; height: 100%; object-fit: cover; }
+    .tc-mem .info { min-width: 0; }
+    .tc-mem .info .nm { font-weight: 700; font-size: 14px; }
+    .tc-mem .info .em { color: #64748b; font-size: 12px; }
+    .tc-mem .acts { margin-left: auto; display: flex; gap: 8px; }
+    .btn-sm { border: 0; border-radius: 8px; padding: 7px 12px; font-weight: 700; font-size: 12.5px; cursor: pointer; }
+    .btn-approve { background: #10b981; color: #fff; }
+    .btn-approve:hover { background: #059669; }
+    .btn-remove { background: #fee2e2; color: #dc2626; }
+    .btn-remove:hover { background: #fecaca; }
+
+    .empty { text-align: center; color: #94a3b8; padding: 34px; }
+    .empty .big { font-size: 34px; margin-bottom: 8px; }
+    .hint { font-size: 12.5px; color: #64748b; line-height: 1.5; }
+    .toast-fix { position: fixed; top: 18px; left: 50%; transform: translateX(-50%); z-index: 999; }
   </style>
 </head>
 <body>
@@ -34,13 +75,48 @@
         <h1>Khu vực Giáo viên</h1>
         <div class="sub">LearnHub · Quản lý lớp học &amp; nội dung giảng dạy</div>
       </div>
-      <div style="margin-left:auto" id="tcUserBadge"></div>
+      <div style="margin-left:auto; display:flex; gap:10px; align-items:center">
+        <span id="tcUserBadge"></span>
+        <a class="btn" href="./index.html" style="font-size:12px; padding:7px 12px">Về trang chính</a>
+      </div>
     </div>
+
     <div class="tc-wrap">
-      <div class="tc-card tc-placeholder">
-        <div class="big">📚</div>
-        <p>Khu vực giáo viên đang được xây dựng.<br>Trang này sẽ sớm có các công cụ soạn bài, quản lý lớp học và theo dõi kết quả học sinh.</p>
-        <a class="btn" href="./index.html">← Về trang chính</a>
+      <!-- DANH SÁCH LỚP -->
+      <div id="tcListView">
+        <div class="tc-card" style="margin-bottom:20px">
+          <div class="tc-section-head" style="padding:18px 18px 0">
+            <h2><i class="fa-solid fa-plus-circle" style="color:#0891b2"></i> Tạo lớp học mới</h2>
+          </div>
+          <div class="tc-form">
+            <input id="tcInputName" type="text" placeholder="Tên lớp, vd: Tin học 11A1">
+            <input id="tcInputBlock" type="text" placeholder="Khối, vd: 11">
+            <button id="tcBtnCreate" type="button" onclick="tcCreateClass()">Tạo lớp</button>
+          </div>
+          <div style="padding:0 18px 14px" class="hint">Khối là dòng miễn phí (10, 11, 12...). Học sinh chọn khối rồi chọn lớp để gửi yêu cầu.</div>
+        </div>
+
+        <div class="tc-section-head">
+          <h2><i class="fa-solid fa-school" style="color:#0891b2"></i> Lớp học của tôi</h2>
+          <span class="muted" id="tcClassCount"></span>
+        </div>
+        <div id="tcClassList" class="tc-class-grid">
+          <div class="empty"><div class="big">📚</div>Đang tải danh sách lớp...</div>
+        </div>
+      </div>
+
+      <!-- CHI TIẾT LỚP -->
+      <div id="tcDetailView" style="display:none">
+        <div class="tc-card" style="padding:20px">
+          <div class="tc-section-head tc-detail-head">
+            <button class="back" type="button" onclick="tcBackToList()"><i class="fa-solid fa-arrow-left"></i> Danh sách</button>
+            <h2 id="tcDetailName">Lớp</h2>
+            <span id="tcDetailBlock" class="tc-chip members"></span>
+            <div style="margin-left:auto" id="tcDetailCode"></div>
+          </div>
+          <div class="hint" style="margin-bottom:16px">Chia sẻ mã mời để học sinh tự vào lớp ngay. Yêu cầu tham gia cần bạn duyệt.</div>
+          <div id="tcMemberList"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -62,6 +138,8 @@
     </div>
   </div>
 
+  <div id="tcToast" class="toast-fix"></div>
+
   <script type="module">
     import { supabase, getUserRow, escapeHtml } from "./supabase-config.js";
 
@@ -69,12 +147,23 @@
     const tcDenied = document.getElementById("tcDenied");
     const tcLoading = document.getElementById("tcLoading");
     const tcUserBadge = document.getElementById("tcUserBadge");
+    const tcToast = document.getElementById("tcToast");
     let accessChecked = false;
+    let tcUt;
 
     function show(which) {
       tcApp.style.display = which === "app" ? "" : "none";
       tcDenied.style.display = which === "denied" ? "" : "none";
       tcLoading.style.display = which === "loading" ? "" : "none";
+    }
+
+    function toast(msg, type) {
+      if (!tcToast) return;
+      const colors = { success: "#10b981", error: "#ef4444", info: "#0891b2" };
+      tcToast.textContent = msg;
+      tcToast.style.cssText = `position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:999;background:#fff;color:${colors[type]||"#0f172a"};border:1px solid #e2e8f0;border-radius:10px;padding:10px 18px;font-weight:700;font-size:13px;box-shadow:0 6px 18px rgba(2,12,27,.16)`;
+      clearTimeout(tcUt);
+      tcUt = setTimeout(() => { tcToast.textContent = ""; }, 2600);
     }
 
     function isTeacherRole(role) {
@@ -100,7 +189,155 @@
       }
       show("app");
       accessChecked = true;
+      tcLoadClasses();
     }
+
+    // ================= DANH SÁCH LỚP CỦA GIÁO VIÊN =================
+    async function tcLoadClasses() {
+      const listEl = document.getElementById("tcClassList");
+      const countEl = document.getElementById("tcClassCount");
+      listEl.innerHTML = '<div class="empty"><div class="big">📚</div>Đang tải danh sách lớp...</div>';
+      try {
+        const { data, error } = await supabase.rpc("teacher_classes");
+        if (error) throw error;
+        const rows = data || [];
+        countEl.textContent = rows.length ? `(${rows.length} lớp)` : "";
+        if (!rows.length) {
+          listEl.innerHTML = '<div class="empty"><div class="big">🏫</div>Tạo lớp đầu tiên để bắt đầu.<br><span style="font-size:12px">Chia mã mời hoặc duyệt yêu cầu tham gia của học sinh.</span></div>';
+          return;
+        }
+        listEl.innerHTML = rows.map(c => `
+          <div class="tc-class" data-id="${escapeHtml(c.class_id)}">
+            <div class="name">${escapeHtml(c.name)}</div>
+            <div class="meta">
+              <span>Khối ${escapeHtml(c.block) || "—"}</span>
+              <span class="code">${escapeHtml(c.invite_code)}</span>
+            </div>
+            <div class="meta" style="margin-top:8px">
+              <span class="tc-chip members"><i class="fa-solid fa-users"></i> ${c.member_count}</span>
+              ${c.pending_count > 0 ? `<span class="tc-chip pending"><i class="fa-solid fa-clock"></i> ${c.pending_count} chờ duyệt</span>` : ""}
+            </div>
+          </div>
+        `).join("");
+        listEl.querySelectorAll(".tc-class").forEach(el => {
+          el.addEventListener("click", () => tcOpenDetail(el.dataset.id));
+        });
+      } catch (e) {
+        console.error("teacher_classes lỗi:", e);
+        listEl.innerHTML = '<div class="empty"><div class="big">⚠️</div>Không tải được danh sách lớp. Kiểm tra lại SQL đã chạy chưa.</div>';
+      }
+    }
+
+    window.tcCreateClass = async function() {
+      const nameEl = document.getElementById("tcInputName");
+      const blockEl = document.getElementById("tcInputBlock");
+      const btn = document.getElementById("tcBtnCreate");
+      const name = nameEl.value.trim();
+      const block = blockEl.value.trim();
+      if (!name) return toast("Vui lòng nhập tên lớp", "error");
+      btn.disabled = true;
+      try {
+        const { data, error } = await supabase.rpc("create_class", { p_name: name, p_block: block });
+        if (error) throw error;
+        if (!data || data.ok !== true) {
+          const msgs = { forbidden: "Bạn không có quyền tạo lớp", empty_name: "Tên lớp trống" };
+          return toast(msgs[data?.error] || "Không tạo được lớp", "error");
+        }
+        nameEl.value = ""; blockEl.value = "";
+        toast(`Đã tạo lớp. Mã mời: ${data.invite_code}`, "success");
+        tcLoadClasses();
+      } catch (e) {
+        console.error("create_class lỗi:", e);
+        toast("Lỗi tạo lớp: " + (e.message || e), "error");
+      } finally {
+        btn.disabled = false;
+      }
+    };
+
+    // ================= CHI TIẾT LỚP =================
+    window.tcOpenDetail = async function(classId) {
+      document.getElementById("tcListView").style.display = "none";
+      const dv = document.getElementById("tcDetailView");
+      dv.style.display = "";
+      document.getElementById("tcDetailName").textContent = "";
+      document.getElementById("tcDetailBlock").textContent = "";
+      document.getElementById("tcDetailCode").innerHTML = "";
+      document.getElementById("tcMemberList").innerHTML = '<div class="empty"><div class="big">⏳</div>Đang tải...</div>';
+
+      const { data: classes, error: errC } = await supabase.rpc("teacher_classes");
+      if (errC) return window.tcBackToList();
+      const cls = (classes || []).find(c => c.class_id === classId);
+      if (cls) {
+        document.getElementById("tcDetailName").textContent = cls.name;
+        document.getElementById("tcDetailBlock").textContent = "Khối " + (cls.block || "—");
+        document.getElementById("tcDetailCode").innerHTML =
+          `<span class="hint">Mã mời: <span class="code" style="font-family:ui-monospace,monospace;background:#ecfeff;color:#0e7490;border-radius:6px;padding:2px 8px;font-weight:800;letter-spacing:.5px">${escapeHtml(cls.invite_code)}</span></span>`;
+      }
+
+      const { data: members, error: errM } = await supabase.rpc("class_members_of", { p_class_id: classId });
+      const listEl = document.getElementById("tcMemberList");
+      if (errM || !members || !members.length) {
+        listEl.innerHTML = '<div class="empty"><div class="big">👥</div>Chưa có thành viên hoặc yêu cầu.</div>';
+        return;
+      }
+
+      const byStatus = (s) => members.filter(m => (m.status || "") === s);
+
+      let html = "";
+      const pending = byStatus("pending");
+      const approved = byStatus("approved");
+
+      if (pending.length) {
+        html += `<div class="hint" style="margin:6px 0 10px;font-weight:800;color:#b45309">YÊU CẦU CHỜ DUYỆT (${pending.length})</div>`;
+        pending.forEach(m => {
+          html += `
+            <div class="tc-mem">
+              <div class="ava">${escapeHtml((m.name || "?").charAt(0).toUpperCase())}</div>
+              <div class="info"><div class="nm">${escapeHtml(m.name || "Chưa có tên")}</div><div class="em">${escapeHtml(m.email || "")}</div></div>
+              <div class="acts">
+                <button class="btn-sm btn-approve" data-id="${escapeHtml(m.member_id)}" data-act="approve"><i class="fa-solid fa-check"></i> Duyệt</button>
+                <button class="btn-sm btn-remove" data-id="${escapeHtml(m.member_id)}" data-act="remove"><i class="fa-solid fa-xmark"></i> Từ chối</button>
+              </div>
+            </div>`;
+        });
+      }
+
+      if (approved.length) {
+        html += `<div class="hint" style="margin:16px 0 10px;font-weight:800;color:#0369a1">THÀNH VIÊN (${approved.length})</div>`;
+        approved.forEach(m => {
+          html += `
+            <div class="tc-mem">
+              <div class="ava">${escapeHtml((m.name || "?").charAt(0).toUpperCase())}</div>
+              <div class="info"><div class="nm">${escapeHtml(m.name || "Chưa có tên")}</div><div class="em">${escapeHtml(m.email || "")}</div></div>
+              <div class="acts">
+                <button class="btn-sm btn-remove" data-id="${escapeHtml(m.member_id)}" data-act="remove"><i class="fa-solid fa-user-minus"></i> Gỡ</button>
+              </div>
+            </div>`;
+        });
+      }
+
+      listEl.innerHTML = html;
+      listEl.querySelectorAll("[data-act]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          window.tcSetMember(btn.dataset.id, btn.dataset.act, classId);
+        });
+      });
+    };
+
+    window.tcSetMember = async function(memberId, action, classId) {
+      const { data, error } = await supabase.rpc("set_class_member", { p_member_id: memberId, p_action: action });
+      if (error) { console.error("set_class_member lỗi:", error); return toast("Lỗi thao tác", "error"); }
+      if (data && data.ok !== true) return toast("Không thực hiện được", "error");
+      toast(action === "approve" ? "Đã duyệt học sinh vào lớp" : "Đã xử lý", action === "approve" ? "success" : "info");
+      tcOpenDetail(classId);
+    };
+
+    window.tcBackToList = function() {
+      document.getElementById("tcDetailView").style.display = "none";
+      document.getElementById("tcListView").style.display = "";
+      tcLoadClasses();
+    };
 
     show("loading");
     guard();
