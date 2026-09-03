@@ -961,53 +961,16 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
 
     try {
       const currentWeek = getWeekKey();
-      let count = 0;
 
-      // Reset điểm số
-      if(resetScore){
-        const { data: stats } = await supabase.from("test_stats").select("user_id");
-        for (const s of (stats || [])) {
-          await supabase.from("test_stats").update({
-            total_tests: 0,
-            total_score: 0,
-            best_score: 0,
-            week_key: currentWeek,
-            updated_at: new Date().toISOString()
-          }).eq("user_id", s.user_id);
-          count++;
-        }
-      }
+      const { data, error } = await supabase.rpc("admin_bulk_reset_weekly", {
+        p_week_key: currentWeek,
+        p_reset_score: resetScore,
+        p_reset_time: resetTime,
+        p_admin_email: adminEmail
+      });
+      if (error) throw error;
 
-      // Reset thời gian online
-      if(resetTime){
-        const { data: users } = await supabase.from("users").select("id");
-        for (const s of (users || [])) {
-          // online_start_time = 0 để profile/leaderboard KHÔNG tự cộng phần phiên đang online
-          // (condition `online_start_time > 0` fail) -> hiển thị về 0 ngay lập tức.
-          // Phiên online của user sẽ đếm lại từ đầu khi họ mở lại (users_begin_online thấy start=0).
-          await supabase.from("users").update({
-            online_timer: 0,
-            online_start_time: 0,
-            online_week_key: currentWeek
-          }).eq("id", s.id);
-          if(!resetScore) count++;
-        }
-      }
-
-      const now = new Date().toISOString();
-      const { data: resetDoc } = await supabase.from("weekly_reset").select("reset_count").eq("id", true).maybeSingle();
-      const prevCount = resetDoc ? (resetDoc.reset_count || 0) : 0;
-
-      await supabase.from("weekly_reset").upsert({
-        id: true,
-        last_reset_at: now,
-        last_reset_by: adminEmail,
-        week_key: currentWeek,
-        reset_count: prevCount + 1,
-        users_reset: count,
-        reset_targets: targets.join(", ")
-      }, { onConflict: "id" });
-
+      const count = data?.count || 0;
       showNotice(`Đã reset ${targets.join(" & ")} thành công cho ${count} user.`, "success");
       await loadWeeklyResetForm();
     } catch (e) {

@@ -1132,6 +1132,75 @@ grant execute on function public.users_begin_online(text) to authenticated;
 grant execute on function public.users_finalize_online(text) to authenticated;
 grant execute on function public.users_cleanup_stale_online(bigint) to authenticated;
 
+-- Reset tuần: reset điểm số / thời gian online của tất cả user trong 1 RPC call duy nhất.
+-- Thay thế loop N+1 requests trên client.
+create or replace function public.admin_bulk_reset_weekly(
+  p_week_key    text,
+  p_reset_score boolean,
+  p_reset_time  boolean,
+  p_admin_email text
+) returns jsonb
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  v_count integer := 0;
+  v_prev  integer;
+begin
+  if not public.is_admin() then
+    raise exception 'Forbidden';
+  end if;
+
+  if p_reset_score then
+    update public.test_stats
+       set total_tests = 0,
+           total_score = 0,
+           best_score  = 0,
+           week_key    = p_week_key,
+           updated_at  = now();
+    get diagnostics v_count = row_count;
+  end if;
+
+  if p_reset_time then
+    update public.users
+       set online_timer      = 0,
+           online_start_time = 0,
+           online_week_key   = p_week_key;
+    if not p_reset_score then
+      get diagnostics v_count = row_count;
+    end if;
+  end if;
+
+  select coalesce(reset_count, 0) into v_prev
+    from public.weekly_reset where id = true;
+
+  insert into public.weekly_reset (id, last_reset_at, last_reset_by, week_key, reset_count, users_reset, reset_targets)
+  values (
+    true,
+    now(),
+    p_admin_email,
+    p_week_key,
+    coalesce(v_prev, 0) + 1,
+    v_count,
+    case when p_reset_score and p_reset_time then 'điểm số & thời gian online'
+         when p_reset_score then 'điểm số'
+         else 'thời gian online' end
+  )
+  on conflict (id) do update
+    set last_reset_at  = excluded.last_reset_at,
+        last_reset_by  = excluded.last_reset_by,
+        week_key       = excluded.week_key,
+        reset_count    = public.weekly_reset.reset_count + 1,
+        users_reset    = excluded.users_reset,
+        reset_targets  = excluded.reset_targets;
+
+  return jsonb_build_object('count', v_count);
+end;
+$$;
+
+revoke execute on function public.admin_bulk_reset_weekly(text, boolean, boolean, text) from public;
+grant execute on function public.admin_bulk_reset_weekly(text, boolean, boolean, text) to authenticated;
+
 -- ============================================================
 -- Migration: Append signature to existing mailbox messages
 -- ============================================================
