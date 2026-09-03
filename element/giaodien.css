@@ -3991,6 +3991,8 @@ body.cc-glass-off {
 .cc-nav[data-tab="install"].cc-active{color:#0ea5e9;background:rgba(14,165,233,.12);}
 .cc-nav[data-tab="admin"]:hover,
 .cc-nav[data-tab="admin"].cc-active{color:#dc2626;background:rgba(220,38,38,.12);}
+.cc-nav[data-tab="teacher"]:hover,
+.cc-nav[data-tab="teacher"].cc-active{color:#0891b2;background:rgba(8,145,178,.12);}
 .cc-nav[data-tab="logout"]:hover,
 .cc-nav[data-tab="logout"].cc-active{color:#ef4444;background:rgba(239,68,68,.12);}
 

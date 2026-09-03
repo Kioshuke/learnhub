@@ -1211,7 +1211,7 @@ if (chatBtnEl) {
     music: "#db2777",
     install: "#0ea5e9",
     admin: "#dc2626",
-    teacher: "#2563eb",
+    teacher: "#0891b2",
     logout: "#ef4444"
   };
 
