@@ -406,6 +406,75 @@ $$;
 revoke execute on function public.cleanup_expired_forum_images() from public;
 grant execute on function public.cleanup_expired_forum_images() to authenticated;
 
+-- Xóa bài viết + tất cả reply con (cascade) + ảnh trên storage — 1 RPC call duy nhất.
+-- Trả về { deleted: N } để client biết số bài đã xóa.
+create or replace function public.delete_forum_post_cascade(p_post_id uuid)
+returns jsonb
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  v_ids  uuid[];
+  v_urls text[];
+  v_path text;
+begin
+  -- Permission check: chỉ chủ bài hoặc admin mới được xóa
+  IF NOT EXISTS (
+    SELECT 1 FROM public.forum_posts
+     WHERE id = p_post_id
+       AND (user_id = auth.uid()::text OR public.is_admin())
+  ) THEN
+    RAISE EXCEPTION 'Forbidden';
+  END IF;
+
+  -- 1. Recursive CTE: bài gốc + tất cả reply con, cháu, ...
+  WITH RECURSIVE cascade AS (
+    SELECT id, image_url
+      FROM public.forum_posts WHERE id = p_post_id
+    UNION ALL
+    SELECT fp.id, fp.image_url
+      FROM public.forum_posts fp
+      JOIN cascade c ON fp.parent_id = c.id
+  )
+  SELECT array_agg(id), array_agg(image_url)
+    INTO v_ids, v_urls
+    FROM cascade;
+
+  IF v_ids IS NULL THEN
+    RETURN jsonb_build_object('deleted', 0);
+  END IF;
+
+  -- 2. Thu thập image_urls hợp lệ
+  v_urls := ARRAY(
+    SELECT unnest(v_urls)
+     WHERE unnest IS NOT NULL AND btrim(unnest) <> ''
+  );
+
+  -- 3. Xóa ảnh trên storage (1 round-trip, loop trong SQL)
+  IF array_length(v_urls, 1) > 0 THEN
+    FOREACH v_path IN ARRAY v_urls LOOP
+      v_path := regexp_replace(
+        v_path,
+        '^.*/object/public/forum-images/',
+        '', 'g'
+      );
+      IF v_path IS NOT NULL AND v_path <> '' THEN
+        DELETE FROM storage.objects
+         WHERE bucket_id = 'forum-images' AND name = v_path;
+      END IF;
+    END LOOP;
+  END IF;
+
+  -- 4. Xóa posts (batch)
+  DELETE FROM public.forum_posts WHERE id = ANY(v_ids);
+
+  RETURN jsonb_build_object('deleted', array_length(v_ids, 1));
+end;
+$$;
+
+revoke execute on function public.delete_forum_post_cascade(uuid) from public;
+grant execute on function public.delete_forum_post_cascade(uuid) to authenticated;
+
 -- ============================== ERROR LOGS (log lỗi hệ thống) ==============================
 -- Client ghi log qua RPC này: security definer chạy với quyền owner nên vượt RLS.
 -- Cho phép cả anon (ghi log TRƯỚC khi đăng nhập: người không whitelist/bị khóa cố vào web).

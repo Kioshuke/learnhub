@@ -1887,24 +1887,8 @@ function cancelReply() {
 
 async function deletePost(postId) {
   showModal("Xác nhận xóa", "Bạn có chắc muốn xóa bài này và các phản hồi liên quan?", false, "", async () => {
-    const { data } = await supabase.from("forum_posts").select("id, parent_id, image_url");
-    if (!data) return;
-
-    function getAllChildIds(id, rows) {
-      let ids = [id];
-      for (const row of rows) {
-        if (row.parent_id === id) ids = ids.concat(getAllChildIds(row.id, rows));
-      }
-      return ids;
-    }
-
-    const ids = getAllChildIds(postId, data);
-    const urls = (data || []).filter(r => ids.includes(r.id) && r.image_url).map(r => r.image_url);
-    const { error } = await supabase.from("forum_posts").delete().in("id", ids);
+    const { data, error } = await supabase.rpc("delete_forum_post_cascade", { p_post_id: postId });
     if (error) console.error("Lỗi xóa bài viết:", error.message);
-    urls.forEach(url => {
-      supabase.rpc("remove_forum_image", { p_image_url: url }).catch(e => console.error("Lỗi xóa ảnh:", e.message));
-    });
   });
 }
 
