@@ -310,48 +310,6 @@ fetch('header.html').then(r=>r.text()).then(html=>{
     window.loadMailbox = loadMailbox;
     loadMailbox();
 
-    try {
-      window.supabaseClient.channel("mailbox-realtime")
-        .on("postgres_changes", { event: "INSERT", schema: "public", table: "mailbox_messages" }, function(payload) {
-          var msg = payload.new;
-          var item = document.createElement("div");
-          item.className = "notif-dd-item unread";
-          item.setAttribute("data-id", msg.id);
-          item.innerHTML = '<div class="notif-dd-item-icon" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#2563eb"><i class="fa-solid fa-envelope"></i></div>'
-            + '<div class="notif-dd-item-body">'
-            + '<div class="notif-dd-item-title">' + window.escapeHtml(msg.title || "Thông báo") + '</div>'
-            + '<div class="notif-dd-item-msg">' + stripHtml((msg.message || "").substring(0, 80)) + '</div>'
-            + '<div class="notif-dd-item-time">Vừa xong</div>'
-            + '</div>';
-          item._nd = { title: msg.title, message: msg.message, created_at: msg.created_at, _id: msg.id };
-          item.addEventListener("click", function() {
-            var self = this;
-            openNotifDetail(self._nd);
-            if (self.classList.contains("unread")) {
-              self.classList.remove("unread");
-              var icon = self.querySelector(".notif-dd-item-icon");
-              if (icon) { icon.style.background = "#eff6ff"; icon.innerHTML = '<i class="fa-solid fa-envelope-open"></i>'; }
-              markReadLocal(self._nd._id);
-              if (self._nd._id) {
-                window.supabaseClient.from("mailbox_messages").update({ is_read: true }).eq("id", self._nd._id).then(function() {
-                  unreadCount = Math.max(0, unreadCount - 1);
-                  updateBadge(unreadCount > 0, unreadCount);
-                });
-              }
-            }
-          });
-          var welcomeEl = list.querySelector(".notif-dd-item:last-child");
-          if (welcomeEl && welcomeEl.querySelector(".fa-envelope-open-text")) {
-            list.insertBefore(item, welcomeEl);
-          } else {
-            list.insertBefore(item, list.firstChild);
-          }
-          unreadCount++;
-          updateBadge(true, unreadCount);
-        })
-        .subscribe();
-    } catch(e){}
-
     bell.addEventListener("click", function(e) {
       e.stopPropagation();
       dropdown.classList.toggle("open");
@@ -570,6 +528,7 @@ const TRUSTED_ORIGIN = location.origin;
 let currentSupabaseUser = null;
 let activeInterval = null;
 let onlineTimerInterval = null;
+let mailboxPollInterval = null;
 
 // ================= MAINTENANCE MODE (realtime, đọc từ Supabase maintenance_settings) =================
 let maintenanceState = { enabled: false, message: "", initialized: false };
@@ -651,10 +610,14 @@ try {
   console.warn("Không thể lắng nghe trạng thái bảo trì:", e);
 }
 
-// ================= DÒNG CHỮ CHẠY (ticker, đọc realtime từ ticker_settings) =================
+// ================= DÒNG CHỮ CHẠY (ticker, text cố định — bỏ setting admin & realtime) =================
 let tickerApplied = false;
 let tickerLastSpeed = null;
 let tickerResizeTimer = null;
+
+// Nội dung cố định (đã bỏ setting admin, không query DB nữa).
+const TICKER_DEFAULT_TEXT = "Chào mừng bạn đã đến với LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.";
+const TICKER_DEFAULT_SPEED = 18;
 
 // Mobile màn hẹp => quãng đường 1 vòng ngắn hơn desktop nên cùng số giây sẽ
 // thấy chữ chạy chậm hẳn. Co thời lượng theo quãng đường thực tế để tốc độ
@@ -695,39 +658,19 @@ window.addEventListener("resize", () => {
   }, 200);
 });
 
-async function initTicker() {
+function initTicker() {
   let tries = 0;
-  const attempt = async () => {
+  const attempt = () => {
     if (tickerApplied) return;
     if (!document.querySelector(".ticker-text")) {
       if (tries++ < 40) setTimeout(attempt, 300);
       return;
     }
-    try {
-      const { data } = await supabase.from("ticker_settings").select("*").eq("id", true).maybeSingle();
-      if (data) {
-        applyTicker(data.text, data.speed_seconds);
-      } else {
-        applyTicker(null, 18);
-      }
-    } catch (e) {
-      if (tries++ < 40) setTimeout(attempt, 300);
-    }
+    applyTicker(TICKER_DEFAULT_TEXT, TICKER_DEFAULT_SPEED);
   };
   attempt();
 }
 initTicker();
-
-try {
-  supabase.channel("ticker-realtime")
-    .on("postgres_changes", { event: "*", schema: "public", table: "ticker_settings" }, (payload) => {
-      const d = payload.new || {};
-      applyTicker(d.text, d.speed_seconds);
-    })
-    .subscribe();
-} catch (e) {
-  console.warn("Không thể lắng nghe dòng chữ chạy:", e);
-}
 
 function applyUserToUI(user){
 const hour = new Date().getHours();
@@ -792,7 +735,6 @@ function showContent(){
 let accessGuardInterval = null;
 let userGuardChannel = null;
 let broadcastGuardChannel = null;
-let welcomeGuardChannel = null;
 let authGuardTriggered = false;
 let welcomePopupCache = null;
 let appLoadingComplete = false;
@@ -854,10 +796,6 @@ function stopAccessGuards(){
     supabase.removeChannel(broadcastGuardChannel);
     broadcastGuardChannel = null;
   }
-  if(welcomeGuardChannel){
-    supabase.removeChannel(welcomeGuardChannel);
-    welcomeGuardChannel = null;
-  }
   authGuardTriggered = false;
 }
 
@@ -895,7 +833,7 @@ async function forceLogoutNow(message, title = "Phiên đăng nhập đã hết 
   forceLogoutWithCountdown(message, title, 5000);
 }
 
-function startAccessGuards(user){
+async function startAccessGuards(user){
   stopAccessGuards();
   if(!user || !user.uid || !user.email) return;
 
@@ -976,22 +914,25 @@ function startAccessGuards(user){
 
   // (mailbox bell moved into header fetch callback above)
 
-  // Welcome popup guard.
+  // Welcome popup: load 1 lần khi mở trang (thay vì realtime channel),
+  // đủ đáp ứng vì popup không cần cập nhật tức thời.
   try {
-    welcomeGuardChannel = supabase.channel("guard-welcome")
-      .on("postgres_changes", { event: "*", schema: "public", table: "broadcast_welcome" }, (payload) => {
-        const data = payload.new || {};
-        welcomePopupCache = {
-          ...WELCOME_POPUP_DEFAULT,
-          title: data.title ?? welcomePopupCache?.title,
-          message: data.message ?? welcomePopupCache?.message,
-          active: data.active ?? welcomePopupCache?.active,
-          showMode: data.show_mode ?? welcomePopupCache?.showMode,
-          updatedAt: data.updated_at ?? welcomePopupCache?.updatedAt
-        };
-        maybeShowWelcomePopup(welcomePopupCache);
-      })
-      .subscribe();
+    const { data: welcomeData } = await supabase
+      .from("broadcast_welcome")
+      .select("*")
+      .eq("id", true)
+      .maybeSingle();
+    if (welcomeData) {
+      welcomePopupCache = {
+        ...WELCOME_POPUP_DEFAULT,
+        title: welcomeData.title ?? welcomePopupCache?.title,
+        message: welcomeData.message ?? welcomePopupCache?.message,
+        active: welcomeData.active ?? welcomePopupCache?.active,
+        showMode: welcomeData.show_mode ?? welcomePopupCache?.showMode,
+        updatedAt: welcomeData.updated_at ?? welcomePopupCache?.updatedAt
+      };
+      maybeShowWelcomePopup(welcomePopupCache);
+    }
   } catch (e) {}
 }
 
@@ -1107,6 +1048,13 @@ if(user){
       }, 5000);
   }
 
+  // ✅ MAILBOX — polling 30s (thay cho realtime channel để giảm WebSocket connections)
+  if(!mailboxPollInterval && typeof window.loadMailbox === "function"){
+    mailboxPollInterval = setInterval(()=>{
+      if(window.loadMailbox) window.loadMailbox();
+    }, 30000);
+  }
+
   // ✅ ONLINE TIMER - begin phiên (atomic trên DB, chống cộng khoảng offline / double-count)
   try {
     if(user.id){
@@ -1179,6 +1127,7 @@ document.addEventListener("visibilitychange", () => {
 // RPC finalize idempotent nên gọi trùng với visibilitychange/beforeunload vẫn an toàn.
 window.addEventListener("pagehide", () => {
   if(activeInterval){ clearInterval(activeInterval); activeInterval = null; }
+  if(mailboxPollInterval){ clearInterval(mailboxPollInterval); mailboxPollInterval = null; }
   if(typeof homeSlideshowInterval !== "undefined" && homeSlideshowInterval){ clearInterval(homeSlideshowInterval); homeSlideshowInterval = null; }
   if(typeof authSlideTimer !== "undefined" && authSlideTimer){ clearInterval(authSlideTimer); authSlideTimer = null; }
   stopAccessGuards();
@@ -1287,6 +1236,10 @@ stopAccessGuards();
 if(activeInterval){
   clearInterval(activeInterval);
   activeInterval = null;
+}
+if(mailboxPollInterval){
+  clearInterval(mailboxPollInterval);
+  mailboxPollInterval = null;
 }
 if(typeof homeSlideshowInterval !== "undefined" && homeSlideshowInterval){
   clearInterval(homeSlideshowInterval);

@@ -41,11 +41,6 @@ const welcomePopupTitleInput = document.getElementById("welcomePopupTitleInput")
 const welcomePopupMessageInput = document.getElementById("welcomePopupMessageInput");
 const welcomePopupActiveInput = document.getElementById("welcomePopupActiveInput");
 const welcomePopupMeta = document.getElementById("welcomePopupMeta");
-const tickerTabPanel = document.getElementById("tickerTabPanel");
-const tickerTextInput = document.getElementById("tickerTextInput");
-const tickerSpeedInput = document.getElementById("tickerSpeedInput");
-const tickerSpeedValue = document.getElementById("tickerSpeedValue");
-const tickerMeta = document.getElementById("tickerMeta");
 const maintenanceTabPanel = document.getElementById("maintenanceTabPanel");
 const maintenanceEnabledInput = document.getElementById("maintenanceEnabledInput");
 const maintenanceMessageInput = document.getElementById("maintenanceMessageInput");
@@ -95,7 +90,6 @@ const pageTitles = {
   broadcasts: ["Gửi thông báo", "Gửi thông báo realtime đến toàn bộ user hoặc từng người."],
   mailbox: ["Hộp Thư", "Gửi thư đến hộp thư của user. Thư được lưu lại và xem lại bất kỳ lúc nào."],
   welcomePopup: ["Popup chào mừng", "Chỉnh popup hiển thị sau khi user đăng nhập."],
-  ticker: ["Dòng chữ chạy", "Chỉnh nội dung và tốc độ dòng chữ chạy trên cùng web chính."],
   maintenance: ["Bảo trì hệ thống", "Bật/tắt chế độ bảo trì toàn hệ thống."],
   registration: ["Đăng ký", "Bật/tắt chức năng đăng ký tài khoản mới."],
   whitelist: ["Bật/Tắt Whitelist", "Bật = cần cấp quyền email; Tắt = đăng nhập Google không cần whitelist."],
@@ -111,7 +105,6 @@ function switchAdminTab(tab) {
   broadcastsTabPanel.classList.toggle("hidden", tab !== "broadcasts");
   mailboxTabPanel.classList.toggle("hidden", tab !== "mailbox");
   welcomePopupTabPanel.classList.toggle("hidden", tab !== "welcomePopup");
-  tickerTabPanel.classList.toggle("hidden", tab !== "ticker");
   maintenanceTabPanel.classList.toggle("hidden", tab !== "maintenance");
   registrationTabPanel.classList.toggle("hidden", tab !== "registration");
   whitelistTabPanel.classList.toggle("hidden", tab !== "whitelist");
@@ -123,7 +116,6 @@ function switchAdminTab(tab) {
   pageSubtitle.textContent = t[1];
   if (tab === "welcomePopup") loadWelcomePopupForm();
   if (tab === "mailbox") loadMailboxHistory();
-  if (tab === "ticker") loadTickerForm();
   if (tab === "maintenance") loadMaintenanceForm();
   if (tab === "registration") loadRegistrationForm();
   if (tab === "whitelist") loadWhitelistForm();
@@ -479,40 +471,6 @@ document.getElementById("disableWelcomePopupBtn").addEventListener("click", asyn
     welcomePopupActiveInput.checked=false; welcomePopupMeta.textContent=`Đã tắt popup · ${formatDate(now)}`; showNotice("Đã tắt popup cố định.", "success");
   } catch(e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Không tắt được popup.", "error"); }
 });
-
-tickerSpeedInput.addEventListener("input", () => {
-  tickerSpeedValue.textContent = `${tickerSpeedInput.value}s`;
-});
-
-async function loadTickerForm() {
-  try {
-    const { data: d } = await supabase.from("ticker_settings").select("*").eq("id", true).maybeSingle();
-    if (!d) {
-      tickerTextInput.value="LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.";
-      tickerSpeedInput.value="18"; tickerSpeedValue.textContent="18s";
-      tickerMeta.textContent="Chưa có bản lưu. Lưu lần đầu để áp dụng.";
-      return;
-    }
-    tickerTextInput.value=d.text||"";
-    tickerSpeedInput.value=String(d.speed_seconds||18);
-    tickerSpeedValue.textContent=`${tickerSpeedInput.value}s`;
-    tickerMeta.textContent=d.updated_at?`Cập nhật: ${formatDate(d.updated_at)}${d.updated_by?` · bởi ${d.updated_by}`:""}`:"";
-  } catch(e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Không tải được cấu hình dòng chữ.", "error"); }
-}
-
-document.getElementById("saveTickerBtn").addEventListener("click", async () => {
-  const text=String(tickerTextInput.value||"").trim();
-  const speed=Math.max(5, Math.min(60, Number(tickerSpeedInput.value)||18));
-  if (!text) { showNotice("Vui lòng nhập nội dung dòng chữ.", "error"); return; }
-  try {
-    const now=new Date().toISOString();
-    await supabase.from("ticker_settings").upsert({ id: true, text, speed_seconds: speed, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
-    tickerMeta.textContent=`Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
-    showNotice("Đã lưu dòng chữ chạy.", "success");
-  } catch(e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Lưu dòng chữ thất bại.", "error"); }
-});
-
-document.getElementById("refreshTickerBtn").addEventListener("click", loadTickerForm);
 
 // ================= SCHEDULE (LỊCH HỌC & THI) =================
 const SCHEDULE_SUBJECTS = [
