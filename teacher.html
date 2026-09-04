@@ -3,117 +3,273 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LearnHub · Giáo viên</title>
+  <title>LearnHub - Giáo viên</title>
+  <link rel="icon" href="pictures/favicon.png" sizes="any">
+  <link rel="icon" type="image/png" sizes="48x48" href="pictures/favicon.png">
+  <link rel="apple-touch-icon" href="pictures/favicon.png">
   <link rel="stylesheet" href="./element/giaodien.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
-    body { margin: 0; background: #f1f5f9; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #0f172a; }
-    .tc-topbar { background: linear-gradient(135deg, #0e7490, #0891b2); color: #fff; padding: 18px 28px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 10px rgba(8,145,178,.25); }
-    .tc-topbar h1 { margin: 0; font-size: 20px; font-weight: 800; }
-    .tc-topbar .sub { font-size: 13px; opacity: .85; }
-    .tc-topbar .logo { background: #fff; color: #0891b2; border-radius: 10px; width: 40px; height: 40px; display: grid; place-items: center; font-weight: 900; font-size: 20px; }
-    .tc-wrap { max-width: 980px; margin: 30px auto; padding: 0 20px; }
-    .tc-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 4px 14px rgba(15,23,42,.06); }
-    .tc-login { max-width: 420px; margin: 60px auto; padding: 32px; text-align: center; }
-    .tc-login .icon { font-size: 46px; color: #0891b2; margin-bottom: 12px; }
-    .tc-login h2 { margin: 0 0 6px; }
-    .tc-login p { color: #475569; font-size: 14px; margin-bottom: 20px; }
-    a.btn { display: inline-block; background: #0891b2; color: #fff; padding: 11px 22px; border-radius: 9px; text-decoration: none; font-weight: 700; }
-    a.btn:hover { background: #0e7490; }
-    .tc-badge { background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc; border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 700; }
+    :root{
+      --bg:#f4f6fb; --card:#ffffff; --border:#e5e7eb; --text:#111827; --sub:#6b7280;
+      --blue:#2563eb; --blue-d:#1e56c8; --cyan:#0891b2; --green:#10b981; --amber:#f59e0b;
+      --violet:#8b5cf6;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+      background:var(--bg);
+      background-image:radial-gradient(#d6dcff 1.2px, transparent 1.2px);
+      background-size:28px 28px;
+      color:var(--text);
+      min-height:100vh;
+    }
 
-    .tc-section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-    .tc-section-head h2 { margin: 0; font-size: 18px; font-weight: 800; }
-    .tc-section-head .muted { color: #64748b; font-size: 13px; }
+    /* ===== TOP BAR (đồng bộ gradient web chính) ===== */
+    .tc-topbar{
+      position:sticky;top:0;z-index:50;
+      background:linear-gradient(135deg, rgb(30,90,200), rgb(58,134,255), rgb(120,100,255));
+      background-size:300% 300%;
+      animation:tcFlow 10s ease infinite;
+      color:#fff;display:flex;align-items:center;gap:14px;
+      padding:14px 26px;box-shadow:0 6px 18px rgba(2,12,27,.18);
+    }
+    @keyframes tcFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    .tc-topbar .tc-brand{display:flex;align-items:center;gap:12px}
+    .tc-topbar img.tc-logo{width:42px;height:42px;border-radius:11px;object-fit:cover;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+    .tc-topbar .tc-title h1{margin:0;font-size:19px;font-weight:800;letter-spacing:-.2px;line-height:1.1}
+    .tc-topbar .tc-title .tc-sub{font-size:12.5px;opacity:.88;font-weight:500}
+    .tc-topbar .tc-spacer{margin-left:auto}
+    .tc-badge{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:700;display:inline-flex;align-items:center;gap:7px;backdrop-filter:blur(4px)}
+    .tc-badge i{font-size:11px}
+    a.btn-home{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:11px;padding:9px 15px;text-decoration:none;font-weight:700;font-size:13px;transition:all .2s ease}
+    a.btn-home:hover{background:rgba(255,255,255,.28);transform:translateY(-1px)}
 
-    .tc-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; padding: 18px; }
-    .tc-form input, .tc-form select { border: 1px solid #cbd5e1; border-radius: 9px; padding: 10px 12px; font-size: 14px; outline: none; }
-    .tc-form input:focus, .tc-form select:focus { border-color: #0891b2; box-shadow: 0 0 0 3px rgba(8,145,178,.15); }
-    .tc-form button { background: #0891b2; color: #fff; border: 0; border-radius: 9px; padding: 10px 18px; font-weight: 700; cursor: pointer; }
-    .tc-form button:hover { background: #0e7490; }
-    .tc-form button:disabled { opacity: .6; cursor: not-allowed; }
+    .tc-wrap{max-width:1020px;margin:26px auto;padding:0 20px 60px}
 
-    .tc-class-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-    .tc-class { border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; background: #fff; cursor: pointer; transition: all .18s ease; }
-    .tc-class:hover { border-color: #0891b2; box-shadow: 0 6px 16px rgba(8,145,178,.12); transform: translateY(-1px); }
-    .tc-class .name { font-weight: 800; font-size: 15px; }
-    .tc-class .meta { color: #64748b; font-size: 12.5px; margin-top: 4px; display: flex; gap: 10px; flex-wrap: wrap; }
-    .tc-class .code { font-family: ui-monospace, monospace; background: #ecfeff; color: #0e7490; border-radius: 6px; padding: 1px 7px; font-weight: 700; letter-spacing: .5px; }
-    .tc-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 2px 8px; }
-    .tc-chip.pending { background: #fef3c7; color: #b45309; }
-    .tc-chip.members { background: #e0f2fe; color: #0369a1; }
+    /* ===== WELCOME BANNER ===== */
+    .tc-hero{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px 24px;box-shadow:0 10px 30px rgba(2,12,27,.08);margin-bottom:20px}
+    .tc-hero .tc-hero-icon{width:60px;height:60px;border-radius:17px;display:grid;place-items:center;font-size:26px;flex-shrink:0;background:linear-gradient(135deg,#eff6ff,#dbeafe);color:var(--blue)}
+    .tc-hero h2{margin:0;font-size:22px;font-weight:800;letter-spacing:-.3px}
+    .tc-hero p{margin:4px 0 0;color:var(--sub);font-size:13.5px;line-height:1.5}
 
-    .tc-detail-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
-    .tc-detail-head h2 { margin: 0; font-size: 18px; }
-    .tc-detail-head .back { background: transparent; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-weight: 600; }
-    .tc-detail-head .back:hover { background: #f1f5f9; }
+    /* ===== STAT CARDS ===== */
+    .tc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+    .tc-stat{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 14px rgba(2,12,27,.05)}
+    .tc-stat .tc-stat-icon{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:19px;flex-shrink:0}
+    .tc-stat .tc-stat-num{font-size:24px;font-weight:800;line-height:1}
+    .tc-stat .tc-stat-label{font-size:12.5px;color:var(--sub);font-weight:600;margin-top:4px}
+    .icon-blue{background:#eff6ff;color:var(--blue)}
+    .icon-green{background:#ecfdf5;color:var(--green)}
+    .icon-amber{background:#fffbeb;color:var(--amber)}
 
-    .tc-mem { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 8px; }
-    .tc-mem .ava { width: 34px; height: 34px; border-radius: 50%; background: #e2e8f0; display: grid; place-items: center; font-weight: 800; color: #475569; flex-shrink: 0; overflow: hidden; }
-    .tc-mem .ava img { width: 100%; height: 100%; object-fit: cover; }
-    .tc-mem .info { min-width: 0; }
-    .tc-mem .info .nm { font-weight: 700; font-size: 14px; }
-    .tc-mem .info .em { color: #64748b; font-size: 12px; }
-    .tc-mem .acts { margin-left: auto; display: flex; gap: 8px; }
-    .btn-sm { border: 0; border-radius: 8px; padding: 7px 12px; font-weight: 700; font-size: 12.5px; cursor: pointer; }
-    .btn-approve { background: #10b981; color: #fff; }
-    .btn-approve:hover { background: #059669; }
-    .btn-remove { background: #fee2e2; color: #dc2626; }
-    .btn-remove:hover { background: #fecaca; }
+    /* ===== CARDS GENERIC ===== */
+    .tc-card{background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:0 6px 20px rgba(2,12,27,.06)}
+    .tc-section-head{display:flex;align-items:center;gap:11px;margin:0 0 16px}
+    .tc-section-head h2{margin:0;font-size:17px;font-weight:800}
+    .tc-section-head .muted{color:var(--sub);font-size:13px;font-weight:600}
 
-    .empty { text-align: center; color: #94a3b8; padding: 34px; }
-    .empty .big { font-size: 34px; margin-bottom: 8px; }
-    .hint { font-size: 12.5px; color: #64748b; line-height: 1.5; }
-    .toast-fix { position: fixed; top: 18px; left: 50%; transform: translateX(-50%); z-index: 999; }
+    /* ===== CREATE FORM ===== */
+    .tc-create{background:linear-gradient(135deg,#ffffff,#f0f5ff);border:1px solid #dbeafe}
+    .tc-form{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;padding:4px 18px 18px}
+    .tc-form input{width:100%;border:1px solid #cbd5e1;border-radius:11px;padding:11px 14px;font-size:14px;outline:none;background:#fff;transition:all .15s ease}
+    .tc-form input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.14)}
+    .tc-form button{background:linear-gradient(135deg,var(--blue),var(--blue-d));color:#fff;border:0;border-radius:11px;padding:11px 22px;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s ease;box-shadow:0 4px 12px rgba(37,99,235,.28)}
+    .tc-form button:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(37,99,235,.36)}
+    .tc-form button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    .hint{font-size:12.5px;color:var(--sub);line-height:1.5}
+
+    /* ===== CLASS GRID ===== */
+    .tc-class-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+    .tc-class{border:1px solid var(--border);border-radius:15px;padding:15px 16px;background:var(--card);cursor:pointer;transition:all .18s ease;position:relative;overflow:hidden}
+    .tc-class::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--blue),var(--violet))}
+    .tc-class:hover{border-color:#a5c8ff;box-shadow:0 10px 22px rgba(37,99,235,.12);transform:translateY(-2px)}
+    .tc-class .tc-class-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .tc-class .tc-class-ico{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:17px;background:#eff6ff;color:var(--blue);flex-shrink:0}
+    .tc-class .name{font-weight:800;font-size:15px;line-height:1.2}
+    .tc-class .meta{display:flex;gap:8px;align-items:center}
+    .tc-class .code{font-family:ui-monospace,SFMono-Regular,monospace;background:#eff6ff;color:var(--blue-d);border-radius:7px;padding:2px 8px;font-weight:800;letter-spacing:.6px;font-size:12.5px}
+    .tc-chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 9px}
+    .tc-chip.pending{background:#fef3c7;color:#b45309}
+    .tc-chip.members{background:#e0f2fe;color:#0369a1}
+    .tc-chip.green{background:#d1fae5;color:#047857}
+
+    /* ===== EMPTY ===== */
+    .empty{text-align:center;color:#94a3b8;padding:38px 20px}
+    .empty .big{font-size:38px;margin-bottom:8px}
+
+    /* ===== DETAIL VIEW ===== */
+    .tc-detail-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+    .tc-detail-head h2{margin:0;font-size:18px;font-weight:800}
+    .tc-detail-head .back{background:#fff;border:1px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:700;font-size:13px;color:var(--sub);transition:all .15s}
+    .tc-detail-head .back:hover{background:#f1f5f9;color:var(--text)}
+    .tc-mem{display:flex;align-items:center;gap:12px;padding:11px 15px;border:1px solid var(--border);border-radius:12px;margin-bottom:9px;background:#fff}
+    .tc-mem .ava{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#e0eaff,#cbd8ff);display:grid;place-items:center;font-weight:800;color:var(--blue-d);flex-shrink:0;overflow:hidden;font-size:15px}
+    .tc-mem .ava img{width:100%;height:100%;object-fit:cover}
+    .tc-mem .info{min-width:0}
+    .tc-mem .info .nm{font-weight:700;font-size:14px}
+    .tc-mem .info .em{color:var(--sub);font-size:12px;word-break:break-all}
+    .tc-mem .acts{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+    .btn-sm{border:0;border-radius:9px;padding:8px 13px;font-weight:700;font-size:12.5px;cursor:pointer;transition:all .15s}
+    .btn-approve{background:#d1fae5;color:#047857}
+    .btn-approve:hover{background:#a7f3d0}
+    .btn-remove{background:#fee2e2;color:#dc2626}
+    .btn-remove:hover{background:#fecaca}
+
+    /* ===== MENU TÍNH NĂNG (home) ===== */
+    .tc-feature-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+    .tc-feature{background:var(--card);border:1px solid var(--border);border-radius:17px;padding:20px;display:flex;flex-direction:column;gap:6px;box-shadow:0 4px 14px rgba(2,12,27,.05);transition:all .2s ease;position:relative;overflow:hidden}
+    .tc-feature[data-ready="1"]{cursor:pointer}
+    .tc-feature[data-ready="1"]:hover{border-color:#a5c8ff;transform:translateY(-2px);box-shadow:0 10px 24px rgba(37,99,235,.12)}
+    .tc-feature[data-ready="0"]{opacity:.62;cursor:default}
+    .tc-feature-icon{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;font-size:20px;flex-shrink:0;background:#f1f5f9;color:var(--sub);margin-bottom:6px}
+    .tc-feature-icon.icon-blue{background:#eff6ff;color:var(--blue)}
+    .tc-feature-title{font-weight:800;font-size:15.5px}
+    .tc-feature-desc{font-size:12.5px;color:var(--sub);line-height:1.5;flex:1}
+    .tc-feature-cta{margin-top:10px;font-size:12.5px;font-weight:700}
+    .tc-feature[data-ready="1"] .tc-feature-cta{color:var(--blue)}
+    .tc-feature[data-ready="0"] .tc-feature-cta{color:var(--sub)}
+
+    /* ===== VIEW HEADER (quay lại) ===== */
+    .tc-view-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+    .tc-view-head h2{margin:0;font-size:19px;font-weight:800}
+    .tc-view-head .back{background:#fff;border:1px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:700;font-size:13px;color:var(--sub);transition:all .15s}
+    .tc-view-head .back:hover{background:#f1f5f9;color:var(--text)}
+    .tc-view-head .muted{color:var(--sub);font-size:13px;font-weight:600}
+
+    /* ===== TOAST / LOADING / DENIED ===== */
+    .tc-login{max-width:420px;margin:70px auto;padding:38px 30px;text-align:center}
+    .tc-login .icon{font-size:48px;color:var(--blue);margin-bottom:14px}
+    .tc-login h2{margin:0 0 8px;font-size:20px}
+    .tc-login p{color:var(--sub);font-size:14px;margin-bottom:22px}
+    a.btn{display:inline-block;background:linear-gradient(135deg,var(--blue),var(--blue-d));color:#fff;padding:12px 24px;border-radius:11px;text-decoration:none;font-weight:700;box-shadow:0 4px 12px rgba(37,99,235,.25)}
+    a.btn:hover{transform:translateY(-1px)}
+    @media(max-width:680px){
+      .tc-stats{grid-template-columns:1fr 1fr}
+      .tc-form{grid-template-columns:1fr}
+      .tc-topbar{flex-wrap:wrap}
+    }
   </style>
 </head>
 <body>
   <div id="tcApp" style="display:none">
     <div class="tc-topbar">
-      <div class="logo">LH</div>
-      <div>
-        <h1>Khu vực Giáo viên</h1>
-        <div class="sub">LearnHub · Quản lý lớp học &amp; nội dung giảng dạy</div>
+      <div class="tc-brand">
+        <img class="tc-logo" src="pictures/logoweb.webp" alt="LearnHub">
+        <div class="tc-title">
+          <h1>Khu vực Giáo viên</h1>
+          <div class="tc-sub">LearnHub · Quản lý lớp học &amp; nội dung giảng dạy</div>
+        </div>
       </div>
-      <div style="margin-left:auto; display:flex; gap:10px; align-items:center">
-        <span id="tcUserBadge"></span>
-        <a class="btn" href="./index.html" style="font-size:12px; padding:7px 12px">Về trang chính</a>
-      </div>
+      <div class="tc-spacer"></div>
+      <span id="tcUserBadge"></span>
+      <a class="btn-home" href="./index.html"><i class="fa-solid fa-arrow-left"></i> Về trang chính</a>
     </div>
 
     <div class="tc-wrap">
-      <!-- DANH SÁCH LỚP -->
-      <div id="tcListView">
-        <div class="tc-card" style="margin-bottom:20px">
-          <div class="tc-section-head" style="padding:18px 18px 0">
-            <h2><i class="fa-solid fa-plus-circle" style="color:#0891b2"></i> Tạo lớp học mới</h2>
+      <!-- ===== HOME VIEW: chào mừng + thống kê + menu tính năng ===== -->
+      <div id="tcHomeView">
+        <div class="tc-hero">
+          <div class="tc-hero-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
+          <div>
+            <h2 id="tcWelcomeName">Xin chào!</h2>
+            <p id="tcWelcomeSub">Chào mừng bạn quay lại khu vực Giáo viên.</p>
           </div>
-          <div class="tc-form">
-            <input id="tcInputName" type="text" placeholder="Tên lớp, vd: Tin học 11A1">
-            <input id="tcInputBlock" type="text" placeholder="Khối, vd: 11">
-            <button id="tcBtnCreate" type="button" onclick="tcCreateClass()">Tạo lớp</button>
-          </div>
-          <div style="padding:0 18px 14px" class="hint">Khối là dòng miễn phí (10, 11, 12...). Học sinh chọn khối rồi chọn lớp để gửi yêu cầu.</div>
         </div>
 
-        <div class="tc-section-head">
-          <h2><i class="fa-solid fa-school" style="color:#0891b2"></i> Lớp học của tôi</h2>
-          <span class="muted" id="tcClassCount"></span>
+        <div class="tc-stats">
+          <div class="tc-stat">
+            <div class="tc-stat-icon icon-blue"><i class="fa-solid fa-school"></i></div>
+            <div><div class="tc-stat-num" id="tcStatClasses">0</div><div class="tc-stat-label">Lớp đang quản lý</div></div>
+          </div>
+          <div class="tc-stat">
+            <div class="tc-stat-icon icon-green"><i class="fa-solid fa-users"></i></div>
+            <div><div class="tc-stat-num" id="tcStatMembers">0</div><div class="tc-stat-label">Học sinh trong lớp</div></div>
+          </div>
+          <div class="tc-stat">
+            <div class="tc-stat-icon icon-amber"><i class="fa-solid fa-clock"></i></div>
+            <div><div class="tc-stat-num" id="tcStatPending">0</div><div class="tc-stat-label">Yêu cầu chờ duyệt</div></div>
+          </div>
         </div>
-        <div id="tcClassList" class="tc-class-grid">
-          <div class="empty"><div class="big">📚</div>Đang tải danh sách lớp...</div>
+
+        <div class="tc-feature-grid">
+          <div class="tc-feature" onclick="tcOpenManage()" data-ready="1">
+            <div class="tc-feature-icon icon-blue"><i class="fa-solid fa-school"></i></div>
+            <div class="tc-feature-title">Quản lý lớp học</div>
+            <div class="tc-feature-desc">Tạo lớp, chia sẻ mã mời, duyệt thành viên.</div>
+            <div class="tc-feature-cta">Mở <i class="fa-solid fa-arrow-right"></i></div>
+          </div>
+
+          <div class="tc-feature" data-ready="0">
+            <div class="tc-feature-icon"><i class="fa-solid fa-file-circle-question"></i></div>
+            <div class="tc-feature-title">Soạn bài kiểm tra</div>
+            <div class="tc-feature-desc">Tạo đề trắc nghiệm theo môn cho học sinh làm.</div>
+            <div class="tc-feature-cta">Sắp ra mắt</div>
+          </div>
+
+          <div class="tc-feature" data-ready="0">
+            <div class="tc-feature-icon"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="tc-feature-title">Soạn flashcard</div>
+            <div class="tc-feature-desc">Tạo bộ thẻ từ vựng theo chủ đề.</div>
+            <div class="tc-feature-cta">Sắp ra mắt</div>
+          </div>
+
+          <div class="tc-feature" data-ready="0">
+            <div class="tc-feature-icon"><i class="fa-solid fa-paper-plane"></i></div>
+            <div class="tc-feature-title">Giao bài cho lớp</div>
+            <div class="tc-feature-desc">Gán đề kiểm tra cho từng lớp, đặt hạn nộp.</div>
+            <div class="tc-feature-cta">Sắp ra mắt</div>
+          </div>
+
+          <div class="tc-feature" data-ready="0">
+            <div class="tc-feature-icon"><i class="fa-solid fa-chart-line"></i></div>
+            <div class="tc-feature-title">Báo cáo kết quả</div>
+            <div class="tc-feature-desc">Xem điểm, câu sai nhiều, học sinh cần quan tâm.</div>
+            <div class="tc-feature-cta">Sắp ra mắt</div>
+          </div>
         </div>
       </div>
 
-      <!-- CHI TIẾT LỚP -->
-      <div id="tcDetailView" style="display:none">
+      <!-- ===== MANAGE VIEW: quản lý lớp học ===== -->
+      <div id="tcManageView" style="display:none">
+        <div class="tc-view-head">
+          <button class="back" type="button" onclick="tcBackHome()"><i class="fa-solid fa-arrow-left"></i> Trang chủ</button>
+          <h2><i class="fa-solid fa-school" style="color:var(--blue)"></i> Quản lý lớp học</h2>
+          <span class="muted" id="tcClassCount"></span>
+        </div>
+
         <div class="tc-card" style="padding:20px">
+          <div class="tc-create" style="border-radius:14px;padding:16px;margin-bottom:22px">
+            <div class="tc-section-head" style="margin-bottom:12px">
+              <h2 style="font-size:15px"><i class="fa-solid fa-circle-plus" style="color:var(--blue)"></i> Tạo lớp học mới</h2>
+              <span class="muted">Thêm lớp, sau đó chia sẻ mã mời để học sinh tham gia</span>
+            </div>
+            <div class="tc-form" style="padding:0">
+              <input id="tcInputName" type="text" placeholder="Tên lớp, vd: Tin học 11A1">
+              <input id="tcInputBlock" type="text" placeholder="Khối, vd: 11">
+              <button id="tcBtnCreate" type="button" onclick="tcCreateClass()"><i class="fa-solid fa-plus"></i> Tạo lớp</button>
+            </div>
+            <div class="hint" style="margin-top:10px">Khối là dòng miễn phí (10, 11, 12...). Học sinh chọn khối rồi chọn lớp để gửi yêu cầu.</div>
+          </div>
+
+          <div id="tcClassList" class="tc-class-grid">
+            <div class="empty"><div class="big">📚</div>Đang tải danh sách lớp...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DETAIL VIEW -->
+      <div id="tcDetailView" style="display:none">
+        <div class="tc-card" style="padding:22px">
           <div class="tc-section-head tc-detail-head">
             <button class="back" type="button" onclick="tcBackToList()"><i class="fa-solid fa-arrow-left"></i> Danh sách</button>
             <h2 id="tcDetailName">Lớp</h2>
             <span id="tcDetailBlock" class="tc-chip members"></span>
-            <div id="tcDetailCode" style="margin-left:auto"></div>
-            <button class="btn-sm btn-remove" type="button" id="tcBtnDeleteClass" onclick="tcDeleteClass()" style="display:none"><i class="fa-solid fa-trash-can"></i> Xoá lớp</button>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+              <span id="tcDetailCode"></span>
+              <button class="btn-sm btn-remove" type="button" id="tcBtnDeleteClass" onclick="tcDeleteClass()" style="display:none"><i class="fa-solid fa-trash-can"></i> Xoá lớp</button>
+            </div>
           </div>
           <div class="hint" style="margin-bottom:16px">Chia sẻ mã mời để học sinh tự vào lớp ngay. Yêu cầu tham gia cần bạn duyệt.</div>
           <div id="tcMemberList"></div>
@@ -139,7 +295,7 @@
     </div>
   </div>
 
-  <div id="tcToast" class="toast-fix"></div>
+  <script src="toast.js"></script>
 
   <script type="module">
     import { supabase, getUserRow, escapeHtml } from "./supabase-config.js";
@@ -148,10 +304,10 @@
     const tcDenied = document.getElementById("tcDenied");
     const tcLoading = document.getElementById("tcLoading");
     const tcUserBadge = document.getElementById("tcUserBadge");
-    const tcToast = document.getElementById("tcToast");
     let accessChecked = false;
-    let tcUt;
     let tcCurrentClassId = null;
+    let tcClassesCache = null;   // null = chưa load, else mảng lớp (teacher_classes)
+    let tcMembersCache = {};     // { [class_id]: [members] }
 
     function show(which) {
       tcApp.style.display = which === "app" ? "" : "none";
@@ -159,13 +315,30 @@
       tcLoading.style.display = which === "loading" ? "" : "none";
     }
 
+    // Chuyển giữa view trong app: "" = home, "manage" = quản lý lớp, "detail" = chi tiết lớp.
+    function setMainView(view) {
+      const home = document.getElementById("tcHomeView");
+      const manage = document.getElementById("tcManageView");
+      const detail = document.getElementById("tcDetailView");
+      if (home) home.style.display = (view === "home" || view === "" || !view) ? "" : "none";
+      if (manage) manage.style.display = view === "manage" ? "" : "none";
+      if (detail) detail.style.display = view === "detail" ? "" : "none";
+    }
+
+    window.tcOpenManage = function() {
+      setMainView("manage");
+      tcLoadClasses();
+    };
+
+    window.tcBackHome = function() {
+      setMainView("home");
+      tcLoadClasses();
+    };
+
     function toast(msg, type) {
-      if (!tcToast) return;
-      const colors = { success: "#10b981", error: "#ef4444", info: "#0891b2" };
-      tcToast.textContent = msg;
-      tcToast.style.cssText = `position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:999;background:#fff;color:${colors[type]||"#0f172a"};border:1px solid #e2e8f0;border-radius:10px;padding:10px 18px;font-weight:700;font-size:13px;box-shadow:0 6px 18px rgba(2,12,27,.16)`;
-      clearTimeout(tcUt);
-      tcUt = setTimeout(() => { tcToast.textContent = ""; }, 2600);
+      if (window.lhToast) {
+        lhToast(msg, { type: type || "info" });
+      }
     }
 
     function normRole(role) {
@@ -182,6 +355,7 @@
 
     async function guard() {
       if (accessChecked) return;
+      show("loading");
       const { data: { session } } = await supabase.auth.getSession();
       if (!session || !session.user) { show("denied"); accessChecked = true; return; }
       const row = await getUserRow(session.user.id);
@@ -189,50 +363,80 @@
       const isAdmin = isAdminRole(role);
       const isTeacher = isTeacherRole(role) || isAdmin;
       if (!isTeacher) { show("denied"); accessChecked = true; return; }
+
+      const displayName = (row && (row.name || row.email)) || "Giáo viên";
+      document.getElementById("tcWelcomeName").textContent = "Xin chào, " + displayName + "! 👋";
+      document.getElementById("tcWelcomeSub").textContent =
+        "Chào mừng bạn quay lại. Hãy quản lý lớp học, duyệt yêu cầu và theo dõi học sinh của mình.";
+
       if (isAdmin) {
-        tcUserBadge.innerHTML = `<span class="tc-badge">${escapeHtml(row.email || "")} · Admin</span>`;
+        tcUserBadge.innerHTML = `<span class="tc-badge"><i class="fa-solid fa-shield-halved"></i> ${escapeHtml(row.email || "")} · Admin</span>`;
       } else {
-        tcUserBadge.innerHTML = `<span class="tc-badge">${escapeHtml(row.name || row.email || "")}</span>`;
+        tcUserBadge.innerHTML = `<span class="tc-badge"><i class="fa-solid fa-user-graduate"></i> ${escapeHtml(row.name || row.email || "")}</span>`;
       }
       show("app");
       accessChecked = true;
       tcLoadClasses();
     }
 
-    // ================= DANH SÁCH LỚP CỦA GIÁO VIÊN =================
-    async function tcLoadClasses() {
+    // ================= DANH SÁCH LỚP CỦA GIÁO VIÊN + THỐNG KÊ =================
+    // Render danh sách + thống kê TỪ CACHE (không gọi DB).
+    function tcRenderClasses(rows) {
       const listEl = document.getElementById("tcClassList");
       const countEl = document.getElementById("tcClassCount");
-      listEl.innerHTML = '<div class="empty"><div class="big">📚</div>Đang tải danh sách lớp...</div>';
-      try {
-        const { data, error } = await supabase.rpc("teacher_classes");
-        if (error) throw error;
-        const rows = data || [];
-        countEl.textContent = rows.length ? `(${rows.length} lớp)` : "";
-        if (!rows.length) {
-          listEl.innerHTML = '<div class="empty"><div class="big">🏫</div>Tạo lớp đầu tiên để bắt đầu.<br><span style="font-size:12px">Chia mã mời hoặc duyệt yêu cầu tham gia của học sinh.</span></div>';
+      const list = rows || [];
+      countEl.textContent = list.length ? `(${list.length} lớp)` : "";
+
+      let totalMembers = 0, totalPending = 0;
+      list.forEach(c => {
+        totalMembers += Number(c.member_count || 0);
+        totalPending += Number(c.pending_count || 0);
+      });
+      document.getElementById("tcStatClasses").textContent = list.length;
+      document.getElementById("tcStatMembers").textContent = totalMembers;
+      document.getElementById("tcStatPending").textContent = totalPending;
+
+      if (!list.length) {
+        listEl.innerHTML = '<div class="empty"><div class="big">🏫</div>Bạn chưa có lớp nào.<br><span style="font-size:12.5px">Tạo lớp đầu tiên ở phía trên để bắt đầu.</span></div>';
+        return;
+      }
+      listEl.innerHTML = list.map(c => `
+        <div class="tc-class" data-id="${escapeHtml(c.class_id)}">
+          <div class="tc-class-head">
+            <div class="tc-class-ico"><i class="fa-solid fa-chalkboard"></i></div>
+            <div class="name">${escapeHtml(c.name)}</div>
+          </div>
+          <div class="meta" style="margin-bottom:10px">
+            <span style="color:var(--sub);font-size:12.5px;font-weight:600">Khối ${escapeHtml(c.block) || "—"}</span>
+            <span class="code">${escapeHtml(c.invite_code)}</span>
+          </div>
+          <div class="meta">
+            <span class="tc-chip members"><i class="fa-solid fa-users"></i> ${c.member_count}</span>
+            ${c.pending_count > 0 ? `<span class="tc-chip pending"><i class="fa-solid fa-clock"></i> ${c.pending_count} chờ duyệt</span>` : `<span class="tc-chip green"><i class="fa-solid fa-circle-check"></i> Đã duyệt hết</span>`}
+          </div>
+        </div>
+      `).join("");
+      listEl.querySelectorAll(".tc-class").forEach(el => {
+        el.addEventListener("click", () => tcOpenDetail(el.dataset.id));
+      });
+    }
+
+    // Load danh sách lớp: chỉ gọi DB 1 lần khi chưa có cache; sau đó render từ cache.
+    async function tcLoadClasses(force) {
+      if (tcClassesCache === null || force) {
+        const listEl = document.getElementById("tcClassList");
+        listEl.innerHTML = '<div class="empty"><div class="big">📚</div>Đang tải danh sách lớp...</div>';
+        try {
+          const { data, error } = await supabase.rpc("teacher_classes");
+          if (error) throw error;
+          tcClassesCache = data || [];
+        } catch (e) {
+          console.error("teacher_classes lỗi:", e);
+          listEl.innerHTML = '<div class="empty"><div class="big">⚠️</div>Không tải được danh sách lớp. Kiểm tra lại SQL đã chạy chưa.</div>';
           return;
         }
-        listEl.innerHTML = rows.map(c => `
-          <div class="tc-class" data-id="${escapeHtml(c.class_id)}">
-            <div class="name">${escapeHtml(c.name)}</div>
-            <div class="meta">
-              <span>Khối ${escapeHtml(c.block) || "—"}</span>
-              <span class="code">${escapeHtml(c.invite_code)}</span>
-            </div>
-            <div class="meta" style="margin-top:8px">
-              <span class="tc-chip members"><i class="fa-solid fa-users"></i> ${c.member_count}</span>
-              ${c.pending_count > 0 ? `<span class="tc-chip pending"><i class="fa-solid fa-clock"></i> ${c.pending_count} chờ duyệt</span>` : ""}
-            </div>
-          </div>
-        `).join("");
-        listEl.querySelectorAll(".tc-class").forEach(el => {
-          el.addEventListener("click", () => tcOpenDetail(el.dataset.id));
-        });
-      } catch (e) {
-        console.error("teacher_classes lỗi:", e);
-        listEl.innerHTML = '<div class="empty"><div class="big">⚠️</div>Không tải được danh sách lớp. Kiểm tra lại SQL đã chạy chưa.</div>';
       }
+      tcRenderClasses(tcClassesCache);
     }
 
     window.tcCreateClass = async function() {
@@ -252,7 +456,18 @@
         }
         nameEl.value = ""; blockEl.value = "";
         toast(`Đã tạo lớp. Mã mời: ${data.invite_code}`, "success");
-        tcLoadClasses();
+        // Thêm lớp mới vào cache (không cần gọi lại DB), chuyển ngay sang quản lý lớp.
+        if (!tcClassesCache) tcClassesCache = [];
+        tcClassesCache.unshift({
+          class_id: data.id,
+          name: name,
+          block: block,
+          invite_code: data.invite_code,
+          member_count: 0,
+          pending_count: 0
+        });
+        tcRenderClasses(tcClassesCache);
+        setMainView("manage");
       } catch (e) {
         console.error("create_class lỗi:", e);
         toast("Lỗi tạo lớp: " + (e.message || e), "error");
@@ -262,36 +477,25 @@
     };
 
     // ================= CHI TIẾT LỚP =================
-    window.tcOpenDetail = async function(classId) {
-      tcCurrentClassId = classId;
-      document.getElementById("tcListView").style.display = "none";
-      const dv = document.getElementById("tcDetailView");
-      dv.style.display = "";
-      document.getElementById("tcDetailName").textContent = "";
-      document.getElementById("tcDetailBlock").textContent = "";
-      document.getElementById("tcDetailCode").innerHTML = "";
-      document.getElementById("tcBtnDeleteClass").style.display = "";
-      document.getElementById("tcMemberList").innerHTML = '<div class="empty"><div class="big">⏳</div>Đang tải...</div>';
+    // Render thông tin đầu lớp (tên/khối/mã mời) từ cache.
+    function tcRenderDetailHead(classId) {
+      const cls = (tcClassesCache || []).find(c => c.class_id === classId);
+      if (!cls) return;
+      document.getElementById("tcDetailName").textContent = cls.name;
+      document.getElementById("tcDetailBlock").textContent = "Khối " + (cls.block || "—");
+      document.getElementById("tcDetailCode").innerHTML =
+        `<span class="hint">Mã mời: <span style="font-family:ui-monospace,monospace;background:#eff6ff;color:#1e56c8;border-radius:6px;padding:2px 9px;font-weight:800;letter-spacing:.6px">${escapeHtml(cls.invite_code)}</span></span>`;
+    }
 
-      const { data: classes, error: errC } = await supabase.rpc("teacher_classes");
-      if (errC) return window.tcBackToList();
-      const cls = (classes || []).find(c => c.class_id === classId);
-      if (cls) {
-        document.getElementById("tcDetailName").textContent = cls.name;
-        document.getElementById("tcDetailBlock").textContent = "Khối " + (cls.block || "—");
-        document.getElementById("tcDetailCode").innerHTML =
-          `<span class="hint">Mã mời: <span class="code" style="font-family:ui-monospace,monospace;background:#ecfeff;color:#0e7490;border-radius:6px;padding:2px 8px;font-weight:800;letter-spacing:.5px">${escapeHtml(cls.invite_code)}</span></span>`;
-      }
-
-      const { data: members, error: errM } = await supabase.rpc("class_members_of", { p_class_id: classId });
+    // Render danh sách thành viên + yêu cầu TỪ CACHE (không gọi DB).
+    function tcRenderMembers(classId) {
       const listEl = document.getElementById("tcMemberList");
-      if (errM || !members || !members.length) {
+      const members = tcMembersCache[classId] || [];
+      if (!members.length) {
         listEl.innerHTML = '<div class="empty"><div class="big">👥</div>Chưa có thành viên hoặc yêu cầu.</div>';
         return;
       }
-
       const byStatus = (s) => members.filter(m => (m.status || "") === s);
-
       let html = "";
       const pending = byStatus("pending");
       const approved = byStatus("approved");
@@ -332,6 +536,32 @@
           window.tcSetMember(btn.dataset.id, btn.dataset.act, classId);
         });
       });
+    }
+
+    async function tcEnsureMembers(classId) {
+      if (tcMembersCache[classId] !== undefined) return;
+      const { data, error } = await supabase.rpc("class_members_of", { p_class_id: classId });
+      tcMembersCache[classId] = error ? [] : (data || []);
+    }
+
+    window.tcOpenDetail = async function(classId) {
+      tcCurrentClassId = classId;
+      setMainView("detail");
+      const dv = document.getElementById("tcDetailView");
+      dv.style.display = "";
+      document.getElementById("tcDetailName").textContent = "";
+      document.getElementById("tcDetailBlock").textContent = "";
+      document.getElementById("tcDetailCode").innerHTML = "";
+      document.getElementById("tcBtnDeleteClass").style.display = "";
+      document.getElementById("tcMemberList").innerHTML = '<div class="empty"><div class="big">⏳</div>Đang tải...</div>';
+
+      tcRenderDetailHead(classId);
+      try {
+        await tcEnsureMembers(classId);
+      } catch (e) {
+        console.error("class_members_of lỗi:", e);
+      }
+      tcRenderMembers(classId);
     };
 
     window.tcSetMember = async function(memberId, action, classId) {
@@ -339,27 +569,55 @@
       if (error) { console.error("set_class_member lỗi:", error); return toast("Lỗi thao tác", "error"); }
       if (data && data.ok !== true) return toast("Không thực hiện được", "error");
       toast(action === "approve" ? "Đã duyệt học sinh vào lớp" : "Đã xử lý", action === "approve" ? "success" : "info");
-      tcOpenDetail(classId);
+
+      // Cập nhật cache members tại chỗ (không gọi lại DB).
+      const members = tcMembersCache[classId] || [];
+      if (action === "approve") {
+        const m = members.find(x => x.member_id === memberId);
+        if (m) m.status = "approved";
+      } else {
+        tcMembersCache[classId] = members.filter(x => x.member_id !== memberId);
+      }
+
+      // Cập nhật số liệu member_count / pending_count trong cache lớp.
+      const cls = (tcClassesCache || []).find(c => c.class_id === classId);
+      if (cls) {
+        const alist = tcMembersCache[classId] || [];
+        cls.member_count = alist.filter(x => x.status === "approved").length;
+        cls.pending_count = alist.filter(x => x.status === "pending").length;
+        tcRenderClasses(tcClassesCache);
+      }
+
+      tcRenderMembers(classId);
     };
 
     window.tcBackToList = function() {
-      document.getElementById("tcDetailView").style.display = "none";
-      document.getElementById("tcListView").style.display = "";
+      setMainView("manage");
       tcCurrentClassId = null;
       tcLoadClasses();
     };
 
     window.tcDeleteClass = async function() {
       if (!tcCurrentClassId) return;
-      if (!confirm("Chắc chắn xoá lớp này? Toàn bộ thành viên trong lớp cũng sẽ bị gỡ. Hành động này không thể hoàn tác!")) return;
-      const { data, error } = await supabase.rpc("delete_class", { p_class_id: tcCurrentClassId });
+      if (window.lhConfirm) {
+        const ok = await lhConfirm("Chắc chắn xoá lớp này? Toàn bộ thành viên trong lớp cũng sẽ bị gỡ. Hành động này không thể hoàn tác!");
+        if (!ok) return;
+      } else {
+        if (!confirm("Chắc chắn xoá lớp này? Toàn bộ thành viên trong lớp cũng sẽ bị gỡ. Hành động này không thể hoàn tác!")) return;
+      }
+      const id = tcCurrentClassId;
+      const { data, error } = await supabase.rpc("delete_class", { p_class_id: id });
       if (error) { console.error("delete_class lỗi:", error); return toast("Lỗi xoá lớp", "error"); }
       if (data && data.ok !== true) return toast("Không xoá được lớp", "error");
       toast("Đã xoá lớp", "success");
-      window.tcBackToList();
+      // Xoá khỏi cache + render lại (không gọi DB thêm lần nào).
+      if (tcClassesCache) tcClassesCache = tcClassesCache.filter(c => c.class_id !== id);
+      delete tcMembersCache[id];
+      setMainView("manage");
+      tcCurrentClassId = null;
+      tcRenderClasses(tcClassesCache || []);
     };
 
-    show("loading");
     guard();
   </script>
 </body>
