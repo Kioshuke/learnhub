@@ -116,12 +116,16 @@ RLS: bật trên cả 2 bảng + policy `classes_no_direct` / `class_members_no_
 **9 RPC đã tạo** (đều `security definer`, `revoke public; grant authenticated`):
 - `create_class(name, block)` — GV tạo lớp, sinh mã 6 ký tự duy nhất.
 - `list_blocks()` / `list_classes_in_block(block)` — học sinh duyệt khối+lớp (không lộ mã).
-- `join_class_by_code(code)` — vào ngay (approved) khi đúng mã.
+- `join_class_by_code(code)` — vào ngay (approved) khi đúng mã (chặn tự vào lớp của mình).
 - `request_join_class(class_id)` — gửi yêu cầu (pending).
 - `my_classes()` — lớp của học sinh (profile).
 - `teacher_classes()` — lớp của GV + `member_count`/`pending_count`.
 - `class_members_of(class_id)` — thành viên + yêu cầu (chỉ GV lớp đó).
 - `set_class_member(member_id, 'approve'|'remove')` — duyệt/từ chối/gỡ (chỉ GV lớp đó).
+
+**Bổ sung sau (04/09 theo review):**
+- `delete_class(class_id)` — GV xoá lớp (cascade xoá thành viên), nút "Xoá lớp" trong chi tiết lớp ở `teacher.html`.
+- `user_classes(user_id)` — lớp của 1 user cụ thể cho Hồ Sơ Chi Tiết (chỉ user đó tự xem hoặc GV/Admin xem).
 
 **Đã thực hiện (frontend):**
 - ✅ `supabase/classes.sql`: tạo bảng + RLS + 9 RPC (bản rút gọn; bỏ `delete_class`,
@@ -129,6 +133,8 @@ RLS: bật trên cả 2 bảng + policy `classes_no_direct` / `class_members_no_
 - ✅ `teacher.html`: thay placeholder bằng UI đầy đủ — tạo lớp, danh sách lớp, chi tiết + duyệt thành viên.
 - ✅ `profile.html`: thêm tab "Lớp học" trong modal Thiết lập — xem lớp, nhập mã mời,
   chọn khối+lớp gửi yêu cầu; load danh sách khối khi mở modal.
+- ✅ `profile.html`: Hồ Sơ Chi Tiết hiển thị "Các lớp đang tham gia" (gọi `user_classes`),
+  chỉ hiện với role Thành viên/Học sinh, ẩn với Giáo viên/Admin.
 
 **Lưu ý khi triển khai:** hàm RPC phụ thuộc `public.is_teacher()` → chạy 1.1 trước.
 Để test: (1) admin gán 1 tài khoản role `Giáo viên`; (2) GV vào `teacher.html` tạo lớp;

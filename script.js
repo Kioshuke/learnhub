@@ -2122,7 +2122,8 @@ if (chatBtnEl) {
         }
         const teachBtn = document.getElementById("ccNavTeacher");
         if (teachBtn) {
-          teachBtn.style.display = (role === "Giáo viên" || role === "giáo viên") ? "" : "none";
+          const rl = String(role || "").trim().toLowerCase();
+          teachBtn.style.display = (rl === "giáo viên" || rl === "giao vien") ? "" : "none";
         }
         if (window.currentLearnHubUser) {
           window.currentLearnHubUser.role = role;

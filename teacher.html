@@ -112,7 +112,8 @@
             <button class="back" type="button" onclick="tcBackToList()"><i class="fa-solid fa-arrow-left"></i> Danh sách</button>
             <h2 id="tcDetailName">Lớp</h2>
             <span id="tcDetailBlock" class="tc-chip members"></span>
-            <div style="margin-left:auto" id="tcDetailCode"></div>
+            <div id="tcDetailCode" style="margin-left:auto"></div>
+            <button class="btn-sm btn-remove" type="button" id="tcBtnDeleteClass" onclick="tcDeleteClass()" style="display:none"><i class="fa-solid fa-trash-can"></i> Xoá lớp</button>
           </div>
           <div class="hint" style="margin-bottom:16px">Chia sẻ mã mời để học sinh tự vào lớp ngay. Yêu cầu tham gia cần bạn duyệt.</div>
           <div id="tcMemberList"></div>
@@ -150,6 +151,7 @@
     const tcToast = document.getElementById("tcToast");
     let accessChecked = false;
     let tcUt;
+    let tcCurrentClassId = null;
 
     function show(which) {
       tcApp.style.display = which === "app" ? "" : "none";
@@ -166,11 +168,16 @@
       tcUt = setTimeout(() => { tcToast.textContent = ""; }, 2600);
     }
 
+    function normRole(role) {
+      return String(role || "").trim().toLowerCase();
+    }
     function isTeacherRole(role) {
-      return role === "Giáo viên" || role === "giáo viên";
+      const r = normRole(role);
+      return r === "giáo viên" || r === "giao vien";
     }
     function isAdminRole(role) {
-      return role === "Admin" || role === "admin";
+      const r = normRole(role);
+      return r === "admin";
     }
 
     async function guard() {
@@ -256,12 +263,14 @@
 
     // ================= CHI TIẾT LỚP =================
     window.tcOpenDetail = async function(classId) {
+      tcCurrentClassId = classId;
       document.getElementById("tcListView").style.display = "none";
       const dv = document.getElementById("tcDetailView");
       dv.style.display = "";
       document.getElementById("tcDetailName").textContent = "";
       document.getElementById("tcDetailBlock").textContent = "";
       document.getElementById("tcDetailCode").innerHTML = "";
+      document.getElementById("tcBtnDeleteClass").style.display = "";
       document.getElementById("tcMemberList").innerHTML = '<div class="empty"><div class="big">⏳</div>Đang tải...</div>';
 
       const { data: classes, error: errC } = await supabase.rpc("teacher_classes");
@@ -336,7 +345,18 @@
     window.tcBackToList = function() {
       document.getElementById("tcDetailView").style.display = "none";
       document.getElementById("tcListView").style.display = "";
+      tcCurrentClassId = null;
       tcLoadClasses();
+    };
+
+    window.tcDeleteClass = async function() {
+      if (!tcCurrentClassId) return;
+      if (!confirm("Chắc chắn xoá lớp này? Toàn bộ thành viên trong lớp cũng sẽ bị gỡ. Hành động này không thể hoàn tác!")) return;
+      const { data, error } = await supabase.rpc("delete_class", { p_class_id: tcCurrentClassId });
+      if (error) { console.error("delete_class lỗi:", error); return toast("Lỗi xoá lớp", "error"); }
+      if (data && data.ok !== true) return toast("Không xoá được lớp", "error");
+      toast("Đã xoá lớp", "success");
+      window.tcBackToList();
     };
 
     show("loading");
