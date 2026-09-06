@@ -252,6 +252,22 @@ window.PHONGHOC_SUBJECTS = [
         action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap4.json" }
       },
       {
+        id: "anh-ontap-phan5",
+        title: "ÔN TẬP PHẦN 5",
+        description: "Listening – Test 1 & Test 2",
+        icon: "fa-headphones",
+        status: "done",
+        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap5.json" }
+      },
+      {
+        id: "anh-ontap-phan6",
+        title: "ÔN TẬP PHẦN 6",
+        description: "Listening – Part 2 Conversations & Part 3 Talks/Lectures",
+        icon: "fa-headphones",
+        status: "done",
+        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap6.json" }
+      },
+      {
         id: "anh-ngu-phap",
         title: "TỔNG ÔN NGỮ PHÁP",
         description: "Video tổng ôn ngữ pháp tiếng Anh.",
