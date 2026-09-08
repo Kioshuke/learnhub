@@ -2801,7 +2801,7 @@ function enterApp() {
 // Auto-skip intro screen if opened from hub (has data param)
 (function() {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("data")) {
+    if (params.get("data") || params.get("set")) {
         const intro = document.getElementById("intro-screen");
         if (intro) {
             intro.style.display = "none";
@@ -2855,7 +2855,26 @@ function loadDataScript() {
     document.body.appendChild(script);
 }
 
-loadDataScript();
+// Nếu mở theo ?set=<id> (bộ thẻ lưu trên DB), chờ module supabase sẵn sàng rồi lấy dữ liệu.
+// Ngược lại thì load file JS tĩnh như cũ.
+function startLoad() {
+    const params = new URLSearchParams(window.location.search);
+    const setId = params.get("set");
+    if (setId) {
+        setTopicNameLabel(formatTopicNameFromDataFile("set_" + setId));
+        if (window.__fcLoadSet) { window.__fcLoadSet(setId); return; }
+        const wait = setInterval(() => {
+            if (window.__fcLoadSet) {
+                clearInterval(wait);
+                window.__fcLoadSet(setId);
+            }
+        }, 100);
+        return;
+    }
+    loadDataScript();
+}
+
+startLoad();
 
 // Settings management
 const settingsModal = document.createElement("div");
@@ -3023,6 +3042,51 @@ window.addEventListener('message', function(event) {
 if (localStorage.getItem("darkMode") === "on") {
   document.body.classList.add("dark-mode");
 }
+</script>
+
+<script type="module">
+  import { supabase } from "../supabase-config.js";
+
+  // Load bộ thẻ từ Supabase theo ?set=<id>, gán dữ liệu cho engine cũ rồi nạp game.js.
+  window.__fcLoadSet = async function(setId) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        hideLoadPopup();
+        lhToast("Vui lòng đăng nhập để học bộ thẻ này", 'error');
+        return;
+      }
+      const { data, error } = await supabase.rpc("get_flashcard_set", { p_set_id: setId });
+      if (error) throw error;
+      if (!data || !data.length) throw new Error("Bộ thẻ không tồn tại");
+      const s = data[0];
+      window.TOPIC_NAME = s.name || "Bộ từ vựng";
+      const raw = Array.isArray(s.cards) ? s.cards : [];
+      window.cards = raw.map((c, i) => ({
+        id: i + 1,
+        front: c.front,
+        back: c.back,
+        ...(c.example ? { example: c.example } : {})
+      }));
+      setTopicNameLabel(window.TOPIC_NAME);
+
+      const gameScript = document.createElement("script");
+      gameScript.src = "game.js";
+      gameScript.onload = () => {
+        if (typeof setTotal === 'function') setTotal();
+        hideLoadPopup();
+      };
+      gameScript.onerror = () => {
+        hideLoadPopup();
+        lhToast("Không tải được game.js", 'error');
+      };
+      setTimeout(() => document.body.appendChild(gameScript), 0);
+    } catch (e) {
+      console.error("get_flashcard_set lỗi:", e);
+      hideLoadPopup();
+      lhToast("Không tải được bộ thẻ: " + (e.message || e), 'error');
+    }
+  };
 </script>
 </body>
 </html>
