@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnHub - Soạn Flashcard</title>
+  <link rel="icon" href="../pictures/favicon.png" sizes="any">
+  <link rel="icon" type="image/png" sizes="48x48" href="../pictures/favicon.png">
+  <link rel="apple-touch-icon" href="../pictures/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../element/giaodien.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    :root{
+      --bg:#f6f8ff; --card:#ffffff; --border:#e6e9f2; --text:#0f172a; --sub:#64748b;
+      --blue:#2563eb; --cyan:#0891b2; --green:#10b981; --green-d:#059669; --amber:#f59e0b;
+      --violet:#8b5cf6;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    .tc-wrap{max-width:1600px;margin:28px 32px;padding:0 0 64px;width:auto}
+    .tc-card{background:var(--card);border:1px solid var(--border);border-radius:20px;box-shadow:0 10px 30px rgba(15,23,42,.05)}
+
+    .tc-view-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+    .tc-view-head h2{margin:0;font-size:22px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+    .tc-view-head h2 i{color:var(--green)}
+    .tc-view-head .back{background:#fff;border:1px solid var(--border);border-radius:12px;padding:9px 16px;cursor:pointer;font-weight:700;font-size:13px;color:var(--sub);text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all .15s;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+    .tc-view-head .back:hover{background:#f1f5f9;color:var(--text)}
+    .tc-view-head .muted{color:var(--sub);font-size:13px;font-weight:600;margin-left:auto}
+
+    .fc-layout{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:18px;align-items:start}
+    .fc-panel-head{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+    .fc-panel-head h3{margin:0;font-size:16px;font-weight:800;letter-spacing:-.01em}
+    .fc-panel-head .muted{color:var(--sub);font-size:12.5px;font-weight:600;display:block;margin-top:2px}
+    .fc-panel-ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:16px;flex-shrink:0}
+    .fc-panel-ico.ico-green{background:linear-gradient(135deg,#ecfdf5,#d1fae5);color:var(--green-d)}
+    .fc-panel-ico.ico-violet{background:linear-gradient(135deg,#f5f3ff,#ede9fe);color:#7c3aed}
+
+    .fc-info,.fc-write{padding:22px}
+    .fc-info{position:relative}
+    .fc-info::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--green),var(--violet));border-radius:20px 20px 0 0}
+    .fc-write{position:relative}
+    .fc-write::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--violet),var(--cyan));border-radius:20px 20px 0 0}
+
+    .fc-field{margin-bottom:14px}
+    .fc-field label{display:block;font-size:12.5px;font-weight:600;color:#475569;margin-bottom:6px}
+    .fc-field label b{color:#dc2626;font-weight:700}
+    input,select,textarea{width:100%;border:1px solid #e2e8f0;border-radius:12px;padding:11px 14px;font-size:14px;outline:none;background:#f8fafc;transition:all .15s ease;font-family:inherit}
+    input:focus,textarea:focus{border-color:var(--green);background:#fff;box-shadow:0 0 0 4px rgba(16,185,129,.12)}
+    textarea{resize:vertical;line-height:1.55}
+    .hint{font-size:12.5px;color:var(--sub);line-height:1.5}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+    /* Dropdown custom: nhóm + độ khó */
+    .fc-dd{position:relative;flex:1;min-width:0}
+    .fc-dd-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;border:1px solid #e2e8f0;border-radius:12px;padding:11px 14px;font-size:13.5px;font-weight:600;background:#fff;color:var(--text);cursor:pointer;transition:all .15s ease;font-family:inherit;text-align:left}
+    .fc-dd-trigger:hover{border-color:#cbd5e1}
+    .fc-dd-trigger i.arr{font-size:11px;color:#94a3b8;flex-shrink:0;transition:transform .2s ease;margin-left:auto}
+    .fc-dd.open .fc-dd-trigger{border-color:var(--green);box-shadow:0 0 0 4px rgba(16,185,129,.12)}
+    .fc-dd.open .fc-dd-trigger i.arr{color:var(--green);transform:rotate(180deg)}
+    .fc-dd-trigger .ph{color:#94a3b8;font-weight:500}
+    .fc-dd-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:50;background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 18px 44px rgba(15,23,42,.16);padding:6px;display:none;max-height:260px;overflow:auto;margin:0;list-style:none}
+    .fc-dd.open .fc-dd-menu{display:block}
+    .fc-dd-opt{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:0;border-radius:10px;padding:9px 11px;font-size:13.5px;font-weight:600;color:#334155;cursor:pointer;transition:background .12s;font-family:inherit}
+    .fc-dd-opt:hover{background:#ecfdf5;color:#047857}
+    .fc-dd-opt.sel{background:#ecfdf5;color:#059669}
+    .fc-dd-opt.sel:after{content:"\f00c";font-family:"Font Awesome 6 Free";font-weight:900;font-size:11px;margin-left:auto;color:#059669}
+    #fcFcLvDD .fc-dd-trigger{background:#ecfdf5;font-weight:700}
+    #fcFcLvDD .fc-dd-trigger .ph{color:#10b981}
+    #fcFcLvDD .fc-dd-opt.sel{background:#ecfdf5;color:#059669;font-weight:700}
+    #fcFcLvDD .fc-dd-opt[data-v="Dễ"]:not(:hover){color:#059669}
+    #fcFcLvDD .fc-dd-opt[data-v="Trung bình"]:not(:hover){color:#b45309}
+    #fcFcLvDD .fc-dd-opt[data-v="Khó"]:not(:hover){color:#dc2626}
+    #fcFcLvDD .fc-dd-opt[data-v="Nâng cao"]:not(:hover){color:#7c3aed}
+    .fc-dd-sel{position:absolute;opacity:0;pointer-events:none;height:1px;width:1px;border:0;padding:0;margin:0;overflow:hidden}
+
+    .fc-cat-row{display:flex;gap:8px;align-items:center}
+    .fc-cat-row .fc-dd{flex:1}
+    .btn-sm{border:0;border-radius:10px;padding:8px 13px;font-weight:700;font-size:12.5px;cursor:pointer;transition:all .15s;font-family:inherit}
+    .btn-sm:hover{transform:translateY(-1px)}
+    .btn-approve{background:#d1fae5;color:#047857}
+    .btn-approve:hover{background:#a7f3d0}
+    .btn-remove{background:#fee2e2;color:#dc2626}
+    .btn-remove:hover{background:#fecaca}
+    button.btn-green{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff;border:0;border-radius:12px;padding:12px 24px;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s ease;box-shadow:0 6px 16px rgba(16,185,129,.3);font-family:inherit}
+    button.btn-green:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(16,185,129,.38)}
+    button.btn-green:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    button.btn-ghost{display:inline-flex;align-items:center;gap:8px;background:#f1f5f9;color:#334155;border:0;border-radius:12px;padding:12px 20px;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s ease;font-family:inherit}
+    button.btn-ghost:hover{background:#e2e8f0}
+    .fc-save-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px dashed #e6e9f2}
+    .fc-count-pill{display:inline-flex;align-items:center;gap:7px;background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700}
+
+    .fc-live{margin-top:14px}
+    .fc-live-title{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+    .fc-live-title i{font-size:11px}
+    .fc-live-empty{background:#f8fafc;border:1px dashed #dbe3f0;border-radius:14px;padding:22px 16px;text-align:center;color:#94a3b8;font-size:13px;line-height:1.6}
+    .fc-live-empty i{display:block;font-size:22px;margin-bottom:6px;color:#c7d2e8}
+    .fc-live-card{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;background:linear-gradient(135deg,#f8fafc,#fdf4ff);border:1px solid #ede9fe;border-radius:14px;padding:12px 14px;margin-bottom:8px}
+    .fc-live-front{font-weight:800;font-size:14px;color:#0f172a}
+    .fc-live-arrow{color:#a78bfa;font-size:12px}
+    .fc-live-back{color:#475569;font-size:13.5px;font-weight:600} 
+    .fc-live-back .fc-live-ex{display:block;font-weight:500;color:#94a3b8;font-size:12px;margin-top:2px}
+    .fc-live-more{text-align:center;font-size:12px;color:#94a3b8;font-weight:600;margin-top:6px}
+
+    .fc-chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 9px}
+    .fc-chip.members{background:#e0f2fe;color:#0369a1}
+    .fc-chip.green{background:#d1fae5;color:#047857}
+    .fc-chip.pending{background:#fef3c7;color:#b45309}
+
+    .tc-class-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+    #tcFcList{display:block}
+    .fc-group{margin-bottom:22px}
+    .fc-group:last-child{margin-bottom:0}
+    .fc-group-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;cursor:pointer;user-select:none}
+    .fc-group-head .fc-group-caret{color:var(--green);transition:transform .18s ease;font-size:12px}
+    .fc-group-head.open .fc-group-caret{transform:rotate(90deg)}
+    .fc-group-title{font-weight:800;font-size:16px;color:var(--ink)}
+    .fc-group-count{font-size:12px;font-weight:700;color:var(--green-d);background:#d1fae5;padding:3px 10px;border-radius:999px}
+    .fc-chip.complete-chip{background:#d1fae5;color:#047857}
+    .fc-chip.wip-chip{background:#fef3c7;color:#b45309}
+    .fc-toggle-row{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none;font-weight:600;font-size:14px;color:var(--ink)}
+    .fc-toggle-row input{display:none}
+    .fc-toggle-track{width:44px;height:24px;border-radius:999px;background:#cbd5e1;position:relative;transition:background .2s;flex:none}
+    .fc-toggle-track::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+    .fc-toggle-row input:checked + .fc-toggle-track{background:#10b981}
+    .fc-toggle-row input:checked + .fc-toggle-track::after{left:23px}
+    .fc-group-toggle{font-size:12px;margin-left:auto}
+    .fc-group-toggle .fc-toggle-track{width:34px;height:20px}
+    .fc-group-toggle .fc-toggle-track::after{width:14px;height:14px;top:3px;left:3px}
+    .fc-group-toggle input:checked + .fc-toggle-track::after{left:17px}
+    .fc-group-rename{background:none;border:none;color:#6b7280;font-size:13px;cursor:pointer;padding:4px 8px;border-radius:6px}
+    .fc-group-rename:hover{background:#eef2ff;color:#4f46e5}
+    .tc-class{border:1px solid var(--border);border-radius:16px;padding:16px;background:var(--card);position:relative;overflow:hidden;transition:all .18s ease}
+    .tc-class:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,23,42,.08)}
+    .tc-class::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--green),var(--violet))}
+    .tc-class .tc-class-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .tc-class .tc-class-ico{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:17px;background:#ecfdf5;color:var(--green-d);flex-shrink:0}
+    .tc-class .name{font-weight:800;font-size:15px;line-height:1.2}
+    .tc-class .meta{display:flex;gap:8px;align-items:center}
+
+    .empty{text-align:center;color:#94a3b8;padding:44px 20px;background:linear-gradient(180deg,#fbfdff,#f6f8ff);border:1px dashed #dbe3f0;border-radius:16px;grid-column:1 / -1}
+    .empty .big{font-size:42px;margin-bottom:10px;line-height:1}
+    .empty-title{font-size:15px;font-weight:700;color:#475569;margin:10px 0 4px}
+    .empty-sub{font-size:13px;color:#94a3b8;margin:0 0 18px;line-height:1.5}
+    .empty-cta{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff;border-radius:12px;padding:11px 22px;font-weight:700;font-size:14px;cursor:pointer;border:0;font-family:inherit;box-shadow:0 6px 16px rgba(16,185,129,.28);transition:all .2s ease}
+    .empty-cta:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(16,185,129,.36)}
+
+    .fc-login{max-width:420px;margin:70px auto;padding:38px 30px;text-align:center}
+    .fc-login .icon{font-size:48px;color:var(--green);margin-bottom:14px}
+    .fc-login h2{margin:0 0 8px;font-size:20px}
+    .fc-login p{color:var(--sub);font-size:14px;margin-bottom:22px}
+    a.btn{display:inline-block;background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff;padding:12px 24px;border-radius:12px;text-decoration:none;font-weight:700;box-shadow:0 6px 16px rgba(16,185,129,.25)}
+    a.btn:hover{transform:translateY(-1px)}
+
+    @media(max-width:900px){
+      .fc-layout{grid-template-columns:1fr}
+      .grid-2{grid-template-columns:1fr}
+      .tc-wrap{margin:28px 20px}
+    }
+    @media(max-width:720px){
+      .tc-wrap{margin:22px 14px 52px}
+      .tc-view-head h2{font-size:18px}
+      .fc-live-card{grid-template-columns:1fr}
+      .fc-live-arrow{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div id="tcApp" class="teacher-app" style="display:none">
+    <!-- Sidebar + Topbar được chèn tự động bởi shell.js -->
+
+    <!-- ===== MAIN AREA ===== -->
+    <div class="teacher-canvas">
+      <div class="tc-wrap">
+        <div class="tc-view-head">
+          <h2><i class="fa-solid fa-layer-group" style="color:var(--green)"></i> Soạn flashcard</h2>
+          <span class="muted" id="fcCount"></span>
+          <a class="back" href="../flashcard/hub.html" style="margin-left:auto"><i class="fa-solid fa-arrow-up-right-from-square"></i> Xem hub</a>
+        </div>
+
+        <!-- EDITOR -->
+        <div id="tcFcEditor" style="display:none">
+          <div class="fc-layout">
+            <!-- LEFT: THÔNG TIN BỘ THẺ -->
+            <div class="tc-card fc-info">
+              <div class="fc-panel-head">
+                <div class="fc-panel-ico ico-green"><i class="fa-solid fa-file-lines"></i></div>
+                <div>
+                  <h3 id="tcFcEditorTitle">Bộ thẻ mới</h3>
+                  <span class="muted" id="tcFcEditorMode"></span>
+                </div>
+                <div style="margin-left:auto">
+                  <button class="btn-sm" type="button" style="background:#f1f5f9;color:#334155" onclick="tcFcCancel()"><i class="fa-solid fa-xmark"></i> Huỷ</button>
+                </div>
+              </div>
+              <div class="fc-field">
+                <label>Tên bộ thẻ <b>*</b></label>
+                <input id="tcFcName" type="text" placeholder="vd: Từ vựng công nghệ">
+              </div>
+              <div class="fc-field">
+                <label>Nhóm hiển thị trong hub flashcard <b>*</b></label>
+                <div class="fc-cat-row">
+                  <div class="fc-dd" id="fcFcCatDD">
+                    <button type="button" class="fc-dd-trigger" aria-haspopup="listbox"><span id="tcFcCatLabel">— Chọn nhóm —</span> <i class="fa-solid fa-chevron-down arr"></i></button>
+                    <ul class="fc-dd-menu" role="listbox"></ul>
+                    <select id="tcFcCategory" class="fc-dd-sel" tabindex="-1" aria-hidden="true">
+                      <option value="">— Chọn nhóm —</option>
+                    </select>
+                  </div>
+                  <button type="button" onclick="tcFcAddCategory()" style="flex-shrink:0;background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff;border:0;border-radius:12px;padding:11px 14px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;font-family:inherit"><i class="fa-solid fa-plus"></i> Nhóm mới</button>
+                </div>
+                <div id="tcFcNewCatRow" style="display:none;margin-top:8px;gap:8px;align-items:center">
+                  <input id="tcFcNewCategory" type="text" placeholder="Nhập tên nhóm mới, vd: Từ vựng công nghệ" style="flex:1">
+                  <button type="button" onclick="tcFcCancelNewCategory()" style="flex-shrink:0;background:#f1f5f9;color:#334155;border:0;border-radius:12px;padding:10px 12px;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit">Huỷ</button>
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="fc-field">
+                  <label>Level / độ khó</label>
+                  <div class="fc-dd" id="fcFcLvDD">
+                    <button type="button" class="fc-dd-trigger" aria-haspopup="listbox"><span id="tcFcLevelLabel">— Chọn độ khó —</span> <i class="fa-solid fa-chevron-down arr"></i></button>
+                    <ul class="fc-dd-menu" role="listbox"></ul>
+                    <select id="tcFcLevel" class="fc-dd-sel" tabindex="-1" aria-hidden="true">
+                      <option value="">— Chọn độ khó —</option>
+                      <option value="Dễ">Dễ</option>
+                      <option value="Trung bình">Trung bình</option>
+                      <option value="Khó">Khó</option>
+                      <option value="Nâng cao">Nâng cao</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="fc-field">
+                  <label>Mô tả</label>
+                  <input id="tcFcDesc" type="text" placeholder="Chủ đề bộ thẻ">
+                </div>
+              </div>
+              <div class="fc-field">
+                <label>Trạng thái bộ thẻ</label>
+                <label class="fc-toggle-row" for="tcFcComplete">
+                  <input id="tcFcComplete" type="checkbox">
+                  <span class="fc-toggle-track"></span>
+                  <span class="fc-toggle-text">Đã hoàn thành bộ thẻ</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- RIGHT: SOẠN THẺ + PREVIEW -->
+            <div class="tc-card fc-write">
+              <div class="fc-panel-head">
+                <div class="fc-panel-ico ico-violet"><i class="fa-solid fa-pen-nib"></i></div>
+                <div>
+                  <h3>Soạn thẻ</h3>
+                  <span class="muted">Mỗi dòng một thẻ: <code style="background:#f5f3ff;padding:1px 6px;border-radius:6px;color:#7c3aed">từ - nghĩa</code> (thêm " - ví dụ" nếu muốn)</span>
+                </div>
+              </div>
+              <textarea id="tcFcText" rows="9" placeholder="Sea - Biển&#10;Wave - Sóng&#10;Lighthouse - Hải đăng"></textarea>
+              <div class="fc-live">
+                <div class="fc-live-title"><i class="fa-solid fa-bolt"></i> Xem trước</div>
+                <div id="tcFcLive"></div>
+              </div>
+              <div class="fc-save-row">
+                <span id="tcFcPreview" class="fc-count-pill"><i class="fa-solid fa-layer-group"></i> 0 thẻ</span>
+                <button id="tcFcBtnSave" class="btn-green" type="button" onclick="tcFcSave()"><i class="fa-solid fa-floppy-disk"></i> Lưu bộ thẻ</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIST MY SETS -->
+        <div id="tcFcListCard" class="tc-card" style="padding:22px;margin-top:18px">
+          <div class="fc-panel-head" style="margin-bottom:16px">
+            <div class="fc-panel-ico ico-green"><i class="fa-solid fa-circle-plus"></i></div>
+            <div>
+              <h3 style="font-size:15px">Bộ thẻ của tôi</h3>
+              <span class="muted">Đã có <b id="fcMemberCount">0</b> bộ thẻ</span>
+            </div>
+            <button id="tcFcBtnNew" class="btn-sm" type="button" style="background:#d1fae5;color:#047857;margin-left:auto" onclick="tcFcNew()"><i class="fa-solid fa-plus"></i> Tạo bộ thẻ mới</button>
+          </div>
+          <div id="tcFcList" class="tc-class-grid">
+            <div class="empty"><div class="big">🃏</div>Đang tải danh sách bộ thẻ...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="fcDenied" style="display:none">
+    <div class="tc-card fc-login">
+      <div class="icon"><i class="fa-solid fa-user-lock"></i></div>
+      <h2>Không có quyền truy cập</h2>
+      <p>Tài khoản của bạn không phải là Giáo viên hoặc Admin. Khu vực này chỉ dành cho giảng viên.</p>
+      <a class="btn" href="../index.html">← Về trang chính</a>
+    </div>
+  </div>
+
+  <div id="fcLoading" style="display:none">
+    <div class="tc-card fc-login">
+      <div class="icon"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+      <h2>Đang kiểm tra quyền...</h2>
+      <p>Vui lòng chờ trong giây lát.</p>
+    </div>
+  </div>
+
+  <script src="shell.js"></script>
+  <script src="../toast.js"></script>
+
+  <script type="module">
+    import { supabase, getUserRow, escapeHtml } from "../supabase-config.js";
+
+    // Liên kết menu shell: các trang con của khu vực Giáo viên.
+    window.onTeacherNav = function(key) {
+      if (key === "home") window.location.href = "./index.html";
+      else if (key === "manage") window.location.href = "./index.html?view=manage";
+      else if (key === "fc") window.location.href = "./newflashcard.html";
+    };
+
+    if (window.TeacherShell && window.TeacherShell.setActive) TeacherShell.setActive("fc");
+
+    const tcApp = document.getElementById("tcApp");
+    const fcDenied = document.getElementById("fcDenied");
+    const fcLoading = document.getElementById("fcLoading");
+
+    function show(which) {
+      if (tcApp) tcApp.style.display = which === "app" ? "" : "none";
+      fcDenied.style.display = which === "denied" ? "" : "none";
+      fcLoading.style.display = which === "loading" ? "" : "none";
+    }
+
+    function toast(msg, type) {
+      if (window.lhToast) lhToast(msg, { type: type || "info" });
+    }
+
+    function normRole(role) {
+      return String(role || "").trim().toLowerCase();
+    }
+    function isTeacherRole(role) {
+      const r = normRole(role);
+      return r === "giáo viên" || r === "giao vien";
+    }
+    function isAdminRole(role) {
+      return normRole(role) === "admin";
+    }
+
+    async function guard() {
+      show("loading");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session || !session.user) { show("denied"); return; }
+      const row = await getUserRow(session.user.id);
+      const role = row?.role || "";
+      const isAdmin = isAdminRole(role);
+      const isTeacher = isTeacherRole(role) || isAdmin;
+      if (!isTeacher) { show("denied"); return; }
+
+      const displayName = (row && (row.name || row.email)) || "Giáo viên";
+      const badge = document.getElementById("tcUserBadge");
+      const avatar = row && (row.photo || row.avatar_url || row.picture);
+      const initials = displayName.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
+      let avatarHtml;
+      if (avatar && !/^https?:\/\//i.test(avatar) && !/^data:image/i.test(avatar)) {
+        avatarHtml = `<div class="tc-topbar-avatar">${initials}</div>`;
+      } else if (avatar) {
+        avatarHtml = `<img class="tc-topbar-avatar-img" src="${escapeHtml(avatar)}" alt="${escapeHtml(displayName)}">`;
+      } else {
+        avatarHtml = `<div class="tc-topbar-avatar">${initials}</div>`;
+      }
+
+      const label = isAdmin
+        ? `<span class="tc-badge"><i class="fa-solid fa-shield-halved"></i> ${escapeHtml(row.email || "")} · Admin</span>`
+        : `<span class="tc-topbar-name">${escapeHtml(row.name || row.email || "")}</span>`;
+
+      if (badge) badge.innerHTML = `<div class="tc-topbar-user">${label}${avatarHtml}</div>`;
+      show("app");
+      await boot();
+    }
+
+    // ================= SOẠN FLASHCARD (lưu DB) =================
+    let tcFcEditId = null;
+    let tcFcListCache = null;   // null = chưa load, else mảng bộ thẻ
+    let tcFcGroupsCache = {};   // name -> is_complete của nhóm
+
+    function tcFcShowEditor(show) {
+      const ed = document.getElementById("tcFcEditor");
+      const listCard = document.getElementById("tcFcListCard");
+      if (ed) ed.style.display = show ? "" : "none";
+      if (listCard) listCard.style.display = show ? "none" : "";
+      if (show) document.getElementById("tcFcText").focus();
+    }
+
+    function tcFcParseText(text) {
+      return String(text || "")
+        .split("\n")
+        .map(line => line.trim())
+        .filter(line => line && line.includes(" - "))
+        .map(line => {
+          const parts = line.split(" - ");
+          const front = (parts[0] || "").trim();
+          const back = (parts[1] || "").trim();
+          const example = (parts[2] || "").trim();
+          if (!front || !back) return null;
+          const card = { front, back };
+          if (example) card.example = example;
+          return card;
+        })
+        .filter(Boolean);
+    }
+
+    function tcFcUpdatePreview() {
+      const cards = tcFcParseText(document.getElementById("tcFcText").value);
+      const el = document.getElementById("tcFcPreview");
+      if (el) el.innerHTML = `<i class="fa-solid fa-layer-group"></i> ${cards.length} thẻ`;
+      const live = document.getElementById("tcFcLive");
+      if (!live) return;
+      if (!cards.length) {
+        live.innerHTML = '<div class="fc-live-empty"><i class="fa-solid fa-wand-magic-sparkles"></i>Nhập thẻ vào khung bên trên, xem trước xuất hiện tại đây.</div>';
+        return;
+      }
+      const shown = cards.slice(0, 4).map(c => `
+        <div class="fc-live-card">
+          <div class="fc-live-front">${escapeHtml(c.front)}</div>
+          <div class="fc-live-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="fc-live-back">${escapeHtml(c.back)}${c.example ? `<span class="fc-live-ex"><i class="fa-solid fa-quote-left"></i> ${escapeHtml(c.example)}</span>` : ""}</div>
+        </div>
+      `).join("");
+      if (cards.length > 4) shown += `<div class="fc-live-more">+${cards.length - 4} thẻ nữa</div>`;
+      live.innerHTML = shown;
+    }
+
+    window.tcFcNew = function() {
+      tcFcEditId = null;
+      document.getElementById("tcFcName").value = "";
+      document.getElementById("tcFcCategory").value = "";
+      document.getElementById("tcFcNewCategory").value = "";
+      document.getElementById("tcFcLevel").value = "";
+      document.getElementById("tcFcDesc").value = "";
+      document.getElementById("tcFcText").value = "";
+      document.getElementById("tcFcComplete").checked = false;
+      document.getElementById("tcFcEditorTitle").textContent = "Bộ thẻ mới";
+      document.getElementById("tcFcEditorMode").textContent = "";
+      document.getElementById("tcFcBtnSave").innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Lưu bộ thẻ';
+      tcFcSetNewCatMode(false);
+      fcDDRefresh("fcFcCatDD");
+      fcDDRefresh("fcFcLvDD");
+      tcFcUpdatePreview();
+      tcFcShowEditor(true);
+    };
+
+    window.tcFcCancel = function() {
+      tcFcShowEditor(false);
+      tcFcEditId = null;
+    };
+
+    async function tcFcLoadList() {
+      if (tcFcListCache === null) {
+        const listEl = document.getElementById("tcFcList");
+        listEl.innerHTML = `<div class="empty"><div class="big"><i class="fa-solid fa-spinner fa-spin" style="color:#2563eb"></i></div><div class="empty-title">Đang tải bộ thẻ...</div></div>`;
+        try {
+          const [setsRes, groupsRes] = await Promise.all([
+            supabase.rpc("teacher_flashcard_sets"),
+            supabase.rpc("list_flashcard_groups").catch(() => ({ data: null }))
+          ]);
+          if (setsRes.error) throw setsRes.error;
+          tcFcListCache = setsRes.data || [];
+          tcFcGroupsCache = {};
+          (groupsRes.data || []).forEach(g => { tcFcGroupsCache[g.name] = g.is_complete === true; });
+        } catch (e) {
+          console.error("teacher_flashcard_sets lỗi:", e);
+          listEl.innerHTML = '<div class="empty"><div class="big">⚠️</div><div class="empty-title">Không tải được danh sách bộ thẻ</div><p class="empty-sub">Kiểm tra lại SQL đã chạy chưa.</p></div>';
+          return;
+        }
+      }
+      tcFcRenderList(tcFcListCache);
+    }
+
+    function tcFcRenderList(rows) {
+      const listEl = document.getElementById("tcFcList");
+      const list = rows || [];
+      document.getElementById("fcMemberCount").textContent = list.length;
+      const countEl = document.getElementById("fcCount");
+      if (countEl) countEl.textContent = list.length ? `(${list.length} bộ thẻ)` : "";
+      tcFcRenderCategoryOptions(list);
+
+      if (!list.length) {
+        listEl.innerHTML = `<div class="empty">
+          <div class="big">🃏</div>
+          <div class="empty-title">Bạn chưa có bộ thẻ nào</div>
+          <p class="empty-sub">Tạo bộ thẻ đầu tiên để học sinh có thể vào luyện tập ngay.</p>
+          <button class="empty-cta" type="button" onclick="tcFcNew()"><i class="fa-solid fa-plus"></i> Tạo bộ thẻ mới</button>
+        </div>`;
+        return;
+      }
+
+      // Nhóm các bộ thẻ theo category, giữ thứ tự: nhóm tĩnh trên trước rồi tới các nhóm khác.
+      const groups = [];
+      const byCat = {};
+      (list || []).forEach(s => {
+        const cat = String(s.category || "").trim() || "Chưa phân nhóm";
+        if (!byCat[cat]) { byCat[cat] = []; groups.push({ cat, sets: byCat[cat] }); }
+        byCat[cat].push(s);
+      });
+      groups.sort((a, b) => {
+        const ia = TC_STATIC_GROUPS.indexOf(a.cat);
+        const ib = TC_STATIC_GROUPS.indexOf(b.cat);
+        if (ia === -1 && ib === -1) return a.cat.localeCompare(b.cat, "vi");
+        if (ia === -1) return 1;
+        if (ib === -1) return -1;
+        return ia - ib;
+      });
+
+      listEl.innerHTML = groups.map((g, gi) => `
+        <div class="fc-group">
+          <div class="fc-group-head${gi === 0 ? " open" : ""}" data-fc-toggle="${gi}">
+            <i class="fa-solid fa-chevron-right fc-group-caret"></i>
+            <span class="fc-group-title">${escapeHtml(g.cat)}</span>
+            <span class="fc-group-count">${g.sets.length} bộ</span>
+            <label class="fc-toggle-row fc-group-toggle" title="Trạng thái nhóm" onclick="event.stopPropagation()">
+              <input type="checkbox" data-fc-group-complete="${escapeHtml(g.cat)}" ${tcFcGroupsCache[g.cat] ? "checked" : ""}>
+              <span class="fc-toggle-track"></span>
+              <span class="fc-toggle-text">${tcFcGroupsCache[g.cat] ? "Hoàn thành" : "Đang cập nhật"}</span>
+            </label>
+            <button type="button" class="fc-group-rename" data-fc-group-rename="${escapeHtml(g.cat)}" title="Sửa tên nhóm" onclick="event.stopPropagation()"><i class="fa-solid fa-pen"></i></button>
+          </div>
+          <div class="tc-class-grid" data-fc-body="${gi}" style="${gi === 0 ? "" : "display:none"}">${g.sets.map(s => `
+            <div class="tc-class">
+              <div class="tc-class-head">
+                <div class="tc-class-ico"><i class="fa-solid fa-layer-group"></i></div>
+                <div class="name">${escapeHtml(s.name)}</div>
+              </div>
+              <div class="meta" style="margin-bottom:10px">
+                ${s.level ? `<span class="fc-chip green">${escapeHtml(s.level)}</span>` : ""}
+                <span class="fc-chip pending"><i class="fa-solid fa-address-card"></i> ${s.card_count} thẻ</span>
+                ${s.is_complete ? `<span class="fc-chip complete-chip"><i class="fa-solid fa-circle-check"></i> Hoàn thành</span>` : `<span class="fc-chip wip-chip"><i class="fa-solid fa-pen-ruler"></i> Đang soạn</span>`}
+              </div>
+              <div class="meta" style="justify-content:flex-end">
+                <button class="btn-sm" style="background:#e0f2fe;color:#0369a1" data-fc-edit="${escapeHtml(s.set_id)}"><i class="fa-solid fa-pen"></i> Sửa</button>
+                <button class="btn-sm btn-remove" data-fc-del="${escapeHtml(s.set_id)}"><i class="fa-solid fa-trash-can"></i> Xoá</button>
+              </div>
+            </div>
+          `).join("")}</div>
+        </div>
+      `).join("");
+      listEl.querySelectorAll("[data-fc-edit]").forEach(btn => {
+        btn.addEventListener("click", () => tcFcEdit(btn.dataset.fcEdit));
+      });
+      listEl.querySelectorAll("[data-fc-del]").forEach(btn => {
+        btn.addEventListener("click", () => tcFcDelete(btn.dataset.fcDel));
+      });
+      listEl.querySelectorAll("[data-fc-toggle]").forEach(hd => {
+        hd.addEventListener("click", () => {
+          const body = listEl.querySelector(`[data-fc-body="${hd.dataset.fcToggle}"]`);
+          if (!body) return;
+          const open = body.style.display !== "none";
+          body.style.display = open ? "none" : "";
+          hd.classList.toggle("open", !open);
+        });
+      });
+      listEl.querySelectorAll("[data-fc-group-complete]").forEach(cb => {
+        cb.addEventListener("change", () => tcFcGroupSetComplete(cb.dataset.fcGroupComplete, cb.checked, cb));
+      });
+      listEl.querySelectorAll("[data-fc-group-rename]").forEach(btn => {
+        btn.addEventListener("click", () => tcFcGroupRename(btn.dataset.fcGroupRename, btn));
+      });
+    }
+
+    // Điền vào dropdown nhóm: các nhóm tĩnh có sẵn trong hub + nhóm từng dùng trong DB.
+    const TC_STATIC_GROUPS = [
+      "800 Từ Vựng Nền Tảng",
+      "300 Từ Vựng Tủ Chuyên Sâu Nâng Cao 9+",
+      "Từ Vựng Theo Chủ Đề",
+      "Từ Vựng Nhập Môn",
+      "Phrasal Verbs"
+    ];
+    let tcFcNewCatMode = false;
+
+    function tcFcSetNewCatMode(on) {
+      tcFcNewCatMode = on;
+      const row = document.getElementById("tcFcNewCatRow");
+      if (row) row.style.display = on ? "flex" : "none";
+      if (on) document.getElementById("tcFcNewCategory").focus();
+    }
+
+    window.tcFcAddCategory = function() {
+      document.getElementById("tcFcCategory").value = "";
+      tcFcSetNewCatMode(true);
+    };
+
+    window.tcFcCancelNewCategory = function() {
+      document.getElementById("tcFcNewCategory").value = "";
+      tcFcSetNewCatMode(false);
+    };
+
+    function tcFcGetCategory() {
+      if (tcFcNewCatMode) {
+        const v = document.getElementById("tcFcNewCategory").value.trim();
+        if (v) return v;
+      }
+      return document.getElementById("tcFcCategory").value.trim();
+    }
+
+    function tcFcRenderCategoryOptions(list) {
+      const sel = document.getElementById("tcFcCategory");
+      if (!sel) return;
+      const cats = [];
+      TC_STATIC_GROUPS.forEach(c => { if (!cats.includes(c)) cats.push(c); });
+      (list || []).forEach(s => {
+        const c = String(s.category || "").trim();
+        if (c && !cats.includes(c)) cats.push(c);
+      });
+      cats.sort((a, b) => a.localeCompare(b, "vi"));
+      sel.innerHTML = `<option value="">— Chọn nhóm —</option>` +
+        cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+      fcDDRefresh("fcFcCatDD");
+    }
+
+    // ---- Dropdown custom (menu không phải native của trình duyệt) ----
+    function fcDDLabelEl(wrapId) {
+      const w = document.getElementById(wrapId);
+      return w ? w.querySelector(".fc-dd-trigger span") : null;
+    }
+    function fcDDRefresh(wrapId) {
+      const w = document.getElementById(wrapId);
+      if (!w) return;
+      const sel = w.querySelector("select");
+      const menu = w.querySelector(".fc-dd-menu");
+      if (!sel || !menu) return;
+      const ph = sel.options[0] ? sel.options[0].text : "— Chọn —";
+      const label = fcDDLabelEl(wrapId);
+      if (label) {
+        const o = [...sel.options].find(e => e.value === sel.value);
+        label.textContent = o ? (o.value === "" ? ph : o.text) : ph;
+        label.classList.toggle("ph", !o || o.value === "");
+      }
+      const items = [...sel.options].map((o, i) =>
+        `<li role="option" aria-selected="${o.value === sel.value}" data-i="${i}" data-v="${escapeHtml(o.value)}" class="fc-dd-opt${o.value === sel.value ? " sel" : ""}">${escapeHtml(o.text)}</li>`
+      ).join("");
+      menu.innerHTML = items;
+    }
+    function fcDDSetup(wrapId) {
+      const w = document.getElementById(wrapId);
+      if (!w || w.dataset.dd) return;
+      w.dataset.dd = "1";
+      const trig = w.querySelector(".fc-dd-trigger");
+      const menu = w.querySelector(".fc-dd-menu");
+      const sel = w.querySelector("select");
+      trig.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const wasOpen = w.classList.contains("open");
+        document.querySelectorAll(".fc-dd.open").forEach(x => x.classList.remove("open"));
+        if (!wasOpen) w.classList.add("open");
+      });
+      menu.addEventListener("click", (e) => {
+        const li = e.target.closest(".fc-dd-opt");
+        if (!li) return;
+        sel.value = li.dataset.v;
+        sel.dispatchEvent(new Event("change"));
+        w.classList.remove("open");
+        fcDDRefresh(wrapId);
+      });
+      fcDDRefresh(wrapId);
+    }
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".fc-dd")) document.querySelectorAll(".fc-dd.open").forEach(x => x.classList.remove("open"));
+    });
+    // Thông báo cho JS cũ khi select ẩn đổi giá trị.
+    function fcDDChanged(wrapId) {
+      fcDDRefresh(wrapId);
+    }
+
+    async function tcFcEdit(setId) {
+      const { data, error } = await supabase.rpc("get_flashcard_set", { p_set_id: setId });
+      if (error || !data || !data.length) {
+        console.error("get_flashcard_set lỗi:", error);
+        return toast("Không đọc được bộ thẻ", "error");
+      }
+      const s = data[0];
+      const cards = Array.isArray(s.cards) ? s.cards : [];
+      tcFcEditId = setId;
+      document.getElementById("tcFcName").value = s.name || "";
+      document.getElementById("tcFcLevel").value = s.level || "";
+      document.getElementById("tcFcDesc").value = s.description || "";
+      document.getElementById("tcFcComplete").checked = s.is_complete === true;
+
+      // Nhóm: nếu có trong dropdown thì chọn; không thì mở chế độ nhập nhóm mới (điền sẵn).
+      const cat = String(s.category || "").trim();
+      const sel = document.getElementById("tcFcCategory");
+      const inp = document.getElementById("tcFcNewCategory");
+      if (cat && [...sel.options].some(o => o.value === cat)) {
+        sel.value = cat;
+        tcFcSetNewCatMode(false);
+      } else {
+        sel.value = "";
+        inp.value = cat;
+        tcFcSetNewCatMode(!!cat);
+      }
+      document.getElementById("tcFcText").value = cards
+        .map(c => [c.front, c.back, c.example].filter(Boolean).join(" - "))
+        .join("\n");
+      fcDDRefresh("fcFcCatDD");
+      fcDDRefresh("fcFcLvDD");
+      document.getElementById("tcFcEditorTitle").textContent = "Sửa bộ thẻ";
+      document.getElementById("tcFcEditorMode").textContent = "(Sửa sẽ lưu đè nội dung hiện tại)";
+      document.getElementById("tcFcBtnSave").innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi';
+      tcFcUpdatePreview();
+      tcFcShowEditor(true);
+    }
+
+    window.tcFcSave = async function() {
+      const name = document.getElementById("tcFcName").value.trim();
+      const category = tcFcGetCategory();
+      const level = document.getElementById("tcFcLevel").value.trim();
+      const desc = document.getElementById("tcFcDesc").value.trim();
+      const cards = tcFcParseText(document.getElementById("tcFcText").value);
+      if (!name) return toast("Vui lòng nhập tên bộ thẻ", "error");
+      if (!category) return toast("Vui lòng chọn hoặc nhập nhóm hiển thị (vd: Từ vựng thường ngày)", "error");
+      if (!cards.length) return toast("Chưa có thẻ nào. Mỗi dòng theo dạng: từ - nghĩa", "error");
+
+      const btn = document.getElementById("tcFcBtnSave");
+      btn.disabled = true;
+      try {
+        const args = { p_name: name, p_category: category, p_level: level, p_description: desc, p_cards: cards, p_is_complete: document.getElementById("tcFcComplete").checked };
+        const result = tcFcEditId
+          ? await supabase.rpc("update_flashcard_set", { p_set_id: tcFcEditId, ...args })
+          : await supabase.rpc("create_flashcard_set", args);
+        if (result.error) throw result.error;
+        if (result.data && result.data.ok !== true) {
+          const msgs = { forbidden: "Bạn không có quyền làm việc này", empty_name: "Tên bộ thẻ trống", empty_cards: "Bộ thẻ chưa có thẻ" };
+          return toast(msgs[result.data.error] || "Không lưu được", "error");
+        }
+        toast(tcFcEditId ? "Đã lưu thay đổi bộ thẻ" : "Đã tạo bộ thẻ mới", "success");
+        tcFcListCache = null;
+        tcFcShowEditor(false);
+        tcFcEditId = null;
+        await tcFcLoadList();
+      } catch (e) {
+        console.error("Lưu flashcard lỗi:", e);
+        toast("Lỗi lưu bộ thẻ: " + (e.message || e), "error");
+      } finally {
+        btn.disabled = false;
+      }
+    };
+
+    window.tcFcDelete = async function(setId) {
+      const ok = window.lhConfirm
+        ? await lhConfirm("Chắc chắn xoá bộ thẻ này? Học sinh sẽ không vào học được nữa!")
+        : confirm("Chắc chắn xoá bộ thẻ này? Học sinh sẽ không vào học được nữa!");
+      if (!ok) return;
+      const { data, error } = await supabase.rpc("delete_flashcard_set", { p_set_id: setId });
+      if (error) { console.error("delete_flashcard_set lỗi:", error); return toast("Lỗi xoá bộ thẻ", "error"); }
+      if (data && data.ok !== true) return toast("Không xoá được bộ thẻ", "error");
+      toast("Đã xoá bộ thẻ", "success");
+      tcFcListCache = (tcFcListCache || []).filter(s => s.set_id !== setId);
+      tcFcRenderList(tcFcListCache);
+    };
+
+    // Bật/tắt "nhóm đã hoàn thành" (trạng thái riêng của nhóm).
+    async function tcFcGroupSetComplete(name, checked, cb) {
+      const { data, error } = await supabase.rpc("set_flashcard_group_complete", { p_name: name, p_is_complete: checked });
+      if (error || (data && data.ok !== true)) {
+        console.error("set_flashcard_group_complete lỗi:", error);
+        toast("Không đổi được trạng thái nhóm", "error");
+        cb.checked = !checked;
+        return;
+      }
+      tcFcGroupsCache[name] = checked;
+      toast(checked ? "Nhóm đã đánh dấu hoàn thành" : "Nhóm chuyển sang đang cập nhật", "success");
+      tcFcRenderList(tcFcListCache);
+    }
+
+    // Sửa tên nhóm (đổi luôn category của các bộ trong nhóm).
+    async function tcFcGroupRename(oldName, btn) {
+      const newName = window.lhPrompt
+        ? await lhPrompt("Sửa tên nhóm (tên nhóm dùng đi dùng lại, đã có trong danh sách)", oldName)
+        : prompt("Sửa tên nhóm:", oldName);
+      if (newName === null || newName === undefined) return;
+      if (String(newName).trim() === String(oldName).trim() || !String(newName).trim()) return;
+      btn.disabled = true;
+      try {
+        const { data, error } = await supabase.rpc("rename_flashcard_group", { p_old_name: oldName, p_new_name: String(newName).trim() });
+        if (error || (data && data.ok !== true)) {
+          const msgs = { empty_name: "Tên nhóm trống", duplicate: "Đã có nhóm trùng tên", forbidden: "Bạn không có quyền này" };
+          return toast(msgs[data && data.error] || "Không đổi được tên nhóm", "error");
+        }
+        // Cập nhật category trong cache của các bộ trong nhóm.
+        const fresh = String(newName).trim();
+        (tcFcListCache || []).forEach(s => { if (String(s.category).trim() === oldName) s.category = fresh; });
+        const oldG = tcFcGroupsCache[oldName];
+        delete tcFcGroupsCache[oldName];
+        tcFcGroupsCache[fresh] = oldG === true;
+        toast("Đã đổi tên nhóm", "success");
+        tcFcRenderList(tcFcListCache);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    // Khởi động: load danh sách; nếu mở theo ?set=<id> thì vào chế độ sửa.
+    async function boot() {
+      fcDDSetup("fcFcCatDD");
+      fcDDSetup("fcFcLvDD");
+      document.getElementById("tcFcText").addEventListener("input", tcFcUpdatePreview);
+      document.getElementById("tcFcCategory").addEventListener("change", () => {
+        if (document.getElementById("tcFcCategory").value !== "") tcFcSetNewCatMode(false);
+        fcDDRefresh("fcFcCatDD");
+      });
+      await tcFcLoadList();
+      const params = new URLSearchParams(window.location.search);
+      const setId = params.get("set");
+      if (setId) await tcFcEdit(setId);
+    }
+
+    guard();
+  </script>
+</body>
+</html>

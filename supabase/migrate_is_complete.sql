@@ -33,8 +33,7 @@ drop policy if exists flashcard_sets_no_direct on public.flashcard_sets;
 create policy flashcard_sets_no_direct on public.flashcard_sets
   for all to authenticated using (false) with check (false);
 
--- ============ 3. RPC ============
-
+-- ============ 3. RPC (phiên bản mới, kèm is_complete) ============
 -- Xoá các hàm BẢN CŨ (chữ ký / kiểu trả về khác) trước khi tạo lại —
 -- create or replace function không cho đổi kiểu trả về.
 drop function if exists public.create_flashcard_set(text, text, text, jsonb);
@@ -47,6 +46,7 @@ drop function if exists public.update_flashcard_set(uuid, text, text, text, json
 drop function if exists public.update_flashcard_set(uuid, text, text, text, text, jsonb);
 drop function if exists public.update_flashcard_set(uuid, text, text, text, text, jsonb, boolean);
 drop function if exists public.delete_flashcard_set(uuid);
+
 
 -- Giáo viên tạo bộ thẻ (kèm toàn bộ thẻ). p_cards = jsonb array [{front, back, example?}].
 create or replace function public.create_flashcard_set(
@@ -85,8 +85,6 @@ grant execute on function public.create_flashcard_set(text, text, text, text, js
 
 -- Danh sách bộ thẻ (web giáo viên — kèm số thẻ). Flashcard xài chung:
 -- giáo viên/admin nào cũng thấy tất cả các bộ, không phân biệt chủ sở hữu.
--- LƯU Ý: KHÔNG lọc theo is_teacher() — bản trước từng gây trang teacher trống
--- (role chuỗi trong DB lệch chuẩn "Giáo viên"), web đã tự chặn ở guard() trước khi load.
 create or replace function public.teacher_flashcard_sets()
 returns table(set_id uuid, name text, category text, level text, description text, is_complete boolean, card_count bigint, created_at timestamptz, updated_at timestamptz)
 language sql stable security definer
@@ -102,6 +100,7 @@ as $$
          s.created_at,
          s.updated_at
     from public.flashcard_sets s
+   where public.is_teacher()
    order by s.created_at desc;
 $$;
 revoke execute on function public.teacher_flashcard_sets() from public;
@@ -203,104 +202,5 @@ begin
   return jsonb_build_object('ok', true);
 end;
 $$;
--- ============ 4. NHÓM BỘ THẺ (group: sửa tên + trạng thái riêng của nhóm) ============
-
-create table if not exists public.flashcard_groups (
-  id         uuid primary key default gen_random_uuid(),
-  name       text not null unique,
-  is_complete boolean not null default false,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
--- Seed: mỗi category đang có trong bảng → 1 nhóm (is_complete mặc định false).
-insert into public.flashcard_groups (name)
-  select distinct btrim(category)
-    from public.flashcard_sets
-   where btrim(category) <> ''
-  on conflict (name) do nothing;
-
-alter table public.flashcard_groups enable row level security;
-
-drop policy if exists flashcard_groups_no_direct on public.flashcard_groups;
-create policy flashcard_groups_no_direct on public.flashcard_groups
-  for all to authenticated using (false) with check (false);
-
-drop function if exists public.list_flashcard_groups();
-drop function if exists public.rename_flashcard_group(text, text);
-drop function if exists public.set_flashcard_group_complete(text, boolean);
-
--- Danh sách nhóm (hub + web giáo viên) — ai cũng đọc được.
-create or replace function public.list_flashcard_groups()
-returns table(group_id uuid, name text, is_complete boolean, set_count bigint)
-language sql stable security definer
-set search_path = public
-as $$
-  select g.id, g.name, g.is_complete,
-         (select count(*) from public.flashcard_sets s where s.category = g.name)
-    from public.flashcard_groups g
-   order by g.name;
-$$;
-revoke execute on function public.list_flashcard_groups() from public;
-grant execute on function public.list_flashcard_groups() to anon, authenticated;
-
--- Giáo viên đổi tên nhóm (đổi luôn category của các bộ trong nhóm).
-create or replace function public.rename_flashcard_group(
-  p_old_name text,
-  p_new_name text
-)
-returns jsonb
-language plpgsql security definer
-set search_path = public
-as $$
-declare
-  v_old text := btrim(coalesce(p_old_name, ''));
-  v_new text := btrim(coalesce(p_new_name, ''));
-begin
-  if v_new = '' then
-    return jsonb_build_object('ok', false, 'error', 'empty_name');
-  end if;
-  if not public.is_teacher() then
-    return jsonb_build_object('ok', false, 'error', 'forbidden');
-  end if;
-  if exists (select 1 from public.flashcard_groups where name = v_new and name <> v_old) then
-    return jsonb_build_object('ok', false, 'error', 'duplicate');
-  end if;
-  update public.flashcard_groups set name = v_new, updated_at = now() where name = v_old;
-  update public.flashcard_sets set category = v_new where category = v_old;
-  insert into public.flashcard_groups (name)
-    select v_new
-     where not exists (select 1 from public.flashcard_groups where name = v_new);
-  return jsonb_build_object('ok', true);
-end;
-$$;
-revoke execute on function public.rename_flashcard_group(text, text) from public;
-grant execute on function public.rename_flashcard_group(text, text) to authenticated;
-
--- Giáo viên bật/tắt "nhóm đã hoàn thành" (tự tạo nhóm nếu category chưa có record).
-create or replace function public.set_flashcard_group_complete(
-  p_name text,
-  p_is_complete boolean
-)
-returns jsonb
-language plpgsql security definer
-set search_path = public
-as $$
-declare
-  v_name text := btrim(coalesce(p_name, ''));
-begin
-  if v_name = '' then
-    return jsonb_build_object('ok', false, 'error', 'invalid');
-  end if;
-  if not public.is_teacher() then
-    return jsonb_build_object('ok', false, 'error', 'forbidden');
-  end if;
-  insert into public.flashcard_groups (name, is_complete)
-    values (v_name, coalesce(p_is_complete, false))
-    on conflict (name) do update
-      set is_complete = excluded.is_complete, updated_at = now();
-  return jsonb_build_object('ok', true);
-end;
-$$;
-revoke execute on function public.set_flashcard_group_complete(text, boolean) from public;
-grant execute on function public.set_flashcard_group_complete(text, boolean) to authenticated;
+revoke execute on function public.delete_flashcard_set(uuid) from public;
+grant execute on function public.delete_flashcard_set(uuid) to authenticated;

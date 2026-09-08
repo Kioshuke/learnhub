@@ -304,3 +304,7 @@ end;
 $$;
 revoke execute on function public.set_flashcard_group_complete(text, boolean) from public;
 grant execute on function public.set_flashcard_group_complete(text, boolean) to authenticated;
+
+-- Ðánh d?u 31 b? th? + 4 nhóm dã import là HOÀN THÀNH (d? hub hi?n "Vào h?c" ngay).
+update public.flashcard_sets set is_complete = true;
+update public.flashcard_groups set is_complete = true;

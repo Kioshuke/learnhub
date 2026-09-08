@@ -56,31 +56,57 @@ nhãn nút "Admin Panel" → "Administrator".
 
 ---
 
-### 1.2 Web riêng cho GIÁO VIÊN (`teacher.html`) — ⏳ CHƯA LÀM
+### 1.2 Web riêng cho GIÁO VIÊN — ✅ SHELL ĐÃ XONG, CÁC TAB ĐANG HOÀN THIỆN
 
-**Mô tả:** Tạo trang web riêng (tương tự administrator nhưng gọn hơn) chỉ dành
-cho giáo viên. Có auth riêng (storage key riêng), chỉ người role `Giáo viên`/`Admin` vào được.
+**Mô tả:** Trang web riêng chỉ dành cho giáo viên (ví trí `teacher/`), dùng chung
+topbar + sidebar để tương lai mở rộng tab dễ dàng. Có auth, chỉ người role
+`Giáo viên`/`Admin` vào được (`teacher/index.html` → `guard()`).
+
+**Kiến trúc đã làm:**
+- ✅ Thư mục `teacher/` mới: `index.html` (trang chính + lớp học), `shell.js`
+  (sidebar + topbar dùng chung, API `TeacherShell.setActive/navigate/NAV`), `newflashcard.html`.
+- ✅ `teacher.html` ở gốc giữ vai trò redirect → `teacher/index.html` (link cũ không hỏng).
+- ✅ Sidebar: nhóm **Tổng quan / Lớp học / Học sinh / Flashcard / Bài kiểm tra / Báo cáo**,
+  mục được chọn tô màu theo đúng màu thẻ tính năng tương ứng (Tổng quan=indigo,
+  Lớp học=xanh dương, Flashcard=xanh lá, Kiểm tra=cam, Học sinh=cyan, Báo cáo=tím).
+- ✅ Điều hướng giữa trang con (vd bấm "Lớp học" từ trang flashcard → `?view=manage`
+  → index mở đúng tab Lớp học thay vì về Tổng quan).
 
 **Các phần (tab) trong web giáo viên:**
 
-**a) Soạn bài kiểm tra (trắc nghiệm)**
-- Giáo viên tạo đề: nhập tiêu đề, chọn môn, thêm từng câu hỏi (nội dung, 4 đáp án, đáp án đúng, độ khó), sửa/xóa.
+**a) Soạn bài kiểm tra (trắc nghiệm)** — ⏳ CHƯA LÀM
+- Giáo viên tạo đề: nhập tiêu đề, chọn môn, thêm từng câu hỏi (mỗi câu hỏi có nội dung,
+  4 đáp án, đáp án đúng, độ khó), sửa/xóa.
 - Dữ liệu lưu vào DB thay vì sửa file JSON.
 - Từ đề này, học sinh làm bài qua engine `filetest.html` (cải tiến để đọc từ DB).
 
-**b) Soạn flashcard**
-- Giáo viên tạo bộ thẻ từ vựng theo chủ đề (từ – nghĩa – ví dụ), gán cho lớp/môn.
-- Học sinh học bằng các chế độ game flashcard hiện có.
+**b) Soạn flashcard** — ✅ ĐÃ LÀM (`teacher/newflashcard.html`)
+- Bố cục hiện đại 2 cột: **Thông tin bộ thẻ** (tên, nhóm, độ khó, mô tả) + **Soạn thẻ & preview live**
+  (nhập mỗi dòng `từ - nghĩa ( - ví dụ)`, xem trước thẻ render ngay, đếm số thẻ).
+- Thay 2 dropdown native bằng **dropdown custom** (menu xổ đẹp, màu theo mức độ khó;
+  `<select>` ẩn giữ nguyên nên toàn bộ logic JS cũ không đổi).
+- Nhóm hiển thị: chọn từ dropdown (nhóm tĩnh + nhóm đã tạo) hoặc bấm **"Nhóm mới"**
+  để tạo nhóm chưa có; tách biệt với trường input tên bộ thẻ.
+- Độ khó là dropdown chuẩn: **Dễ / Trung bình / Khó / Nâng cao**.
+- Danh sách "Bộ thẻ của tôi": thẻ hiện tên + chip nhóm/độ khó/số thẻ, nút Sửa/Xoá;
+  trạng thái rỗng có nút "Tạo bộ thẻ mới" hiện rộng khắp grid.
+- Lưu/xoá qua RPC `teacher_flashcard_sets` / `create_flashcard_set` / `update_flashcard_set`
+  / `delete_flashcard_set` + `get_flashcard_set`; xoá có xác nhận (`lhConfirm`).
+- Đã bỏ iframe nhúng trang `flashcard/new.html` cũ (file đã xoá, git giữ lịch sử).
+- Link "Xem hub" → `flashcard/hub.html` (trang hub học sinh vẫn dùng các bộ của GV).
 
-**c) Tổng quan lớp**
-- Danh sách lớp giáo viên đang quản lý, số học sinh, số bài đã giao, ngày giao.
+**c) Tổng quan lớp** — ✅ LÕI ĐÃ LÀM
+- Tab **Lớp học**: danh sách lớp GV quản lý, tạo lớp (tên + khối → mã mời 6 ký tự),
+  chi tiết lớp: xem thành viên + yêu cầu chờ, **duyệt / từ chối / gỡ / xoá lớp**.
+- Tab **Tổng quan** (trang chính): thống kê nhanh số lớp / học sinh / yêu cầu chờ,
+  thẻ "Quản lý lớp học" + "Soạn Flashcard" mở trực tiếp.
 
-**d) Giao bài cho lớp**
+**d) Giao bài cho lớp** — ⏳ CHƯA LÀM
 - Chọn lớp → chọn đề đã soạn → ấn giao, đặt hạn nộp.
 - Học sinh thấy bài được giao ở trang học sinh, làm và gửi kết quả.
 
-**e) Kết quả & ôn tập (nối GĐ2)**
-- Xem học sinh nào đã làm/chưa, điểm từng người, bài nào sai nhiều.
+**e) Kết quả & ôn tập (nối GĐ2)** — ⏳ CHƯA LÀM
+- Xem học sinh nào đã làm/chưa, điểm từng người, bài nào sai nhiều (tab **Báo cáo**).
 - AI gợi ý câu hỏi ôn tập cho học sinh yếu.
 
 **Lý do:** Giáo viên chủ động tạo và giao nội dung chính là phần "demo sư phạm"
