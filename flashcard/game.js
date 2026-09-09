@@ -366,11 +366,28 @@ function initFlashcard() {
     showCard();
 }
 
+function fcEsc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+}
+
 function showCard() {
     if (!cards[current]) return;
     const card = cards[current];
     document.getElementById("front").innerText = card.front;
-    document.getElementById("back").innerText = card.back;
+    const backEl = document.getElementById("back");
+    const lvStyle = {
+      "Dễ": ["#dcfce7", "#15803d"],
+      "Trung bình": ["#fef9c3", "#a16207"],
+      "Khó": ["#fee2e2", "#b91c1c"],
+      "Nâng cao": ["#ede9fe", "#6d28d9"]
+    }[card.level];
+    let html = '<div style="display:block;width:100%">';
+    if (lvStyle) html += `<div style="text-align:center;margin-bottom:10px;"><span style="display:inline-block;font-size:11px;font-weight:800;padding:3px 12px;border-radius:999px;background:${lvStyle[0]};color:${lvStyle[1]};">${fcEsc(card.level)}</span></div>`;
+    html += `<div style="font-size:38px;font-weight:800;color:#4338ca;line-height:1.2;">${fcEsc(card.back)}</div>`;
+    if (card.description) html += `<div style="margin-top:12px;font-size:15px;font-weight:600;color:#6d28d9;line-height:1.5;">${fcEsc(card.description)}</div>`;
+    if (card.example) html += `<div style="margin-top:10px;font-size:14px;font-weight:500;color:#7c3aed;font-style:italic;line-height:1.45;">✏️ Ví dụ: ${fcEsc(card.example)}</div>`;
+    html += "</div>";
+    backEl.innerHTML = html;
 }
 
 function flipCard() {

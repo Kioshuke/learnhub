@@ -215,6 +215,23 @@ export function onAuthChange(cb) {
 
 // ---------- HỒ SƠ NGƯỜI DÙNG ----------
 
+export function normRole(role) {
+  return String(role || "").trim().toLowerCase();
+}
+
+export function isTeacherRole(role) {
+  const r = normRole(role);
+  return r === "giáo viên" || r === "giao vien";
+}
+
+export function isAdminRole(role) {
+  return normRole(role) === "admin";
+}
+
+export function canManageContent(role) {
+  return isTeacherRole(role) || isAdminRole(role);
+}
+
 export async function getUserRow(uid) {
   if (!uid) return null;
   try {

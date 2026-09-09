@@ -325,11 +325,6 @@
       gap: 10px;
     }
 
-    .emoji {
-      font-size: 28px;
-      line-height: 1;
-    }
-
     .chip {
       font-size: 12px;
       padding: 5px 10px;
@@ -339,6 +334,18 @@
       color: var(--section-accent-dark);
       white-space: nowrap;
     }
+
+    .fc-hub-grip {
+      color: var(--section-accent);
+      font-size: 13px;
+      cursor: grab;
+      padding: 2px 4px;
+      opacity: .75;
+      flex: none;
+    }
+    .fc-hub-grip:hover { opacity: 1; }
+    .topic-card.dragging { opacity: .4; border-style: dashed; }
+    .topic-card.d-over { border-color: var(--section-accent); background: var(--section-soft); box-shadow: 0 0 0 2px var(--section-border); }
 
     .status-badge {
       font-size: 11px;
@@ -602,12 +609,6 @@
       justify-content: space-between;
     }
 
-    .skel-emoji {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-    }
-
     .skel-chip {
       width: 64px;
       height: 20px;
@@ -783,7 +784,6 @@
           <li><button type="button" class="filter-item" data-value="elite300">300 Từ Vựng Tủ 9+</button></li>
           <li><button type="button" class="filter-item" data-value="topic">Từ vựng theo chủ đề</button></li>
           <li><button type="button" class="filter-item" data-value="exam">Từ vựng nhập môn</button></li>
-          <li><button type="button" class="filter-item" data-value="phrasal">Phrasal Verbs</button></li>
         </ul>
       </div>
     </div>
@@ -796,21 +796,21 @@
         </div>
         <div class="topic-grid">
           <div class="skel-card">
-            <div class="skel-card-top"><div class="skel-bar skel-emoji"></div><div class="skel-bar skel-chip"></div></div>
+            <div class="skel-card-top"><div class="skel-bar skel-chip"></div></div>
             <div class="skel-bar skel-card-title"></div>
             <div class="skel-bar skel-card-desc"></div>
             <div class="skel-bar skel-card-desc short"></div>
             <div class="skel-card-meta"><div class="skel-bar skel-count"></div><div class="skel-bar skel-btn"></div></div>
           </div>
           <div class="skel-card">
-            <div class="skel-card-top"><div class="skel-bar skel-emoji"></div><div class="skel-bar skel-chip"></div></div>
+            <div class="skel-card-top"><div class="skel-bar skel-chip"></div></div>
             <div class="skel-bar skel-card-title"></div>
             <div class="skel-bar skel-card-desc"></div>
             <div class="skel-bar skel-card-desc short"></div>
             <div class="skel-card-meta"><div class="skel-bar skel-count"></div><div class="skel-bar skel-btn"></div></div>
           </div>
           <div class="skel-card">
-            <div class="skel-card-top"><div class="skel-bar skel-emoji"></div><div class="skel-bar skel-chip"></div></div>
+            <div class="skel-card-top"><div class="skel-bar skel-chip"></div></div>
             <div class="skel-bar skel-card-title"></div>
             <div class="skel-bar skel-card-desc"></div>
             <div class="skel-bar skel-card-desc short"></div>
@@ -825,21 +825,21 @@
         </div>
         <div class="topic-grid">
           <div class="skel-card">
-            <div class="skel-card-top"><div class="skel-bar skel-emoji"></div><div class="skel-bar skel-chip"></div></div>
+            <div class="skel-card-top"><div class="skel-bar skel-chip"></div></div>
             <div class="skel-bar skel-card-title"></div>
             <div class="skel-bar skel-card-desc"></div>
             <div class="skel-bar skel-card-desc short"></div>
             <div class="skel-card-meta"><div class="skel-bar skel-count"></div><div class="skel-bar skel-btn"></div></div>
           </div>
           <div class="skel-card">
-            <div class="skel-card-top"><div class="skel-bar skel-emoji"></div><div class="skel-bar skel-chip"></div></div>
+            <div class="skel-card-top"><div class="skel-bar skel-chip"></div></div>
             <div class="skel-bar skel-card-title"></div>
             <div class="skel-bar skel-card-desc"></div>
             <div class="skel-bar skel-card-desc short"></div>
             <div class="skel-card-meta"><div class="skel-bar skel-count"></div><div class="skel-bar skel-btn"></div></div>
           </div>
           <div class="skel-card">
-            <div class="skel-card-top"><div class="skel-bar skel-emoji"></div><div class="skel-bar skel-chip"></div></div>
+            <div class="skel-card-top"><div class="skel-bar skel-chip"></div></div>
             <div class="skel-bar skel-card-title"></div>
             <div class="skel-bar skel-card-desc"></div>
             <div class="skel-bar skel-card-desc short"></div>
@@ -915,23 +915,6 @@
           glow: "rgba(34, 211, 238, 0.4)"
         },
         items: []
-      },
-      {
-        key: "phrasal",
-        title: "Phrasal Verbs",
-        note: "3 bộ",
-        theme: {
-          accent: "#ea580c",
-          accentDark: "#c2410c",
-          soft: "rgba(234, 88, 12, 0.12)",
-          border: "rgba(234, 88, 12, 0.34)",
-          glow: "rgba(251, 146, 60, 0.38)"
-        },
-        items: [
-          { name: "Work & Office", description: "Các cụm động từ hay dùng trong công việc.", words: 80, level: "Trung Bình", icon: "📁", href: "#" },
-          { name: "Daily Conversation", description: "Phrasal verbs dùng trong giao tiếp hằng ngày.", words: 75, level: "Dễ", icon: "💬", href: "#" },
-          { name: "Advanced Usage", description: "Cụm động từ nâng cao trong ngữ cảnh học thuật.", words: 95, level: "Nâng cao", icon: "🧠", href: "#" }
-        ]
       }
     ];
 
@@ -947,14 +930,14 @@
     let currentHubFilter = "all";
     let dbSectionAdded = false;
 
-    // Hiện lỗi tải bộ thẻ DB ngay trên trang (kèm code HTTP) để dễ chẩn đoán.
+    // Hiện lỗi tải bộ từ DB ngay trên trang (kèm code HTTP) để dễ chẩn đoán.
     window.__hubLoadError = function(e) {
       const status = (e && e.status) ? ` [HTTP ${e.status}]` : "";
       const code = (e && e.code) ? ` (${e.code})` : "";
       const msg = (e && (e.message || e.error_description)) || String(e || "Lỗi không xác định");
       const el = document.createElement("div");
       el.style.cssText = "margin:14px auto;max-width:760px;padding:14px 16px;border:1px solid rgba(239,68,68,.35);border-radius:14px;background:rgba(254,242,242,.85);color:#b91c1c;font-size:13px;line-height:1.6;";
-      el.innerHTML = `<b>Không tải được bộ thẻ từ dữ liệu</b><br><code style="font-size:12px;color:#9a3412">${new Date().toISOString()}${status}${code} — ${msg}</code>`;
+      el.innerHTML = `<b>Không tải được bộ từ từ dữ liệu</b><br><code style="font-size:12px;color:#9a3412">${new Date().toISOString()}${status}${code} — ${msg}</code>`;
       (document.querySelector(".wrap") || document.body).appendChild(el);
     };
 
@@ -968,8 +951,8 @@
       { accent: "#ec4899", accentDark: "#db2777", soft: "rgba(236,72,153,0.13)", border: "rgba(236,72,153,0.36)", glow: "rgba(244,114,182,0.4)" }
     ];
 
-    // Hook nhận bộ thẻ từ DB (do script module ở dưới cùng gọi sau khi fetch xong).
-    // Nhóm các bộ thẻ theo cột "category" — mỗi nhóm thành 1 section riêng.
+    // Hook nhận bộ từ từ DB (do script module ở dưới cùng gọi sau khi fetch xong).
+    // Nhóm các bộ từ theo cột "category" — mỗi nhóm thành 1 section riêng.
     window.__hubAddDbSets = function(dbSets, groupStatus) {
       if (dbSectionAdded) return;
       dbSectionAdded = true;
@@ -984,13 +967,13 @@
         const cat = String(s.category || "").trim() || "Bộ Thẻ Giáo Viên";
         if (!groups[cat]) groups[cat] = [];
         groups[cat].push({
-          name: s.name || "Bộ thẻ",
-          description: s.description || "Bộ thẻ từ vựng do giáo viên soạn.",
+          name: s.name || "Bộ từ",
+          description: s.description || "Bộ từ vựng do giáo viên soạn.",
           words: Number(s.card_count || 0),
           level: s.level || "Giáo viên",
-          icon: "🃏",
           href: `flash.html?set=${s.set_id}`,
-          isComplete: s.is_complete === true
+          isComplete: s.is_complete === true,
+          dbSetId: s.set_id
         });
       });
 
@@ -1152,9 +1135,12 @@
             const isUnavailable = isPlaceholder || topic.isComplete === false;
             const card = document.createElement("article");
             card.className = "topic-card";
+            if (topic.dbSetId) card.dataset.fcDbSet = topic.dbSetId;
             card.innerHTML = `
               <div class="card-top">
-                <span class="emoji">${topic.icon || "📘"}</span>
+                ${topic.dbSetId && window.__fcHubCanReorder
+                  ? `<span class="fc-hub-grip" draggable="true" title="Giữ và kéo để sắp xếp thứ tự"><i class="fa-solid fa-grip-vertical"></i></span>`
+                  : ""}
                 ${isUnavailable
                   ? '<span class="card-updating-badge">⏳ Đang cập nhật</span>'
                   : `<span class="chip">${topic.level || "Cơ bản"}</span>`}
@@ -1180,6 +1166,41 @@
             card.addEventListener("mouseleave", clearHubBackgroundTheme);
 
             grid.appendChild(card);
+
+            if (topic.dbSetId && window.__fcHubCanReorder) {
+              const grip = card.querySelector(".fc-hub-grip");
+              grip.addEventListener("dragstart", (e) => {
+                window.__fcHubDragId = topic.dbSetId;
+                card.classList.add("dragging");
+                try { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", topic.dbSetId); } catch (err) {}
+              });
+              grip.addEventListener("dragend", () => {
+                card.classList.remove("dragging");
+                grid.querySelectorAll(".topic-card").forEach(x => x.classList.remove("d-over"));
+                window.__fcHubDragId = null;
+              });
+              card.addEventListener("dragover", (e) => {
+                if (!card.dataset.fcDbSet || window.__fcHubDragId === topic.dbSetId) return;
+                e.preventDefault();
+                card.classList.add("d-over");
+              });
+              card.addEventListener("dragleave", () => card.classList.remove("d-over"));
+              card.addEventListener("drop", async (e) => {
+                e.preventDefault();
+                card.classList.remove("d-over");
+                const fromId = window.__fcHubDragId;
+                if (!fromId || fromId === topic.dbSetId) return;
+                const draggedEl = grid.querySelector(`[data-fc-db-set="${fromId}"]`);
+                if (!draggedEl || draggedEl === card) return;
+                if (draggedEl !== card.nextElementSibling) card.insertAdjacentElement("afterend", draggedEl);
+                const dbCards = [...grid.querySelectorAll(".topic-card[data-fc-db-set]")];
+                const ranked = dbCards.map((el, i) => ({ set_id: el.dataset.fcDbSet, position: i }));
+                if (typeof window.__fcHubReorder === "function") {
+                  const ok = await window.__fcHubReorder(ranked);
+                  if (ok) lhToast("Đã lưu thứ tự mới", { type: "success", title: "Sắp xếp" });
+                }
+              });
+            }
           });
 
           if (shouldSlide) {
@@ -1242,7 +1263,19 @@ if (localStorage.getItem("darkMode") === "on") {
 </script>
 
 <script type="module">
-  import { supabase, logAppError } from "../supabase-config.js";
+  import { supabase, getUserRow, canManageContent, logAppError } from "../supabase-config.js";
+
+  window.__fcHubReorder = async function(ranked) {
+    try {
+      const { data, error } = await supabase.rpc("reorder_flashcard_sets", { p_ranked: ranked });
+      if (error) throw error;
+      return !data || data.ok === true;
+    } catch (e) {
+      console.error("reorder_flashcard_sets lỗi:", e);
+      lhToast("Không lưu được thứ tự: " + (e.message || e), { type: "error", title: "Sắp xếp" });
+      return false;
+    }
+  };
 
   async function loadTeacherSets() {
     try {
@@ -1258,7 +1291,18 @@ if (localStorage.getItem("darkMode") === "on") {
       if (typeof logAppError === "function") logAppError({ source: "fc-hub", category: "feature", level: "error", code: "FCHUB_FAIL", message: "list_flashcard_sets thất bại: " + ((e && e.status) ? "[HTTP " + e.status + "]" : "") + " " + ((e && (e.message || e.error_description)) || e), url: location.href });
     }
   }
-  loadTeacherSets();
+
+  (async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const uid = session && session.user ? session.user.id : null;
+      if (uid) {
+        const u = await getUserRow(uid);
+        if (canManageContent(u?.role)) window.__fcHubCanReorder = true;
+      }
+    } catch (e) {}
+    loadTeacherSets();
+  })();
 </script>
 </body>
 </html>

@@ -134,15 +134,30 @@
     .fc-m-field label{display:block;font-size:11px;font-weight:700;color:#64748b;margin-bottom:3px}
     .fc-m-field input{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:8px 11px;font-size:13.5px;font-family:inherit;color:#0f172a;box-sizing:border-box;outline:none}
     .fc-m-field input:focus{border-color:#818cf8;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+    .fc-m-field select{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:8px 11px;font-size:13.5px;font-family:inherit;color:#0f172a;box-sizing:border-box;outline:none;background:#fff;cursor:pointer}
+    .fc-m-field select:focus{border-color:#818cf8;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
     .fc-m-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
     .fc-card-item{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#f8fafc,#fdf4ff);border:1px solid #ede9fe;border-radius:12px;padding:9px 12px}
     .fc-card-item-front{font-weight:800;font-size:13.5px;color:#0f172a;min-width:120px}
     .fc-card-item-back{color:#475569;font-size:13px;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .fc-card-item-ex{color:#94a3b8;font-size:11.5px;font-weight:600;flex:none;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .fc-card-item-desc{color:#64748b;font-size:11.5px;line-height:1.45;flex:none;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .fc-lv-chip{display:inline-flex;align-items:center;font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 9px;flex:none;white-space:nowrap}
+    .fc-lv-chip.lv-de{background:#dcfce7;color:#15803d}
+    .fc-lv-chip.lv-tb{background:#fef9c3;color:#a16207}
+    .fc-lv-chip.lv-kho{background:#fee2e2;color:#b91c1c}
+    .fc-lv-chip.lv-cao{background:#ede9fe;color:#6d28d9}
+    .fc-lv-chip.lv-none{background:#f1f5f9;color:#475569}
+    .fc-preview-lvl{display:inline-flex;align-items:center;font-size:10px;font-weight:800;border-radius:999px;padding:1px 8px;background:#f1f5f9;color:#475569;margin-top:4px}
     .fc-card-item-acts{display:flex;gap:4px;flex:none}
     .fc-card-item-acts button{background:none;border:0;border-radius:8px;width:28px;height:28px;cursor:pointer;color:#6b7280;font-size:12px;font-family:inherit;transition:all .12s}
     .fc-card-item-acts .fc-ed:hover{background:#eef2ff;color:#4f46e5}
     .fc-card-item-acts .fc-del:hover{background:#fee2e2;color:#dc2626}
+    .fc-card-item{cursor:grab}
+    .fc-card-item:active{cursor:grabbing}
+    .fc-drag-handle{color:#c4b5fd;font-size:13px;cursor:grab;flex:none;padding:2px}
+    .fc-card-item.dragging{opacity:.45;border-style:dashed}
+    .fc-card-item.d-over{border-color:#7c3aed;background:#f5f3ff;box-shadow:0 0 0 2px rgba(124,58,237,.15)}
     .fc-m-add{display:inline-flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:8px;background:#ecfdf5;border:1px dashed #6ee7b7;color:#047857;border-radius:12px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s}
     .fc-m-add:hover{background:#d1fae5}
 
@@ -164,7 +179,7 @@
     .fc-chip.wip-chip{background:#fef3c7;color:#b45309}
     .fc-toggle-row{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none;font-weight:600;font-size:14px;color:var(--ink)}
     .fc-toggle-row input{display:none}
-    .fc-toggle-track{width:44px;height:24px;border-radius:999px;background:#cbd5e1;position:relative;transition:background .2s;flex:none}
+    .fc-toggle-track{display:inline-block;width:44px;height:24px;border-radius:999px;background:#cbd5e1;position:relative;transition:background .2s;flex:none}
     .fc-toggle-track::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
     .fc-toggle-row input:checked + .fc-toggle-track{background:#10b981}
     .fc-toggle-row input:checked + .fc-toggle-track::after{left:23px}
@@ -178,6 +193,10 @@
     .tc-class:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,23,42,.08)}
     .tc-class::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--green),var(--violet))}
     .tc-class .tc-class-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .tc-class .tc-drag-handle{color:#94a3b8;font-size:14px;cursor:grab;padding:2px 1px;flex-shrink:0;opacity:.7}
+    .tc-class .tc-drag-handle:hover{opacity:1;color:var(--green-d)}
+    .tc-class.dragging{opacity:.4;border-style:dashed}
+    .tc-class.d-over{border-color:var(--green-d);box-shadow:0 0 0 2px var(--green);transform:translateY(-2px)}
     .tc-class .tc-class-ico{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:17px;background:#ecfdf5;color:var(--green-d);flex-shrink:0}
     .tc-class .name{font-weight:800;font-size:15px;line-height:1.2}
     .tc-class .meta{display:flex;gap:8px;align-items:center}
@@ -225,12 +244,12 @@
         <!-- EDITOR -->
         <div id="tcFcEditor" style="display:none">
           <div class="fc-layout">
-            <!-- LEFT: THÔNG TIN BỘ THẺ -->
+            <!-- LEFT: THÔNG TIN BỘ TỪ -->
             <div class="tc-card fc-info">
               <div class="fc-panel-head">
                 <div class="fc-panel-ico ico-green"><i class="fa-solid fa-file-lines"></i></div>
                 <div>
-                  <h3 id="tcFcEditorTitle">Bộ thẻ mới</h3>
+                  <h3 id="tcFcEditorTitle">Bộ từ mới</h3>
                   <span class="muted" id="tcFcEditorMode"></span>
                 </div>
                 <div style="margin-left:auto">
@@ -238,7 +257,7 @@
                 </div>
               </div>
               <div class="fc-field">
-                <label>Tên bộ thẻ <b>*</b></label>
+                <label>Tên bộ từ <b>*</b></label>
                 <input id="tcFcName" type="text" placeholder="vd: Từ vựng công nghệ">
               </div>
               <div class="fc-field">
@@ -275,15 +294,15 @@
                 </div>
                 <div class="fc-field">
                   <label>Mô tả</label>
-                  <input id="tcFcDesc" type="text" placeholder="Chủ đề bộ thẻ">
+                  <input id="tcFcDesc" type="text" placeholder="Chủ đề bộ từ">
                 </div>
               </div>
               <div class="fc-field">
-                <label>Trạng thái bộ thẻ</label>
+                <label>Trạng thái bộ từ</label>
                 <label class="fc-toggle-row" for="tcFcComplete">
                   <input id="tcFcComplete" type="checkbox">
                   <span class="fc-toggle-track"></span>
-                  <span class="fc-toggle-text">Đã hoàn thành bộ thẻ</span>
+                  <span class="fc-toggle-text">Đã hoàn thành bộ từ</span>
                 </label>
               </div>
             </div>
@@ -308,7 +327,7 @@
               </div>
               <div class="fc-save-row">
                 <span id="tcFcPreview" class="fc-count-pill"><i class="fa-solid fa-layer-group"></i> 0 thẻ</span>
-                <button id="tcFcBtnSave" class="btn-green" type="button" onclick="tcFcSave()"><i class="fa-solid fa-floppy-disk"></i> Lưu bộ thẻ</button>
+                <button id="tcFcBtnSave" class="btn-green" type="button" onclick="tcFcSave()"><i class="fa-solid fa-floppy-disk"></i> Lưu bộ từ</button>
               </div>
             </div>
           </div>
@@ -319,13 +338,13 @@
           <div class="fc-panel-head" style="margin-bottom:16px">
             <div class="fc-panel-ico ico-green"><i class="fa-solid fa-circle-plus"></i></div>
             <div>
-              <h3 style="font-size:15px">Bộ thẻ của tôi</h3>
-              <span class="muted">Đã có <b id="fcMemberCount">0</b> bộ thẻ</span>
+              <h3 style="font-size:15px">Bộ từ của tôi</h3>
+              <span class="muted">Đã có <b id="fcMemberCount">0</b> bộ từ</span>
             </div>
-            <button id="tcFcBtnNew" class="btn-sm" type="button" style="background:#d1fae5;color:#047857;margin-left:auto" onclick="tcFcNew()"><i class="fa-solid fa-plus"></i> Tạo bộ thẻ mới</button>
+            <button id="tcFcBtnNew" class="btn-sm" type="button" style="background:#d1fae5;color:#047857;margin-left:auto" onclick="tcFcNew()"><i class="fa-solid fa-plus"></i> Tạo bộ từ mới</button>
           </div>
           <div id="tcFcList" class="tc-class-grid">
-            <div class="empty"><div class="big">🃏</div>Đang tải danh sách bộ thẻ...</div>
+            <div class="empty"><div class="big">🃏</div>Đang tải danh sách bộ từ...</div>
           </div>
         </div>
       </div>
@@ -360,7 +379,7 @@
           <label>Tên nhóm mới</label>
           <input id="fcGroupRenameInput" type="text" placeholder="vd: Từ Vựng Công Nghệ">
         </div>
-        <p class="muted" style="font-size:12px;color:#94a3b8;margin:8px 0 0">Toàn bộ bộ thẻ trong nhóm sẽ được đổi tên này.</p>
+        <p class="muted" style="font-size:12px;color:#94a3b8;margin:8px 0 0">Toàn bộ bộ từ trong nhóm sẽ được đổi tên này.</p>
         <div class="fc-m-actions">
           <button class="btn-sm" type="button" id="fcGroupRenameCancelBtn" style="background:#f1f5f9;color:#334155" onclick="fcGroupRenameClose()">Huỷ</button>
           <button id="fcGroupRenameSave" class="btn-sm" type="button" style="background:#d1fae5;color:#047857"><i class="fa-solid fa-check"></i> Đổi tên</button>
@@ -393,6 +412,22 @@
             <div class="fc-m-field" style="flex:0 0 150px">
               <label>Ví dụ (không bắt buộc)</label>
               <input id="fcMEx" type="text" placeholder="vd: The sea is blue">
+            </div>
+          </div>
+          <div class="fc-m-form-row">
+            <div class="fc-m-field">
+              <label>Mô tả (không bắt buộc)</label>
+              <input id="fcMDesc" type="text" placeholder="vd: Từ chỉ biển cả, sóng nước">
+            </div>
+            <div class="fc-m-field" style="flex:0 0 170px">
+              <label>Độ khó</label>
+              <select id="fcMLevel">
+                <option value="">-- Chọn --</option>
+                <option value="Dễ">Dễ</option>
+                <option value="Trung bình">Trung bình</option>
+                <option value="Khó">Khó</option>
+                <option value="Nâng cao">Nâng cao</option>
+              </select>
             </div>
           </div>
           <div class="fc-m-actions">
@@ -478,7 +513,8 @@
 
     // ================= SOẠN FLASHCARD (lưu DB) =================
     let tcFcEditId = null;
-    let tcFcListCache = null;   // null = chưa load, else mảng bộ thẻ
+    let tcFcListCache = null;   // null = chưa load, else mảng bộ từ
+    let tcFcOpenByCat = new Map();   // nhóm (category) -> đang mở? giữ vị trí khi render lại
     let tcFcGroupsCache = {};   // name -> is_complete của nhóm
 
     function tcFcShowEditor(show) {
@@ -508,7 +544,7 @@
     }
 
     function tcFcUpdatePreview() {
-      const cards = tcFcParseText(document.getElementById("tcFcText").value);
+      const cards = tcFcWithMeta(tcFcParseText(document.getElementById("tcFcText").value));
       const el = document.getElementById("tcFcPreview");
       if (el) el.innerHTML = `<i class="fa-solid fa-layer-group"></i> ${cards.length} thẻ`;
       const live = document.getElementById("tcFcLive");
@@ -517,11 +553,11 @@
         live.innerHTML = '<div class="fc-live-empty"><i class="fa-solid fa-wand-magic-sparkles"></i>Nhập thẻ vào khung bên trên, xem trước xuất hiện tại đây.</div>';
         return;
       }
-      const shown = cards.slice(0, 4).map(c => `
+      let shown = cards.slice(0, 4).map(c => `
         <div class="fc-live-card">
           <div class="fc-live-front">${escapeHtml(c.front)}</div>
           <div class="fc-live-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-          <div class="fc-live-back">${escapeHtml(c.back)}${c.example ? `<span class="fc-live-ex"><i class="fa-solid fa-quote-left"></i> ${escapeHtml(c.example)}</span>` : ""}</div>
+          <div class="fc-live-back">${escapeHtml(c.back)}${c.example ? `<span class="fc-live-ex"><i class="fa-solid fa-quote-left"></i> ${escapeHtml(c.example)}</span>` : ""}${c.level ? `<span class="fc-preview-lvl">${escapeHtml(c.level)}</span>` : ""}</div>
         </div>
       `).join("");
       if (cards.length > 4) shown += `<div class="fc-live-more">+${cards.length - 4} thẻ nữa</div>`;
@@ -535,6 +571,34 @@
     let fcCards = [];
     let fcCardEditIndex = -1;
 
+    const FC_LEVELS = ["Dễ", "Trung bình", "Khó", "Nâng cao"];
+    const fcMeta = new Map();
+
+    function fcCardSig(c) {
+      return String(c.front || "").trim() + "\u0001" + String(c.back || "").trim() + "\u0001" + String(c.example || "").trim();
+    }
+
+    function fcLevelClass(level) {
+      return { "Dễ": "de", "Trung bình": "tb", "Khó": "kho", "Nâng cao": "cao" }[level] || "none";
+    }
+
+    function tcFcWithMeta(parsed) {
+      return parsed.map(c => {
+        const meta = fcMeta.get(fcCardSig(c));
+        if (meta) {
+          if (meta.description) c.description = meta.description;
+          if (meta.level) c.level = meta.level;
+        }
+        return c;
+      });
+    }
+
+    function fcRememberMeta(cards) {
+      (cards || []).forEach(c => {
+        fcMeta.set(fcCardSig(c), { description: c.description || "", level: c.level || "" });
+      });
+    }
+
     function tcFcSerializeCards(cards) {
       return cards.map(c =>
         String(c.front || "").trim() + " - " + String(c.back || "").trim() + (c.example ? " - " + String(c.example).trim() : "")
@@ -547,7 +611,7 @@
     }
 
     window.tcFcCardsOpen = function(index) {
-      fcCards = tcFcParseText(document.getElementById("tcFcText").value);
+      fcCards = tcFcWithMeta(tcFcParseText(document.getElementById("tcFcText").value));
       fcCardEditIndex = index === null || index === undefined ? -1 : index;
       tcFcCardsRender();
       document.getElementById("fcCardEditor").classList.add("open");
@@ -566,10 +630,13 @@
       listEl.innerHTML = fcCards.length
         ? fcCards.map((c, i) => `
           <div class="fc-card-item">
+            <i class="fa-solid fa-grip-vertical fc-drag-handle" draggable="true" data-i="${i}" title="Giữ và kéo để đổi thứ tự"></i>
             <span class="fc-card-item-front">${escapeHtml(c.front)}</span>
             <i class="fa-solid fa-arrow-right" style="color:#a78bfa;font-size:11px;flex:none"></i>
             <span class="fc-card-item-back">${escapeHtml(c.back)}</span>
             ${c.example ? `<span class="fc-card-item-ex"><i class="fa-solid fa-quote-left"></i> ${escapeHtml(c.example)}</span>` : ""}
+            ${c.level ? `<span class="fc-lv-chip lv-${fcLevelClass(c.level)}">${escapeHtml(c.level)}</span>` : ""}
+            ${c.description ? `<span class="fc-card-item-desc"><i class="fa-solid fa-pen-ruler"></i> ${escapeHtml(c.description)}</span>` : ""}
             <span class="fc-card-item-acts">
               <button type="button" class="fc-ed" data-i="${i}" title="Sửa thẻ"><i class="fa-solid fa-pen"></i></button>
               <button type="button" class="fc-del" data-i="${i}" title="Xoá thẻ"><i class="fa-solid fa-trash-can"></i></button>
@@ -585,6 +652,35 @@
         tcFcSyncFromCards();
         tcFcCardsRender();
       }));
+      // Kéo thả đổi thứ tự thẻ: giữ nút grip rồi thả lên thẻ muốn đặt sau.
+      let fcDragIdx = -1;
+      listEl.querySelectorAll(".fc-drag-handle").forEach(g => {
+        g.addEventListener("dragstart", (e) => {
+          fcDragIdx = Number(g.dataset.i);
+          g.closest(".fc-card-item").classList.add("dragging");
+          try { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", String(fcDragIdx)); } catch (err) {}
+        });
+        g.addEventListener("dragend", () => {
+          listEl.querySelectorAll(".fc-card-item").forEach(x => x.classList.remove("dragging", "d-over"));
+          fcDragIdx = -1;
+        });
+      });
+      listEl.querySelectorAll(".fc-card-item").forEach(item => {
+        item.addEventListener("dragover", (e) => { e.preventDefault(); if (!item.classList.contains("dragging")) item.classList.add("d-over"); });
+        item.addEventListener("dragleave", () => item.classList.remove("d-over"));
+        item.addEventListener("drop", (e) => {
+          e.preventDefault();
+          item.classList.remove("d-over");
+          const to = Number(item.querySelector(".fc-drag-handle").dataset.i);
+          if (fcDragIdx < 0 || fcDragIdx === to || !fcCards[fcDragIdx]) return;
+          const [moved] = fcCards.splice(fcDragIdx, 1);
+          const ins = fcDragIdx < to ? to : to + 1;
+          fcCards.splice(ins, 0, moved);
+          tcFcCardsCancel();
+          tcFcSyncFromCards();
+          tcFcCardsRender();
+        });
+      });
     }
 
     window.tcFcCardsEdit = function(index) {
@@ -598,10 +694,14 @@
         document.getElementById("fcMFront").value = fcCards[index].front || "";
         document.getElementById("fcMBack").value = fcCards[index].back || "";
         document.getElementById("fcMEx").value = fcCards[index].example || "";
+        document.getElementById("fcMDesc").value = fcCards[index].description || "";
+        document.getElementById("fcMLevel").value = fcCards[index].level || "";
       } else {
         document.getElementById("fcMFront").value = "";
         document.getElementById("fcMBack").value = "";
         document.getElementById("fcMEx").value = "";
+        document.getElementById("fcMDesc").value = "";
+        document.getElementById("fcMLevel").value = "";
       }
       setTimeout(() => {
         try { f.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {}
@@ -615,15 +715,21 @@
       const back = document.getElementById("fcMBack").value.trim();
       if (!front || !back) return toast("Mặt trước và mặt sau không được bỏ trống", "error");
       const example = document.getElementById("fcMEx").value.trim();
+      const description = document.getElementById("fcMDesc").value.trim();
+      const level = document.getElementById("fcMLevel").value.trim();
       const card = { front, back };
       if (example) card.example = example;
+      if (description) card.description = description;
+      if (level) card.level = level;
       if (fcCardEditIndex >= 0 && fcCards[fcCardEditIndex]) {
+        fcMeta.delete(fcCardSig(fcCards[fcCardEditIndex]));
         fcCards[fcCardEditIndex] = card;
         toast("Đã cập nhật thẻ #" + (fcCardEditIndex + 1), "success");
       } else {
         fcCards.push(card);
         toast("Đã thêm thẻ mới", "success");
       }
+      fcRememberMeta([card]);
       tcFcSyncFromCards();
       tcFcCardsRender();
       tcFcCardsCancel();
@@ -679,6 +785,7 @@
 
     window.tcFcNew = function() {
       tcFcEditId = null;
+      fcMeta.clear();
       document.getElementById("tcFcName").value = "";
       document.getElementById("tcFcCategory").value = "";
       document.getElementById("tcFcNewCategory").value = "";
@@ -686,9 +793,9 @@
       document.getElementById("tcFcDesc").value = "";
       document.getElementById("tcFcText").value = "";
       document.getElementById("tcFcComplete").checked = false;
-      document.getElementById("tcFcEditorTitle").textContent = "Bộ thẻ mới";
+      document.getElementById("tcFcEditorTitle").textContent = "Bộ từ mới";
       document.getElementById("tcFcEditorMode").textContent = "";
-      document.getElementById("tcFcBtnSave").innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Lưu bộ thẻ';
+      document.getElementById("tcFcBtnSave").innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Lưu bộ từ';
       tcFcSetNewCatMode(false);
       fcDDRefresh("fcFcCatDD");
       fcDDRefresh("fcFcLvDD");
@@ -704,7 +811,7 @@
     async function tcFcLoadList() {
       if (tcFcListCache === null) {
         const listEl = document.getElementById("tcFcList");
-        listEl.innerHTML = `<div class="empty"><div class="big"><i class="fa-solid fa-spinner fa-spin" style="color:#2563eb"></i></div><div class="empty-title">Đang tải bộ thẻ...</div></div>`;
+        listEl.innerHTML = `<div class="empty"><div class="big"><i class="fa-solid fa-spinner fa-spin" style="color:#2563eb"></i></div><div class="empty-title">Đang tải bộ từ...</div></div>`;
         try {
           const [setsRes, groupsRes] = await Promise.all([
             supabase.rpc("teacher_flashcard_sets"),
@@ -719,7 +826,7 @@
           const status = (e && e.status) ? ` [HTTP ${e.status}]` : "";
           const code = (e && e.code) ? ` (${e.code})` : "";
           const msg = (e && (e.message || e.error_description)) || String(e);
-          listEl.innerHTML = `<div class="empty"><div class="big">⚠️</div><div class="empty-title">Không tải được danh sách bộ thẻ</div><p class="empty-sub">Kiểm tra lại SQL đã chạy chưa.<br><code style="font-size:12px;color:#b45309">learnhub-fcfix2 · ${escapeHtml(new Date().toISOString())}${status}${code} — ${escapeHtml(msg)}</code></p></div>`;
+          listEl.innerHTML = `<div class="empty"><div class="big">⚠️</div><div class="empty-title">Không tải được danh sách bộ từ</div><p class="empty-sub">Kiểm tra lại SQL đã chạy chưa.<br><code style="font-size:12px;color:#b45309">learnhub-fcfix2 · ${escapeHtml(new Date().toISOString())}${status}${code} — ${escapeHtml(msg)}</code></p></div>`;
           if (typeof logAppError === "function") logAppError({ source: "teacher-flashcard", category: "feature", level: "error", code: "FCLIST_FAIL", message: "teacher_flashcard_sets thất bại: " + (status + code + " " + msg), url: location.href });
           return;
         }
@@ -732,20 +839,20 @@
       const list = rows || [];
       document.getElementById("fcMemberCount").textContent = list.length;
       const countEl = document.getElementById("fcCount");
-      if (countEl) countEl.textContent = list.length ? `(${list.length} bộ thẻ)` : "";
+      if (countEl) countEl.textContent = list.length ? `(${list.length} bộ từ)` : "";
       tcFcRenderCategoryOptions(list);
 
       if (!list.length) {
         listEl.innerHTML = `<div class="empty">
           <div class="big">🃏</div>
-          <div class="empty-title">Bạn chưa có bộ thẻ nào</div>
-          <p class="empty-sub">Tạo bộ thẻ đầu tiên để học sinh có thể vào luyện tập ngay.</p>
-          <button class="empty-cta" type="button" onclick="tcFcNew()"><i class="fa-solid fa-plus"></i> Tạo bộ thẻ mới</button>
+          <div class="empty-title">Bạn chưa có bộ từ nào</div>
+          <p class="empty-sub">Tạo bộ từ đầu tiên để học sinh có thể vào luyện tập ngay.</p>
+          <button class="empty-cta" type="button" onclick="tcFcNew()"><i class="fa-solid fa-plus"></i> Tạo bộ từ mới</button>
         </div>`;
         return;
       }
 
-      // Nhóm các bộ thẻ theo category, giữ thứ tự: nhóm tĩnh trên trước rồi tới các nhóm khác.
+      // Nhóm các bộ từ theo category, giữ thứ tự: nhóm tĩnh trên trước rồi tới các nhóm khác.
       const groups = [];
       const byCat = {};
       (list || []).forEach(s => {
@@ -762,9 +869,11 @@
         return ia - ib;
       });
 
-      listEl.innerHTML = groups.map((g, gi) => `
+      listEl.innerHTML = groups.map((g, gi) => {
+        const grpOpen = tcFcOpenByCat.has(g.cat) ? tcFcOpenByCat.get(g.cat) : gi === 0;
+        return `
         <div class="fc-group">
-          <div class="fc-group-head${gi === 0 ? " open" : ""}" data-fc-toggle="${gi}">
+          <div class="fc-group-head${grpOpen ? " open" : ""}" data-fc-toggle="${gi}" data-fc-cat="${escapeHtml(g.cat)}">
             <i class="fa-solid fa-chevron-right fc-group-caret"></i>
             <span class="fc-group-title">${escapeHtml(g.cat)}</span>
             <span class="fc-group-count">${g.sets.length} bộ</span>
@@ -775,9 +884,10 @@
             </label>
             <button type="button" class="fc-group-rename" data-fc-group-rename="${escapeHtml(g.cat)}" title="Sửa tên nhóm" onclick="event.stopPropagation()"><i class="fa-solid fa-pen"></i></button>
           </div>
-          <div class="tc-class-grid" data-fc-body="${gi}" style="${gi === 0 ? "" : "display:none"}">${g.sets.map(s => `
-            <div class="tc-class">
+          <div class="tc-class-grid" data-fc-body="${gi}" style="${grpOpen ? "" : "display:none"}">${g.sets.map(s => `
+            <div class="tc-class" data-fc-set-id="${escapeHtml(s.set_id)}">
               <div class="tc-class-head">
+                <span class="tc-drag-handle" draggable="true" data-fc-drag="${escapeHtml(s.set_id)}" title="Giữ và kéo để sắp xếp thứ tự"><i class="fa-solid fa-grip-vertical"></i></span>
                 <div class="tc-class-ico"><i class="fa-solid fa-layer-group"></i></div>
                 <div class="name">${escapeHtml(s.name)}</div>
               </div>
@@ -787,15 +897,16 @@
                 ${s.is_complete ? `<span class="fc-chip complete-chip"><i class="fa-solid fa-circle-check"></i> Hoàn thành</span>` : `<span class="fc-chip wip-chip"><i class="fa-solid fa-pen-ruler"></i> Đang soạn</span>`}
               </div>
               <div class="meta" style="justify-content:flex-end">
-                <button class="btn-sm" style="background:#e0f2fe;color:#0369a1" data-fc-edit="${escapeHtml(s.set_id)}"><i class="fa-solid fa-pen"></i> Sửa</button>
+                <button class="btn-sm" style="background:#e0f2fe;color:#0369a1" data-fc-edit="${escapeHtml(s.set_id)}" data-fc-edit-cat="${escapeHtml(s.category || "")}"><i class="fa-solid fa-pen"></i> Sửa</button>
                 <button class="btn-sm btn-remove" data-fc-del="${escapeHtml(s.set_id)}"><i class="fa-solid fa-trash-can"></i> Xoá</button>
               </div>
             </div>
           `).join("")}</div>
         </div>
-      `).join("");
+      `;
+      }).join("");
       listEl.querySelectorAll("[data-fc-edit]").forEach(btn => {
-        btn.addEventListener("click", () => tcFcEdit(btn.dataset.fcEdit));
+        btn.addEventListener("click", () => tcFcEdit(btn.dataset.fcEdit, btn.dataset.fcEditCat || ""));
       });
       listEl.querySelectorAll("[data-fc-del]").forEach(btn => {
         btn.addEventListener("click", () => tcFcDelete(btn.dataset.fcDel));
@@ -807,6 +918,7 @@
           const open = body.style.display !== "none";
           body.style.display = open ? "none" : "";
           hd.classList.toggle("open", !open);
+          if (hd.dataset.fcCat) tcFcOpenByCat.set(hd.dataset.fcCat, !open);
         });
       });
       listEl.querySelectorAll("[data-fc-group-complete]").forEach(cb => {
@@ -815,6 +927,66 @@
       listEl.querySelectorAll("[data-fc-group-rename]").forEach(btn => {
         btn.addEventListener("click", () => tcFcGroupRename(btn.dataset.fcGroupRename, btn));
       });
+
+      if (!listEl.dataset.fcDragWired) {
+        listEl.dataset.fcDragWired = "1";
+        let dragId = null;
+        listEl.addEventListener("dragstart", (e) => {
+          const grip = e.target.closest("[data-fc-drag]");
+          if (!grip) return;
+          dragId = grip.dataset.fcDrag;
+          const card = grip.closest(".tc-class");
+          if (card) card.classList.add("dragging");
+          try { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", dragId); } catch (err) {}
+        });
+        listEl.addEventListener("dragend", () => {
+          dragId = null;
+          listEl.querySelectorAll(".tc-class.dragging, .tc-class.d-over").forEach(x => x.classList.remove("dragging", "d-over"));
+        });
+        listEl.addEventListener("dragover", (e) => {
+          const card = e.target.closest(".tc-class");
+          if (!card || !dragId || card.dataset.fcSetId === dragId) return;
+          e.preventDefault();
+          card.classList.add("d-over");
+        });
+        listEl.addEventListener("dragleave", (e) => {
+          const card = e.target.closest(".tc-class");
+          if (card) card.classList.remove("d-over");
+        });
+        listEl.addEventListener("drop", async (e) => {
+          const card = e.target.closest(".tc-class");
+          if (!card || !dragId) return;
+          e.preventDefault();
+          card.classList.remove("d-over");
+          if (card.dataset.fcSetId === dragId) return;
+          const grid = card.closest(".tc-class-grid");
+          const draggedEl = grid && grid.querySelector(`[data-fc-set-id="${dragId}"]`);
+          if (!grid || !draggedEl) { dragId = null; return; }
+          if (draggedEl !== card.nextElementSibling) card.insertAdjacentElement("afterend", draggedEl);
+          const ranked = [...grid.querySelectorAll(".tc-class")]
+            .map((el, i) => ({ set_id: el.dataset.fcSetId, position: i }))
+            .filter(x => x.set_id);
+          try {
+            const { data, error } = await supabase.rpc("reorder_flashcard_sets", { p_ranked: ranked });
+            if (error) throw error;
+            if (data && data.ok === true) toast("Đã lưu thứ tự mới", "success");
+            else toast("Không lưu được thứ tự", "error");
+            const cat = grid.closest(".fc-group")?.querySelector(".fc-group-head")?.dataset.fcCat || "";
+            const normC = (c) => String(c || "").trim() || "Chưa phân nhóm";
+            if (cat) {
+              const order = [...grid.querySelectorAll(".tc-class")].map(el => el.dataset.fcSetId).filter(Boolean);
+              const others = (tcFcListCache || []).filter(s => normC(s.category) !== cat);
+              const inCat = (tcFcListCache || []).filter(s => normC(s.category) === cat);
+              inCat.sort((a, b) => order.indexOf(a.set_id) - order.indexOf(b.set_id));
+              tcFcListCache = [...others, ...inCat];
+            }
+          } catch (err) {
+            console.error("reorder_flashcard_sets lỗi:", err);
+            toast("Không lưu được thứ tự: " + ((err && (err.message || err.error_description)) || err), "error");
+          }
+          dragId = null;
+        });
+      }
     }
 
     // Điền vào dropdown nhóm: các nhóm tĩnh có sẵn trong hub + nhóm từng dùng trong DB.
@@ -822,8 +994,7 @@
       "800 Từ Vựng Nền Tảng",
       "300 Từ Vựng Tủ Chuyên Sâu Nâng Cao 9+",
       "Từ Vựng Theo Chủ Đề",
-      "Từ Vựng Nhập Môn",
-      "Phrasal Verbs"
+      "Từ Vựng Nhập Môn"
     ];
     let tcFcNewCatMode = false;
 
@@ -921,38 +1092,41 @@
       fcDDRefresh(wrapId);
     }
 
-    async function tcFcEdit(setId) {
+    async function tcFcEdit(setId, catOverride) {
       const { data, error } = await supabase.rpc("get_flashcard_set", { p_set_id: setId });
       if (error || !data || !data.length) {
         console.error("get_flashcard_set lỗi:", error);
-        return toast("Không đọc được bộ thẻ", "error");
+        return toast("Không đọc được bộ từ", "error");
       }
       const s = data[0];
       const cards = Array.isArray(s.cards) ? s.cards : [];
+      fcMeta.clear();
+      fcRememberMeta(cards);
       tcFcEditId = setId;
       document.getElementById("tcFcName").value = s.name || "";
       document.getElementById("tcFcLevel").value = s.level || "";
       document.getElementById("tcFcDesc").value = s.description || "";
       document.getElementById("tcFcComplete").checked = s.is_complete === true;
 
-      // Nhóm: nếu có trong dropdown thì chọn; không thì mở chế độ nhập nhóm mới (điền sẵn).
-      const cat = String(s.category || "").trim();
+      // Nhóm: luôn chọn đúng nhóm đang hiển thị. get_flashcard_set không trả category nên lấy từ param của dòng đang sửa.
+      const cat = String(catOverride || s.category || "").trim();
       const sel = document.getElementById("tcFcCategory");
       const inp = document.getElementById("tcFcNewCategory");
-      if (cat && [...sel.options].some(o => o.value === cat)) {
-        sel.value = cat;
-        tcFcSetNewCatMode(false);
-      } else {
-        sel.value = "";
-        inp.value = cat;
-        tcFcSetNewCatMode(!!cat);
+      if (cat && ![...sel.options].some(o => o.value === cat)) {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.textContent = cat;
+        sel.appendChild(opt);
       }
+      sel.value = cat;
+      inp.value = "";
+      tcFcSetNewCatMode(false);
       document.getElementById("tcFcText").value = cards
         .map(c => [c.front, c.back, c.example].filter(Boolean).join(" - "))
         .join("\n");
       fcDDRefresh("fcFcCatDD");
       fcDDRefresh("fcFcLvDD");
-      document.getElementById("tcFcEditorTitle").textContent = "Sửa bộ thẻ";
+      document.getElementById("tcFcEditorTitle").textContent = "Sửa bộ từ";
       document.getElementById("tcFcEditorMode").textContent = "(Sửa sẽ lưu đè nội dung hiện tại)";
       document.getElementById("tcFcBtnSave").innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi';
       tcFcUpdatePreview();
@@ -964,8 +1138,8 @@
       const category = tcFcGetCategory();
       const level = document.getElementById("tcFcLevel").value.trim();
       const desc = document.getElementById("tcFcDesc").value.trim();
-      const cards = tcFcParseText(document.getElementById("tcFcText").value);
-      if (!name) return toast("Vui lòng nhập tên bộ thẻ", "error");
+      const cards = tcFcWithMeta(tcFcParseText(document.getElementById("tcFcText").value));
+      if (!name) return toast("Vui lòng nhập tên bộ từ", "error");
       if (!category) return toast("Vui lòng chọn hoặc nhập nhóm hiển thị (vd: Từ vựng thường ngày)", "error");
       if (!cards.length) return toast("Chưa có thẻ nào. Mỗi dòng theo dạng: từ - nghĩa", "error");
 
@@ -978,17 +1152,19 @@
           : await supabase.rpc("create_flashcard_set", args);
         if (result.error) throw result.error;
         if (result.data && result.data.ok !== true) {
-          const msgs = { forbidden: "Bạn không có quyền làm việc này", empty_name: "Tên bộ thẻ trống", empty_cards: "Bộ thẻ chưa có thẻ" };
+          const msgs = { forbidden: "Bạn không có quyền làm việc này", empty_name: "Tên bộ từ trống", empty_cards: "Bộ từ chưa có thẻ" };
           return toast(msgs[result.data.error] || "Không lưu được", "error");
         }
-        toast(tcFcEditId ? "Đã lưu thay đổi bộ thẻ" : "Đã tạo bộ thẻ mới", "success");
-        tcFcListCache = null;
+        toast(tcFcEditId ? "Đã lưu thay đổi bộ từ" : "Đã tạo bộ từ mới", "success");
+        // Tải lại từ server: thứ tự giờ được DB giữ (sort_order) nên chắc chắn đúng theo thứ tự đã kéo thả.
         tcFcShowEditor(false);
         tcFcEditId = null;
+        if (category) tcFcOpenByCat.set(category, true);
+        tcFcListCache = null;
         await tcFcLoadList();
       } catch (e) {
         console.error("Lưu flashcard lỗi:", e);
-        toast("Lỗi lưu bộ thẻ: " + (e.message || e), "error");
+        toast("Lỗi lưu bộ từ: " + (e.message || e), "error");
       } finally {
         btn.disabled = false;
       }
@@ -996,13 +1172,13 @@
 
     window.tcFcDelete = async function(setId) {
       const ok = window.lhConfirm
-        ? await lhConfirm("Chắc chắn xoá bộ thẻ này? Học sinh sẽ không vào học được nữa!")
-        : confirm("Chắc chắn xoá bộ thẻ này? Học sinh sẽ không vào học được nữa!");
+        ? await lhConfirm("Chắc chắn xoá bộ từ này? Học sinh sẽ không vào học được nữa!")
+        : confirm("Chắc chắn xoá bộ từ này? Học sinh sẽ không vào học được nữa!");
       if (!ok) return;
       const { data, error } = await supabase.rpc("delete_flashcard_set", { p_set_id: setId });
-      if (error) { console.error("delete_flashcard_set lỗi:", error); return toast("Lỗi xoá bộ thẻ", "error"); }
-      if (data && data.ok !== true) return toast("Không xoá được bộ thẻ", "error");
-      toast("Đã xoá bộ thẻ", "success");
+      if (error) { console.error("delete_flashcard_set lỗi:", error); return toast("Lỗi xoá bộ từ", "error"); }
+      if (data && data.ok !== true) return toast("Không xoá được bộ từ", "error");
+      toast("Đã xoá bộ từ", "success");
       tcFcListCache = (tcFcListCache || []).filter(s => s.set_id !== setId);
       tcFcRenderList(tcFcListCache);
     };
@@ -1082,7 +1258,10 @@
       await tcFcLoadList();
       const params = new URLSearchParams(window.location.search);
       const setId = params.get("set");
-      if (setId) await tcFcEdit(setId);
+      if (setId) {
+        const rec = (tcFcListCache || []).find(x => x.set_id === setId);
+        await tcFcEdit(setId, rec ? rec.category : "");
+      }
     }
 
     guard();

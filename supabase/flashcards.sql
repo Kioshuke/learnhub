@@ -22,6 +22,16 @@ create table if not exists public.flashcard_sets (
 -- Bổ sung cột category nếu đã tạo bảng từ bản trước (tương thích migrate).
 alter table public.flashcard_sets add column if not exists category text not null default '';
 alter table public.flashcard_sets add column if not exists is_complete boolean not null default false;
+alter table public.flashcard_sets add column if not exists sort_order int not null default 0;
+
+-- Gán thứ tự ban đầu theo thời điểm tạo (mới nhất = 0) để đúng thứ tự đang hiển thị.
+update public.flashcard_sets s
+   set sort_order = r.rank
+  from (
+    select id, row_number() over (partition by category order by created_at desc, id) - 1 as rank
+      from public.flashcard_sets
+  ) r
+ where s.id = r.id;
 
 create index if not exists flashcard_sets_teacher_idx on public.flashcard_sets (teacher_id);
 
@@ -102,7 +112,7 @@ as $$
          s.created_at,
          s.updated_at
     from public.flashcard_sets s
-   order by s.created_at desc;
+   order by s.sort_order asc, s.created_at desc;
 $$;
 revoke execute on function public.teacher_flashcard_sets() from public;
 grant execute on function public.teacher_flashcard_sets() to authenticated;
@@ -125,18 +135,18 @@ as $$
          s.created_at
     from public.flashcard_sets s
     left join public.users u on u.id = s.teacher_id
-   order by s.created_at desc;
+   order by s.sort_order asc, s.created_at desc;
 $$;
 revoke execute on function public.list_flashcard_sets() from public;
 grant execute on function public.list_flashcard_sets() to anon, authenticated;
 
--- Lấy 1 bộ thẻ đầy đủ (để vào học — flash.html?set=<id>). Mọi người đều đọc được.
+-- Lấy 1 bộ từ đầy đủ (để vào học — flash.html?set=<id>). Mọi người đều đọc được.
 create or replace function public.get_flashcard_set(p_set_id uuid)
-returns table(set_id uuid, name text, level text, description text, is_complete boolean, cards jsonb, teacher_name text)
+returns table(set_id uuid, name text, category text, level text, description text, is_complete boolean, cards jsonb, teacher_name text)
 language sql stable security definer
 set search_path = public
 as $$
-  select s.id, s.name, s.level, s.description, s.is_complete, s.cards, coalesce(u.name, '')
+  select s.id, s.name, s.category, s.level, s.description, s.is_complete, s.cards, coalesce(u.name, '')
     from public.flashcard_sets s
     left join public.users u on u.id = s.teacher_id
    where s.id = p_set_id;
@@ -203,6 +213,35 @@ begin
   return jsonb_build_object('ok', true);
 end;
 $$;
+
+-- Sắp xếp thứ tự nhiều bộ từ 1 lượt (chỉ giáo viên — kéo thả trên hub flashcard).
+-- p_ranked là mảng: [{"set_id": uuid, "position": int}, ...]. Chỉ cập nhật bộ từ của chính giáo viên.
+create or replace function public.reorder_flashcard_sets(p_ranked jsonb)
+returns jsonb
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  v_uid text := auth.uid()::text;
+  v_item jsonb;
+begin
+  if v_uid is null or not public.is_teacher() then
+    return jsonb_build_object('ok', false, 'error', 'forbidden');
+  end if;
+  if p_ranked is null or jsonb_typeof(p_ranked) <> 'array' then
+    return jsonb_build_object('ok', false, 'error', 'bad_args');
+  end if;
+  for v_item in select * from jsonb_array_elements(p_ranked) loop
+    update public.flashcard_sets s
+       set sort_order = coalesce((v_item->>'position')::int, 0)
+     where s.id = (v_item->>'set_id')::uuid
+       and s.teacher_id = v_uid;
+  end loop;
+  return jsonb_build_object('ok', true);
+end;
+$$;
+revoke execute on function public.reorder_flashcard_sets(jsonb) from public;
+grant execute on function public.reorder_flashcard_sets(jsonb) to authenticated;
 -- ============ 4. NHÓM BỘ THẺ (group: sửa tên + trạng thái riêng của nhóm) ============
 
 create table if not exists public.flashcard_groups (
