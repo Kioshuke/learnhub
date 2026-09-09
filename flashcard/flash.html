@@ -3048,14 +3048,9 @@ if (localStorage.getItem("darkMode") === "on") {
   import { supabase } from "../supabase-config.js";
 
   // Load bộ thẻ từ Supabase theo ?set=<id>, gán dữ liệu cho engine cũ rồi nạp game.js.
+  // Ai cũng đọc được (RPC cấp quyền anon, authenticated); sửa/thêm chỉ Giáo viên qua RPC.
   window.__fcLoadSet = async function(setId) {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        hideLoadPopup();
-        lhToast("Vui lòng đăng nhập để học bộ thẻ này", 'error');
-        return;
-      }
       const { data, error } = await supabase.rpc("get_flashcard_set", { p_set_id: setId });
       if (error) throw error;
       if (!data || !data.length) throw new Error("Bộ thẻ không tồn tại");

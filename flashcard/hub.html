@@ -947,6 +947,17 @@
     let currentHubFilter = "all";
     let dbSectionAdded = false;
 
+    // Hiện lỗi tải bộ thẻ DB ngay trên trang (kèm code HTTP) để dễ chẩn đoán.
+    window.__hubLoadError = function(e) {
+      const status = (e && e.status) ? ` [HTTP ${e.status}]` : "";
+      const code = (e && e.code) ? ` (${e.code})` : "";
+      const msg = (e && (e.message || e.error_description)) || String(e || "Lỗi không xác định");
+      const el = document.createElement("div");
+      el.style.cssText = "margin:14px auto;max-width:760px;padding:14px 16px;border:1px solid rgba(239,68,68,.35);border-radius:14px;background:rgba(254,242,242,.85);color:#b91c1c;font-size:13px;line-height:1.6;";
+      el.innerHTML = `<b>Không tải được bộ thẻ từ dữ liệu</b><br><code style="font-size:12px;color:#9a3412">${new Date().toISOString()}${status}${code} — ${msg}</code>`;
+      (document.querySelector(".wrap") || document.body).appendChild(el);
+    };
+
     // Mảng theme xoay vòng cho từng nhóm do giáo viên tạo.
     const DB_THEMES = [
       { accent: "#10b981", accentDark: "#059669", soft: "rgba(16,185,129,0.13)", border: "rgba(16,185,129,0.36)", glow: "rgba(52,211,153,0.4)" },
@@ -1231,18 +1242,20 @@ if (localStorage.getItem("darkMode") === "on") {
 </script>
 
 <script type="module">
-  import { supabase } from "../supabase-config.js";
+  import { supabase, logAppError } from "../supabase-config.js";
 
   async function loadTeacherSets() {
     try {
       const [setsRes, groupsRes] = await Promise.all([
         supabase.rpc("list_flashcard_sets"),
-        supabase.rpc("list_flashcard_groups").catch(() => ({ data: null }))
+        supabase.rpc("list_flashcard_groups")
       ]);
       if (setsRes.error) throw setsRes.error;
       if (typeof window.__hubAddDbSets === "function") window.__hubAddDbSets(setsRes.data || [], groupsRes.data || []);
     } catch (e) {
       console.error("list_flashcard_sets lỗi:", e);
+      if (typeof window.__hubLoadError === "function") window.__hubLoadError(e);
+      if (typeof logAppError === "function") logAppError({ source: "fc-hub", category: "feature", level: "error", code: "FCHUB_FAIL", message: "list_flashcard_sets thất bại: " + ((e && e.status) ? "[HTTP " + e.status + "]" : "") + " " + ((e && (e.message || e.error_description)) || e), url: location.href });
     }
   }
   loadTeacherSets();

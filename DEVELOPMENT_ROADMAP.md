@@ -250,6 +250,62 @@ nhìn thấy tiến bộ.
 
 ---
 
+## 🔧 LOG LỖI ĐANG MỞ (ghi ngày 09/09/2026 — CHƯA XỬ LÝ XONG)
+
+### LỖI: Flashcard — web xem theo link vẫn chạy bản CŨ (không thấy tính năng mới)
+
+**Triệu chứng (user báo):**
+- Mở web qua link deploy (không phải mở file local) → trang teacher `teacher/newflashcard.html`
+  và hub `flashcard/hub.html` vẫn hiển thị "không load được card" / không có tính năng mới.
+- Thử Ctrl+Shift+R (hard refresh) vẫn không đổi.
+
+**Phần tính năng MỚI đang chờ xuất hiện (đã code xong, local chạy đúng):**
+1. Danh sách "Bộ thẻ của tôi" nhóm theo nhóm (category), nhóm đầu xổ sẵn, bấm tiêu đề để thu gọn/xổ.
+2. Trên tên mỗi NHÓM: nút bút ✏️ sửa tên nhóm (đổi luôn category của các bộ trong nhóm) +
+   công tắc trạng thái nhóm **Hoàn thành / Đang cập nhật** — trạng thái NHÓM riêng, tách khỏi trạng thái card.
+3. Trong mỗi CARD: chip trạng thái riêng của card (✅ Hoàn thành / ✏️ Đang soạn) do toggle khi sửa bộ,
+   nút Sửa mở editor cho phép sửa tên, mô tả, độ khó, nhóm, thêm/xoá từ.
+4. Trong editor khi sửa/tạo bộ: công tắc "Đã hoàn thành bộ thẻ" (`is_complete`).
+5. Hub học sinh: badge tiêu đề nhóm **Đã hoàn thành / Đang được cập nhật** theo trạng thái NHÓM thật;
+   mỗi card: bộ `is_complete=true` → nút "Vào học", `false` → "⏳ Chờ cập nhật" (không vào học được).
+
+**Trạng thái ĐÃ XÁC MINH OK (ngày 09/09, test bằng script `Temp/opencode/test-supabase.js`):**
+- `list_flashcard_sets` → 31 bộ, HTTP 200, mỗi bộ có `is_complete: true`.
+- `teacher_flashcard_sets` → **31 bộ**, HTTP 200 (đã BỎ filter `is_teacher()` — bản trước có
+  `where public.is_teacher()` làm trả 0 rows vì role lệch chuẩn, gây trang teacher trống).
+- `list_flashcard_groups` → 4 nhóm, HTTP 200, `is_complete: true`, đúng số bộ mỗi nhóm.
+- `get_flashcard_set` (UUID giả) → 0 rows (hành vi đúng).
+- → **DB chắc chắn đúng, không phải lỗi SQL nữa.**
+
+**Trạng thái NGHI NGỜ (chưa rõ nguyên nhân):**
+- Working tree git **sạch**, HEAD == origin/main (`3affa3b`), tức mọi file đã sửa
+  (`teacher/newflashcard.html`, `flashcard/hub.html`, `supabase/flashcards.sql`,
+  `supabase/migrate_full.sql`) **đã commit + push lên GitHub rồi**.
+- Vậy mà link deploy vẫn cho hành vi CŨ → KHÔNG phải do quên push.
+
+**Các nguyên nhân khả dĩ cần kiểm tra tuần tự (hôm sau):**
+1. **Link đang mở có phải GitHub Pages của đúng repo/nhánh này không?**
+   - Mở link đang dùng → xem có phải serve từ `main` mới nhất không (vd thêm `?v=123` vào URL
+     hoặc Ctrl+Shift+R; nếu vẫn cũ → nghi host cũ/cache CDN).
+   - Kiểm tra Settings → Pages xem deploy từ nhánh nào (**không được để build nhánh khác như gh-pages**).
+2. **Cache trình duyệt / CSP / service worker**: LearnHub có thể có SW cache tĩnh —
+   tìm `serviceWorker`/`caches` trong `script.js`/`index.html`; nếu có, cache `/flashcard/hub.html`
+   và `/teacher/newflashcard.html` bản cũ → cần bump version hoặc clear cache.
+3. **Có bản copy khác của repo đang được host** (GitHub Pages sẽ đọc repo `Kioshuke/learnhub` —
+   kiểm tra repo/URL deploy khác với repo local).
+4. **File HTML tham chiếu JS ngoài** (`../supabase-config.js`) — nếu web host đổi đường dẫn gốc
+   thì module bị 404 → trang trắng/không render → kiểm tra tab **Network → console (F12)** xem có
+   load 404 hay lỗi CORS không.
+
+**Checklist fix nhanh (làm 1 trong các bước):**
+- [ ] Xác định link deploy là gì; đối chiếu branch Pages.
+- [ ] Mở F12 → Console/Network: chép dòng lỗi đỏ + request lỗi 404 (gửi lại cho trợ lý AI).
+- [ ] Nếu SW cache: xoá `localStorage`/`caches` hoặc tăng version asset.
+- [ ] Test thẳng local bằng mở file `teacher/newflashcard.html` qua server local (vd `npx serve`)
+     để tách bạch "code local đúng" hay "chỉ web deploy sai".
+
+---
+
 ## GH CHÚ KỸ THUẬT (tránh làm hỏng code cũ)
 
 - **Không tự đổi role**: trigger chặn; mọi đổi role chỉ qua admin.

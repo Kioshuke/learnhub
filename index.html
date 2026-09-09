@@ -531,6 +531,10 @@ let activeInterval = null;
 let onlineTimerInterval = null;
 let mailboxPollInterval = null;
 
+async function sendHeartbeat(uid) {
+  try { await supabase.rpc("users_heartbeat", { p_uid: uid }); } catch (e) { /* im lặng */ }
+}
+
 // ================= MAINTENANCE MODE (realtime, đọc từ Supabase maintenance_settings) =================
 let maintenanceState = { enabled: false, message: "", initialized: false };
 let previousMaintenanceEnabled = false;
@@ -1044,7 +1048,7 @@ if(user){
     activeInterval = setInterval(()=>{
       const u = currentSupabaseUser;
       if(u){
-        supabase.rpc("users_heartbeat", { p_uid: u.id }).then(()=>{}).catch(()=>{});
+        sendHeartbeat(u.id);
       }
       }, 5000);
   }
@@ -1117,7 +1121,7 @@ document.addEventListener("visibilitychange", () => {
       activeInterval = setInterval(()=>{
         const u = currentSupabaseUser;
         if(u){
-          supabase.rpc("users_heartbeat", { p_uid: u.id }).then(()=>{}).catch(()=>{});
+          sendHeartbeat(u.id);
         }
     }, 5000);
     }
