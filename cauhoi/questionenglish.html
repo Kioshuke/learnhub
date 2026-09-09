@@ -757,6 +757,87 @@
     border-radius: 8px;
 }
 
+/* ===== Đọc hiểu (passage) — Layout 2 cột: bài đọc trái, câu hỏi phải ===== */
+.passage-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+.passage-left {
+    flex: 1;
+    min-width: 0;
+    position: sticky;
+    top: 100px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-right: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+.passage-left::-webkit-scrollbar { width: 5px; }
+.passage-left::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+.passage-left-inner {
+    background: var(--card);
+    padding: 18px 20px;
+    border-radius: 14px;
+    border: 2px solid var(--primary);
+    border-left: 5px solid var(--primary);
+    line-height: 1.75;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 8px rgba(26,115,232,0.08);
+    position: relative;
+}
+.passage-left-inner::before {
+    content: "📖";
+    position: absolute;
+    top: -10px;
+    left: 14px;
+    background: var(--bg);
+    padding: 0 6px;
+    font-size: 1rem;
+}
+
+.passage-right {
+    flex: 1.1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.passage-right .sub-q-block {
+    background: var(--card);
+    border: 1.5px solid var(--tf-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+}
+.passage-right .sub-q-block:hover {
+    border-color: var(--primary);
+}
+.passage-right .answers-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
+
+/* Mobile: xếp dọc */
+@media (max-width: 900px) {
+    .passage-layout {
+        flex-direction: column;
+    }
+    .passage-left {
+        position: static;
+        max-height: none;
+        overflow-y: visible;
+        padding-right: 0;
+    }
+    .passage-left-inner {
+        max-height: 260px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+    }
+}
+
 </style>
 </head>
 <body>
@@ -1290,27 +1371,30 @@ function renderQuiz() {
             // 🔥 [Tiếng Anh] Đọc hiểu: 1 đoạn văn (passage) + nhiều câu hỏi trắc nghiệm con
             else if (item.type === 'passage') {
                 window.totalMaxScore += 1;
-                const passageHtml = (item.passage && item.passage.trim() !== "") ? `
-                    <div style="background: var(--card); padding: 14px; border-radius: 10px; margin-bottom: 14px; line-height: 1.6; border-left: 4px solid var(--primary); font-size: 0.95rem;">
-                        ${item.passage}
-                    </div>` : '';
+                const passageContent = (item.passage && item.passage.trim() !== "") ? item.passage : '';
                 answersContent = `
-                    ${passageHtml}
-                    <div class="sub-questions" style="margin: 4px 0 0;">
-                        ${(item.subQuestions || []).map((sub, subIdx) => `
-                            <div class="sub-q-block" style="margin-bottom: 18px; padding: 12px; border: 1px solid var(--tf-border); border-radius: 10px;">
-                                <div class="sub-q-text" style="font-weight: 600; font-size: 0.92rem; margin-bottom: 10px;">
-                                    <strong style="color: var(--primary);">${String.fromCharCode(97 + subIdx)}.</strong> ${sub.question || ""}
-                                </div>
-                                <div class="answers-grid">
-                                    ${sub.answers.map((ans, aIdx) => `
-                                        <label class="ans-label" id="label-${globalIdx}-${subIdx}-${aIdx}" onclick="selectAnswer(this, ${globalIdx}, ${subIdx})">
-                                            <input type="radio" name="q-${globalIdx}-${subIdx}" value="${aIdx}">
-                                            <span><b>${String.fromCharCode(65 + aIdx)}.</b> ${ans}</span>
-                                        </label>`).join('')}
-                                </div>
+                    <div class="passage-layout">
+                        <div class="passage-left">
+                            <div class="passage-left-inner">
+                                ${passageContent}
                             </div>
-                        `).join('')}
+                        </div>
+                        <div class="passage-right sub-questions">
+                            ${(item.subQuestions || []).map((sub, subIdx) => `
+                                <div class="sub-q-block">
+                                    <div class="sub-q-text" style="font-weight: 600; font-size: 0.92rem; margin-bottom: 10px;">
+                                        <strong style="color: var(--primary);">${String.fromCharCode(97 + subIdx)}.</strong> ${sub.question || ""}
+                                    </div>
+                                    <div class="answers-grid">
+                                        ${sub.answers.map((ans, aIdx) => `
+                                            <label class="ans-label" id="label-${globalIdx}-${subIdx}-${aIdx}" onclick="selectAnswer(this, ${globalIdx}, ${subIdx})">
+                                                <input type="radio" name="q-${globalIdx}-${subIdx}" value="${aIdx}">
+                                                <span><b>${String.fromCharCode(65 + aIdx)}.</b> ${ans}</span>
+                                            </label>`).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>`;
             }
             // 🔥 [Tiếng Anh] Điền lỗ: câu văn có nhiều ô trống {{1}}, {{2}}...

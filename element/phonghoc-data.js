@@ -268,6 +268,22 @@ window.PHONGHOC_SUBJECTS = [
         action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap6.json" }
       },
       {
+        id: "anh-ontap-phan7",
+        title: "ÔN TẬP PHẦN 7",
+        description: "Reading – Passage 1 ASEAN & Passage 2 TV Review",
+        icon: "fa-book-open",
+        status: "done",
+        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap7.json" }
+      },
+      {
+        id: "anh-ontap-phan8",
+        title: "ÔN TẬP PHẦN 8",
+        description: "Reading – Passage 1 Jobs in Your 50s & Passage 2 Mary's First Job",
+        icon: "fa-book-open",
+        status: "done",
+        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap8.json" }
+      },
+      {
         id: "anh-ngu-phap",
         title: "TỔNG ÔN NGỮ PHÁP",
         description: "Video tổng ôn ngữ pháp tiếng Anh.",

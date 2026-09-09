@@ -215,17 +215,17 @@ end;
 $$;
 
 -- Sắp xếp thứ tự nhiều bộ từ 1 lượt (chỉ giáo viên — kéo thả trên hub flashcard).
--- p_ranked là mảng: [{"set_id": uuid, "position": int}, ...]. Chỉ cập nhật bộ từ của chính giáo viên.
+-- p_ranked là mảng: [{"set_id": uuid, "position": int}, ...].
+-- KHÔNG lọc theo teacher_id: các bộ từ import chung chủ nên mọi giáo viên cùng sắp thứ tự chung.
 create or replace function public.reorder_flashcard_sets(p_ranked jsonb)
 returns jsonb
 language plpgsql security definer
 set search_path = public
 as $$
 declare
-  v_uid text := auth.uid()::text;
   v_item jsonb;
 begin
-  if v_uid is null or not public.is_teacher() then
+  if not public.is_teacher() then
     return jsonb_build_object('ok', false, 'error', 'forbidden');
   end if;
   if p_ranked is null or jsonb_typeof(p_ranked) <> 'array' then
@@ -234,8 +234,7 @@ begin
   for v_item in select * from jsonb_array_elements(p_ranked) loop
     update public.flashcard_sets s
        set sort_order = coalesce((v_item->>'position')::int, 0)
-     where s.id = (v_item->>'set_id')::uuid
-       and s.teacher_id = v_uid;
+     where s.id = (v_item->>'set_id')::uuid;
   end loop;
   return jsonb_build_object('ok', true);
 end;

@@ -459,6 +459,7 @@
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 16px;
     }
+    .tc-class-grid > .empty { grid-column: 1 / -1; }
     .tc-class {
       background: #fff;
       border: 1px solid #e5e7eb;
@@ -591,12 +592,7 @@
       padding: 44px 20px;
       font-size: 14px;
     }
-    .empty .big { font-size: 0; margin-bottom: 8px; }
-    .empty .big::after {
-      content: '—';
-      font-size: 36px;
-      color: #d1d5db;
-    }
+    .empty .big { margin-bottom: 10px; line-height: 1; font-size: 38px; color: #c6d0de; }
 
     /* ===== FLASHCARD VIEW ===== */
     .tc-form textarea {
@@ -828,7 +824,7 @@
             </div>
 
             <div id="tcClassList" class="tc-class-grid">
-              <div class="empty"><div class="big"></div>Đang tải danh sách lớp...</div>
+              <div class="empty"><div class="big"><i class="fa-solid fa-school"></i></div>Đang tải danh sách lớp...</div>
             </div>
           </div>
         </div>
@@ -984,7 +980,7 @@
       document.getElementById("tcStatPending").textContent = totalPending;
 
       if (!list.length) {
-        listEl.innerHTML = '<div class="empty"><div class="big"></div>Bạn chưa có lớp nào.<br><span style="font-size:12.5px">Tạo lớp đầu tiên ở phía trên để bắt đầu.</span></div>';
+        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-school"></i></div>Bạn chưa có lớp nào.<br><span style="font-size:12.5px">Tạo lớp đầu tiên ở phía trên để bắt đầu.</span></div>';
         return;
       }
       listEl.innerHTML = list.map(c => `
@@ -1011,14 +1007,14 @@
     async function tcLoadClasses(force) {
       if (tcClassesCache === null || force) {
         const listEl = document.getElementById("tcClassList");
-        listEl.innerHTML = '<div class="empty"><div class="big"></div>Đang tải danh sách lớp...</div>';
+        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-school"></i></div>Đang tải danh sách lớp...</div>';
         try {
           const { data, error } = await supabase.rpc("teacher_classes");
           if (error) throw error;
           tcClassesCache = data || [];
         } catch (e) {
           console.error("teacher_classes lỗi:", e);
-          listEl.innerHTML = '<div class="empty"><div class="big"></div>Không tải được danh sách lớp. Kiểm tra lại SQL đã chạy chưa.</div>';
+          listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-school"></i></div>Không tải được danh sách lớp. Kiểm tra lại SQL đã chạy chưa.</div>';
           return;
         }
       }
@@ -1070,7 +1066,7 @@
       const listEl = document.getElementById("tcMemberList");
       const members = tcMembersCache[classId] || [];
       if (!members.length) {
-        listEl.innerHTML = '<div class="empty"><div class="big"></div>Chưa có thành viên hoặc yêu cầu.</div>';
+        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-school"></i></div>Chưa có thành viên hoặc yêu cầu.</div>';
         return;
       }
       const byStatus = (s) => members.filter(m => (m.status || "") === s);
@@ -1129,7 +1125,7 @@
       document.getElementById("tcDetailBlock").textContent = "";
       document.getElementById("tcDetailCode").innerHTML = "";
       document.getElementById("tcBtnDeleteClass").style.display = "";
-      document.getElementById("tcMemberList").innerHTML = '<div class="empty"><div class="big"></div>Đang tải...</div>';
+      document.getElementById("tcMemberList").innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-school"></i></div>Đang tải...</div>';
       tcRenderDetailHead(classId);
       try { await tcEnsureMembers(classId); } catch (e) { console.error("class_members_of lỗi:", e); }
       tcRenderMembers(classId);
