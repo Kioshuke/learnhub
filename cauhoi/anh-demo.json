@@ -1,0 +1,45 @@
+[
+  {
+    "sectionTitle": "PHẦN DEMO: KỸ NĂNG NGHE",
+    "sectionDesc": "Demo minh họa: nghe đoạn thông báo ngắn và chọn đáp án đúng (trích 3 câu từ file mẫu tiếng Anh).",
+    "type": "listening",
+    "listenTitle": "Demo Listening — Short talks and announcements",
+    "timeLimit": 0,
+    "audio": "https://static-assets.prepcdn.com/content-management-system/Part_1_Listening_87386e8c4b.mp3",
+    "questions": [
+      {
+        "type": "multiple",
+        "question": "What is the new closing time for the City Museum on Fridays?",
+        "answers": [
+          "6:00 PM",
+          "7:00 PM",
+          "8:00 PM",
+          "9:00 PM"
+        ],
+        "correct": 3
+      },
+      {
+        "type": "multiple",
+        "question": "Which gate does the flight to Singapore depart from?",
+        "answers": [
+          "Gate 10",
+          "Gate 15",
+          "Gate 20",
+          "Gate 25"
+        ],
+        "correct": 2
+      },
+      {
+        "type": "multiple",
+        "question": "What is the main purpose of the announcement?",
+        "answers": [
+          "To announce a staff meeting",
+          "To inform about an IT system upgrade",
+          "To advertise a new product",
+          "To report a security issue"
+        ],
+        "correct": 1
+      }
+    ]
+  }
+]

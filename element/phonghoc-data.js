@@ -196,92 +196,12 @@ window.PHONGHOC_SUBJECTS = [
     notice: { icon: "fa-bell", html: "<strong>Thông báo môn Anh Văn:</strong> Tổng ôn ngữ pháp" },
     cards: [
       {
-        id: "anh-phan-1",
-        title: "ĐỀ ĐÁNH GIÁ NĂNG LỰC ĐẦU VÀO 1",
-        description: "Tiếng Anh · Đọc hiểu – Viết – Sử dụng ngôn ngữ",
+        id: "anh-demo",
+        title: "ĐỀ THI MẪU DEMO",
+        description: "Bản demo 3 câu hỏi lấy từ file json mẫu tiếng Anh.",
         icon: "fa-language",
         status: "done",
-        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=english.json" }
-      },
-      {
-        id: "anh-dauvao-2",
-        title: "ĐỀ ĐÁNH GIÁ NĂNG LỰC ĐẦU VÀO 2",
-        description: "Tiếng Anh · Đọc hiểu – Viết – Sử dụng ngôn ngữ",
-        icon: "fa-language",
-        status: "done",
-        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=dauvao2.json" }
-      },
-      {
-        id: "anh-dauvao-3",
-        title: "ĐỀ ĐÁNH GIÁ NĂNG LỰC ĐẦU VÀO 3",
-        description: "Tiếng Anh · Đọc hiểu – Viết – Sử dụng ngôn ngữ",
-        icon: "fa-language",
-        status: "done",
-        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=dauvao3.json" }
-      },
-      {
-        id: "anh-ontap-phan1",
-        title: "ÔN TẬP PHẦN 1",
-        description: "Word Choice – Word Form – Collocation – Phrasal Verb",
-        icon: "fa-language",
-        status: "done",
-        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap.json" }
-      },
-      {
-        id: "anh-ontap-phan2",
-        title: "ÔN TẬP PHẦN 2",
-        description: "Tenses – Conditional – Inversion – Reduced Relative Clauses",
-        icon: "fa-language",
-        status: "done",
-        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap2.json" }
-      },
-      {
-        id: "anh-ontap-phan3",
-        title: "ÔN TẬP PHẦN 3",
-        description: "Sentence Construction – Communication",
-        icon: "fa-language",
-        status: "done",
-        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap3.json" }
-      },
-      {
-        id: "anh-ontap-phan4",
-        title: "ÔN TẬP PHẦN 4",
-        description: "Sentence Building – Sentence Ordering",
-        icon: "fa-language",
-        status: "done",
-        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap4.json" }
-      },
-      {
-        id: "anh-ontap-phan5",
-        title: "ÔN TẬP PHẦN 5",
-        description: "Listening – Test 1 & Test 2",
-        icon: "fa-headphones",
-        status: "done",
-        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap5.json" }
-      },
-      {
-        id: "anh-ontap-phan6",
-        title: "ÔN TẬP PHẦN 6",
-        description: "Listening – Part 2 Conversations & Part 3 Talks/Lectures",
-        icon: "fa-headphones",
-        status: "done",
-        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap6.json" }
-      },
-      {
-        id: "anh-ontap-phan7",
-        title: "ÔN TẬP PHẦN 7",
-        description: "Reading – Passage 1 ASEAN & Passage 2 TV Review",
-        icon: "fa-book-open",
-        status: "done",
-        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap7.json" }
-      },
-      {
-        id: "anh-ontap-phan8",
-        title: "ÔN TẬP PHẦN 8",
-        description: "Reading – Passage 1 Jobs in Your 50s & Passage 2 Mary's First Job",
-        icon: "fa-book-open",
-        status: "done",
-        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-van-ontap8.json" }
+        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-demo.json" }
       },
       {
         id: "anh-ngu-phap",
