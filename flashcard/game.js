@@ -223,7 +223,12 @@ const spaceMonsters = [
 
 function updateProgress() {
     // 1. Lấy tiến độ hiện tại
-    const currentProg = gameProgress[currentMode] || 0;
+    var currentProg;
+    if (currentMode === 'flashcard') {
+        currentProg = fcCategories.known.length;
+    } else {
+        currentProg = gameProgress[currentMode] || 0;
+    }
     const percent = total > 0 ? Math.min((currentProg / total) * 100, 100) : 0;
     
     // 2. Cập nhật UI App dùng chung (Thanh trên cùng)
@@ -312,6 +317,10 @@ function switchMode(mode) {
     if (mode === "flashcard") setGlobalProgressVisible(true);
     else setGlobalProgressVisible(false);
 
+    // Chỉ hiện khung ghi chú khi ở tab Flashcard
+    const fcNote = document.getElementById("fcNote");
+    if (fcNote) fcNote.style.display = (mode === "flashcard") ? "" : "none";
+
     // 👉 QUAN TRỌNG: delay 1 tick cho chắc chắn audio ready
     setTimeout(() => {
         if (mode === 'flashcard') initFlashcard();
@@ -349,6 +358,156 @@ function restartGame() {
 let current = 0;
 let viewedFlashcards = new Set();
 
+// ===== FLASHCARD CATEGORIES =====
+let fcCategories = { learning: [], unknown: [], known: [] };
+let fcReviewMode = false;
+let fcQueuePos = 0;
+
+function getFlashcardSetId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("set") || params.get("data") || "default";
+}
+
+function getFlashcardStorageKey() {
+    return "fc_progress_" + getFlashcardSetId();
+}
+
+function saveFlashcardProgress() {
+    try {
+        localStorage.setItem(getFlashcardStorageKey(), JSON.stringify(fcCategories));
+    } catch(e) {}
+}
+
+function loadFlashcardProgress() {
+    try {
+        const saved = localStorage.getItem(getFlashcardStorageKey());
+        if (saved) {
+            const data = JSON.parse(saved);
+            const valid = (arr) => Array.isArray(arr) && arr.every(i => i >= 0 && i < cards.length);
+            if (valid(data.learning) && valid(data.unknown) && valid(data.known)) {
+                fcCategories = data;
+                return true;
+            }
+        }
+    } catch(e) {}
+    return false;
+}
+
+function clearFlashcardProgress() {
+    localStorage.removeItem(getFlashcardStorageKey());
+}
+
+function getActiveQueue() {
+    return fcReviewMode ? fcCategories.unknown : fcCategories.learning;
+}
+
+function initFlashcardCategories() {
+    fcReviewMode = false;
+    fcQueuePos = 0;
+    clearFlashcardProgress();
+    fcCategories = {
+        learning: cards.map((_, i) => i),
+        unknown: [],
+        known: []
+    };
+    updateCategoryUI();
+}
+
+function updateCategoryUI() {
+    const knownEl = document.getElementById("fcKnownCount");
+    if (knownEl) knownEl.textContent = fcCategories.known.length;
+
+    const unknownEl = document.getElementById("fcUnknownCount");
+    if (unknownEl) unknownEl.textContent = fcCategories.unknown.length;
+
+    const reviewEl = document.getElementById("fcReviewIndicator");
+    if (reviewEl) {
+        reviewEl.style.display = fcReviewMode ? "block" : "none";
+    }
+}
+
+function markCardAsKnown() {
+    var queue = getActiveQueue();
+    if (queue.length === 0 || fcQueuePos >= queue.length) return;
+
+    var cardIndex = queue[fcQueuePos];
+    queue.splice(fcQueuePos, 1);
+    fcCategories.known.push(cardIndex);
+
+    saveFlashcardProgress();
+    updateCategoryUI();
+    updateProgress();
+
+    var cardEl = document.querySelector(".flashcard");
+    if (cardEl) {
+        cardEl.classList.add("slide-out-left");
+        setTimeout(() => {
+            cardEl.classList.remove("slide-out-left");
+            cardEl.classList.add("slide-in-right");
+            setTimeout(() => cardEl.classList.add("slide-active"), 50);
+            setTimeout(() => cardEl.classList.remove("slide-in-right", "slide-active"), 550);
+            advanceFlashcard();
+        }, 300);
+    } else {
+        advanceFlashcard();
+    }
+}
+
+function markCardAsUnknown() {
+    var queue = getActiveQueue();
+    if (queue.length === 0 || fcQueuePos >= queue.length) return;
+
+    var cardIndex = queue[fcQueuePos];
+    queue.splice(fcQueuePos, 1);
+    fcCategories.unknown.push(cardIndex);
+
+    saveFlashcardProgress();
+    updateCategoryUI();
+    updateProgress();
+
+    var cardEl = document.querySelector(".flashcard");
+    if (cardEl) {
+        cardEl.classList.add("slide-out-right");
+        setTimeout(() => {
+            cardEl.classList.remove("slide-out-right");
+            cardEl.classList.add("slide-in-left");
+            setTimeout(() => cardEl.classList.add("slide-active"), 50);
+            setTimeout(() => cardEl.classList.remove("slide-in-left", "slide-active"), 550);
+            advanceFlashcard();
+        }, 300);
+    } else {
+        advanceFlashcard();
+    }
+}
+
+function advanceFlashcard() {
+    var queue = getActiveQueue();
+
+    if (fcQueuePos < queue.length) {
+        showCard();
+        return;
+    }
+
+    if (!fcReviewMode && fcCategories.unknown.length > 0) {
+        fcReviewMode = true;
+        fcQueuePos = 0;
+        fcCategories.unknown = shuffle([...fcCategories.unknown]);
+        updateCategoryUI();
+        showCard();
+        return;
+    }
+
+    if (fcCategories.unknown.length === 0 && fcCategories.learning.length === 0) {
+        checkComplete();
+        updateCategoryUI();
+    }
+}
+
+function goBackToHub() {
+    clearFlashcardProgress();
+    window.location.href = 'hub.html';
+}
+
 function markFlashcardViewed(index) {
     if (!cards[index]) return;
     viewedFlashcards.add(index);
@@ -358,12 +517,14 @@ function markFlashcardViewed(index) {
 
 function initFlashcard() {
     stopAllSounds();
-    current = 0;
-    viewedFlashcards = new Set();
-    markFlashcardViewed(current);
-    const inner = document.querySelector(".flash-inner");
+    initFlashcardCategories();
+    var inner = document.querySelector(".flash-inner");
     if (inner) inner.classList.remove("flipped");
-    showCard();
+    var queue = getActiveQueue();
+    if (queue.length > 0) {
+        fcQueuePos = 0;
+        showCard();
+    }
 }
 
 function fcEsc(s) {
@@ -371,8 +532,10 @@ function fcEsc(s) {
 }
 
 function showCard() {
-    if (!cards[current]) return;
-    const card = cards[current];
+    var queue = getActiveQueue();
+    if (fcQueuePos >= queue.length) return;
+    var card = cards[queue[fcQueuePos]];
+    if (!card) return;
     document.getElementById("front").innerText = card.front;
     const backEl = document.getElementById("back");
     const lvStyle = {
@@ -751,10 +914,10 @@ function speak(text) {
 // Bàn phím & Cử chỉ
 document.addEventListener('keydown', (e) => {
     if (currentMode === 'flashcard') {
-        if (e.key === "ArrowLeft") prevCard();
-        if (e.key === "ArrowRight") nextCard();
         if (e.key === " " || e.key === "ArrowUp") flipCard();
         if (e.key === "Enter") speak(document.getElementById('front').innerText);
+        if (e.key === "ArrowRight" || e.key === "1") markCardAsKnown();
+        if (e.key === "ArrowLeft" || e.key === "2") markCardAsUnknown();
     }
 });
 
@@ -764,8 +927,8 @@ if (gestureZone) {
     gestureZone.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; });
     gestureZone.addEventListener('touchend', e => {
         touchendX = e.changedTouches[0].screenX;
-        if (touchendX < touchstartX - 50) nextCard();
-        if (touchendX > touchstartX + 50) prevCard();
+        if (touchendX < touchstartX - 50) markCardAsUnknown();
+        if (touchendX > touchstartX + 50) markCardAsKnown();
     });
 }
 // ===== LOGIC BẮN PHÁO GIẤY CONFETTI 3D =====
