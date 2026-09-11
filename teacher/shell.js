@@ -16,7 +16,7 @@
   File này sẽ tự chèn aside.teacher-rail + div.tc-topbar kèm toàn bộ CSS
   của 2 phần đó. Khi trang con muốn được báo khi bấm menu, gán:
     window.onTeacherNav = function(key){ ... };
-  key nhận: home | manage | students | fc | quiz | report.
+  key nhận: home | manage | fc | quiz | report.
   Người dùng cũng có thể gọi TeacherShell.setActive(key) sau khi đổi view.
 */
 (function () {
@@ -45,7 +45,6 @@
   var NAV = [
     { key: "home",    icon: "fa-table-cells-large",    label: "Tổng quan" },
     { key: "manage",  icon: "fa-chalkboard-user",      label: "Lớp học" },
-    { key: "students",icon: "fa-users",                label: "Học sinh",   soon: true },
     { key: "fc",      icon: "fa-layer-group",          label: "Flashcard" },
     { key: "quiz",    icon: "fa-file-circle-check",    label: "Bài kiểm tra", soon: true },
     { key: "report",  icon: "fa-chart-line",           label: "Báo cáo",    soon: true }
@@ -181,7 +180,6 @@
     "  font-weight: 600;",
     "}",
     ".teacher-nav button.active[data-nav=\"manage\"] { background: #eff6ff; color: #2563eb; }",
-    ".teacher-nav button.active[data-nav=\"students\"] { background: #ecfeff; color: #0891b2; }",
     ".teacher-nav button.active[data-nav=\"fc\"] { background: #ecfdf5; color: #059669; }",
     ".teacher-nav button.active[data-nav=\"quiz\"] { background: #fffbeb; color: #d97706; }",
     ".teacher-nav button.active[data-nav=\"report\"] { background: #f5f3ff; color: #7c3aed; }",

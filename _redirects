@@ -18,4 +18,5 @@
 # style.css nam chung da nhap vao element/giaodien.css
 /style.css    /element/giaodien.css  301
 /admin-dashboard.html   /administrator.html  301
-/teacher-dashboard.html   /teacher.html  301
+/teacher-dashboard.html   /teacher/  301
+/teacher.html            /teacher/  301

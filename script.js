@@ -1196,7 +1196,7 @@ if (chatBtnEl) {
   ];
 
   const ADMIN_PANEL_URL = "/administrator.html";
-  const TEACHER_PANEL_URL = "/teacher.html";
+  const TEACHER_PANEL_URL = "/teacher/";
 
   let popup = document.getElementById("userPopup");
   let rail = document.getElementById("ccRail");

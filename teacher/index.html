@@ -714,6 +714,160 @@
         animation-duration: 0.01ms !important;
       }
     }
+
+    /* ===== STUDENT PROFILE MODAL ===== */
+    .tc-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      animation: tcModalFadeIn 0.2s ease;
+    }
+    .tc-modal-overlay.show {
+      display: flex;
+    }
+    .tc-modal {
+      background: #fff;
+      border-radius: 20px;
+      width: min(480px, 100%);
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.18);
+      animation: tcModalScaleIn 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .tc-modal-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 22px 24px 16px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .tc-modal-ava {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .tc-modal-name {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: #111827;
+    }
+    .tc-modal-email {
+      margin: 2px 0 0;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .tc-modal-close {
+      margin-left: auto;
+      width: 34px;
+      height: 34px;
+      border: none;
+      border-radius: 10px;
+      background: #f1f5f9;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 16px;
+      display: grid;
+      place-items: center;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .tc-modal-close:hover {
+      background: #e2e8f0;
+      color: #111827;
+    }
+    .tc-modal-body {
+      padding: 18px 24px 24px;
+    }
+    .tc-modal-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+    .tc-modal-class-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: #f9fafb;
+      border: 1px solid #f1f5f9;
+      margin-bottom: 8px;
+    }
+    .tc-modal-class-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #eff6ff;
+      color: #2563eb;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .tc-modal-class-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+    }
+    .tc-modal-class-block {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .tc-modal-class-status {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    .tc-modal-class-status.approved {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .tc-modal-class-status.pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .tc-modal-empty {
+      text-align: center;
+      padding: 20px;
+      color: #9ca3af;
+      font-size: 13px;
+    }
+    .tc-mem .nm {
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .tc-mem .nm:hover {
+      color: #2563eb;
+    }
+    @keyframes tcModalFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes tcModalScaleIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
   </style>
 </head>
 <body>
@@ -783,13 +937,6 @@
                 <div class="tc-feature-desc">Gán đề kiểm tra cho từng lớp, đặt hạn nộp.</div>
                 <div class="tc-feature-cta"><i class="fa-solid fa-hourglass-half"></i> Chưa mở</div>
               </div>
-              <div class="tc-feature tint-cyan" data-ready="0">
-                <span class="soon-badge">Sắp ra mắt</span>
-                <div class="tc-feature-icon icon-cyan"><i class="fa-solid fa-users"></i></div>
-                <div class="tc-feature-title">Quản lý học sinh</div>
-                <div class="tc-feature-desc">Xem danh sách, theo dõi tiến độ của từng học sinh.</div>
-                <div class="tc-feature-cta"><i class="fa-solid fa-hourglass-half"></i> Chưa mở</div>
-              </div>
               <div class="tc-feature tint-slate" data-ready="0">
                 <span class="soon-badge">Sắp ra mắt</span>
                 <div class="tc-feature-icon"><i class="fa-solid fa-chart-line"></i></div>
@@ -849,6 +996,26 @@
       </div><!-- /tc-wrap -->
     </div><!-- /teacher-canvas -->
   </div><!-- /tcApp -->
+
+  <!-- ===== STUDENT PROFILE MODAL ===== -->
+  <div id="tcStudentModal" class="tc-modal-overlay" aria-hidden="true">
+    <div class="tc-modal" role="dialog" aria-modal="true" aria-labelledby="tcModalName">
+      <div class="tc-modal-head">
+        <div class="tc-modal-ava" id="tcModalAva">?</div>
+        <div style="min-width:0">
+          <p class="tc-modal-name" id="tcModalName">Học sinh</p>
+          <p class="tc-modal-email" id="tcModalEmail"></p>
+        </div>
+        <button class="tc-modal-close" type="button" aria-label="Đóng" onclick="tcCloseStudentModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="tc-modal-body">
+        <div class="tc-modal-label">Các lớp đang tham gia</div>
+        <div id="tcModalClasses">
+          <div class="tc-modal-empty"><i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải...</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== DENIED / LOADING ===== -->
   <div id="tcDenied" style="display:none">
@@ -1074,32 +1241,27 @@
       const pending = byStatus("pending");
       const approved = byStatus("approved");
 
+      const studentRow = (m, actionsHtml) => `
+        <div class="tc-mem">
+          <div class="ava">${escapeHtml((m.name || "?").charAt(0).toUpperCase())}</div>
+          <div class="info"><div class="nm" data-user="${escapeHtml(m.user_id || "")}" title="Xem hồ sơ học sinh">${escapeHtml(m.name || "Chưa có tên")}</div><div class="em">${escapeHtml(m.email || "")}</div></div>
+          <div class="acts">${actionsHtml}</div>
+        </div>`;
+
       if (pending.length) {
         html += `<div class="hint" style="margin:8px 0 12px;font-weight:700;color:#b45309">YÊU CẦU CHỜ DUYỆT (${pending.length})</div>`;
         pending.forEach(m => {
-          html += `
-            <div class="tc-mem">
-              <div class="ava">${escapeHtml((m.name || "?").charAt(0).toUpperCase())}</div>
-              <div class="info"><div class="nm">${escapeHtml(m.name || "Chưa có tên")}</div><div class="em">${escapeHtml(m.email || "")}</div></div>
-              <div class="acts">
-                <button class="btn-sm btn-approve" data-id="${escapeHtml(m.member_id)}" data-act="approve"><i class="fa-solid fa-check"></i> Duyệt</button>
-                <button class="btn-sm btn-remove" data-id="${escapeHtml(m.member_id)}" data-act="remove"><i class="fa-solid fa-xmark"></i> Từ chối</button>
-              </div>
-            </div>`;
+          html += studentRow(m, `
+            <button class="btn-sm btn-approve" data-id="${escapeHtml(m.member_id)}" data-act="approve"><i class="fa-solid fa-check"></i> Duyệt</button>
+            <button class="btn-sm btn-remove" data-id="${escapeHtml(m.member_id)}" data-act="remove"><i class="fa-solid fa-xmark"></i> Từ chối</button>`);
         });
       }
 
       if (approved.length) {
         html += `<div class="hint" style="margin:18px 0 12px;font-weight:700;color:#0369a1">THÀNH VIÊN (${approved.length})</div>`;
         approved.forEach(m => {
-          html += `
-            <div class="tc-mem">
-              <div class="ava">${escapeHtml((m.name || "?").charAt(0).toUpperCase())}</div>
-              <div class="info"><div class="nm">${escapeHtml(m.name || "Chưa có tên")}</div><div class="em">${escapeHtml(m.email || "")}</div></div>
-              <div class="acts">
-                <button class="btn-sm btn-remove" data-id="${escapeHtml(m.member_id)}" data-act="remove"><i class="fa-solid fa-user-minus"></i> Gỡ</button>
-              </div>
-            </div>`;
+          html += studentRow(m, `
+            <button class="btn-sm btn-remove" data-id="${escapeHtml(m.member_id)}" data-act="remove"><i class="fa-solid fa-user-minus"></i> Gỡ</button>`);
         });
       }
 
@@ -1110,7 +1272,84 @@
           window.tcSetMember(btn.dataset.id, btn.dataset.act, classId);
         });
       });
+      listEl.querySelectorAll(".nm[data-user]").forEach(el => {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (el.dataset.user) tcShowStudentProfile(el.dataset.user);
+        });
+      });
     }
+
+    function tcCloseStudentModal() {
+      const overlay = document.getElementById("tcStudentModal");
+      if (overlay) {
+        overlay.classList.remove("show");
+        overlay.setAttribute("aria-hidden", "true");
+      }
+      document.removeEventListener("keydown", tcModalEscHandler);
+    }
+    window.tcCloseStudentModal = tcCloseStudentModal;
+
+    function tcModalEscHandler(e) {
+      if (e.key === "Escape") tcCloseStudentModal();
+    }
+
+    function tcModalOverlayHandler(e) {
+      if (e.target === document.getElementById("tcStudentModal")) tcCloseStudentModal();
+    }
+
+    function fmtDate(v) {
+      if (!v) return "";
+      try {
+        return new Date(v).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+      } catch (e) { return String(v); }
+    }
+
+    window.tcShowStudentProfile = async function(userId) {
+      const overlay = document.getElementById("tcStudentModal");
+      if (!overlay || !userId) return;
+      overlay.classList.add("show");
+      overlay.setAttribute("aria-hidden", "false");
+      document.addEventListener("keydown", tcModalEscHandler);
+
+      document.getElementById("tcModalAva").textContent = "?";
+      document.getElementById("tcModalName").textContent = "Học sinh";
+      document.getElementById("tcModalEmail").textContent = "";
+      document.getElementById("tcModalClasses").innerHTML =
+        '<div class="tc-modal-empty"><i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải...</div>';
+
+      if (tcCurrentClassId) {
+        const mem = (tcMembersCache[tcCurrentClassId] || []).find(x => x.user_id === userId);
+        if (mem) {
+          document.getElementById("tcModalAva").textContent = (mem.name || "?").charAt(0).toUpperCase();
+          document.getElementById("tcModalName").textContent = mem.name || "Học sinh";
+          document.getElementById("tcModalEmail").textContent = mem.email || "";
+        }
+      }
+
+      try {
+        const { data, error } = await supabase.rpc("user_classes", { p_user_id: userId });
+        const classes = error ? [] : (data || []);
+        const wrap = document.getElementById("tcModalClasses");
+        if (!classes.length) {
+          wrap.innerHTML = '<div class="tc-modal-empty">Không có lớp nào được hiển thị.</div>';
+          return;
+        }
+        wrap.innerHTML = classes.map(c => `
+          <div class="tc-modal-class-row">
+            <div class="tc-modal-class-icon"><i class="fa-solid fa-chalkboard"></i></div>
+            <div style="min-width:0">
+              <div class="tc-modal-class-name">${escapeHtml(c.class_name || "Lớp")}</div>
+              <div class="tc-modal-class-block">${escapeHtml(c.block || "—")} · Tham gia ${fmtDate(c.joined_at)}</div>
+            </div>
+            <span class="tc-modal-class-status ${c.status === "approved" ? "approved" : "pending"}">${c.status === "approved" ? "Đã duyệt" : "Chờ duyệt"}</span>
+          </div>
+        `).join("");
+      } catch (e) {
+        console.error("user_classes lỗi:", e);
+        document.getElementById("tcModalClasses").innerHTML = '<div class="tc-modal-empty">Không tải được danh sách lớp.</div>';
+      }
+    };
 
     async function tcEnsureMembers(classId) {
       if (tcMembersCache[classId] !== undefined) return;
@@ -1184,6 +1423,9 @@
     window.tcOpenFc = function() {
       window.location.href = "./newflashcard.html";
     };
+
+    const tcStudentModal = document.getElementById("tcStudentModal");
+    if (tcStudentModal) tcStudentModal.addEventListener("click", tcModalOverlayHandler);
 
     guard();
   </script>
