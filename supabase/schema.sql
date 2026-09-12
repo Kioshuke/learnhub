@@ -185,6 +185,16 @@ create table if not exists public.schedule_settings (
   updated_by text
 );
 
+-- Thông báo môn học (Phòng Học): giáo viên/admin cập nhật, hiển thị theo tab môn.
+-- notices là jsonb keyed theo subject id: { "ly": {"icon":"fa-bell","html":"...","enabled":true}, ... }
+-- (pattern giống schedule_settings). Giáo viên ghi qua RPC teacher_save/remove_subject_notice.
+create table if not exists public.subject_notices (
+  id         boolean primary key default true check (id),
+  notices    jsonb not null default '{}'::jsonb,
+  updated_at timestamptz,
+  updated_by text
+);
+
 -- Video user đã xem trong Phòng Học (đồng bộ trạng thái "đã xem").
 create table if not exists public.watched_videos (
   user_id    text not null,
@@ -261,6 +271,7 @@ alter table public.ticker_settings enable row level security;
 alter table public.forum_posts enable row level security;
 alter table public.forum_events enable row level security;
 alter table public.schedule_settings enable row level security;
+alter table public.subject_notices enable row level security;
 alter table public.watched_videos enable row level security;
 alter table public.classes enable row level security;
 alter table public.class_members enable row level security;
@@ -822,6 +833,16 @@ drop policy if exists schedule_write_admin on public.schedule_settings;
 create policy schedule_write_admin on public.schedule_settings
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
+-- Thông báo môn học: mọi người đọc được (phòng học hiển thị khi chưa đăng nhập);
+-- chỉ giáo viên/admin ghi (ghi thật qua RPC security definer, policy này là lớp an toàn).
+drop policy if exists subject_notices_select on public.subject_notices;
+create policy subject_notices_select on public.subject_notices
+  for select using (true);
+
+drop policy if exists subject_notices_write on public.subject_notices;
+create policy subject_notices_write on public.subject_notices
+  for all to authenticated using (public.is_teacher()) with check (public.is_teacher());
+
 -- Video đã xem: mỗi user chỉ đọc/ghi dòng của chính mình.
 drop policy if exists watched_videos_select_own on public.watched_videos;
 create policy watched_videos_select_own on public.watched_videos
@@ -1220,6 +1241,7 @@ begin
     'public.maintenance_settings',
     'public.ticker_settings',
     'public.schedule_settings',
+    'public.subject_notices',
     'public.error_logs',
     'public.mailbox_messages'
   ] loop

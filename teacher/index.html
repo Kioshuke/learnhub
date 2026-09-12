@@ -959,6 +959,12 @@
                 <div class="tc-feature-desc">Thời khóa biểu lịch học & lịch thi hiển thị đầu trang Phòng Học.</div>
                 <div class="tc-feature-cta">Mở <i class="fa-solid fa-arrow-right"></i></div>
               </div>
+              <div class="tc-feature tint-amber" onclick="tcOpenNotices()" data-ready="1">
+                <div class="tc-feature-icon icon-amber"><i class="fa-solid fa-bell"></i></div>
+                <div class="tc-feature-title">Thông báo môn học</div>
+                <div class="tc-feature-desc">Thông báo theo từng môn hiển thị đầu tab trong Phòng Học.</div>
+                <div class="tc-feature-cta">Mở <i class="fa-solid fa-arrow-right"></i></div>
+              </div>
               <div class="tc-feature tint-green" onclick="tcOpenFc()" data-ready="1">
                 <div class="tc-feature-icon icon-green"><i class="fa-solid fa-layer-group"></i></div>
                 <div class="tc-feature-title">Soạn Flashcard</div>
@@ -1061,6 +1067,26 @@
           </div>
         </div>
 
+      <!-- ===== NOTICE / THÔNG BÁO MÔN HỌC VIEW ===== -->
+        <div id="tcNoticeView" style="display:none">
+          <div class="tc-view-head">
+            <button class="back" type="button" onclick="tcBackHome()"><i class="fa-solid fa-arrow-left"></i> Trang chủ</button>
+            <h2><i class="fa-solid fa-bell" style="color:#d97706"></i> Thông báo môn học</h2>
+            <span class="muted">Hiển thị đầu tab mỗi môn trong Phòng Học</span>
+          </div>
+
+          <div class="tc-card" style="padding:18px">
+            <div class="tc-section-head" style="margin-bottom:14px">
+              <h2 style="font-size:15px"><i class="fa-solid fa-circle-bell" style="color:#d97706"></i> Chỉnh thông báo từng môn</h2>
+              <span class="muted">Nội dung nhập HTML đơn giản (&lt;strong&gt;...&lt;/strong&gt; + văn bản). Bấm Lưu để áp dụng ngay.</span>
+            </div>
+            <div id="subjectNoticeList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px">
+              <div class="empty"><div class="big"><i class="fa-solid fa-circle-notch fa-spin"></i></div>Đang tải thông báo...</div>
+            </div>
+            <p style="margin-top:16px;font-size:12.5px;color:#64748b" id="subjectNoticeMeta"></p>
+          </div>
+        </div>
+
       </div><!-- /tc-wrap -->
     </div><!-- /teacher-canvas -->
   </div><!-- /tcApp -->
@@ -1147,10 +1173,12 @@
       const manage = document.getElementById("tcManageView");
       const detail = document.getElementById("tcDetailView");
       const sched = document.getElementById("tcScheduleView");
+      const notice = document.getElementById("tcNoticeView");
       if (home) home.style.display = (view === "home" || view === "" || !view) ? "" : "none";
       if (manage) manage.style.display = view === "manage" ? "" : "none";
       if (detail) detail.style.display = view === "detail" ? "" : "none";
       if (sched) sched.style.display = view === "schedule" ? "" : "none";
+      if (notice) notice.style.display = view === "notice" ? "" : "none";
     }
 
     window.onTeacherNav = function(key) {
@@ -1674,6 +1702,141 @@
     });
 
     document.getElementById("refreshScheduleBtn").addEventListener("click", tcLoadSchedule);
+
+    /* ===== THÔNG BÁO MÔN HỌC ===== */
+    const NOTICE_SUBJECTS = [
+      { id: "ly",   name: "Vật Lý",  icon: "fa-atom",             color: "#2563eb", iconBg: "#dbeafe", default: "<strong>Thông báo môn Vật Lý:</strong> Đã thi xong" },
+      { id: "sinh", name: "Sinh Học",icon: "fa-leaf",             color: "#16a34a", iconBg: "#dcfce7", default: "<strong>Thông báo môn Sinh Học:</strong> Chuẩn bị ôn tập" },
+      { id: "tin",  name: "Tin Học", icon: "fa-laptop-code",      color: "#7c3aed", iconBg: "#ede9fe", default: "<strong>Thông báo môn Tin Học:</strong> Ôn tập chứng chỉ MOS. Lưu ý đây chỉ là khoá A1, để xem khoá A2 vui lòng liên hệ admin" },
+      { id: "su",   name: "Lịch Sử", icon: "fa-landmark",         color: "#ea580c", iconBg: "#ffedd5", default: "<strong>Thông báo môn Lịch Sử:</strong> Chủ đề 8 &amp; 9" },
+      { id: "hoa",  name: "Hoá Học", icon: "fa-flask",            color: "#dc2626", iconBg: "#fee2e2", default: "<strong>Thông báo môn Hoá Học:</strong> CHỐT ĐÁP ÁN 👊" },
+      { id: "anh",  name: "Anh Văn", icon: "fa-language",         color: "#db2777", iconBg: "#fce7f3", default: "<strong>Thông báo môn Anh Văn:</strong> Tổng ôn ngữ pháp" },
+      { id: "toan", name: "Toán Học",icon: "fa-square-root-variable", color: "#06b6d4", iconBg: "#cffafe", default: "<strong>Thông báo môn Toán Học:</strong> Chuẩn bị ôn tập" }
+    ];
+    const NOTICE_ICON_CHOICES = [
+      "fa-bell", "fa-fire", "fa-bullhorn", "fa-triangle-exclamation",
+      "fa-info-circle", "fa-calendar-check", "fa-star", "fa-circle-exclamation"
+    ];
+    let tcWatchedNoticesMap = null;
+
+    window.tcOpenNotices = function() {
+      setMainView("notice");
+      if (window.TeacherShell && window.TeacherShell.setActive) window.TeacherShell.setActive("notice");
+      tcLoadNotices();
+    };
+
+    async function tcLoadNotices() {
+      const listEl = document.getElementById("subjectNoticeList");
+      const metaEl = document.getElementById("subjectNoticeMeta");
+      if (listEl) listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-circle-notch fa-spin"></i></div>Đang tải thông báo...</div>';
+      try {
+        const { data, error } = await supabase.rpc("load_subject_notices");
+        if (error) throw error;
+        const row = (data && data[0]) || null;
+        tcWatchedNoticesMap = (row && row.notices) || {};
+        renderSubjectNoticeCards();
+        if (metaEl) metaEl.textContent = row && row.updated_at
+          ? `Cập nhật: ${scFormatDate(row.updated_at)}${row.updated_by ? ` · bởi ${row.updated_by}` : ""}`
+          : "Chưa có bản lưu từ web giáo viên. Các môn đang dùng nội dung mặc định.";
+      } catch (e) {
+        console.error("load_subject_notices lỗi:", e);
+        if (listEl) listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-triangle-exclamation"></i></div>Không tải được thông báo. Kiểm tra đã chạy SQL subject-notices.sql chưa.</div>';
+      }
+    }
+
+    function renderSubjectNoticeCards() {
+      const listEl = document.getElementById("subjectNoticeList");
+      if (!listEl) return;
+      listEl.innerHTML = NOTICE_SUBJECTS.map(s => {
+        const rec = tcWatchedNoticesMap && tcWatchedNoticesMap[s.id];
+        const hasRec = !!(rec && typeof rec === "object");
+        const htmlVal = hasRec ? (rec.html || "") : "";
+        const enabled = hasRec ? (rec.enabled !== false) : true;
+        const icon = hasRec ? (rec.icon || "fa-bell") : "fa-bell";
+        const statusLabel = hasRec ? "Đã đặt trong database" : "Dùng mặc định từ phonghoc-data.js";
+        const placeholder = escapeHtml(String(s.default || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim());
+        const options = NOTICE_ICON_CHOICES.map(ic =>
+          `<option value="${ic}"${ic === icon ? " selected" : ""}><i></i>${ic.replace("fa-", "")}</option>`
+        ).join("");
+
+        return `
+          <div data-subject="${s.id}" style="border:1px solid #e5e7eb;border-radius:16px;padding:16px;background:#fff">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+              <div style="width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:15px;color:#fff;background:${s.color};flex-shrink:0"><i class="fa-solid ${s.icon}"></i></div>
+              <div style="min-width:0">
+                <div style="font-weight:700;font-size:15px;color:#111827">${escapeHtml(s.name)}</div>
+                <div style="font-size:11.5px;color:#94a3b8">${statusLabel}</div>
+              </div>
+              <label style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#475569;white-space:nowrap;cursor:pointer">
+                <input type="checkbox" data-enabled="1"${enabled ? " checked" : ""}> Hiện
+              </label>
+            </div>
+            <label style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">Nội dung (hỗ trợ HTML)</label>
+            <textarea data-html="1" rows="3" placeholder="${placeholder}" style="width:100%;padding:12px 14px;border:1px solid #d1d5db;border-radius:12px;font-family:inherit;font-size:13px;resize:vertical;outline:none;transition:border-color .15s,box-shadow .15s">${escapeHtml(htmlVal)}</textarea>
+            <div style="display:flex;gap:8px;align-items:flex-end;margin-top:8px">
+              <div style="flex:1">
+                <label style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">Icon</label>
+                <select data-icon="1" style="width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:12px;font-family:inherit;font-size:13px;outline:none;background:#fff;color:#111827;cursor:pointer">${options}</select>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="btn-sm" data-save style="background:#d97706;color:#fff"><i class="fa-solid fa-floppy-disk"></i> Lưu</button>
+              <button class="btn-sm" data-remove style="background:#f1f5f9;color:#334155"><i class="fa-solid fa-rotate-left"></i> Trở về mặc định</button>
+            </div>
+          </div>`;
+      }).join("");
+
+      listEl.querySelectorAll("[data-save]").forEach(btn => {
+        btn.addEventListener("click", () => tcSaveNotice(btn.closest("[data-subject]").dataset.subject));
+      });
+      listEl.querySelectorAll("[data-remove]").forEach(btn => {
+        btn.addEventListener("click", () => tcRemoveNotice(btn.closest("[data-subject]").dataset.subject));
+      });
+    }
+
+    window.tcSaveNotice = async function(subjectId) {
+      const card = document.querySelector(`#subjectNoticeList [data-subject="${subjectId}"]`);
+      const subj = NOTICE_SUBJECTS.find(s => s.id === subjectId);
+      if (!card || !subj) return;
+      const html = (card.querySelector("[data-html]").value || "").trim();
+      const icon = card.querySelector("[data-icon]").value || "fa-bell";
+      const enabled = card.querySelector("[data-enabled]").checked;
+      const btn = card.querySelector("[data-save]");
+      btn.disabled = true;
+      try {
+        const { data, error } = await supabase.rpc("teacher_save_subject_notice", {
+          p_subject: subjectId, p_icon: icon, p_html: html, p_enabled: enabled
+        });
+        if (error) throw error;
+        if (!data || data.ok !== true) { toast(data?.error === "forbidden" ? "Bạn không có quyền chỉnh thông báo." : "Không lưu được thông báo.", "error"); return; }
+        toast(`Đã lưu thông báo môn ${subj.name}.`, "success");
+        await tcLoadNotices();
+      } catch (e) {
+        console.error("teacher_save_subject_notice lỗi:", e);
+        toast("Lỗi lưu thông báo: " + (e.message || e), "error");
+      } finally {
+        btn.disabled = false;
+      }
+    };
+
+    window.tcRemoveNotice = async function(subjectId) {
+      const subj = NOTICE_SUBJECTS.find(s => s.id === subjectId);
+      if (!subj) return;
+      const btn = document.querySelector(`#subjectNoticeList [data-subject="${subjectId}"] [data-remove]`);
+      if (btn) btn.disabled = true;
+      try {
+        const { data, error } = await supabase.rpc("teacher_remove_subject_notice", { p_subject: subjectId });
+        if (error) throw error;
+        if (!data || data.ok !== true) { toast(data?.error === "forbidden" ? "Bạn không có quyền chỉnh thông báo." : "Không xoá được thông báo.", "error"); return; }
+        toast(`Đã xoá thông báo môn ${subj.name} — dùng lại mặc định.`, "success");
+        await tcLoadNotices();
+      } catch (e) {
+        console.error("teacher_remove_subject_notice lỗi:", e);
+        toast("Lỗi xoá thông báo: " + (e.message || e), "error");
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    };
 
     const tcStudentModal = document.getElementById("tcStudentModal");
     if (tcStudentModal) tcStudentModal.addEventListener("click", tcModalOverlayHandler);
