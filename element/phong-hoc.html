@@ -618,6 +618,28 @@ function renderCard(c) {
   );
 }
 
+function buildNoticeHtml(s) {
+  if (s && s.notice && s.notice.html && String(s.notice.html).trim() !== "") {
+    return '<div class="subject-notice"><i class="fas ' + escHtml(s.notice.icon || "fa-bell") + '"></i> ' +
+      '<strong>Thông báo môn ' + escHtml(s.name) + ':</strong> ' +
+      s.notice.html + '</div>';
+  }
+  return "";
+}
+
+/* Cập nhật CHỈ khung thông báo của từng panel — giữ nguyên các card video đã đổ từ DB. */
+function refreshNoticeBoxes() {
+  var subjects = window.PHONGHOC_SUBJECTS || [];
+  subjects.forEach(function (s) {
+    var panel = document.getElementById(s.id);
+    if (!panel) return;
+    var old = panel.querySelector(".subject-notice");
+    if (old) old.remove();
+    var html = buildNoticeHtml(s);
+    if (html) panel.insertAdjacentHTML("afterbegin", html);
+  });
+}
+
 function renderPhongHoc() {
   var subjects = window.PHONGHOC_SUBJECTS || [];
   var tabsHtml = "";
@@ -632,14 +654,7 @@ function renderPhongHoc() {
         '<span class="tab-short">' + escHtml(s.short || s.name) + '</span>' +
       '</button>';
 
-    var noticeHtml = "";
-    if (s.notice && s.notice.html && String(s.notice.html).trim() !== "") {
-      noticeHtml =
-        '<div class="subject-notice"><i class="fas ' + escHtml(s.notice.icon || "fa-bell") + '"></i> ' +
-        '<strong>Thông báo môn ' + escHtml(s.name) + ':</strong> ' +
-        s.notice.html +
-        '</div>';
-    }
+    var noticeHtml = buildNoticeHtml(s);
     var cardsHtml = (s.cards || []).map(renderCard).join("");
 
     panelsHtml +=
@@ -1401,18 +1416,15 @@ window.logAppError = logAppError;
 function applySubjectNotices(map) {
   window.__subjectNoticeMap = map || {};
   var subjects = window.PHONGHOC_SUBJECTS || [];
-  var changed = false;
   subjects.forEach(function (s) {
     var n = (map && map[s.id]) || null;
     if (!n || typeof n !== "object" || n.enabled === false || !n.html) {
-      if (s.notice) changed = true;
       s.notice = null;
       return;
     }
     s.notice = { icon: n.icon || "fa-bell", html: n.html };
-    changed = true;
   });
-  if (changed && typeof renderPhongHoc === "function") renderPhongHoc();
+  if (typeof refreshNoticeBoxes === "function") refreshNoticeBoxes();
 }
 
 (async function loadSubjectNotices() {

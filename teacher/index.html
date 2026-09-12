@@ -641,6 +641,17 @@
     .schedule-modal-actions{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid #e2e8f0}
     @media(max-width:700px){.schedule-week-grid{grid-template-columns:repeat(7,minmax(150px,1fr));overflow-x:auto}.schedule-week-nav .btn-sm{padding:8px 10px;font-size:12px}.schedule-modal-grid{grid-template-columns:1fr}}
 
+    /* ===== NOTICE ICON PICKER ===== */
+    .notice-icon-pick{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+    .notice-icon-opt{display:inline-flex;flex-direction:column;align-items:center;gap:4px;min-width:62px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;cursor:pointer;transition:all .15s;color:#64748b;font-family:inherit;line-height:1}
+    .notice-icon-opt i{font-size:18px;color:#94a3b8}
+    .notice-icon-opt span{font-size:10.5px;font-weight:600;color:#94a3b8}
+    .notice-icon-opt:hover{border-color:#cbd5e1;background:#f8fafc}
+    .notice-icon-opt.active{border-color:#d97706;background:#fffbeb;color:#d97706}
+    .notice-icon-opt.active i,.notice-icon-opt.active span{color:#d97706}
+    .notice-icon-prev{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:#475569;margin-top:10px}
+    .notice-icon-prev .icp-box{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:15px;color:#d97706;background:#fffbeb;border:1px solid #fde68a}
+
     /* ===== LOGIN / DENIED / LOADING ===== */
     .tc-login {
       max-width: 440px;
@@ -1186,6 +1197,7 @@
       else if (key === "manage") { setMainView("manage"); tcLoadClasses(); }
       else if (key === "fc") window.location.href = "./newflashcard.html";
       else if (key === "video") window.location.href = "./cardphonghoc.html";
+      else if (key === "notice") tcOpenNotices();
     };
 
     window.tcOpenManage = function() {
@@ -1265,6 +1277,8 @@
         setMainView("manage");
       } else if (view === "schedule") {
         tcOpenSchedule();
+      } else if (view === "notice") {
+        tcOpenNotices();
       }
       tcLoadClasses();
     }
@@ -1714,8 +1728,14 @@ const NOTICE_SUBJECTS = [
       { id: "toan", name: "Toán Học",icon: "fa-square-root-variable", color: "#06b6d4" }
     ];
     const NOTICE_ICON_CHOICES = [
-      "fa-bell", "fa-fire", "fa-bullhorn", "fa-triangle-exclamation",
-      "fa-info-circle", "fa-calendar-check", "fa-star", "fa-circle-exclamation"
+      { v: "fa-bell", n: "Chuông" },
+      { v: "fa-fire", n: "Lửa" },
+      { v: "fa-bullhorn", n: "Loaphone" },
+      { v: "fa-triangle-exclamation", n: "Cảnh báo" },
+      { v: "fa-info-circle", n: "Thông tin" },
+      { v: "fa-calendar-check", n: "Lịch" },
+      { v: "fa-star", n: "Sao" },
+      { v: "fa-circle-exclamation", n: "Chú ý" }
     ];
     let tcWatchedNoticesMap = null;
 
@@ -1747,6 +1767,10 @@ const NOTICE_SUBJECTS = [
     function renderSubjectNoticeCards() {
       const listEl = document.getElementById("subjectNoticeList");
       if (!listEl) return;
+      const iconDisplayName = v => {
+        const rec = NOTICE_ICON_CHOICES.find(x => x.v === v);
+        return rec ? rec.n : v;
+      };
       listEl.innerHTML = NOTICE_SUBJECTS.map(s => {
         const rec = tcWatchedNoticesMap && tcWatchedNoticesMap[s.id];
         const hasRec = !!(rec && typeof rec === "object");
@@ -1754,8 +1778,8 @@ const NOTICE_SUBJECTS = [
         const enabled = hasRec ? (rec.enabled !== false) : true;
         const icon = hasRec ? (rec.icon || "fa-bell") : "fa-bell";
         const statusLabel = hasRec ? "Đã đặt trong database" : "Chưa có — không hiển thị ở Phòng Học";
-        const options = NOTICE_ICON_CHOICES.map(ic =>
-          `<option value="${ic}"${ic === icon ? " selected" : ""}><i></i>${ic.replace("fa-", "")}</option>`
+        const iconOptions = NOTICE_ICON_CHOICES.map(ic =>
+          `<button type="button" data-icon-opt="${ic.v}" class="notice-icon-opt${ic.v === icon ? " active" : ""}" title="${ic.n}"><i class="fa-solid ${ic.v}"></i><span>${ic.n}</span></button>`
         ).join("");
 
         return `
@@ -1772,11 +1796,10 @@ const NOTICE_SUBJECTS = [
             </div>
             <label style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">Nội dung (hỗ trợ HTML)</label>
             <textarea data-html="1" rows="3" placeholder="Nhập nội dung thông báo (bỏ trống nếu không muốn hiện)" style="width:100%;padding:12px 14px;border:1px solid #d1d5db;border-radius:12px;font-family:inherit;font-size:13px;resize:vertical;outline:none;transition:border-color .15s,box-shadow .15s">${escapeHtml(htmlVal)}</textarea>
-            <div style="display:flex;gap:8px;align-items:flex-end;margin-top:8px">
-              <div style="flex:1">
-                <label style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">Icon</label>
-                <select data-icon="1" style="width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:12px;font-family:inherit;font-size:13px;outline:none;background:#fff;color:#111827;cursor:pointer">${options}</select>
-              </div>
+            <div style="margin-top:10px">
+              <label style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">Icon</label>
+              <div class="notice-icon-pick" data-icon-pick="1">${iconOptions}</div>
+              <div class="notice-icon-prev"><span class="icp-box"><i class="fa-solid ${icon}"></i></span><span data-icon-label="1">${iconDisplayName(icon)}</span></div>
             </div>
             <div style="display:flex;gap:8px;margin-top:12px">
               <button class="btn-sm" data-save style="background:#d97706;color:#fff"><i class="fa-solid fa-floppy-disk"></i> Lưu</button>
@@ -1791,6 +1814,20 @@ const NOTICE_SUBJECTS = [
       listEl.querySelectorAll("[data-remove]").forEach(btn => {
         btn.addEventListener("click", () => tcRemoveNotice(btn.closest("[data-subject]").dataset.subject));
       });
+      listEl.querySelectorAll("[data-icon-pick]").forEach(pick => {
+        pick.addEventListener("click", e => {
+          const btn = e.target.closest("[data-icon-opt]");
+          if (!btn) return;
+          const card = btn.closest("[data-subject]");
+          pick.querySelectorAll("[data-icon-opt]").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const labelEl = card.querySelector("[data-icon-label]");
+          const boxEl = card.querySelector(".icp-box i");
+          const nameSpan = btn.querySelector("span");
+          if (labelEl && nameSpan) labelEl.textContent = nameSpan.textContent;
+          if (boxEl) boxEl.className = "fa-solid " + btn.dataset.iconOpt;
+        });
+      });
     }
 
     window.tcSaveNotice = async function(subjectId) {
@@ -1798,7 +1835,8 @@ const NOTICE_SUBJECTS = [
       const subj = NOTICE_SUBJECTS.find(s => s.id === subjectId);
       if (!card || !subj) return;
       const html = (card.querySelector("[data-html]").value || "").trim();
-      const icon = card.querySelector("[data-icon]").value || "fa-bell";
+      const activeIcon = card.querySelector("[data-icon-opt].active");
+      const icon = activeIcon ? activeIcon.dataset.iconOpt : "fa-bell";
       const enabled = card.querySelector("[data-enabled]").checked;
       const btn = card.querySelector("[data-save]");
       btn.disabled = true;
