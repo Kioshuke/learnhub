@@ -1137,6 +1137,21 @@ function detectPlayerType(url) {
   return "other";
 }
 
+/* Loại 1 dòng card: "document" (tài liệu Drive) hay "video" */
+function gvKind(c) {
+  return (String((c && c.video_type) || "").trim() || "video") === "document" ? "document" : "video";
+}
+
+/* Đếm tách video / tài liệu trong 1 nhóm */
+function gvCountText(items) {
+  var v = 0, d = 0;
+  (items || []).forEach(function(c) { if (gvKind(c) === "document") d++; else v++; });
+  var parts = [];
+  if (v) parts.push(v + " video");
+  if (d) parts.push(d + " tài liệu");
+  return parts.join(" · ") || "0 video";
+}
+
 function getVimeoEmbedUrl(url) {
   var s = String(url || "").trim();
   var m = s.match(/vimeo\.com\/(?:video\/)?(\d+)/);
@@ -1245,7 +1260,7 @@ function seedGvVideoTab(data, order) {
             '<p class="card-desc">' + escHtml(cardDesc) + '</p>' +
             '<div class="gv-card-foot">' +
               '<a class="btn" href="#" onclick="openGvSubject(this,\'' + escJs(n) + '\',\'' + escJs(ct) + '\'); return false;">Xem video</a>' +
-              '<span class="gv-card-stats"><i class="fa-solid fa-video"></i> ' + cards.length + ' video<i class="fa-solid fa-folder" style="margin-left:8px"></i> ' + groupNames.length + ' chủ đề</span>' +
+              '<span class="gv-card-stats"><i class="fa-solid fa-video"></i> ' + gvCountText(cards) + '<i class="fa-solid fa-folder" style="margin-left:8px"></i> ' + groupNames.length + ' chủ đề</span>' +
             '</div>' +
           '</div>' +
         '</div>');
@@ -1290,7 +1305,9 @@ function openGvSubject(el, subjectName, cardTitle) {
         return '<li class="grammar-sidebar-item" data-gv="vimeo" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fa-brands fa-vimeo"></i> ' + escHtml(title) + '</li>';
       }
       if (type === "drive") {
-        return '<li class="grammar-sidebar-item" data-gv="drive" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fas ' + (/folders\//.test(url) ? "fa-folder-open" : "fa-file-video") + '"></i> ' + escHtml(title) + '</li>';
+        var isFolder = /folders\//.test(url);
+        var gvIcon = isFolder ? "fa-folder" : (gvKind(c) === "document" ? "fa-file-lines" : "fa-file-video");
+        return '<li class="grammar-sidebar-item" data-gv="drive" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fas ' + gvIcon + '"></i> ' + escHtml(title) + '</li>';
       }
       return '<li class="grammar-sidebar-item math-pending"><i class="fas fa-circle-question"></i> ' + escHtml(title) + '<span class="math-pending-tag">Không hỗ trợ</span></li>';
     }).join("");
@@ -1300,7 +1317,7 @@ function openGvSubject(el, subjectName, cardTitle) {
           '<i class="fa-solid fa-chevron-right gv-group-caret"></i>' +
           '<i class="fa-solid fa-folder gv-group-folder"></i>' +
           '<span class="gv-group-title">' + escHtml(g) + '</span>' +
-          '<span class="gv-group-count">' + items.length + ' video</span>' +
+          '<span class="gv-group-count">' + gvCountText(items) + '</span>' +
         '</div>' +
         '<ul class="gv-group-body" style="display:none">' + itemsHtml + '</ul>' +
       '</div>'

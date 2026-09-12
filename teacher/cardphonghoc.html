@@ -236,6 +236,14 @@
                 <span class="link-preview">
                   <i class="fa-solid fa-wand-magic-sparkles" style="color:#8b5cf6"></i> Tự nhận dạng: <span id="vdUrlType" class="vd-type-badge hidden"></span>
                 </span>
+                <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
+                  <label style="font-size:12.5px;font-weight:700;color:#475569;margin:0;white-space:nowrap">Loại:</label>
+                  <select id="vdKind" style="width:auto;flex:0 0 150px">
+                    <option value="video">Video</option>
+                    <option value="document">Tài liệu</option>
+                  </select>
+                  <span class="hint">Chọn <b>Tài liệu</b> cho link thư mục Drive, file doc/pdf... (không tính là video).</span>
+                </div>
               </div>
             </div>
 
@@ -389,7 +397,24 @@
       if (!t) { el.classList.add("hidden"); return; }
       el.classList.add("vd-type-" + t.key);
       el.textContent = t.label;
+      const kindEl = document.getElementById("vdKind");
+      if (kindEl) {
+        if (t.key === "youtube" || t.key === "vimeo") kindEl.value = "video";
+        else if (t.key === "drive" && /\/folders\//.test(String(url || ""))) kindEl.value = "document";
+      }
     };
+
+    function vdListItemType(c) {
+      return (String(c.video_type || "").trim() || "video") === "document" ? "document" : "video";
+    }
+    function vdCountText(items) {
+      let v = 0, d = 0;
+      (items || []).forEach(c => { if (vdListItemType(c) === "document") d++; else v++; });
+      const parts = [];
+      if (v) parts.push(v + " video");
+      if (d) parts.push(d + " tài liệu");
+      return parts.join(" · ") || "0 video";
+    }
 
     // ================= EDITOR =================
     function vdRenderSubjectOptions(sel) {
@@ -520,6 +545,8 @@
       document.getElementById("vdNewGroupInput").value = "";
       document.getElementById("vdRenameGroupRow").style.display = "none";
       document.getElementById("vdRenameGroupInput").value = "";
+      const kindNew = document.getElementById("vdKind");
+      if (kindNew) kindNew.value = "video";
       vdPreviewLink("");
       vdEditorVisible(true);
       document.getElementById("vdCardTitle").focus();
@@ -545,6 +572,8 @@
       document.getElementById("vdRenameGroupRow").style.display = "none";
       document.getElementById("vdRenameGroupInput").value = "";
       vdPreviewLink(card.video_url);
+      const kindEdit = document.getElementById("vdKind");
+      if (kindEdit) kindEdit.value = (String(card.video_type || "").trim() || "video") === "document" ? "document" : "video";
       vdEditorVisible(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -563,6 +592,7 @@
       }
       const title = (document.getElementById("vdTitle").value || "").trim();
       const url = (document.getElementById("vdUrl").value || "").trim();
+      const kind = (document.getElementById("vdKind").value || "video").trim();
 
       if (!subject) { toast("Vui lòng chọn môn học", "error"); return; }
       if (!cardTitle) { toast("Vui lòng nhập tên card / khóa", "error"); return; }
@@ -583,6 +613,7 @@
           p_group_name: group,
           p_title: title,
           p_video_url: url,
+          p_video_type: kind === "document" ? "document" : "video",
           p_sort_order: 0,
           p_is_complete: false
         };
@@ -688,7 +719,7 @@
           <div class="fc-group-head open" data-vd-subject-head="${escapeHtml(subj)}" style="background:linear-gradient(135deg,#ecfeff,#f0fdfa)">
             <i class="fa-solid fa-chevron-right fc-group-caret"></i>
             <span class="fc-group-title"><i class="fa-solid fa-graduation-cap" style="color:#0891b2;margin-right:6px"></i>${escapeHtml(subj)}</span>
-            <span class="fc-group-count">${rows.length} video</span>
+            <span class="fc-group-count">${vdCountText(rows)}</span>
           </div>
           <div class="vc-grid" data-vd-subject-body="${escapeHtml(subj)}">
             ${cardOrder.map(ct => {
@@ -700,17 +731,17 @@
                 <div class="fc-group-head ${open ? "open" : ""}" data-vd-card-head="${escapeHtml(key)}">
                   <i class="fa-solid fa-chevron-right fc-group-caret"></i>
                   <span class="fc-group-title"><i class="fa-solid fa-video" style="color:#0891b2;margin-right:6px"></i>${escapeHtml(ct)}</span>
-                  <span class="fc-group-count">${items.length} video</span>
+                  <span class="fc-group-count">${vdCountText(items)}</span>
                 </div>
                 <div class="vc-card-body" data-vd-card-body="${escapeHtml(key)}" style="${open ? "" : "display:none"}">
                   <div class="vc-card-desc-line">${escapeHtml((items[0] && items[0].card_description) || "Chưa có mô tả card")}</div>
                   <table>
-                    <thead><tr><th style="width:38%">Tiêu đề video</th><th style="width:22%">Chủ đề</th><th>Nguồn</th><th style="width:120px;text-align:right">Thao tác</th></tr></thead>
+                    <thead><tr><th style="width:38%">Tiêu đề</th><th style="width:22%">Chủ đề</th><th>Nguồn</th><th style="width:120px;text-align:right">Thao tác</th></tr></thead>
                     <tbody>${items.map(c => `
                       <tr data-vd-id="${escapeHtml(c.card_id)}">
-                        <td><div class="vc-t"><i class="fa-solid fa-circle-play" style="color:${c.is_complete ? "var(--green)" : "#94a3b8"};font-size:11px;margin-right:6px"></i>${escapeHtml(c.title)}</div></td>
+                        <td><div class="vc-t"><i class="fa-solid ${vdListItemType(c) === "document" ? "fa-file-lines" : "fa-circle-play"}" style="color:${vdListItemType(c) === "document" ? "#94a3b8" : (c.is_complete ? "var(--green)" : "#94a3b8")};font-size:11px;margin-right:6px"></i>${escapeHtml(c.title)}</div></td>
                         <td><span class="fc-chip"><i class="fa-solid fa-folder"></i> ${escapeHtml(c.group_name || "—")}</span></td>
-                        <td>${vdTypeBadgeHtml(c.video_url)}</td>
+                        <td>${vdTypeBadgeHtml(c.video_url)}${vdListItemType(c) === "document" ? ' <span class="vc-type" style="font-weight:800;color:#b45309">· Tài liệu</span>' : ""}</td>
                         <td class="vc-actions">
                           <button class="btn-sm" style="background:#e0f2fe;color:#0369a1" data-vd-edit="${escapeHtml(c.card_id)}"><i class="fa-solid fa-pen"></i> Sửa</button>
                           <button class="btn-sm btn-remove" data-vd-del="${escapeHtml(c.card_id)}"><i class="fa-solid fa-trash-can"></i> Xoá</button>
