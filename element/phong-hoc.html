@@ -210,6 +210,30 @@ body.dark-mode .subject-tab.active:hover{color:#fff;border-color:var(--tab);}
   height: 100%;
   border: 0;
 }
+/* Chống xung đột với luật chung `#quiz iframe{height:70vh}` trong giaodien.css:
+   nó ép iframe video (đang nằm trong #quiz) cao hơn khung 16:9 -> player bị
+   render méo tỉ lệ, cắt mất đáy và sinh viền đen. Buộc iframe của player video
+   lấp đúng 100% khung (tự sinh video 16:9 chuẩn như YouTube, không viền đen). */
+#quiz .video-frame iframe{
+  width: 100%;
+  height: 100% !important;
+  min-height: 0;
+}
+#quiz .video-frame video{
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+/* Zoom lấp đầy khung cho video YouTube: video gốc quay không đúng 16:9 nên
+   YouTube tự chèn viền đen trong iframe. Cách đúng để crop viền đen là GIỮ
+   NGUYÊN kích thước iframe = 100% (để YouTube tự layout video đúng chuẩn bên
+   trong), rồi dùng transform:scale() để phóng to phần đã render ra và cắt bớt
+   qua overflow:hidden của .video-frame. Nếu đổi width/height% thay vì scale,
+   YouTube sẽ tự re-layout lại theo khung mới nên không có tác dụng crop gì cả. */
+.video-frame.yt-zoom iframe{
+  transform: scale(1);
+  transform-origin: center center;
+}
 
 /* ===== GRAMMAR PLAYER (video 16:9 + mục lục bên cạnh) ===== */
 .grammar-player-content{display:flex;align-items:flex-start;gap:14px;width:100%;}
@@ -234,12 +258,30 @@ body.dark-mode .subject-tab.active:hover{color:#fff;border-color:var(--tab);}
   .grammar-player-content{flex-direction:column;}
   .grammar-sidebar{flex:0 0 auto;align-self:stretch;border-radius:12px;}
 }
-.video-frame.drive-mode{aspect-ratio:auto;}
-.video-frame.drive-mode iframe{height:75vh;min-height:420px;}
+/* Video file: <video> HTML5, khung tự co đúng tỉ lệ file (JS đổi style.aspectRatio
+   khi đọc metadata) nên video to, đầy khung, không viền đen/cắt/zoom.
+   object-fit:contain chỉ là lớp an toàn nếu file chưa kịp load metadata. */
+.video-frame.drive-mode{aspect-ratio:16/9;}
+.video-frame.drive-mode iframe{width:100%;height:100%;border:0;}
+.video-frame.drive-mode video{width:100%;height:100%;display:block;border:0;background:#000;object-fit:contain;}
+/* Drive thư mục (lưới tài liệu): cần khung cao hơn để duyệt file */
+.video-frame.drive-folder-mode{aspect-ratio:auto;height:75vh;min-height:420px;}
+.video-frame.drive-folder-mode iframe{width:100%;height:100%;border:0;}
 .video-frame.pdf-mode{aspect-ratio:auto;height:75vh;max-height:820px;min-height:420px;}
 .video-frame.pdf-mode iframe{width:100%;height:100%;border:0;background:#fff;}
+/* Fallback khi video Drive không stream trực tiếp được (file quá lớn/bị chặn):
+   nhúng iframe preview của Drive trong khung 16:9 như player YouTube, KHÔNG
+   phóng to (không cảm giác video bị zoom). */
+.video-frame.drive-preview-mode{aspect-ratio:16/9;}
+.video-frame.drive-preview-mode iframe{
+  width:100%;
+  height:100%;
+  border:0;
+  background:#000;
+}
 @media (max-width:768px){
   .video-frame.pdf-mode{height:60vh;min-height:320px;}
+  .video-frame.drive-preview-mode{height:60vh;min-height:320px;}
 }
 </style>
 <script src="../version/version-check.js" defer></script>
@@ -639,6 +681,8 @@ function createYTPlayer(elementId, videoId) {
   currentVideoId = videoId;
   var host = document.getElementById(elementId);
   if (!host) return;
+  var frame = host.closest(".video-frame");
+  if (frame) frame.classList.add("yt-zoom");
   if (!window.YT || !window.YT.Player) {
     host.innerHTML = getYoutubeIframeHtml(getYoutubeEmbedUrl("https://www.youtube.com/watch?v=" + videoId));
     return;
@@ -742,12 +786,13 @@ function switchSidebarVideo(item) {
 
   /* Đang ở chế độ PDF/Drive -> dựng lại khung player */
   var frame = document.querySelector(".video-frame");
-  if (frame && (frame.classList.contains("pdf-mode") || frame.classList.contains("drive-mode"))) {
+  if (frame && (frame.classList.contains("pdf-mode") || frame.classList.contains("drive-mode") || frame.classList.contains("drive-folder-mode") || frame.classList.contains("drive-preview-mode"))) {
     if (ytPlayer && typeof ytPlayer.destroy === "function") {
       try { ytPlayer.destroy(); } catch (e) {}
     }
     ytPlayer = null;
-    frame.classList.remove("pdf-mode", "drive-mode");
+    frame.classList.remove("pdf-mode", "drive-mode", "drive-folder-mode", "drive-preview-mode");
+    frame.style.aspectRatio = "";
     frame.innerHTML = '<div id="ytPlayerHost"></div>';
     currentVideoId = videoId;
     ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", videoId); });
@@ -767,6 +812,7 @@ function switchSidebarVideo(item) {
     }
     ytPlayer = null;
     if (frame) {
+      frame.style.aspectRatio = "";
       frame.innerHTML = '<div id="ytPlayerHost"></div>';
       ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", videoId); });
     }
@@ -810,6 +856,21 @@ function getDriveEmbedUrl(url) {
   return "https://drive.google.com/file/d/" + id + "/preview";
 }
 
+function getDriveStreamUrls(id) {
+  if (!id) return [];
+  /* drive.usercontent.google.com bỏ qua được màn cảnh báo "không quét được virus"
+     của Google với các file lớn (video buổi học thường khá nặng) tốt hơn hẳn
+     link uc?export=download cũ. Thử lần lượt nhiều biến thể link (thêm authuser
+     + uuid để làm mới token) vì Google hay từ chối link cũ/đã dùng, giảm tối đa
+     việc phải rơi xuống iframe preview. */
+  var rnd = Math.random().toString(36).slice(2);
+  return [
+    "https://drive.usercontent.google.com/download?id=" + id + "&export=download&confirm=t&authuser=0&uuid=" + rnd,
+    "https://drive.google.com/uc?export=download&id=" + id + "&confirm=t&authuser=0&uuid=" + rnd,
+    "https://drive.usercontent.google.com/download?id=" + id + "&export=download&confirm=t"
+  ];
+}
+
 function showDrivePlayer(driveUrl) {
   stopWatchTimer();
   if (ytPlayer && typeof ytPlayer.destroy === "function") {
@@ -819,11 +880,59 @@ function showDrivePlayer(driveUrl) {
   currentVideoId = null;
   var frame = document.querySelector(".video-frame");
   if (!frame) return;
-  frame.classList.remove("pdf-mode");
+  frame.style.aspectRatio = "";
+  var isFolder = /\/folders\//.test(String(driveUrl || ""));
+  frame.classList.remove("pdf-mode", "drive-mode", "drive-folder-mode", "drive-preview-mode", "yt-zoom");
+
+  /* Link thư mục -> dạng xem lưới để duyệt tài liệu trong khung cao */
+  if (isFolder) {
+    frame.classList.add("drive-folder-mode");
+    frame.innerHTML =
+      '<iframe src="' + escHtml(getDriveEmbedUrl(driveUrl)) +
+      '" title="Google Drive" allow="autoplay; encrypted-media" allowfullscreen="true"></iframe>';
+    return;
+  }
+
+  /* Video file -> phát thẳng bằng <video> HTML5. Khung tự co đúng TỈ LỆ THẬT của
+     file sau khi đọc metadata: video hiện to, đầy khung, không viền đen, không bị
+     cắt/zoom. File chuẩn 16:9 thì khung y hệt player YouTube; file tỉ lệ khác thì
+     hiện tự nhiên như VLC (không bóp méo). */
   frame.classList.add("drive-mode");
-  frame.innerHTML =
-    '<iframe src="' + escHtml(getDriveEmbedUrl(driveUrl)) +
-    '" title="Google Drive" allow="autoplay; encrypted-media" allowfullscreen="true"></iframe>';
+  var video = document.createElement("video");
+  video.className = "drive-video";
+  video.controls = true;
+  video.playsInline = true;
+  video.preload = "metadata";
+  video.setAttribute("title", "Google Drive");
+  video.onloadedmetadata = function() {
+    if (video.videoWidth && video.videoHeight && frame) {
+      frame.style.aspectRatio = video.videoWidth / video.videoHeight;
+    }
+  };
+
+  var streamUrls = getDriveStreamUrls(getDriveFileId(driveUrl));
+  var attempt = 0;
+  video.onerror = function() {
+    attempt++;
+    if (attempt < streamUrls.length) {
+      /* Thử link stream tiếp theo trước khi bỏ cuộc + rơi fallback */
+      video.src = streamUrls[attempt];
+      video.load();
+      return;
+    }
+    /* Fallback: vẫn hiển thị KHUNG 16:9 như YouTube (không phải dạng cao),
+       iframe preview của Drive được phóng to (scale) để thanh header + viền đen
+       thừa trôi ra ngoài, phần video lấp đầy khung cho giống player YouTube. */
+    frame.style.aspectRatio = "";
+    frame.classList.remove("drive-mode");
+    frame.classList.add("drive-preview-mode");
+    frame.innerHTML =
+      '<iframe src="' + escHtml(getDriveEmbedUrl(driveUrl)) +
+      '" title="Google Drive" allow="autoplay; encrypted-media" allowfullscreen="true"></iframe>';
+  };
+  video.src = streamUrls[0];
+  frame.innerHTML = "";
+  frame.appendChild(video);
 }
 
 function switchSidebarDrive(item) {
@@ -852,8 +961,9 @@ function showPdfPlayer(pdfUrl) {
   currentVideoId = null;
 var frame = document.querySelector(".video-frame");
   if (!frame) return;
+  frame.style.aspectRatio = "";
   frame.classList.add("pdf-mode");
-  frame.classList.remove("drive-mode");
+  frame.classList.remove("drive-mode", "drive-folder-mode", "drive-preview-mode", "yt-zoom");
   frame.innerHTML = '<iframe src="' + escHtml(getPdfEmbedUrl(pdfUrl)) + '" title="Tài liệu PDF"></iframe>';
 }
 
