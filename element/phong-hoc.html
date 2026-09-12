@@ -283,6 +283,31 @@ body.dark-mode .subject-tab.active:hover{color:#fff;border-color:var(--tab);}
   .video-frame.pdf-mode{height:60vh;min-height:320px;}
   .video-frame.drive-preview-mode{height:60vh;min-height:320px;}
 }
+/* Vimeo: khung 16:9 như player YouTube (không track "đã xem") */
+.video-frame.vimeo-mode{aspect-ratio:16/9;}
+.video-frame.vimeo-mode iframe{width:100%;height:100%;border:0;background:#000;}
+
+/* ===== NHÓM CHỦ ĐỀ trong mục lục "Video GV" (dropdown) ===== */
+.gv-group{border:1px solid var(--card-border);border-radius:12px;margin-bottom:6px;overflow:hidden;background:var(--card-bg);}
+.gv-group-head{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12.5px;font-weight:800;color:#0f172a;cursor:pointer;user-select:none;background:var(--notice-bg);border-bottom:1px solid var(--card-border);}
+.gv-group-head:hover{filter:brightness(.97);}
+.gv-group-head:last-child{border-bottom:0;}
+.gv-group-caret{font-size:10px;color:#94a3b8;transition:transform .15s;}
+.gv-group-head.open .gv-group-caret{transform:rotate(90deg);color:#0d9488;}
+.gv-group-folder{color:#0d9488;font-size:12px;}
+.gv-group-title{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.gv-group-count{flex-shrink:0;font-size:10px;font-weight:700;color:#0d9488;background:rgba(13,148,136,.12);border-radius:999px;padding:3px 9px;}
+.gv-group-body{list-style:none;margin:0;padding:4px;}
+.gv-group-body .grammar-sidebar-item{margin:0 0 2px;padding:9px 12px;}
+.gv-empty{background:#f8fafc;border:1px dashed #dbe3f0;border-radius:14px;padding:34px 16px;text-align:center;color:#94a3b8;font-size:13px;line-height:1.7;}
+.gv-empty i{display:block;font-size:26px;margin-bottom:10px;color:#c7d2e8;}
+/* Khung player "Video GV" lúc CHƯA CHỌN video: hiện thông báo, không autoplay */
+.gv-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#94a3b8;font-weight:600;font-size:14px;text-align:center;padding:20px;background:#0f172a;border-radius:14px;}
+.gv-placeholder i{font-size:38px;color:#0d9488;}
+/* Foot của card giáo viên: nút Xem video trái - thống kê video/chủ đề phải */
+.gv-card-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}
+.gv-card-stats{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#64748b;white-space:nowrap}
+.gv-card-stats i{font-size:11px;color:#0891b2}
 </style>
 <script src="../version/version-check.js" defer></script>
 <script src="../toast.js"></script>
@@ -786,12 +811,12 @@ function switchSidebarVideo(item) {
 
   /* Đang ở chế độ PDF/Drive -> dựng lại khung player */
   var frame = document.querySelector(".video-frame");
-  if (frame && (frame.classList.contains("pdf-mode") || frame.classList.contains("drive-mode") || frame.classList.contains("drive-folder-mode") || frame.classList.contains("drive-preview-mode"))) {
+  if (frame && (frame.classList.contains("pdf-mode") || frame.classList.contains("drive-mode") || frame.classList.contains("drive-folder-mode") || frame.classList.contains("drive-preview-mode") || frame.classList.contains("vimeo-mode"))) {
     if (ytPlayer && typeof ytPlayer.destroy === "function") {
       try { ytPlayer.destroy(); } catch (e) {}
     }
     ytPlayer = null;
-    frame.classList.remove("pdf-mode", "drive-mode", "drive-folder-mode", "drive-preview-mode");
+    frame.classList.remove("pdf-mode", "drive-mode", "drive-folder-mode", "drive-preview-mode", "vimeo-mode");
     frame.style.aspectRatio = "";
     frame.innerHTML = '<div id="ytPlayerHost"></div>';
     currentVideoId = videoId;
@@ -882,7 +907,7 @@ function showDrivePlayer(driveUrl) {
   if (!frame) return;
   frame.style.aspectRatio = "";
   var isFolder = /\/folders\//.test(String(driveUrl || ""));
-  frame.classList.remove("pdf-mode", "drive-mode", "drive-folder-mode", "drive-preview-mode", "yt-zoom");
+  frame.classList.remove("pdf-mode", "drive-mode", "drive-folder-mode", "drive-preview-mode", "vimeo-mode", "yt-zoom");
 
   /* Link thư mục -> dạng xem lưới để duyệt tài liệu trong khung cao */
   if (isFolder) {
@@ -963,7 +988,7 @@ var frame = document.querySelector(".video-frame");
   if (!frame) return;
   frame.style.aspectRatio = "";
   frame.classList.add("pdf-mode");
-  frame.classList.remove("drive-mode", "drive-folder-mode", "drive-preview-mode", "yt-zoom");
+  frame.classList.remove("drive-mode", "drive-folder-mode", "drive-preview-mode", "vimeo-mode", "yt-zoom");
   frame.innerHTML = '<iframe src="' + escHtml(getPdfEmbedUrl(pdfUrl)) + '" title="Tài liệu PDF"></iframe>';
 }
 
@@ -1098,9 +1123,239 @@ function openCourse(el, courseId) {
   }, 50);
 }
 
+/* ============================================================
+   VIDEO GIÁO VIÊN (tab "Video GV" — dữ liệu từ Supabase, do GV đăng)
+   ============================================================ */
+
+/* Phân loại link chấp nhận: YouTube / Vimeo / Google Drive */
+function detectPlayerType(url) {
+  var s = String(url || "").trim();
+  if (!s) return "other";
+  if (/drive\.google\.com/.test(s)) return "drive";
+  if (/youtube\.com|youtu\.be|^[\w-]{11}$/.test(s)) return "youtube";
+  if (/vimeo\.com/.test(s)) return "vimeo";
+  return "other";
+}
+
+function getVimeoEmbedUrl(url) {
+  var s = String(url || "").trim();
+  var m = s.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  var id = m && m[1];
+  if (!id) return s;
+  return "https://player.vimeo.com/video/" + id + "?dnt=1&title=0&byline=0&portrait=0";
+}
+
+function showVimeoPlayer(vimeoUrl) {
+  stopWatchTimer();
+  if (ytPlayer && typeof ytPlayer.destroy === "function") {
+    try { ytPlayer.destroy(); } catch (e) {}
+  }
+  ytPlayer = null;
+  currentVideoId = null;
+  var frame = document.querySelector(".video-frame");
+  if (!frame) return;
+  frame.style.aspectRatio = "";
+  frame.classList.add("vimeo-mode");
+  frame.classList.remove("pdf-mode", "drive-mode", "drive-folder-mode", "drive-preview-mode", "yt-zoom");
+  frame.innerHTML =
+    '<iframe src="' + escHtml(getVimeoEmbedUrl(vimeoUrl)) +
+    '" title="Vimeo" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen="true"></iframe>';
+}
+
+/* Điều hướng item "Video GV": YouTube giữ nguyên cơ chế track "đã xem",
+   còn Vimeo/Drive mở trực tiếp (không track — giống Drive/PDF hiện tại). */
+function switchSidebarGv(item) {
+  var type = item.getAttribute("data-gv");
+  if (type === "youtube") {
+    switchSidebarVideo(item);
+    return;
+  }
+  var url = item.getAttribute("data-gv-url");
+  if (!url) return;
+  document.querySelectorAll(".grammar-sidebar-item").forEach(function(el) {
+    el.classList.remove("active");
+  });
+  item.classList.add("active");
+  if (type === "vimeo") showVimeoPlayer(url);
+  else if (type === "drive") showDrivePlayer(url);
+}
+
+function gvPlaceholderHtml() {
+  return '<div class="gv-placeholder"><i class="fa-solid fa-circle-play"></i><span>Chưa chọn video — mở một chủ đề trong mục lục bên cạnh để xem video</span></div>';
+}
+
+/* Đổ card video giáo viên vào GRID MÔN HỌC sẵn có (không tạo tab riêng).
+   Mỗi card = 1 (subject, card_title) do giáo viên đặt tên (vd: "Tổng ôn tiếng anh"). */
+function seedGvVideoTab(data, order) {
+  if (!data) return;
+  var staticOrder = (window.PHONGHOC_SUBJECTS || []).map(function(s) { return s.name; });
+  var indexOf = function(n) { return staticOrder.indexOf(n); };
+  var names = (order && order.length ? order : Object.keys(data))
+    .filter(function(n) { return data[n] && data[n].length; })
+    .sort(function(a, b) {
+      var ia = indexOf(a), ib = indexOf(b);
+      if (ia === -1 && ib === -1) return a.localeCompare(b, "vi");
+      if (ia === -1) return 1;
+      if (ib === -1) return -1;
+      return ia - ib;
+    });
+
+  names.forEach(function(n) {
+    var s = null;
+    (window.PHONGHOC_SUBJECTS || []).forEach(function(x) { if (x.name === n) s = x; });
+    var panel = s ? document.getElementById(s.id) : null;
+    var grid = panel ? panel.querySelector(".grid") : null;
+    if (!grid) return;
+
+    var icon = (s && s.icon) || "fa-chalkboard-teacher";
+    var color = (s && s.cardColor) || (s && s.tabColor) || "#0d9488";
+
+    var byCard = {};
+    var cardOrder = [];
+    (data[n] || []).forEach(function(c) {
+      var ct = String(c.card_title || "").trim() || "Video";
+      if (!byCard[ct]) { byCard[ct] = []; cardOrder.push(ct); }
+      byCard[ct].push(c);
+    });
+    cardOrder.sort(function(a, b) { return a.localeCompare(b, "vi"); });
+
+    cardOrder.forEach(function(ct) {
+      var key = n + "§" + ct;
+      if (grid.querySelector('.card[data-gv-card="' + key + '"]')) return;
+      var cards = byCard[ct];
+      var groupNames = [];
+      cards.forEach(function(c) {
+        var g = String(c.group_name || "").trim() || "Chung";
+        if (groupNames.indexOf(g) === -1) groupNames.push(g);
+      });
+      var cardDesc = "";
+      for (var di = 0; di < cards.length; di++) {
+        if (String(cards[di].card_description || "").trim()) { cardDesc = cards[di].card_description; break; }
+      }
+      if (!cardDesc) cardDesc = "Khóa video tổng hợp của giáo viên — bấm Xem video để bắt đầu.";
+      grid.insertAdjacentHTML("beforeend",
+        '<div class="card" data-gv-card="' + key + '">' +
+          '<div class="card-color-bar"></div>' +
+          '<div class="card-body">' +
+            '<div class="card-top">' +
+              '<div class="card-icon" style="background:' + escHtml(color) + '"><i class="fas ' + escHtml(icon) + '"></i></div>' +
+              '<h3>' + escHtml(ct) + '</h3>' +
+              '<span class="status done"></span>' +
+            '</div>' +
+            '<p class="card-desc">' + escHtml(cardDesc) + '</p>' +
+            '<div class="gv-card-foot">' +
+              '<a class="btn" href="#" onclick="openGvSubject(this,\'' + escJs(n) + '\',\'' + escJs(ct) + '\'); return false;">Xem video</a>' +
+              '<span class="gv-card-stats"><i class="fa-solid fa-video"></i> ' + cards.length + ' video<i class="fa-solid fa-folder" style="margin-left:8px"></i> ' + groupNames.length + ' chủ đề</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>');
+    });
+  });
+
+  if (typeof applyCardDominoEffect === "function") applyCardDominoEffect();
+}
+
+function openGvSubject(el, subjectName, cardTitle) {
+  document.querySelectorAll(".card").forEach(function(c) { c.classList.remove("active-card"); });
+  var card = el && el.closest ? el.closest(".card") : null;
+  if (card) card.classList.add("active-card");
+
+  var data = window.__gvData || {};
+  var all = data[subjectName] || [];
+  var cards = all.filter(function(c) { return String(c.card_title || "").trim() === cardTitle; });
+  if (!cards.length) {
+    if (window.lhToast) lhToast("Chưa có video trong card này", "error");
+    return;
+  }
+
+  var groups = [];
+  var byGroup = {};
+  cards.forEach(function(c) {
+    var g = String(c.group_name || "").trim() || "Chung";
+    if (!byGroup[g]) { byGroup[g] = []; groups.push(g); }
+    byGroup[g].push(c);
+  });
+
+  // Toàn bộ dropdown CHỦ ĐỀ đóng sẵn (accordion); khung video hiện thông báo.
+  var groupsHtml = groups.map(function(g) {
+    var items = byGroup[g];
+    var itemsHtml = items.map(function(c) {
+      var url = String(c.video_url || "").trim();
+      var type = detectPlayerType(url);
+      var title = c.title || "Video";
+      if (type === "youtube") {
+        return '<li class="grammar-sidebar-item" data-gv="youtube" data-video="' + escHtml(extractVideoId(url)) + '" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fas fa-play-circle"></i> ' + escHtml(title) + '</li>';
+      }
+      if (type === "vimeo") {
+        return '<li class="grammar-sidebar-item" data-gv="vimeo" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fa-brands fa-vimeo"></i> ' + escHtml(title) + '</li>';
+      }
+      if (type === "drive") {
+        return '<li class="grammar-sidebar-item" data-gv="drive" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fas ' + (/folders\//.test(url) ? "fa-folder-open" : "fa-file-video") + '"></i> ' + escHtml(title) + '</li>';
+      }
+      return '<li class="grammar-sidebar-item math-pending"><i class="fas fa-circle-question"></i> ' + escHtml(title) + '<span class="math-pending-tag">Không hỗ trợ</span></li>';
+    }).join("");
+    return (
+      '<div class="gv-group">' +
+        '<div class="gv-group-head">' +
+          '<i class="fa-solid fa-chevron-right gv-group-caret"></i>' +
+          '<i class="fa-solid fa-folder gv-group-folder"></i>' +
+          '<span class="gv-group-title">' + escHtml(g) + '</span>' +
+          '<span class="gv-group-count">' + items.length + ' video</span>' +
+        '</div>' +
+        '<ul class="gv-group-body" style="display:none">' + itemsHtml + '</ul>' +
+      '</div>'
+    );
+  }).join("");
+
+  var listId = "gvSidebarList";
+  document.getElementById("quiz").innerHTML =
+    '<div class="video-box">' +
+      '<div class="video-topbar">' +
+        '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng video</button>' +
+      '</div>' +
+      '<div class="grammar-player-content">' +
+        '<div class="video-frame">' + gvPlaceholderHtml() + '</div>' +
+        '<div class="grammar-sidebar">' +
+          '<div class="grammar-sidebar-header">' + escHtml(cardTitle) + '<span class="watched-counter"></span></div>' +
+          '<ul class="grammar-sidebar-list" id="' + listId + '">' + groupsHtml + '</ul>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  var listEl = document.getElementById(listId);
+  if (listEl) {
+    listEl.querySelectorAll(".gv-group-head").forEach(function(hd) {
+      hd.addEventListener("click", function() {
+        var group = hd.parentNode;
+        var body = group.querySelector(".gv-group-body");
+        if (!body) return;
+        var open = body.style.display !== "none";
+        listEl.querySelectorAll(".gv-group-head").forEach(function(other) {
+          var ob = other.parentNode.querySelector(".gv-group-body");
+          if (ob) ob.style.display = "none";
+          other.classList.remove("open");
+        });
+        if (!open) {
+          body.style.display = "";
+          hd.classList.add("open");
+        }
+      });
+    });
+  }
+
+  initSidebarTicks();
+
+  setTimeout(function() {
+    var q = document.getElementById("quiz");
+    if (q) q.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 50);
+}
+
 /* ===== KHỞI TẠO RENDER ===== */
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", renderPhongHoc);
+  document.addEventListener("DOMContentLoaded", function() {
+    renderPhongHoc();
+  });
 } else {
   renderPhongHoc();
 }
@@ -1119,8 +1374,31 @@ setTimeout(function() {
 </script>
 
 <script type="module">
-import { logAppError } from "../supabase-config.js";
+import { supabase, logAppError } from "../supabase-config.js";
 window.logAppError = logAppError;
+
+(async function initVideoGv() {
+  try {
+    const { data: subjects, error } = await supabase.rpc("list_video_subjects");
+    if (error) throw error;
+    const names = (subjects || []).map(function(r) { return r.subject; }).filter(Boolean);
+    const map = {};
+    async function loadOne(name) {
+      const { data: cards, error: e2 } = await supabase.rpc("list_video_cards_by_subject", { p_subject: name });
+      if (e2) throw e2;
+      map[name] = (cards || []).filter(function(c) { return c && c.video_url; });
+    }
+    await Promise.all(names.map(loadOne));
+    window.__gvData = map;
+    if (typeof window.seedGvVideoTab === "function") window.seedGvVideoTab(map, names);
+  } catch (err) {
+    console.error("[phong-hoc] tải video giáo viên lỗi:", err);
+    if (typeof logAppError === "function") {
+      logAppError({ source: "phong-hoc-gv", category: "feature", level: "error", code: "GV_LOAD_FAIL", message: String((err && (err.message || err.error_description)) || err), url: location.href });
+    }
+    if (typeof window.seedGvVideoTab === "function") window.seedGvVideoTab(null, []);
+  }
+})();
 </script>
 </body>
 </html>

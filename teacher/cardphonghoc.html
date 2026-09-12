@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnHub - Soạn Video</title>
+  <link rel="icon" href="../pictures/favicon.png" sizes="any">
+  <link rel="icon" type="image/png" sizes="48x48" href="../pictures/favicon.png">
+  <link rel="apple-touch-icon" href="../pictures/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../element/giaodien.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    :root{
+      --bg:#f6f8ff; --card:#ffffff; --border:#e6e9f2; --text:#0f172a; --sub:#64748b;
+      --blue:#2563eb; --cyan:#0891b2; --green:#0891b2; --green-d:#0e7490; --amber:#f59e0b;
+      --violet:#8b5cf6;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    .tc-wrap{max-width:1400px;margin:28px 32px;padding:0 0 64px;width:auto}
+    .tc-card{background:var(--card);border:1px solid var(--border);border-radius:20px;box-shadow:0 10px 30px rgba(15,23,42,.05)}
+
+    .tc-view-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+    .tc-view-head h2{margin:0;font-size:22px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+    .tc-view-head h2 i{color:var(--green)}
+    .tc-view-head .muted{color:var(--sub);font-size:13px;font-weight:600;margin-left:auto}
+
+    .vd-layout{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,6fr);gap:18px;align-items:start}
+    .vd-panel-head{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+    .vd-panel-head h3{margin:0;font-size:16px;font-weight:800;letter-spacing:-.01em}
+    .vd-panel-head .muted{color:var(--sub);font-size:12.5px;font-weight:600;display:block;margin-top:2px}
+    .vd-panel-ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:16px;flex-shrink:0}
+    .vd-panel-ico.ico-green{background:linear-gradient(135deg,#ecfeff,#cffafe);color:var(--green-d)}
+    .vd-panel-ico.ico-blue{background:linear-gradient(135deg,#eff6ff,#dbeafe);color:var(--blue)}
+
+    .vd-info,.vd-write{padding:22px}
+    .vd-info{position:relative}
+    .vd-info::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:20px 20px 0 0}
+    .vd-write{position:relative}
+    .vd-write::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:20px 20px 0 0}
+
+    .vd-field{margin-bottom:14px}
+    .vd-field label{display:block;font-size:12.5px;font-weight:600;color:#475569;margin-bottom:6px}
+    .vd-field label b{color:#dc2626;font-weight:700}
+    input,select,textarea{width:100%;border:1px solid #e2e8f0;border-radius:12px;padding:11px 14px;font-size:14px;outline:none;background:#f8fafc;transition:all .15s ease;font-family:inherit}
+    input:focus,textarea:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 4px rgba(37,99,235,.1)}
+    textarea{resize:vertical;line-height:1.55}
+    .hint{font-size:12.5px;color:var(--sub);line-height:1.5}
+
+    .vd-cat-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .vd-cat-row select{flex:1;min-width:180px}
+    .btn-sm{border:0;border-radius:10px;padding:8px 13px;font-weight:700;font-size:12.5px;cursor:pointer;transition:all .15s;font-family:inherit}
+    .btn-sm:hover{transform:translateY(-1px)}
+    .btn-approve{background:#cffafe;color:#0e7490}
+    .btn-approve:hover{background:#a7f3d0}
+    .btn-remove{background:#fee2e2;color:#dc2626}
+    .btn-remove:hover{background:#fecaca}
+    button.btn-green{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff;border:0;border-radius:12px;padding:12px 24px;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s ease;box-shadow:0 6px 16px rgba(8,145,178,.3);font-family:inherit}
+    button.btn-green:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(8,145,178,.38)}
+    button.btn-green:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    button.btn-ghost{display:inline-flex;align-items:center;gap:8px;background:#f1f5f9;color:#334155;border:0;border-radius:12px;padding:12px 20px;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s ease;font-family:inherit}
+    button.btn-ghost:hover{background:#e2e8f0}
+    .vd-save-row{display:flex;align-items:center;justify-content:flex-end;gap:14px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px dashed #e6e9f2}
+
+    /* Badge loại link */
+    .vd-type-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 11px;font-size:11px;font-weight:800;font-family:inherit}
+    .vd-type-badge.hidden{display:none}
+    .vd-type-youtube{background:#fee2e2;color:#dc2626}
+    .vd-type-vimeo{background:#f5f3ff;color:#7c3aed}
+    .vd-type-drive{background:#fffbeb;color:#b45309}
+    .vd-type-other{background:#f1f5f9;color:#475569}
+
+    /* Danh sách card (nhóm theo môn → chủ đề) */
+    .vd-list-card{padding:22px}
+    .vc-empty{background:#f8fafc;border:1px dashed #dbe3f0;border-radius:14px;padding:30px 16px;text-align:center;color:#94a3b8;font-size:13px;line-height:1.6}
+    .vc-empty i{display:block;font-size:24px;margin-bottom:8px;color:#c7d2e8}
+    .fc-group{margin-bottom:14px}
+    .fc-group-head{display:flex;align-items:center;gap:10px;padding:11px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-bottom-left-radius:0;border-bottom-right-radius:0;cursor:pointer;user-select:none;transition:background .15s}
+    .fc-group-head:first-child{border-radius:14px}
+    .fc-group-head.open{border-radius:14px 14px 0 0}
+    .fc-group-head:hover{background:#f1f5f9}
+    .fc-group-caret{font-size:11px;color:#94a3b8;transition:transform .15s}
+    .fc-group-head.open .fc-group-caret{transform:rotate(90deg);color:var(--green)}
+    .fc-group-title{font-weight:800;font-size:13.5px;color:#0f172a}
+    .fc-group-count{margin-left:auto;font-size:11px;font-weight:700;color:var(--sub);background:#ecfeff;color:#0891b2;border-radius:999px;padding:3px 10px}
+    .vc-grid{border:1px solid #e2e8f0;border-top:0;border-radius:0 0 14px 14px;padding:10px;background:#fff}
+    .vc-grid table{width:100%;border-collapse:collapse}
+    .vc-grid th{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:6px 10px}
+    .vc-grid td{padding:8px 10px;font-size:13px;vertical-align:middle;border-top:1px solid #f1f5f9}
+    .vc-grid tr:first-child td{border-top:0}
+    .vc-t{font-weight:700;color:#0f172a}
+    .vc-desc{color:var(--sub);font-size:12px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .vc-card-desc-line{font-size:12px;color:var(--sub);padding:0 2px 10px;line-height:1.6}
+    .vc-type{font-size:11px;font-weight:700}
+    .vc-actions{white-space:nowrap;text-align:right}
+    .vc-actions .btn-sm{margin-left:6px}
+    .fc-chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 9px;font-size:11px;font-weight:700;font-family:inherit;background:#ecfeff;color:#0891b2;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .fc-chip.pending{background:#ecfeff;color:#0891b2;}
+
+    .link-preview{margin-top:6px;font-size:12px;color:var(--sub)}
+    .link-preview i{margin-right:4px}
+
+    /* ===== HUB: chọn khu vực quản lý ===== */
+    .vd-hub{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}
+    .vd-hub-card{position:relative;padding:26px 24px;display:flex;flex-direction:column;gap:10px;border-radius:18px;border:1px solid #e2e8f0;box-shadow:0 10px 30px rgba(15,23,42,.06);transition:all .2s ease;overflow:hidden}
+    .vd-hub-card:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(15,23,42,.12)}
+    .vd-hub-ico{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;font-size:24px;flex:none}
+    .vd-hub-ico.video{background:linear-gradient(135deg,#ecfeff,#cffafe);color:#0e7490}
+    .vd-hub-ico.test{background:linear-gradient(135deg,#f5f3ff,#ede9fe);color:#7c3aed}
+    .vd-hub-title{font-size:18px;font-weight:800;color:#0f172a}
+    .vd-hub-desc{font-size:13px;color:#64748b;line-height:1.65}
+    .vd-hub-btn{margin-top:6px;display:inline-flex;align-items:center;gap:8px;align-self:flex-start;background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff;border:0;border-radius:12px;padding:11px 20px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;box-shadow:0 6px 16px rgba(8,145,178,.25)}
+    .vd-hub-btn:hover{transform:translateY(-2px)}
+    .vd-hub-btn.disabled{opacity:.55;cursor:not-allowed;background:linear-gradient(135deg,#cbd5e1,#94a3b8);box-shadow:none}
+    .vd-soon-badge{position:absolute;top:16px;right:16px;background:#fef3c7;color:#b45309;font-size:11px;font-weight:800;border-radius:999px;padding:4px 10px}
+    .vd-back{display:inline-flex;align-items:center;gap:7px;background:#f1f5f9;color:#334155;border:0;border-radius:10px;padding:8px 14px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;margin-bottom:14px}
+    .vd-back:hover{background:#e2e8f0}
+    @media (max-width:1080px){ .vd-layout{grid-template-columns:1fr} }
+    @media (max-width:720px){
+      .tc-wrap{margin:22px 14px 52px}
+      .vd-info,.vd-write{padding:16px}
+      .vc-desc{max-width:140px}
+      .vd-hub{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div id="tcApp" class="teacher-app" style="display:none">
+    <div class="teacher-canvas">
+      <div class="tc-wrap">
+        <!-- ===== HUB: chọn khu vực quản lý ===== -->
+        <div id="vdHub">
+          <div class="tc-view-head">
+            <h2><i class="fa-solid fa-door-open" style="color:var(--green)"></i> Quản lý phòng học</h2>
+            <span class="muted">Chọn khu vực bạn muốn quản lý</span>
+          </div>
+
+          <div class="vd-hub">
+            <div class="tc-card vd-hub-card">
+              <div class="vd-hub-ico video"><i class="fa-solid fa-video"></i></div>
+              <div class="vd-hub-title">Quản lý video</div>
+              <div class="vd-hub-desc">Tạo và quản lý các card video cho Phòng học: đăng link YouTube, Vimeo hoặc Google Drive, tự chia mục lục theo chủ đề, học sinh xem ngay 16:9.</div>
+              <button type="button" class="vd-hub-btn" onclick="vdOpenVideoView()"><i class="fa-solid fa-arrow-right-to-bracket"></i> Mở quản lý video</button>
+            </div>
+            <div class="tc-card vd-hub-card">
+              <div class="vd-hub-ico test"><i class="fa-solid fa-file-circle-check"></i></div>
+              <div class="vd-hub-title">Quản lý bài kiểm tra</div>
+              <div class="vd-hub-desc">Soạn bộ câu hỏi, đề kiểm tra trắc nghiệm để học sinh ôn luyện, kiểm tra ngay trong Phòng học.</div>
+              <span class="vd-soon-badge">Sắp ra mắt</span>
+              <button type="button" class="vd-hub-btn disabled" onclick="vdSoon()"><i class="fa-solid fa-hourglass-half"></i> Sắp ra mắt</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== KHU VỰC QUẢN LÝ VIDEO ===== -->
+        <div id="vdVideoView" style="display:none">
+          <button type="button" class="vd-back" onclick="vdBackHub()"><i class="fa-solid fa-arrow-left"></i> Về khu vực quản lý</button>
+          <div class="tc-view-head">
+            <h2><i class="fa-solid fa-video" style="color:var(--green)"></i> Quản lý video</h2>
+            <span class="muted" id="vdCount"></span>
+          </div>
+
+          <!-- EDITOR -->
+        <div id="vdEditor" style="display:none">
+          <div class="vd-layout">
+            <div class="tc-card vd-info">
+              <div class="vd-panel-head">
+                <div class="vd-panel-ico ico-green"><i class="fa-solid fa-clapperboard"></i></div>
+                <div>
+                  <h3 id="vdEditorTitle">Card video mới</h3>
+                  <span class="muted" id="vdEditorMode"></span>
+                </div>
+                <div style="margin-left:auto">
+                  <button class="btn-sm" type="button" style="background:#f1f5f9;color:#334155" onclick="vdCancel()"><i class="fa-solid fa-xmark"></i> Huỷ</button>
+                </div>
+              </div>
+
+              <div class="vd-field">
+                <label>Môn học <b>*</b></label>
+                <select id="vdSubject"></select>
+                <span class="hint">Chọn môn để card hiển thị đúng chuyên mục trên trang Phòng học.</span>
+              </div>
+
+              <div class="vd-field">
+                <label>Tên card / khóa <b>*</b></label>
+                <input id="vdCardTitle" type="text" placeholder="vd: Tổng ôn tiếng anh">
+                <span class="hint">Tên hiển thị trên card cho học sinh. Các video cùng môn + cùng tên card sẽ gộp chung 1 card.</span>
+              </div>
+
+              <div class="vd-field">
+                <label>Mô tả card</label>
+                <textarea id="vdCardDesc" rows="2" placeholder="vd: Chuỗi video tổng ôn, chia theo từng chủ đề từ vựng & ngữ pháp"></textarea>
+              </div>
+
+              <div class="vd-field">
+                <label>Chủ đề (trong card) <b>*</b></label>
+                <div class="vd-cat-row">
+                  <select id="vdGroup"><option value="">— Chọn / nhập chủ đề —</option></select>
+                  <button type="button" class="btn-sm" style="background:#ecfeff;color:#0891b2" onclick="vdNewGroup()"><i class="fa-solid fa-folder-plus"></i> Nhóm mới</button>
+                  <button type="button" class="btn-sm" style="background:#e0f2fe;color:#0369a1" onclick="vdRenameGroup()"><i class="fa-solid fa-pen"></i> Đổi tên</button>
+                </div>
+                <div style="display:none;margin-top:8px" id="vdNewGroupRow">
+                  <div style="display:flex;gap:8px;align-items:center">
+                    <input id="vdNewGroupInput" type="text" placeholder="Nhập tên chủ đề, vd: Chủ đề 1 - Từ vựng">
+                    <button type="button" class="btn-sm" style="background:#f1f5f9;color:#334155" onclick="vdCancelNewGroup()">Huỷ</button>
+                  </div>
+                </div>
+                <div style="display:none;margin-top:8px" id="vdRenameGroupRow">
+                  <div style="display:flex;gap:8px;align-items:center">
+                    <input id="vdRenameGroupInput" type="text" placeholder="Tên nhóm / chủ đề mới">
+                    <button id="vdRenameGroupApplyBtn" type="button" class="btn-sm" style="background:#ecfeff;color:#0891b2" onclick="vdRenameGroupApply()"><i class="fa-solid fa-check"></i> Đổi tên</button>
+                    <button type="button" class="btn-sm" style="background:#f1f5f9;color:#334155" onclick="vdCancelRenameGroup()">Huỷ</button>
+                  </div>
+                </div>
+                <span class="hint">Chủ đề con trong mục lục card. Các video cùng chủ đề trong 1 card tự gộp chung 1 nhóm dropdown.</span>
+              </div>
+
+              <div class="vd-field">
+                <label>Tiêu đề <b>*</b></label>
+                <input id="vdTitle" type="text" placeholder="vd: Buổi 1 - Giới thiệu Word">
+              </div>
+
+              <div class="vd-field">
+                <label>Link video <b>*</b></label>
+                <input id="vdUrl" type="text" placeholder="Dán link YouTube / Vimeo / Google Drive" oninput="vdPreviewLink(this.value)">
+                <span class="link-preview">
+                  <i class="fa-solid fa-wand-magic-sparkles" style="color:#8b5cf6"></i> Tự nhận dạng: <span id="vdUrlType" class="vd-type-badge hidden"></span>
+                </span>
+              </div>
+            </div>
+
+            <div class="tc-card vd-write">
+              <div class="vd-panel-head">
+                <div class="vd-panel-ico ico-blue"><i class="fa-solid fa-eye"></i></div>
+                <div>
+                  <h3>Xem trước</h3>
+                  <span class="muted">Cách card xuất hiện trong mục lục Phòng học</span>
+                </div>
+              </div>
+              <div class="vd-preview">
+                <div style="background:#111827;border-radius:14px;aspect-ratio:16/9;display:grid;place-items:center;color:#64748b;font-size:13px;font-weight:600">
+                  <span><i class="fa-solid fa-circle-play" style="color:#22d3ee;margin-right:6px"></i> 16:9 · phát như YouTube</span>
+                </div>
+              </div>
+              <div style="font-size:12px;color:var(--sub);line-height:1.6;margin-top:10px">
+                Hỗ trợ link: <b>YouTube</b> (youtube.com / youtu.be / ID 11 ký tự), <b>Vimeo</b> (player.vimeo.com / vimeo.com), <b>Google Drive</b> (drive.google.com — file video hoặc cả thư mục).
+              </div>
+              <div class="vd-save-row">
+                <button id="vdBtnSave" class="btn-green" type="button" onclick="vdSave()"><i class="fa-solid fa-floppy-disk"></i> Lưu card video</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIST → nhóm theo môn → chủ đề -->
+        <div id="vdListCard" class="tc-card vd-list-card" style="margin-top:18px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+            <button class="btn-sm" type="button" style="background:#cffafe;color:#0e7490;margin-left:auto" onclick="vdNew()"><i class="fa-solid fa-plus"></i> Thêm mới video</button>
+          </div>
+          <div id="vdList">
+            <div class="vc-empty"><i class="fa-solid fa-spinner fa-spin"></i>Đang tải danh sách card video...</div>
+          </div>
+        </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div id="vdDenied" style="display:none">
+    <div class="tc-card fc-login">
+      <div class="icon"><i class="fa-solid fa-user-lock"></i></div>
+      <h2>Không có quyền truy cập</h2>
+      <p>Tài khoản của bạn không phải là Giáo viên hoặc Admin. Khu vực này chỉ dành cho giảng viên.</p>
+      <a class="btn" href="../index.html">← Về trang chính</a>
+    </div>
+  </div>
+
+  <div id="vdLoading" style="display:none">
+    <div class="tc-card fc-login">
+      <div class="icon"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+      <h2>Đang kiểm tra quyền...</h2>
+      <p>Vui lòng chờ trong giây lát.</p>
+    </div>
+  </div>
+
+  <script src="shell.js"></script>
+  <script src="../toast.js"></script>
+
+  <script type="module">
+    import { supabase, getUserRow, escapeHtml, logAppError } from "../supabase-config.js";
+
+    // Liên kết menu shell (thêm key "video").
+    window.onTeacherNav = function(key) {
+      if (key === "home") window.location.href = "./index.html";
+      else if (key === "manage") window.location.href = "./index.html?view=manage";
+      else if (key === "fc") window.location.href = "./newflashcard.html";
+      else if (key === "video") window.location.href = "./cardphonghoc.html";
+      else if (key === "quiz" || key === "report") {};
+    };
+
+    if (window.TeacherShell && window.TeacherShell.setActive) TeacherShell.setActive("video");
+
+    const SUBJECTS = ["Toán Học", "Vật Lý", "Hoá Học", "Sinh Học", "Anh Văn", "Lịch Sử", "Tin Học"];
+
+    const tcApp = document.getElementById("tcApp");
+    const vdDenied = document.getElementById("vdDenied");
+    const vdLoading = document.getElementById("vdLoading");
+
+    let vdListCache = null;      // toàn bộ card từ teacher_list_video_cards
+    let vdEditId = null;         // đang sửa card nào (null = tạo mới)
+    let vdOpenMap = new Map();   // "subject|group" -> đang mở?
+
+    function show(which) {
+      if (tcApp) tcApp.style.display = which === "app" ? "" : "none";
+      vdDenied.style.display = which === "denied" ? "" : "none";
+      vdLoading.style.display = which === "loading" ? "" : "none";
+    }
+
+    function toast(msg, type) {
+      if (window.lhToast) lhToast(msg, { type: type || "info" });
+    }
+
+    function normRole(role) {
+      return String(role || "").trim().toLowerCase();
+    }
+    function isTeacherRole(role) {
+      const r = normRole(role);
+      return r === "giáo viên" || r === "giao vien";
+    }
+    function isAdminRole(role) {
+      return normRole(role) === "admin";
+    }
+
+    async function guard() {
+      show("loading");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session || !session.user) { show("denied"); return; }
+      const row = await getUserRow(session.user.id);
+      const role = row?.role || "";
+      const isAdmin = isAdminRole(role);
+      const isTeacher = isTeacherRole(role) || isAdmin;
+      if (!isTeacher) { show("denied"); return; }
+
+      const displayName = (row && (row.name || row.email)) || "Giáo viên";
+      const badge = document.getElementById("tcUserBadge");
+      const avatar = row && (row.photo || row.avatar_url || row.picture);
+      const initials = displayName.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
+      let avatarHtml;
+      if (avatar && !/^https?:\/\//i.test(avatar) && !/^data:image/i.test(avatar)) {
+        avatarHtml = `<div class="tc-topbar-avatar">${initials}</div>`;
+      } else if (avatar) {
+        avatarHtml = `<img class="tc-topbar-avatar-img" src="${escapeHtml(avatar)}" alt="${escapeHtml(displayName)}">`;
+      } else {
+        avatarHtml = `<div class="tc-topbar-avatar">${initials}</div>`;
+      }
+      const label = isAdmin
+        ? `<span class="tc-badge"><i class="fa-solid fa-shield-halved"></i> ${escapeHtml(row.email || "")} · Admin</span>`
+        : `<span class="tc-topbar-name">${escapeHtml(row.name || row.email || "")}</span>`;
+      if (badge) badge.innerHTML = `<div class="tc-topbar-user">${label}${avatarHtml}</div>`;
+      show("app");
+      await boot();
+    }
+
+    // ================= NHẬN DẠNG LOẠI LINK =================
+    function vdTypeOf(url) {
+      const u = String(url || "").trim();
+      if (!u) return null;
+      if (/youtube\.com|youtu\.be|^[\w-]{11}$/.test(u)) return { key: "youtube", label: "YouTube" };
+      if (/vimeo\.com/.test(u)) return { key: "vimeo", label: "Vimeo" };
+      if (/drive\.google\.com/.test(u)) return { key: "drive", label: "Drive" };
+      return { key: "other", label: "Link" };
+    }
+
+    window.vdPreviewLink = function(url) {
+      const el = document.getElementById("vdUrlType");
+      const t = vdTypeOf(url);
+      el.classList.remove("hidden", "vd-type-youtube", "vd-type-vimeo", "vd-type-drive", "vd-type-other");
+      if (!t) { el.classList.add("hidden"); return; }
+      el.classList.add("vd-type-" + t.key);
+      el.textContent = t.label;
+    };
+
+    // ================= EDITOR =================
+    function vdRenderSubjectOptions(sel) {
+      const select = document.getElementById("vdSubject");
+      select.innerHTML = SUBJECTS.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
+      if (sel) select.value = sel;
+      vdRenderGroupOptions();
+    }
+
+    function vdGroupNames(subject, cardTitle) {
+      const set = new Set();
+      (vdListCache || []).forEach(c => {
+        if ((String(c.subject || "").trim()) !== subject) return;
+        if ((String(c.card_title || "").trim()) !== cardTitle) return;
+        const g = String(c.group_name || "").trim();
+        if (g) set.add(g);
+      });
+      return [...set].sort((a, b) => a.localeCompare(b, "vi"));
+    }
+
+    function vdRenderGroupOptions(sel) {
+      const select = document.getElementById("vdGroup");
+      const subject = (document.getElementById("vdSubject").value || "").trim();
+      const cardTitle = (document.getElementById("vdCardTitle").value || "").trim();
+      const groups = vdGroupNames(subject, cardTitle);
+      const opts = ['<option value="">— Chọn chủ đề —</option>'];
+      if (sel && groups.indexOf(sel) === -1) opts.push(`<option value="${escapeHtml(sel)}">${escapeHtml(sel)}</option>`);
+      opts.push(...groups.map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`));
+      select.innerHTML = opts.join("");
+      if (sel) select.value = sel;
+    }
+
+    const vdSubjectEl = document.getElementById("vdSubject");
+    const vdCardTitleEl = document.getElementById("vdCardTitle");
+    if (vdSubjectEl) vdSubjectEl.addEventListener("change", () => vdRenderGroupOptions());
+    if (vdCardTitleEl) vdCardTitleEl.addEventListener("input", () => vdRenderGroupOptions());
+
+    window.vdNewGroup = function() {
+      const row = document.getElementById("vdNewGroupRow");
+      row.style.display = "block";
+      document.getElementById("vdNewGroupInput").focus();
+    };
+    window.vdCancelNewGroup = function() {
+      document.getElementById("vdNewGroupRow").style.display = "none";
+      document.getElementById("vdNewGroupInput").value = "";
+    };
+
+    window.vdRenameGroup = function() {
+      const current = (document.getElementById("vdGroup").value || "").trim();
+      if (!current) { toast("Chọn nhóm cần đổi tên trong danh sách trước", "error"); return; }
+      document.getElementById("vdRenameGroupInput").value = current;
+      document.getElementById("vdRenameGroupRow").style.display = "block";
+      document.getElementById("vdRenameGroupInput").focus();
+    };
+    window.vdCancelRenameGroup = function() {
+      document.getElementById("vdRenameGroupRow").style.display = "none";
+      document.getElementById("vdRenameGroupInput").value = "";
+    };
+    window.vdRenameGroupApply = async function() {
+      const subject = (document.getElementById("vdSubject").value || "").trim();
+      const cardTitle = (document.getElementById("vdCardTitle").value || "").trim();
+      const oldGroup = (document.getElementById("vdGroup").value || "").trim();
+      const newGroup = (document.getElementById("vdRenameGroupInput").value || "").trim();
+      if (!oldGroup || !newGroup) { toast("Vui lòng nhập tên nhóm mới", "error"); return; }
+      if (oldGroup === newGroup) { vdCancelRenameGroup(); return; }
+      const oldBtn = document.getElementById("vdRenameGroupApplyBtn");
+      if (oldBtn) { oldBtn.disabled = true; oldBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; }
+      try {
+        const { data, error } = await supabase.rpc("teacher_rename_video_group", {
+          p_subject: subject,
+          p_card_title: cardTitle,
+          p_old_group: oldGroup,
+          p_new_group: newGroup
+        });
+        if (error) throw error;
+        if (data && data.ok === true) {
+          toast("Đã đổi tên nhóm", "success");
+          vdCancelRenameGroup();
+          await vdLoadList();
+          document.getElementById("vdGroup").value = newGroup;
+        } else if (data && data.error) {
+          const map = { empty_old_group: "Thiếu tên nhóm cũ", empty_new_group: "Thiếu tên nhóm mới", forbidden: "Hết quyền thao tác" };
+          toast(map[data.error] || "Không đổi được tên nhóm: " + data.error, "error");
+        } else {
+          toast("Không đổi được tên nhóm", "error");
+        }
+      } catch (err) {
+        console.error("rename video group lỗi:", err);
+        toast("Không đổi được tên nhóm: " + ((err && (err.message || err.error_description)) || err), "error");
+      } finally {
+        if (oldBtn) { oldBtn.disabled = false; oldBtn.innerHTML = '<i class="fa-solid fa-check"></i> Đổi tên'; }
+      }
+    };
+
+    function vdEditorVisible(showIt) {
+      const ed = document.getElementById("vdEditor");
+      const list = document.getElementById("vdListCard");
+      ed.style.display = showIt ? "" : "none";
+      list.style.display = showIt ? "none" : "";
+    }
+
+    window.vdNew = function() {
+      vdEditId = null;
+      document.getElementById("vdEditorTitle").textContent = "Card video mới";
+      document.getElementById("vdEditorMode").textContent = "Tạo card video mới";
+      document.getElementById("vdCardTitle").value = "";
+      document.getElementById("vdTitle").value = "";
+      document.getElementById("vdUrl").value = "";
+      vdRenderSubjectOptions(SUBJECTS[0]);
+      vdRenderGroupOptions("");
+      document.getElementById("vdNewGroupRow").style.display = "none";
+      document.getElementById("vdNewGroupInput").value = "";
+      document.getElementById("vdRenameGroupRow").style.display = "none";
+      document.getElementById("vdRenameGroupInput").value = "";
+      vdPreviewLink("");
+      vdEditorVisible(true);
+      document.getElementById("vdCardTitle").focus();
+    };
+
+    window.vdCancel = function() {
+      vdEditorVisible(false);
+    };
+
+    async function vdEdit(card) {
+      if (!card) return;
+      vdEditId = card.card_id;
+      document.getElementById("vdEditorTitle").textContent = "Sửa card video";
+      document.getElementById("vdEditorMode").textContent = "Chỉnh sửa card · " + (card.subject || "");
+      document.getElementById("vdCardTitle").value = card.card_title || "";
+      document.getElementById("vdCardDesc").value = card.card_description || "";
+      vdRenderSubjectOptions(card.subject || SUBJECTS[0]);
+      vdRenderGroupOptions(card.group_name || "");
+      document.getElementById("vdTitle").value = card.title || "";
+      document.getElementById("vdUrl").value = card.video_url || "";
+      document.getElementById("vdNewGroupRow").style.display = "none";
+      document.getElementById("vdNewGroupInput").value = "";
+      document.getElementById("vdRenameGroupRow").style.display = "none";
+      document.getElementById("vdRenameGroupInput").value = "";
+      vdPreviewLink(card.video_url);
+      vdEditorVisible(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    window.vdSave = async function() {
+      const subject = (document.getElementById("vdSubject").value || "").trim();
+      const cardTitle = (document.getElementById("vdCardTitle").value || "").trim();
+      const cardDesc = (document.getElementById("vdCardDesc").value || "").trim();
+      let group = (document.getElementById("vdGroup").value || "").trim();
+      const custom = (document.getElementById("vdNewGroupInput").value || "").trim();
+      if ((!group && custom) || custom) {
+        if (custom) group = custom;
+        document.getElementById("vdGroup").value = custom;
+        document.getElementById("vdNewGroupRow").style.display = "none";
+        document.getElementById("vdNewGroupInput").value = "";
+      }
+      const title = (document.getElementById("vdTitle").value || "").trim();
+      const url = (document.getElementById("vdUrl").value || "").trim();
+
+      if (!subject) { toast("Vui lòng chọn môn học", "error"); return; }
+      if (!cardTitle) { toast("Vui lòng nhập tên card / khóa", "error"); return; }
+      if (!group) { toast("Vui lòng nhập tên chủ đề (trong card)", "error"); return; }
+      if (!title) { toast("Vui lòng nhập tiêu đề video", "error"); return; }
+      if (!url) { toast("Vui lòng dán link video", "error"); return; }
+      if (!vdTypeOf(url)) { toast("Link video không hợp lệ (chỉ nhận YouTube / Vimeo / Google Drive)", "error"); return; }
+
+      const btn = document.getElementById("vdBtnSave");
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang lưu...';
+      try {
+        const args = {
+          p_id: vdEditId,
+          p_subject: subject,
+          p_card_title: cardTitle,
+          p_card_description: cardDesc,
+          p_group_name: group,
+          p_title: title,
+          p_video_url: url,
+          p_sort_order: 0,
+          p_is_complete: false
+        };
+        const { data, error } = await supabase.rpc("teacher_upsert_video_card", args);
+        if (error) throw error;
+        if (data && data.ok === true) {
+          toast(vdEditId ? "Đã cập nhật card video" : "Đã tạo card video", "success");
+          vdEditorVisible(false);
+          await vdLoadList();
+        } else if (data && data.error) {
+          const map = { empty_subject: "Chưa chọn môn", empty_card_title: "Thiếu tên card / khóa", empty_title: "Thiếu tiêu đề video", empty_video_url: "Thiếu link video", forbidden: "Hết quyền thao tác" };
+          toast(map[data.error] || "Không lưu được card video: " + data.error, "error");
+        } else {
+          toast("Không lưu được card video", "error");
+        }
+      } catch (err) {
+        console.error("upsert video card lỗi:", err);
+        toast("Không lưu được card video: " + ((err && (err.message || err.error_description)) || err), "error");
+        if (typeof logAppError === "function") logAppError({ source: "teacher-video", category: "feature", level: "error", code: "VCUPSERT_FAIL", message: String(err && (err.message || err.error_description)), url: location.href });
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Lưu card video';
+      }
+    };
+
+    window.vdDelete = async function(id) {
+      if (!id) return;
+      const ok = confirm("Xoá card video này?");
+      if (!ok) return;
+      try {
+        const { data, error } = await supabase.rpc("teacher_delete_video_card", { p_id: id });
+        if (error) throw error;
+        toast("Đã xoá card video", "success");
+        await vdLoadList();
+      } catch (err) {
+        console.error("delete video card lỗi:", err);
+        toast("Không xoá được card: " + ((err && (err.message || err.error_description)) || err), "error");
+      }
+    };
+
+    // ================= DANH SÁCH =================
+    async function vdLoadList() {
+      const listEl = document.getElementById("vdList");
+      listEl.innerHTML = '<div class="vc-empty"><i class="fa-solid fa-spinner fa-spin"></i>Đang tải danh sách card video...</div>';
+      try {
+        const { data, error } = await supabase.rpc("teacher_list_video_cards");
+        if (error) throw error;
+        vdListCache = data || [];
+      } catch (err) {
+        console.error("teacher_list_video_cards lỗi:", err);
+        listEl.innerHTML = '<div class="vc-empty"><i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b"></i>Không tải được danh sách card video</div>';
+        if (typeof logAppError === "function") logAppError({ source: "teacher-video", category: "feature", level: "error", code: "VCLIST_FAIL", message: String(err && (err.message || err.error_description)), url: location.href });
+        return;
+      }
+      vdRenderList();
+    }
+
+    function vdTypeBadgeHtml(url) {
+      const t = vdTypeOf(url) || { key: "other", label: "Link" };
+      return `<span class="vc-type" style="font-weight:800"><i class="fa-brands ${t.key === "youtube" ? "fa-youtube" : t.key === "vimeo" ? "fa-vimeo" : t.key === "drive" ? "fa-google-drive" : "fa-link"}" style="color:#94a3b8"></i> <span style="color:${t.key === "youtube" ? "#dc2626" : t.key === "vimeo" ? "#7c3aed" : t.key === "drive" ? "#b45309" : "#64748b"}">${t.label}</span></span>`;
+    }
+
+    function vdRenderList() {
+      const list = vdListCache || [];
+      const listEl = document.getElementById("vdList");
+      const countEl = document.getElementById("vdCount");
+      if (countEl) countEl.textContent = list.length ? `(${list.length} card video)` : "";
+      vdRenderGroupOptions();
+
+      if (!list.length) {
+        listEl.innerHTML = '<div class="vc-empty"><i class="fa-solid fa-clapperboard"></i>Bạn chưa có card video nào.<br>Tạo card đầu tiên để học sinh xem video đúng 16:9 ngay trong Phòng học.</div>';
+        return;
+      }
+
+      // Nhóm theo môn → tên card (khóa).
+      const bySubj = {};
+      (list).forEach(c => {
+        const subj = String(c.subject || "").trim() || "Chưa phân môn";
+        if (!bySubj[subj]) bySubj[subj] = [];
+        bySubj[subj].push(c);
+      });
+      const subjects = Object.keys(bySubj).sort((a, b) => {
+        const ia = SUBJECTS.indexOf(a), ib = SUBJECTS.indexOf(b);
+        if (ia === -1 && ib === -1) return a.localeCompare(b, "vi");
+        if (ia === -1) return 1;
+        if (ib === -1) return -1;
+        return ia - ib;
+      });
+
+      listEl.innerHTML = subjects.map(subj => {
+        const rows = bySubj[subj];
+        const byCard = {};
+        const cardOrder = [];
+        rows.forEach(c => {
+          const ct = String(c.card_title || "").trim() || "Video";
+          if (!byCard[ct]) { byCard[ct] = []; cardOrder.push(ct); }
+          byCard[ct].push(c);
+        });
+        cardOrder.sort((a, b) => a.localeCompare(b, "vi"));
+
+        return `
+        <div class="fc-group" style="margin-top:16px">
+          <div class="fc-group-head open" data-vd-subject-head="${escapeHtml(subj)}" style="background:linear-gradient(135deg,#ecfeff,#f0fdfa)">
+            <i class="fa-solid fa-chevron-right fc-group-caret"></i>
+            <span class="fc-group-title"><i class="fa-solid fa-graduation-cap" style="color:#0891b2;margin-right:6px"></i>${escapeHtml(subj)}</span>
+            <span class="fc-group-count">${rows.length} video</span>
+          </div>
+          <div class="vc-grid" data-vd-subject-body="${escapeHtml(subj)}">
+            ${cardOrder.map(ct => {
+              const key = subj + "|" + ct;
+              const open = vdOpenMap.has(key) ? vdOpenMap.get(key) : false;
+              const items = byCard[ct];
+              return `
+              <div class="fc-group" style="margin-bottom:8px">
+                <div class="fc-group-head ${open ? "open" : ""}" data-vd-card-head="${escapeHtml(key)}">
+                  <i class="fa-solid fa-chevron-right fc-group-caret"></i>
+                  <span class="fc-group-title"><i class="fa-solid fa-video" style="color:#0891b2;margin-right:6px"></i>${escapeHtml(ct)}</span>
+                  <span class="fc-group-count">${items.length} video</span>
+                </div>
+                <div class="vc-card-body" data-vd-card-body="${escapeHtml(key)}" style="${open ? "" : "display:none"}">
+                  <div class="vc-card-desc-line">${escapeHtml((items[0] && items[0].card_description) || "Chưa có mô tả card")}</div>
+                  <table>
+                    <thead><tr><th style="width:38%">Tiêu đề video</th><th style="width:22%">Chủ đề</th><th>Nguồn</th><th style="width:120px;text-align:right">Thao tác</th></tr></thead>
+                    <tbody>${items.map(c => `
+                      <tr data-vd-id="${escapeHtml(c.card_id)}">
+                        <td><div class="vc-t"><i class="fa-solid fa-circle-play" style="color:${c.is_complete ? "var(--green)" : "#94a3b8"};font-size:11px;margin-right:6px"></i>${escapeHtml(c.title)}</div></td>
+                        <td><span class="fc-chip"><i class="fa-solid fa-folder"></i> ${escapeHtml(c.group_name || "—")}</span></td>
+                        <td>${vdTypeBadgeHtml(c.video_url)}</td>
+                        <td class="vc-actions">
+                          <button class="btn-sm" style="background:#e0f2fe;color:#0369a1" data-vd-edit="${escapeHtml(c.card_id)}"><i class="fa-solid fa-pen"></i> Sửa</button>
+                          <button class="btn-sm btn-remove" data-vd-del="${escapeHtml(c.card_id)}"><i class="fa-solid fa-trash-can"></i> Xoá</button>
+                        </td>
+                      </tr>`).join("")}</tbody>
+                  </table>
+                </div>
+              </div>`;
+            }).join("")}
+          </div>
+        </div>`;
+      }).join("");
+
+      // Sự kiện: môn
+      listEl.querySelectorAll("[data-vd-subject-head]").forEach(hd => {
+        hd.addEventListener("click", () => {
+          const body = listEl.querySelector(`[data-vd-subject-body="${CSS.escape(hd.dataset.vdSubjectHead)}"]`);
+          if (!body) return;
+          const open = body.style.display !== "none";
+          body.style.display = open ? "none" : "";
+          hd.classList.toggle("open", !open);
+        });
+      });
+      // Sự kiện: card (khóa)
+      listEl.querySelectorAll("[data-vd-card-head]").forEach(hd => {
+        hd.addEventListener("click", () => {
+          const body = listEl.querySelector(`[data-vd-card-body="${CSS.escape(hd.dataset.vdCardHead)}"]`);
+          if (!body) return;
+          const open = body.style.display !== "none";
+          body.style.display = open ? "none" : "";
+          hd.classList.toggle("open", !open);
+          vdOpenMap.set(hd.dataset.vdCardHead, !open);
+        });
+      });
+      listEl.querySelectorAll("[data-vd-edit]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const card = (vdListCache || []).find(c => c.card_id === btn.dataset.vdEdit);
+          vdEdit(card);
+        });
+      });
+      listEl.querySelectorAll("[data-vd-del]").forEach(btn => {
+        btn.addEventListener("click", () => vdDelete(btn.dataset.vdDel));
+      });
+    }
+
+    async function boot() {
+      vdRenderSubjectOptions(SUBJECTS[0]);
+      vdRenderGroupOptions("");
+      await vdLoadList();
+    }
+
+    window.vdOpenVideoView = function() {
+      if (window.TeacherShell && window.TeacherShell.setActive) TeacherShell.setActive("video");
+      document.getElementById("vdVideoView").style.display = "";
+      document.getElementById("vdHub").style.display = "none";
+    };
+
+    window.vdBackHub = function() {
+      document.getElementById("vdVideoView").style.display = "none";
+      document.getElementById("vdHub").style.display = "";
+    };
+
+    window.vdSoon = function() {
+      toast("Tính năng Quản lý bài kiểm tra sắp ra mắt!", "info");
+    };
+
+    guard();
+  </script>
+</body>
+</html>
