@@ -633,11 +633,11 @@ function renderPhongHoc() {
       '</button>';
 
     var noticeHtml = "";
-    if (s.notice) {
+    if (s.notice && s.notice.html && String(s.notice.html).trim() !== "") {
       noticeHtml =
         '<div class="subject-notice"><i class="fas ' + escHtml(s.notice.icon || "fa-bell") + '"></i> ' +
         '<strong>Thông báo môn ' + escHtml(s.name) + ':</strong> ' +
-        (s.notice.html || "") +
+        s.notice.html +
         '</div>';
     }
     var cardsHtml = (s.cards || []).map(renderCard).join("");
