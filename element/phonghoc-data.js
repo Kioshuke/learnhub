@@ -48,7 +48,6 @@ window.PHONGHOC_SUBJECTS = [
     icon: "fa-atom",
     tabColor: "#2563eb",
     cardColor: "#3b82f6",
-    notice: { icon: "fa-bell", html: "<strong>Thông báo môn Vật Lý:</strong> Đã thi xong" },
     cards: [
       /* ── 📄 MẪU FILE TEST (copy & sửa khi thêm bài mới) ── */
       {
@@ -80,7 +79,6 @@ window.PHONGHOC_SUBJECTS = [
     icon: "fa-leaf",
     tabColor: "#16a34a",
     cardColor: "#16a34a",
-    notice: { icon: "fa-bell", html: "<strong>Thông báo môn Sinh Học:</strong> Chuẩn bị ôn tập" },
     cards: [
       {
         id: "sinh-trac-nghiem",
@@ -101,7 +99,6 @@ window.PHONGHOC_SUBJECTS = [
     icon: "fa-laptop-code",
     tabColor: "#7c3aed",
     cardColor: "#7c3aed",
-    notice: { icon: "fa-bell", html: "<strong>Thông báo môn Tin Học:</strong> Ôn tập chứng chỉ MOS. Lưu ý đây chỉ là khoá A1, để xem khoá A2 vui lòng liên hệ admin" },
     cards: [
       /* Các card video MOS Word/Excel/PowerPoint đã chuyển sang Supabase
          (bảng video_cards) — xem supabase/bulk-videos.sql */
@@ -126,7 +123,6 @@ window.PHONGHOC_SUBJECTS = [
     icon: "fa-landmark",
     tabColor: "#ea580c",
     cardColor: "#ea580c",
-    notice: { icon: "fa-bell", html: "<strong>Thông báo môn Lịch Sử:</strong> Chủ đề 8 &amp; 9" },
     cards: [
       {
         id: "su-trac-nghiem",
@@ -147,7 +143,6 @@ window.PHONGHOC_SUBJECTS = [
     icon: "fa-flask",
     tabColor: "#dc2626",
     cardColor: "#dc2626",
-    notice: { icon: "fa-fire", html: "<strong>Thông báo môn Hoá Học:</strong> CHỐT ĐÁP ÁN 👊" },
     cards: [
       {
         id: "hoa-trac-nghiem-p1",
@@ -168,7 +163,6 @@ window.PHONGHOC_SUBJECTS = [
     icon: "fa-language",
     tabColor: "#db2777",
     cardColor: "#db2777",
-    notice: { icon: "fa-bell", html: "<strong>Thông báo môn Anh Văn:</strong> Tổng ôn ngữ pháp" },
     cards: [
       {
         id: "anh-demo",
@@ -191,7 +185,6 @@ window.PHONGHOC_SUBJECTS = [
     icon: "fa-square-root-variable",
     tabColor: "#06b6d4",
     cardColor: "#06b6d4",
-    notice: { icon: "fa-bell", html: "<strong>Thông báo môn Toán Học:</strong> Chuẩn bị ôn tập" },
     cards: [
       {
         id: "toan-trac-nghiem",

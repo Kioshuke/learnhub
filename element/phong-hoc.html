@@ -636,6 +636,7 @@ function renderPhongHoc() {
     if (s.notice) {
       noticeHtml =
         '<div class="subject-notice"><i class="fas ' + escHtml(s.notice.icon || "fa-bell") + '"></i> ' +
+        '<strong>Thông báo môn ' + escHtml(s.name) + ':</strong> ' +
         (s.notice.html || "") +
         '</div>';
     }
@@ -1395,21 +1396,20 @@ import { supabase, logAppError } from "../supabase-config.js";
 window.logAppError = logAppError;
 
 /* ===== Thông báo môn học từ database (subject_notices) =====
-   Nạp notice do giáo viên đặt rồi merge đè lên notice tĩnh trong
-   phonghoc-data.js rồi render lại. Nếu DB chưa có → giữ notice mặc định. */
+   Nạp notice do giáo viên đặt rồi render lên từng môn.
+   KHÔNG có dữ liệu DB / tải lỗi → môn không hiện thông báo (để trống). */
 function applySubjectNotices(map) {
-  if (!map) { window.__subjectNoticeMap = {}; return; }
-  window.__subjectNoticeMap = map;
+  window.__subjectNoticeMap = map || {};
   var subjects = window.PHONGHOC_SUBJECTS || [];
   var changed = false;
   subjects.forEach(function (s) {
-    var n = map[s.id];
-    if (!n || typeof n !== "object") return;
-    if (n.enabled === false || !n.html) {
+    var n = (map && map[s.id]) || null;
+    if (!n || typeof n !== "object" || n.enabled === false || !n.html) {
+      if (s.notice) changed = true;
       s.notice = null;
-    } else {
-      s.notice = { icon: n.icon || (s.notice && s.notice.icon) || "fa-bell", html: n.html };
+      return;
     }
+    s.notice = { icon: n.icon || "fa-bell", html: n.html };
     changed = true;
   });
   if (changed && typeof renderPhongHoc === "function") renderPhongHoc();
@@ -1421,8 +1421,9 @@ function applySubjectNotices(map) {
     if (error) throw error;
     applySubjectNotices((data && data[0] && data[0].notices) || null);
   } catch (err) {
-    /* Giữ notice tĩnh — tính năng phụ, không render lại. */
+    /* Không tải được database → để trống, không hiện thông báo nào. */
     console.error("[phong-hoc] tải thông báo môn lỗi:", err);
+    applySubjectNotices(null);
   }
 })();
 

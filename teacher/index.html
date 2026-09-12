@@ -1078,7 +1078,7 @@
           <div class="tc-card" style="padding:18px">
             <div class="tc-section-head" style="margin-bottom:14px">
               <h2 style="font-size:15px"><i class="fa-solid fa-circle-bell" style="color:#d97706"></i> Chỉnh thông báo từng môn</h2>
-              <span class="muted">Nội dung nhập HTML đơn giản (&lt;strong&gt;...&lt;/strong&gt; + văn bản). Bấm Lưu để áp dụng ngay.</span>
+              <span class="muted">Chữ "Thông báo môn X:" hiển thị tự động. Nhập nội dung phía sau. Bấm Lưu để áp dụng ngay.</span>
             </div>
             <div id="subjectNoticeList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px">
               <div class="empty"><div class="big"><i class="fa-solid fa-circle-notch fa-spin"></i></div>Đang tải thông báo...</div>
@@ -1704,14 +1704,14 @@
     document.getElementById("refreshScheduleBtn").addEventListener("click", tcLoadSchedule);
 
     /* ===== THÔNG BÁO MÔN HỌC ===== */
-    const NOTICE_SUBJECTS = [
-      { id: "ly",   name: "Vật Lý",  icon: "fa-atom",             color: "#2563eb", iconBg: "#dbeafe", default: "<strong>Thông báo môn Vật Lý:</strong> Đã thi xong" },
-      { id: "sinh", name: "Sinh Học",icon: "fa-leaf",             color: "#16a34a", iconBg: "#dcfce7", default: "<strong>Thông báo môn Sinh Học:</strong> Chuẩn bị ôn tập" },
-      { id: "tin",  name: "Tin Học", icon: "fa-laptop-code",      color: "#7c3aed", iconBg: "#ede9fe", default: "<strong>Thông báo môn Tin Học:</strong> Ôn tập chứng chỉ MOS. Lưu ý đây chỉ là khoá A1, để xem khoá A2 vui lòng liên hệ admin" },
-      { id: "su",   name: "Lịch Sử", icon: "fa-landmark",         color: "#ea580c", iconBg: "#ffedd5", default: "<strong>Thông báo môn Lịch Sử:</strong> Chủ đề 8 &amp; 9" },
-      { id: "hoa",  name: "Hoá Học", icon: "fa-flask",            color: "#dc2626", iconBg: "#fee2e2", default: "<strong>Thông báo môn Hoá Học:</strong> CHỐT ĐÁP ÁN 👊" },
-      { id: "anh",  name: "Anh Văn", icon: "fa-language",         color: "#db2777", iconBg: "#fce7f3", default: "<strong>Thông báo môn Anh Văn:</strong> Tổng ôn ngữ pháp" },
-      { id: "toan", name: "Toán Học",icon: "fa-square-root-variable", color: "#06b6d4", iconBg: "#cffafe", default: "<strong>Thông báo môn Toán Học:</strong> Chuẩn bị ôn tập" }
+const NOTICE_SUBJECTS = [
+      { id: "ly",   name: "Vật Lý",  icon: "fa-atom",             color: "#2563eb" },
+      { id: "sinh", name: "Sinh Học",icon: "fa-leaf",             color: "#16a34a" },
+      { id: "tin",  name: "Tin Học", icon: "fa-laptop-code",      color: "#7c3aed" },
+      { id: "su",   name: "Lịch Sử", icon: "fa-landmark",         color: "#ea580c" },
+      { id: "hoa",  name: "Hoá Học", icon: "fa-flask",            color: "#dc2626" },
+      { id: "anh",  name: "Anh Văn", icon: "fa-language",         color: "#db2777" },
+      { id: "toan", name: "Toán Học",icon: "fa-square-root-variable", color: "#06b6d4" }
     ];
     const NOTICE_ICON_CHOICES = [
       "fa-bell", "fa-fire", "fa-bullhorn", "fa-triangle-exclamation",
@@ -1753,8 +1753,7 @@
         const htmlVal = hasRec ? (rec.html || "") : "";
         const enabled = hasRec ? (rec.enabled !== false) : true;
         const icon = hasRec ? (rec.icon || "fa-bell") : "fa-bell";
-        const statusLabel = hasRec ? "Đã đặt trong database" : "Dùng mặc định từ phonghoc-data.js";
-        const placeholder = escapeHtml(String(s.default || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim());
+        const statusLabel = hasRec ? "Đã đặt trong database" : "Chưa có — không hiển thị ở Phòng Học";
         const options = NOTICE_ICON_CHOICES.map(ic =>
           `<option value="${ic}"${ic === icon ? " selected" : ""}><i></i>${ic.replace("fa-", "")}</option>`
         ).join("");
@@ -1772,7 +1771,7 @@
               </label>
             </div>
             <label style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">Nội dung (hỗ trợ HTML)</label>
-            <textarea data-html="1" rows="3" placeholder="${placeholder}" style="width:100%;padding:12px 14px;border:1px solid #d1d5db;border-radius:12px;font-family:inherit;font-size:13px;resize:vertical;outline:none;transition:border-color .15s,box-shadow .15s">${escapeHtml(htmlVal)}</textarea>
+            <textarea data-html="1" rows="3" placeholder="Nhập nội dung thông báo (bỏ trống nếu không muốn hiện)" style="width:100%;padding:12px 14px;border:1px solid #d1d5db;border-radius:12px;font-family:inherit;font-size:13px;resize:vertical;outline:none;transition:border-color .15s,box-shadow .15s">${escapeHtml(htmlVal)}</textarea>
             <div style="display:flex;gap:8px;align-items:flex-end;margin-top:8px">
               <div style="flex:1">
                 <label style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">Icon</label>
