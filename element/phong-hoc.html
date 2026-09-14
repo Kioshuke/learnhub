@@ -447,7 +447,22 @@ function openQuizByDe(de) {
       if (!foundCard) { foundCard = c; foundSubject = s; }
     });
   });
-  if (!foundCard || !foundSubject) return false;
+  if (!foundCard || !foundSubject) {
+    var dbHit = (window.__testCardMap || {})[target];
+    if (dbHit && dbHit.subjectId) {
+      if (dbHit.done === false) {
+        if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
+        if (typeof alert === "function") alert("Bài kiểm tra này chưa hoàn thành — chưa thể làm bài.");
+        return true;
+      }
+      if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
+      var quizEl = document.getElementById("quiz");
+      if (quizEl) quizEl.innerHTML = "";
+      loadQuiz({ closest: function () { return null; } }, dbHit.url);
+      return true;
+    }
+    return false;
+  }
   if (typeof switchSubject === "function") switchSubject(foundSubject.id);
   var quizEl = document.getElementById("quiz");
   if (quizEl) quizEl.innerHTML = "";
@@ -1271,7 +1286,7 @@ function seedGvVideoTab(data, order) {
             '<div class="card-top">' +
               '<div class="card-icon" style="background:' + escHtml(color) + '"><i class="fas ' + escHtml(icon) + '"></i></div>' +
               '<h3>' + escHtml(ct) + '</h3>' +
-              '<span class="status done"></span>' +
+'<span class="status done"></span>' +
             '</div>' +
             '<p class="card-desc">' + escHtml(cardDesc) + '</p>' +
             '<div class="gv-card-foot">' +
@@ -1283,6 +1298,53 @@ function seedGvVideoTab(data, order) {
     });
   });
 
+  if (typeof applyCardDominoEffect === "function") applyCardDominoEffect();
+}
+
+/* Đổ card BÀI TEST từ database (test_sets) vào GRID MÔN HỌC — mỗi bài = 1 card.
+   Dùng `.status.done` / `.status.up` có sẵn trong CSS. */
+function mergeDbTestCards(list) {
+  if (!list || !list.length) return;
+  window.__testCardMap = window.__testCardMap || {};
+  var subjects = window.PHONGHOC_SUBJECTS || [];
+  list.forEach(function (t) {
+    var s = null;
+    subjects.forEach(function (x) { if (x.name === String(t.subject || "").trim()) s = x; });
+    if (!s) return;
+    var grid = document.getElementById(s.id) ? document.getElementById(s.id).querySelector(".grid") : null;
+    if (!grid) return;
+    var key = String(t.set_id || t.id || "");
+    if (!key || grid.querySelector('.card[data-test-card="' + key + '"]')) return;
+    var color = s.cardColor || s.tabColor || "#0d9488";
+    var icon = s.icon || "fa-book";
+    var de = "t:" + key;
+    var url = "../cauhoi/" + ((s.id === "anh") ? "questionenglish.html" : "filetest.html") + "?de=" + de;
+    var copyLink = location.origin + "/?open=phong-hoc&de=" + de;
+    window.__testCardMap[de] = { url: url, subjectId: s.id, done: !!t.is_complete };
+    var stats = [];
+    if (t.minutes > 0) stats.push(t.minutes + " phút");
+    grid.insertAdjacentHTML("beforeend",
+      '<div class="card" data-test-card="' + escHtml(key) + '">' +
+        '<div class="card-color-bar"></div>' +
+        '<div class="card-body">' +
+          '<div class="card-top">' +
+            '<div class="card-icon" style="background:' + escHtml(color) + '"><i class="fas ' + escHtml(icon) + '"></i></div>' +
+            '<h3>' + escHtml(t.name || "Bài kiểm tra") + '</h3>' +
+            '<span class="status ' + (t.is_complete ? 'done' : 'pending') + '"></span>' +
+          '</div>' +
+          '<p class="card-desc">' + escHtml(t.description || "Bài kiểm tra từ giáo viên — bấm Làm bài để bắt đầu.") + '</p>' +
+          '<div class="btn-row">' +
+            (t.is_complete
+              ? '<a class="btn" href="#" onclick="loadQuiz(this,\'' + escJs(url) + '\'); return false;">Làm bài</a>' +
+                '<a class="btn-copy-icon" href="#" title="Copy link bài test" onclick="copyQuizLink(this,\'' + escJs(copyLink) + '\'); return false;"><i class="fas fa-link"></i></a>'
+              : '<a class="btn disabled" href="#">Sắp ra mắt</a>') +
+          '</div>' +
+          (stats.length
+            ? '<div style="margin-top:8px;font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:6px"><i class="fa-regular fa-clock"></i> ' + escHtml(stats.join(" · ")) + '</div>'
+            : '') +
+        '</div>' +
+      '</div>');
+  });
   if (typeof applyCardDominoEffect === "function") applyCardDominoEffect();
 }
 
@@ -1471,6 +1533,19 @@ if (typeof supabase.channel === "function") {
       logAppError({ source: "phong-hoc-gv", category: "feature", level: "error", code: "GV_LOAD_FAIL", message: String((err && (err.message || err.error_description)) || err), url: location.href });
     }
     if (typeof window.seedGvVideoTab === "function") window.seedGvVideoTab(null, []);
+  }
+})();
+
+(async function initTestCards() {
+  try {
+    const { data, error } = await supabase.rpc("list_published_test_sets");
+    if (error) throw error;
+    mergeDbTestCards(data && data.length ? data : []);
+  } catch (err) {
+    console.error("[phong-hoc] tải bài test lỗi:", err);
+    if (typeof logAppError === "function") {
+      logAppError({ source: "phong-hoc-tests", category: "feature", level: "error", code: "TEST_LOAD_FAIL", message: String((err && (err.message || err.error_description)) || err), url: location.href });
+    }
   }
 })();
 </script>

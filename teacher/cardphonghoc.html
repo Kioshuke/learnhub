@@ -156,8 +156,7 @@
               <div class="vd-hub-ico test"><i class="fa-solid fa-file-circle-check"></i></div>
               <div class="vd-hub-title">Quản lý bài kiểm tra</div>
               <div class="vd-hub-desc">Soạn bộ câu hỏi, đề kiểm tra trắc nghiệm để học sinh ôn luyện, kiểm tra ngay trong Phòng học.</div>
-              <span class="vd-soon-badge">Sắp ra mắt</span>
-              <button type="button" class="vd-hub-btn disabled" onclick="vdSoon()"><i class="fa-solid fa-hourglass-half"></i> Sắp ra mắt</button>
+              <button type="button" class="vd-hub-btn" onclick="location.href='./index.html?view=quiz'"><i class="fa-solid fa-arrow-right-to-bracket"></i> Mở quản lý bài kiểm tra</button>
             </div>
           </div>
         </div>
@@ -803,10 +802,6 @@
     window.vdBackHub = function() {
       document.getElementById("vdVideoView").style.display = "none";
       document.getElementById("vdHub").style.display = "";
-    };
-
-    window.vdSoon = function() {
-      toast("Tính năng Quản lý bài kiểm tra sắp ra mắt!", "info");
     };
 
     guard();

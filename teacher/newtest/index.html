@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LearnHub - Tạo đề</title>
+<link rel="icon" href="../../pictures/favicon.png" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="../../pictures/favicon.png">
+<link rel="stylesheet" href="style.css?v=40">
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="tb-left">
+    <button type="button" class="btn btn-ghost" id="btnBack">← Quay lại</button>
+    <span class="tb-brand">LearnHub · Tạo đề 📝</span>
+    <span class="tb-file" id="fileLabel">Chưa có tiêu đề</span>
+  </div>
+  <nav class="steps" id="steps">
+    <div class="step" data-s="1"><span>1</span> Nhập đề</div>
+    <div class="step" data-s="2"><span>2</span> JSON &amp; Xem trước</div>
+    <div class="step" data-s="3"><span>3</span> Rà soát &amp; Xuất bản</div>
+  </nav>
+  <button type="button" class="btn btn-primary" id="btnSetup" hidden>▶ Tiếp tục</button>
+</header>
+
+<main class="wrap">
+
+  <!-- ===== BƯỚC 1: NHẬP ĐỀ ===== -->
+  <section class="panel" id="p1">
+    <div class="panel-head">
+      <h2>1. Nhập đề</h2>
+      <span class="muted">Dán văn bản, tải <b>.docx</b> (tự parse), tải <b>.json</b>, hoặc nạp đề mẫu. Dán <b>JSON</b> trực tiếp vào ô này cũng được — hệ thống tự nhận dạng.</span>
+    </div>
+
+    <div class="row tools">
+      <button type="button" class="btn btn-primary" id="btnParse">📖 Đọc text → JSON</button>
+      <button type="button" class="btn" id="btnSample">Nạp đề mẫu</button>
+      <button type="button" class="btn" id="btnSampleEN" style="background:#dbeafe;color:#1e40af">Nạp đề mẫu Anh</button>
+      <span class="tool-spacer"></span>
+      <label class="btn btn-ghost" style="gap:6px"><input type="checkbox" id="keepFmt" checked style="accent-color:#1a73e8;width:auto"> Giữ định dạng chữ (.docx)</label>
+      <label class="btn btn-primary">⬆️ Tải tệp lên<input type="file" id="fileUpload" accept=".docx,.txt,.json,application/json" hidden></label>
+    </div>
+
+    <textarea id="inputText" rows="9" placeholder="Paste đề ở đây...
+
+Ví dụ câu trắc nghiệm:
+1. Thủ đô của Việt Nam là?
+A. Hà Nội
+B. Đà Nẵng
+C. Cần Thơ
+*D. Vũng Tàu
+Đáp án: A
+
+Cách đánh dấu đáp án:
+– Trắc nghiệm: dòng 'Đáp án: A' sau phương án, hoặc dấu * trước phương án (*D. ...)
+– Đúng/Sai: mỗi ý đánh số a), b), c), d); ghi (Đ)/(S) cuối ý hoặc dấu * trước ý đúng (*a) ...)
+– Tự luận: dòng 'Đáp án: nội dung' sau câu hỏi
+
+Dành cho đề Tiếng Anh:
+– Phần ĐỌC HIỂU: dòng 'Passage: ...' đặt trước các câu hỏi của phần đó
+– Phần NGHE: ghi tiêu đề 'PHẦN ... NGHE', dán thẳng link file nghe (.mp3) dưới tiêu đề,
+  rồi các câu hỏi theo sau
+– Phần NGHE/ĐỌC HIỂU luôn giữ nguyên thứ tự (không bị xáo trộn khi làm bài)
+
+Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đề mẫu Anh' ở trên."></textarea>
+
+    <div class="note" id="inputNote"></div>
+  </section>
+
+  <!-- ===== BƯỚC 2: JSON (TRÁI) + XEM TRƯỚC & CHẤM ĐIỂM (PHẢI) ===== -->
+  <section class="panel" id="p2" hidden>
+    <div class="panel-head">
+      <h2>2. Dữ liệu JSON &amp; Xem trước</h2>
+    </div>
+
+    <div class="split">
+      <div class="col">
+        <div class="col-hd"><span class="col-hd-ic">🧾</span> JSON <span class="col-sub">sửa tay → bên phải tự render</span></div>
+        <textarea id="jsonArea" rows="14" spellcheck="false" placeholder='Dán JSON ở đây (array các section) — xem docs/FORMAT-DE-THI.md'></textarea>
+        <div class="note" id="outNote"></div>
+      </div>
+
+      <div class="col">
+        <div class="col-hd"><span class="col-hd-ic">👁️</span> Xem trước <span class="col-sub" id="renderCount"></span></div>
+        <div id="renderArea" class="render-area">
+          <div class="placeholder">Chưa có đề. Ở bước 1 bấm "Đọc text → JSON" hoặc tạo JSON mẫu.</div>
+        </div>
+        <div id="resultBox" class="result-box" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BƯỚC 3: RÀ SOÁT & XUẤT BẢN (demo: giả lập) ===== -->
+  <section class="panel" id="p3" hidden>
+    <div class="panel-head">
+      <h2>3. Rà soát &amp; Xuất bản</h2>
+      <span class="muted">Tổng hợp toàn bộ thông tin đề đã up + thiết lập. Bấm <b>🚀 Xuất bản đề</b> để mô phỏng đưa lên Phòng Học (demo — chưa ghi database thật).</span>
+    </div>
+    <div id="revArea" class="rev-area"></div>
+  </section>
+</main>
+
+<div class="modal-overlay" id="setupModal" hidden>
+  <div class="modal">
+    <div class="modal-hd">
+      <h3>⚙️ Thiết lập đề</h3>
+      <div class="sub">Điền thông tin chung trước khi xuất bản</div>
+    </div>
+    <div class="modal-body">
+    <label>📚 Môn học <span class="req">*</span>
+      <select id="setSubject" required></select>
+    </label>
+    <label>📝 Tên đề <span class="req">*</span>
+      <input type="text" id="setName" placeholder="VD: Kiểm tra giữa kỳ 1 – Hóa học" required>
+    </label>
+    <label>📄 Mô tả
+      <textarea id="setDesc" rows="2" placeholder="Mô tả ngắn về đề thi..."></textarea>
+    </label>
+    <label>⏱ Thời gian làm bài (phút) — 0 = không giới hạn <span class="req">*</span>
+      <input type="number" id="setMinutes" min="0" value="0" required>
+    </label>
+    <label>🎯 Điểm tối đa <span class="req">*</span>
+      <input type="number" id="setScore" min="1" value="10" required>
+    </label>
+    <div class="chk-row">
+      <label><input type="checkbox" id="setShuffleQ" checked><span>Xáo trộn thứ tự câu</span></label>
+      <label><input type="checkbox" id="setShuffleA" checked><span>Xáo trộn thứ tự đáp án trong câu</span></label>
+    </div>
+    <div class="note error" id="setupError" hidden></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="btnSetupClose">Đóng</button>
+      <button type="button" class="btn btn-primary" id="btnSetupApply">✔ Áp dụng</button>
+    </div>
+    </div>
+  </div>
+</div>
+
+<script src="script.js?v=32"></script>
+</body>
+</html>

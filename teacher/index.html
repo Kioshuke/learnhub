@@ -756,6 +756,89 @@
       }
     }
 
+    /* ===== TC QUIZ VIEW ===== */
+    .tc-quiz-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .tc-quiz-head h2 {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 18px;
+      margin: 0;
+    }
+    .tc-quiz-head .muted { margin-left: auto; }
+    .tc-quiz-list {
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      background: #fff;
+      overflow: auto;
+    }
+    .tc-quiz-table { width: 100%; border-collapse: collapse; min-width: 720px; }
+    .tc-quiz-table th {
+      font-size: 11px; font-weight: 700; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: .04em;
+      text-align: left; padding: 10px 14px; white-space: nowrap;
+      background: #f8fafc; border-bottom: 1px solid #e5e7eb;
+    }
+    .tc-quiz-table td { padding: 11px 14px; font-size: 13px; vertical-align: middle; border-top: 1px solid #f1f5f9; }
+    .tc-quiz-table tbody tr:hover { background: #f8fafc; }
+    .tc-quiz-table .tc-t { font-weight: 700; color: #111827; }
+    .tc-quiz-table .tc-sub { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+    .tc-quiz-table .tc-qz-created { font-size: 12px; color: #64748b; white-space: nowrap; }
+    .tc-quiz-table .tc-qz-nowrap { white-space: nowrap; }
+    .tc-qz-menu-wrap { position: relative; display: inline-block; }
+    .tc-qz-menu-btn {
+      width: 30px; height: 30px;
+      display: inline-grid; place-items: center;
+      border: 1px solid #e5e7eb; border-radius: 8px;
+      background: #fff; color: #64748b; cursor: pointer;
+      transition: all .15s;
+    }
+    .tc-qz-menu-btn:hover { background: #f1f5f9; color: #111827; }
+    .tc-qz-menu {
+      min-width: 210px; padding: 6px;
+      background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, .14);
+      z-index: 300;
+    }
+    .tc-qz-menu-item {
+      display: flex; align-items: center; gap: 9px;
+      width: 100%; padding: 8px 10px;
+      border: none; border-radius: 8px; background: transparent;
+      font: 600 12.5px/1.2 inherit; color: #334155; cursor: pointer; text-align: left;
+    }
+    .tc-qz-menu-item:hover { background: #f1f5f9; }
+    .tc-qz-menu-item.danger { color: #dc2626; }
+    .tc-qz-menu-item.danger:hover { background: #fef2f2; }
+    .tc-qz-switch {
+      position: relative;
+      width: 44px; height: 24px;
+      border-radius: 999px;
+      border: none; padding: 0;
+      cursor: pointer;
+      vertical-align: middle;
+      background: #d97706;
+      transition: background .2s;
+      flex-shrink: 0;
+    }
+    .tc-qz-switch:hover { filter: brightness(1.06); }
+    .tc-qz-switch.on { background: #10b981; }
+    .tc-qz-switch-knob {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,.25);
+      transition: left .2s;
+    }
+    .tc-qz-switch.on .tc-qz-switch-knob { left: 23px; }
+
     /* ===== STUDENT PROFILE MODAL ===== */
     .tc-modal-overlay {
       position: fixed;
@@ -982,12 +1065,11 @@
                 <div class="tc-feature-desc">Tạo bộ từ học tập trực quan cho từng chủ đề.</div>
                 <div class="tc-feature-cta">Mở <i class="fa-solid fa-arrow-right"></i></div>
               </div>
-              <div class="tc-feature tint-amber" data-ready="0">
-                <span class="soon-badge">Sắp ra mắt</span>
+              <div class="tc-feature tint-amber" onclick="tcOpenQuizzes()" data-ready="1">
                 <div class="tc-feature-icon icon-amber"><i class="fa-solid fa-file-pen"></i></div>
                 <div class="tc-feature-title">Soạn bài kiểm tra</div>
                 <div class="tc-feature-desc">Chuẩn bị đề mới, câu hỏi và thời gian làm bài.</div>
-                <div class="tc-feature-cta"><i class="fa-solid fa-hourglass-half"></i> Chưa mở</div>
+                <div class="tc-feature-cta">Mở <i class="fa-solid fa-arrow-right"></i></div>
               </div>
               <div class="tc-feature tint-violet" data-ready="0">
                 <span class="soon-badge">Sắp ra mắt</span>
@@ -1098,6 +1180,27 @@
           </div>
         </div>
 
+        <!-- ===== BÀI KIỂM TRA ===== -->
+        <div id="tcQuizView" style="display:none">
+          <div class="tc-view-head">
+            <button class="back" type="button" onclick="tcBackHome()"><i class="fa-solid fa-arrow-left"></i> Trang chủ</button>
+            <h2><i class="fa-solid fa-file-circle-check" style="color:#d97706"></i> Bài kiểm tra</h2>
+            <span class="muted">Quản lý các đề kiểm tra đưa lên Phòng Học</span>
+          </div>
+
+          <div class="tc-quiz-head">
+            <span class="muted" id="tcQuizCount" style="margin-left:0"></span>
+            <a class="btn btn-primary" style="margin-left:auto" href="./newtest/index.html"><i class="fa-solid fa-plus"></i> Tạo đề mới</a>
+          </div>
+
+          <div id="tcQuizList" class="tc-quiz-list">
+            <div class="empty"><div class="big"><i class="fa-solid fa-file-circle-check"></i></div>
+              Chưa có bài kiểm tra nào.<br>
+              <span style="font-size:12.5px">Bấm <b>Tạo đề mới</b> để soạn đề đầu tiên (trắc nghiệm / đúng-sai / tự luận / nghe).</span>
+            </div>
+          </div>
+        </div>
+
       </div><!-- /tc-wrap -->
     </div><!-- /teacher-canvas -->
   </div><!-- /tcApp -->
@@ -1159,6 +1262,7 @@
   </div>
 
   <script src="shell.js"></script>
+  <script src="../element/phonghoc-data.js"></script>
   <script src="../toast.js"></script>
   <script type="module">
     import { supabase, getUserRow, escapeHtml } from "../supabase-config.js";
@@ -1185,11 +1289,13 @@
       const detail = document.getElementById("tcDetailView");
       const sched = document.getElementById("tcScheduleView");
       const notice = document.getElementById("tcNoticeView");
+      const quiz = document.getElementById("tcQuizView");
       if (home) home.style.display = (view === "home" || view === "" || !view) ? "" : "none";
       if (manage) manage.style.display = view === "manage" ? "" : "none";
       if (detail) detail.style.display = view === "detail" ? "" : "none";
       if (sched) sched.style.display = view === "schedule" ? "" : "none";
       if (notice) notice.style.display = view === "notice" ? "" : "none";
+      if (quiz) quiz.style.display = view === "quiz" ? "" : "none";
     }
 
     window.onTeacherNav = function(key) {
@@ -1198,6 +1304,7 @@
       else if (key === "fc") window.location.href = "./newflashcard.html";
       else if (key === "video") window.location.href = "./cardphonghoc.html";
       else if (key === "notice") tcOpenNotices();
+      else if (key === "quiz") tcOpenQuizzes();
     };
 
     window.tcOpenManage = function() {
@@ -1279,6 +1386,8 @@
         tcOpenSchedule();
       } else if (view === "notice") {
         tcOpenNotices();
+      } else if (view === "quiz") {
+        tcOpenQuizzes();
       }
       tcLoadClasses();
     }
@@ -1744,6 +1853,203 @@ const NOTICE_SUBJECTS = [
       if (window.TeacherShell && window.TeacherShell.setActive) window.TeacherShell.setActive("notice");
       tcLoadNotices();
     };
+
+    window.tcOpenQuizzes = function() {
+      setMainView("quiz");
+      if (window.TeacherShell && window.TeacherShell.setActive) window.TeacherShell.setActive("quiz");
+      tcLoadQuizzes();
+    };
+
+    /* Liệt kê các đề lưu trong DB (teacher_list_test_sets) — thay nguồn mẫu tĩnh */
+    async function tcLoadQuizzes() {
+      const listEl = document.getElementById("tcQuizList");
+      const countEl = document.getElementById("tcQuizCount");
+      if (!listEl) return;
+      try {
+        const { data, error } = await supabase.rpc("teacher_list_test_sets");
+        if (error) throw error;
+        const rows = Array.isArray(data) ? data : [];
+        const done = rows.filter(r => r.is_complete).length;
+        const pending = rows.length - done;
+        if (countEl) countEl.textContent = rows.length
+          ? `Đang có ${rows.length} bài kiểm tra · ${done} hoàn thành · ${pending} chưa hoàn thành`
+          : "Chưa có bài kiểm tra nào";
+        if (!rows.length) {
+          listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-file-circle-check"></i></div>' +
+            'Chưa có bài kiểm tra nào trong Phòng Học.<br>' +
+            '<span style="font-size:12.5px">Bấm <b>Tạo đề mới</b> để soạn đề đầu tiên (trắc nghiệm / đúng-sai / tự luận / nghe).</span></div>';
+          return;
+        }
+        listEl.innerHTML = '<table class="tc-quiz-table"><thead><tr>' +
+          '<th style="width:42%">Tên đề</th><th class="tc-qz-nowrap">Môn</th><th class="tc-qz-nowrap" style="width:58px">Số câu</th><th class="tc-qz-nowrap" style="width:112px">Thời gian</th><th class="tc-qz-nowrap" style="width:52px">Điểm</th><th style="width:96px">Trạng thái</th><th class="tc-qz-nowrap" style="width:116px">Tạo lúc</th><th style="width:42px"></th>' +
+          '</tr></thead><tbody>' + rows.map(function (r) {
+          const de = "t:" + r.set_id;
+          return '<tr>' +
+            '<td><div class="tc-t">' + escapeHtml(r.name) + '</div>' +
+              (r.description ? '<div class="tc-sub">' + escapeHtml(r.description) + '</div>' : '') + '</td>' +
+            '<td class="tc-qz-nowrap">' + escapeHtml(r.subject) + '</td>' +
+            '<td class="tc-qz-nowrap">' + (r.question_count || 0) + '</td>' +
+            '<td class="tc-qz-nowrap">' + (r.minutes > 0 ? '⏱ ' + r.minutes + ' phút' : "Không giới hạn") + '</td>' +
+            '<td class="tc-qz-nowrap">' + (r.score || 10) + '</td>' +
+            '<td>' +
+              '<button type="button" role="switch" aria-checked="' + (r.is_complete ? 'true' : 'false') + '" class="tc-qz-switch' + (r.is_complete ? ' on' : '') + '" data-action="toggle" data-id="' + r.set_id + '" data-complete="' + (r.is_complete ? 1 : 0) + '" title="Đổi trạng thái hoàn thành / chưa hoàn thành"><span class="tc-qz-switch-knob"></span></button>' +
+            '</td>' +
+            '<td class="tc-qz-created">' + scFormatDate(r.created_at) + '</td>' +
+            '<td><div class="tc-qz-menu-wrap">' +
+              '<button type="button" class="tc-qz-menu-btn" data-action="menu" data-de="' + de + '" data-id="' + r.set_id + '" title="Thao tác" aria-label="Thao tác"><i class="fa-solid fa-ellipsis-vertical"></i></button>' +
+            '</div></td>' +
+          '</tr>';
+        }).join('') + '</tbody></table>';
+        if (!listEl.__tcBound) {
+          listEl.__tcBound = true;
+          listEl.addEventListener("click", tcQuizListClick);
+        }
+      } catch (e) {
+        console.error("tcLoadQuizzes lỗi:", e);
+        if (countEl) countEl.textContent = "";
+        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-triangle-exclamation"></i></div>' +
+          'Không tải được danh sách bài kiểm tra.<br>' +
+          '<span style="font-size:12.5px">' + escapeHtml(String((e && e.message) || e)) + '</span></div>';
+      }
+    }
+
+    function tcQuizListClick(e) {
+      const el = e.target && e.target.closest ? e.target.closest("[data-action]") : null;
+      if (!el) return;
+      const id = el.getAttribute("data-id");
+      const action = el.getAttribute("data-action");
+      if (action === "menu") {
+        tcQuizToggleMenu(el);
+      } else if (action === "toggle") {
+        tcQuizSetComplete(id, el.getAttribute("data-complete") !== "1");
+      }
+    }
+
+    let tcQuizMenuEl = null;
+    function tcQuizEnsureMenu() {
+      if (tcQuizMenuEl) return tcQuizMenuEl;
+      tcQuizMenuEl = document.createElement("div");
+      tcQuizMenuEl.className = "tc-qz-menu";
+      tcQuizMenuEl.style.position = "fixed";
+      tcQuizMenuEl.hidden = true;
+      tcQuizMenuEl.innerHTML =
+        '<button type="button" class="tc-qz-menu-item" data-action="edit"><i class="fa-solid fa-pen"></i> Sửa đề</button>' +
+        '<button type="button" class="tc-qz-menu-item" data-action="copy"><i class="fa-solid fa-copy"></i> Sao chép liên kết đề</button>' +
+        '<button type="button" class="tc-qz-menu-item danger" data-action="delete"><i class="fa-solid fa-trash"></i> Xoá đề</button>';
+      tcQuizMenuEl.addEventListener("click", function (e) {
+        const el = e.target && e.target.closest ? e.target.closest(".tc-qz-menu-item") : null;
+        if (!el) return;
+        const btn = tcQuizMenuEl.__btn;
+        tcQuizCloseMenus();
+        if (!btn) return;
+        const act = el.getAttribute("data-action");
+        if (act === "edit") {
+          tcQuizEdit(btn.getAttribute("data-id"));
+        } else if (act === "copy") {
+          tcQuizCopyLink(btn.getAttribute("data-de"));
+        } else if (act === "delete") {
+          tcQuizDeleteWithConfirm(btn.getAttribute("data-id"));
+        }
+      });
+      document.body.appendChild(tcQuizMenuEl);
+      return tcQuizMenuEl;
+    }
+
+    async function tcQuizDeleteWithConfirm(id) {
+      const ok = window.lhConfirm
+        ? await lhConfirm("Xoá bài kiểm tra này? Card trong Phòng Học sẽ bị gỡ bỏ vĩnh viễn.")
+        : confirm("Xoá bài kiểm tra này? Card trong Phòng Học sẽ bị gỡ bỏ vĩnh viễn.");
+      if (!ok) return;
+      tcQuizDelete(id);
+    }
+
+    /* Sửa đề: mở trình soạn, nạp sẵn content của đề vào màn 2 (JSON + Xem trước) */
+    function tcQuizEdit(id) {
+      window.location.href = "./newtest/index.html?edit=t:" + id;
+    }
+
+    function tcQuizToggleMenu(btn) {
+      const menu = tcQuizEnsureMenu();
+      if (!menu.hidden && menu.__btn === btn) { menu.hidden = true; return; }
+      menu.__btn = btn;
+      menu.style.minWidth = "";
+      const r = btn.getBoundingClientRect();
+      let left = r.right - 210;
+      if (left < 8) left = 8;
+      let top = r.bottom + 4;
+      menu.style.left = left + "px";
+      menu.style.top = top + "px";
+      menu.hidden = false;
+      const rect = menu.getBoundingClientRect();
+      if (rect.bottom > window.innerHeight - 8) {
+        top = Math.max(8, Math.round(r.top - rect.height - 4));
+        menu.style.top = top + "px";
+      }
+      const rect2 = menu.getBoundingClientRect();
+      if (rect2.right > window.innerWidth - 8) {
+        menu.style.left = Math.max(8, Math.round(window.innerWidth - rect2.width - 8)) + "px";
+      }
+      menu.__btn = btn;
+    }
+
+    function tcQuizCloseMenus() {
+      if (tcQuizMenuEl) tcQuizMenuEl.hidden = true;
+    }
+
+    document.addEventListener("click", function (e) {
+      if (!e.target || !e.target.closest || !e.target.closest("#tcQuizList .tc-qz-menu-wrap")) {
+        tcQuizCloseMenus();
+      }
+    });
+
+    function tcQuizCopyLink(de) {
+      // Link mở từ web chính giống cơ chế copy link card trong Phòng Học:
+      // ?open=phong-hoc&de=t:<uuid> → mở thẳng bài test trong Phòng Học.
+      const link = location.origin + "/?open=phong-hoc&de=" + de;
+      const done = function () { toast("Đã sao chép liên kết bài test", "success"); };
+      const fail = function () { toast("Không sao chép được liên kết", "error"); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(done, fail);
+      } else {
+        try {
+          const ta = document.createElement("textarea");
+          ta.value = link;
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          done();
+        } catch (e) {
+          fail();
+        }
+      }
+    }
+
+    async function tcQuizSetComplete(id, complete) {
+      try {
+        const { error } = await supabase.rpc("teacher_set_test_complete", { p_id: id, p_is_complete: complete });
+        if (error) throw error;
+        toast(complete ? "Đã đánh dấu hoàn thành — hiện card cho học sinh" : "Chuyển sang chưa hoàn thành — học sinh không thể Làm bài", "success");
+        tcLoadQuizzes();
+      } catch (e) {
+        console.error("tcQuizSetComplete lỗi:", e);
+        toast("Không đổi được trạng thái: " + ((e && e.message) || e), "error");
+      }
+    }
+
+    async function tcQuizDelete(id) {
+      try {
+        const { error } = await supabase.rpc("teacher_delete_test_set", { p_id: id });
+        if (error) throw error;
+        toast("Đã xoá bài kiểm tra", "success");
+        tcLoadQuizzes();
+      } catch (e) {
+        console.error("tcQuizDelete lỗi:", e);
+        toast("Không xoá được bài kiểm tra: " + ((e && e.message) || e), "error");
+      }
+    }
 
     async function tcLoadNotices() {
       const listEl = document.getElementById("subjectNoticeList");

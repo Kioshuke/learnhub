@@ -2169,6 +2169,9 @@ z-index: 10;
 .status.up { color: #e74c3c; }
 .status.up::after { content: 'Đang cập nhật'; }
 
+.status.pending { color: #d97706; }
+.status.pending::after { content: 'Chưa hoàn thành'; }
+
 /* Đẩy nút Làm bài sang phải để không đè lên status */
 .card .btn {
     position: absolute;

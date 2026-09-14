@@ -49,15 +49,7 @@ window.PHONGHOC_SUBJECTS = [
     tabColor: "#2563eb",
     cardColor: "#3b82f6",
     cards: [
-      /* ── 📄 MẪU FILE TEST (copy & sửa khi thêm bài mới) ── */
-      {
-        id: "ly-trac-nghiem",
-        title: "Trắc nghiệm",
-        description: "Bài ôn tập trắc nghiệm môn Vật Lý.",
-        icon: "fa-pen-fancy",
-        status: "done",
-        action: { type: "quiz", url: "../cauhoi/filetest.html?de=vatli.json" }
-      },
+      /* ── 📄 Card bài test tĩnh đã gỡ: đề giờ đọc từ database (test_sets), Phòng Học tự đổ card qua list_published_test_sets ── */
       /* ── ▶️ MẪU VIDEO (bỏ comment & điền khi cần) ──
       {
         id: "ly-video-1",
@@ -80,14 +72,7 @@ window.PHONGHOC_SUBJECTS = [
     tabColor: "#16a34a",
     cardColor: "#16a34a",
     cards: [
-      {
-        id: "sinh-trac-nghiem",
-        title: "Trắc nghiệm",
-        description: "Bài ôn tập trắc nghiệm môn Sinh Học.",
-        icon: "fa-dna",
-        status: "done",
-        action: { type: "quiz", url: "../cauhoi/filetest.html?de=sinhhoc.json" }
-      },
+      /* Card bài test tĩnh đã gỡ: đề đọc từ database (test_sets) */
     ]
   },
 
@@ -102,16 +87,6 @@ window.PHONGHOC_SUBJECTS = [
     cards: [
       /* Các card video MOS Word/Excel/PowerPoint đã chuyển sang Supabase
          (bảng video_cards) — xem supabase/bulk-videos.sql */
-      /* ── CARD DEMO chưa hoàn thành — xóa khi dùng thật ── */
-      {
-        id: "demo-card-pending",
-        title: "Card Demo",
-        description: "Mô tả ngắn nội dung card. Badge vàng 'Chưa hoàn thành' + nút xám không bấm được.",
-        icon: "fa-flask",
-        iconBg: "#64748b",
-        status: "pending",
-        disabled: true
-      },
     ]
   },
 
@@ -124,14 +99,7 @@ window.PHONGHOC_SUBJECTS = [
     tabColor: "#ea580c",
     cardColor: "#ea580c",
     cards: [
-      {
-        id: "su-trac-nghiem",
-        title: "Trắc nghiệm",
-        description: "Chủ đề 8. LỊCH SỬ ĐỐI NGOẠI CỦA VIỆT NAM THỜI CẬN – HIỆN ĐẠI",
-        icon: "fa-scroll",
-        status: "done",
-        action: { type: "quiz", url: "../cauhoi/filetest.html?de=questions.json" }
-      },
+      /* Card bài test tĩnh đã gỡ: đề đọc từ database (test_sets) */
     ]
   },
 
@@ -144,14 +112,7 @@ window.PHONGHOC_SUBJECTS = [
     tabColor: "#dc2626",
     cardColor: "#dc2626",
     cards: [
-      {
-        id: "hoa-trac-nghiem-p1",
-        title: "Trắc nghiệm P1",
-        description: "Bài ôn tập trắc nghiệm môn Hoá Học.",
-        icon: "fa-flask",
-        status: "done",
-        action: { type: "quiz", url: "../cauhoi/filetest.html?de=hoahoc.json" }
-      },
+      /* Card bài test tĩnh đã gỡ: đề đọc từ database (test_sets) */
     ]
   },
 
@@ -164,14 +125,7 @@ window.PHONGHOC_SUBJECTS = [
     tabColor: "#db2777",
     cardColor: "#db2777",
     cards: [
-      {
-        id: "anh-demo",
-        title: "ĐỀ THI MẪU DEMO",
-        description: "Bản demo 3 câu hỏi lấy từ file json mẫu tiếng Anh.",
-        icon: "fa-language",
-        status: "done",
-        action: { type: "quiz", url: "../cauhoi/questionenglish.html?de=anh-demo.json" }
-      },
+      /* Card bài test tĩnh (đề demo ANH) đã gỡ: đề đọc từ database (test_sets) */
       /* Card video Tổng ôn ngữ pháp đã chuyển sang Supabase
          (bảng video_cards) — xem supabase/bulk-videos.sql */
     ]
@@ -186,14 +140,7 @@ window.PHONGHOC_SUBJECTS = [
     tabColor: "#06b6d4",
     cardColor: "#06b6d4",
     cards: [
-      {
-        id: "toan-trac-nghiem",
-        title: "Trắc nghiệm",
-        description: "Bài ôn tập trắc nghiệm môn Toán Học.",
-        icon: "fa-square-root-variable",
-        status: "pending",
-        action: { type: "quiz", url: "../cauhoi/filetest.html?de=toanhoc.json" }
-      },
+      /* Card bài test tĩnh đã gỡ: đề đọc từ database (test_sets) */
       /* Cards video Tổng ôn Giải tích 1 & Toán ma trận đã chuyển sang
          Supabase (bảng video_cards) — xem supabase/bulk-videos.sql */
     ]

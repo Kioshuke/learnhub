@@ -1117,8 +1117,8 @@ if (localStorage.getItem("darkMode") === "on") {
 
 // 2. LẤY TÊN FILE JSON TỪ URL (Ví dụ: thi.html?de=toan.json)
 const urlParams = new URLSearchParams(window.location.search);
-let JSON_FILE = urlParams.get('de') || "english.json"; // Nếu không có ?de= thì mặc định dùng english.json
-if (JSON_FILE.startsWith("cauhoi/")) JSON_FILE = JSON_FILE.slice(7); // Link cũ truyền đường dẫn từ gốc site — trang giờ nằm trong cauhoi/ nên bỏ tiền tố
+let JSON_FILE = urlParams.get('de') || "";
+if (JSON_FILE.startsWith("cauhoi/")) JSON_FILE = JSON_FILE.slice(7);
 
 let questionsData = [];
 window.totalMaxScore = 0; 
@@ -1132,6 +1132,14 @@ let examStartTime = null;     // Mốc thời gian bắt đầu làm bài (Date.
 let examEndTime = null;       // Mốc thời gian khi nộp bài
 let isSubmitted = false;      // Tránh nộp bài 2 lần (vd: vừa hết giờ vừa bấm nộp)
 const DEFAULT_EXAM_TIME_LIMIT_MINUTES = 15;
+
+// ── ĐỀ TỪ DATABASE (GĐ1): de=t:<uuid> → đọc bản ghi trong test_sets ──
+// Riêng bài này KHÔNG fetch file cứng; lấy qua RPC get_test_content rồi
+// áp dụng trực tiếp các cột: score (điểm tối đa), shuffle_q (trộn câu hỏi),
+// shuffle_a (trộn đáp án), minutes (thời gian).
+const IS_DB_TEST = JSON_FILE.startsWith("t:");
+// Cấu hình đề (file .json mặc định: thang 10 + trộn cả câu lẫn đáp án như cũ)
+let examConfig = { maxScore: 10, shuffleQ: true, shuffleA: true };
 
 function getExamTimeLimitSeconds(data) {
     const sections = Array.isArray(data) ? data : (Array.isArray(data.sections) ? data.sections : []);
@@ -1159,35 +1167,40 @@ async function loadQuestions() {
     try {
         const timestamp = new Date().getTime();
         
-        // SỬ DỤNG BIẾN JSON_FILE ĐÃ LẤY Ở TRÊN
-        // Timeout 15s: tránh kẹt skeleton mãi nếu mạng bị treo (không phải lỗi 404 rõ ràng)
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
-        const res = await fetch(`${JSON_FILE}?v=${timestamp}`, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        
-        if (!res.ok) {
-            throw new Error(`Không tìm thấy file dữ liệu: ${JSON_FILE}`);
-        }
+        let data;
+        if (IS_DB_TEST) {
+            const supabase = await import('../supabase-config.js').then(m => m.supabase);
+            const { data: rpcData, error } = await supabase.rpc('get_test_content', { p_de: JSON_FILE });
+            if (error) throw error;
+            if (!rpcData || rpcData.ok !== true || !Array.isArray(rpcData.content)) {
+                throw new Error((rpcData && rpcData.error === 'not_found')
+                    ? 'Không tìm thấy bài kiểm tra trong database'
+                    : 'Không tải được bài kiểm tra từ database');
+            }
+            data = rpcData.content;
 
-        const data = await res.json();
+            // Đọc cấu hình từ các CỘT trong test_sets
+            const rawScore = Number(rpcData.score);
+            examConfig.maxScore = (!isNaN(rawScore) && rawScore > 0) ? rawScore : 10;
+            examConfig.shuffleQ = !(rpcData.shuffle_q === false || rpcData.shuffle_q === 0);
+            examConfig.shuffleA = !(rpcData.shuffle_a === false || rpcData.shuffle_a === 0);
+            const rawMinutes = Number(rpcData.minutes);
+            examTimeLimitSeconds = (!isNaN(rawMinutes) && rawMinutes > 0) ? Math.round(rawMinutes * 60) : 0;
+        } else {
+            throw new Error('Đề không đọc từ database. Vui lòng mở từ Phòng Học.');
+        }
         
         totalQuestions = 0; 
 
-        const timeLimitSection = data.find(section => typeof section.timeLimit === 'number' && section.timeLimit > 0);
-        const sectionLimit = timeLimitSection ? timeLimitSection.timeLimit : 0;
-        const topLimit = Number(data && data.timeLimit) || 0;
-        examTimeLimitSeconds = Math.round((topLimit || sectionLimit) * 60);
-
         questionsData = data.map(section => {
-            // 🔥 [Tiếng Anh] Phần nghe giữ nguyên thứ tự câu theo audio; các phần khác vẫn shuffle
-            const sourceQuestions = (section.type === 'listening') ? section.questions : shuffle(section.questions);
+            // 🔥 [Tiếng Anh] Phần nghe giữ nguyên thứ tự câu theo audio; các phần khác tuân theo shuffleQ
+            const sourceQuestions = (section.type === 'listening' || !examConfig.shuffleQ) ? section.questions : shuffle(section.questions);
             const sectionQuestions = sourceQuestions.map(q => {
                 totalQuestions++; 
                 
                 if (q.type === 'multiple' && q.answers) {
                     const mixed = q.answers.map((ans, i) => ({ text: ans, isCorrect: i === q.correct }));
-                    shuffle(mixed);
+                    if (examConfig.shuffleA) shuffle(mixed);
                     return {
                         ...q,
                         answers: mixed.map(a => a.text),
@@ -1195,7 +1208,7 @@ async function loadQuestions() {
                     };
                 }
                 if (q.type === 'true_false' && q.subQuestions) {
-                    const mixedSub = shuffle([...q.subQuestions]);
+                    const mixedSub = examConfig.shuffleQ ? shuffle([...q.subQuestions]) : q.subQuestions;
                     return { ...q, subQuestions: mixedSub };
                 }
                 if (q.type === 'passage' && q.subQuestions) {
@@ -1203,7 +1216,7 @@ async function loadQuestions() {
                     const mixedSub = q.subQuestions.map(sub => {
                         if (!Array.isArray(sub.answers)) return sub;
                         const mixed = sub.answers.map((ans, i) => ({ text: ans, isCorrect: i === sub.correct }));
-                        shuffle(mixed);
+                        if (examConfig.shuffleA) shuffle(mixed);
                         return {
                             ...sub,
                             answers: mixed.map(a => a.text),
@@ -1237,18 +1250,18 @@ async function loadQuestions() {
         const msg = e.name === 'AbortError' ? 'Mạng quá chậm hoặc bị treo, vui lòng thử lại.' : e.message;
         if (window.logAppError) {
             window.logAppError({
-                source: "filetest",
+                source: "questionenglish",
                 category: "feature",
                 level: "error",
                 code: e.name === 'AbortError' ? 'TIMEOUT' : 'LOAD_TEST_FAIL',
                 message: msg,
-                detail: { file: JSON_FILE }
+                detail: { file: JSON_FILE, db: IS_DB_TEST }
             });
         }
         document.getElementById('quiz-container').innerHTML = `
             <div style="padding: 20px; background: #fee2e2; color: #ef4444; border-radius: 10px; border: 1px solid #fca5a5;">
                 <strong>Lỗi tải đề thi:</strong> ${msg} <br>
-                <small>Vui lòng kiểm tra lại đường dẫn file .json</small>
+                <small>Vui lòng mở từ Phòng Học với liên kết dạng ?de=t:&lt;id&gt;.</small>
             </div>`;
     }
 }
@@ -1672,8 +1685,10 @@ function handleFinalSubmit(autoSubmitted = false) {
     let globalIdx = 0;
     let userScore = 0;
     
-    // Tính điểm cơ bản dựa trên tổng số câu thực tế (totalQuestions)
-    const basePerQuestion = totalQuestions > 0 ? (10 / totalQuestions) : 0;
+// Tính điểm cơ bản dựa trên tổng số câu thực tế (totalQuestions)
+    // theo ĐIỂM TỐI ĐA đã cấu hình (mặc định 10; đề từ DB đọc từ cột test_sets.score)
+    const maxScore = (examConfig && examConfig.maxScore > 0) ? examConfig.maxScore : 10;
+    const basePerQuestion = totalQuestions > 0 ? (maxScore / totalQuestions) : 0;
 
     questionsData.forEach((section) => {
         section.questions.forEach((item) => {
@@ -1757,9 +1772,9 @@ function handleFinalSubmit(autoSubmitted = false) {
         });
     });
 
-    // Hiển thị lên Popup
+// Hiển thị lên Popup (điểm theo đúng thang tối đa đã cấu hình)
     document.getElementById('scoreValue').innerText = userScore.toFixed(1);
-    document.getElementById('statsText').innerText = `🎯Đúng ${correctCount}/${totalQuestions} câu`;
+    document.getElementById('statsText').innerText = `🎯Đúng ${correctCount}/${totalQuestions} câu · Thang ${maxScore} điểm`;
 
     // Hiển thị thời gian đã làm bài (và lý do nộp nếu tự động nộp do hết giờ)
     const elapsedSeconds = examStartTime ? Math.round((examEndTime - examStartTime) / 1000) : 0;
@@ -1774,7 +1789,9 @@ function handleFinalSubmit(autoSubmitted = false) {
     }
     timeSpentEl.innerText = timeSpentMsg;
 
-    const score = Number(userScore.toFixed(1));
+// Điểm ra ngoài luôn chuẩn hoá về THANG 10 (không phá test_stats/leaderboard),
+// riêng phần chia điểm từng câu dùng thang tối đa đã cấu hình ở trên.
+    const score = Number(((userScore / maxScore) * 10).toFixed(1));
 const feedback = getFeedback(score);
 if (score >= 10) {
     setTimeout(() => launchConfetti(), 300);

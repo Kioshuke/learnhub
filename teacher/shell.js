@@ -49,7 +49,7 @@
     { key: "video",   icon: "fa-door-open",          label: "Quản lý Phòng học" },
     { key: "schedule", icon: "fa-calendar-days",     label: "Lịch học & thi" },
     { key: "notice",   icon: "fa-bell",              label: "Thông báo môn học" },
-    { key: "quiz",    icon: "fa-file-circle-check",    label: "Bài kiểm tra", soon: true },
+    { key: "quiz",    icon: "fa-file-circle-check",    label: "Bài kiểm tra" },
     { key: "report",  icon: "fa-chart-line",           label: "Báo cáo",    soon: true }
   ];
 
@@ -380,6 +380,11 @@
     if (key === "notice") {
       if (typeof window.tcOpenNotices === "function") { window.tcOpenNotices(); return; }
       window.location.href = toUrl("index.html?view=notice");
+      return;
+    }
+    if (key === "quiz") {
+      if (typeof window.tcOpenQuizzes === "function") { window.tcOpenQuizzes(); return; }
+      window.location.href = toUrl("index.html?view=quiz");
       return;
     }
     if (typeof window.onTeacherNav === "function") {
