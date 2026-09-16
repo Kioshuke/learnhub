@@ -1016,10 +1016,9 @@ if (localStorage.getItem("darkMode") === "on") {
     document.body.classList.add("dark-mode");
 }
 
-// 2. LẤY TÊN FILE JSON TỪ URL (Ví dụ: thi.html?de=toan.json)
+// Mã bài kiểm tra từ URL — bắt buộc dạng t:<uuid> (đề 100% lưu trong database)
 const urlParams = new URLSearchParams(window.location.search);
-let JSON_FILE = urlParams.get('de') || "";
-if (JSON_FILE.startsWith("cauhoi/")) JSON_FILE = JSON_FILE.slice(7);
+const TEST_DE = (urlParams.get('de') || "").trim();
 
 let questionsData = [];
 window.totalMaxScore = 0; 
@@ -1034,12 +1033,9 @@ let examEndTime = null;       // Mốc thời gian khi nộp bài
 let isSubmitted = false;      // Tránh nộp bài 2 lần (vd: vừa hết giờ vừa bấm nộp)
 const DEFAULT_EXAM_TIME_LIMIT_MINUTES = 15;
 
-// ── ĐỀ TỪ DATABASE (GĐ1): de=t:<uuid> → đọc bản ghi trong test_sets ──
-// Riêng bài này KHÔNG fetch file cứng; lấy qua RPC get_test_content rồi
+// ── ĐỀ ĐỌC 100% TỪ DATABASE: de=t:<uuid> → lấy bản ghi test_sets qua RPC get_test_content,
 // áp dụng trực tiếp các cột: score (điểm tối đa), shuffle_q (trộn câu hỏi),
-// shuffle_a (trộn đáp án), minutes (thời gian).
-const IS_DB_TEST = JSON_FILE.startsWith("t:");
-// Cấu hình đề (file .json mặc định: thang 10 + trộn cả câu lẫn đáp án như cũ)
+// shuffle_a (trộn đáp án), minutes (thời gian). Không còn đọc file JSON tĩnh.
 let examConfig = { maxScore: 10, shuffleQ: true, shuffleA: true };
 
 function getExamTimeLimitSeconds(data) {
@@ -1066,31 +1062,26 @@ function shuffle(array) {
 // 4. Hàm tải câu hỏi linh hoạt
 async function loadQuestions() {
     try {
-        const timestamp = new Date().getTime();
-        
-        // ── NHÁNH DB: de=t:<uuid> → đọc trực tiếp từ bảng test_sets ──
-        let data;
-        if (IS_DB_TEST) {
-            const supabase = await import('../supabase-config.js').then(m => m.supabase);
-            const { data: rpcData, error } = await supabase.rpc('get_test_content', { p_de: JSON_FILE });
-            if (error) throw error;
-            if (!rpcData || rpcData.ok !== true || !Array.isArray(rpcData.content)) {
-                throw new Error((rpcData && rpcData.error === 'not_found')
-                    ? 'Không tìm thấy bài kiểm tra trong database'
-                    : 'Không tải được bài kiểm tra từ database');
-            }
-            data = rpcData.content;
-
-            // Đọc cấu hình từ các CỘT trong test_sets
-            const rawScore = Number(rpcData.score);
-            examConfig.maxScore = (!isNaN(rawScore) && rawScore > 0) ? rawScore : 10;
-            examConfig.shuffleQ = !(rpcData.shuffle_q === false || rpcData.shuffle_q === 0);
-            examConfig.shuffleA = !(rpcData.shuffle_a === false || rpcData.shuffle_a === 0);
-            const rawMinutes = Number(rpcData.minutes);
-            examTimeLimitSeconds = (!isNaN(rawMinutes) && rawMinutes > 0) ? Math.round(rawMinutes * 60) : 0;
-        } else {
-            throw new Error('Đề không đọc từ database. Vui lòng mở từ Phòng Học.');
+        if (!/^t:[0-9a-f-]{8,}$/i.test(TEST_DE)) {
+            throw new Error('Mã bài kiểm tra không hợp lệ. Vui lòng mở từ Phòng Học.');
         }
+        const supabase = await import('../supabase-config.js').then(m => m.supabase);
+        const { data: rpcData, error } = await supabase.rpc('get_test_content', { p_de: TEST_DE });
+        if (error) throw error;
+        if (!rpcData || rpcData.ok !== true || !Array.isArray(rpcData.content)) {
+            throw new Error((rpcData && rpcData.error === 'not_found')
+                ? 'Không tìm thấy bài kiểm tra trong database'
+                : 'Không tải được bài kiểm tra từ database');
+        }
+        const data = rpcData.content;
+
+        // Đọc cấu hình từ các CỘT trong test_sets
+        const rawScore = Number(rpcData.score);
+        examConfig.maxScore = (!isNaN(rawScore) && rawScore > 0) ? rawScore : 10;
+        examConfig.shuffleQ = !(rpcData.shuffle_q === false || rpcData.shuffle_q === 0);
+        examConfig.shuffleA = !(rpcData.shuffle_a === false || rpcData.shuffle_a === 0);
+        const rawMinutes = Number(rpcData.minutes);
+        examTimeLimitSeconds = (!isNaN(rawMinutes) && rawMinutes > 0) ? Math.round(rawMinutes * 60) : 0;
         
         totalQuestions = 0; 
 
@@ -1136,7 +1127,7 @@ async function loadQuestions() {
                 level: "error",
                 code: e.name === 'AbortError' ? 'TIMEOUT' : 'LOAD_TEST_FAIL',
                 message: msg,
-                detail: { file: JSON_FILE, db: IS_DB_TEST }
+                detail: { de: TEST_DE }
             });
         }
         document.getElementById('quiz-container').innerHTML = `

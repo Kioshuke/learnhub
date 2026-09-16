@@ -423,50 +423,20 @@ function unlockPageScroll() {
   document.documentElement.style.overflow = '';
 }
 
-function stripJsonExt(name) {
-  return String(name || "").replace(/\.json$/i, "");
-}
-
-function getQuizDeFromUrl(url) {
-  var m = String(url || "").match(/[?&]de=([^&]+)/);
-  return m ? stripJsonExt(decodeURIComponent(m[1])) : "";
-}
-
 function openQuizByDe(de) {
   var target = String(de || "").trim();
   if (!target) return false;
-  target = stripJsonExt(target);
-  var subjects = window.PHONGHOC_SUBJECTS || [];
-  var foundCard = null;
-  var foundSubject = null;
-  subjects.forEach(function (s) {
-    (s.cards || []).forEach(function (c) {
-      if (!c.action || !c.action.url) return;
-      var cardDe = getQuizDeFromUrl(c.action.url);
-      if (!cardDe || cardDe !== target) return;
-      if (!foundCard) { foundCard = c; foundSubject = s; }
-    });
-  });
-  if (!foundCard || !foundSubject) {
-    var dbHit = (window.__testCardMap || {})[target];
-    if (dbHit && dbHit.subjectId) {
-      if (dbHit.done === false) {
-        if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
-        if (typeof alert === "function") alert("Bài kiểm tra này chưa hoàn thành — chưa thể làm bài.");
-        return true;
-      }
-      if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
-      var quizEl = document.getElementById("quiz");
-      if (quizEl) quizEl.innerHTML = "";
-      loadQuiz({ closest: function () { return null; } }, dbHit.url);
-      return true;
-    }
-    return false;
+  var dbHit = (window.__testCardMap || {})[target];
+  if (!dbHit || !dbHit.subjectId) return false;
+  if (dbHit.done === false) {
+    if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
+    if (typeof alert === "function") alert("Bài kiểm tra này chưa hoàn thành — chưa thể làm bài.");
+    return true;
   }
-  if (typeof switchSubject === "function") switchSubject(foundSubject.id);
+  if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
   var quizEl = document.getElementById("quiz");
   if (quizEl) quizEl.innerHTML = "";
-  loadQuiz({ closest: function () { return null; } }, foundCard.action.url);
+  loadQuiz({ closest: function () { return null; } }, dbHit.url);
   return true;
 }
 
@@ -595,7 +565,6 @@ function renderCard(c) {
   var statusCls = c.status === "pending" ? "pending" : "done";
 
   var btn;
-  var copyLink = "";
   if (c.disabled) {
     btn = '<a class="btn disabled" href="#">Sắp ra mắt</a>';
   } else if (c.action && c.action.type === "video") {
@@ -604,18 +573,9 @@ function renderCard(c) {
   } else if (c.action && c.action.url) {
     btn = '<a class="btn" href="#" onclick="loadQuiz(this,\'' + escJs(c.action.url) +
       '\'); return false;">' + escHtml(c.btnLabel || "Làm bài") + '</a>';
-    var cardDe = getQuizDeFromUrl(c.action.url);
-    if (cardDe) {
-      copyLink = location.origin + "/?open=phong-hoc&de=" + cardDe;
-    }
   } else {
     btn = '<a class="btn disabled" href="#">Sắp ra mắt</a>';
   }
-
-  var copyBtn = copyLink
-    ? '<a class="btn-copy-icon" href="#" title="Copy link bài test" onclick="copyQuizLink(this,\'' + escJs(copyLink) +
-      '\'); return false;"><i class="fas fa-link"></i></a>'
-    : "";
 
   return (
     '<div class="card">' +
@@ -627,7 +587,7 @@ function renderCard(c) {
           '<span class="status ' + statusCls + '"></span>' +
         '</div>' +
         '<p class="card-desc">' + escHtml(c.description) + '</p>' +
-        '<div class="btn-row">' + btn + copyBtn + '</div>' +
+        '<div class="btn-row">' + btn + '</div>' +
       '</div>' +
     '</div>'
   );

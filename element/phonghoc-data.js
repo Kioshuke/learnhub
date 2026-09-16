@@ -1,7 +1,8 @@
 /* ============================================================
    DỮ LIỆU PHÒNG HỌC  (element/phong-hoc.html)
    ------------------------------------------------------------
-   ⭐ Muốn THÊM BÀI TEST  → copy 1 object "MẪU FILE TEST" trong cards[]
+   ⭐ Bài TEST giờ đọc 100% từ database (bảng test_sets), card tự đổ qua
+      list_published_test_sets — KHÔNG khai báo card test ở đây nữa.
    ⭐ Muốn THÊM KHÓA VIDEO → copy 1 object "MẪU VIDEO" trong cards[],
                             rồi thêm nội dung mục lục vào VIDEO_COURSES
    Không cần sửa gì trong phong-hoc.html — trang tự render từ file này.
