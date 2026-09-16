@@ -77,13 +77,13 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
 
     <div class="split">
       <div class="col">
-        <div class="col-hd"><span class="col-hd-ic">🧾</span> JSON <span class="col-sub">sửa tay → bên phải tự render</span></div>
+        <div class="col-hd"><span class="col-hd-ic">🧾</span> Cửa sổ dữ liệu JSON <span class="col-sub">sửa tay → bên phải tự render</span></div>
         <textarea id="jsonArea" rows="14" spellcheck="false" placeholder='Dán JSON ở đây (array các section) — xem docs/FORMAT-DE-THI.md'></textarea>
         <div class="note" id="outNote"></div>
       </div>
 
       <div class="col">
-        <div class="col-hd"><span class="col-hd-ic">👁️</span> Xem trước <span class="col-sub" id="renderCount"></span></div>
+        <div class="col-hd"><span class="col-hd-ic">👁️</span> Cửa sổ xem trước <span class="col-sub" id="renderCount"></span></div>
         <div id="renderArea" class="render-area">
           <div class="placeholder">Chưa có đề. Ở bước 1 bấm "Đọc text → JSON" hoặc tạo JSON mẫu.</div>
         </div>
@@ -96,40 +96,66 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
   <section class="panel" id="p3" hidden>
     <div class="panel-head">
       <h2>3. Rà soát &amp; Xuất bản</h2>
-      <span class="muted">Tổng hợp toàn bộ thông tin đề đã up + thiết lập. Bấm <b>🚀 Xuất bản đề</b> để mô phỏng đưa lên Phòng Học (demo — chưa ghi database thật).</span>
+      <span class="muted">Xem lại số câu hỏi, tóm tắt chỉnh sửa/thiết lập đề. Bấm <b>🚀 Xuất bản đề</b> để cập nhật/đăng tải đề.</span>
     </div>
     <div id="revArea" class="rev-area"></div>
   </section>
 </main>
 
 <div class="modal-overlay" id="setupModal" hidden>
-  <div class="modal">
+  <div class="modal" style="max-width:680px">
     <div class="modal-hd">
       <h3>⚙️ Thiết lập đề</h3>
       <div class="sub">Điền thông tin chung trước khi xuất bản</div>
     </div>
-    <div class="modal-body">
-    <label>📚 Môn học <span class="req">*</span>
-      <select id="setSubject" required></select>
-    </label>
-    <label>📝 Tên đề <span class="req">*</span>
-      <input type="text" id="setName" placeholder="VD: Kiểm tra giữa kỳ 1 – Hóa học" required>
-    </label>
-    <label>📄 Mô tả
-      <textarea id="setDesc" rows="2" placeholder="Mô tả ngắn về đề thi..."></textarea>
-    </label>
-    <label>⏱ Thời gian làm bài (phút) — 0 = không giới hạn <span class="req">*</span>
-      <input type="number" id="setMinutes" min="0" value="0" required>
-    </label>
-    <label>🎯 Điểm tối đa <span class="req">*</span>
-      <input type="number" id="setScore" min="1" value="10" required>
-    </label>
-    <div class="chk-row">
-      <label><input type="checkbox" id="setShuffleQ" checked><span>Xáo trộn thứ tự câu</span></label>
-      <label><input type="checkbox" id="setShuffleA" checked><span>Xáo trộn thứ tự đáp án trong câu</span></label>
+    <div class="modal-body" style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px">
+    <div>
+      <label>📚 Môn học <span class="req">*</span>
+        <select id="setSubject" required></select>
+      </label>
+      <label>📝 Tên đề <span class="req">*</span>
+        <input type="text" id="setName" placeholder="VD: Kiểm tra giữa kỳ 1 – Hóa học" required>
+      </label>
+      <label>📄 Mô tả
+        <textarea id="setDesc" rows="2" placeholder="Mô tả ngắn về đề thi..."></textarea>
+      </label>
+      <label>⏱ Thời gian (phút) — 0 = vô hạn <span class="req">*</span>
+        <input type="number" id="setMinutes" min="0" value="0" required>
+      </label>
+      <label>🎯 Điểm tối đa <span class="req">*</span>
+        <input type="number" id="setScore" min="1" value="10" required>
+      </label>
     </div>
-    <div class="note error" id="setupError" hidden></div>
-    <div class="modal-actions">
+    <div>
+      <div style="font-weight:700;font-size:13px;color:var(--sec-text);margin-bottom:10px">⚙️Cài đặt khác</div>
+      <div style="display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px">Xáo trộn câu hỏi
+          <input type="radio" name="setShuffleQ" value="1" checked><span style="font-size:12px">Bật</span>
+          <input type="radio" name="setShuffleQ" value="0"><span style="font-size:12px">Tắt</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px">Xáo trộn đáp án
+          <input type="radio" name="setShuffleA" value="1" checked><span style="font-size:12px">Bật</span>
+          <input type="radio" name="setShuffleA" value="0"><span style="font-size:12px">Tắt</span>
+        </label>
+      </div>
+      <div style="border-top:1px solid var(--sec-border);padding-top:10px;margin-bottom:10px">
+        <div style="font-size:13px;margin-bottom:6px">📊 Xem điểm sau khi nộp</div>
+        <div style="display:flex;gap:14px;font-size:13px">
+          <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="setShowScore" value="always" checked> Hiện</label>
+          <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="setShowScore" value="none"> Ẩn</label>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--sec-border);padding-top:10px">
+        <div style="font-size:13px;margin-bottom:6px">👁️ Xem đáp án chi tiết</div>
+        <div style="display:flex;flex-direction:column;gap:4px;font-size:13px">
+          <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="setShowAnswers" value="always" checked> Luôn cho phép</label>
+          <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="setShowAnswers" value="perfect"> Chỉ khi đạt tối đa</label>
+          <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="setShowAnswers" value="none"> Không cho xem</label>
+        </div>
+      </div>
+    </div>
+    <div class="note error" id="setupError" hidden style="grid-column:1/-1"></div>
+    <div class="modal-actions" style="grid-column:1/-1">
       <button type="button" class="btn btn-ghost" id="btnSetupClose">Đóng</button>
       <button type="button" class="btn btn-primary" id="btnSetupApply">✔ Áp dụng</button>
     </div>

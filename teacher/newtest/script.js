@@ -33,7 +33,9 @@ var testMeta = {
   minutes: 0,          // thời gian làm bài (0 = không giới hạn)
   score: 10,           // điểm tối đa (chia đều cho từng câu khi chấm)
   shuffleQ: true,      // xáo trộn thứ tự câu
-  shuffleA: true       // xáo trộn thứ tự đáp án trong câu (mặc định bật)
+  shuffleA: true,      // xáo trộn thứ tự đáp án trong câu (mặc định bật)
+  showScore: "always", // 'always' hiện điểm bình thường | 'none' ẩn điểm, hiện "Đã nộp bài"
+  showAnswers: "always" // 'always' luôn cho xem đáp án | 'perfect' chỉ khi đạt tối đa | 'none' không cho xem
 };
 
 var LETTERS = "ABCDEFGH";
@@ -1116,6 +1118,12 @@ function renderReview() {
       '<div class="rev-meta-row"><span class="rev-k">🔀 Xáo trộn</span><span class="rev-v">Câu: <b>' +
         (testMeta.shuffleQ ? "Bật" : "Tắt") + "</b> · Đáp án: <b>" + (testMeta.shuffleA ? "Bật" : "Tắt") +
       "</b></span></div>" +
+      '<div class="rev-meta-row"><span class="rev-k">📊 Xem điểm</span><span class="rev-v"><b>' +
+        (testMeta.showScore === "none" ? "Bị Ẩn" : "Có") +
+      "</b></span></div>" +
+      '<div class="rev-meta-row"><span class="rev-k">👁️ Xem đáp án</span><span class="rev-v"><b>' +
+        (testMeta.showAnswers === "none" ? "Không cho phép" : testMeta.showAnswers === "perfect" ? "Chỉ khi tối đa" : "Luôn hiện") +
+      "</b></span></div>" +
       '<div class="rev-meta-row"><span class="rev-k">🗂 Thống kê</span><span class="rev-v">' + qn + " câu · " + nSec + " phần</span></div>" +
     "</div>" +
     '<div class="note" id="revNote" hidden></div>' +
@@ -1160,7 +1168,9 @@ async function publishTest() {
     p_score: Math.max(1, parseInt(testMeta.score, 10) || 10),
     p_shuffle_q: !!testMeta.shuffleQ,
     p_shuffle_a: !!testMeta.shuffleA,
-    p_is_complete: currentEditId ? currentEditComplete : true
+    p_is_complete: currentEditId ? currentEditComplete : true,
+    p_show_score: testMeta.showScore || "always",
+    p_show_answers: testMeta.showAnswers || "always"
   };
   var left = $("revLeft");
   var rn = $("revNote");
@@ -1190,7 +1200,9 @@ async function publishTest() {
           '<p class="pub-id">' + realId + "</p>" +
           '<p class="muted">Điểm tối đa <b>' + payload.p_score + "</b> · trộn câu: <b>" +
             (payload.p_shuffle_q ? "Bật" : "Tắt") + "</b> · trộn đáp án: <b>" +
-            (payload.p_shuffle_a ? "Bật" : "Tắt") + "</b>." +
+            (payload.p_shuffle_a ? "Bật" : "Tắt") + "</b>" +
+            " · điểm: <b>" + (payload.p_show_score === "none" ? "Ẩn" : "Hiện") + "</b>" +
+            " · đáp án: <b>" + (payload.p_show_answers === "none" ? "Không" : payload.p_show_answers === "perfect" ? "Khi tối đa" : "Luôn") + "</b>." +
           "</p>" +
           '<button type="button" class="btn btn-primary" id="btnPublishAgain">＋ Xuất bản đề mới</button>' +
         "</div>";
@@ -1247,8 +1259,14 @@ $("btnSetup").addEventListener("click", function () {
   $("setDesc").value = testMeta.desc;
   $("setMinutes").value = testMeta.minutes == null ? "" : String(testMeta.minutes);
   $("setScore").value = testMeta.score || 10;
-  $("setShuffleQ").checked = testMeta.shuffleQ;
-  $("setShuffleA").checked = testMeta.shuffleA;
+  var setRadio = function(name, val) {
+    var r = document.querySelector('input[name="' + name + '"][value="' + val + '"]');
+    if (r) r.checked = true;
+  };
+  setRadio("setShuffleQ", testMeta.shuffleQ ? "1" : "0");
+  setRadio("setShuffleA", testMeta.shuffleA ? "1" : "0");
+  setRadio("setShowScore", testMeta.showScore || "always");
+  setRadio("setShowAnswers", testMeta.showAnswers || "always");
   $("setupError").hidden = true;
   clearInvalidSetup();
   $("setupModal").hidden = false;
@@ -1294,8 +1312,10 @@ $("btnSetupApply").addEventListener("click", function () {
   testMeta.desc = $("setDesc").value.trim();
   testMeta.minutes = Math.max(0, parseInt(minEl.value, 10) || 0);
   testMeta.score = Math.max(1, parseInt(scoreEl.value, 10) || 10);
-  testMeta.shuffleQ = $("setShuffleQ").checked;
-  testMeta.shuffleA = $("setShuffleA").checked;
+  testMeta.shuffleQ = (document.querySelector('input[name="setShuffleQ"]:checked') || {}).value === "1";
+  testMeta.shuffleA = (document.querySelector('input[name="setShuffleA"]:checked') || {}).value === "1";
+  testMeta.showScore = (document.querySelector('input[name="setShowScore"]:checked') || {}).value || "always";
+  testMeta.showAnswers = (document.querySelector('input[name="setShowAnswers"]:checked') || {}).value || "always";
   $("setupModal").hidden = true;
   updateSetupBtn();
   applyMeta(true);
@@ -1554,6 +1574,8 @@ showStage(1);
         testMeta.score = Number(d.score) > 0 ? Number(d.score) : 10;
         testMeta.shuffleQ = d.shuffle_q !== false;
         testMeta.shuffleA = d.shuffle_a !== false;
+        testMeta.showScore = d.show_score || "always";
+        testMeta.showAnswers = d.show_answers || "always";
         graded = false;
         userAnswers = {};
         $("resultBox").hidden = true;

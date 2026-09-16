@@ -789,6 +789,13 @@
     .tc-quiz-table tbody tr:hover { background: #f8fafc; }
     .tc-quiz-table .tc-t { font-weight: 700; color: #111827; }
     .tc-quiz-table .tc-sub { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+    .tc-quiz-table .tc-qz-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .tc-quiz-table .tc-qz-badge {
+      font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+      color: #b45309; background: #fffbeb; border: 1px solid #fde68a; white-space: nowrap;
+    }
+    .tc-quiz-table .tc-qz-badge.danger { color: #b91c1c; background: #fef2f2; border-color: #fecaca; }
+    .tc-quiz-table .tc-qz-badge.info { color: #1d4ed8; background: #eff6ff; border-color: #bfdbfe; }
     .tc-quiz-table .tc-qz-created { font-size: 12px; color: #64748b; white-space: nowrap; }
     .tc-quiz-table .tc-qz-nowrap { white-space: nowrap; }
     .tc-qz-menu-wrap { position: relative; display: inline-block; }
@@ -1884,9 +1891,13 @@ const NOTICE_SUBJECTS = [
           '<th style="width:42%">Tên đề</th><th class="tc-qz-nowrap">Môn</th><th class="tc-qz-nowrap" style="width:58px">Số câu</th><th class="tc-qz-nowrap" style="width:112px">Thời gian</th><th class="tc-qz-nowrap" style="width:52px">Điểm</th><th style="width:96px">Trạng thái</th><th class="tc-qz-nowrap" style="width:116px">Tạo lúc</th><th style="width:42px"></th>' +
           '</tr></thead><tbody>' + rows.map(function (r) {
           const de = "t:" + r.set_id;
+          const badges =
+            (r.show_score === 'none' ? '<span class="tc-qz-badge danger">🔒 Ẩn điểm</span>' : '') +
+            (r.show_answers === 'none' ? '<span class="tc-qz-badge danger">👁️ Chặn xem đáp án</span>' : (r.show_answers === 'perfect' ? '<span class="tc-qz-badge info">👁️ Xem đáp án khi điểm tối đa</span>' : ''));
           return '<tr>' +
             '<td><div class="tc-t">' + escapeHtml(r.name) + '</div>' +
-              (r.description ? '<div class="tc-sub">' + escapeHtml(r.description) + '</div>' : '') + '</td>' +
+              (r.description ? '<div class="tc-sub">' + escapeHtml(r.description) + '</div>' : '') +
+              (badges ? '<div class="tc-qz-badges">' + badges + '</div>' : '') + '</td>' +
             '<td class="tc-qz-nowrap">' + escapeHtml(r.subject) + '</td>' +
             '<td class="tc-qz-nowrap">' + (r.question_count || 0) + '</td>' +
             '<td class="tc-qz-nowrap">' + (r.minutes > 0 ? '⏱ ' + r.minutes + ' phút' : "Không giới hạn") + '</td>' +

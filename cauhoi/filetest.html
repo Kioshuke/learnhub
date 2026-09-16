@@ -888,7 +888,7 @@ if (window !== window.parent) {
             <p id="saveStatsStatus" style="display:none; font-size:0.85rem; font-weight:600; margin-top:4px;"></p>
             <p>Để xem chi tiết vui lòng bấm vào mục lục nhé!</p>
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 25px;">
-                <button class="btn btn-primary" style="justify-content: center;" onclick="reviewMode()">👁️ Xem bài làm</button>
+                <button class="btn btn-primary" id="reviewBtn" style="justify-content: center;" onclick="reviewMode()">👁️ Xem bài làm</button>
                 <button class="btn lb-mobile-only" style="justify-content: center; background: #7c3aed;" onclick="openLeaderboard()">🏆 Bảng xếp hạng</button>
                 <button class="btn" style="justify-content: center; background: #c81515" onclick="openModal('restartModal')">🔄 Làm lại</button>
             </div>
@@ -1036,7 +1036,7 @@ const DEFAULT_EXAM_TIME_LIMIT_MINUTES = 15;
 // ── ĐỀ ĐỌC 100% TỪ DATABASE: de=t:<uuid> → lấy bản ghi test_sets qua RPC get_test_content,
 // áp dụng trực tiếp các cột: score (điểm tối đa), shuffle_q (trộn câu hỏi),
 // shuffle_a (trộn đáp án), minutes (thời gian). Không còn đọc file JSON tĩnh.
-let examConfig = { maxScore: 10, shuffleQ: true, shuffleA: true };
+let examConfig = { maxScore: 10, shuffleQ: true, shuffleA: true, showScore: 'always', showAnswers: 'always', reviewLocked: true, scoreLocked: false };
 
 function getExamTimeLimitSeconds(data) {
     const sections = Array.isArray(data) ? data : (Array.isArray(data.sections) ? data.sections : []);
@@ -1080,6 +1080,9 @@ async function loadQuestions() {
         examConfig.maxScore = (!isNaN(rawScore) && rawScore > 0) ? rawScore : 10;
         examConfig.shuffleQ = !(rpcData.shuffle_q === false || rpcData.shuffle_q === 0);
         examConfig.shuffleA = !(rpcData.shuffle_a === false || rpcData.shuffle_a === 0);
+        examConfig.showScore = (rpcData.show_score === 'none') ? 'none' : 'always';
+        examConfig.showAnswers = (rpcData.show_answers === 'none' || rpcData.show_answers === 'perfect')
+            ? rpcData.show_answers : 'always';
         const rawMinutes = Number(rpcData.minutes);
         examTimeLimitSeconds = (!isNaN(rawMinutes) && rawMinutes > 0) ? Math.round(rawMinutes * 60) : 0;
         
@@ -1335,12 +1338,17 @@ function renderQuiz() {
         updateProgress();
     }
 
-    function updateProgress(isFinished, score = 0) {
+function updateProgress(isFinished, score = 0) {
         const textEl = document.getElementById('progressText');
         const totalQs = document.querySelectorAll('.nav-item').length;
         if (isFinished) {
-            textEl.innerText = `${score.toFixed(2)} / 10`;
-            textEl.style.color = "var(--success)";
+            if (examConfig.showScore === 'none') {
+                textEl.innerText = 'Đã nộp bài';
+                textEl.style.color = "";
+            } else {
+                textEl.innerText = `${score.toFixed(2)} / 10`;
+                textEl.style.color = "var(--success)";
+            }
         } else {
             const doneCount = document.querySelectorAll('.nav-item.done').length;
             textEl.innerText = `${doneCount}/${totalQs} câu`;
@@ -1439,18 +1447,18 @@ function handleFinalSubmit(autoSubmitted = false) {
     isSubmitted = true;
     stopExamTimer();
     examEndTime = Date.now();
-    let correctCount = 0;
+let correctCount = 0;
     let globalIdx = 0;
     let userScore = 0;
+    const resultFlags = [];
     
 // Tính điểm cơ bản dựa trên tổng số câu thực tế (totalQuestions)
     // theo ĐIỂM TỐI ĐA đã cấu hình (mặc định 10; đề từ DB đọc từ cột test_sets.score)
     const maxScore = (examConfig && examConfig.maxScore > 0) ? examConfig.maxScore : 10;
     const basePerQuestion = totalQuestions > 0 ? (maxScore / totalQuestions) : 0;
 
-    questionsData.forEach((section) => {
+questionsData.forEach((section) => {
         section.questions.forEach((item) => {
-            const navItem = document.getElementById(`nav-${globalIdx}`);
             let isPerfect = true;
 
             if (item.type === 'multiple') {
@@ -1485,19 +1493,96 @@ function handleFinalSubmit(autoSubmitted = false) {
                 } else isPerfect = false;
             }
 
-            // Cập nhật màu mục lục
-            if (navItem) {
-                navItem.classList.remove('done');
-                navItem.style.background = isPerfect ? "var(--success)" : "var(--danger)";
-                navItem.style.color = "white";
-            }
+resultFlags.push(isPerfect);
             globalIdx++;
         });
     });
 
-// Hiển thị lên Popup (điểm theo đúng thang tối đa đã cấu hình)
-    document.getElementById('scoreValue').innerText = userScore.toFixed(1);
-    document.getElementById('statsText').innerText = `🎯Đúng ${correctCount}/${totalQuestions} câu · Thang ${maxScore} điểm`;
+// Hiển thị lên Popup (điểm theo đúng thang tối đa đã cấu hình).
+    // Mặc định mở khoá ôn tập ("Xem bài làm") mới cho phép:
+    //  - show_answers='always'  → luôn cho phép
+    //  - show_answers='perfect' → chỉ khi đạt ĐIỂM TỐI ĐA (full mark, chuẩn hoá 10/10)
+    //  - show_answers='none'    → không cho phép
+    const score = Number(((userScore / maxScore) * 10).toFixed(1));
+    const fullMark = score >= 10;
+    const canReview = examConfig.showAnswers === 'always' ||
+        (examConfig.showAnswers === 'perfect' && fullMark) ||
+        examConfig.showAnswers !== 'none';
+    examConfig.reviewLocked = !canReview;
+    examConfig.scoreLocked = (examConfig.showScore === 'none');
+
+    const scoreCircle = document.getElementById('scoreValue');
+    const feedbackEl = document.getElementById("feedbackText");
+    const statsEl = document.getElementById('statsText');
+    // Ẩn điểm thật hoàn toàn: không ghi số vào DOM → devtool/console không tìm thấy điểm
+    if (examConfig.showScore === 'none') {
+        scoreCircle.innerText = '--';
+        scoreCircle.style.color = "var(--sec-text)";
+        scoreCircle.style.borderColor = "var(--sec-border)";
+        scoreCircle.style.background = "transparent";
+        statsEl.innerText = 'Điểm bài kiểm tra đã được ẩn';
+        feedbackEl.innerText = '';
+        feedbackEl.style.color = "var(--sec-text)";
+        feedbackEl.classList.remove("feedback-show");
+    } else {
+        scoreCircle.innerText = userScore.toFixed(1);
+        statsEl.innerText = `🎯Đúng ${correctCount}/${totalQuestions} câu · Thang ${maxScore} điểm`;
+
+        const feedback = getFeedback(score);
+        if (score >= 10) {
+            setTimeout(() => launchConfetti(), 300);
+        }
+        feedbackEl.innerText = "💬 " + feedback.text;
+        feedbackEl.style.color = feedback.color;
+
+        // animation text
+        feedbackEl.classList.remove("feedback-show");
+        void feedbackEl.offsetWidth;
+        feedbackEl.classList.add("feedback-show");
+
+        // set màu + animation vòng điểm
+        scoreCircle.style.color = feedback.color;
+        scoreCircle.style.borderColor = feedback.color;
+        scoreCircle.style.background = feedback.bg;
+
+        // reset animation
+        scoreCircle.style.animation = "none";
+        void scoreCircle.offsetWidth;
+        scoreCircle.style.animation = feedback.animation + " 0.6s ease";
+    }
+
+    // Tô màu mục lục (đỏ/xanh) CHỈ khi được phép xem đáp án, tránh lộ kết quả gián tiếp
+    const navItemsRef = document.querySelectorAll('.nav-item');
+    if (canReview) {
+        resultFlags.forEach((ok, i) => {
+            const flagEl = document.getElementById(`nav-${i}`);
+            if (!flagEl) return;
+            flagEl.classList.remove('done');
+            flagEl.style.background = ok ? "var(--success)" : "var(--danger)";
+            flagEl.style.color = "white";
+        });
+    }
+    navItemsRef.forEach((el) => el.classList.remove('done'));
+
+    // Ẩn panel leaderboard + nút xem bảng xếp hạng khi điểm bị ẩn (chống lộ qua xếp hạng)
+    const resultRightEl = document.querySelector('.result-right');
+    if (examConfig.scoreLocked) {
+        if (resultRightEl) resultRightEl.style.display = 'none';
+        const lbBtn = document.querySelector('[onclick*="openLeaderboard"]');
+        if (lbBtn) lbBtn.style.display = 'none';
+        // vô hiệu hoá triệt để iframe leaderboard (kể cả khi mở popup bằng console)
+        document.querySelectorAll('.leaderboard-embed iframe, #leaderboardPopup iframe').forEach((f) => {
+            f.src = 'about:blank';
+        });
+    } else {
+        if (resultRightEl) resultRightEl.style.display = '';
+    }
+
+    // Ẩn/hiện nút "Xem bài làm" theo quyền review
+    const reviewBtnEl = document.getElementById('reviewBtn');
+    if (reviewBtnEl) reviewBtnEl.style.display = canReview ? '' : 'none';
+
+    closeModal('confirmModal');
 
     // Hiển thị thời gian đã làm bài (và lý do nộp nếu tự động nộp do hết giờ)
     const elapsedSeconds = examStartTime ? Math.round((examEndTime - examStartTime) / 1000) : 0;
@@ -1510,37 +1595,8 @@ function handleFinalSubmit(autoSubmitted = false) {
     } else {
         timeSpentBox.classList.remove('time-danger');
     }
-    timeSpentEl.innerText = timeSpentMsg;
+timeSpentEl.innerText = timeSpentMsg;
 
-// Điểm ra ngoài luôn chuẩn hoá về THANG 10 (không phá test_stats/leaderboard),
-// riêng phần chia điểm từng câu dùng thang tối đa đã cấu hình ở trên.
-    const score = Number(((userScore / maxScore) * 10).toFixed(1));
-const feedback = getFeedback(score);
-if (score >= 10) {
-    setTimeout(() => launchConfetti(), 300);
-}
-
-// set text
-const feedbackEl = document.getElementById("feedbackText");
-feedbackEl.innerText = "💬 " + feedback.text;
-feedbackEl.style.color = feedback.color;
-
-// animation text
-feedbackEl.classList.remove("feedback-show");
-void feedbackEl.offsetWidth;
-feedbackEl.classList.add("feedback-show");
-
-// set màu + animation vòng điểm
-const scoreCircle = document.getElementById("scoreValue");
-scoreCircle.style.color = feedback.color;
-scoreCircle.style.borderColor = feedback.color;
-scoreCircle.style.background = feedback.bg;
-
-// reset animation
-scoreCircle.style.animation = "none";
-void scoreCircle.offsetWidth;
-scoreCircle.style.animation = feedback.animation + " 0.6s ease";
-    
     closeModal('confirmModal');
     openModal('resultModal');
     updateProgress(true, score);
@@ -1554,7 +1610,8 @@ scoreCircle.style.animation = feedback.animation + " 0.6s ease";
         window.saveTestResult(score);
     }
 }
-    function reviewMode() {
+function reviewMode() {
+        if (examConfig.reviewLocked) return; // khoá xem đáp án khi config không cho phép (cả khi gọi qua console/devtool)
 
         closeModal('resultModal');
 
@@ -1650,7 +1707,10 @@ scoreCircle.style.animation = feedback.animation + " 0.6s ease";
     }
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function openLeaderboard() { document.getElementById('leaderboardPopup').style.display = 'flex'; }
+    function openLeaderboard() {
+        if (examConfig.scoreLocked) return; // điểm ẩn → không mở bảng xếp hạng (kể cả qua console)
+        document.getElementById('leaderboardPopup').style.display = 'flex';
+    }
     function closeLeaderboard(e) { if(!e || e.target === document.getElementById('leaderboardPopup')) document.getElementById('leaderboardPopup').style.display = 'none'; }
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebarNav');
