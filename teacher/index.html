@@ -772,6 +772,40 @@
       margin: 0;
     }
     .tc-quiz-head .muted { margin-left: auto; }
+    .tc-quiz-stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: stretch;
+    }
+    .tc-quiz-stat {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      min-width: 96px;
+      padding: 10px 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, .05);
+    }
+    .tc-quiz-stat-num {
+      font-size: 21px;
+      font-weight: 800;
+      line-height: 1;
+      color: #1a73e8;
+    }
+    .tc-quiz-stat.ok .tc-quiz-stat-num { color: #16a34a; }
+    .tc-quiz-stat.warn .tc-quiz-stat-num { color: #d97706; }
+    .tc-quiz-stat-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
     .tc-quiz-list {
       border: 1px solid #e5e7eb;
       border-radius: 14px;
@@ -1196,7 +1230,20 @@
           </div>
 
           <div class="tc-quiz-head">
-            <span class="muted" id="tcQuizCount" style="margin-left:0"></span>
+            <div class="tc-quiz-stats" id="tcQuizCount">
+              <div class="tc-quiz-stat">
+                <span class="tc-quiz-stat-num" id="tcStatTotal">0</span>
+                <span class="tc-quiz-stat-label">Tổng đề</span>
+              </div>
+              <div class="tc-quiz-stat ok">
+                <span class="tc-quiz-stat-num" id="tcStatDone">0</span>
+                <span class="tc-quiz-stat-label">Hoàn thành</span>
+              </div>
+              <div class="tc-quiz-stat warn">
+                <span class="tc-quiz-stat-num" id="tcStatPending">0</span>
+                <span class="tc-quiz-stat-label">Chưa hoàn thành</span>
+              </div>
+            </div>
             <a class="btn btn-primary" style="margin-left:auto" href="./newtest/index.html"><i class="fa-solid fa-plus"></i> Tạo đề mới</a>
           </div>
 
@@ -1870,7 +1917,6 @@ const NOTICE_SUBJECTS = [
     /* Liệt kê các đề lưu trong DB (teacher_list_test_sets) — thay nguồn mẫu tĩnh */
     async function tcLoadQuizzes() {
       const listEl = document.getElementById("tcQuizList");
-      const countEl = document.getElementById("tcQuizCount");
       if (!listEl) return;
       try {
         const { data, error } = await supabase.rpc("teacher_list_test_sets");
@@ -1878,9 +1924,7 @@ const NOTICE_SUBJECTS = [
         const rows = Array.isArray(data) ? data : [];
         const done = rows.filter(r => r.is_complete).length;
         const pending = rows.length - done;
-        if (countEl) countEl.textContent = rows.length
-          ? `Đang có ${rows.length} bài kiểm tra · ${done} hoàn thành · ${pending} chưa hoàn thành`
-          : "Chưa có bài kiểm tra nào";
+        tcRenderQuizStats(rows.length, done, pending);
         if (!rows.length) {
           listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-file-circle-check"></i></div>' +
             'Chưa có bài kiểm tra nào trong Phòng Học.<br>' +
@@ -1917,11 +1961,20 @@ const NOTICE_SUBJECTS = [
         }
       } catch (e) {
         console.error("tcLoadQuizzes lỗi:", e);
-        if (countEl) countEl.textContent = "";
+        tcRenderQuizStats(0, 0, 0);
         listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-triangle-exclamation"></i></div>' +
           'Không tải được danh sách bài kiểm tra.<br>' +
           '<span style="font-size:12.5px">' + escapeHtml(String((e && e.message) || e)) + '</span></div>';
       }
+    }
+
+    function tcRenderQuizStats(total, done, pending) {
+      const t = document.getElementById("tcStatTotal");
+      const d = document.getElementById("tcStatDone");
+      const p = document.getElementById("tcStatPending");
+      if (t) t.textContent = total;
+      if (d) d.textContent = done;
+      if (p) p.textContent = pending;
     }
 
     function tcQuizListClick(e) {
