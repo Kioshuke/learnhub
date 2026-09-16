@@ -1135,7 +1135,7 @@ const DEFAULT_EXAM_TIME_LIMIT_MINUTES = 15;
 // ── ĐỀ ĐỌC 100% TỪ DATABASE: de=t:<uuid> → lấy bản ghi test_sets qua RPC get_test_content,
 // áp dụng trực tiếp các cột: score (điểm tối đa), shuffle_q (trộn câu hỏi),
 // shuffle_a (trộn đáp án), minutes (thời gian). Không còn đọc file JSON tĩnh.
-let examConfig = { maxScore: 10, shuffleQ: true, shuffleA: true, showScore: 'always', showAnswers: 'always', reviewLocked: true, scoreLocked: false };
+let examConfig = { maxScore: 10, shuffleQ: true, shuffleA: true, showScore: 'always', showAnswers: 'always', reviewLocked: true };
 
 function getExamTimeLimitSeconds(data) {
     const sections = Array.isArray(data) ? data : (Array.isArray(data.sections) ? data.sections : []);
@@ -1778,7 +1778,6 @@ resultFlags.push(isPerfect);
         (examConfig.showAnswers === 'perfect' && fullMark) ||
         examConfig.showAnswers !== 'none';
     examConfig.reviewLocked = !canReview;
-    examConfig.scoreLocked = (examConfig.showScore === 'none');
 
     const scoreCircle = document.getElementById('scoreValue');
     const feedbackEl = document.getElementById("feedbackText");
@@ -1832,20 +1831,6 @@ resultFlags.push(isPerfect);
         });
     }
     navItemsRef.forEach((el) => el.classList.remove('done'));
-
-    // Ẩn panel leaderboard + nút xem bảng xếp hạng khi điểm bị ẩn (chống lộ qua xếp hạng)
-    const resultRightEl = document.querySelector('.result-right');
-    if (examConfig.scoreLocked) {
-        if (resultRightEl) resultRightEl.style.display = 'none';
-        const lbBtn = document.querySelector('[onclick*="openLeaderboard"]');
-        if (lbBtn) lbBtn.style.display = 'none';
-        // vô hiệu hoá triệt để iframe leaderboard (kể cả khi mở popup bằng console)
-        document.querySelectorAll('.leaderboard-embed iframe, #leaderboardPopup iframe').forEach((f) => {
-            f.src = 'about:blank';
-        });
-    } else {
-        if (resultRightEl) resultRightEl.style.display = '';
-    }
 
     // Ẩn/hiện nút "Xem bài làm" theo quyền review
     const reviewBtnEl = document.getElementById('reviewBtn');
@@ -2030,10 +2015,7 @@ function reviewMode() {
     }
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function openLeaderboard() {
-        if (examConfig.scoreLocked) return; // điểm ẩn → không mở bảng xếp hạng (kể cả qua console)
-        document.getElementById('leaderboardPopup').style.display = 'flex';
-    }
+    function openLeaderboard() { document.getElementById('leaderboardPopup').style.display = 'flex'; }
     function closeLeaderboard(e) { if(!e || e.target === document.getElementById('leaderboardPopup')) document.getElementById('leaderboardPopup').style.display = 'none'; }
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebarNav');
