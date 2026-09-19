@@ -1316,6 +1316,7 @@
   </div>
 
   <script src="shell.js"></script>
+  <script src="../element/subjects-data.js"></script>
   <script src="../element/phonghoc-data.js"></script>
   <script src="../toast.js"></script>
   <script type="module">
@@ -1740,16 +1741,8 @@
     };
 
     // ================= LỊCH HỌC & LỊCH THI (THỜI KHÓA BIỂU) =================
-    const SCHEDULE_SUBJECTS = [
-      { value: "ly", label: "Vật Lý" },
-      { value: "sinh", label: "Sinh Học" },
-      { value: "tin", label: "Tin Học" },
-      { value: "su", label: "Lịch Sử" },
-      { value: "hoa", label: "Hoá Học" },
-      { value: "anh", label: "Anh Văn" },
-      { value: "toan", label: "Toán Học" }
-    ];
-    const SCHEDULE_COLORS = { ly: ["Lý", "#2563eb"], sinh: ["Sinh", "#16a34a"], tin: ["Tin", "#7c3aed"], su: ["Sử", "#ea580c"], hoa: ["Hoá", "#dc2626"], anh: ["Anh", "#0891b2"], toan: ["Toán", "#4f46e5"] };
+    const SCHEDULE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({ value: s.id, label: s.name }));
+    const SCHEDULE_COLORS = (window.LH_SUBJECTS || []).reduce((m, s) => { m[s.id] = [s.short, s.color]; return m; }, {});
     let scheduleEvents = [];
     let scheduleWeekStart = getMonday(new Date());
     let scheduleEditingEventId = null;
@@ -1881,15 +1874,12 @@
     document.getElementById("refreshScheduleBtn").addEventListener("click", tcLoadSchedule);
 
     /* ===== THÔNG BÁO MÔN HỌC ===== */
-const NOTICE_SUBJECTS = [
-      { id: "ly",   name: "Vật Lý",  icon: "fa-atom",             color: "#2563eb" },
-      { id: "sinh", name: "Sinh Học",icon: "fa-leaf",             color: "#16a34a" },
-      { id: "tin",  name: "Tin Học", icon: "fa-laptop-code",      color: "#7c3aed" },
-      { id: "su",   name: "Lịch Sử", icon: "fa-landmark",         color: "#ea580c" },
-      { id: "hoa",  name: "Hoá Học", icon: "fa-flask",            color: "#dc2626" },
-      { id: "anh",  name: "Anh Văn", icon: "fa-language",         color: "#db2777" },
-      { id: "toan", name: "Toán Học",icon: "fa-square-root-variable", color: "#06b6d4" }
-    ];
+const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
+      id: s.id,
+      name: s.name,
+      icon: s.icon,
+      color: s.color
+    }));
     const NOTICE_ICON_CHOICES = [
       { v: "fa-bell", n: "Chuông" },
       { v: "fa-fire", n: "Lửa" },

@@ -77,6 +77,7 @@
     .vd-type-badge.hidden{display:none}
     .vd-type-youtube{background:#fee2e2;color:#dc2626}
     .vd-type-vimeo{background:#f5f3ff;color:#7c3aed}
+    .vd-type-tiktok{background:#e2e8f0;color:#0f172a}
     .vd-type-drive{background:#fffbeb;color:#b45309}
     .vd-type-other{background:#f1f5f9;color:#475569}
 
@@ -260,7 +261,7 @@
                 </div>
               </div>
               <div style="font-size:12px;color:var(--sub);line-height:1.6;margin-top:10px">
-                Hỗ trợ link: <b>YouTube</b> (youtube.com / youtu.be / ID 11 ký tự), <b>Vimeo</b> (player.vimeo.com / vimeo.com), <b>Google Drive</b> (drive.google.com — file video hoặc cả thư mục).
+                Hỗ trợ link: <b>YouTube</b> (youtube.com / youtu.be / ID 11 ký tự), <b>Vimeo</b> (player.vimeo.com / vimeo.com), <b>TikTok</b> (tiktok.com — link video có /video/&lt;id&gt;), <b>Google Drive</b> (drive.google.com — file video hoặc cả thư mục).
               </div>
               <div class="vd-save-row">
                 <button id="vdBtnSave" class="btn-green" type="button" onclick="vdSave()"><i class="fa-solid fa-floppy-disk"></i> Lưu card video</button>
@@ -303,6 +304,7 @@
 
   <script src="shell.js"></script>
   <script src="../toast.js"></script>
+  <script src="../element/subjects-data.js"></script>
 
   <script type="module">
     import { supabase, getUserRow, escapeHtml, logAppError } from "../supabase-config.js";
@@ -319,7 +321,7 @@
 
     if (window.TeacherShell && window.TeacherShell.setActive) TeacherShell.setActive("video");
 
-    const SUBJECTS = ["Toán Học", "Vật Lý", "Hoá Học", "Sinh Học", "Anh Văn", "Lịch Sử", "Tin Học"];
+    const SUBJECTS = (window.LH_SUBJECTS || []).map(s => s.name);
 
     const tcApp = document.getElementById("tcApp");
     const vdDenied = document.getElementById("vdDenied");
@@ -386,6 +388,7 @@
       if (!u) return null;
       if (/youtube\.com|youtu\.be|^[\w-]{11}$/.test(u)) return { key: "youtube", label: "YouTube" };
       if (/vimeo\.com/.test(u)) return { key: "vimeo", label: "Vimeo" };
+      if (/tiktok\.com/.test(u)) return { key: "tiktok", label: "TikTok" };
       if (/drive\.google\.com/.test(u)) return { key: "drive", label: "Drive" };
       return { key: "other", label: "Link" };
     }
@@ -393,13 +396,13 @@
     window.vdPreviewLink = function(url) {
       const el = document.getElementById("vdUrlType");
       const t = vdTypeOf(url);
-      el.classList.remove("hidden", "vd-type-youtube", "vd-type-vimeo", "vd-type-drive", "vd-type-other");
+      el.classList.remove("hidden", "vd-type-youtube", "vd-type-vimeo", "vd-type-tiktok", "vd-type-drive", "vd-type-other");
       if (!t) { el.classList.add("hidden"); return; }
       el.classList.add("vd-type-" + t.key);
       el.textContent = t.label;
       const kindEl = document.getElementById("vdKind");
       if (kindEl) {
-        if (t.key === "youtube" || t.key === "vimeo") kindEl.value = "video";
+        if (t.key === "youtube" || t.key === "vimeo" || t.key === "tiktok") kindEl.value = "video";
         else if (t.key === "drive" && /\/folders\//.test(String(url || ""))) kindEl.value = "document";
       }
     };
@@ -599,7 +602,7 @@
       if (!group) { toast("Vui lòng nhập tên chủ đề (trong card)", "error"); return; }
       if (!title) { toast("Vui lòng nhập tiêu đề video", "error"); return; }
       if (!url) { toast("Vui lòng dán link video", "error"); return; }
-      if (!vdTypeOf(url)) { toast("Link video không hợp lệ (chỉ nhận YouTube / Vimeo / Google Drive)", "error"); return; }
+      if (!vdTypeOf(url)) { toast("Link video không hợp lệ (chỉ nhận YouTube / Vimeo / TikTok / Google Drive)", "error"); return; }
 
       const btn = document.getElementById("vdBtnSave");
       btn.disabled = true;
@@ -673,7 +676,7 @@
 
     function vdTypeBadgeHtml(url) {
       const t = vdTypeOf(url) || { key: "other", label: "Link" };
-      return `<span class="vc-type" style="font-weight:800"><i class="fa-brands ${t.key === "youtube" ? "fa-youtube" : t.key === "vimeo" ? "fa-vimeo" : t.key === "drive" ? "fa-google-drive" : "fa-link"}" style="color:#94a3b8"></i> <span style="color:${t.key === "youtube" ? "#dc2626" : t.key === "vimeo" ? "#7c3aed" : t.key === "drive" ? "#b45309" : "#64748b"}">${t.label}</span></span>`;
+      return `<span class="vc-type" style="font-weight:800"><i class="fa-brands ${t.key === "youtube" ? "fa-youtube" : t.key === "vimeo" ? "fa-vimeo" : t.key === "tiktok" ? "fa-tiktok" : t.key === "drive" ? "fa-google-drive" : "fa-link"}" style="color:#94a3b8"></i> <span style="color:${t.key === "youtube" ? "#dc2626" : t.key === "vimeo" ? "#7c3aed" : t.key === "tiktok" ? "#0f172a" : t.key === "drive" ? "#b45309" : "#64748b"}">${t.label}</span></span>`;
     }
 
     function vdRenderList() {

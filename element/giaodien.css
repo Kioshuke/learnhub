@@ -372,26 +372,8 @@ color:white;
 font-weight:600;
 box-shadow: 0 4px 12px color-mix(in srgb, var(--btn-color) 40%, transparent);
 }
-/* màu theo môn */
-.menu button[data-subject="ly"]{
-  --btn-color:#3b82f6; /* 🔵 Blue - tech, logic */
-}
-
-.menu button[data-subject="sinh"]{
-  --btn-color:#16a34a; /* 🟢 Green - nature, life */
-}
-
-.menu button[data-subject="tin"]{
-  --btn-color:#f59e0b; /* 🟡 Amber - digital, energy */
-}
-
-.menu button[data-subject="su"]{
-  --btn-color:#dc2626; /* 🔴 Red - history, strong */
-}
-
-.menu button[data-subject="hoa"]{
-  --btn-color:#9333ea; /* 🟣 Violet - chemical vibe */
-}
+/* màu theo môn — do element/subjects-data.js tự sinh (nguồn duy nhất).
+   Ở đây chỉ giữ các nút không phải môn học */
 
 /* Ensure embedded iframes (quiz, leaderboards) have a usable height
    so `height:100%` on the iframe works even when parent has no explicit height. */
@@ -407,10 +389,6 @@ box-shadow: 0 4px 12px color-mix(in srgb, var(--btn-color) 40%, transparent);
 
 .menu button[data-subject="bxh"]{
   --btn-color:#0ea5e9; /* 🌊 Cyan - forum, social */
-}
-
-.menu button[data-subject="anh"]{
-  --btn-color:#ec4899; /* 💖 Pink - language, soft */
 }
 
 .menu button[data-subject="flash"]{
@@ -2232,12 +2210,7 @@ z-index: 10;
 
 
 /* Màu theo từng môn */
-#ly .subject-notice{ --subject-color: #3b82f6; }
-#sinh .subject-notice{ --subject-color: #16a34a; }
-#tin .subject-notice{ --subject-color: #7c3aed; }
-#su .subject-notice{ --subject-color: #ea580c; }
-#hoa .subject-notice{ --subject-color: #dc2626; }
-#anh .subject-notice{ --subject-color: #db2777; }
+/* Màu subject-notice theo môn — do element/subjects-data.js tự sinh (nguồn duy nhất). */
 #bxh .subject-notice{ --subject-color: #0ea5e9; }
 #flash .subject-notice{ --subject-color: #2563eb; }
 #home .subject-notice{ --subject-color: #f97316; }

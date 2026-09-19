@@ -14,16 +14,17 @@ var jsonAreaDirty = false;    // true nếu người dùng sửa tay ô JSON (tr
 var currentEditId = null;         // uuid bài đang sửa (null = tạo mới)
 var currentEditComplete = true;   // trạng thái hoàn thành của bài đang sửa
 
-/* 7 môn trong Phòng Học (PHONGHOC_SUBJECTS) — chọn môn khi xuất bản */
-var TEST_SUBJECTS = [
+/* Môn trong Phòng Học (nguồn global: element/subjects-data.js) — chọn môn khi xuất bản */
+var TEST_SUBJECTS = (window.LH_SUBJECTS || [
   { id: "toan", name: "Toán Học" },
   { id: "ly", name: "Vật Lý" },
   { id: "hoa", name: "Hoá Học" },
   { id: "sinh", name: "Sinh Học" },
   { id: "anh", name: "Anh Văn" },
   { id: "su", name: "Lịch Sử" },
-  { id: "tin", name: "Tin Học" }
-];
+  { id: "tin", name: "Tin Học" },
+  { id: "khac", name: "Khác" }
+]).map(function (s) { return { id: s.id, name: s.name }; });
 
 /* Thiết lập đề (nút "Tiếp tục" trên topbar) */
 var testMeta = {
@@ -1321,7 +1322,7 @@ $("btnSetupApply").addEventListener("click", function () {
   applyMeta(true);
 });
 
-/* Nạp dropdown môn học (7 môn trong Phòng Học) — đề xuất bản sẽ hiện đúng môn này */
+/* Nạp dropdown môn học (8 môn trong Phòng Học) — đề xuất bản sẽ hiện đúng môn này */
 (function () {
   var sel = $("setSubject");
   if (!sel) return;

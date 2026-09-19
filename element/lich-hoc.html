@@ -74,6 +74,7 @@ body{padding:0;}
 
 </style>
 <script src="../version/version-check.js" defer></script>
+<script src="subjects-data.js"></script>
 </head>
 <body>
 
@@ -97,15 +98,9 @@ body{padding:0;}
 import { supabase, logAppError } from "../supabase-config.js";
 window.logAppError = logAppError;
 
-const SUBJECTS = {
-  ly:   { short: "Lý",   color: "#2563eb" },
-  sinh: { short: "Sinh", color: "#16a34a" },
-  tin:  { short: "Tin",  color: "#7c3aed" },
-  su:   { short: "Sử",   color: "#ea580c" },
-  hoa:  { short: "Hoá",  color: "#dc2626" },
-anh:  { short: "Anh",  color: "#db2777" },
-  toan: { short: "Toán", color: "#06b6d4" }
-};
+/* Màu + tên viết tắt môn học — đọc từ nguồn global (subjects-data.js) */
+const SUBJECTS = {};
+(window.LH_SUBJECTS || []).forEach(s => { SUBJECTS[s.id] = { short: s.short, color: s.color }; });
 
 const SESSIONS = { morning: ["🌅", "Sáng"], noon: ["☀️", "Trưa"], afternoon: ["🌤️", "Chiều"], evening: ["🌙", "Tối"] };
 let eventFlat = [];

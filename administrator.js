@@ -473,15 +473,7 @@ document.getElementById("disableWelcomePopupBtn").addEventListener("click", asyn
 });
 
 // ================= SCHEDULE (LỊCH HỌC & THI) =================
-const SCHEDULE_SUBJECTS = [
-  { value: "ly", label: "Vật Lý" },
-  { value: "sinh", label: "Sinh Học" },
-  { value: "tin", label: "Tin Học" },
-  { value: "su", label: "Lịch Sử" },
-  { value: "hoa", label: "Hoá Học" },
-  { value: "anh", label: "Anh Văn" },
-  { value: "toan", label: "Toán Học" }
-];
+const SCHEDULE_SUBJECTS = ((window.LH_SUBJECTS || [])).map(s => ({ value: s.id, label: s.name }));
 
 function scheduleSubjectOptions(sel) {
   return SCHEDULE_SUBJECTS.map(s => `<option value="${s.value}"${s.value === sel ? " selected" : ""}>${s.label}</option>`).join("");
@@ -498,7 +490,7 @@ function scheduleEditorCard(e) {
   const session = e.session || guessScheduleSession(e.time);
   const sessionInfo = { morning: ["🌅", "Sáng"], noon: ["☀️", "Trưa"], afternoon: ["🌤️", "Chiều"], evening: ["🌙", "Tối"] }[session] || ["🕒", "Buổi học"];
   const time = [e.time, e.endTime].filter(Boolean).join(" – ") || "Chưa chọn giờ";
-  const subjInfo = { ly: ["Lý", "#2563eb"], sinh: ["Sinh", "#16a34a"], tin: ["Tin", "#7c3aed"], su: ["Sử", "#ea580c"], hoa: ["Hoá", "#dc2626"], anh: ["Anh", "#0891b2"], toan: ["Toán", "#4f46e5"] }[e.subject] || [String(e.subject || "Môn"), "#2563eb"];
+  const subjInfo = (function () { const s = window.LH_SUBJECTS ? window.LH_SUBJECTS.find(x => x.id === e.subject) : null; return s ? [s.short, s.color] : [String(e.subject || "Môn"), "#2563eb"]; })();
   return `<div class="schedule-event-row ${e.type === "thi" ? "type-thi" : ""}" style="border-left-color:${subjInfo[1]}" data-id="${escapeHtml(id)}" data-date="${escapeHtml(e.date)}">
     <button class="se-delete" type="button" title="Xóa lịch" onclick="removeScheduleEvent('${escapeHtml(id)}')">×</button>
     <div onclick="editScheduleEvent('${escapeHtml(id)}')"><div class="admin-schedule-top"><span class="admin-schedule-tag ${e.type === "thi" ? "thi" : ""}">${e.type === "thi" ? "Thi" : "Học"}</span><span class="admin-schedule-session ${session}">${sessionInfo[0]} ${sessionInfo[1]}</span><span class="admin-schedule-subj" style="background:${subjInfo[1]}">${escapeHtml(subjInfo[0])}</span></div><div class="admin-schedule-title">${escapeHtml(e.title || "")}</div><div class="admin-schedule-time">🕒 ${escapeHtml(time)}</div>${e.note ? `<div class="admin-schedule-note">${escapeHtml(e.note)}</div>` : ""}</div>
