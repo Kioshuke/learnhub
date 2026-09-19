@@ -1657,10 +1657,10 @@ if (chatBtnEl) {
     if (pauseBtn) {
       pauseBtn.addEventListener("click", function () {
         if (focus.paused) {
-          pauseBtn.textContent = "⏸ Tạm dừng";
+          pauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng';
           resumeFocus();
         } else if (focus.running) {
-          pauseBtn.textContent = "▶ Tiếp tục";
+          pauseBtn.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục';
           pauseFocus();
         }
       });

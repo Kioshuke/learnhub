@@ -1071,7 +1071,7 @@ function renderReview() {
     var cnt = (s && Array.isArray(s.questions)) ? s.questions.length : 0;
     left += '<div class="rev-sec">' +
       '<div class="rev-sec-head"><h3>' + (s.sectionTitle || ("PHẦN " + (si + 1))) + "</h3>" +
-        '<span class="rev-sec-meta">' + cnt + " câu" + (s.timeLimit ? " · ⏱ " + s.timeLimit + " phút" : "") + "</span>" +
+        '<span class="rev-sec-meta">' + cnt + " câu" + (s.timeLimit ? ' · <i class="fa-solid fa-clock"></i> ' + s.timeLimit + " phút" : "") + "</span>" +
       "</div>";
     if (s.sectionDesc) left += '<div class="rev-sec-desc">' + s.sectionDesc + "</div>";
     if (s.audio) left += '<div class="rev-extra"><i class="fa-solid fa-headphones"></i> ' + escapeC(s.listenTitle || "Nghe") + "</div>";

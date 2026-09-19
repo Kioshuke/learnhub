@@ -1003,7 +1003,7 @@ body.cc-reduced [class*="skeleton"] {
     <div class="composer-input-wrap">
       <textarea id="content" placeholder="Bạn muốn trao đổi điều gì? (dán ảnh bằng Ctrl+V)" maxlength="500"></textarea>
       <div class="composer-tools">
-        <button class="icon-btn" type="button" onclick="attachImage()" title="Đính kèm ảnh (tối đa 5MB)">📷</button>
+        <button class="icon-btn" type="button" onclick="attachImage()" title="Đính kèm ảnh (tối đa 5MB)"><i class="fa-solid fa-image"></i></button>
         <input type="file" id="imageInput" accept="image/png,image/jpeg,image/gif,image/webp" hidden onchange="onImageSelected(event)">
       </div>
     </div>
@@ -1013,7 +1013,7 @@ body.cc-reduced [class*="skeleton"] {
       <div class="actions-left">
         <button class="post-submit" onclick="sendPost()">Đăng</button>
         <button class="mute-btn" id="muteBtn" onclick="toggleMute()">
-          🔊 Âm thanh: Bật
+          <i class="fa-solid fa-volume-high"></i> Âm thanh: Bật
         </button>
       </div>
       <div class="actions-right">
@@ -1233,10 +1233,10 @@ window.addEventListener("load", () => {
 function updateMuteUI() {
   const btn = document.getElementById("muteBtn");
   if (isMuted) {
-    btn.innerHTML = "🔇 Âm thanh: Tắt";
+    btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i> Âm thanh: Tắt';
     btn.style.background = "#ef4444"; 
   } else {
-    btn.innerHTML = "🔊 Âm thanh: Bật";
+    btn.innerHTML = '<i class="fa-solid fa-volume-high"></i> Âm thanh: Bật';
     btn.style.background = "#64748b"; 
   }
 }
@@ -1514,7 +1514,7 @@ function applyFilters(){
   if (lastAllPosts.length === 0) {
     container.innerHTML = `
       <div class="forum-empty">
-        <div class="forum-empty-icon">💬</div>
+        <div class="forum-empty-icon"><i class="fa-solid fa-comments" style="font-size:32px;color:#94a3b8"></i></div>
         <h3>Chưa có bài viết nào</h3>
         <p>Diễn đàn hiện chưa có bài viết. Hãy là người đầu tiên chia sẻ! Nếu bạn gặp vấn đề, vui lòng liên hệ Admin để được hỗ trợ.</p>
         <a class="forum-empty-contact" href="mailto:learnhubplatform@gmail.com">
@@ -1529,7 +1529,7 @@ function applyFilters(){
   if (pageItems.length === 0) {
     container.innerHTML = `
       <div class="forum-empty">
-        <div class="forum-empty-icon"><i class="fa-solid fa-magnifying-glass" style="font-size:32px;color:#94a3b8"></i></div>
+        <div class="forum-empty-icon"><i class="fa-solid fa-face-frown" style="font-size:32px;color:#94a3b8"></i></div>
         <h3>Không tìm thấy kết quả</h3>
         <p>Không có bài viết nào khớp với từ khóa tìm kiếm. Thử từ khác hoặc xóa bộ lọc.</p>
       </div>`;
@@ -1606,20 +1606,20 @@ function createPostElement(post, allPosts){
   div.className = "post " + postClasses.join(" ");
 
   const ownerActions = isOwner ? `
-    <span class="edit-btn" onclick="editPost('${post.id}')">✎ Sửa</span>
-    <span class="delete-btn" onclick="deletePost('${post.id}')">🗑 Xóa</span>
+    <span class="edit-btn" onclick="editPost('${post.id}')"><i class="fa-solid fa-pen-to-square"></i> Sửa</span>
+    <span class="delete-btn" onclick="deletePost('${post.id}')"><i class="fa-solid fa-trash-can"></i> Xóa</span>
   ` : "";
 
   const pinAction = isAdminUser ? (
     post.pinned
-      ? `<span class="pin-btn" onclick="unpinPost('${post.id}')">📌 Bỏ ghim</span>`
-      : `<span class="pin-btn" onclick="pinPost('${post.id}')">📌 Ghim bài</span>`
+      ? `<span class="pin-btn" onclick="unpinPost('${post.id}')"><i class="fa-solid fa-thumbtack"></i> Bỏ ghim</span>`
+      : `<span class="pin-btn" onclick="pinPost('${post.id}')"><i class="fa-solid fa-thumbtack"></i> Ghim bài</span>`
   ) : "";
 
-  const pinBadge = post.pinned ? `<span class="pin-badge">📌 Đã ghim</span>` : "";
+  const pinBadge = post.pinned ? `<span class="pin-badge"><i class="fa-solid fa-thumbtack"></i> Đã ghim</span>` : "";
   const nameClass = isOwner && !isAdmin ? "current-user-name" : "";
   const adminNameClass = isAdmin ? "admin-name" : "";
-  const adminBadge = isAdmin ? `<span class="admin-badge">🛡 Admin</span>` : "";
+  const adminBadge = isAdmin ? `<span class="admin-badge"><i class="fa-solid fa-shield-halved"></i> Admin</span>` : "";
   const postImageHtml = post.image_url
     ? `<div class="post-image-wrap"><img class="post-image" src="${escapeHTML(post.image_url)}" loading="lazy" referrerpolicy="no-referrer" onclick="window.open(this.src)" onerror="this.remove()" alt="Ảnh bài viết"></div>`
     : "";
@@ -1687,13 +1687,13 @@ function renderReplies(parentId, container, allPosts, level){
       repDiv.style.marginLeft = Math.min(level * 12, 36) + "px";
       
       const ownerActions = isOwner ? `
-        <span class="edit-btn" onclick="editPost('${rep.id}')">✎</span>
-        <span class="delete-btn" onclick="deletePost('${rep.id}')">🗑</span>
+        <span class="edit-btn" onclick="editPost('${rep.id}')"><i class="fa-solid fa-pen-to-square"></i></span>
+        <span class="delete-btn" onclick="deletePost('${rep.id}')"><i class="fa-solid fa-trash-can"></i></span>
       ` : "";
 
       const nameClass = isOwner && !isAdminReply ? "current-user-name" : "";
       const adminNameClass = isAdminReply ? "admin-name" : "";
-      const adminBadge = isAdminReply ? `<span class="admin-badge">🛡 Admin</span>` : "";
+      const adminBadge = isAdminReply ? `<span class="admin-badge"><i class="fa-solid fa-shield-halved"></i> Admin</span>` : "";
       const replyImageHtml = rep.image_url
         ? `<div class="post-image-wrap"><img class="post-image" src="${escapeHTML(rep.image_url)}" loading="lazy" referrerpolicy="no-referrer" onclick="window.open(this.src)" onerror="this.remove()" alt="Ảnh phản hồi"></div>`
         : "";

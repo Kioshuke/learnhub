@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LearnHub AI - Hubie</title>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="element/giaodien.css">
     <style>
         /* ===== CHUNG ===== */
@@ -217,12 +219,12 @@
         <img src="pictures/chatboiavt.png" alt="Hubie" onerror="this.src='https://via.placeholder.com/32'">
         <span class="header-title">Hubie - Trợ lý LearnHub</span>
 
-        <button class="info-btn" onclick="openInfoModal()" title="Thông tin về Hubie">ℹ️</button>
+        <button class="info-btn" onclick="openInfoModal()" title="Thông tin về Hubie"><i class="fa-solid fa-circle-info"></i></button>
     </div>
 
     <div class="mode-bar">
-        <button class="mode-tab active" data-mode="chat" onclick="setMode('chat')">💬 Chat</button>
-        <button class="mode-tab" data-mode="tut" onclick="setMode('tut')">📖 Tra từ</button>
+<button class="mode-tab active" data-mode="chat" onclick="setMode('chat')"><i class="fa-solid fa-comment-dots"></i> Chat</button>
+        <button class="mode-tab" data-mode="tut" onclick="setMode('tut')"><i class="fa-solid fa-book-open"></i> Tra từ</button>
     </div>
 
     <!-- ===== CHẾ ĐỘ CHAT ===== -->
@@ -237,7 +239,7 @@
                 </div>
                 <div class="msg-time" id="welcome-time">10:00 PM</div>
                 <div class="ai-tools">
-                    <button class="tool-btn" onclick="copyToClipboard('Chào bạn! Mình là Hubie đây, trợ thủ đắc lực của bạn trên LearnHub nè! 🤖✨\n\nBạn có câu hỏi gì hay cần mình hỗ trợ về bài vở không? Cứ hỏi, paste thẳng ảnh bài tập vô đây, hoặc dùng tab Tra từ để tra nhanh nghĩa tiếng Anh nha! 😊')" title="Sao chép câu trả lời">📋</button>
+                    <button class="tool-btn" onclick="copyToClipboard('Chào bạn! Mình là Hubie đây, trợ thủ đắc lực của bạn trên LearnHub nè! 🤖✨\n\nBạn có câu hỏi gì hay cần mình hỗ trợ về bài vở không? Cứ hỏi, paste thẳng ảnh bài tập vô đây, hoặc dùng tab Tra từ để tra nhanh nghĩa tiếng Anh nha! 😊')" title="Sao chép câu trả lời"><i class="fa-solid fa-copy"></i></button>
                 </div>
             </div>
         </div>
@@ -251,7 +253,7 @@
 
             <div class="input-area">
                 <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
-                <button class="attach-btn" onclick="document.getElementById('fileInput').click()" title="Đính kèm ảnh chụp bài tập">📎</button>
+                <button class="attach-btn" onclick="document.getElementById('fileInput').click()" title="Đính kèm ảnh chụp bài tập"><i class="fa-solid fa-paperclip"></i></button>
 
                 <textarea id="userInput" rows="1" placeholder="Hỏi Hubie hoặc paste ảnh (Ctrl+V)..." onkeydown="handleKeyDown(event)" oninput="autoResizeTextarea(this)"></textarea>
                 <button class="send-btn" onclick="sendMessage()" title="Gửi tin nhắn"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
@@ -273,7 +275,7 @@
                 <div class="word-line">
                     <span class="word" id="rWord"></span>
                     <span class="phonetic" id="rPhonetic"></span>
-                    <button class="audio-btn" id="rAudioBtn" onclick="playAudio()" disabled>🔊</button>
+                    <button class="audio-btn" id="rAudioBtn" onclick="playAudio()" disabled><i class="fa-solid fa-volume-high"></i></button>
                 </div>
                 <div class="word-vi" id="rWordVi"></div>
 
@@ -287,7 +289,7 @@
 
 <div class="modal-overlay" id="infoModal" onclick="closeInfoModalOutside(event)">
     <div class="modal-content">
-        <div class="modal-title">🤖 Về Trợ Lý Hubie</div>
+        <div class="modal-title"><i class="fa-solid fa-robot"></i> Về Trợ Lý Hubie</div>
         <div class="modal-body">
             <p><strong>Hubie</strong> là trợ lý ảo AI chính thức của website học tập <strong>LearnHub</strong>.</p>
             <br>
@@ -681,7 +683,7 @@
             const textEl = document.createElement('span');
             textEl.style.fontSize = '12px';
             textEl.style.opacity = '0.8';
-            textEl.innerText = "🖼️ Đã gửi một hình ảnh";
+            textEl.innerHTML = '<i class="fa-solid fa-image" style="font-size:13px"></i> Đã gửi một hình ảnh';
             msgDiv.appendChild(textEl);
         }
         
@@ -727,14 +729,14 @@
         copyBtn.type = 'button';
         copyBtn.className = 'tool-btn';
         copyBtn.title = 'Sao chép câu trả lời';
-        copyBtn.textContent = '📋';
+        copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
         copyBtn.addEventListener('click', () => copyToClipboard(text));
         
         const regenBtn = document.createElement('button');
         regenBtn.type = 'button';
         regenBtn.className = 'tool-btn';
         regenBtn.title = 'Yêu cầu Hubie trả lời lại câu này';
-        regenBtn.textContent = '🔄';
+        regenBtn.innerHTML = '<i class="fa-solid fa-rotate"></i>';
         regenBtn.addEventListener('click', () => regenerateAiResponse());
         
         toolsDiv.appendChild(copyBtn);

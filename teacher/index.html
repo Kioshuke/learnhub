@@ -1056,7 +1056,7 @@
           <!-- Stats Column: 4 cols, stacked -->
           <div class="tc-stats">
             <div class="tc-stat">
-              <div class="tc-stat-icon icon-blue"><i class="fa-solid fa-school"></i></div>
+              <div class="tc-stat-icon icon-blue"><i class="fa-solid fa-chalkboard-user"></i></div>
               <div><div class="tc-stat-num" id="tcStatClasses">0</div><div class="tc-stat-label">Lớp đang quản lý</div></div>
             </div>
             <div class="tc-stat">
@@ -1077,7 +1077,7 @@
             </div>
             <div class="tc-feature-grid">
               <div class="tc-feature tint-blue" onclick="tcOpenManage()" data-ready="1">
-                <div class="tc-feature-icon icon-blue"><i class="fa-solid fa-school"></i></div>
+                <div class="tc-feature-icon icon-blue"><i class="fa-solid fa-chalkboard-user"></i></div>
                 <div class="tc-feature-title">Quản lý lớp học</div>
                 <div class="tc-feature-desc">Tạo lớp, chia sẻ mã mời, duyệt thành viên.</div>
                 <div class="tc-feature-cta">Mở <i class="fa-solid fa-arrow-right"></i></div>
@@ -1134,7 +1134,7 @@
         <div id="tcManageView" style="display:none">
           <div class="tc-view-head">
             <button class="back" type="button" onclick="tcBackHome()"><i class="fa-solid fa-arrow-left"></i> Trang chủ</button>
-            <h2><i class="fa-solid fa-school" style="color:#2563eb"></i> Quản lý lớp học</h2>
+            <h2><i class="fa-solid fa-chalkboard-user" style="color:#2563eb"></i> Quản lý lớp học</h2>
             <span class="muted" id="tcClassCount"></span>
           </div>
 
@@ -1153,7 +1153,7 @@
             </div>
 
             <div id="tcClassList" class="tc-class-grid">
-              <div class="empty"><div class="big"><i class="fa-solid fa-school"></i></div>Đang tải danh sách lớp...</div>
+<div class="empty"><div class="big"><i class="fa-solid fa-chalkboard-user"></i></div>Đang tải danh sách lớp...</div>
             </div>
           </div>
         </div>
@@ -1463,7 +1463,7 @@
       document.getElementById("tcStatPending").textContent = totalPending;
 
       if (!list.length) {
-        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-school"></i></div>Bạn chưa có lớp nào.<br><span style="font-size:12.5px">Tạo lớp đầu tiên ở phía trên để bắt đầu.</span></div>';
+        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-chalkboard-user"></i></div>Bạn chưa có lớp nào.<br><span style="font-size:12.5px">Tạo lớp đầu tiên ở phía trên để bắt đầu.</span></div>';
         return;
       }
       listEl.innerHTML = list.map(c => `
@@ -1490,14 +1490,14 @@
     async function tcLoadClasses(force) {
       if (tcClassesCache === null || force) {
         const listEl = document.getElementById("tcClassList");
-        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-school"></i></div>Đang tải danh sách lớp...</div>';
+        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-chalkboard-user"></i></div>Đang tải danh sách lớp...</div>';
         try {
           const { data, error } = await supabase.rpc("teacher_classes");
           if (error) throw error;
           tcClassesCache = data || [];
         } catch (e) {
           console.error("teacher_classes lỗi:", e);
-          listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-school"></i></div>Không tải được danh sách lớp. Kiểm tra lại SQL đã chạy chưa.</div>';
+          listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-chalkboard-user"></i></div>Không tải được danh sách lớp. Kiểm tra lại SQL đã chạy chưa.</div>';
           return;
         }
       }
@@ -1549,7 +1549,7 @@
       const listEl = document.getElementById("tcMemberList");
       const members = tcMembersCache[classId] || [];
       if (!members.length) {
-        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-school"></i></div>Chưa có thành viên hoặc yêu cầu.</div>';
+        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-chalkboard-user"></i></div>Chưa có thành viên hoặc yêu cầu.</div>';
         return;
       }
       const byStatus = (s) => members.filter(m => (m.status || "") === s);
@@ -1680,7 +1680,7 @@
       document.getElementById("tcDetailBlock").textContent = "";
       document.getElementById("tcDetailCode").innerHTML = "";
       document.getElementById("tcBtnDeleteClass").style.display = "";
-      document.getElementById("tcMemberList").innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-school"></i></div>Đang tải...</div>';
+      document.getElementById("tcMemberList").innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-chalkboard-user"></i></div>Đang tải...</div>';
       tcRenderDetailHead(classId);
       try { await tcEnsureMembers(classId); } catch (e) { console.error("class_members_of lỗi:", e); }
       tcRenderMembers(classId);
