@@ -103,13 +103,14 @@ export function subscribeMaintenance(cb) {
 }
 
 // ---------- WHITELIST EMAIL ----------
-// Cache: { result: boolean, ts: number }
-let _whitelistCache = { result: null, ts: 0 };
+// Cache theo email: { email: string|null, result: boolean, ts: number }
+let _whitelistCache = { email: null, result: null, ts: 0 };
 const WHITELIST_CACHE_TTL = 5000; // 5s
 
-// Cơ chế bật/tắt whitelist toàn cục (admin dashboard).
-// - BẬT (mặc định): phải nằm trong whitelist mới đăng nhập/đăng ký được.
-// - TẮT: ai cũng đăng nhập Google được; đăng ký tùy theo nút "Cho phép đăng ký".
+// Cơ chế bật/tắt truy cập toàn cục (admin dashboard).
+// - BẬT: web MỞ, mọi email đều vào được (không cần whitelist).
+// - TẮT: web ĐÓNG, chỉ email nằm trong whitelist (access_list.enabled=true) mới vào.
+//   User đang dùng mà bị gỡ quyền sẽ được guard trên index.html đăng xuất.
 // Lưu ở bảng whitelist_settings { id=true, enabled, updated_at, updated_by }.
 let _wlEnabledCache = { result: null, ts: 0, inflight: null };
 const WL_ENABLED_TTL = 5000; // 5s
@@ -128,15 +129,15 @@ export async function isWhitelistEnabled() {
         .eq("id", true)
         .maybeSingle();
       if (error) throw error;
-      // Mặc định BẬT nếu chưa từng lưu (giữ hành vi cũ an toàn)
-      const ok = data ? data.enabled !== false : true;
+      // Mặc định ĐÓNG nếu chưa từng lưu (giữ hành vi an toàn)
+      const ok = data ? data.enabled === true : false;
       _wlEnabledCache = { result: ok, ts: Date.now(), inflight: null };
       return ok;
     } catch (e) {
       console.warn("[supabase-helpers] isWhitelistEnabled lỗi:", e && e.message || e);
       _wlEnabledCache.inflight = null;
-      // Mặc định an toàn: vẫn bật whitelist nếu không đọc được setting
-      return true;
+      // Mặc định an toàn: ĐÓNG web nếu không đọc được setting
+      return false;
     }
   })();
   try { return await _wlEnabledCache.inflight; } finally { _wlEnabledCache.inflight = null; }
@@ -144,12 +145,12 @@ export async function isWhitelistEnabled() {
 
 export async function emailAllowed(email) {
   if (!email) return false;
-  // Nếu whitelist toàn cục ĐANG TẮT -> cho phép mọi email (không cần check RPC)
-  const wl = await isWhitelistEnabled();
-  if (wl === false) return true;
+  // Nếu web đang MỞ (whitelist toàn cục BẬT) -> cho phép mọi email (không cần check RPC)
+  const webOpen = await isWhitelistEnabled();
+  if (webOpen) return true;
   const now = Date.now();
-  // Dùng cache nếu < TTL
-  if (_whitelistCache.result !== null && (now - _whitelistCache.ts) < WHITELIST_CACHE_TTL) {
+  // Dùng cache nếu < TTL (chỉ hợp lệ cho ĐÚNG email đã cache)
+  if (_whitelistCache.email === email && _whitelistCache.result !== null && (now - _whitelistCache.ts) < WHITELIST_CACHE_TTL) {
     return _whitelistCache.result;
   }
   // Thử 2 lần (retry 1 lần nếu lỗi mạng)
@@ -158,7 +159,7 @@ export async function emailAllowed(email) {
       const { data, error } = await supabase.rpc("is_email_allowed", { p_email: email });
       if (error) throw error;
       const ok = data === true;
-      _whitelistCache = { result: ok, ts: now };
+      _whitelistCache = { email, result: ok, ts: now };
       return ok;
     } catch (e) {
       console.warn("[supabase-helpers] emailAllowed retry " + (attempt + 1) + ":", e.message || e);
@@ -166,7 +167,7 @@ export async function emailAllowed(email) {
     }
   }
   // Cả 2 lần đều lỗi → dùng cache nếu còn hạn, nếu không → return false (an toàn)
-  if (_whitelistCache.result !== null && (now - _whitelistCache.ts) < WHITELIST_CACHE_TTL) {
+  if (_whitelistCache.email === email && _whitelistCache.result !== null && (now - _whitelistCache.ts) < WHITELIST_CACHE_TTL) {
     console.warn("[supabase-helpers] emailAllowed: dùng cache do RPC lỗi");
     return _whitelistCache.result;
   }

@@ -216,7 +216,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
       el.onclick = function() {
         var self = this;
         window.openNotifDetail({
-          title: "💌 Chào mừng bạn đến với LearnHub Platform!",
+          title: "Chào mừng bạn đến với LearnHub Platform!",
           message: "Chào bạn,<br><br>Chào mừng bạn đến với LearnHub Platform - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên.<br>Đây là hộp thư nơi bạn nhận được các thông báo quan trọng từ Ban Quản Trị như cập nhật tính năng mới, lịch thi, thông báo hệ thống và nhiều tin tức khác.<br><br>Hãy nhấn vào biểu tượng chuông ở header bất cứ lúc nào để kiểm tra hộp thư nhé!<br><br><p style=\"margin-top:24px\">Trân trọng,<br><strong>Đội ngũ phát triển!</strong></p>",
           created_at: welcomeDate.toISOString()
         });
@@ -366,60 +366,60 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 <div id="home">
   <section class="featured-section reveal-item" id="featuredFeatures">
     <div class="featured-header">
-      <h2>🚀 Tính Năng Nổi Bật</h2>
+      <h2><i class="fa-solid fa-rocket"></i> Tính Năng Nổi Bật</h2>
       <p>Khám phá những công cụ giúp việc học của bạn trở nên hiệu quả và thú vị hơn</p>
     </div>
     <div class="feature-grid">
       <a class="feature-card" href="element/phong-hoc.html" data-open="phong-hoc" style="--feat-color:#2563eb;">
-        <div class="feature-icon">📝</div>
+        <div class="feature-icon"><i class="fa-solid fa-pen-to-square"></i></div>
         <h3>LearnHub Test</h3>
         <p>Hệ thống kiểm tra trực tuyến với bấm giờ, chấm điểm tự động và lưu kết quả để theo dõi tiến bộ của bạn.</p>
         <span class="feature-link">Trải nghiệm ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
       <a class="feature-card" href="flashcard/hub.html" data-open="flash" style="--feat-color:#f59e0b;">
-        <div class="feature-icon">🃏</div>
+        <div class="feature-icon"><i class="fa-solid fa-layer-group"></i></div>
         <h3>Smart Flashcard</h3>
         <p>Học từ vựng siêu tốc với 4 chế độ: Ghép Thẻ, Blast, Điền từ và Chiến Thần cùng kho từ vựng đa dạng.</p>
         <span class="feature-link">Khám phá ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
       <a class="feature-card" href="tai-lieu/hub.html" data-open="tai-lieu" style="--feat-color:#0891b2;">
-        <div class="feature-icon">📚</div>
+        <div class="feature-icon"><i class="fa-solid fa-book-open"></i></div>
         <h3>Thư viện Tài liệu</h3>
         <p>Tổng hợp tài liệu, đề kiểm tra và bài giảng từ Google Drive, file trực tiếp và nhiều kho lưu trữ, có tìm kiếm nhanh theo tên.</p>
         <span class="feature-link">Xem ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
       <a class="feature-card" href="element/forum.html" data-open="forum" style="--feat-color:#16a34a;">
-        <div class="feature-icon">💬</div>
+        <div class="feature-icon"><i class="fa-solid fa-comments"></i></div>
         <h3>LearnHub Forum</h3>
         <p>Mạng xã hội học tập nội bộ: hỏi đáp, thảo luận bài tập và chia sẻ tài liệu cùng bạn bè.</p>
         <span class="feature-link">Sử dụng ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
       <a class="feature-card" href="element/phong-hoc.html" data-open="phong-hoc" style="--feat-color:#7c3aed;">
-        <div class="feature-icon">🏫</div>
+        <div class="feature-icon"><i class="fa-solid fa-school"></i></div>
         <h3>Phòng học ảo</h3>
         <p>Ôn tập kiến thức theo môn học kết hợp cùng nền tảng LearnHub Test ngay trên nền tảng.</p>
         <span class="feature-link">Tham gia ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
       <a class="feature-card" href="element/phong-hoc.html" data-open="schedule" onclick="event.preventDefault(); openScheduleModal(); return false;" style="--feat-color:#0d9488;">
-        <div class="feature-icon">📅</div>
+        <div class="feature-icon"><i class="fa-solid fa-calendar-days"></i></div>
         <h3>Lịch học &amp; Thi</h3>
         <p>Lịch học và lịch thi cập nhật trực tiếp từ ban quản trị.</p>
         <span class="feature-link">Xem lịch <i class="fa-solid fa-arrow-right"></i></span>
       </a>
       <a class="feature-card" href="AI.html" data-open="chat" style="--feat-color:#dc2626;">
-        <div class="feature-icon">🤖</div>
+        <div class="feature-icon"><i class="fa-solid fa-robot"></i></div>
         <h3>Trợ lý ảo Hubie</h3>
         <p>Trợ lý AI 24/7 giải đáp thắc mắc kiến thức, kèm tính năng tra từ điển Anh - Việt ngay trong popup.</p>
         <span class="feature-link">Trò chuyện ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
       <a class="feature-card" href="element/leaderboard.html" data-open="leaderboard" style="--feat-color:#d97706;">
-        <div class="feature-icon">🏆</div>
+        <div class="feature-icon"><i class="fa-solid fa-trophy"></i></div>
         <h3>Bảng xếp hạng</h3>
         <p>Thi đua cùng bạn bè, theo dõi điểm số và vị trí của bạn trên bảng xếp hạng học tập.</p>
         <span class="feature-link">Theo dõi ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
       <a class="feature-card" href="profile.html" style="--feat-color:#ec4899;">
-        <div class="feature-icon">👤</div>
+        <div class="feature-icon"><i class="fa-solid fa-user"></i></div>
         <h3>Hồ sơ học viên</h3>
         <p>Xem hồ sơ chi tiết của bản thân &amp; người khác: thông tin cá nhân, thống kê học tập, trạng thái trực tuyến.</p>
         <span class="feature-link">Xem hồ sơ <i class="fa-solid fa-arrow-right"></i></span>
@@ -462,14 +462,14 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 
     <div class="hubie-row">
       <div class="hubie-introduce">
-        <div class="hubie-avatar">🤖</div>
+        <div class="hubie-avatar"><i class="fa-solid fa-robot"></i></div>
         <div class="hubie-content">
           <h4>Gặp gỡ <strong>Trợ lý ảo Hubie</strong></h4>
           <p>Mình là Hubie, AI tích hợp trên hệ thống. Hãy nhấn vào biểu tượng bong bóng chat ở góc màn hình bất cứ lúc nào để trao đổi cùng mình nhé! Mình còn có tab Tra từ để bạn tra nhanh nghĩa Anh - Việt nữa đó!</p>
         </div>
       </div>
       <div class="hubie-feature-card">
-        <div class="hubie-feat-icon">🃏</div>
+        <div class="hubie-feat-icon"><i class="fa-solid fa-layer-group"></i></div>
         <div class="hubie-feat-content">
           <h4>Smart Flashcard</h4>
           <p>Học từ vựng siêu tốc với 4 chế độ: Ghép Thẻ, Blast, Điền từ và Chiến Thần cùng kho từ vựng đa dạng.</p>
@@ -480,7 +480,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 
   <div class="home-details-full">
     <div class="info-card reveal-item">
-      <h3>📌 Mục Đích & Ý Nghĩa Hệ Thống</h3>
+      <h3><i class="fa-solid fa-thumbtack"></i> Mục Đích &amp; Ý Nghĩa Hệ Thống</h3>
       <p>LearnHub là một nền tảng hỗ trợ học tập trực tuyến, được xây dựng nhằm cung cấp không gian tự học và ôn luyện tập trung. Hệ thống cung cấp các công cụ thiết thực giúp học sinh tối ưu hóa quy trình chuẩn bị cho kỳ thi, ôn tập:</p>
       <ul class="purpose-list">
         <li><strong>Lưu trữ tài liệu tập trung:</strong> Gom toàn bộ đề kiểm tra, file lý thuyết từ nhiều nguồn tin cậy về một nơi để dễ tra cứu.</li>
@@ -490,12 +490,12 @@ fetch('header.html').then(r=>r.text()).then(html=>{
     </div>
 
     <div class="info-card reveal-item">
-      <h3>👨‍💻 Thông Tin Website</h3>
+      <h3><i class="fa-solid fa-laptop-code"></i> Thông Tin Website</h3>
       <p>Đây là một dự án công nghệ cá nhân phi lợi nhuận, được nghiên cứu, thiết kế giao diện và phát triển mã nguồn có sự kết hợp cùng AI. Nền tảng sử dụng các công nghệ web hiện đại kết hợp cơ sở dữ liệu đám mây Supabase.</p>
       <p>Hệ sinh thái này được lập ra với mục tiêu cốt lõi là phục vụ riêng cho hoạt động học tập, chia sẻ tài liệu. Toàn bộ tính năng đều miễn phí, bảo mật cao thông qua cổng kiểm soát danh sách thành viên nghiêm ngặt.</p>
       
       <h6 class="dev-warning-text">
-        <span>🛠️</span> 
+        <span><i class="fa-solid fa-screwdriver-wrench" style="color:#d97706"></i></span> 
         <span><strong>Lưu ý:</strong> Hệ thống đang trong quá trình phát triển và hoàn thiện. Mọi đóng góp ý kiến hoặc báo lỗi vui lòng liên hệ Admin thông qua nút <i>Góp ý ý kiến</i> ở phần chân trang để phản hồi.</span>
       </h6>
     </div>
@@ -503,7 +503,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 
 </div>
 
-<button id="tabScrollTopBtn" type="button" aria-label="Cuộn lên đầu">↑</button>
+<button id="tabScrollTopBtn" type="button" aria-label="Cuộn lên đầu"><i class="fa-solid fa-circle-up"></i></button>
 
 <!-- ===== IFRAME TABS: flash, forum, tai-lieu, phong-hoc ===== -->
 <div id="flash" style="display:none;width:100%;margin:0;padding:0;"><iframe id="flashHubFrame" src="flashcard/hub.html" style="width:100%;height:100vh;border:none;"></iframe></div>
@@ -563,9 +563,7 @@ function applyMaintenanceUI(){
     const statusEl = document.getElementById("maintenanceStatusText");
     
     if(statusEl){
-      statusEl.textContent = maintenanceState.message 
-        ? "🔧 " + maintenanceState.message 
-        : "🔧 Đang cập nhật...";
+      statusEl.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i> ' + String(maintenanceState.message || "Đang cập nhật...").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
     
     overlay.style.display = "flex";
@@ -683,22 +681,22 @@ let greeting = "";
 let quote = "";
 
 if (hour >= 5 && hour < 11) {
-greeting = "☀️ Chào buổi sáng,";
+greeting = '<i class="fa-solid fa-sun" style="color:#f59e0b"></i> Chào buổi sáng,';
 quote = "Chúc bạn một ngày học tập năng suất!";
 } else if (hour >= 11 && hour < 14) {
-greeting = "🌤️ Nghỉ trưa thôi,";
+greeting = '<i class="fa-solid fa-cloud-sun" style="color:#0ea5e9"></i> Nghỉ trưa thôi,';
 quote = "Nạp năng lượng để chiến đấu tiếp nhé!";
 } else if (hour >= 14 && hour < 18) {
-greeting = "☕ Chào buổi chiều,";
+greeting = '<i class="fa-solid fa-mug-hot" style="color:#f97316"></i> Chào buổi chiều,';
 quote = "Sắp hết ngày rồi, cố gắng lên nào!";
 } else {
-greeting = "🌙 Chào buổi tối,";
+greeting = '<i class="fa-solid fa-moon" style="color:#6366f1"></i> Chào buổi tối,';
 quote = "Đừng thức quá khuya, giữ sức khỏe nhé!";
 }
 
 const greetingEl = document.getElementById("greetingText");
 if(greetingEl){
-greetingEl.innerText = greeting;
+greetingEl.innerHTML = greeting;
 }
 
 const nameEl = document.getElementById("popupName");
@@ -746,7 +744,7 @@ let appLoadingComplete = false;
 let welcomeShown = false;
 
 const WELCOME_POPUP_DEFAULT = {
-  title: "📢 Thông báo",
+  title: "Thông báo",
   message: "<b>CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM</b>",
   active: true
 };
@@ -804,7 +802,7 @@ function stopAccessGuards(){
   authGuardTriggered = false;
 }
 
-function forceLogoutWithCountdown(message, title, redirectMs = 5000){
+function forceLogoutWithCountdown(message, title, redirectMs = 5000, icon){
   if(authGuardTriggered) return;
   authGuardTriggered = true;
 
@@ -814,7 +812,8 @@ function forceLogoutWithCountdown(message, title, redirectMs = 5000){
     toast = lhToast(`${message} Đang đăng xuất sau ${remaining}s...`, {
       type: "error",
       title: title || "Phiên đăng nhập đã hết hiệu lực",
-      durationMs: redirectMs
+      durationMs: redirectMs,
+      icon: icon || undefined
     });
   }
 
@@ -834,8 +833,8 @@ function forceLogoutWithCountdown(message, title, redirectMs = 5000){
   }, 1000);
 }
 
-async function forceLogoutNow(message, title = "Phiên đăng nhập đã hết hiệu lực"){
-  forceLogoutWithCountdown(message, title, 5000);
+async function forceLogoutNow(message, title = "Phiên đăng nhập đã hết hiệu lực", icon){
+  forceLogoutWithCountdown(message, title, 5000, icon);
 }
 
 async function startAccessGuards(user){
@@ -844,18 +843,21 @@ async function startAccessGuards(user){
 
   // Whitelist guard: không có realtime trên access_list (RLS chỉ admin đọc),
   // nên poll RPC is_email_allowed định kỳ để phát hiện bị gỡ quyền.
+  // Nghĩa toggle (đã đảo): web MỞ (enabled=true) -> ai cũng được; web ĐÓNG -> chỉ whitelist.
+  // Poll 5s để đá ra NGAY khi web bị đóng / email bị gỡ quyền.
   try {
     accessGuardInterval = setInterval(async () => {
       if(authGuardTriggered) return;
       const ok = await emailAllowed(user.email);
       if(!ok){
-        logAppError({ source: "index-guard", category: "whitelist", level: "warning", code: "WHITELIST_REVOKED", message: "User đang dùng web bị gỡ whitelist (phát hiện qua poll 30s).", email: user.email, detail: { uid: user.uid } });
+        logAppError({ source: "index-guard", category: "whitelist", level: "warning", code: "WHITELIST_REVOKED", message: "User đang dùng web bị gỡ whitelist (phát hiện qua poll 5s).", email: user.email, detail: { uid: user.uid } });
         forceLogoutNow(
           "Quyền truy cập của bạn vừa bị thu hồi. Vui lòng liên hệ admin nếu cần hỗ trợ.",
-          "Đã bị gỡ whitelist"
+          "Đã bị gỡ whitelist",
+          "fa-user-xmark"
         );
       }
-    }, 30000);
+    }, 5000);
   } catch (e) {}
 
   // User guard: realtime theo dõi hồ sơ của chính user (disabled / bị xóa).
@@ -868,7 +870,8 @@ async function startAccessGuards(user){
           logAppError({ source: "index-guard", category: "disabled", level: "warning", code: "DISABLED", message: "User đang dùng web bị khóa tài khoản (realtime).", email: user.email, detail: { uid: user.uid } });
           forceLogoutNow(
             "Tài khoản của bạn vừa bị vô hiệu hóa. Vui lòng liên hệ admin.",
-            "Tài khoản bị khóa"
+            "Tài khoản bị khóa",
+            "fa-user-lock"
           );
         }
       })
@@ -876,7 +879,8 @@ async function startAccessGuards(user){
         if(authGuardTriggered) return;
         forceLogoutNow(
           "Hồ sơ người dùng của bạn vừa bị xóa khỏi hệ thống.",
-          "Hồ sơ đã bị xóa"
+          "Hồ sơ đã bị xóa",
+          "fa-user-xmark"
         );
       })
       .subscribe();
@@ -960,7 +964,8 @@ if(user){
     forceLogoutWithCountdown(
       "Tài khoản này không nằm trong whitelist hiện tại.",
       "Không có quyền truy cập",
-      5000
+      5000,
+      "fa-user-xmark"
     );
     return;
   }
@@ -1465,21 +1470,21 @@ fetch('footer.html').then(r => r.text()).then(html => {
         <div class="cc-section-title">Giao diện</div>
         <label class="cc-row">
           <span class="cc-row-text">
-            <span class="cc-row-label"><span class="cc-row-icon">🌙</span> Chế độ tối</span>
+            <span class="cc-row-label"><span class="cc-row-icon"><i class="fa-solid fa-moon" style="color:#6366f1"></i></span> Chế độ tối</span>
             <span class="cc-row-desc">Giao diện tối, dịu mắt khi học vào ban đêm.</span>
           </span>
           <span class="cc-switch"><input type="checkbox" id="darkModeToggle"><span class="cc-thumb"></span></span>
         </label>
         <label class="cc-row">
           <span class="cc-row-text">
-            <span class="cc-row-label"><span class="cc-row-icon">🌫️</span> Hiệu ứng kính mờ</span>
+            <span class="cc-row-label"><span class="cc-row-icon"><i class="fa-solid fa-wand-magic-sparkles" style="color:#a855f7"></i></span> Hiệu ứng kính mờ</span>
             <span class="cc-row-desc">Làm mờ nền phía sau các hộp thoại.</span>
           </span>
           <span class="cc-switch"><input type="checkbox" id="ccGlassToggle"><span class="cc-thumb"></span></span>
         </label>
         <label class="cc-row">
           <span class="cc-row-text">
-            <span class="cc-row-label"><span class="cc-row-icon">🦾</span> Giảm chuyển động</span>
+            <span class="cc-row-label"><span class="cc-row-icon"><i class="fa-solid fa-compress" style="color:#0d9488"></i></span> Giảm chuyển động</span>
             <span class="cc-row-desc">Giúp mượt hơn (tự bật trên điện thoại).</span>
           </span>
           <span class="cc-switch"><input type="checkbox" id="ccReduceToggle"><span class="cc-thumb"></span></span>
@@ -1499,7 +1504,7 @@ fetch('footer.html').then(r => r.text()).then(html => {
           <input class="cc-focus-input" id="ccFocusCustom" type="number" min="1" max="180" placeholder="Phút tùy chỉnh (1-180)">
           <button class="cc-btn-ghost" id="ccFocusSet" type="button">Đặt</button>
         </div>
-        <button class="cc-btn-primary" id="ccFocusStart" type="button">▶ Bắt đầu Focus</button>
+        <button class="cc-btn-primary" id="ccFocusStart" type="button"><i class="fa-solid fa-play"></i> Bắt đầu Focus</button>
         <p class="cc-focus-note">Focus sẽ bật toàn màn hình và ẩn hộp này đi. Hết giờ sẽ rung chuông và gửi thông báo.</p>
       </div>
 
@@ -1508,7 +1513,7 @@ fetch('footer.html').then(r => r.text()).then(html => {
         <div class="cc-track-list" id="ccTrackList"></div>
         <div class="cc-player">
           <div class="cc-player-top">
-            <span class="cc-now-icon" id="ccNowIcon">🎧</span>
+            <span class="cc-now-icon" id="ccNowIcon"><i class="fa-solid fa-headphones" style="color:#f43f5e"></i></span>
             <div style="min-width:0;">
               <div class="cc-now-title" id="ccNowTitle">Lofi Beats</div>
               <div class="cc-now-sub" id="ccNowSub">Radio 24/7 · Chillhop</div>
@@ -1547,7 +1552,7 @@ fetch('footer.html').then(r => r.text()).then(html => {
 <div id="ccFocusWidget" class="cc-focus-widget">
   <div class="cc-fw-head">
     <span class="cc-fw-meta">
-      <span class="cc-fw-label">⏳ Focus Mode</span>
+      <span class="cc-fw-label"><i class="fa-solid fa-hourglass-half" style="color:#f59e0b"></i> Focus Mode</span>
       <span class="cc-fw-state" id="ccFocusMode">Đang bật</span>
     </span>
     <button class="cc-fw-hide" id="ccFocusHide" type="button" title="Ẩn đồng hồ">✕</button>
@@ -1555,11 +1560,11 @@ fetch('footer.html').then(r => r.text()).then(html => {
   <div class="cc-fw-time" id="ccFocusTime">25:00</div>
   <div class="cc-fw-bar"><div class="cc-fw-fill" id="ccFocusBar"></div></div>
   <div class="cc-fw-actions">
-    <button class="cc-fw-btn" id="ccFocusPause" type="button">⏸ Tạm dừng</button>
+    <button class="cc-fw-btn" id="ccFocusPause" type="button"><i class="fa-solid fa-pause"></i> Tạm dừng</button>
     <button class="cc-fw-btn cc-danger" id="ccFocusExit" type="button">Thoát</button>
   </div>
 </div>
-<button id="ccFocusPill" class="cc-focus-pill" type="button" title="Mở đồng hồ Focus" aria-label="Mở đồng hồ Focus" style="display:none;">⏳</button>
+<button id="ccFocusPill" class="cc-focus-pill" type="button" title="Mở đồng hồ Focus" aria-label="Mở đồng hồ Focus" style="display:none;"><i class="fa-solid fa-hourglass-half" style="color:#f59e0b"></i></button>
 
 <div id="ccLogoutOverlay" class="cc-logout-overlay">
   <div class="cc-logout-card">
@@ -1574,7 +1579,7 @@ fetch('footer.html').then(r => r.text()).then(html => {
 </div>
 <div id="ccDoneOverlay" class="cc-logout-overlay">
   <div class="cc-logout-card">
-    <div class="cc-logout-icon" style="background:rgba(16,185,129,0.12);">🎉</div>
+    <div class="cc-logout-icon" style="background:rgba(16,185,129,0.12);"><i class="fa-solid fa-circle-check" style="color:#10b981;"></i></div>
     <div class="cc-logout-title">Hết giờ!</div>
     <p class="cc-logout-msg">Phiên Focus đã hoàn thành. Chúc bạn có giờ học thật hiệu quả nhé!</p>
     <div class="cc-logout-btns">

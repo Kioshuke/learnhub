@@ -102,7 +102,7 @@ window.logAppError = logAppError;
 const SUBJECTS = {};
 (window.LH_SUBJECTS || []).forEach(s => { SUBJECTS[s.id] = { short: s.short, color: s.color }; });
 
-const SESSIONS = { morning: ["🌅", "Sáng"], noon: ["☀️", "Trưa"], afternoon: ["🌤️", "Chiều"], evening: ["🌙", "Tối"] };
+const SESSIONS = { morning: ['<i class="fa-solid fa-sun"></i>', "Sáng"], noon: ['<i class="fa-solid fa-temperature-high"></i>', "Trưa"], afternoon: ['<i class="fa-solid fa-cloud-sun"></i>', "Chiều"], evening: ['<i class="fa-solid fa-moon"></i>', "Tối"] };
 let eventFlat = [];
 
 let scheduleChannel = null;
@@ -167,7 +167,7 @@ function renderSchedule() {
       const s = SUBJECTS[e.subject] || { short: String(e.subject || ""), color: "#2563eb" };
       const type = e.type === "thi" ? "thi" : "hoc";
       const session = e.session || (Number(String(e.time || "08:00").split(":")[0]) < 11 ? "morning" : Number(String(e.time || "08:00").split(":")[0]) < 14 ? "noon" : Number(String(e.time || "08:00").split(":")[0]) < 18 ? "afternoon" : "evening");
-      const sessionInfo = SESSIONS[session] || ["🕒", "Buổi học"];
+      const sessionInfo = SESSIONS[session] || ['<i class="fa-solid fa-clock"></i>', "Buổi học"];
       const timeText = [e.time, e.endTime].filter(v => v).join(" – ");
       const metaParts = [];
       if (timeText) metaParts.push('<strong class="schedule-item-time">' + escHtml(timeText) + '</strong>');
@@ -286,7 +286,7 @@ function buildEventModalInner(e) {
   const hour = Number(String(e.time || "08:00").split(":")[0]);
   const sess = SESSIONS[e.session] ||
     SESSIONS[hour < 11 ? "morning" : hour < 14 ? "noon" : hour < 18 ? "afternoon" : "evening"] ||
-    ["🕒", "Buổi học"];
+    ['<i class="fa-solid fa-clock"></i>', "Buổi học"];
   const timeText = [e.time, e.endTime].filter(v => v).join(" – ");
   const dateRow =
     '<div class="event-row"><i class="fas fa-calendar-day"></i><div class="event-row-info">' +

@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="giaodien.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
     <style>
         /* RESET & BASE */
         *{margin:0;padding:0;box-sizing:border-box}
@@ -183,7 +184,7 @@
             <div class="hdr-top">
                 <div class="week-tag"><span class="week-dot"></span><span id="week-label">—</span></div>
                 <div class="hdr-title">
-                    <h1>🏆 Bảng Xếp Hạng</h1>
+                    <h1><i class="fas fa-trophy"></i> Bảng Xếp Hạng</h1>
                     <p>Vinh danh học viên xuất sắc</p>
                 </div>
                 <div class="mode-switch">
@@ -197,7 +198,7 @@
         <div class="tab-panel active" id="tab-score">
         <div class="lb-layout">
             <div class="podium-side">
-                <div class="podium-title">🏆 Vinh danh Top 3 Tuần</div>
+                <div class="podium-title"><i class="fas fa-trophy"></i> Vinh danh Top 3 Tuần</div>
                 <div class="top3" id="podium"></div>
             </div>
 
@@ -228,7 +229,7 @@
         <div class="tab-panel" id="tab-time">
         <div class="lb-layout">
             <div class="podium-side">
-                <div class="podium-title">⏰ Vinh danh Top 3 Online</div>
+                <div class="podium-title"><i class="fas fa-clock"></i> Vinh danh Top 3 Online</div>
                 <div class="top3" id="podium-time"></div>
             </div>
 
@@ -338,7 +339,7 @@
                 if (!rows.length) {
                     tbodyEl.innerHTML = `<tr><td colspan="5">
                         <div class="lb-empty">
-                            <div class="lb-empty-icon">🏆</div>
+                            <div class="lb-empty-icon"><i class="fas fa-trophy"></i></div>
                             <div class="lb-empty-title">Bảng xếp hạng còn trống</div>
                             <div class="lb-empty-sub">Chưa có ai làm bài thi trong tuần này.<br>Hãy là người đầu tiên ghi tên mình lên bảng vinh danh!</div>
 
@@ -367,21 +368,21 @@
                 }
 
                 if (top3.length === 1) {
-                    podiumEl.innerHTML = buildPodium(top3, [{ idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' }]);
+                    podiumEl.innerHTML = buildPodium(top3, [{ idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }]);
                 } else if (top3.length === 2) {
                     podiumEl.innerHTML = buildPodium(top3, [
-                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '🥈' },
-                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' }
+                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
+                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }
                     ]);
                 } else {
                     podiumEl.innerHTML = buildPodium(top3, [
-                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '🥈' },
-                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' },
-                        { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: '🥉' }
+                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
+                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' },
+                        { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: '<i class="fas fa-medal" style="color:#b45309"></i>' }
                     ]);
                 }
 
-                const medals = ['🥇', '🥈', '🥉'];
+                const medals = ['<i class="fas fa-medal" style="color:#f59e0b"></i>', '<i class="fas fa-medal" style="color:#94a3b8"></i>', '<i class="fas fa-medal" style="color:#b45309"></i>'];
                 tbodyEl.innerHTML = rows.map((u, i) => {
                     const rankNum = i + 1;
                     const specialClass = rankNum <= 3 ? `row-rank-${rankNum}` : '';
@@ -460,7 +461,7 @@
                 if (!rows.length) {
                     tbodyEl.innerHTML = `<tr><td colspan="3">
                         <div class="lb-empty">
-                            <div class="lb-empty-icon">⏰</div>
+                            <div class="lb-empty-icon"><i class="fas fa-clock"></i></div>
                             <div class="lb-empty-title">Chưa có dữ liệu online</div>
                             <div class="lb-empty-sub">Thời gian học online tuần này của bạn sẽ được ghi nhận<br>khi bạn truy cập và học tập trên LearnHub.</div>
                         </div>
@@ -488,21 +489,21 @@
                 }
 
                 if (top3.length === 1) {
-                    podiumEl.innerHTML = buildTimePodium(top3, [{ idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' }]);
+                    podiumEl.innerHTML = buildTimePodium(top3, [{ idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }]);
                 } else if (top3.length === 2) {
                     podiumEl.innerHTML = buildTimePodium(top3, [
-                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '🥈' },
-                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' }
+                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
+                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }
                     ]);
                 } else {
                     podiumEl.innerHTML = buildTimePodium(top3, [
-                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '🥈' },
-                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '🥇' },
-                        { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: '🥉' }
+                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
+                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' },
+                        { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: '<i class="fas fa-medal" style="color:#b45309"></i>' }
                     ]);
                 }
 
-                const medals = ['🥇', '🥈', '🥉'];
+                const medals = ['<i class="fas fa-medal" style="color:#f59e0b"></i>', '<i class="fas fa-medal" style="color:#94a3b8"></i>', '<i class="fas fa-medal" style="color:#b45309"></i>'];
                 tbodyEl.innerHTML = rows.map((u, i) => {
                     const rankNum = i + 1;
                     const specialClass = rankNum <= 3 ? `row-rank-${rankNum}` : '';

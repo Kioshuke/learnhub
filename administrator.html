@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="pictures/favicon.png">
   <link rel="apple-touch-icon" href="pictures/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="element/giaodien.css">
   <style>
     :root {
@@ -665,7 +666,7 @@
       <div class="panel-head"><div><div class="panel-title">Popup chào mừng</div><div class="panel-desc" style="margin-bottom:0">Hiển thị sau khi user đăng nhập. Hỗ trợ HTML (&lt;b&gt;, &lt;br&gt;, &lt;i&gt;).</div></div></div>
       <div class="broadcast-layout">
         <div class="broadcast-col">
-          <div class="field-row" style="margin-top:0"><input id="welcomePopupTitleInput" class="input" type="text" placeholder="Tiêu đề popup (VD: 📢 Thông báo)"></div>
+          <div class="field-row" style="margin-top:0"><input id="welcomePopupTitleInput" class="input" type="text" placeholder="Tiêu đề popup (VD: Thông báo)"></div>
           <div class="field-row"><textarea id="welcomePopupMessageInput" class="input" rows="6" style="min-height:150px" placeholder="Nội dung popup..."></textarea></div>
         </div>
         <div class="broadcast-col">
@@ -712,12 +713,12 @@
 
     <div class="schedule-modal" id="scheduleEventModal" role="dialog" aria-modal="true" aria-labelledby="scheduleModalTitle">
       <div class="schedule-modal-card">
-        <div class="schedule-modal-head"><h3 id="scheduleModalTitle">📅 Thêm lịch học / lịch thi</h3><button class="schedule-modal-close" type="button" onclick="closeScheduleModal()" aria-label="Đóng">×</button></div>
+        <div class="schedule-modal-head"><h3 id="scheduleModalTitle"><i class="fa-solid fa-calendar-days"></i> Thêm lịch học / lịch thi</h3><button class="schedule-modal-close" type="button" onclick="closeScheduleModal()" aria-label="Đóng">×</button></div>
         <div class="schedule-modal-body"><div class="schedule-modal-grid">
           <div class="schedule-modal-field"><label for="scheduleModalDate">Ngày</label><input class="input" id="scheduleModalDate" type="date"></div>
           <div class="schedule-modal-field"><label for="scheduleModalSubject">Môn học</label><select class="select" id="scheduleModalSubject"></select></div>
-          <div class="schedule-modal-field"><label for="scheduleModalType">Loại lịch</label><select class="select" id="scheduleModalType"><option value="hoc">📚 Lịch học</option><option value="thi">📝 Lịch thi</option></select></div>
-          <div class="schedule-modal-field"><label for="scheduleModalSession">Buổi học</label><select class="select" id="scheduleModalSession"><option value="morning">🌅 Sáng</option><option value="noon">☀️ Trưa</option><option value="afternoon">🌤️ Chiều</option><option value="evening">🌙 Tối</option></select></div>
+          <div class="schedule-modal-field"><label for="scheduleModalType">Loại lịch</label><select class="select" id="scheduleModalType"><option value="hoc">Lịch học</option><option value="thi">Lịch thi</option></select></div>
+          <div class="schedule-modal-field"><label for="scheduleModalSession">Buổi học</label><select class="select" id="scheduleModalSession"><option value="morning">Sáng</option><option value="noon">Trưa</option><option value="afternoon">Chiều</option><option value="evening">Tối</option></select></div>
           <div class="schedule-modal-field"><label for="scheduleModalStart">Bắt đầu</label><input class="input" id="scheduleModalStart" type="time" value="08:00"></div>
           <div class="schedule-modal-field"><label for="scheduleModalEnd">Kết thúc</label><input class="input" id="scheduleModalEnd" type="time" value="10:00"></div>
           <div class="schedule-modal-field full"><label for="scheduleModalTitleInput">Nội dung</label><input class="input" id="scheduleModalTitleInput" type="text" placeholder="VD: Ôn tập chương 1"></div>
@@ -755,9 +756,9 @@
 
     <!-- WHITELIST TAB (bật/tắt whitelist toàn cục) -->
     <section class="panel tab-panel hidden" id="whitelistTabPanel">
-      <div class="panel-head"><div><div class="panel-title">Bật/Tắt Whitelist</div><div class="panel-desc" style="margin-bottom:0">Bật = phải nằm trong whitelist mới đăng nhập/đăng ký. Tắt = đăng nhập Google không cần whitelist; việc đăng ký tùy theo nút "Cho phép đăng ký".</div></div></div>
+      <div class="panel-head"><div><div class="panel-title">Mở / Đóng web</div><div class="panel-desc" style="margin-bottom:0">BẬT = web mở, mọi email đều vào được. TẮT = đóng web, chỉ email được cấp quyền (whitelist) mới đăng nhập/đăng ký; user không trong danh sách đang online sẽ bị đăng xuất.</div></div></div>
       <div id="whitelistStatusBanner" style="border-radius:var(--r-sm);padding:12px 16px;margin-bottom:18px;font-weight:600;font-size:13px">Đang tải trạng thái...</div>
-      <div style="margin-bottom:18px"><label class="toggle-switch"><input id="whitelistEnabledInput" type="checkbox" style="display:none"><span class="toggle-slider"></span><span style="font-weight:600;font-size:14px">Kích hoạt whitelist (yêu cầu cấp quyền email)</span></label></div>
+      <div style="margin-bottom:18px"><label class="toggle-switch"><input id="whitelistEnabledInput" type="checkbox" style="display:none"><span class="toggle-slider"></span><span style="font-weight:600;font-size:14px">Mở web cho mọi email truy cập</span></label></div>
       <div style="display:flex;gap:8px;margin-top:14px">
         <button class="btn btn-warning" id="saveWhitelistBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Lưu &amp; áp dụng</button>
         <button class="btn btn-soft" id="refreshWhitelistBtn">Làm mới</button>
@@ -892,9 +893,13 @@
           <option value="auth">Xác thực</option>
           <option value="test">Tải bài test</option>
         </select>
-        <button class="btn btn-soft" id="errorLogsRefreshBtn">
+<button class="btn btn-soft" id="errorLogsRefreshBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
           Làm mới
+        </button>
+        <button class="btn btn-success" id="errorLogsMarkAllBtn" title="Đánh dấu tất cả log còn lỗi là đã fix">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M7 12l4 4 7-8"/><path d="M7 18h10M4 7V8M8 4h2"/></svg>
+          Đọc tất cả
         </button>
         <div class="pagination" id="errorLogsPagination"></div>
       </div>
@@ -913,7 +918,7 @@
 <!-- MODAL -->
 <div id="confirmModal" class="confirm-modal">
   <div class="confirm-card">
-    <div class="confirm-icon" id="confirmModalIcon">⚠️</div>
+    <div class="confirm-icon" id="confirmModalIcon"><i class="fa-solid fa-triangle-exclamation"></i></div>
     <h3 class="confirm-title" id="confirmModalTitle">Xác nhận</h3>
     <p class="confirm-message" id="confirmModalMessage">Bạn có chắc chắn muốn thực hiện hành động này?</p>
     <div class="confirm-actions">

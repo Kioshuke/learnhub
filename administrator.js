@@ -139,9 +139,9 @@ document.querySelectorAll('input[name="broadcastTargetMode"]').forEach(r => {
   });
 });
 
-function showNotice(message, type = "info") {
+function showNotice(message, type = "info", icon) {
   if (window.lhToast) {
-    lhToast(message, { type: type === "warn" ? "warning" : type });
+    lhToast(message, { type: type === "warn" ? "warning" : type, icon: icon || undefined });
   }
 }
 
@@ -444,8 +444,8 @@ window.mailboxEditMsg = async function(id) {
 async function loadWelcomePopupForm() {
   try {
     const { data: d } = await supabase.from("broadcast_welcome").select("*").eq("id", true).maybeSingle();
-    if (!d) { welcomePopupTitleInput.value="📢 Thông báo"; welcomePopupMessageInput.value="CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM"; welcomePopupActiveInput.checked=true; document.querySelector('input[name="welcomePopupShowMode"][value="every_time"]').checked=true; welcomePopupMeta.textContent="Chưa có bản lưu. Lưu lần đầu để áp dụng."; return; }
-    welcomePopupTitleInput.value=d.title||"📢 Thông báo"; welcomePopupMessageInput.value=d.message||""; welcomePopupActiveInput.checked=d.active!==false;
+    if (!d) { welcomePopupTitleInput.value="Thông báo"; welcomePopupMessageInput.value="CẢM ƠN CÁC BẠN ĐÃ TIN TƯỞNG VÀ SỬ DỤNG HỆ SINH THÁI LEARNHUB PLATFORM"; welcomePopupActiveInput.checked=true; document.querySelector('input[name="welcomePopupShowMode"][value="every_time"]').checked=true; welcomePopupMeta.textContent="Chưa có bản lưu. Lưu lần đầu để áp dụng."; return; }
+    welcomePopupTitleInput.value=d.title||"Thông báo"; welcomePopupMessageInput.value=d.message||""; welcomePopupActiveInput.checked=d.active!==false;
     const mode=d.show_mode==="daily"?"daily":"every_time";
     document.querySelector(`input[name="welcomePopupShowMode"][value="${mode}"]`).checked=true;
     welcomePopupMeta.textContent=d.updated_at?`Cập nhật: ${formatDate(d.updated_at)}${d.updated_by?` · bởi ${d.updated_by}`:""}`:"";
@@ -459,7 +459,7 @@ document.getElementById("saveWelcomePopupBtn").addEventListener("click", async (
   if (!message) { showNotice("Vui lòng nhập nội dung popup.", "error"); return; }
   try {
     const now=new Date().toISOString();
-    await supabase.from("broadcast_welcome").upsert({ id: true, title: title||"📢 Thông báo", message, active, show_mode: showMode, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
+    await supabase.from("broadcast_welcome").upsert({ id: true, title: title||"Thông báo", message, active, show_mode: showMode, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
     welcomePopupMeta.textContent=`Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`; showNotice("Đã lưu popup cố định.", "success");
   } catch(e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Lưu popup thất bại.", "error"); }
 });
@@ -488,12 +488,12 @@ function scheduleEventId() { return crypto.randomUUID ? crypto.randomUUID() : "e
 function scheduleEditorCard(e) {
   const id = e.id || scheduleEventId();
   const session = e.session || guessScheduleSession(e.time);
-  const sessionInfo = { morning: ["🌅", "Sáng"], noon: ["☀️", "Trưa"], afternoon: ["🌤️", "Chiều"], evening: ["🌙", "Tối"] }[session] || ["🕒", "Buổi học"];
+  const sessionInfo = { morning: ['<i class="fa-solid fa-sun"></i>', "Sáng"], noon: ['<i class="fa-solid fa-temperature-high"></i>', "Trưa"], afternoon: ['<i class="fa-solid fa-cloud-sun"></i>', "Chiều"], evening: ['<i class="fa-solid fa-moon"></i>', "Tối"] }[session] || ['<i class="fa-solid fa-clock"></i>', "Buổi học"];
   const time = [e.time, e.endTime].filter(Boolean).join(" – ") || "Chưa chọn giờ";
   const subjInfo = (function () { const s = window.LH_SUBJECTS ? window.LH_SUBJECTS.find(x => x.id === e.subject) : null; return s ? [s.short, s.color] : [String(e.subject || "Môn"), "#2563eb"]; })();
   return `<div class="schedule-event-row ${e.type === "thi" ? "type-thi" : ""}" style="border-left-color:${subjInfo[1]}" data-id="${escapeHtml(id)}" data-date="${escapeHtml(e.date)}">
     <button class="se-delete" type="button" title="Xóa lịch" onclick="removeScheduleEvent('${escapeHtml(id)}')">×</button>
-    <div onclick="editScheduleEvent('${escapeHtml(id)}')"><div class="admin-schedule-top"><span class="admin-schedule-tag ${e.type === "thi" ? "thi" : ""}">${e.type === "thi" ? "Thi" : "Học"}</span><span class="admin-schedule-session ${session}">${sessionInfo[0]} ${sessionInfo[1]}</span><span class="admin-schedule-subj" style="background:${subjInfo[1]}">${escapeHtml(subjInfo[0])}</span></div><div class="admin-schedule-title">${escapeHtml(e.title || "")}</div><div class="admin-schedule-time">🕒 ${escapeHtml(time)}</div>${e.note ? `<div class="admin-schedule-note">${escapeHtml(e.note)}</div>` : ""}</div>
+    <div onclick="editScheduleEvent('${escapeHtml(id)}')"><div class="admin-schedule-top"><span class="admin-schedule-tag ${e.type === "thi" ? "thi" : ""}">${e.type === "thi" ? "Thi" : "Học"}</span><span class="admin-schedule-session ${session}">${sessionInfo[0]} ${sessionInfo[1]}</span><span class="admin-schedule-subj" style="background:${subjInfo[1]}">${escapeHtml(subjInfo[0])}</span></div><div class="admin-schedule-title">${escapeHtml(e.title || "")}</div><div class="admin-schedule-time"><i class="fa-solid fa-clock"></i> ${escapeHtml(time)}</div>${e.note ? `<div class="admin-schedule-note">${escapeHtml(e.note)}</div>` : ""}</div>
   </div>`;
 }
 
@@ -522,7 +522,7 @@ function guessScheduleSession(time) {
 function openScheduleModal(date, eventId) {
   const event = eventId ? scheduleEvents.find(e => e.id === eventId) : null;
   scheduleEditingEventId = event ? event.id : null;
-  document.getElementById("scheduleModalTitle").textContent = event ? "✏️ Chỉnh sửa lịch" : "📅 Thêm lịch học / lịch thi";
+  document.getElementById("scheduleModalTitle").innerHTML = event ? '<i class="fa-solid fa-pen"></i> Chỉnh sửa lịch' : '<i class="fa-solid fa-calendar-days"></i> Thêm lịch học / lịch thi';
   document.getElementById("scheduleModalDate").value = event ? event.date : (date || toIsoDate(scheduleWeekStart));
   document.getElementById("scheduleModalSubject").innerHTML = scheduleSubjectOptions(event ? event.subject : "ly");
   document.getElementById("scheduleModalType").value = event ? event.type : "hoc";
@@ -595,7 +595,7 @@ document.getElementById("refreshScheduleBtn").addEventListener("click", loadSche
 
 function renderMaintenanceBanner(d) {
   const on=Boolean(d&&d.enabled);
-  maintenanceStatusBanner.textContent=on?"🔴 ĐANG BẬT BẢO TRÌ — Toàn bộ user bị chặn truy cập.":"🟢 Đang tắt — Web hoạt động bình thường.";
+  maintenanceStatusBanner.innerHTML=on?'<i class="fa-solid fa-circle-exclamation"></i> ĐANG BẬT BẢO TRÌ — Toàn bộ user bị chặn truy cập.':'<i class="fa-solid fa-circle-check"></i> Đang tắt — Web hoạt động bình thường.';
   maintenanceStatusBanner.style.background=on?"#fee2e2":"#dcfce7"; maintenanceStatusBanner.style.color=on?"#b91c1c":"#166534";
   maintenanceStatusBanner.style.border=on?"1px solid #fecaca":"1px solid #bbf7d0";
 }
@@ -644,7 +644,7 @@ function renderRegistrationBanner(d) {
   const on = d && d.enabled;
   registrationStatusBanner.style.background = on ? "rgba(34,197,94,.12)" : "rgba(239,68,68,.10)";
   registrationStatusBanner.style.color = on ? "#16a34a" : "#dc2626";
-  registrationStatusBanner.textContent = on ? "✅ Đăng ký đang MỞ — user mới có thể đăng ký." : "🚫 Đăng ký đang ĐÓNG — chỉ user trong whitelist mới đăng ký được.";
+  registrationStatusBanner.innerHTML = on ? '<i class="fa-solid fa-circle-check"></i> Đăng ký đang MỞ — user mới có thể đăng ký.' : '<i class="fa-solid fa-ban"></i> Đăng ký đang ĐÓNG — chỉ user trong whitelist mới đăng ký được.';
 }
 
 function updateRegistrationBadge(enabled) {
@@ -687,21 +687,21 @@ document.getElementById("saveRegistrationBtn").addEventListener("click", () => {
 
 document.getElementById("refreshRegistrationBtn").addEventListener("click", loadRegistrationForm);
 
-// ---------- WHITELIST TOGGLE (bật/tắt whitelist toàn cục) ----------
+// ---------- WHITELIST TOGGLE (mở/đóng web toàn cục) ----------
 function renderWhitelistBanner(d) {
   if (!whitelistStatusBanner) return;
-  const on = d && d.enabled !== false;
+  const on = d && d.enabled === true; // true = web MỞ
   whitelistStatusBanner.style.background = on ? "rgba(34,197,94,.12)" : "rgba(239,68,68,.10)";
   whitelistStatusBanner.style.color = on ? "#16a34a" : "#dc2626";
-  whitelistStatusBanner.textContent = on
-    ? "🛡️ Whitelist đang BẬT — chỉ email được cấp quyền mới đăng nhập/đăng ký."
-    : "🌐 Whitelist đang TẮT — đăng nhập Google không cần whitelist; đăng ký tùy theo nút 'Cho phép đăng ký'.";
+  whitelistStatusBanner.innerHTML = on
+    ? '<i class="fa-solid fa-earth-asia"></i> Web đang MỞ — mọi email đều được truy cập.'
+    : '<i class="fa-solid fa-lock"></i> Web đang ĐÓNG — chỉ email được cấp quyền (whitelist) mới vào; ai bị gỡ quyền sẽ bị đăng xuất ngay.';
 }
 
 function updateWhitelistBadge(enabled) {
   const badge = document.getElementById("whitelistBadge");
   if (!badge) return;
-  badge.textContent = enabled ? "On" : "Off";
+  badge.textContent = enabled ? "Mở" : "Đóng";
   badge.classList.add("visible");
   badge.classList.toggle("on", Boolean(enabled));
   badge.classList.toggle("off", !enabled);
@@ -710,10 +710,10 @@ function updateWhitelistBadge(enabled) {
 async function loadWhitelistForm() {
   try {
     const { data: d } = await supabase.from("whitelist_settings").select("*").eq("id", true).maybeSingle();
-    whitelistEnabledInput.checked = d ? d.enabled !== false : true;
+    whitelistEnabledInput.checked = d ? d.enabled === true : false;
     renderWhitelistBanner(d || {});
     whitelistMeta.textContent = d && d.updated_at ? `Cập nhật: ${formatDate(d.updated_at)}${d.updated_by ? ` · bởi ${d.updated_by}` : ""}` : "Chưa từng chỉnh sửa.";
-    updateWhitelistBadge(d ? d.enabled !== false : true);
+    updateWhitelistBadge(d ? d.enabled === true : false);
   } catch (e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Không tải được trạng thái whitelist.", "error"); }
 }
 
@@ -725,13 +725,13 @@ document.getElementById("saveWhitelistBtn").addEventListener("click", () => {
       await supabase.from("whitelist_settings").upsert({ id: true, enabled, updated_at: now, updated_by: adminEmail }, { onConflict: "id" });
       renderWhitelistBanner({ enabled }); whitelistMeta.textContent = `Cập nhật: ${formatDate(now)} · bởi ${adminEmail}`;
       updateWhitelistBadge(enabled);
-      showNotice(enabled ? "Đã BẬT whitelist." : "Đã TẮT whitelist.", "success"); await loadWhitelistForm();
+      showNotice(enabled ? "Đã MỞ web — mọi email được truy cập." : "Đã ĐÓNG web — chỉ email trong whitelist mới vào.", "success", enabled ? "fa-earth-asia" : "fa-lock"); await loadWhitelistForm();
     } catch (e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Cập nhật whitelist thất bại.", "error"); }
   };
   if (enabled) {
-    openConfirmDialog("Bật whitelist?", "Chỉ email được cấp quyền mới đăng nhập/đăng ký. Tiếp tục?", apply);
+    openConfirmDialog("Mở web cho mọi email?", "Tất cả email đều có thể đăng nhập/đăng ký mà không cần cấp quyền. Tiếp tục?", apply);
   } else {
-    openConfirmDialog("Tắt whitelist?", "Mọi email đều có thể đăng nhập Google; việc đăng ký tùy theo nút 'Cho phép đăng ký'. Tiếp tục?", apply);
+    openConfirmDialog("Đóng web?", "Chỉ email được cấp quyền (whitelist) mới đăng nhập/đăng ký. User đang online không nằm trong whitelist sẽ bị đăng xuất ngay. Tiếp tục?", apply);
   }
 });
 
@@ -749,7 +749,7 @@ directoryFilterSelect.addEventListener("change", () => { currentPage = 1; render
 
 window.toggleWhitelist = async (email, cur) => {
   await supabase.from("access_list").upsert({ email, enabled: !cur, updated_at: new Date().toISOString() }, { onConflict: "email" });
-  showNotice(cur?"Đã tắt quyền email này.":"Đã bật lại quyền email này.", "success");
+  showNotice(cur ? "Đã tắt quyền email này." : "Đã bật lại quyền email này.", "success", cur ? "fa-user-xmark" : "fa-user-check");
 };
 window.removeWhitelist = async (email) => {
   if (!(await lhConfirm("Xóa email này khỏi whitelist?"))) return;
@@ -764,7 +764,7 @@ window.toggleDisable = async (uid, cur) => {
   if (!uid) return;
   if(!cur){ await adminFinalizeOnline(uid); } // finalize giờ online đang chạy trước khi khóa, không mất công sức
   await supabase.from("users").update({ disabled: !cur, online: false, updated_at: new Date().toISOString() }).eq("id", uid);
-  showNotice(cur?"Đã mở khóa user.":"Đã disable user.", "success");
+  showNotice(cur ? "Đã mở khóa user." : "Đã disable user.", "success", cur ? "fa-lock-open" : "fa-user-lock");
 };
 window.changeUserRole = async (uid, role) => {
   if (!uid) return; try { await supabase.from("users").update({ role, updated_at: new Date().toISOString() }).eq("id", uid); showNotice(`Đã chuyển quyền thành: ${role}`, "success"); }
@@ -895,7 +895,7 @@ document.getElementById("manualResetBtn").addEventListener("click", async () => 
   if(resetScore) targets.push("điểm số");
   if(resetTime) targets.push("thời gian online");
 
-  mI.textContent = "⚠️";
+  mI.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
   mT.textContent = `Reset ${targets.join(" & ")}?`;
   mM.textContent = `Hành động này sẽ reset ${targets.join(" và ")}. Bạn có chắc?`;
   modal.classList.add("active");
@@ -952,7 +952,7 @@ document.getElementById("logoutAllBtn").addEventListener("click", async () => {
   const mM = document.getElementById("confirmModalMessage");
   const cB = document.getElementById("confirmModalConfirm");
 
-  mI.textContent = "⚠️";
+  mI.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
   mT.textContent = `Đăng xuất ${onlineCount} user đang online?`;
   mM.textContent = "Tất cả user đang online sẽ bị đánh dấu offline. User đang mở tab sẽ tự động online lại sau 5 giây.";
   modal.classList.add("active");
@@ -1138,7 +1138,7 @@ function openConfirmDialog(title, message, onYes) {
   const modal = document.getElementById("confirmModal");
   const cB = document.getElementById("confirmModalConfirm");
   const cC = document.getElementById("confirmModalCancel");
-  document.getElementById("confirmModalIcon").textContent = "⚠️";
+  document.getElementById("confirmModalIcon").innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
   document.getElementById("confirmModalTitle").textContent = title;
   document.getElementById("confirmModalMessage").textContent = message;
   if (confirmDialogHandler) {
@@ -1237,6 +1237,24 @@ errorLogsLevelSelect.addEventListener("change", () => { errorLogsPage = 1; rende
 errorLogsStatusSelect.addEventListener("change", () => { errorLogsPage = 1; renderErrorLogs(); });
 errorLogsCategorySelect.addEventListener("change", () => { errorLogsPage = 1; renderErrorLogs(); });
 document.getElementById("errorLogsRefreshBtn").addEventListener("click", () => fetchErrorLogs());
+
+window.markAllErrorLogsFixed = () => {
+  const ids = errorLogsData.filter(l => l.status !== "fixed").map(l => l.id);
+  if (!ids.length) { showNotice("Không có log nào đang còn lỗi.", "info"); return; }
+  openConfirmDialog("Đọc tất cả log?", `Đánh dấu ${ids.length} log đang còn lỗi thành "Đã fix" một lượt?`, async () => {
+    const now = new Date().toISOString();
+    const { error } = await supabase
+      .from("error_logs")
+      .update({ status: "fixed", resolved_by: adminEmail, resolved_at: now })
+      .in("id", ids)
+      .eq("status", "open");
+    if (error) { console.error(error); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((error && error.message) || error || "") }); showNotice("Cập nhật log thất bại.", "error"); return; }
+    errorLogsData.forEach(l => { if (ids.includes(l.id) && l.status !== "fixed") { l.status = "fixed"; l.resolved_by = adminEmail; l.resolved_at = now; } });
+    renderErrorLogs();
+    showNotice(`Đã đánh dấu ${ids.length} log là đã fix.`, "success", "fa-check-double");
+  });
+};
+document.getElementById("errorLogsMarkAllBtn").addEventListener("click", markAllErrorLogsFixed);
 
 supabase.auth.onAuthStateChange(async (event, session) => {
   const user = session?.user ?? null;

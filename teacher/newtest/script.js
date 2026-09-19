@@ -70,7 +70,7 @@ function setFileLabel(name) {
     el.title = "";
     return;
   }
-  el.textContent = "📄 " + name;   // giữ nguyên đuôi mở rộng
+  el.innerHTML = '<i class="fa-solid fa-file-lines"></i> ' + name;   // giữ nguyên đuôi mở rộng
   el.title = name;
 }
 
@@ -605,7 +605,7 @@ function render() {
 
     if (section.audio) {
       head.insertAdjacentHTML("beforeend",
-        '<div class="rd-listen"><span class="muted">🎧 ' + (section.listenTitle || "Nghe") + ': </span>' +
+        '<div class="rd-listen"><span class="muted"><i class="fa-solid fa-headphones"></i> ' + (section.listenTitle || "Nghe") + ': </span>' +
         '<audio controls preload="none" src="' + escAttr(section.audio) + '"></audio></div>');
     }
     sec.appendChild(head);
@@ -751,7 +751,7 @@ function render() {
           sv.type = "button";
           sv.className = "btn btn-ghost";
           sv.style.marginTop = "8px";
-          sv.textContent = "💾 Lưu làm đáp án mẫu";
+          sv.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Lưu làm đáp án mẫu';
           sv.addEventListener("click", function () {
             var v = ta.value.trim();
             item.correctAnswer = v;
@@ -1074,8 +1074,8 @@ function renderReview() {
         '<span class="rev-sec-meta">' + cnt + " câu" + (s.timeLimit ? " · ⏱ " + s.timeLimit + " phút" : "") + "</span>" +
       "</div>";
     if (s.sectionDesc) left += '<div class="rev-sec-desc">' + s.sectionDesc + "</div>";
-    if (s.audio) left += '<div class="rev-extra">🎧 ' + escapeC(s.listenTitle || "Nghe") + "</div>";
-    if (s.passage && String(s.passage).trim()) left += '<div class="rev-extra">📖 Có đoạn đọc hiểu kèm câu hỏi</div>';
+    if (s.audio) left += '<div class="rev-extra"><i class="fa-solid fa-headphones"></i> ' + escapeC(s.listenTitle || "Nghe") + "</div>";
+    if (s.passage && String(s.passage).trim()) left += '<div class="rev-extra"><i class="fa-solid fa-book-open"></i> Có đoạn đọc hiểu kèm câu hỏi</div>';
     left += '<ol class="rev-qs">';
     (s.questions || []).forEach(function (item) {
       var cls = item.type === "true_false" ? "tf" : (item.type === "short_answer" ? "short" : "multiple");
@@ -1102,35 +1102,35 @@ function renderReview() {
   /* ---- Cột phải: thiết lập + xuất bản ---- */
   var right =
     '<div class="rev-meta">' +
-      '<div class="rev-meta-hd">⚙️ Thiết lập đề</div>' +
-      '<div class="rev-meta-row"><span class="rev-k">📚 Môn học</span><span class="rev-v">' +
+      '<div class="rev-meta-hd"><i class="fa-solid fa-gear"></i> Thiết lập đề</div>' +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-book-open"></i> Môn học</span><span class="rev-v">' +
         (testMeta.subject ? escapeC(testMeta.subject) : '<i class="muted">Chưa chọn</i>') +
       "</span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k">📝 Tên đề</span><span class="rev-v">' +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-pen-to-square"></i> Tên đề</span><span class="rev-v">' +
         (testMeta.name ? escapeC(testMeta.name) : '<b style="color:#b91c1c">Chưa đặt tên</b>') +
       "</span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k">📄 Mô tả</span><span class="rev-v">' +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-file-lines"></i> Mô tả</span><span class="rev-v">' +
         (testMeta.desc ? escapeC(testMeta.desc) : '<i class="muted">(trống)</i>') +
       "</span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k">⏱ Thời gian</span><span class="rev-v">' +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-stopwatch"></i> Thời gian</span><span class="rev-v">' +
         (testMeta.minutes > 0 ? "<b>" + testMeta.minutes + " phút</b>" : "Không giới hạn") +
       "</span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k">🎯 Điểm tối đa</span><span class="rev-v"><b>' + testMeta.score + "</b> điểm</span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k">🔀 Xáo trộn</span><span class="rev-v">Câu: <b>' +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-bullseye"></i> Điểm tối đa</span><span class="rev-v"><b>' + testMeta.score + "</b> điểm</span></div>" +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-shuffle"></i> Xáo trộn</span><span class="rev-v">Câu: <b>' +
         (testMeta.shuffleQ ? "Bật" : "Tắt") + "</b> · Đáp án: <b>" + (testMeta.shuffleA ? "Bật" : "Tắt") +
       "</b></span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k">📊 Xem điểm</span><span class="rev-v"><b>' +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-chart-column"></i> Xem điểm</span><span class="rev-v"><b>' +
         (testMeta.showScore === "none" ? "Bị Ẩn" : "Có") +
       "</b></span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k">👁️ Xem đáp án</span><span class="rev-v"><b>' +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-eye"></i> Xem đáp án</span><span class="rev-v"><b>' +
         (testMeta.showAnswers === "none" ? "Không cho phép" : testMeta.showAnswers === "perfect" ? "Chỉ khi tối đa" : "Luôn hiện") +
       "</b></span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k">🗂 Thống kê</span><span class="rev-v">' + qn + " câu · " + nSec + " phần</span></div>" +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-folder-open"></i> Thống kê</span><span class="rev-v">' + qn + " câu · " + nSec + " phần</span></div>" +
     "</div>" +
     '<div class="note" id="revNote" hidden></div>' +
     '<div class="rev-actions">' +
       '<button type="button" class="btn btn-ghost" id="btnRevBack">← Sửa lại đề</button>' +
-      '<button type="button" class="btn btn-success" id="btnPublish">' + (currentEditId ? "💾 Cập nhật đề" : "🚀 Xuất bản đề") + '</button>' +
+      '<button type="button" class="btn btn-success" id="btnPublish">' + (currentEditId ? '<i class="fa-solid fa-floppy-disk"></i> Cập nhật đề' : '<i class="fa-solid fa-rocket"></i> Xuất bản đề') + '</button>' +
     "</div>";
 
   area.innerHTML = '<div class="rev-split"><div class="rev-left" id="revLeft">' + left + "</div>" +
@@ -1158,7 +1158,7 @@ async function publishTest() {
   if (!testMeta.name) { renderReview(); return; }
   var subject = testMeta.subject || "";
   b.disabled = true;
-  b.textContent = "⏳ Đang xuất bản…";
+  b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xuất bản…';
   var payload = {
     p_id: currentEditId || null,
     p_subject: subject,
@@ -1193,7 +1193,7 @@ async function publishTest() {
     if (left) {
       left.innerHTML =
         '<div class="publish-success">' +
-          '<div class="pub-ico">🎉</div>' +
+          '<div class="pub-ico"><i class="fa-solid fa-champagne-glasses"></i></div>' +
           "<h3>" + (currentEditId ? "Đã cập nhật" : "Đã xuất bản") + "</h3>" +
           "<p>Đề <b>" + escapeC(testMeta.name) + "</b>" +
             (subject ? " · môn <b>" + escapeC(subject) + "</b>" : "") +
@@ -1210,7 +1210,7 @@ async function publishTest() {
     }
     if (rn) rn.hidden = true;
     b.disabled = false;
-    b.textContent = currentEditId ? "💾 Đã lưu ✓" : "🚀 Đã xuất bản ✓";
+    b.innerHTML = currentEditId ? '<i class="fa-solid fa-floppy-disk"></i> Đã lưu ✓' : '<i class="fa-solid fa-rocket"></i> Đã xuất bản ✓';
     b.style.opacity = ".55";
     if (typeof mod.logAppError === "function") {
       mod.logAppError({ source: "newtest", category: "feature", level: "info", code: currentEditId ? "TEST_UPDATED" : "TEST_PUBLISHED", message: (currentEditId ? "Cập nhật đề: " : "Xuất bản đề: ") + realId });
@@ -1224,7 +1224,7 @@ async function publishTest() {
     if (left) {
       left.innerHTML =
         '<div style="border:1px solid #fecaca;background:#fef2f2;border-radius:18px;padding:24px;text-align:center">' +
-          '<div style="font-size:36px">⚠️</div>' +
+          '<div style="font-size:36px"><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444"></i></div>' +
           "<h3 style=\"color:#b91c1c;margin:6px 0 4px;font-size:17px\">Xuất bản thất bại</h3>" +
           "<p style=\"margin:4px 0;font-size:13.5px;color:#7f1d1d\">" + escapeC(errMsg) + "</p>" +
           '<button type="button" class="btn btn-primary" id="btnPublishAgain">Thử lại</button>' +
@@ -1232,7 +1232,7 @@ async function publishTest() {
     }
     if (rn) rn.hidden = true;
     b.disabled = false;
-    b.textContent = currentEditId ? "💾 Lưu lại" : "🚀 Xuất bản";
+    b.innerHTML = currentEditId ? '<i class="fa-solid fa-floppy-disk"></i> Lưu lại' : '<i class="fa-solid fa-rocket"></i> Xuất bản';
     b.style.opacity = "1";
   }
 }
@@ -1302,7 +1302,7 @@ $("btnSetupApply").addEventListener("click", function () {
   var se = $("setupError");
   if (errs.length) {
     bad.forEach(function (el) { el.classList.add("invalid"); });
-    se.innerHTML = "⚠️ Vui lòng " + errs.join(", ") + " để tiếp tục.";
+    se.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#d97706"></i> Vui lòng ' + errs.join(", ") + " để tiếp tục.";
     se.hidden = false;
     return;
   }
@@ -1584,7 +1584,7 @@ showStage(1);
         render();
         setFileLabel(d.name || "Chưa có tiêu đề");
         var lockNote = currentEditComplete
-          ? '<br><b style="color:#b45309">🔒 Đề đã xuất bản</b> — được sửa nội dung/đáp án/điểm/mô tả, nhưng <b>KHÔNG</b> được thêm/bớt câu, section, đáp án hay mệnh đề. Muốn đổi cấu trúc hãy tạo đề mới.'
+          ? '<br><b style="color:#b45309"><i class="fa-solid fa-lock"></i> Đề đã xuất bản</b> — được sửa nội dung/đáp án/điểm/mô tả, nhưng <b>KHÔNG</b> được thêm/bớt câu, section, đáp án hay mệnh đề. Muốn đổi cấu trúc hãy tạo đề mới.'
           : "";
         setNote("Đã nạp sẵn đề <b>" + escapeC(d.name || "chưa đặt tên") + "</b> để sửa (màn 2). Sửa xong bấm <b>▶ Tiếp tục</b> để rà soát & lưu lại." + lockNote, false);
         showStage(2);

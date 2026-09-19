@@ -1380,6 +1380,7 @@ function showLoginSuccess(message, redirectMs = 3000) {
       type: "success",
       title: "Thành công",
       durationMs: redirectMs,
+      icon: "fa-right-to-bracket",
       sound: "thongbao"
     });
   }
@@ -1839,7 +1840,7 @@ onAuthChange(async (event, session) => {
       const allowed = await emailAllowed(user.email);
       if (!allowed) {
         logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED", message: "User không nằm trong whitelist cố đăng nhập (OAuth/quay lại khi có session).", email: user.email });
-        showAuthNotice("Email này chưa được cấp quyền truy cập LearnHub. Nếu cần tài khoản, hãy liên hệ quản trị viên.", "error", "Không có quyền truy cập", 4500);
+        showAuthNotice("Email này chưa được cấp quyền truy cập LearnHub. Nếu cần tài khoản, hãy liên hệ quản trị viên.", "error", "Không có quyền truy cập", 4500, "thongbaoSound", "fa-user-xmark");
         await supabase.auth.signOut();
         processingLogin = false;
         return;
@@ -1848,7 +1849,7 @@ onAuthChange(async (event, session) => {
       const row = await getUserRow(user.id);
       if (row && row.disabled) {
         logAppError({ source: "login", category: "disabled", level: "warning", code: "DISABLED", message: "Tài khoản bị khóa cố đăng nhập (OAuth/quay lại khi có session).", email: user.email, detail: { name: row.name || "" } });
-        showAuthNotice("Tài khoản của bạn đang bị khóa. Hãy liên hệ quản trị viên để được hỗ trợ.", "error", "Tài khoản bị khóa", 4500);
+        showAuthNotice("Tài khoản của bạn đang bị khóa. Hãy liên hệ quản trị viên để được hỗ trợ.", "error", "Tài khoản bị khóa", 4500, "thongbaoSound", "fa-user-lock");
         await supabase.auth.signOut();
         processingLogin = false;
         return;
@@ -1867,7 +1868,7 @@ onAuthChange(async (event, session) => {
     document.getElementById("loginBox").style.display = "flex";
     const params = new URLSearchParams(window.location.search);
     if (params.get("loggedout") === "1") {
-      showAuthNotice("Đăng xuất thành công!", "success", "Thành công");
+      showAuthNotice("Đăng xuất thành công!", "success", "Thành công", 2600, "thongbaoSound", "fa-right-from-bracket");
       window.history.replaceState({}, '', 'login.html');
     }
   }
@@ -1944,7 +1945,7 @@ window.emailLogin = async function() {
     const user = data.user;
     if (!await emailAllowed(user.email)) {
       logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED", message: "Đăng nhập email/mật khẩu bằng email không nằm trong whitelist.", email: user.email });
-      showAuthNotice("Email này chưa được cấp quyền truy cập LearnHub. Nếu cần tài khoản, hãy liên hệ quản trị viên.", "error", "Không có quyền truy cập", 4500);
+      showAuthNotice("Email này chưa được cấp quyền truy cập LearnHub. Nếu cần tài khoản, hãy liên hệ quản trị viên.", "error", "Không có quyền truy cập", 4500, "thongbaoSound", "fa-user-xmark");
       setFieldError("loginEmail", "Email chưa được cấp quyền truy cập — liên hệ quản trị viên");
       await supabase.auth.signOut();
       processingLogin = false;
@@ -1954,7 +1955,7 @@ window.emailLogin = async function() {
     const row = await getUserRow(user.id);
     if (row && row.disabled) {
       logAppError({ source: "login", category: "disabled", level: "warning", code: "DISABLED", message: "Đăng nhập email/mật khẩu bằng tài khoản bị khóa.", email: user.email, detail: { name: row.name || "" } });
-      showAuthNotice("Tài khoản của bạn đang bị khóa. Hãy liên hệ quản trị viên để được hỗ trợ.", "error", "Tài khoản bị khóa", 4500);
+      showAuthNotice("Tài khoản của bạn đang bị khóa. Hãy liên hệ quản trị viên để được hỗ trợ.", "error", "Tài khoản bị khóa", 4500, "thongbaoSound", "fa-user-lock");
       setFieldError("loginEmail", "Tài khoản đang bị khóa — liên hệ quản trị viên");
       await supabase.auth.signOut();
       processingLogin = false;
@@ -2015,16 +2016,16 @@ window.emailRegister = async function() {
     showAuthNotice("Bạn cần đồng ý với Điều khoản sử dụng và Chính sách bảo mật để đăng ký.", "error", "Chưa đồng ý điều khoản");
     return;
   }
-  const wlOn = await isWhitelistEnabled();
-  // Khi whitelist BẬT: vẫn giữ hành vi cũ (cần whitelist, user trong whitelist đăng ký được dù đóng).
-  // Khi whitelist TẮT: đăng ký đóng -> không đăng ký (chỉ đăng nhập Google); đăng ký mở -> không cần whitelist.
-  if (!registrationOpen && (wlOn ? !await emailAllowed(email) : true)) {
+  const wlOn = await isWhitelistEnabled(); // true = web MỞ
+  // Web MỞ: không cần whitelist; đăng ký đóng -> chặn tất cả, đăng ký mở -> tự do.
+  // Web ĐÓNG: phải trong whitelist; user trong whitelist vẫn đăng ký được dù nút 'Cho phép đăng ký' tắt.
+  if (!registrationOpen && (!wlOn ? !await emailAllowed(email) : true)) {
     logAppError({ source: "login", category: "whitelist", level: "warning", code: "REG_CLOSED", message: "Đăng ký bị đóng, email không nằm trong whitelist.", email: email });
     setFieldError("registerEmail", "Đăng ký hiện đang đóng");
     showAuthNotice("Đăng ký hiện đang đóng. Nếu bạn cần tài khoản, hãy liên hệ quản trị viên.", "error", "Đăng ký bị đóng");
     return;
   }
-  if (!await emailAllowed(email)) {
+  if (!wlOn && !await emailAllowed(email)) {
     logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED_SIGNUP", message: "Cố đăng ký bằng email không nằm trong whitelist.", email: email });
     setFieldError("registerEmail", "Email chưa được cấp quyền đăng ký");
     showAuthNotice("Email này chưa được cấp quyền đăng ký. Nếu cần tài khoản, hãy liên hệ quản trị viên.", "error", "Không có quyền truy cập");

@@ -217,19 +217,19 @@
           <div class="custom-select-wrapper">
             <select id="feedback_type" name="feedback_type" required class="real-select">
               <option value="" disabled selected>-- Chọn danh mục --</option>
-              <option value="Báo lỗi hệ thống">🐛 Báo lỗi tính năng / Hệ thống</option>
-              <option value="Góp ý giao diện">🎨 Góp ý giao diện / UI-UX</option>
-              <option value="Đề xuất nội dung">📚 Đề xuất nội dung học tập</option>
-              <option value="Ý kiến khác">💡 Ý kiến đóng góp khác</option>
+              <option value="Báo lỗi hệ thống">Báo lỗi tính năng / Hệ thống</option>
+              <option value="Góp ý giao diện">Góp ý giao diện / UI-UX</option>
+              <option value="Đề xuất nội dung">Đề xuất nội dung học tập</option>
+              <option value="Ý kiến khác">Ý kiến đóng góp khác</option>
             </select>
 
             <div class="select-trigger" id="custom-trigger">-- Chọn danh mục --</div>
 
             <div class="custom-options">
-              <div class="custom-option" data-value="Báo lỗi hệ thống">🐛 Báo lỗi tính năng / Hệ thống</div>
-              <div class="custom-option" data-value="Góp ý giao diện">🎨 Góp ý giao diện / UI-UX</div>
-              <div class="custom-option" data-value="Đề xuất nội dung">📚 Đề xuất nội dung học tập</div>
-              <div class="custom-option" data-value="Ý kiến khác">💡 Ý kiến đóng góp khác</div>
+              <div class="custom-option" data-value="Báo lỗi hệ thống"><i class="fa-solid fa-bug"></i> Báo lỗi tính năng / Hệ thống</div>
+              <div class="custom-option" data-value="Góp ý giao diện"><i class="fa-solid fa-palette"></i> Góp ý giao diện / UI-UX</div>
+              <div class="custom-option" data-value="Đề xuất nội dung"><i class="fa-solid fa-book-open"></i> Đề xuất nội dung học tập</div>
+              <div class="custom-option" data-value="Ý kiến khác"><i class="fa-solid fa-lightbulb"></i> Ý kiến đóng góp khác</div>
             </div>
           </div>
         </div>
@@ -278,10 +278,10 @@
       option.addEventListener('click', function(e) {
         e.stopPropagation();
         const value = this.getAttribute('data-value');
-        const text = this.textContent;
+        const html = this.innerHTML;
 
         // Cập nhật text hiển thị lên trigger và đổi màu chữ đậm
-        trigger.textContent = text;
+        trigger.innerHTML = html;
         trigger.classList.add('has-value');
 
         // Cập nhật giá trị sang thẻ select ẩn để gửi đi qua EmailJS
@@ -315,7 +315,7 @@
       // Kiểm tra xem đã chọn danh mục chưa (Vì dùng select giả nên check thủ công)
       if (!realSelect.value) {
         errorBox.style.display = 'block';
-        errorBox.innerText = '⚠️ Vui lòng chọn một danh mục đóng góp phản hồi!';
+        errorBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#d97706"></i> Vui lòng chọn một danh mục đóng góp phản hồi!';
         return;
       }
 
@@ -343,7 +343,7 @@
           submitBtn.disabled = false;
           submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Thử lại';
           errorBox.style.display = 'block';
-          errorBox.innerText = '😓 Đã có lỗi xảy ra. Vui lòng kiểm tra lại!';
+          errorBox.innerHTML = '<i class="fa-solid fa-face-frown" style="color:#ef4444"></i> Đã có lỗi xảy ra. Vui lòng kiểm tra lại!';
           if (window.logAppError) window.logAppError({ source: "gop-y", category: "action", level: "error", code: "FEEDBACK_SEND_FAIL", message: "Gửi góp ý bằng emailjs thất bại.", detail: { err: String((err && (err.message || err.text)) || err || "") } });
           console.log(JSON.stringify(err));
         });

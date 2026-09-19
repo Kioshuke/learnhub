@@ -1282,12 +1282,12 @@
   <!-- ===== SCHEDULE MODAL ===== -->
   <div class="schedule-modal" id="scheduleEventModal" role="dialog" aria-modal="true" aria-labelledby="scheduleModalTitle">
     <div class="schedule-modal-card">
-      <div class="schedule-modal-head"><h3 id="scheduleModalTitle">📅 Thêm lịch học / lịch thi</h3><button class="schedule-modal-close" type="button" onclick="closeScheduleModal()" aria-label="Đóng">×</button></div>
+      <div class="schedule-modal-head"><h3 id="scheduleModalTitle"><i class="fa-solid fa-calendar-days"></i> Thêm lịch học / lịch thi</h3><button class="schedule-modal-close" type="button" onclick="closeScheduleModal()" aria-label="Đóng">×</button></div>
       <div class="schedule-modal-body"><div class="schedule-modal-grid">
         <div class="schedule-modal-field"><label for="scheduleModalDate">Ngày</label><input id="scheduleModalDate" type="date"></div>
         <div class="schedule-modal-field"><label for="scheduleModalSubject">Môn học</label><select id="scheduleModalSubject"></select></div>
-        <div class="schedule-modal-field"><label for="scheduleModalType">Loại lịch</label><select id="scheduleModalType"><option value="hoc">📚 Lịch học</option><option value="thi">📝 Lịch thi</option></select></div>
-        <div class="schedule-modal-field"><label for="scheduleModalSession">Buổi học</label><select id="scheduleModalSession"><option value="morning">🌅 Sáng</option><option value="noon">☀️ Trưa</option><option value="afternoon">🌤️ Chiều</option><option value="evening">🌙 Tối</option></select></div>
+        <div class="schedule-modal-field"><label for="scheduleModalType">Loại lịch</label><select id="scheduleModalType"><option value="hoc">Lịch học</option><option value="thi">Lịch thi</option></select></div>
+        <div class="schedule-modal-field"><label for="scheduleModalSession">Buổi học</label><select id="scheduleModalSession"><option value="morning">Sáng</option><option value="noon">Trưa</option><option value="afternoon">Chiều</option><option value="evening">Tối</option></select></div>
         <div class="schedule-modal-field"><label for="scheduleModalStart">Bắt đầu</label><input id="scheduleModalStart" type="time" value="08:00"></div>
         <div class="schedule-modal-field"><label for="scheduleModalEnd">Kết thúc</label><input id="scheduleModalEnd" type="time" value="10:00"></div>
         <div class="schedule-modal-field full"><label for="scheduleModalTitleInput">Nội dung</label><input id="scheduleModalTitleInput" type="text" placeholder="VD: Ôn tập chương 1"></div>
@@ -1763,12 +1763,12 @@
     function scheduleEditorCard(e) {
       const id = e.id || scheduleEventId();
       const session = e.session || guessScheduleSession(e.time);
-      const sessionInfo = { morning: ["🌅", "Sáng"], noon: ["☀️", "Trưa"], afternoon: ["🌤️", "Chiều"], evening: ["🌙", "Tối"] }[session] || ["🕒", "Buổi học"];
+      const sessionInfo = { morning: ['<i class="fa-solid fa-sun"></i>', "Sáng"], noon: ['<i class="fa-solid fa-temperature-high"></i>', "Trưa"], afternoon: ['<i class="fa-solid fa-cloud-sun"></i>', "Chiều"], evening: ['<i class="fa-solid fa-moon"></i>', "Tối"] }[session] || ['<i class="fa-solid fa-clock"></i>', "Buổi học"];
       const time = [e.time, e.endTime].filter(Boolean).join(" – ") || "Chưa chọn giờ";
       const subjInfo = SCHEDULE_COLORS[e.subject] || [String(e.subject || "Môn"), "#2563eb"];
       return `<div class="schedule-event-row ${e.type === "thi" ? "type-thi" : ""}" style="border-left-color:${subjInfo[1]}" data-id="${escapeHtml(id)}" data-date="${escapeHtml(e.date)}">
         <button class="se-delete" type="button" title="Xóa lịch" onclick="removeScheduleEvent('${escapeHtml(id)}')">×</button>
-        <div onclick="editScheduleEvent('${escapeHtml(id)}')"><div class="admin-schedule-top"><span class="admin-schedule-tag ${e.type === "thi" ? "thi" : ""}">${e.type === "thi" ? "Thi" : "Học"}</span><span class="admin-schedule-session ${session}">${sessionInfo[0]} ${sessionInfo[1]}</span><span class="admin-schedule-subj" style="background:${subjInfo[1]}">${escapeHtml(subjInfo[0])}</span></div><div class="admin-schedule-title">${escapeHtml(e.title || "")}</div><div class="admin-schedule-time">🕒 ${escapeHtml(time)}</div>${e.note ? `<div class="admin-schedule-note">${escapeHtml(e.note)}</div>` : ""}</div>
+        <div onclick="editScheduleEvent('${escapeHtml(id)}')"><div class="admin-schedule-top"><span class="admin-schedule-tag ${e.type === "thi" ? "thi" : ""}">${e.type === "thi" ? "Thi" : "Học"}</span><span class="admin-schedule-session ${session}">${sessionInfo[0]} ${sessionInfo[1]}</span><span class="admin-schedule-subj" style="background:${subjInfo[1]}">${escapeHtml(subjInfo[0])}</span></div><div class="admin-schedule-title">${escapeHtml(e.title || "")}</div><div class="admin-schedule-time"><i class="fa-solid fa-clock"></i> ${escapeHtml(time)}</div>${e.note ? `<div class="admin-schedule-note">${escapeHtml(e.note)}</div>` : ""}</div>
       </div>`;
     }
 
@@ -1798,7 +1798,7 @@
     function openScheduleModal(date, eventId) {
       const event = eventId ? scheduleEvents.find(e => e.id === eventId) : null;
       scheduleEditingEventId = event ? event.id : null;
-      document.getElementById("scheduleModalTitle").textContent = event ? "✏️ Chỉnh sửa lịch" : "📅 Thêm lịch học / lịch thi";
+      document.getElementById("scheduleModalTitle").innerHTML = event ? '<i class="fa-solid fa-pen"></i> Chỉnh sửa lịch' : '<i class="fa-solid fa-calendar-days"></i> Thêm lịch học / lịch thi';
       document.getElementById("scheduleModalDate").value = event ? event.date : (date || toIsoDate(scheduleWeekStart));
       document.getElementById("scheduleModalSubject").innerHTML = scheduleSubjectOptions(event ? event.subject : "ly");
       document.getElementById("scheduleModalType").value = event ? event.type : "hoc";
@@ -1926,15 +1926,15 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
           '</tr></thead><tbody>' + rows.map(function (r) {
           const de = "t:" + r.set_id;
           const badges =
-            (r.show_score === 'none' ? '<span class="tc-qz-badge danger">🔒 Ẩn điểm</span>' : '') +
-            (r.show_answers === 'none' ? '<span class="tc-qz-badge danger">👁️ Chặn xem đáp án</span>' : (r.show_answers === 'perfect' ? '<span class="tc-qz-badge info">👁️ Xem đáp án khi điểm tối đa</span>' : ''));
+            (r.show_score === 'none' ? '<span class="tc-qz-badge danger"><i class="fa-solid fa-lock"></i> Ẩn điểm</span>' : '') +
+            (r.show_answers === 'none' ? '<span class="tc-qz-badge danger"><i class="fa-solid fa-eye-slash"></i> Chặn xem đáp án</span>' : (r.show_answers === 'perfect' ? '<span class="tc-qz-badge info"><i class="fa-solid fa-eye"></i> Xem đáp án khi điểm tối đa</span>' : ''));
           return '<tr>' +
             '<td><div class="tc-t">' + escapeHtml(r.name) + '</div>' +
               (r.description ? '<div class="tc-sub">' + escapeHtml(r.description) + '</div>' : '') +
               (badges ? '<div class="tc-qz-badges">' + badges + '</div>' : '') + '</td>' +
             '<td class="tc-qz-nowrap">' + escapeHtml(r.subject) + '</td>' +
             '<td class="tc-qz-nowrap">' + (r.question_count || 0) + '</td>' +
-            '<td class="tc-qz-nowrap">' + (r.minutes > 0 ? '⏱ ' + r.minutes + ' phút' : "Không giới hạn") + '</td>' +
+            '<td class="tc-qz-nowrap">' + (r.minutes > 0 ? '<i class="fa-solid fa-stopwatch"></i> ' + r.minutes + ' phút' : "Không giới hạn") + '</td>' +
             '<td class="tc-qz-nowrap">' + (r.score || 10) + '</td>' +
             '<td>' +
               '<button type="button" role="switch" aria-checked="' + (r.is_complete ? 'true' : 'false') + '" class="tc-qz-switch' + (r.is_complete ? ' on' : '') + '" data-action="toggle" data-id="' + r.set_id + '" data-complete="' + (r.is_complete ? 1 : 0) + '" title="Đổi trạng thái hoàn thành / chưa hoàn thành"><span class="tc-qz-switch-knob"></span></button>' +
