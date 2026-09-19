@@ -1102,30 +1102,30 @@ function renderReview() {
   /* ---- Cột phải: thiết lập + xuất bản ---- */
   var right =
     '<div class="rev-meta">' +
-      '<div class="rev-meta-hd"><i class="fa-solid fa-gear"></i> Thiết lập đề</div>' +
-      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-book-open"></i> Môn học</span><span class="rev-v">' +
+      '<div class="rev-meta-hd" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#ffffff"><i class="fa-solid fa-gear" style="color:#ffffff"></i> Thiết lập đề</div>' +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-book-open" style="color:#2563eb"></i> Môn học</span><span class="rev-v">' +
         (testMeta.subject ? escapeC(testMeta.subject) : '<i class="muted">Chưa chọn</i>') +
       "</span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-pen-to-square"></i> Tên đề</span><span class="rev-v">' +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-pen-to-square" style="color:#7c3aed"></i> Tên đề</span><span class="rev-v">' +
         (testMeta.name ? escapeC(testMeta.name) : '<b style="color:#b91c1c">Chưa đặt tên</b>') +
       "</span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-file-lines"></i> Mô tả</span><span class="rev-v">' +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-file-lines" style="color:#0d9488"></i> Mô tả</span><span class="rev-v">' +
         (testMeta.desc ? escapeC(testMeta.desc) : '<i class="muted">(trống)</i>') +
       "</span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-stopwatch"></i> Thời gian</span><span class="rev-v">' +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-stopwatch" style="color:#ea580c"></i> Thời gian</span><span class="rev-v">' +
         (testMeta.minutes > 0 ? "<b>" + testMeta.minutes + " phút</b>" : "Không giới hạn") +
       "</span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-bullseye"></i> Điểm tối đa</span><span class="rev-v"><b>' + testMeta.score + "</b> điểm</span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-shuffle"></i> Xáo trộn</span><span class="rev-v">Câu: <b>' +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-bullseye" style="color:#e11d48"></i> Điểm tối đa</span><span class="rev-v"><b>' + testMeta.score + "</b> điểm</span></div>" +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-shuffle" style="color:#0284c7"></i> Xáo trộn</span><span class="rev-v">Câu: <b>' +
         (testMeta.shuffleQ ? "Bật" : "Tắt") + "</b> · Đáp án: <b>" + (testMeta.shuffleA ? "Bật" : "Tắt") +
       "</b></span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-chart-column"></i> Xem điểm</span><span class="rev-v"><b>' +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-chart-column" style="color:#16a34a"></i> Xem điểm</span><span class="rev-v"><b>' +
         (testMeta.showScore === "none" ? "Bị Ẩn" : "Có") +
       "</b></span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-eye"></i> Xem đáp án</span><span class="rev-v"><b>' +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-eye" style="color:#db2777"></i> Xem đáp án</span><span class="rev-v"><b>' +
         (testMeta.showAnswers === "none" ? "Không cho phép" : testMeta.showAnswers === "perfect" ? "Chỉ khi tối đa" : "Luôn hiện") +
       "</b></span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-folder-open"></i> Thống kê</span><span class="rev-v">' + qn + " câu · " + nSec + " phần</span></div>" +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-folder-open" style="color:#065f46"></i> Thống kê</span><span class="rev-v">' + qn + " câu · " + nSec + " phần</span></div>" +
     "</div>" +
     '<div class="note" id="revNote" hidden></div>' +
     '<div class="rev-actions">' +

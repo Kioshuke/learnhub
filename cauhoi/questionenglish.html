@@ -886,7 +886,7 @@ if (window !== window.parent) {
 
         <div class="logo-area" style="display: flex; align-items: center; justify-content: center; flex: 1; min-width: 0; overflow: hidden;">
             <h2 style="margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
-                LearnHub Test <i class="fa-solid fa-file-lines"></i>
+                LearnHub Test
             </h2>
         </div>
 
@@ -964,8 +964,8 @@ if (window !== window.parent) {
 
 <div id="confirmModal" class="modal-overlay">
     <div class="modal-content">
-<h3><i class="fa-solid fa-triangle-exclamation"></i> Xác nhận nộp bài?</h3>
-        <p><i class="fa-solid fa-circle-question"></i> Bạn có chắc chắn muốn kết thúc bài thi này?</p>
+<h3><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Xác nhận nộp bài?</h3>
+        <p>Bạn có chắc chắn muốn kết thúc bài thi này?</p>
         <div style="display: flex; justify-content: center; gap: 10px; margin-top: 25px;">
 <button class="btn" style="flex:1; background: #c81515; color: white;" onclick="closeModal('confirmModal')"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
             <button class="btn btn-primary" style="flex:1" onclick="handleFinalSubmit()"><i class="fa-solid fa-rocket"></i> Nộp ngay</button>
@@ -976,9 +976,9 @@ if (window !== window.parent) {
 <div id="resultModal" class="modal-overlay">
     <div class="modal-content result-modal-wrapper">
         <div class="result-left">
-            <h3 style="justify-content: center;"><i class="fa-solid fa-champagne-glasses"></i> Bạn đã hoàn thành bài thi!</h3>
+            <h3 style="justify-content: center;"><i class="fa-solid fa-circle-check" style="color:#10b981;"></i> Bạn đã hoàn thành bài thi!</h3>
             <div class="score-circle" id="scoreValue">0</div>
-            <h3><i class="fa-solid fa-chart-column"></i> Kết quả</h3>
+            <h3 style="color: var(--primary);"><i class="fa-solid fa-chart-column"></i> Kết quả</h3>
             <p id="statsText"></p>
             <div id="timeSpentBox" style="display:inline-flex; align-items:center; gap:8px; background:var(--primary-light); color:var(--primary); padding:8px 16px; border-radius:12px; font-weight:700; font-size:0.95rem; margin: 6px 0;">
                 <span><i class="fa-solid fa-stopwatch"></i></span><span id="timeSpentText"></span>

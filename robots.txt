@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /administrator.html
+Disallow: /maintenance.html
+Disallow: /admin
+Disallow: /teacher/
+Disallow: /worker/
+Disallow: /supabase/
+Disallow: /version/
+Disallow: /footer.html
+Disallow: /header.html
+Disallow: /404.html
+Disallow: /element/leaderboard.html
+
+Sitemap: https://learnhubpf.pages.dev/sitemap.xml

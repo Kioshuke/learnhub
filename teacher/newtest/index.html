@@ -15,7 +15,7 @@
 <header class="topbar">
   <div class="tb-left">
     <button type="button" class="btn btn-ghost" id="btnBack">← Quay lại</button>
-    <span class="tb-brand">LearnHub · Tạo đề <i class="fa-solid fa-file-lines"></i></span>
+    <span class="tb-brand">LearnHub · Tạo đề</span>
     <span class="tb-file" id="fileLabel">Chưa có tiêu đề</span>
   </div>
   <nav class="steps" id="steps">
@@ -78,13 +78,13 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
 
     <div class="split">
       <div class="col">
-        <div class="col-hd"><span class="col-hd-ic"><i class="fa-solid fa-file-code"></i></span> Cửa sổ dữ liệu JSON <span class="col-sub">sửa tay → bên phải tự render</span></div>
+        <div class="col-hd"><span class="col-hd-ic"><i class="fa-solid fa-code" style="color:#2563eb"></i></span> Cửa sổ dữ liệu JSON <span class="col-sub">sửa tay → bên phải tự render</span></div>
         <textarea id="jsonArea" rows="14" spellcheck="false" placeholder='Dán JSON ở đây (array các section) — xem docs/FORMAT-DE-THI.md'></textarea>
         <div class="note" id="outNote"></div>
       </div>
 
       <div class="col">
-        <div class="col-hd"><span class="col-hd-ic"><i class="fa-solid fa-eye"></i></span> Cửa sổ xem trước <span class="col-sub" id="renderCount"></span></div>
+        <div class="col-hd"><span class="col-hd-ic"><i class="fa-regular fa-window-restore" style="color:#7c3aed"></i></span> Cửa sổ xem trước <span class="col-sub" id="renderCount"></span></div>
         <div id="renderArea" class="render-area">
           <div class="placeholder">Chưa có đề. Ở bước 1 bấm "Đọc text → JSON" hoặc tạo JSON mẫu.</div>
         </div>
@@ -111,24 +111,24 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
     </div>
     <div class="modal-body" style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px">
     <div>
-      <label><i class="fa-solid fa-book-open"></i> Môn học <span class="req">*</span>
+      <label><i class="fa-solid fa-book-open" style="color:#2563eb"></i> Môn học <span class="req">*</span>
         <select id="setSubject" required></select>
       </label>
-      <label><i class="fa-solid fa-pen-to-square"></i> Tên đề <span class="req">*</span>
+      <label><i class="fa-solid fa-pen-to-square" style="color:#7c3aed"></i> Tên đề <span class="req">*</span>
         <input type="text" id="setName" placeholder="VD: Kiểm tra giữa kỳ 1 – Hóa học" required>
       </label>
-      <label><i class="fa-solid fa-file-lines"></i> Mô tả
+      <label><i class="fa-solid fa-file-lines" style="color:#0d9488"></i> Mô tả
         <textarea id="setDesc" rows="2" placeholder="Mô tả ngắn về đề thi..."></textarea>
       </label>
-      <label><i class="fa-solid fa-stopwatch"></i> Thời gian (phút) — 0 = vô hạn <span class="req">*</span>
+      <label><i class="fa-solid fa-stopwatch" style="color:#ea580c"></i> Thời gian (phút) — 0 = vô hạn <span class="req">*</span>
         <input type="number" id="setMinutes" min="0" value="0" required>
       </label>
-      <label><i class="fa-solid fa-bullseye"></i> Điểm tối đa <span class="req">*</span>
+      <label><i class="fa-solid fa-bullseye" style="color:#e11d48"></i> Điểm tối đa <span class="req">*</span>
         <input type="number" id="setScore" min="1" value="10" required>
       </label>
     </div>
     <div>
-      <div style="font-weight:700;font-size:13px;color:var(--sec-text);margin-bottom:10px"><i class="fa-solid fa-gear"></i> Cài đặt khác</div>
+      <div style="font-weight:700;font-size:13px;color:var(--sec-text);margin-bottom:10px"><i class="fa-solid fa-gear" style="color:#64748b"></i> Cài đặt khác</div>
       <div style="display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap">
         <label style="display:flex;align-items:center;gap:6px;font-size:13px">Xáo trộn câu hỏi
           <input type="radio" name="setShuffleQ" value="1" checked><span style="font-size:12px">Bật</span>
@@ -140,14 +140,14 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
         </label>
       </div>
       <div style="border-top:1px solid var(--sec-border);padding-top:10px;margin-bottom:10px">
-        <div style="font-size:13px;margin-bottom:6px"><i class="fa-solid fa-chart-column"></i> Xem điểm sau khi nộp</div>
+        <div style="font-size:13px;margin-bottom:6px"><i class="fa-solid fa-chart-column" style="color:#16a34a"></i> Xem điểm sau khi nộp</div>
         <div style="display:flex;gap:14px;font-size:13px">
           <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="setShowScore" value="always" checked> Hiện</label>
           <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="setShowScore" value="none"> Ẩn</label>
         </div>
       </div>
       <div style="border-top:1px solid var(--sec-border);padding-top:10px">
-        <div style="font-size:13px;margin-bottom:6px"><i class="fa-solid fa-eye"></i> Xem đáp án chi tiết</div>
+        <div style="font-size:13px;margin-bottom:6px"><i class="fa-solid fa-eye" style="color:#db2777"></i> Xem đáp án chi tiết</div>
         <div style="display:flex;flex-direction:column;gap:4px;font-size:13px">
           <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="setShowAnswers" value="always" checked> Luôn cho phép</label>
           <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="setShowAnswers" value="perfect"> Chỉ khi đạt tối đa</label>

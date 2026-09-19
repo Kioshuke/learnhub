@@ -391,7 +391,7 @@
 
                 <div id="profile-classes-block" style="display:none;border-color:var(--card-border)" class="pt-2.5 border-t">
                     <p class="text-xs font-extrabold uppercase tracking-widest mb-2 flex items-center gap-1.5" style="color:var(--text-sub)">
-                        <i class="fas fa-school" style="color:var(--blue-accent)"></i> Các lớp đang tham gia
+                        <i class="fa-solid fa-chalkboard-user" style="color:var(--blue-accent)"></i> Các lớp đang tham gia
                     </p>
                     <div id="profile-classes-list" class="space-y-1.5"></div>
                 </div>
@@ -404,19 +404,19 @@
                 </h3>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
                     <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]" style="background:var(--tint-blue);border-color:rgba(37,99,235,0.25)">
-                        <span class="text-xs font-bold uppercase tracking-wider" style="color:var(--blue-accent)"><i class="fas fa-book-open text-[11px] mr-1"></i> Bài Đã Làm</span>
+                        <span class="text-xs font-bold uppercase tracking-wider" style="color:var(--blue-accent)"><i class="fas fa-book-open text-[11px] mr-1" style="color:#1d4ed8"></i> Bài Đã Làm</span>
                         <span id="stat-total-tests" class="text-xl font-extrabold mt-0.5" style="color:var(--blue-accent)"><span class="skeleton inline-block rounded" style="width:30px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
                     </div>
                     <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]" style="background:var(--tint-amber);border-color:rgba(245,158,11,0.3)">
-                        <span class="text-xs font-bold uppercase tracking-wider" style="color:#f59e0b"><i class="fas fa-bullseye text-[11px] mr-1"></i> Tổng Điểm</span>
+                        <span class="text-xs font-bold uppercase tracking-wider" style="color:#f59e0b"><i class="fas fa-bullseye text-[11px] mr-1" style="color:#b45309"></i> Tổng Điểm</span>
                         <span id="stat-total-score" class="text-xl font-extrabold mt-0.5" style="color:#f59e0b"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
                     </div>
                     <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]" style="background:var(--tint-violet);border-color:rgba(139,92,246,0.25)">
-                        <span class="text-xs font-bold uppercase tracking-wider" style="color:#8b5cf6"><i class="fas fa-chart-line text-[11px] mr-1"></i> Điểm Trung Bình</span>
+                        <span class="text-xs font-bold uppercase tracking-wider" style="color:#8b5cf6"><i class="fas fa-chart-line text-[11px] mr-1" style="color:#6d28d9"></i> Điểm Trung Bình</span>
                         <span id="stat-avg-score" class="text-xl font-extrabold mt-0.5" style="color:#8b5cf6"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
                     </div>
                     <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]" style="background:var(--tint-green);border-color:rgba(16,185,129,0.25)">
-                        <span class="text-xs font-bold uppercase tracking-wider" style="color:#10b981"><i class="fas fa-trophy text-[11px] mr-1"></i> Điểm Cao Nhất</span>
+                        <span class="text-xs font-bold uppercase tracking-wider" style="color:#10b981"><i class="fas fa-trophy text-[11px] mr-1" style="color:#047857"></i> Điểm Cao Nhất</span>
                         <span id="stat-best-score" class="text-xl font-extrabold mt-0.5" style="color:#10b981"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
                     </div>
                 </div>
@@ -546,10 +546,10 @@
                     <i class="fas fa-lock mr-1"></i> Mật khẩu
                 </button>
                 <button type="button" onclick="switchSettingsTab('classes')" id="tab-btn-classes" class="lh-tab">
-                    <i class="fas fa-school mr-1"></i> Lớp học
+                    <i class="fa-solid fa-chalkboard-user mr-1"></i> Lớp học
                 </button>
                 <button type="button" onclick="switchSettingsTab('danger')" id="tab-btn-danger" class="lh-tab">
-                    <i class="fas fa-triangle-exclamation mr-1"></i> Nguy hiểm
+                    <i class="fas fa-triangle-exclamation mr-1"></i> Xoá TK
                 </button>
             </div>
 
@@ -1429,7 +1429,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                             ? '<span class="text-[10px] font-bold" style="color:#10b981">Đã vào</span>'
                             : '<span class="text-[10px] font-bold" style="color:#f59e0b">Đang chờ duyệt</span>';
                         return `<div class="flex items-center gap-2 px-3 py-2 rounded-lg" style="background:var(--tint-blue);border:1px solid rgba(37,99,235,0.15)">
-                            <i class="fas fa-school text-[11px]" style="color:var(--blue-accent)"></i>
+                            <i class="fa-solid fa-chalkboard-user text-[11px]" style="color:var(--blue-accent)"></i>
                             <div class="min-w-0">
                                 <div class="text-[13px] font-bold truncate" style="color:var(--text-main)">${escapeHtml(c.class_name)}</div>
                                 <div class="text-[10px] font-medium" style="color:var(--text-sub)">Khối ${escapeHtml(c.block || "—")} <span style="opacity:.6">· GV: ${escapeHtml(c.teacher_name || "—")}</span></div>
@@ -1473,7 +1473,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                         ? '<span class="text-[10px] font-bold" style="color:#10b981">Đã vào</span>'
                         : '<span class="text-[10px] font-bold" style="color:#f59e0b">Đang chờ duyệt</span>';
                     return `<div class="flex items-center gap-2 px-3 py-2 rounded-lg" style="background:var(--tint-blue);border:1px solid rgba(37,99,235,0.15)">
-                        <i class="fas fa-school text-[11px]" style="color:var(--blue-accent)"></i>
+                        <i class="fa-solid fa-chalkboard-user text-[11px]" style="color:var(--blue-accent)"></i>
                         <div class="min-w-0">
                             <div class="text-[12.5px] font-bold truncate" style="color:var(--text-main)">${escapeHtml(c.class_name)}</div>
                             <div class="text-[10px] font-medium" style="color:var(--text-sub)">Khối ${escapeHtml(c.block || "—")} <span style="opacity:.6">· GV: ${escapeHtml(c.teacher_name || "—")}</span></div>
