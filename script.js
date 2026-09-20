@@ -19,28 +19,15 @@ function loadQuiz(btn, link){
 
   document.getElementById("quiz").innerHTML =
   `
-  <div class="quiz-box">
+  <div class="quiz-box" style="position:relative;">
 
-    <div class="quiz-header">
+    <div class="quiz-header" style="position:relative; z-index:6000;">
       <button class="quiz-btn close-btn" onclick="closeQuiz();" style="pointer-events: all !important;">Đóng bài</button>
     </div>
 
-    <div class="loader" id="loader">
-      <div class="skel-quiz-topbar">
-        <div class="skel-bar" style="width:90px;height:24px;border-radius:8px;"></div>
-        <div class="skel-bar" style="width:60px;height:24px;border-radius:8px;"></div>
-      </div>
-      <div class="skel-bar" style="width:100%;height:16px;margin-bottom:8px;"></div>
-      <div class="skel-bar" style="width:70%;height:16px;margin-bottom:16px;"></div>
-      <div class="skel-bar skel-quiz-card"></div>
-      <div class="skel-quiz-row">
-        <div class="skel-bar" style="width:90px;height:42px;border-radius:12px;"></div>
-        <div class="skel-bar" style="width:90px;height:42px;border-radius:12px;"></div>
-        <div class="skel-bar" style="width:90px;height:42px;border-radius:12px;"></div>
-      </div>
-    </div>
+    <div class="loader" id="loader" style="display:none;"></div>
 
-    <iframe id="quizFrame" src="${link}" style="display:none;width:100%;height:100vh;border:none;"></iframe>
+    <iframe id="quizFrame" src="${link}" style="width:100%;height:100vh;border:none;"></iframe>
 
   </div>
   `;
@@ -55,10 +42,11 @@ setTimeout(() => {
 }, 50);
   let iframe = document.getElementById("quizFrame");
   let loader = document.getElementById("loader");
+  window.__quizLoadOk = false;
 
   iframe.onload = function(){
-  loader.style.display="none";
-  iframe.style.display="block";
+  window.__quizLoadOk = true;
+  if(loader) loader.style.display="none";
 
   // 🆕 [LearnHub Test - Giai đoạn 1] Gửi user sang iframe vừa load (nếu đã đăng nhập)
   // Hàm này được định nghĩa trong index.html, tự kiểm tra null nếu chưa có user.
@@ -83,7 +71,7 @@ setTimeout(() => {
   // 🕐 Watchdog: nếu iframe bài test không tải được trong 20s thì thông báo user
   window.__quizLoadTimer = setTimeout(() => {
     const fr = document.getElementById("quizFrame");
-    if (fr && fr.style.display !== "block") {
+    if (fr && !window.__quizLoadOk) {
       if (window.logAppError) {
         window.logAppError({
           source: "quiz",
@@ -509,7 +497,7 @@ let authSlideTimer = null;
 
 function switchAuthTab(type){
   if(type === "register" && window.registrationOpen === false){
-    showAuthNotice("Đăng ký hiện đang đóng. Vui lòng liên hệ admin nếu bạn cần tài khoản.", "warning", "Đăng ký bị đóng");
+    showAuthNotice("Đăng ký hiện đang đóng. Vui lòng liên hệ admin nếu bạn cần tài khoản.", "warning", "Đăng ký bị đóng", 2600, "thongbaoSound", "fa-ban");
     return;
   }
   const login = document.getElementById("authLoginPanel");

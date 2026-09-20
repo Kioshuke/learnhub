@@ -2276,23 +2276,6 @@ margin:0 auto;
   0%{ background-position: 100% 50%; }
   100%{ background-position: 0% 50%; }
 }
-.skel-quiz-topbar{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:16px;
-}
-.skel-quiz-card{
-  width:100%;
-  height:150px;
-  border-radius:20px;
-  margin-bottom:14px;
-}
-.skel-quiz-row{
-  display:flex;
-  gap:10px;
-  justify-content:center;
-}
 
 /* avatar */
 .user-bar img{

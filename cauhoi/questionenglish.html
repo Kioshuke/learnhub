@@ -209,14 +209,14 @@
             }
 
             .timer-box {
-                font-size: 0.72rem;
-                padding: 4px 8px;
-                gap: 4px;
+                font-size: 0.62rem;
+                padding: 3px 7px;
+                gap: 3px;
             }
 
             #action-button-container .btn {
-                padding: 5px 10px;
-                font-size: 0.75rem;
+                padding: 8px 12px;
+                font-size: 0.76rem;
                 white-space: nowrap;
             }
         }
@@ -516,33 +516,7 @@
 
         @media (max-width: 600px) { .answers-grid { grid-template-columns: 1fr; }}
 
-        /* ===== SKELETON LOADING (trong lúc fetch JSON đề thi + dựng DOM câu hỏi) ===== */
-.skel-bar {
-            background: linear-gradient(90deg, #e2e9f5 25%, #f2f6fc 37%, #e2e9f5 63%);
-            background-size: 400% 100%;
-            animation: skeletonShimmer 1.4s ease infinite;
-            border-radius: 8px;
-        }
-
-        .skel-q-badge { width: 64px; height: 20px; border-radius: 15px; margin-bottom: 12px; }
-        .skel-q-line { height: 16px; margin-bottom: 8px; }
-        .skel-q-line.w-90 { width: 90%; }
-        .skel-q-line.w-70 { width: 70%; }
-        .skel-answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
-        @media (max-width: 600px) { .skel-answers-grid { grid-template-columns: 1fr; } }
-        .skel-ans { height: 46px; border-radius: 12px; }
-        .skel-nav-item { aspect-ratio: 1; border-radius: 8px; }
-        /* Skeleton giống cấu trúc 1 đề: thanh header bar + vùng nội dung + menu mục lục */
-        .skel-headerbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; background: var(--card); padding: 16px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 16px; flex-wrap: wrap; }
-        .skel-headerbar-left { flex: 1; min-width: 180px; display: flex; flex-direction: column; gap: 8px; }
-        .skel-hb-title { height: 18px; width: 42%; border-radius: 6px; }
-        .skel-hb-sub { height: 12px; width: 60%; border-radius: 6px; }
-        .skel-headerbar-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-        .skel-hb-timer { height: 40px; width: 160px; border-radius: 12px; }
-        .skel-hb-btn { height: 40px; width: 120px; border-radius: 12px; }
-        .skel-audio { height: 46px; border-radius: 12px; margin-top: 12px; }
-        @media (max-width: 600px) { .skel-hb-sub { display: none; } .skel-hb-timer { width: 120px; } .skel-hb-btn { width: 100px; } }
-        .short-input:focus {
+.short-input:focus {
             outline: none;
             border-color: var(--primary) !important;
             box-shadow: 0 0 0 3px var(--primary-light);
@@ -839,7 +813,24 @@
     }
 }
 
-</style>
+/* Skeleton loading đề thi (chờ dữ liệu) */
+        .skel-quiz-sec   { height: 46px; margin: 25px 0 15px; border-radius: 8px; }
+        .skel-qcard      { background: var(--card-gradient); border: 2px solid rgba(0,0,0,0.05);
+                           border-radius: 20px; padding: 25px; margin-bottom: 25px;
+                           box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        .skel-q-badge    { width: 48px; height: 22px; border-radius: 15px; margin-bottom: 12px; }
+        .skel-q-line     { height: 16px; margin-bottom: 8px; }
+        .skel-q-line.w-90{ width: 90%; }
+        .skel-q-line.w-70{ width: 70%; }
+        .skel-answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+        .skel-ans        { height: 48px; border-radius: 12px; }
+        .skel-nav-item   { aspect-ratio: 1; border-radius: 8px; }
+        .skel-nav-label  { grid-column: 1/-1; height: 12px; margin: 10px 0 6px; border-radius: 4px; }
+        @media (max-width: 600px) { .skel-answers-grid { grid-template-columns: 1fr; } }
+        body.dark-mode #quiz-container .skel-bar,
+        body.dark-mode #navGrid .skel-bar     { background: linear-gradient(90deg, #1e293b 25%, #2d3a4e 37%, #1e293b 63%); }
+        body.dark-mode .skel-qcard            { background: #1e293b; border-color: rgba(255,255,255,0.08); }
+    </style>
 </head>
 <body>
 
@@ -885,7 +876,7 @@ if (window !== window.parent) {
         </div>
 
         <div class="logo-area" style="display: flex; align-items: center; justify-content: center; flex: 1; min-width: 0; overflow: hidden;">
-            <h2 style="margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+            <h2 style="margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                 LearnHub Test
             </h2>
         </div>
@@ -916,23 +907,32 @@ if (window !== window.parent) {
         </div>
     </header>
     <div class="main-layout">
-    <div class="quiz-section" id="quiz-container">
-        <div class="skel-headerbar">
-            <div class="skel-headerbar-left">
-                <div class="skel-bar skel-hb-title"></div>
-                <div class="skel-bar skel-hb-sub"></div>
-            </div>
-            <div class="skel-headerbar-right">
-                <div class="skel-bar skel-hb-timer"></div>
-                <div class="skel-bar skel-hb-btn"></div>
-            </div>
-        </div>
-        <div class="question-card">
+<div class="quiz-section" id="quiz-container">
+        <div class="skel-bar skel-quiz-sec"></div>
+        <div class="skel-qcard">
             <div class="skel-bar skel-q-badge"></div>
             <div class="skel-bar skel-q-line w-90"></div>
-            <div class="skel-bar skel-audio"></div>
+            <div class="skel-bar skel-q-line w-70"></div>
+            <div class="skel-answers-grid">
+                <div class="skel-bar skel-ans"></div>
+                <div class="skel-bar skel-ans"></div>
+                <div class="skel-bar skel-ans"></div>
+                <div class="skel-bar skel-ans"></div>
+            </div>
         </div>
-        <div class="question-card">
+        <div class="skel-bar skel-quiz-sec"></div>
+        <div class="skel-qcard">
+            <div class="skel-bar skel-q-badge"></div>
+            <div class="skel-bar skel-q-line w-90"></div>
+            <div class="skel-bar skel-q-line w-70"></div>
+            <div class="skel-answers-grid">
+                <div class="skel-bar skel-ans"></div>
+                <div class="skel-bar skel-ans"></div>
+                <div class="skel-bar skel-ans"></div>
+                <div class="skel-bar skel-ans"></div>
+            </div>
+        </div>
+        <div class="skel-qcard">
             <div class="skel-bar skel-q-badge"></div>
             <div class="skel-bar skel-q-line w-90"></div>
             <div class="skel-bar skel-q-line w-70"></div>
@@ -950,8 +950,11 @@ if (window !== window.parent) {
             <span>MỤC LỤC</span>
             <span id="progressText" style="color:var(--primary); font-size: 0.9rem;">0/0</span>
         </div>
-        <div class="nav-grid" id="navGrid">
+<div class="nav-grid" id="navGrid">
+            <div class="skel-bar skel-nav-label"></div>
             <div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div>
+            <div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div>
+            <div class="skel-bar skel-nav-label"></div>
             <div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div>
             <div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div><div class="skel-bar skel-nav-item"></div>
         </div>
@@ -986,7 +989,6 @@ if (window !== window.parent) {
             <p id="feedbackText" style="font-weight:700; font-size:1.1rem; margin-top:8px;"></p>
             <!-- 🆕 [LearnHub Test - Giai đoạn 2] Trạng thái lưu kết quả lên Supabase -->
             <p id="saveStatsStatus" style="display:none; font-size:0.85rem; font-weight:600; margin-top:4px;"></p>
-            <p>Để xem chi tiết vui lòng bấm vào mục lục nhé!</p>
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 25px;">
 <button class="btn btn-primary" id="reviewBtn" style="justify-content: center;" onclick="reviewMode()"><i class="fa-solid fa-eye"></i> Xem bài làm</button>
                 <button class="btn lb-mobile-only" style="justify-content: center; background: #7c3aed;" onclick="openLeaderboard()"><i class="fa-solid fa-trophy"></i> Bảng xếp hạng</button>
@@ -1063,7 +1065,7 @@ function showSaveStatus(success){
     const el = document.getElementById("saveStatsStatus");
     if (!el) return;
     el.style.display = "block";
-    el.innerText = success ? "Đã gửi kết quả về LearnHub." : "Không thể lưu kết quả.";
+    el.innerText = success ? "Đã gửi kết quả về LearnHub!" : "Không thể lưu kết quả. Vui lòng kiểm tra kết nối hoặc mở lại trang.";
     el.style.color = success ? "var(--success, #16a34a)" : "var(--danger, #c81515)";
 }
 
@@ -1259,6 +1261,10 @@ async function loadQuestions() {
                 <strong>Lỗi tải đề thi:</strong> ${msg} <br>
                 <small>Vui lòng mở từ Phòng Học với liên kết dạng ?de=t:&lt;id&gt;.</small>
             </div>`;
+        const errNav = document.getElementById('navGrid');
+        if (errNav) errNav.innerHTML = '<div style="grid-column:1/-1; color: var(--text-sub); font-size:0.8rem; text-align:center; padding:12px 0;">Đề không tải được</div>';
+        const errProgress = document.getElementById('progressText');
+        if (errProgress) errProgress.textContent = '';
     }
 }
 
@@ -1795,7 +1801,7 @@ resultFlags.push(isPerfect);
         feedbackEl.classList.remove("feedback-show");
     } else {
         scoreCircle.innerText = userScore.toFixed(1);
-        statsEl.innerText = `🎯 Đúng ${correctCount}/${totalQuestions} câu · Thang ${maxScore} điểm`;
+        statsEl.innerText = `🎯 Đúng ${correctCount}/${totalQuestions} câu · Điểm tối đa: ${maxScore}đ`;
 
         const feedback = getFeedback(score);
         if (score >= 10) {
@@ -2005,7 +2011,7 @@ function reviewMode() {
     });
 
     document.getElementById('action-button-container').innerHTML = `
-        <button class="btn btn-reload" onclick="location.reload()" style="width:100%"><i class="fa-solid fa-rotate"></i> Làm bài mới</button>
+        <button class="btn btn-reload" onclick="location.reload()" style="white-space:nowrap;"><i class="fa-solid fa-rotate"></i> Làm bài mới</button>
     `;
 }
     // Các hàm điều hướng và Modal

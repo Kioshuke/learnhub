@@ -100,12 +100,16 @@
       padding:11px 40px 11px 14px;
       border:1px solid #e2e8f0;border-radius:12px;
       font-size:14px;color:#a0aec0;background:#fff;
-      cursor:pointer;display:flex;align-items:center;
+      cursor:pointer;display:flex;align-items:center;gap:9px;
       transition:all .18s ease;position:relative;
       box-sizing:border-box;width:100%;
       box-shadow:0 1px 2px rgba(15,23,42,.04);
     }
     .select-trigger.has-value{color:#1e293b;font-weight:600}
+    .select-trigger.has-value[data-category="Báo lỗi hệ thống"]{color:#dc2626;background:#fef2f2;border-color:#fecaca}
+    .select-trigger.has-value[data-category="Góp ý giao diện"]{color:#7c3aed;background:#f5f3ff;border-color:#ddd6fe}
+    .select-trigger.has-value[data-category="Đề xuất nội dung"]{color:#059669;background:#ecfdf5;border-color:#a7f3d0}
+    .select-trigger.has-value[data-category="Ý kiến khác"]{color:#d97706;background:#fffbeb;border-color:#fde68a}
     .select-trigger:after{
       content:"\f107";
       font-family:"Font Awesome 6 Free";font-weight:900;
@@ -136,10 +140,16 @@
       font-size:14px;color:#334155;transition:background-color .12s ease,color .12s ease;
       display:flex;align-items:center;gap:9px;
     }
-    .custom-option:hover{background:#eff6ff;color:#2563eb}
-    .custom-option.selected{
-      background:#dbeafe;color:#2563eb;font-weight:700;
-    }
+    .custom-option:hover{background:#eef2f7;color:#334155}
+    .custom-option[data-value="Báo lỗi hệ thống"]:hover{background:#fef2f2;color:#dc2626}
+    .custom-option[data-value="Góp ý giao diện"]:hover{background:#f5f3ff;color:#7c3aed}
+    .custom-option[data-value="Đề xuất nội dung"]:hover{background:#ecfdf5;color:#059669}
+    .custom-option[data-value="Ý kiến khác"]:hover{background:#fffbeb;color:#d97706}
+    .custom-option.selected{font-weight:700;color:#334155}
+    .custom-option.selected[data-value="Báo lỗi hệ thống"]{background:#fef2f2;color:#dc2626}
+    .custom-option.selected[data-value="Góp ý giao diện"]{background:#f5f3ff;color:#7c3aed}
+    .custom-option.selected[data-value="Đề xuất nội dung"]{background:#ecfdf5;color:#059669}
+    .custom-option.selected[data-value="Ý kiến khác"]{background:#fffbeb;color:#d97706}
     .custom-option.selected:after{
       content:"\f00c";font-family:"Font Awesome 6 Free";font-weight:900;
       margin-left:auto;font-size:12px;
@@ -217,10 +227,10 @@
           <div class="custom-select-wrapper">
             <select id="feedback_type" name="feedback_type" required class="real-select">
               <option value="" disabled selected>-- Chọn danh mục --</option>
-              <option value="Báo lỗi hệ thống">Báo lỗi tính năng / Hệ thống</option>
-              <option value="Góp ý giao diện">Góp ý giao diện / UI-UX</option>
-              <option value="Đề xuất nội dung">Đề xuất nội dung học tập</option>
-              <option value="Ý kiến khác">Ý kiến đóng góp khác</option>
+              <option value="Báo lỗi hệ thống"> Báo lỗi tính năng / Hệ thống</option>
+              <option value="Góp ý giao diện"> Góp ý giao diện / UI-UX</option>
+              <option value="Đề xuất nội dung"> Đề xuất nội dung học tập</option>
+              <option value="Ý kiến khác"> Ý kiến đóng góp khác</option>
             </select>
 
             <div class="select-trigger" id="custom-trigger">-- Chọn danh mục --</div>
@@ -283,6 +293,7 @@
         // Cập nhật text hiển thị lên trigger và đổi màu chữ đậm
         trigger.innerHTML = html;
         trigger.classList.add('has-value');
+        trigger.setAttribute('data-category', value);
 
         // Cập nhật giá trị sang thẻ select ẩn để gửi đi qua EmailJS
         realSelect.value = value;
@@ -338,6 +349,7 @@
           // Reset giao diện select giả về ban đầu
           trigger.textContent = '-- Chọn danh mục --';
           trigger.classList.remove('has-value');
+          trigger.removeAttribute('data-category');
         })
         .catch((err) => {
           submitBtn.disabled = false;
