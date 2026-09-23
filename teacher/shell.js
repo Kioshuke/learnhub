@@ -186,6 +186,7 @@
     ".teacher-nav button.active[data-nav=\"manage\"] { background: #eff6ff; color: #2563eb; }",
     ".teacher-nav button.active[data-nav=\"fc\"] { background: #ecfdf5; color: #059669; }",
     ".teacher-nav button.active[data-nav=\"video\"] { background: #ecfeff; color: #0891b2; }",
+    ".teacher-nav button.active[data-nav=\"docs\"] { background: #e0f2fe; color: #0284c7; }",
     ".teacher-nav button.active[data-nav=\"schedule\"] { background: #fff1f2; color: #e11d48; }",
     ".teacher-nav button.active[data-nav=\"notice\"] { background: #fffbeb; color: #d97706; }",
     ".teacher-nav button.active[data-nav=\"quiz\"] { background: #fffbeb; color: #d97706; }",
