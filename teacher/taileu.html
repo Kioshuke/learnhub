@@ -76,7 +76,7 @@
 
   <script type="module">
     import { supabase, getUserRow, escapeHtml, logAppError } from "../supabase-config.js";
-    import { mountTaiLieuManage } from "../element/taileu-manage.js?v=2";
+    import { mountTaiLieuManage } from "../element/taileu-manage.js?v=3";
 
     // Liên kết menu shell (thêm key "docs").
     window.onTeacherNav = function(key) {
@@ -122,6 +122,24 @@
       const isAdmin = isAdminRole(role);
       const isTeacher = isTeacherRole(role) || isAdmin;
       if (!isTeacher) { show("denied"); return; }
+
+      const displayName = (row && (row.name || row.email)) || "Giáo viên";
+      const badge = document.getElementById("tcUserBadge");
+      const avatar = row && (row.photo || row.avatar_url || row.picture);
+      const initials = displayName.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
+      let avatarHtml;
+      if (avatar && !/^https?:\/\//i.test(avatar) && !/^data:image/i.test(avatar)) {
+        avatarHtml = `<div class="tc-topbar-avatar">${initials}</div>`;
+      } else if (avatar) {
+        avatarHtml = `<img class="tc-topbar-avatar-img" src="${escapeHtml(avatar)}" alt="${escapeHtml(displayName)}">`;
+      } else {
+        avatarHtml = `<div class="tc-topbar-avatar">${initials}</div>`;
+      }
+      const label = isAdmin
+        ? `<span class="tc-badge"><i class="fa-solid fa-shield-halved"></i> ${escapeHtml(row.email || "")} · Admin</span>`
+        : `<span class="tc-topbar-name">${escapeHtml(row.name || row.email || "")}</span>`;
+      if (badge) badge.innerHTML = `<div class="tc-topbar-user">${label}${avatarHtml}</div>`;
+
       show("app");
       try {
         mountTaiLieuManage(document.getElementById("taileuManageRoot"));
