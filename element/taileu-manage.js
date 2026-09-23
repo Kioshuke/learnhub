@@ -23,11 +23,11 @@
 
 import { supabase as defaultSupabase, escapeHtml as defaultEscapeHtml, logAppError as defaultLogAppError } from "../supabase-config.js";
 
-/* ===== API key Google Drive (lấy dung lượng file Drive) =====
-   Tạo miễn phí: console.cloud.google.com → APIs & Services → Credentials → API key
-   → Restrict theo HTTP referrer https://learnhubpf.pages.dev/* để an toàn.
-   Để "" → file Drive không tự lấy được size, nhập tay. */
-const DRIVE_API_KEY = "AIzaSyDNlUvaUBzyZ4zUvTUnS3tCyIa2jXN3NNU";
+/* ===== Lấy dung lượng file Google Drive =====
+   Key Drive đặt ở Cloudflare Worker (hubie-proxy) dưới tên biến môi trường
+   DRIVE_API_KEY — website chỉ gọi worker, KHÔNG đụng key trực tiếp.
+   Nếu worker chưa cấu hình key → trả về lỗi, ô size để trống nhập tay. */
+const DRIVE_SIZE_ENDPOINT = "https://hubie-proxy.quanhao678.workers.dev/drive-size";
 
 /* ===== Icon theo đuôi file (giống trang xem hub) ===== */
 const EXT_ICON = {
@@ -124,12 +124,12 @@ function formatDate(v) {
 }
 
 /* ===== Tự lấy dung lượng ===== */
-async function fetchSize(url, type, apiKey) {
+async function fetchSize(url, type) {
   try {
     if (type === "drive") {
       const id = driveIdOf(url);
-      if (!id || !apiKey) return { ok: false };
-      const r = await fetch("https://www.googleapis.com/drive/v3/files/" + encodeURIComponent(id) + "?fields=size&key=" + encodeURIComponent(apiKey));
+      if (!id || !DRIVE_SIZE_ENDPOINT) return { ok: false };
+      const r = await fetch(DRIVE_SIZE_ENDPOINT + "?fileId=" + encodeURIComponent(id));
       if (!r.ok) return { ok: false };
       const j = await r.json();
       const label = fmtBytes(j && j.size);
@@ -377,7 +377,7 @@ export function mountTaiLieuManage(root, opts = {}) {
     if (!sizeManual && u) {
       renderSizeStatus("", "");
       sizeEl.value = "";
-      fetchSize(u, t, DRIVE_API_KEY).then(res => {
+      fetchSize(u, t).then(res => {
         if (res && res.ok) {
           sizeEl.value = res.size;
           renderSizeStatus("Đã lấy", "ok");
