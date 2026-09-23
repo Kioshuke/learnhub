@@ -164,6 +164,16 @@ const CSS = [
   ".tml input:focus,.tml select:focus,.tml textarea:focus{border-color:var(--tml-blue);background:#fff;box-shadow:0 0 0 4px rgba(37,99,235,.1)}",
   ".tml textarea{resize:vertical;line-height:1.55}",
   ".tml-hint{font-size:12.5px;color:var(--tml-sub);line-height:1.5;margin-top:5px}",
+  ".tml-combo{position:relative}",
+  ".tml-combo input{padding-right:42px}",
+  ".tml-combo-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--tml-sub);cursor:pointer;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:12px;transition:all .15s ease}",
+  ".tml-combo-btn:hover{background:#eef2f7;color:var(--tml-blue)}",
+  ".tml-combo-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid var(--tml-border);border-radius:12px;box-shadow:0 12px 30px rgba(15,23,42,.14);z-index:40;max-height:230px;overflow:auto;padding:6px}",
+  ".tml-combo-menu.hidden{display:none}",
+  ".tml-combo-item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:9px;font-size:13.5px;font-weight:600;color:#334155;cursor:pointer;transition:background .12s ease}",
+  ".tml-combo-item:hover{background:#f1f5f9}",
+  ".tml-combo-item .fa-solid{width:16px;text-align:center;color:#94a3b8}",
+  ".tml-combo-item:hover .fa-solid{color:var(--tml-cyan)}",
   ".tml-row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}",
   ".tml-type-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 12px;font-size:11.5px;font-weight:800;background:var(--tml-soft);border:1px solid var(--tml-border);color:var(--tml-text)}",
   ".tml-type-badge.hidden{display:none}",
@@ -262,7 +272,13 @@ export function mountTaiLieuManage(root, opts = {}) {
           '<div class="tml-head"><h3><i class="fa-solid fa-file-circle-plus"></i> Thêm / sửa tài liệu</h3><span class="tml-mode" id="' + uid + '-mode">Tài liệu mới</span></div>' +
           '<div class="tml-form">' +
             '<div class="tml-field"><label>Tên tài liệu <b>*</b></label><input type="text" class="tml-name" placeholder="vd: Giới hạn hàm số - Nhập môn buổi 1" autocomplete="off"></div>' +
-            '<div class="tml-field"><label>Nhóm / môn học <b>*</b></label><input type="text" class="tml-category" list="' + uid + '-subjects" placeholder="vd: Toán Học" autocomplete="off"><datalist id="' + uid + '-subjects">' + subjects.map(s => '<option value="' + esc(s) + '"></option>').join("") + '</datalist></div>' +
+            '<div class="tml-field"><label>Nhóm / môn học <b>*</b></label>' +
+            '<div class="tml-combo">' +
+              '<input type="text" class="tml-category" placeholder="vd: Toán Học" autocomplete="off">' +
+              '<button type="button" class="tml-combo-btn" title="Chọn từ danh sách"><i class="fa-solid fa-chevron-down"></i></button>' +
+              '<div class="tml-combo-menu hidden">' + subjects.map(s => '<div class="tml-combo-item" data-v="' + esc(s) + '"><i class="fa-solid fa-book-open"></i>' + esc(s) + '</div>').join("") + '</div>' +
+            '</div>' +
+            '<span class="tml-hint">Bấm nút bên phải để chọn nhanh, hoặc gõ nhóm/môn tùy chỉnh.</span></div>' +
             '<div class="tml-field"><label>Link tài liệu <b>*</b></label><input type="text" class="tml-url" placeholder="Dán link Google Drive hoặc file (../cauhoi/..., https://...)" autocomplete="off"><span class="tml-hint"><i class="fa-solid fa-wand-magic-sparkles" style="color:#8b5cf6"></i> Tự nhận biết nguồn & icon theo link — kéo xuống, dán link từ Drive hoặc file trong web.</span></div>' +
             '<div class="tml-field"><span class="tml-type-badge hidden">—</span></div>' +
             '<div class="tml-row2">' +
@@ -371,6 +387,31 @@ export function mountTaiLieuManage(root, opts = {}) {
   });
   sizeEl.addEventListener("input", () => { sizeManual = true; renderSizeStatus("", ""); });
   sizeEl.addEventListener("focus", () => { sizeManual = true; });
+
+  /* dropdown chọn môn (custom — thay cho datalist hệ thống không style được) */
+  const comboBtn = q(".tml-combo-btn");
+  const comboMenu = q(".tml-combo-menu");
+  comboBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const open = !comboMenu.classList.contains("hidden");
+    closeAllCombos();
+    if (!open) comboMenu.classList.remove("hidden");
+  });
+  comboMenu.querySelectorAll(".tml-combo-item").forEach(it => {
+    it.addEventListener("click", () => {
+      catEl.value = it.getAttribute("data-v") || it.textContent.trim();
+      comboMenu.classList.add("hidden");
+      catEl.focus();
+    });
+  });
+  if (!window.__tmlComboCloseBound) {
+    window.__tmlComboCloseBound = true;
+    document.addEventListener("click", closeAllCombos);
+  }
+
+  function closeAllCombos() {
+    document.querySelectorAll(".tml-combo-menu").forEach(m => m.classList.add("hidden"));
+  }
 
   function resetForm() {
     editId = null;
