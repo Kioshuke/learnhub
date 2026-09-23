@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnHub - Quản lý Tài liệu</title>
+  <link rel="icon" href="../pictures/favicon.png" sizes="any">
+  <link rel="icon" type="image/png" sizes="48x48" href="../pictures/favicon.png">
+  <link rel="apple-touch-icon" href="../pictures/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../element/giaodien.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    :root{
+      --bg:#f6f8ff; --card:#ffffff; --border:#e6e9f2; --text:#0f172a; --sub:#64748b;
+      --blue:#2563eb; --green:#0891b2; --green-d:#0e7490;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+    .tc-wrap{max-width:1280px;margin:28px 32px;padding:0 0 64px;width:auto}
+    .tc-view-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+    .tc-view-head h2{margin:0;font-size:22px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+    .tc-view-head h2 i{color:var(--green)}
+    .tc-view-head .muted{color:var(--sub);font-size:13px;font-weight:600;margin-left:auto}
+    .tc-card{background:var(--card);border:1px solid var(--border);border-radius:20px;box-shadow:0 10px 30px rgba(15,23,42,.05)}
+    .fc-login{max-width:420px;margin:80px auto;padding:34px 26px;text-align:center}
+    .fc-login .icon{font-size:34px;color:var(--blue);margin-bottom:10px}
+    .fc-login h2{margin:0 0 8px;font-size:19px;font-weight:800}
+    .fc-login p{color:var(--sub);font-size:13.5px;line-height:1.6;margin:0 0 18px}
+    .fc-login a{display:inline-block;background:#f1f5f9;color:#334155;border-radius:12px;padding:11px 20px;font-weight:700;font-size:14px;text-decoration:none;font-family:inherit}
+    .fc-login a:hover{background:#e2e8f0}
+    @media (max-width:720px){ .tc-wrap{margin:22px 14px 52px} }
+  </style>
+</head>
+<body>
+  <div id="tcApp" class="teacher-app" style="display:none">
+    <div class="teacher-canvas">
+      <div class="tc-wrap">
+        <div class="tc-view-head">
+          <h2><i class="fa-solid fa-book-open"></i> Quản lý Tài liệu</h2>
+          <span class="muted">Thêm, sửa, xóa tài liệu cho Thư viện — tự nhận icon & dung lượng theo link</span>
+        </div>
+        <div id="taileuManageRoot" class="tc-card" style="padding:20px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tlDenied" style="display:none">
+    <div class="tc-card fc-login">
+      <div class="icon"><i class="fa-solid fa-user-lock"></i></div>
+      <h2>Không có quyền truy cập</h2>
+      <p>Tài khoản của bạn không phải là Giáo viên hoặc Admin. Khu vực này chỉ dành cho giảng viên.</p>
+      <a href="../index.html">← Về trang chính</a>
+    </div>
+  </div>
+
+  <div id="tlLoading" style="display:none">
+    <div class="tc-card fc-login">
+      <div class="icon"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+      <h2>Đang kiểm tra quyền...</h2>
+      <p>Vui lòng chờ trong giây lát.</p>
+    </div>
+  </div>
+
+  <script src="shell.js"></script>
+  <script src="../toast.js"></script>
+  <script src="../element/subjects-data.js"></script>
+
+  <script type="module">
+    import { supabase, getUserRow, escapeHtml, logAppError } from "../supabase-config.js";
+    import { mountTaiLieuManage } from "../element/taileu-manage.js";
+
+    // Liên kết menu shell (thêm key "docs").
+    window.onTeacherNav = function(key) {
+      if (key === "home") window.location.href = "./index.html";
+      else if (key === "manage") window.location.href = "./index.html?view=manage";
+      else if (key === "fc") window.location.href = "./newflashcard.html";
+      else if (key === "video") window.location.href = "./cardphonghoc.html";
+      else if (key === "docs") window.location.href = "./taileu.html";
+      else if (key === "notice") window.location.href = "./index.html?view=notice";
+      else if (key === "quiz") window.location.href = "./index.html?view=quiz";
+      else if (key === "report") window.location.href = "./index.html?view=report";
+    };
+
+    if (window.TeacherShell && window.TeacherShell.setActive) TeacherShell.setActive("docs");
+
+    const tcApp = document.getElementById("tcApp");
+    const tlDenied = document.getElementById("tlDenied");
+    const tlLoading = document.getElementById("tlLoading");
+
+    function show(which) {
+      if (tcApp) tcApp.style.display = which === "app" ? "" : "none";
+      tlDenied.style.display = which === "denied" ? "" : "none";
+      tlLoading.style.display = which === "loading" ? "" : "none";
+    }
+
+    function normRole(role) {
+      return String(role || "").trim().toLowerCase();
+    }
+    function isTeacherRole(role) {
+      const r = normRole(role);
+      return r === "giáo viên" || r === "giao vien";
+    }
+    function isAdminRole(role) {
+      return normRole(role) === "admin";
+    }
+
+    async function guard() {
+      show("loading");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session || !session.user) { show("denied"); return; }
+      const row = await getUserRow(session.user.id);
+      const role = row?.role || "";
+      const isAdmin = isAdminRole(role);
+      const isTeacher = isTeacherRole(role) || isAdmin;
+      if (!isTeacher) { show("denied"); return; }
+      show("app");
+      try {
+        mountTaiLieuManage(document.getElementById("taileuManageRoot"));
+      } catch (err) {
+        console.error("[taileu] mount lỗi:", err);
+        show("denied");
+      }
+    }
+
+    guard();
+  </script>
+</body>
+</html>

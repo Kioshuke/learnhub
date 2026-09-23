@@ -47,6 +47,7 @@
     { key: "manage",  icon: "fa-chalkboard-user",      label: "Lớp học" },
     { key: "fc",      icon: "fa-layer-group",          label: "Flashcard" },
     { key: "video",   icon: "fa-door-open",          label: "Quản lý Phòng học" },
+    { key: "docs",    icon: "fa-book-open",          label: "Quản lý Tài liệu" },
     { key: "schedule", icon: "fa-calendar-days",     label: "Lịch học & thi" },
     { key: "notice",   icon: "fa-bell",              label: "Thông báo môn học" },
     { key: "quiz",    icon: "fa-file-circle-check",    label: "Bài kiểm tra" },

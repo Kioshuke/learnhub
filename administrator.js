@@ -67,6 +67,7 @@ const pageTitle = document.getElementById("pageTitle");
 const pageSubtitle = document.getElementById("pageSubtitle");
 const scheduleTabPanel = document.getElementById("scheduleTabPanel");
 const scheduleEventsList = document.getElementById("scheduleEventsList");
+const docsTabPanel = document.getElementById("docsTabPanel");
 const scheduleMeta = document.getElementById("scheduleMeta");
 let scheduleEvents = [];
 let scheduleWeekStart = getMonday(new Date());
@@ -95,6 +96,7 @@ const pageTitles = {
   whitelist: ["Bật/Tắt Whitelist", "Bật = cần cấp quyền email; Tắt = đăng nhập Google không cần whitelist."],
   weeklyReset: ["BXH & Reset tuần", "Bảng xếp hạng học viên và reset điểm theo tuần."],
   schedule: ["Lịch học & thi", "Chỉnh lịch học và lịch thi hiển thị trên trang Phòng Học."],
+  docs: ["Quản lý Tài liệu", "Thêm, sửa, xóa tài liệu cho Thư viện."],
   errorLogs: ["Lỗi hệ thống", "Xem lỗi từ user và tính năng, đánh dấu đã fix hoặc xóa."]
 };
 
@@ -110,6 +112,7 @@ function switchAdminTab(tab) {
   whitelistTabPanel.classList.toggle("hidden", tab !== "whitelist");
   weeklyResetTabPanel.classList.toggle("hidden", tab !== "weeklyReset");
   scheduleTabPanel.classList.toggle("hidden", tab !== "schedule");
+  docsTabPanel.classList.toggle("hidden", tab !== "docs");
   errorLogsTabPanel.classList.toggle("hidden", tab !== "errorLogs");
   const t = pageTitles[tab] || ["", ""];
   pageTitle.textContent = t[0];
@@ -122,10 +125,26 @@ function switchAdminTab(tab) {
   if (tab === "rename") renderRenameList();
   if (tab === "weeklyReset") loadWeeklyResetForm();
   if (tab === "schedule") loadScheduleForm();
+  if (tab === "docs") loadDocsManage();
   if (tab === "errorLogs") loadErrorLogs();
   // close mobile sidebar
   document.querySelector('.sidebar').classList.remove('open');
   document.querySelector('.sidebar-overlay').classList.remove('active');
+}
+
+let docsManageLoaded = false;
+async function loadDocsManage() {
+  const root = document.getElementById("docsManageRoot");
+  if (!root || docsManageLoaded) return;
+  docsManageLoaded = true;
+  try {
+    const mod = await import("./element/taileu-manage.js");
+    mod.mountTaiLieuManage(root, { supabase, escapeHtml, logAppError });
+  } catch (e) {
+    console.error("[admin] tải module quản lý tài liệu lỗi:", e);
+    root.innerHTML = '<div class="panel-desc">Không tải được module quản lý tài liệu. Xem log bên dưới.</div>';
+    if (window.logAppError) window.logAppError({ source: "admin", category: "feature", level: "error", code: "TLMANAGE_LOAD_FAIL", message: "Không tải được module quản lý tài liệu: " + String((e && e.message) || e) });
+  }
 }
 window.switchAdminTab = switchAdminTab;
 

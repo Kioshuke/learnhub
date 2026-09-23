@@ -16,6 +16,8 @@
 
 # style.css nam chung da nhap vao element/giaodien.css
 /style.css    /element/giaodien.css  301
+# Dot doi thu vien tai lieu vao element/hubfile.html
+/tai-lieu/hub.html   /element/hubfile.html   301
 /admin-dashboard.html   /administrator.html  301
 /teacher-dashboard.html   /teacher/  301
 /teacher.html            /teacher/  301

@@ -522,9 +522,13 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         Gửi thông báo
       </button>
-      <button class="sidebar-link" data-admin-tab="mailbox">
+<button class="sidebar-link" data-admin-tab="mailbox">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         Hộp Thư
+      </button>
+      <button class="sidebar-link" data-admin-tab="docs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Quản lý Tài liệu
       </button>
       <div class="sidebar-label">Cài đặt</div>
       <button class="sidebar-link" data-admin-tab="welcomePopup">
@@ -849,7 +853,7 @@
         </div>
       </div>
     </section>
-    <section class="panel tab-panel hidden" id="renameTabPanel">
+<section class="panel tab-panel hidden" id="renameTabPanel">
       <div class="panel-head">
         <div>
           <div class="panel-title">Chỉnh tên hiển thị</div>
@@ -860,6 +864,17 @@
         <input id="renameSearchInput" class="input" type="search" placeholder="Tìm theo tên hoặc email...">
       </div>
       <div id="renameListBody"></div>
+    </section>
+
+    <!-- QUẢN LÝ TÀI LIỆU (thư viện) -->
+    <section class="panel tab-panel hidden" id="docsTabPanel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Quản lý Tài liệu</div>
+          <div class="panel-desc" style="margin-bottom:0">Thêm, sửa, xóa tài liệu cho Thư viện — tự nhận nguồn, icon & dung lượng theo link. Tác giả/ngày đăng tự động.</div>
+        </div>
+      </div>
+      <div id="docsManageRoot"></div>
     </section>
 
     <!-- ERROR LOGS -->
