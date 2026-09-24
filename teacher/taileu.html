@@ -48,7 +48,7 @@
           <h2><i class="fa-solid fa-book-open"></i> Quản lý Tài liệu</h2>
           <span class="muted">Thêm, sửa, xóa tài liệu cho Thư viện — tự nhận icon & dung lượng theo link</span>
         </div>
-        <div id="taileuManageRoot" class="tc-card" style="padding:20px"></div>
+        <div id="taileuManageRoot"></div>
       </div>
     </div>
   </div>
@@ -76,7 +76,7 @@
 
   <script type="module">
     import { supabase, getUserRow, escapeHtml, logAppError } from "../supabase-config.js";
-    import { mountTaiLieuManage } from "../element/taileu-manage.js?v=3";
+    import { mountTaiLieuManage } from "../element/taileu-manage.js?v=6";
 
     // Liên kết menu shell (thêm key "docs").
     window.onTeacherNav = function(key) {

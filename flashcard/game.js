@@ -96,7 +96,8 @@ const gameProgress = {
     match: 0,
     blast: 0,
     defender: 0,
-    fillblank: 0
+    fillblank: 0,
+    wordsearch: 0
 };
 
 // Biến bổ trợ cho Defender
@@ -199,6 +200,7 @@ function setTotal() {
             gameProgress.blast = 0;
             gameProgress.defender = 0;
             gameProgress.fillblank = 0;
+            gameProgress.wordsearch = 0;
             
             updateProgress();
             if (typeof initFlashcard === "function") initFlashcard();
@@ -234,8 +236,17 @@ function updateProgress() {
     // 2. Cập nhật UI App dùng chung (Thanh trên cùng)
     const pText = document.getElementById("progressText");
     const pInner = document.getElementById("progressInner");
-    if (pText) pText.innerText = `${currentProg} / ${total}`;
-    if (pInner) pInner.style.width = percent + "%";
+    if (pText) {
+        // Flashcard: hiện số từ ĐANG ĐỨNG (known + 1) thay vì số đã thuộc,
+        // tránh nhìn "39/40" mà tưởng còn 1 lá nữa trong khi đã ở lá cuối.
+        const shown = (currentMode === 'flashcard' && currentProg < total) ? (currentProg + 1) : currentProg;
+        pText.innerText = `${shown} / ${total}`;
+    }
+    if (pInner) {
+        // Thanh phải chạy CÙNG nhịp với nhãn (không lệch 1 miếng ở lá cuối).
+        const shown = (currentMode === 'flashcard' && currentProg < total) ? (currentProg + 1) : currentProg;
+        pInner.style.width = (total > 0 ? Math.min((shown / total) * 100, 100) : 0) + "%";
+    }
 
     // 3. Cập nhật UI RIÊNG cho Defender (Kiểu Vũ Trụ)
     const defText = document.getElementById("def-progress-text");
@@ -260,7 +271,8 @@ function updateProgress() {
 }
 
 function checkComplete() {
-    if (gameProgress[currentMode] >= total && total > 0) {
+    const target = currentMode === "wordsearch" ? wsPool.length : total;
+    if (gameProgress[currentMode] >= target && target > 0) {
         const popup = document.getElementById("popup");
         if (popup) {
             popup.classList.add("show");
@@ -274,6 +286,12 @@ function switchMode(mode) {
     currentMode = mode;
 
     stopAllSounds();
+
+    // Đóng hết popup/test thẳng để không đè lên chế độ mới (nguồn gốc "loạn chế độ")
+    const swPopup = document.getElementById("popup");
+    if (swPopup) swPopup.classList.remove("show");
+    const swGoPopup = document.getElementById("game-over-popup");
+    if (swGoPopup) swGoPopup.style.display = "none";
 
     // 🔥 FIX CHUẨN: nếu chưa unlock thì unlock + play luôn
     if (!audioUnlocked) {
@@ -303,7 +321,8 @@ function switchMode(mode) {
             (mode === 'match' && txt.includes('ghép')) ||
             (mode === 'blast' && txt.includes('quiz')) ||
             (mode === 'fillblank' && txt.includes('điền')) ||
-            (mode === 'defender' && txt.includes('phòng'))) {
+            (mode === 'defender' && txt.includes('phòng')) ||
+            (mode === 'wordsearch' && txt.includes('chữ'))) {
             btn.classList.add("active-nav");
         }
     });
@@ -328,6 +347,7 @@ function switchMode(mode) {
         else if (mode === 'blast') initBlast();
         else if (mode === 'fillblank') initFillBlank();
         else if (mode === 'defender') initDefender();
+        else if (mode === 'wordsearch') initWordSearch();
     }, 50);
 }
 
@@ -347,6 +367,11 @@ function restartGame() {
     // 3. Chạy lại trò chơi
     if (currentMode === 'defender') {
         initDefender();
+    } else if (currentMode === 'flashcard') {
+        initFlashcardCategories();
+        var finner = document.querySelector(".flash-inner");
+        if (finner) finner.classList.remove("flipped");
+        if (getActiveQueue().length > 0) showCard();
     } else {
         switchMode(currentMode);
     }
@@ -374,7 +399,11 @@ function getFlashcardStorageKey() {
 
 function saveFlashcardProgress() {
     try {
-        localStorage.setItem(getFlashcardStorageKey(), JSON.stringify(fcCategories));
+        localStorage.setItem(getFlashcardStorageKey(), JSON.stringify({
+            categories: fcCategories,
+            reviewMode: fcReviewMode,
+            queuePos: fcQueuePos
+        }));
     } catch(e) {}
 }
 
@@ -383,9 +412,12 @@ function loadFlashcardProgress() {
         const saved = localStorage.getItem(getFlashcardStorageKey());
         if (saved) {
             const data = JSON.parse(saved);
+            const cats = data.categories || data;
             const valid = (arr) => Array.isArray(arr) && arr.every(i => i >= 0 && i < cards.length);
-            if (valid(data.learning) && valid(data.unknown) && valid(data.known)) {
-                fcCategories = data;
+            if (valid(cats.learning) && valid(cats.unknown) && valid(cats.known)) {
+                fcCategories = cats;
+                if (typeof data.reviewMode === "boolean") fcReviewMode = data.reviewMode;
+                if (typeof data.queuePos === "number") fcQueuePos = data.queuePos;
                 return true;
             }
         }
@@ -424,6 +456,62 @@ function updateCategoryUI() {
     if (reviewEl) {
         reviewEl.style.display = fcReviewMode ? "block" : "none";
     }
+}
+
+// Lá bài hiện tại có phải là lá cuối cùng (đã thuộc là xong bộ)?
+function isLastFlashcard() {
+    const queue = getActiveQueue();
+    if (queue.length !== 1 || fcQueuePos !== 0) return false;
+    return fcReviewMode || fcCategories.unknown.length === 0;
+}
+
+// Đổi nút phải: lá cuối → "Hoàn thành 🎉", còn lại → "Đã thuộc →"
+function updateFlashcardNav() {
+    const btn = document.getElementById("fcRightBtn");
+    if (!btn) return;
+    const count = fcCategories.known.length;
+    if (isLastFlashcard()) {
+        btn.classList.add("is-done");
+        btn.innerHTML = 'Hoàn thành 🎉<span class="nav-badge" id="fcKnownCount">' + count + '</span>';
+    } else {
+        btn.classList.remove("is-done");
+        btn.innerHTML = 'Đã thuộc →<span class="nav-badge" id="fcKnownCount">' + count + '</span>';
+    }
+}
+
+// Nút phải luôn đi qua đây để quyết định đúng theo trạng thái hiện tại.
+function fcRightAction() {
+    if (isLastFlashcard()) {
+        completeFlashcard();
+    } else {
+        markCardAsKnown();
+    }
+}
+
+// Làm trống lá bài khi hoàn thành để không để từ cuối lơ lửng sau popup bán trong suốt.
+function clearFinishedCard() {
+    const frontEl = document.getElementById("front");
+    if (frontEl) frontEl.innerText = "";
+    const backEl = document.getElementById("back");
+    if (backEl) backEl.innerHTML = "";
+    const inner = document.querySelector(".flash-inner");
+    if (inner) inner.classList.remove("flipped");
+    const cardEl = document.querySelector(".flashcard");
+    if (cardEl) cardEl.classList.remove("slide-out-left", "slide-in-right", "slide-active");
+}
+
+function completeFlashcard() {
+    var queue = getActiveQueue();
+    if (queue.length === 0 || fcQueuePos >= queue.length) return;
+    var cardIndex = queue[fcQueuePos];
+    queue.splice(fcQueuePos, 1);
+    fcCategories.known.push(cardIndex);
+    gameProgress.flashcard = fcCategories.known.length;
+    saveFlashcardProgress();
+    updateCategoryUI();
+    updateProgress();
+    clearFinishedCard();
+    checkComplete();
 }
 
 function markCardAsKnown() {
@@ -498,21 +586,16 @@ function advanceFlashcard() {
     }
 
     if (fcCategories.unknown.length === 0 && fcCategories.learning.length === 0) {
-        checkComplete();
+        gameProgress.flashcard = fcCategories.known.length;
+        updateProgress();
         updateCategoryUI();
+        clearFinishedCard();
+        checkComplete();
     }
 }
 
 function goBackToHub() {
-    clearFlashcardProgress();
     window.location.href = 'hub.html';
-}
-
-function markFlashcardViewed(index) {
-    if (!cards[index]) return;
-    viewedFlashcards.add(index);
-    gameProgress.flashcard = Math.min(viewedFlashcards.size, total);
-    updateProgress();
 }
 
 function initFlashcard() {
@@ -523,8 +606,16 @@ function initFlashcard() {
     var queue = getActiveQueue();
     if (queue.length > 0) {
         fcQueuePos = 0;
+        updateCategoryUI();
         showCard();
     }
+}
+
+function markFlashcardViewed(index) {
+    if (!cards[index]) return;
+    viewedFlashcards.add(index);
+    gameProgress.flashcard = Math.min(viewedFlashcards.size, total);
+    updateProgress();
 }
 
 function fcEsc(s) {
@@ -551,6 +642,7 @@ function showCard() {
     if (card.example) html += `<div style="margin-top:10px;font-size:14px;font-weight:500;color:#7c3aed;font-style:italic;line-height:1.45;">✏️ Ví dụ: ${fcEsc(card.example)}</div>`;
     html += "</div>";
     backEl.innerHTML = html;
+    updateFlashcardNav();
 }
 
 function flipCard() {
@@ -646,7 +738,7 @@ function loadNextBatch() {
     matchIndex += 10;
 
     if (batchCards.length === 0) {
-        grid.innerHTML = "<h2 style='grid-column: 1/-1; text-align: center; color: #4f46e5;'>🎉 Hoàn thành xuất sắc!</h2>";
+        grid.innerHTML = "";
         return;
     }
 
@@ -1210,14 +1302,14 @@ function startFillBlankGame() {
     document.getElementById("fillFeedback").innerText = "";
     document.getElementById("hintDisplay").innerText = "";
     fillHintEnabled = false;
-    document.getElementById("hintToggle").innerText = "Tắt";
+    document.getElementById("hintToggle").innerText = "Bật";
 
     loadNextFillQuestion();
 }
 
 function toggleHint() {
     fillHintEnabled = !fillHintEnabled;
-    document.getElementById("hintToggle").innerText = fillHintEnabled ? "Bật" : "Tắt";
+    document.getElementById("hintToggle").innerText = fillHintEnabled ? "Tắt" : "Bật";
     if (fillHintEnabled && currentFillCard) {
         showHint();
     } else {
@@ -1368,5 +1460,400 @@ function checkFillAnswer() {
             });
         }, 300);
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// 🧩 WORD SEARCH - GIẢI Ô CHỮ (mức cố định: Nhỏ 10×10·3 từ, Vừa 15×15·6 từ, Nhiều 20×20·9 từ)
+////////////////////////////////////////////////////////////////////////////////
+const WS_GRID_MAX = 20; // cạnh ma trận lớn nhất (mức Nhiều)
+const WS_LEVELS = {
+    3: { grid: 10, words: 3, maxLen: 8  },  // Nhỏ: 10×10, 3 từ, mỗi từ ≤ 8 ký tự
+    6: { grid: 15, words: 6, maxLen: 13 },  // Vừa: 15×15, 6 từ
+    9: { grid: 20, words: 9, maxLen: 18 }   // Nhiều: 20×20, 9 từ
+};
+const WS_LEVEL_NAMES = { 3: "Nhỏ", 6: "Vừa", 9: "Nhiều" };
+let wsLevel = 3;            // cỡ đợt: 3 / 6 / 9
+let wsPool = [];            // cards dùng được (theo mức đã chọn), đã xáo trộn
+let wsCursor = 0;           // vị trí đợt tiếp theo trong wsPool
+let wsBatchCount = 0;       // số đợt đã chơi xong
+let wsBatchWords = [];      // từ của đợt hiện tại: { front, back }
+let wsGrid = [];            // ma trận chữ (n x n)
+let wsN = 0;                // cạnh ma trận hiện tại
+let wsCellEls = [];         // tham chiếu ô: wsCellEls[r][c]
+let wsFoundSet = new Set(); // front đã tìm trong đợt (lowercase)
+let wsFoundCells = new Set(); // "r,c" đã xanh
+let wsDragging = false;
+let wsStartCell = null;
+let wsCurCells = [];
+let wsProcessing = false;
+let wsDone = false;
+
+// maxLen = giới hạn ký tự theo mức (từ dài hơn tự bị lọc, không kẹt khi xếp)
+function wordSearchUsableCards(maxLen) {
+    const cap = Math.min(maxLen || WS_LEVELS[wsLevel].maxLen, WS_GRID_MAX);
+    return cards.filter(c => c && typeof c.front === "string" && c.front.trim() && c.front.length <= cap);
+}
+
+function initWordSearch() {
+    stopAllSounds();
+    setGlobalProgressVisible(false);
+    wsDone = false;
+
+    const startScreen = document.getElementById("wordsearch-start-screen");
+    const content = document.getElementById("wordsearch-content");
+    if (startScreen) startScreen.style.display = "block";
+    if (content) content.style.display = "none";
+
+    wsPool = shuffle(wordSearchUsableCards(18));
+
+    // Mỗi mức: số từ & cỡ ô CỐ ĐỊNH (không chia dư động)
+    const buttons = document.querySelectorAll(".ws-level-btn");
+    let chosen = 3;
+    buttons.forEach(b => {
+        const n = parseInt(b.getAttribute("data-ws-level"), 10);
+        const lvl = WS_LEVELS[n];
+        const ok = wordSearchUsableCards(lvl.maxLen).length >= lvl.words;
+        b.classList.toggle("muted", !ok);
+        b.disabled = !ok;
+        // Nhãn cố định theo yêu cầu: "Nhỏ · 3 từ" / "Vừa · 6 từ" / "Nhiều · 9 từ"
+        b.innerText = WS_LEVEL_NAMES[n] + " · " + lvl.words + " từ";
+        if (ok && n > chosen) chosen = n;
+    });
+    wsLevel = chosen;
+    buttons.forEach(b => {
+        b.classList.toggle("active", parseInt(b.getAttribute("data-ws-level"), 10) === chosen && !b.disabled);
+    });
+
+    const hint = document.getElementById("wsLevelHint");
+    if (hint) {
+        const totalOk = wordSearchUsableCards(18).length; // tổng từ vừa mức lớn nhất
+        if (totalOk === 0) hint.innerText = "⚠️ Bộ này không có từ đủ ngắn để xếp ô chữ.";
+        else if (totalOk < 3) hint.innerText = "⚠️ Chỉ xếp được đợt " + totalOk + " từ.";
+        else hint.innerText = "🎯 Nhỏ 10×10 · 3 từ — Vừa 15×15 · 6 từ — Nhiều 20×20 · 9 từ. Tổng " + totalOk + " từ.";
+    }
+}
+
+function pickWordSearchLevel(n) {
+    if (!wsPool || n > wsPool.length) return;
+    wsLevel = n;
+    document.querySelectorAll(".ws-level-btn").forEach(b => {
+        b.classList.toggle("active", parseInt(b.getAttribute("data-ws-level"), 10) === n && !b.disabled);
+    });
+}
+
+function startWordSearchGame() {
+    playBGM("match");
+    setGlobalProgressVisible(true);
+    gameProgress.wordsearch = 0;
+    updateProgress();
+
+    document.getElementById("wordsearch-start-screen").style.display = "none";
+    document.getElementById("wordsearch-content").style.display = "block";
+
+    wsPool = shuffle(wordSearchUsableCards(WS_LEVELS[wsLevel].maxLen));
+    if (wsPool.length === 0) {
+        if (typeof lhToast === "function") lhToast("Bộ này không có từ nào xếp được ô chữ!", 'error');
+        return;
+    }
+    if (wsPool.length < wsLevel) {
+        if (typeof lhToast === "function") lhToast("Bộ chỉ còn đủ " + wsPool.length + " từ — tạm chơi với đợt " + Math.min(wsPool.length, 3) + " từ.", 'error');
+        wsLevel = Math.min(wsPool.length, 3);
+        wsPool = shuffle(wordSearchUsableCards(WS_LEVELS[wsLevel].maxLen));
+    }
+
+    wsCursor = 0;
+    wsBatchCount = 0;
+    wsDone = false;
+
+    // Gắn sự kiện kéo 1 lần
+    const gridEl = document.getElementById("wsGrid");
+    if (!gridEl.dataset.seeded) {
+        gridEl.dataset.seeded = "1";
+        gridEl.addEventListener("pointerdown", wsPointerDown);
+        gridEl.addEventListener("pointermove", wsPointerMove);
+        gridEl.addEventListener("pointerup", wsPointerUp);
+        gridEl.addEventListener("pointercancel", wsPointerUp);
+    }
+
+    wordSearchNextBatch();
+}
+
+// Xếp từ vào lưới CỐ ĐỊNH theo mức (10/15/20); nếu không khít thì giảm bớt từ
+// (từ bị bớt được dồn về đợt sau bởi wsCursor). Luôn trả về { grid, words, n }.
+function buildWordSearchPlacement(words) {
+    const n = WS_LEVELS[wsLevel] ? WS_LEVELS[wsLevel].grid : 10;
+    let grid = placeWordSearchWords(words, n);
+    let attempts = 0;
+    while (!grid && attempts < 60) { grid = placeWordSearchWords(words, n); attempts++; }
+    if (grid) return { grid: grid, words: words, n: n };
+
+    const pool = words.slice().sort((a, b) => b.front.length - a.front.length);
+    while (pool.length > 1) {
+        pool.pop();
+        grid = null; attempts = 0;
+        while (!grid && attempts < 60) { grid = placeWordSearchWords(pool, n); attempts++; }
+        if (grid) return { grid: grid, words: pool.slice(), n: n };
+    }
+    return { grid: forceSingleWord(pool[0], n), words: pool.slice(), n: n };
+}
+
+function wordSearchNextBatch() {
+    // Số từ mỗi đợt cố định theo mức; phiên cuối tự gom phần còn lại
+    const batchCards = wsPool.slice(wsCursor, wsCursor + WS_LEVELS[wsLevel].words);
+    if (batchCards.length === 0) { wsDone = true; checkComplete(); return; }
+    wsBatchCount++;
+
+    wsFoundSet = new Set();
+    wsFoundCells = new Set();
+    wsProcessing = false;
+
+    const placement = buildWordSearchPlacement(batchCards);
+    wsGrid = placement.grid;
+    wsN = placement.n;
+    wsBatchWords = placement.words.map(c => ({ front: String(c.front), back: c.back }));
+    // Chỉ tính số từ THỰC SỰ dùng trong đợt; từ bị bớt nằm trong pool sẽ được đợt sau chọn.
+    wsCursor += placement.words.length;
+
+    renderWordSearchGrid();
+    renderWordSearchList();
+    const bc = document.getElementById("wsBatchCount");
+    if (bc) bc.textContent = wsBatchCount;
+    // Đưa lưới vào giữa màn hình (tránh bị khuất trên/dưới), trừ header dính
+    requestAnimationFrame(() => requestAnimationFrame(() => wsScrollToGrid()));
+}
+
+// Cuộn sao cho toàn bộ bảng ô chữ vừa khít trong màn hình (không khuất trên/dưới).
+function wsScrollToGrid() {
+    const grid = document.getElementById("wsGrid");
+    if (!grid) return;
+    const head = document.querySelector(".app-topbar");
+    const headH = head ? head.getBoundingClientRect().height : 0;
+    const vh = window.innerHeight - headH;
+    const r = grid.getBoundingClientRect();
+    // Nếu bảng cao hơn màn hình: canh trên khít dưới header; còn không: canh giữa
+    let top;
+    if (r.height + headH >= window.innerHeight) top = window.scrollY + r.top - headH - Math.min(10, vh * 0.08);
+    else top = window.scrollY + r.top - headH - Math.max(0, (vh - r.height) / 2);
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+}
+
+function forceSingleWord(card, n) {
+    const g = Array.from({ length: n }, () => new Array(n).fill(""));
+    if (card.front.length > n) return g;
+    const r0 = Math.floor((n - card.front.length) / 2);
+    const c0 = Math.floor((n - card.front.length) / 2);
+    for (let k = 0; k < card.front.length; k++) g[r0][c0 + k] = card.front[k].toLowerCase();
+    return g;
+}
+
+// ===== ĐẶT TỪ: 8 hướng, cho trùng chữ =====
+function placeWordSearchWords(words, n) {
+    const grid = Array.from({ length: n }, () => new Array(n).fill(""));
+    // 4 hướng nhưng LUÔN đọc trái→phải: ngang (→), dọc trên→xuống (↓),
+    // chéo xuống phải (↘) và chéo LÊN phải (↗). Không có hướng nào viết ngược.
+    const dirs = [[0, 1], [1, 0], [1, 1], [-1, 1]];
+    const order = words.slice().sort((a, b) => b.front.length - a.front.length);
+
+    for (const card of order) {
+        const w = String(card.front).toLowerCase();
+        let ok = false;
+        for (let t = 0; t < 160 && !ok; t++) {
+            const d = dirs[Math.floor(Math.random() * dirs.length)];
+            const r0 = Math.floor(Math.random() * n), c0 = Math.floor(Math.random() * n);
+            const r1 = r0 + d[0] * (w.length - 1), c1 = c0 + d[1] * (w.length - 1);
+            if (r1 < 0 || r1 >= n || c1 < 0 || c1 >= n) continue;
+            let conflict = false;
+            for (let k = 0; k < w.length; k++) {
+                const cur = grid[r0 + d[0] * k][c0 + d[1] * k];
+                if (cur !== "" && cur !== w[k]) { conflict = true; break; }
+            }
+            if (conflict) continue;
+            for (let k = 0; k < w.length; k++) grid[r0 + d[0] * k][c0 + d[1] * k] = w[k];
+            ok = true;
+        }
+        if (!ok) return null;
+    }
+    return grid;
+}
+
+function renderWordSearchGrid() {
+    const gridEl = document.getElementById("wsGrid");
+    gridEl.innerHTML = "";
+    wsCellEls = [];
+    if (wsN <= 0) return;
+    gridEl.style.gridTemplateColumns = `repeat(${wsN}, 1fr)`;
+    for (let r = 0; r < wsN; r++) {
+        wsCellEls[r] = [];
+        for (let c = 0; c < wsN; c++) {
+            if (!wsGrid[r][c]) wsGrid[r][c] = String.fromCharCode(65 + Math.floor(Math.random() * 26)).toLowerCase();
+            const cell = document.createElement("div");
+            cell.className = "ws-cell";
+            cell.dataset.r = r; cell.dataset.c = c;
+            cell.textContent = wsGrid[r][c].toUpperCase();
+            gridEl.appendChild(cell);
+            wsCellEls[r][c] = cell;
+        }
+    }
+}
+
+function renderWordSearchList() {
+    const listEl = document.getElementById("wsWordList");
+    listEl.innerHTML = "";
+    wsBatchWords.forEach(c => {
+        const item = document.createElement("div");
+        item.className = "ws-word-item";
+        item.dataset.key = c.front.toLowerCase();
+        item.innerHTML = '<span class="ws-word-en">' + fcEsc(c.front) + '</span><span class="ws-word-vi"></span>';
+        listEl.appendChild(item);
+    });
+}
+
+function wsMarkWordInList(card) {
+    const item = document.querySelector('#wsWordList .ws-word-item[data-key="' + card.front.toLowerCase().replace(/"/g, '\\"') + '"]');
+    if (!item) return;
+    item.classList.add("found-word");
+    const en = item.querySelector(".ws-word-en");
+    if (en) en.classList.add("strike");
+    const vi = item.querySelector(".ws-word-vi");
+    if (vi) vi.innerText = fcEsc(card.back || "");
+}
+
+// ===== KÉO CHỌN =====
+function wsCellFromEvent(e) {
+    const gridEl = document.getElementById("wsGrid");
+    const rect = gridEl.getBoundingClientRect();
+    const cell = document.elementFromPoint(e.clientX, e.clientY);
+    if (!cell || !cell.classList || !cell.classList.contains("ws-cell")) return null;
+    return cell;
+}
+
+function wsPointerDown(e) {
+    if (wsProcessing || wsDone) return;
+    const cell = wsCellFromEvent(e);
+    if (!cell) return;
+    e.preventDefault();
+    wsDragging = true;
+    wsStartCell = { r: +cell.dataset.r, c: +cell.dataset.c };
+    wsCurCells = [];
+    wsApplyPath([wsStartCell]);
+}
+
+function wsPointerMove(e) {
+    if (!wsDragging) return;
+    if (e.buttons === 0) { wsPointerUp(e); return; } // tay rời chuột
+    const cell = wsCellFromEvent(e);
+    if (!cell) return;
+    const pt = { r: +cell.dataset.r, c: +cell.dataset.c };
+    wsApplyPath(wsLineTo(pt));
+}
+
+function wsPointerUp(e) {
+    if (!wsDragging) return;
+    wsDragging = false;
+    wsValidateSelection();
+}
+
+// Đường thẳng theo 1 trong 8 tia từ ô bắt đầu → ô đang rê
+function wsLineTo(pt) {
+    const dr = pt.r - wsStartCell.r, dc = pt.c - wsStartCell.c;
+    if (dr === 0 && dc === 0) return [{ r: wsStartCell.r, c: wsStartCell.c }];
+    const adr = Math.abs(dr), adc = Math.abs(dc);
+    let sr, sc, k;
+    if (adr === 0) { sr = 0; sc = dc > 0 ? 1 : -1; k = adc; }
+    else if (adc === 0) { sr = dr > 0 ? 1 : -1; sc = 0; k = adr; }
+    else { sr = dr > 0 ? 1 : -1; sc = dc > 0 ? 1 : -1; k = Math.min(adr, adc); }
+    const cells = [];
+    for (let i = 0; i <= k; i++) cells.push({ r: wsStartCell.r + sr * i, c: wsStartCell.c + sc * i });
+    return cells;
+}
+
+function wsApplyPath(cells) {
+    wsClearSelectStyles();
+    wsCurCells = cells.filter(p =>
+        p.r >= 0 && p.r < wsN && p.c >= 0 && p.c < wsN &&
+        wsCellEls[p.r] && wsCellEls[p.r][p.c]);
+    wsCurCells.forEach(p => {
+        const el = wsCellEls[p.r][p.c];
+        if (el && !el.classList.contains("found")) el.classList.add("sel");
+    });
+}
+
+function wsClearSelectStyles() {
+    if (!wsCellEls) return;
+    for (let r = 0; r < wsN; r++) {
+        if (!wsCellEls[r]) continue;
+        for (let c = 0; c < wsN; c++) {
+            const el = wsCellEls[r][c];
+            if (el && el.classList.contains("sel")) el.classList.remove("sel");
+        }
+    }
+}
+
+function wsValidateSelection() {
+    if (!wsCurCells || wsCurCells.length < 2) { wsClearSelectStyles(); return; }
+    const cells = wsCurCells;
+    const raw = cells.map(p => wsGrid[p.r][p.c]).join("");
+    const word = raw.toLowerCase();
+    const rev = word.split("").reverse().join("");
+
+    let target = null;
+    for (const c of wsBatchWords) {
+        const key = c.front.toLowerCase();
+        if (wsFoundSet.has(key)) continue;
+        if (key === word || key === rev) { target = c; break; }
+    }
+
+    if (target) {
+        wsFoundSet.add(target.front.toLowerCase());
+        cells.forEach(p => {
+            const el = wsCellEls[p.r][p.c];
+            el.classList.remove("sel");
+            if (!el.classList.contains("found")) {
+                el.classList.add("found");
+                wsFoundCells.add(p.r + "," + p.c);
+            }
+        });
+        playSound(soundCorrect);
+        wsMarkWordInList(target);
+        gameProgress.wordsearch = Math.min((gameProgress.wordsearch || 0) + 1, wsPool.length);
+        updateProgress();
+        if (wsFoundSet.size >= wsBatchWords.length) {
+            wsProcessing = true;
+            setTimeout(wsFinishBatch, 300);
+        }
+    } else {
+        wsProcessing = true;
+        playSound(soundWrong);
+        cells.forEach(p => {
+            const el = wsCellEls[p.r][p.c];
+            if (el && !el.classList.contains("found")) el.classList.add("bad");
+        });
+        setTimeout(() => {
+            cells.forEach(p => {
+                const el = wsCellEls[p.r][p.c];
+                el.classList.remove("bad", "sel");
+            });
+            wsProcessing = false;
+        }, 420);
+    }
+}
+
+function wsFinishBatch() {
+    wsProcessing = false;
+    if (wsCursor >= wsPool.length) {
+        // Đợt cuối, tìm xong toàn bộ → popup hoàn thành
+        wsDone = true;
+        checkComplete();
+        return;
+    }
+    const banner = document.getElementById("wsBatchBanner");
+    if (banner) {
+        banner.style.display = "block";
+        banner.innerText = "🎉 Xong đợt " + wsBatchCount + "! Lưới mới đang đến...";
+    }
+    setTimeout(() => {
+        if (banner) banner.style.display = "none";
+        wordSearchNextBatch();
+    }, 1200);
 }
 

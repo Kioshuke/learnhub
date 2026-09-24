@@ -2240,6 +2240,10 @@ body::after {
   background: linear-gradient(135deg, #f472b6, #db2777) !important;
   box-shadow: 0 12px 24px rgba(219, 39, 119, 0.3);
 }
+#menu button.active-nav[data-mode="wordsearch"] {
+  background: linear-gradient(135deg, #34d399, #059669) !important;
+  box-shadow: 0 12px 24px rgba(5, 150, 105, 0.3);
+}
 
 /* Hover theo màu từng tab */
 #menu button[data-mode="flashcard"]:hover:not(.active-nav) { color: #2563eb; background: rgba(37, 99, 235, 0.08); }
@@ -2247,6 +2251,7 @@ body::after {
 #menu button[data-mode="blast"]:hover:not(.active-nav) { color: #d97706; background: rgba(245, 158, 11, 0.1); }
 #menu button[data-mode="fillblank"]:hover:not(.active-nav) { color: #0891b2; background: rgba(8, 145, 178, 0.08); }
 #menu button[data-mode="defender"]:hover:not(.active-nav) { color: #db2777; background: rgba(219, 39, 119, 0.08); }
+#menu button[data-mode="wordsearch"]:hover:not(.active-nav) { color: #059669; background: rgba(5, 150, 105, 0.08); }
 
 #topicBanner,
 #progressContainer {
@@ -2943,4 +2948,226 @@ body::after {
         height: 34px;
         font-size: 18px;
     }
+}
+/* Nut Hoan thanh (la bai cuoi cung) */
+.nav-arrow-right.is-done,
+.nav-arrow-right.is-done:hover {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  box-shadow: 0 10px 18px rgba(245, 158, 11, 0.45) !important;
+}
+.nav-arrow-right.is-done .nav-badge { color: #fff; }
+
+/* ---- ĐÈ giaodien.css (#popup có display:none, z-index:3000) ----
+   Rule #popup này nạp SAU nên ID cùng độ đặc hiệu sẽ thắng; đảm bảo popup
+   hoàn thành hiển thị đúng theo thiết kế của flash game. */
+#popup {
+  background:
+    radial-gradient(circle at 22% 18%, rgba(236, 72, 153, 0.22), transparent 34%),
+    radial-gradient(circle at 82% 20%, rgba(37, 99, 235, 0.22), transparent 36%),
+    rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 9999;
+}
+#popup.show {
+  display: flex !important;
+}
+
+/* ===== WORD SEARCH - GIẢI Ô CHỮ ===== */
+.ws-levels {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 18px 0 6px;
+}
+.ws-level-btn {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid rgba(5, 150, 105, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+.ws-level-btn:hover:not(.muted) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(16, 185, 129, 0.2);
+}
+.ws-level-btn.active {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 8px 18px rgba(16, 185, 129, 0.35);
+}
+.ws-level-btn.muted {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+  cursor: not-allowed;
+}
+.ws-level-hint {
+  font-size: 12px;
+  color: #64748b;
+  margin: 4px 0 14px;
+  min-height: 14px;
+  text-align: center;
+}
+.ws-start-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 10px 18px rgba(16, 185, 129, 0.35);
+}
+.ws-start-btn:hover {
+  box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px) scale(1.05);
+}
+.ws-layout {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 14px;
+}
+.ws-panel {
+  position: relative;
+}
+.ws-grid {
+  display: grid;
+  gap: 1px;
+  padding: 8px;
+  background: #cbd5e1;
+  border-radius: 12px;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  width: min(96vw, 560px);
+  margin: 0 auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.ws-cell {
+  width: auto;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: clamp(10px, 3.4vw, 16px);
+  color: #1e293b;
+  background: #fff;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+.ws-cell.sel {
+  background: #c7d2fe;
+  color: #3730a3;
+  transform: scale(1.06);
+  box-shadow: inset 0 0 0 1px #6366f1;
+}
+.ws-cell.found {
+  background: #22c55e;
+  color: #fff;
+  animation: ws-found-pop 0.3s ease;
+  box-shadow: 0 4px 10px rgba(34, 197, 94, 0.35);
+}
+.ws-cell.bad {
+  background: #ef4444;
+  color: #fff;
+  animation: ws-bad-shake 0.3s ease;
+}
+@keyframes ws-found-pop {
+  0% { transform: scale(0.7); }
+  60% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+@keyframes ws-bad-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-3px); }
+}
+.ws-batch-banner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(4px);
+  border-radius: 16px;
+  font-weight: 800;
+  font-size: clamp(16px, 4vw, 22px);
+  color: #4f46e5;
+  z-index: 5;
+  text-align: center;
+  padding: 12px;
+}
+.ws-side {
+  min-width: 200px;
+  max-width: 280px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+}
+.ws-side-title {
+  font-weight: 800;
+  color: #4338ca;
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+.ws-word-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ws-word-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  background: #fff;
+  border-radius: 10px;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.ws-word-en {
+  font-weight: 800;
+  color: #1e293b;
+}
+.ws-word-en.strike {
+  text-decoration: line-through;
+  color: #64748b;
+}
+.ws-word-vi {
+  color: #4f46e5;
+  font-weight: 700;
+  font-size: 12px;
+  text-align: right;
+}
+.ws-word-item.found-word {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+@media (max-width: 640px) {
+  .ws-layout {
+    flex-direction: column;
+    align-items: center;
+  }
+  .ws-side {
+    max-width: 100%;
+  }
 }

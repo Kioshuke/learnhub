@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Flashcard App</title>
 <link rel="stylesheet" href="../element/giaodien.css">
-<link rel="stylesheet" href="flash.css">
+<link rel="stylesheet" href="flash.css?v=6">
 <script src="../version/version-check.js" defer></script>
 <script src="../toast.js"></script>
 </head>
@@ -23,7 +23,6 @@
     </div>
   </div>
 </div>
-<link rel="stylesheet" href="flash.css">
 <!-- TOPBAR -->
 <header id="appTopbar" class="app-topbar">
   <div class="topbar-title">LearnHub<span class="tt-sub"> Flashcard</span></div>
@@ -33,6 +32,7 @@
     <button data-mode="blast" onclick="switchMode('blast')">Quiz nhanh</button>
     <button data-mode="fillblank" onclick="switchMode('fillblank')">Điền từ</button>
     <button data-mode="defender" onclick="switchMode('defender')">Phòng thủ</button>
+    <button data-mode="wordsearch" onclick="switchMode('wordsearch')">Giải ô chữ</button>
   </div>
 </header>
 <button id="settingsBtn" onclick="openSettings()" title="Cài đặt"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></button>
@@ -79,7 +79,7 @@
       </div>
     </div>
 
-    <button class="nav-arrow nav-arrow-right" onclick="markCardAsKnown()">Đã thuộc → <span class="nav-badge" id="fcKnownCount">0</span></button>
+    <button id="fcRightBtn" class="nav-arrow nav-arrow-right" onclick="fcRightAction()">Đã thuộc → <span class="nav-badge" id="fcKnownCount">0</span></button>
   </div>
   <div id="fcReviewIndicator" class="fc-review-indicator" style="display:none;">🔄 Đang ôn tập từ chưa thuộc</div>
 </div>
@@ -147,7 +147,6 @@
       <div class="question" id="fillQuestion" style="margin: 8px 0;">Question</div>
       <div id="fillSlotsContainer" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 2px; padding: 12px 0; min-height: 52px;"></div>
       <div id="hintDisplay" style="font-size: 16px; font-weight: 700; color: #6366f1; min-height: 22px;"></div>
-      <input type="text" id="fillInput" style="display:none">
       <div style="font-size: 12px; color: #64748b; margin-top: 6px;">* Nhập đúng chính tả tiếng Anh (không phân biệt hoa thường)</div>
       <button onclick="checkFillAnswer()" style="margin-top: 8px; padding: 12px 28px; font-size: 16px;">Kiểm tra</button>
       <div id="fillFeedback" style="margin-top: 10px; font-size: 15px; font-weight: 700; min-height: 22px;"></div>
@@ -211,6 +210,36 @@
         </div>
     </div>
 </div>
+<!-- WORD SEARCH - GIẢI Ô CHỮ -->
+<div id="wordsearch" class="mode">
+    <div id="wordsearch-start-screen" class="game-start-screen">
+        <div class="game-start-card">
+            <h2>Giải Ô Chữ</h2>
+            <p>Kéo chuột từ chữ cái đầu đến chữ cái cuối để tìm từ tiếng Anh ẩn trong ma trận. Đúng → ô xanh + hiện nghĩa, sai → đỏ. Chia theo đợt như Ghép đôi.</p>
+            <div class="ws-levels">
+                <button data-ws-level="3" class="ws-level-btn active" onclick="pickWordSearchLevel(3)">Nhỏ · 3 từ</button>
+                <button data-ws-level="6" class="ws-level-btn" onclick="pickWordSearchLevel(6)">Vừa · 6 từ</button>
+                <button data-ws-level="9" class="ws-level-btn" onclick="pickWordSearchLevel(9)">Nhiều · 9 từ</button>
+            </div>
+            <div id="wsLevelHint" class="ws-level-hint"></div>
+            <button class="ws-start-btn" onclick="startWordSearchGame()">Bắt đầu giải ô chữ</button>
+        </div>
+    </div>
+
+    <div id="wordsearch-content" class="game-shell" style="display: none;">
+        <div class="ws-layout">
+            <div class="ws-panel">
+                <div id="wsGrid" class="ws-grid"></div>
+                <div id="wsBatchBanner" class="ws-batch-banner" style="display:none;"></div>
+            </div>
+            <div class="ws-side">
+                <div class="ws-side-title">🗂️ Đợt <span id="wsBatchCount">1</span></div>
+                <div id="wsWordList" class="ws-word-list"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- DICTIONARY POPUP -->
 <div id="dictPopup" class="popup" onclick="closeDictPopup(event)">
   <div class="popup-box dict-popup-box" onclick="event.stopPropagation()">
@@ -310,7 +339,7 @@ function loadDataScript() {
         setTopicNameLabel(resolveTopicName(dataFile));
 
         const gameScript = document.createElement("script");
-        gameScript.src = "game.js";
+        gameScript.src = "game.js?v=11";
 
         gameScript.onload = () => {
             if (typeof setTotal === 'function') {
@@ -548,7 +577,7 @@ if (localStorage.getItem("darkMode") === "on") {
       setTopicNameLabel(window.TOPIC_NAME);
 
       const gameScript = document.createElement("script");
-      gameScript.src = "game.js";
+      gameScript.src = "game.js?v=11";
       gameScript.onload = () => {
         if (typeof setTotal === 'function') setTotal();
         hideLoadPopup();

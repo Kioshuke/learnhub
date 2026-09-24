@@ -67,10 +67,9 @@ const ICON_OPTIONS = [
 
 const SOURCE_LABEL = { drive: "Google Drive", direct: "File trực tiếp", storage: "Kho lưu trữ" };
 
-/* Môn gợi ý (datalist) — ưu tiên LH_SUBJECTS nếu trang đã nạp subjects-data.js. */
+/* Môn gợi ý (datalist) — thứ tự & danh sách theo đúng subjects-data.js như Phòng Học. */
 const FALLBACK_SUBJECTS = [
-  "Toán Học", "Vật Lý", "Hoá Học", "Sinh Học", "Tin Học",
-  "Lịch Sử", "Anh Văn", "Ngữ Văn", "Địa Lý", "GDCD", "Toán", "Tiếng Anh", "Khác", "Chung"
+  "Hoá Học", "Lịch Sử", "Sinh Học", "Toán Học", "Vật Lý", "Tin Học", "Anh Văn", "Khác"
 ];
 
 /* ===== Tiện ích ===== */
@@ -153,19 +152,19 @@ const CSS = [
   ".tml,.tml *{box-sizing:border-box}",
   ".tml-layout{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,6fr);gap:18px;align-items:start;max-width:1400px}",
   ".tml-layout>div{min-width:0;max-width:100%}",
-  ".tml-card{position:relative;background:var(--tml-bg);border:1px solid var(--tml-border);border-radius:20px;box-shadow:0 10px 30px rgba(15,23,42,.05);overflow:hidden}",
-  ".tml-card::before{content:\"\";position:absolute;top:0;left:0;right:0;height:4px;border-radius:20px 20px 0 0}",
+  ".tml-card{position:relative;background:var(--tml-bg);border:1px solid var(--tml-border);border-radius:16px;box-shadow:0 10px 30px rgba(15,23,42,.05);overflow:hidden}",
+  ".tml-card::before{content:\"\";position:absolute;top:0;left:16px;right:16px;height:5px;border-radius:0 0 8px 8px}",
   ".tml-card.tml-form-card::before{background:linear-gradient(90deg,var(--tml-blue),var(--tml-green))}",
   ".tml-card.tml-list-card::before{background:linear-gradient(90deg,var(--tml-green),var(--tml-blue))}",
   ".tml-form-card{overflow:visible}",
-  ".tml-head{display:flex;align-items:center;gap:12px;padding:22px 22px 0}",
+  ".tml-head{display:flex;align-items:center;gap:12px;padding:22px 22px 0;flex-wrap:nowrap}",
   ".tml-head-ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:16px;flex:none}",
   ".tml-form-card .tml-head-ico{background:linear-gradient(135deg,#ecfeff,#cffafe);color:var(--tml-green-d)}",
   ".tml-list-card .tml-head-ico{background:linear-gradient(135deg,#eff6ff,#dbeafe);color:var(--tml-blue)}",
   ".tml-head-txt{min-width:0;flex:1}",
-  ".tml-head-txt h3{margin:0;font-size:16px;font-weight:800;color:var(--tml-text);letter-spacing:-.01em}",
-  ".tml-head-sub{display:block;color:var(--tml-sub);font-size:12.5px;font-weight:600;margin-top:2px}",
-  ".tml-mode{margin-left:auto;font-size:12px;font-weight:700;color:var(--tml-sub);background:var(--tml-soft);border:1px solid var(--tml-border);border-radius:999px;padding:5px 12px;flex:none}",
+  ".tml-head-txt h3{margin:0;font-size:16px;font-weight:800;color:var(--tml-text);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+  ".tml-head-sub{display:block;color:var(--tml-sub);font-size:12.5px;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+  ".tml-mode{margin-left:auto;font-size:12px;font-weight:700;color:var(--tml-sub);background:var(--tml-soft);border:1px solid var(--tml-border);border-radius:999px;padding:5px 12px;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40%}",
   ".tml-form{padding:22px}",
   ".tml-field{margin-bottom:14px}",
   ".tml-field label{display:block;font-size:12.5px;font-weight:600;color:#475569;margin-bottom:6px}",
@@ -180,10 +179,11 @@ const CSS = [
   ".tml-combo-btn:hover{background:#eef2f7;color:var(--tml-blue)}",
   ".tml-combo-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid var(--tml-border);border-radius:12px;box-shadow:0 12px 30px rgba(15,23,42,.14);z-index:40;max-height:230px;overflow:auto;padding:6px}",
   ".tml-combo-menu.hidden{display:none}",
-  ".tml-combo-item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:9px;font-size:13.5px;font-weight:600;color:#334155;cursor:pointer;transition:background .12s ease}",
+  ".tml-combo-item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;font-size:13.5px;font-weight:600;color:#334155;cursor:pointer;transition:background .12s ease}",
   ".tml-combo-item:hover{background:#f1f5f9}",
   ".tml-combo-item .fa-solid{width:16px;text-align:center;color:#94a3b8}",
   ".tml-combo-item:hover .fa-solid{color:var(--tml-green)}",
+  ".tml-sc-dot{width:10px;height:10px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(15,23,42,.08)}",
   ".tml-row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}",
   ".tml-type-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 11px;font-size:11px;font-weight:800;font-family:inherit}",
   ".tml-type-badge.hidden{display:none}",
@@ -211,13 +211,13 @@ const CSS = [
   ".tml-status.error{color:#b91c1c}",
   ".tml-status.success{color:#059669}",
   ".tml-list{padding:22px}",
-  ".tml-list-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}",
+  ".tml-list-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:nowrap}",
   ".tml-list-head-txt{min-width:0;flex:1}",
-  ".tml-list-head-txt h3{margin:0;font-size:16px;font-weight:800;color:var(--tml-text);letter-spacing:-.01em}",
-  ".tml-count{font-size:11px;font-weight:700;color:var(--tml-green);background:#ecfeff;border-radius:999px;padding:3px 10px;flex:none}",
-  ".tml-empty{background:var(--tml-soft);border:1px dashed #dbe3f0;border-radius:14px;padding:30px 16px;text-align:center;color:#94a3b8;font-size:13px;line-height:1.6}",
+  ".tml-list-head-txt h3{margin:0;font-size:16px;font-weight:800;color:var(--tml-text);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+  ".tml-count{font-size:11px;font-weight:700;color:var(--tml-green);background:#ecfeff;border-radius:999px;padding:3px 10px;flex:none;white-space:nowrap}",
+  ".tml-empty{background:var(--tml-soft);border:1px dashed #dbe3f0;border-radius:12px;padding:30px 16px;text-align:center;color:#94a3b8;font-size:13px;line-height:1.6}",
   ".tml-empty i{display:block;font-size:24px;margin-bottom:8px;color:#c7d2e8}",
-  ".tml-row{display:flex;align-items:flex-start;gap:12px;border:1px solid #e2e8f0;border-radius:14px;padding:12px 14px;margin-bottom:10px;background:#fff;transition:all .15s ease;min-width:0;flex-wrap:wrap}",
+  ".tml-row{display:flex;align-items:flex-start;gap:12px;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff;transition:all .15s ease;min-width:0;flex-wrap:wrap}",
   ".tml-row:hover{box-shadow:0 8px 20px rgba(15,23,42,.08)}",
   ".tml-row-ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:#fff;font-size:17px;flex:none;box-shadow:0 6px 14px rgba(15,23,42,.15)}",
   ".tml-row-main{min-width:0;flex:1;max-width:100%}",
@@ -235,6 +235,13 @@ const CSS = [
   ".tml-rbtn-edit:hover{background:#a7f3d0}",
   ".tml-rbtn-del{background:#fee2e2;color:#dc2626}",
   ".tml-rbtn-del:hover{background:#fecaca}",
+  ".tml-pager{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 22px 22px;flex-wrap:wrap}",
+  ".tml-pager:empty{display:none}",
+  ".tml-pager button{min-width:30px;height:30px;border-radius:9px;border:1px solid var(--tml-border);background:var(--tml-soft);color:#475569;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}",
+  ".tml-pager button:hover{background:#eef2f7}",
+  ".tml-pager button:disabled{opacity:.4;cursor:not-allowed}",
+  ".tml-pager button.pg-active{background:var(--tml-blue);color:#fff;border-color:var(--tml-blue)}",
+  ".tml-pager .pg-info{font-size:12px;font-weight:600;color:var(--tml-sub);margin-left:6px}",
   "@media (max-width:1080px){.tml-layout{grid-template-columns:1fr}}",
   "@media (max-width:560px){.tml-row2,.tml-layout{grid-template-columns:1fr}}",
   ""
@@ -256,8 +263,20 @@ function ensureCss() {
 function subjectSuggestions() {
   const out = [];
   (window.LH_SUBJECTS || []).forEach(s => { const n = s && s.name; if (n && out.indexOf(n) === -1) out.push(n); });
-  FALLBACK_SUBJECTS.forEach(n => { if (out.indexOf(n) === -1) out.push(n); });
-  return out;
+  return out.length ? out : [].concat(FALLBACK_SUBJECTS);
+}
+
+/* Màu môn — đọc thẳng từ LH_SUBJECTS (subjects-data.js), khớp name/short/alias. */
+function subjectColor(name) {
+  if (!name) return "";
+  const list = window.LH_SUBJECTS || [];
+  name = String(name).trim();
+  for (let i = 0; i < list.length; i++) {
+    const s = list[i];
+    if (s.name === name || s.short === name) return s.color;
+    if (s.alias && s.alias.indexOf(name) !== -1) return s.color;
+  }
+  return "";
 }
 
 /* ===== MẶC ĐỊNH: mount component ===== */
@@ -276,6 +295,8 @@ export function mountTaiLieuManage(root, opts = {}) {
 
   let editId = null;
   let sizeManual = false;
+  let listPage = 1;
+  const PAGE_SIZE = 6;
 
   root.innerHTML =
     '<div class="tml">' +
@@ -289,7 +310,11 @@ export function mountTaiLieuManage(root, opts = {}) {
             '<div class="tml-combo">' +
               '<input type="text" class="tml-category" placeholder="vd: Toán Học" autocomplete="off">' +
               '<button type="button" class="tml-combo-btn" title="Chọn từ danh sách"><i class="fa-solid fa-chevron-down"></i></button>' +
-              '<div class="tml-combo-menu hidden">' + subjects.map(s => '<div class="tml-combo-item" data-v="' + esc(s) + '"><i class="fa-solid fa-book-open"></i>' + esc(s) + '</div>').join("") + '</div>' +
+              '<div class="tml-combo-menu hidden">' + subjects.map(s => {
+                const c = subjectColor(s);
+                const dot = '<span class="tml-sc-dot" style="background:' + (c || "#cbd5e1") + '"></span>';
+                return '<div class="tml-combo-item" data-v="' + esc(s) + '"' + (c ? ' data-c="' + c + '"' : '') + '>' + dot + esc(s) + '</div>';
+              }).join("") + '</div>' +
             '</div>' +
             '<span class="tml-hint">Bấm nút bên phải để chọn nhanh, hoặc gõ nhóm/môn tùy chỉnh.</span></div>' +
             '<div class="tml-field"><label>Link tài liệu <b>*</b></label><input type="text" class="tml-url" placeholder="Dán link Google Drive hoặc file (../cauhoi/..., https://...)" autocomplete="off"><span class="tml-hint"><i class="fa-solid fa-wand-magic-sparkles" style="color:#8b5cf6"></i> Tự nhận biết nguồn & icon theo link — kéo xuống, dán link từ Drive hoặc file trong web.</span></div>' +
@@ -307,10 +332,11 @@ export function mountTaiLieuManage(root, opts = {}) {
           '</div>' +
         '</div>' +
         /* ===== DANH SÁCH ===== */
-        '<div class="tml-card tml-list-card">' +
+        '<div class="tml-card tml-list-card"><div class="tml-list">' +
           '<div class="tml-list-head"><span class="tml-head-ico"><i class="fa-solid fa-folder-open"></i></span><div class="tml-list-head-txt"><h3>Tài liệu hiện có</h3><span class="tml-head-sub">Tác giả & ngày đăng tự động</span></div><span class="tml-count" id="' + uid + '-count">0</span></div>' +
           '<div class="tml-list-body"></div>' +
-        '</div>' +
+          '<div class="tml-pager"></div>' +
+        '</div></div>' +
       '</div>' +
     '</div>';
 
@@ -329,6 +355,7 @@ export function mountTaiLieuManage(root, opts = {}) {
   const cancelBtn = q(".tml-btn-cancel");
   const statusEl = q(".tml-status");
   const listBody = q(".tml-list-body");
+  const pagerEl = q(".tml-pager");
   const countEl = root.querySelector("#" + uid + "-count");
   const modeEl = root.querySelector("#" + uid + "-mode");
 
@@ -339,10 +366,6 @@ export function mountTaiLieuManage(root, opts = {}) {
     }
     statusEl.textContent = msg;
     statusEl.className = "tml-status " + (type === "error" ? "error" : type === "success" ? "success" : "");
-  }
-  function setStatus(msg, type) {
-    statusEl.textContent = msg || "";
-    statusEl.className = "tml-status" + (type ? (type === "error" ? " error" : type === "success" ? " success" : "") : "");
   }
   function renderIconPreview(iconKey, url) {
     const st = styleFor(iconKey, url);
@@ -414,8 +437,21 @@ export function mountTaiLieuManage(root, opts = {}) {
     it.addEventListener("click", () => {
       catEl.value = it.getAttribute("data-v") || it.textContent.trim();
       comboMenu.classList.add("hidden");
+      const c = it.getAttribute("data-c") || subjectColor(catEl.value);
+      if (c) {
+        catEl.style.borderColor = c;
+        catEl.style.background = "color-mix(in srgb, " + c + " 6%, var(--tml-soft))";
+      } else {
+        catEl.style.borderColor = "";
+        catEl.style.background = "";
+      }
       catEl.focus();
     });
+  });
+  catEl.addEventListener("input", () => {
+    const c = subjectColor(catEl.value);
+    catEl.style.borderColor = c ? c : "";
+    catEl.style.background = c ? "color-mix(in srgb, " + c + " 6%, var(--tml-soft))" : "";
   });
   if (!window.__tmlComboCloseBound) {
     window.__tmlComboCloseBound = true;
@@ -430,6 +466,8 @@ export function mountTaiLieuManage(root, opts = {}) {
     editId = null;
     nameEl.value = "";
     catEl.value = "";
+    catEl.style.borderColor = "";
+    catEl.style.background = "";
     urlEl.value = "";
     sizeEl.value = "";
     descEl.value = "";
@@ -448,6 +486,9 @@ export function mountTaiLieuManage(root, opts = {}) {
     editId = doc.id || null;
     nameEl.value = doc.name || "";
     catEl.value = doc.category || "";
+    const c0 = subjectColor(catEl.value);
+    catEl.style.borderColor = c0 ? c0 : "";
+    catEl.style.background = c0 ? "color-mix(in srgb, " + c0 + " 6%, var(--tml-soft))" : "";
     urlEl.value = doc.url || "";
     iconSel.value = doc.icon || "";
     sizeEl.value = doc.size || "";
@@ -460,7 +501,7 @@ export function mountTaiLieuManage(root, opts = {}) {
     formCard.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  cancelBtn.addEventListener("click", () => { resetForm(); setStatus("", ""); });
+  cancelBtn.addEventListener("click", () => { resetForm(); });
 
   /* ===== LƯU ===== */
   saveBtn.addEventListener("click", async () => {
@@ -472,9 +513,9 @@ export function mountTaiLieuManage(root, opts = {}) {
     const size = sizeEl.value.trim();
     const desc = descEl.value.trim();
 
-    if (!name) { setStatus("Thiếu tên tài liệu", "error"); nameEl.focus(); return; }
-    if (!category) { setStatus("Thiếu nhóm / môn học", "error"); catEl.focus(); return; }
-    if (!url) { setStatus("Thiếu link tài liệu", "error"); urlEl.focus(); return; }
+    if (!name) { toast("Thiếu tên tài liệu", "error"); nameEl.focus(); return; }
+    if (!category) { toast("Thiếu nhóm / môn học", "error"); catEl.focus(); return; }
+    if (!url) { toast("Thiếu link tài liệu", "error"); urlEl.focus(); return; }
 
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang lưu...';
@@ -491,8 +532,8 @@ export function mountTaiLieuManage(root, opts = {}) {
       });
       if (error) throw error;
       if (data && data.ok === true) {
-        setStatus(editId ? "Đã cập nhật tài liệu" : "Đã thêm tài liệu", "success");
         toast(editId ? "Đã cập nhật tài liệu" : "Đã thêm tài liệu", "success");
+        listPage = 1;
         resetForm();
         await loadList();
         return;
@@ -504,13 +545,13 @@ export function mountTaiLieuManage(root, opts = {}) {
           empty_url: "Thiếu link tài liệu",
           forbidden: "Bạn không có quyền làm việc này"
         };
-        setStatus(map[data.error] || "Không lưu được: " + data.error, "error");
+        toast(map[data.error] || "Không lưu được: " + data.error, "error");
       } else {
-        setStatus("Không lưu được tài liệu", "error");
+        toast("Không lưu được tài liệu", "error");
       }
     } catch (err) {
       console.error("[taileu-manage] upsert lỗi:", err);
-      setStatus("Không lưu được: " + ((err && (err.message || err.error_description)) || err), "error");
+      toast("Không lưu được: " + ((err && (err.message || err.error_description)) || err), "error");
       log({ source: "taileu-manage", category: "feature", level: "error", code: "TL_UPSERT_FAIL", message: String((err && (err.message || err.error_description)) || err), url: location.href });
     } finally {
       saveBtn.disabled = false;
@@ -534,11 +575,21 @@ export function mountTaiLieuManage(root, opts = {}) {
 
   function renderList(list) {
     countEl.textContent = list.length;
+    const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+    if (listPage < 1) listPage = 1;
+    if (listPage > totalPages) listPage = totalPages;
     if (!list.length) {
       listBody.innerHTML = '<div class="tml-empty"><i class="fa-solid fa-folder-open"></i>Chưa có tài liệu nào.<br>Thêm tài liệu đầu tiên ở form bên trái.</div>';
+      pagerEl.innerHTML = "";
       return;
     }
-    listBody.innerHTML = list.map(doc => {
+    function catChip(cat) {
+      const c = subjectColor(cat || "Chung");
+      if (c) return '<span class="tml-chip" style="background:' + c + '1c;color:' + c + '">' + esc(cat || "Chung") + '</span>';
+      return '<span class="tml-chip tml-chip-cat">' + esc(cat || "Chung") + '</span>';
+    }
+    const pageList = list.slice((listPage - 1) * PAGE_SIZE, listPage * PAGE_SIZE);
+    listBody.innerHTML = pageList.map(doc => {
       const st = styleFor(doc.icon || "", doc.url || "");
       return '<div class="tml-row" data-id="' + esc(doc.id) + '">' +
         '<div class="tml-row-ico" style="background:' + st.bg + '"><i class="' + st.icon + '"></i></div>' +
@@ -546,11 +597,11 @@ export function mountTaiLieuManage(root, opts = {}) {
           '<div class="tml-row-name">' + esc(doc.name) + '</div>' +
           (doc.description ? '<div class="tml-row-desc">' + esc(doc.description) + '</div>' : '') +
           '<div class="tml-row-chips">' +
-            '<span class="tml-chip tml-chip-cat">' + esc(doc.category || "Chung") + '</span>' +
+            catChip(doc.category) +
             '<span class="tml-chip tml-chip-type">' + typeLabel(doc.type) + '</span>' +
             '<span class="tml-chip tml-chip-meta">' + esc(doc.size || "—") + '</span>' +
             '<span class="tml-chip tml-chip-meta">' + formatDate(doc.date) + '</span>' +
-            '<span class="tml-chip tml-chip-meta">Đăng bởi: ' + esc(doc.author || "—") + '</span>' +
+            '<span class="tml-chip tml-chip-meta">Bởi: ' + esc(doc.author || "—") + '</span>' +
           '</div>' +
         '</div>' +
         '<div class="tml-row-actions">' +
@@ -569,6 +620,31 @@ export function mountTaiLieuManage(root, opts = {}) {
     listBody.querySelectorAll("[data-del]").forEach(btn => {
       btn.addEventListener("click", () => removeDoc(btn.getAttribute("data-del")));
     });
+    renderPager(totalPages, list);
+  }
+
+  function renderPager(totalPages, list) {
+    if (totalPages <= 1) { pagerEl.innerHTML = ""; return; }
+    const pageBtn = p => '<button type="button" data-pg="' + p + '"' + (p === listPage ? ' class="pg-active"' : "") + '>' + p + '</button>';
+    const navBtn = (icon, p, disabled) => '<button type="button" data-pg="' + p + '"' + (disabled ? ' disabled' : "") + '>' + icon + '</button>';
+    let h = "";
+    h += navBtn('<i class="fa-solid fa-chevron-left"></i>', listPage - 1, listPage === 1);
+    const start = Math.max(1, listPage - 2);
+    const end = Math.min(totalPages, listPage + 2);
+    if (start > 1) h += pageBtn(1);
+    if (start > 2) h += '<span class="pg-info">…</span>';
+    for (let p = start; p <= end; p++) h += pageBtn(p);
+    if (end < totalPages - 1) h += '<span class="pg-info">…</span>';
+    if (end < totalPages) h += pageBtn(totalPages);
+    h += navBtn('<i class="fa-solid fa-chevron-right"></i>', listPage + 1, listPage === totalPages);
+    h += '<span class="pg-info">' + ((listPage - 1) * PAGE_SIZE + 1) + "–" + Math.min(listPage * PAGE_SIZE, list.length) + " / " + list.length + "</span>";
+    pagerEl.innerHTML = h;
+    pagerEl.querySelectorAll("[data-pg]").forEach(b => {
+      b.addEventListener("click", () => {
+        listPage = Math.max(1, Math.min(Number(b.getAttribute("data-pg")), totalPages));
+        renderList(list);
+      });
+    });
   }
 
   async function removeDoc(id) {
@@ -582,11 +658,11 @@ export function mountTaiLieuManage(root, opts = {}) {
         if (editId === id) resetForm();
         await loadList();
       } else {
-        setStatus("Không xóa được tài liệu", "error");
+        toast("Không xóa được tài liệu", "error");
       }
     } catch (err) {
       console.error("[taileu-manage] delete lỗi:", err);
-      setStatus("Không xóa được: " + ((err && (err.message || err.error_description)) || err), "error");
+      toast("Không xóa được: " + ((err && (err.message || err.error_description)) || err), "error");
       log({ source: "taileu-manage", category: "feature", level: "error", code: "TL_DELETE_FAIL", message: String((err && (err.message || err.error_description)) || err), url: location.href });
     }
   }

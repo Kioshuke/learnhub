@@ -200,10 +200,11 @@
       overflow: hidden;
       animation: cardIn 0.35s ease both;
     }
-    .doc-card:hover {
+.doc-card:hover {
       transform: translateY(-4px);
-      box-shadow: var(--shadow-hover);
-      border-color: var(--primary-border);
+      border-color: var(--cat, var(--primary));
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--cat, var(--primary)) 14%, transparent),
+                  var(--shadow-hover);
     }
     .doc-card.active {
       border-color: var(--primary);
@@ -231,7 +232,7 @@
       flex-shrink: 0;
       box-shadow: 0 8px 16px rgba(15, 23, 42, 0.16);
     }
-    .doc-card h3 {
+.doc-card h3 {
       margin: 0;
       font-size: 16px;
       line-height: 1.35;
@@ -240,6 +241,7 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      min-height: calc(2 * 1.35em);
     }
     .doc-card p.desc {
       margin: 0 0 14px;
@@ -250,6 +252,11 @@
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      min-height: calc(3 * 1.55em);
+    }
+    .doc-card p.desc.no-desc {
+      font-style: italic;
+      opacity: 0.75;
     }
     .doc-card-bottom {
       display: flex;
@@ -292,18 +299,18 @@
       z-index: 1000;
       display: none;
       align-items: center;
-      justify-content: center;
-      padding: 20px;
+justify-content: center;
+      padding: 12px;
       background: rgba(10, 15, 25, 0.55);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
     }
     .detail-view.show { display: flex; }
-    .detail-modal {
+.detail-modal {
       position: relative;
       width: 100%;
-      max-width: 1080px;
-      max-height: calc(100vh - 40px);
+      max-width: 1440px;
+      max-height: calc(100vh - 24px);
       display: flex;
       flex-direction: column;
       background: var(--glass);
@@ -502,7 +509,10 @@ font-family: inherit;
     .mobile-note .mn-title { font-size: 14.5px; font-weight: 800; }
     .mobile-note .mn-sub { color: var(--text-sub); }
 
-    /* ===== RESPONSIVE ===== */
+/* ===== RESPONSIVE ===== */
+    @media (min-width: 901px) {
+      .detail-modal { height: calc(100vh - 24px); }
+    }
     @media (max-width: 900px) {
       .detail-body {
         grid-template-columns: 1fr;
@@ -663,6 +673,7 @@ font-family: inherit;
   </section>
 </div>
 
+<script src="subjects-data.js"></script>
 <script type="module">
 import { supabase, logAppError } from "../supabase-config.js";
 
@@ -686,31 +697,16 @@ import { supabase, logAppError } from "../supabase-config.js";
 
   var SOURCE_LABEL = { drive: "Google Drive", direct: "File trực tiếp", storage: "Kho lưu trữ" };
 
-  var CAT_COLOR = {
-    "Toán": "#4f46e5",
-    "Vật Lý": "#2563eb",
-    "Lý": "#2563eb",
-    "Hóa Học": "#dc2626",
-    "Hóa": "#dc2626",
-    "Sinh Học": "#16a34a",
-    "Sinh": "#16a34a",
-    "Tin Học": "#7c3aed",
-    "Tin": "#7c3aed",
-    "Lịch Sử": "#ea580c",
-    "Sử": "#ea580c",
-    "Tiếng Anh": "#0891b2",
-    "Anh Văn": "#0891b2",
-    "Anh": "#0891b2",
-    "Ngữ Văn": "#db2777",
-    "Văn": "#db2777",
-    "Địa Lý": "#059669",
-    "Địa": "#059669",
-    "GDCD": "#d97706",
-    "Giáo dục công dân": "#d97706"
-  };
-
-  function categoryColor(cat) {
-    return CAT_COLOR[cat] || "";
+function categoryColor(cat) {
+    if (!cat) return "";
+    var list = window.LH_SUBJECTS || [];
+    cat = String(cat).trim();
+    for (var i = 0; i < list.length; i++) {
+      var s = list[i];
+      if (s.name === cat || s.short === cat) return s.color;
+      if (s.alias && s.alias.indexOf(cat) !== -1) return s.color;
+    }
+    return "";
   }
 
   function formatDate(v) {
@@ -868,7 +864,7 @@ import { supabase, logAppError } from "../supabase-config.js";
           '<span class="file-ico" style="background:' + st.bg + ';"><i class="' + st.icon + '"></i></span>' +
           '<h3>' + escapeHtml(doc.name) + '</h3>' +
         '</div>' +
-        '<p class="desc">' + escapeHtml(doc.description) + '</p>' +
+        '<p class="desc' + (doc.description ? "" : " no-desc") + '">' + escapeHtml(doc.description || "Không có mô tả.") + '</p>' +
         '<div class="doc-card-bottom">' +
           '<span class="tag tag-cat">' + escapeHtml(doc.category || "Chung") + '</span>' +
           sourceTag(doc) +

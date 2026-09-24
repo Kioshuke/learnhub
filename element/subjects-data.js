@@ -22,15 +22,15 @@
 
   window.LH_SUBJECTS = [
     /* 7 sắc cầu vồng */
-    { id: "hoa",  name: "Hoá Học",  short: "Hoá",  color: "#dc2626", icon: "fa-flask" },             /* 🔴 Đỏ    */
+    { id: "hoa",  name: "Hoá Học",  short: "Hoá",  color: "#dc2626", icon: "fa-flask", alias: ["Hóa Học", "Hoá Học", "Hóa"] },             /* 🔴 Đỏ    */
     { id: "su",   name: "Lịch Sử",  short: "Sử",   color: "#ea580c", icon: "fa-landmark" },           /* 🟠 Cam   */
     { id: "sinh", name: "Sinh Học", short: "Sinh", color: "#16a34a", icon: "fa-leaf" },               /* 🟢 Xanh lá */
     { id: "toan", name: "Toán Học", short: "Toán", color: "#06b6d4", icon: "fa-square-root-variable" },/* 🩵 Lơ     */
     { id: "ly",   name: "Vật Lý",   short: "Lý",   color: "#2563eb", icon: "fa-atom" },               /* 🔵 Xanh dương */
     { id: "tin",  name: "Tin Học",  short: "Tin",  color: "#7c3aed", icon: "fa-laptop-code" },        /* 🟣 Tím    */
-    { id: "anh",  name: "Anh Văn",  short: "Anh",  color: "#db2777", icon: "fa-language" },           /* 🌸 Hồng   */
+    { id: "anh",  name: "Anh Văn",  short: "Anh",  color: "#db2777", icon: "fa-language", alias: ["Tiếng Anh"] },           /* 🌸 Hồng   */
     /* Môn Khác — màu riêng, KHÔNG dùng xám */
-    { id: "khac", name: "Khác",     short: "Khác", color: "#0d9488", icon: "fa-shapes" }              /* 🦚 Ngọc lam */
+    { id: "khac", name: "Khác",     short: "Khác", color: "#8b8900", icon: "fa-shapes" }              /* 🦚 Ngọc lam */
   ];
 
   var DEFAULT_COLOR = "#2563eb";
@@ -53,7 +53,11 @@
   window.LH_SUBJECT_BY_NAME = function (name) {
     var n = String(name == null ? "" : name).trim();
     var list = window.LH_SUBJECTS || [];
-    for (var i = 0; i < list.length; i++) if (list[i].name === n) return list[i];
+    for (var i = 0; i < list.length; i++) {
+      var s = list[i];
+      if (s.name === n) return s;
+      if (s.alias && s.alias.indexOf(n) !== -1) return s;
+    }
     return null;
   };
 

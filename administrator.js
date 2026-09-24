@@ -138,7 +138,7 @@ async function loadDocsManage() {
   if (!root || docsManageLoaded) return;
   docsManageLoaded = true;
   try {
-    const mod = await import("./element/taileu-manage.js");
+    const mod = await import("./element/taileu-manage.js?v=6");
     mod.mountTaiLieuManage(root, { supabase, escapeHtml, logAppError });
   } catch (e) {
     console.error("[admin] tải module quản lý tài liệu lỗi:", e);
