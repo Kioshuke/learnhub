@@ -180,10 +180,13 @@ body.dark-mode .subject-tab.active:hover{color:#fff;border-color:var(--tab);}
 .quiz-header{padding:8px 8px;display:flex;justify-content:flex-start;border-bottom:1px solid var(--quiz-border);}
 .quiz-btn{padding:6px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:13px;}
 .close-btn{background:#ef4444;color:#fff;}
+/* Nút "Mở thư mục Drive" (chỉ hiện khi đang xem thư mục Drive) */
+.quiz-btn.open-drive-btn{background:#1a73e8;color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+.quiz-btn.open-drive-btn:hover{filter:brightness(1.08);}
 
 /* ===== YOUTUBE VIDEO PLAYER (MOS-STYLE) ===== */
 .video-box{width:100%;margin:16px auto 0;}
-.video-box .video-topbar{display:flex;justify-content:flex-end;margin-bottom:8px;}
+.video-box .video-topbar{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
 .video-frame{
   position: relative;
   width: 100%;
@@ -253,10 +256,14 @@ body.dark-mode .subject-tab.active:hover{color:#fff;border-color:var(--tab);}
 .video-frame.drive-mode{aspect-ratio:16/9;}
 .video-frame.drive-mode iframe{width:100%;height:100%;border:0;}
 .video-frame.drive-mode video{width:100%;height:100%;display:block;border:0;background:#000;object-fit:contain;}
-/* Drive thư mục (lưới tài liệu): cần khung cao hơn để duyệt file */
-.video-frame.drive-folder-mode{aspect-ratio:auto;height:75vh;min-height:420px;}
+/* Drive thư mục (lưới tài liệu) + tài liệu PDF: dùng CHUNG khung 16/9 với player
+   video để chuyển qua lại không bị giật kích thước. Trước đây 2 mode này đặt
+   height:75vh (cao theo màn hình) còn video đặt aspect-ratio:16/9 (cao theo bề
+   rộng); phòng học nhúng full-width nên trên màn rộng khung Drive luôn thấp
+   hơn khung video. */
+.video-frame.drive-folder-mode{aspect-ratio:16/9;}
 .video-frame.drive-folder-mode iframe{width:100%;height:100%;border:0;}
-.video-frame.pdf-mode{aspect-ratio:auto;height:75vh;max-height:820px;min-height:420px;}
+.video-frame.pdf-mode{aspect-ratio:16/9;}
 .video-frame.pdf-mode iframe{width:100%;height:100%;border:0;background:#fff;}
 /* Fallback khi video Drive không stream trực tiếp được (file quá lớn/bị chặn):
    nhúng iframe preview của Drive trong khung 16:9 như player YouTube, KHÔNG
@@ -268,9 +275,10 @@ body.dark-mode .subject-tab.active:hover{color:#fff;border-color:var(--tab);}
   border:0;
   background:#000;
 }
+/* Mobile: khung 16/9 chỉ cao ~215px nên lưới thư mục Drive quá chật — nâng tối
+   thiểu 320px. Chỉ áp cho thư mục, video vẫn giữ 16/9 thuần. */
 @media (max-width:768px){
-  .video-frame.pdf-mode{height:60vh;min-height:320px;}
-  .video-frame.drive-preview-mode{height:60vh;min-height:320px;}
+  .video-frame.drive-folder-mode{min-height:320px;}
 }
 /* Vimeo: khung 16:9 như player YouTube (không track "đã xem") */
 .video-frame.vimeo-mode{aspect-ratio:16/9;}
@@ -778,6 +786,7 @@ function switchSidebarVideo(item) {
   var raw = item.getAttribute("data-video");
   if (!raw) return;
   var videoId = extractVideoId(raw);
+  setDriveFolderLink(null);
   document.querySelectorAll(".grammar-sidebar-item").forEach(function(el) {
     el.classList.remove("active");
   });
@@ -870,6 +879,20 @@ function getDriveStreamUrls(id) {
   ];
 }
 
+/* Nút "Mở thư mục Drive" ở thanh trên player: chỉ hiện khi đang xem thư mục
+   Drive (drive-folder-mode) để mở song song 1 tab khác. url = null -> ẩn nút. */
+function setDriveFolderLink(url) {
+  var btn = document.getElementById("driveFolderOpenBtn");
+  if (!btn) return;
+  if (url) {
+    btn.href = String(url);
+    btn.style.display = "";
+  } else {
+    btn.removeAttribute("href");
+    btn.style.display = "none";
+  }
+}
+
 function showDrivePlayer(driveUrl) {
   stopWatchTimer();
   if (ytPlayer && typeof ytPlayer.destroy === "function") {
@@ -877,18 +900,20 @@ function showDrivePlayer(driveUrl) {
   }
   ytPlayer = null;
   currentVideoId = null;
+  setDriveFolderLink(null);
   var frame = document.querySelector(".video-frame");
   if (!frame) return;
   frame.style.aspectRatio = "";
   var isFolder = /\/folders\//.test(String(driveUrl || ""));
   frame.classList.remove("pdf-mode", "drive-mode", "drive-folder-mode", "drive-preview-mode", "vimeo-mode", "tiktok-mode", "yt-zoom");
 
-  /* Link thư mục -> dạng xem lưới để duyệt tài liệu trong khung cao */
+  /* Link thư mục -> dạng xem lưới để duyệt tài liệu trong khung 16:9 */
   if (isFolder) {
     frame.classList.add("drive-folder-mode");
     frame.innerHTML =
       '<iframe src="' + escHtml(getDriveEmbedUrl(driveUrl)) +
       '" title="Google Drive" allow="autoplay; encrypted-media" allowfullscreen="true"></iframe>';
+    setDriveFolderLink(driveUrl);
     return;
   }
 
@@ -958,6 +983,7 @@ function showPdfPlayer(pdfUrl) {
   }
   ytPlayer = null;
   currentVideoId = null;
+  setDriveFolderLink(null);
 var frame = document.querySelector(".video-frame");
   if (!frame) return;
   frame.style.aspectRatio = "";
@@ -1067,6 +1093,9 @@ function openCourse(el, courseId) {
   document.getElementById("quiz").innerHTML =
     '<div class="video-box">' +
       '<div class="video-topbar">' +
+        '<a id="driveFolderOpenBtn" class="quiz-btn open-drive-btn" target="_blank" rel="noopener" style="display:none">' +
+          '<i class="fas fa-folder-open"></i> Mở thư mục Drive' +
+        '</a>' +
         '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng video</button>' +
       '</div>' +
       '<div class="grammar-player-content">' +
@@ -1142,6 +1171,7 @@ function showVimeoPlayer(vimeoUrl) {
   }
   ytPlayer = null;
   currentVideoId = null;
+  setDriveFolderLink(null);
   var frame = document.querySelector(".video-frame");
   if (!frame) return;
   frame.style.aspectRatio = "";
@@ -1169,6 +1199,7 @@ function showTikTokPlayer(tiktokUrl) {
   }
   ytPlayer = null;
   currentVideoId = null;
+  setDriveFolderLink(null);
   var frame = document.querySelector(".video-frame");
   if (!frame) return;
   frame.style.aspectRatio = "";
@@ -1381,6 +1412,9 @@ function openGvSubject(el, subjectName, cardTitle) {
   document.getElementById("quiz").innerHTML =
     '<div class="video-box">' +
       '<div class="video-topbar">' +
+        '<a id="driveFolderOpenBtn" class="quiz-btn open-drive-btn" target="_blank" rel="noopener" style="display:none">' +
+          '<i class="fas fa-folder-open"></i> Mở thư mục Drive' +
+        '</a>' +
         '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng video</button>' +
       '</div>' +
       '<div class="grammar-player-content">' +
