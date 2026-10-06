@@ -206,6 +206,14 @@
                   <select id="vdCardPick"></select>
                   <input id="vdCardTitle" type="text" placeholder="Nhập tên card / khóa mới" autocomplete="off" style="display:none">
                   <button type="button" id="vdCardPickBtn" class="btn-sm" title="Tạo card mới" style="background:#cffafe;color:#0e7490" onclick="vdNewCardName()"><i class="fa-solid fa-plus"></i></button>
+                  <button type="button" class="btn-sm" title="Đổi tên card" style="background:#e0f2fe;color:#0369a1" onclick="vdRenameCard()"><i class="fa-solid fa-pen"></i></button>
+                </div>
+                <div style="display:none;margin-top:8px" id="vdRenameCardRow">
+                  <div style="display:flex;gap:8px;align-items:center">
+                    <input id="vdRenameCardInput" type="text" placeholder="Tên card / khóa mới">
+                    <button id="vdRenameCardApplyBtn" type="button" class="btn-sm" style="background:#ecfeff;color:#0891b2" onclick="vdRenameCardApply()"><i class="fa-solid fa-check"></i> Đổi tên</button>
+                    <button type="button" class="btn-sm" style="background:#f1f5f9;color:#334155" onclick="vdCancelRenameCard()">Huỷ</button>
+                  </div>
                 </div>
               </div>
 
@@ -497,6 +505,8 @@
       const btn = document.getElementById("vdCardPickBtn");
       const descEl = document.getElementById("vdCardDesc");
       if (!pick || !input) return;
+      const rcRow = document.getElementById("vdRenameCardRow");
+      if (rcRow) rcRow.style.display = "none";
       if (mode === "input") {
         if (vdCardMode !== "input") {
           vdPickBefore = pick.value;
@@ -691,6 +701,54 @@
       }
     };
 
+    window.vdRenameCard = function() {
+      if (vdCardMode === "input") { toast("Bấm ✓ quay lại danh sách trước khi đổi tên card", "error"); return; }
+      const current = (document.getElementById("vdCardPick").value || "").trim();
+      if (!current) { toast("Chọn card cần đổi tên trong danh sách trước", "error"); return; }
+      document.getElementById("vdRenameCardInput").value = current;
+      document.getElementById("vdRenameCardRow").style.display = "block";
+      document.getElementById("vdRenameCardInput").focus();
+    };
+    window.vdCancelRenameCard = function() {
+      document.getElementById("vdRenameCardRow").style.display = "none";
+      document.getElementById("vdRenameCardInput").value = "";
+    };
+    window.vdRenameCardApply = async function() {
+      const subject = (document.getElementById("vdSubject").value || "").trim();
+      const oldTitle = (document.getElementById("vdCardPick").value || "").trim();
+      const newTitle = (document.getElementById("vdRenameCardInput").value || "").trim();
+      if (!oldTitle || !newTitle) { toast("Vui lòng nhập tên card / khóa mới", "error"); return; }
+      if (oldTitle === newTitle) { vdCancelRenameCard(); return; }
+      const btn = document.getElementById("vdRenameCardApplyBtn");
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>'; }
+      try {
+        const { data, error } = await supabase.rpc("teacher_rename_video_card", {
+          p_subject: subject,
+          p_old_title: oldTitle,
+          p_new_title: newTitle
+        });
+        if (error) throw error;
+        if (data && data.ok === true) {
+          toast("Đã đổi tên card / khóa", "success");
+          vdCancelRenameCard();
+          await vdLoadList();
+          vdRenderCardPickOptions(newTitle);
+          const descEl = document.getElementById("vdCardDesc");
+          if (descEl && !(descEl.value || "").trim()) descEl.value = vdCardsOfSubject(subject).get(newTitle) || "";
+        } else if (data && data.error) {
+          const map = { empty_old_title: "Thiếu tên card cũ", empty_new_title: "Thiếu tên card mới", forbidden: "Hết quyền thao tác" };
+          toast(map[data.error] || "Không đổi được tên card: " + data.error, "error");
+        } else {
+          toast("Không đổi được tên card", "error");
+        }
+      } catch (err) {
+        console.error("rename video card lỗi:", err);
+        toast("Không đổi được tên card: " + ((err && (err.message || err.error_description)) || err), "error");
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i> Đổi tên'; }
+      }
+    };
+
     function vdEditorVisible(showIt) {
       const ed = document.getElementById("vdEditor");
       const list = document.getElementById("vdListCard");
@@ -715,6 +773,7 @@
       document.getElementById("vdNewGroupInput").value = "";
       document.getElementById("vdRenameGroupRow").style.display = "none";
       document.getElementById("vdRenameGroupInput").value = "";
+      document.getElementById("vdRenameCardRow").style.display = "none";
       const kindNew = document.getElementById("vdKind");
       if (kindNew) kindNew.value = "video";
       vdPreviewLink("");
@@ -743,6 +802,7 @@
       document.getElementById("vdNewGroupInput").value = "";
       document.getElementById("vdRenameGroupRow").style.display = "none";
       document.getElementById("vdRenameGroupInput").value = "";
+      document.getElementById("vdRenameCardRow").style.display = "none";
       vdPreviewLink(card.video_url);
       const kindEdit = document.getElementById("vdKind");
       if (kindEdit) kindEdit.value = (String(card.video_type || "").trim() || "video") === "document" ? "document" : "video";
