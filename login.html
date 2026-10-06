@@ -1760,11 +1760,20 @@ function initMobileSlides() {
   mobileShowcases.forEach(showcase => {
     const slides = showcase.querySelectorAll(".auth-mobile-slide");
     if (slides.length <= 1) return;
+    const capTitle = showcase.querySelector(".auth-mobile-caption strong");
+    const capDesc = showcase.querySelector(".auth-mobile-caption span");
     let idx = 0;
+    const applyCaption = (i) => {
+      const data = authSlideData[i % authSlideData.length];
+      if (capTitle) capTitle.textContent = data.title;
+      if (capDesc) capDesc.textContent = data.desc;
+    };
+    applyCaption(0);
     setInterval(() => {
       slides[idx].classList.remove("active");
       idx = (idx + 1) % slides.length;
       slides[idx].classList.add("active");
+      applyCaption(idx);
     }, 4000);
   });
 }

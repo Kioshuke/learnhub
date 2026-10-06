@@ -59,6 +59,7 @@
 
     .vd-cat-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .vd-cat-row select{flex:1;min-width:180px}
+    .vd-cat-row input[type=text]{flex:1;min-width:180px}
     .btn-sm{border:0;border-radius:10px;padding:8px 13px;font-weight:700;font-size:12.5px;cursor:pointer;transition:all .15s;font-family:inherit}
     .btn-sm:hover{transform:translateY(-1px)}
     .btn-approve{background:#cffafe;color:#0e7490}
@@ -110,6 +111,14 @@
 
     .link-preview{margin-top:6px;font-size:12px;color:var(--sub)}
     .link-preview i{margin-right:4px}
+
+    /* Bảng nhận diện link: Nhận diện | Phân loại */
+    .vd-detect-table{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+    .vd-detect-cell{border:1px solid var(--border);border-radius:12px;padding:8px 11px;background:#f8fafc}
+    .vd-detect-label{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;margin-bottom:5px}
+    .vd-detect-val{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#94a3b8;min-height:20px;word-break:break-word}
+    .vd-detect-val.ok{color:#16a34a}
+    .vd-detect-val.err{color:#dc2626}
 
     /* ===== HUB: chọn khu vực quản lý ===== */
     .vd-hub{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}
@@ -195,10 +204,9 @@
                 <label>Tên card / khóa <b>*</b></label>
                 <div class="vd-cat-row">
                   <select id="vdCardPick"></select>
-                  <button type="button" class="btn-sm" style="background:#cffafe;color:#0e7490" onclick="vdNewCardName()"><i class="fa-solid fa-plus"></i> Tạo card mới</button>
+                  <input id="vdCardTitle" type="text" placeholder="Nhập tên card / khóa mới" autocomplete="off" style="display:none">
+                  <button type="button" id="vdCardPickBtn" class="btn-sm" title="Tạo card mới" style="background:#cffafe;color:#0e7490" onclick="vdNewCardName()"><i class="fa-solid fa-plus"></i></button>
                 </div>
-                <input id="vdCardTitle" type="text" placeholder="vd: Tổng ôn tiếng anh" style="display:none;margin-top:8px">
-                <span class="hint">Chọn card có sẵn của môn đã chọn — mô tả card sẽ tự điền theo. Bấm <b>Tạo card mới</b> để nhập tên card / khóa mới. Các video cùng môn + cùng tên card gộp chung 1 card.</span>
               </div>
 
               <div class="vd-field">
@@ -210,8 +218,8 @@
                 <label>Chủ đề (trong card) <b>*</b></label>
                 <div class="vd-cat-row">
                   <select id="vdGroup"><option value="">— Chọn / nhập chủ đề —</option></select>
-                  <button type="button" class="btn-sm" style="background:#ecfeff;color:#0891b2" onclick="vdNewGroup()"><i class="fa-solid fa-folder-plus"></i> Nhóm mới</button>
-                  <button type="button" class="btn-sm" style="background:#e0f2fe;color:#0369a1" onclick="vdRenameGroup()"><i class="fa-solid fa-pen"></i> Đổi tên</button>
+                  <button type="button" class="btn-sm" title="Thêm nhóm mới" style="background:#ecfeff;color:#0891b2" onclick="vdNewGroup()"><i class="fa-solid fa-folder-plus"></i></button>
+                  <button type="button" class="btn-sm" title="Đổi tên nhóm" style="background:#e0f2fe;color:#0369a1" onclick="vdRenameGroup()"><i class="fa-solid fa-pen"></i></button>
                 </div>
                 <div style="display:none;margin-top:8px" id="vdNewGroupRow">
                   <div style="display:flex;gap:8px;align-items:center">
@@ -229,6 +237,17 @@
                 <span class="hint">Chủ đề con trong mục lục card. Các video cùng chủ đề trong 1 card tự gộp chung 1 nhóm dropdown.</span>
               </div>
 
+            </div>
+
+            <div class="tc-card vd-write">
+              <div class="vd-panel-head">
+                <div class="vd-panel-ico ico-blue"><i class="fa-solid fa-link"></i></div>
+                <div>
+                  <h3>Nhập video</h3>
+                  <span class="muted">Tiêu đề & dán link — hệ thống tự nhận dạng</span>
+                </div>
+              </div>
+
               <div class="vd-field">
                 <label>Tiêu đề <b>*</b></label>
                 <input id="vdTitle" type="text" placeholder="vd: Buổi 1 - Giới thiệu Word">
@@ -237,9 +256,16 @@
               <div class="vd-field">
                 <label>Link video <b>*</b></label>
                 <input id="vdUrl" type="text" placeholder="Dán link YouTube / Vimeo / Google Drive" oninput="vdPreviewLink(this.value)">
-                <span class="link-preview">
-                  <i class="fa-solid fa-wand-magic-sparkles" style="color:#8b5cf6"></i> Tự nhận dạng: <span id="vdUrlType" class="vd-type-badge hidden"></span>
-                </span>
+                <div class="vd-detect-table">
+                  <div class="vd-detect-cell">
+                    <span class="vd-detect-label"><i class="fa-solid fa-crosshairs"></i> Nhận diện</span>
+                    <span class="vd-detect-val" id="vdDetectCell">Chưa có link</span>
+                  </div>
+                  <div class="vd-detect-cell">
+                    <span class="vd-detect-label"><i class="fa-solid fa-tags"></i> Phân loại</span>
+                    <span class="vd-detect-val" id="vdClassifyCell">—</span>
+                  </div>
+                </div>
                 <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
                   <label style="font-size:12.5px;font-weight:700;color:#475569;margin:0;white-space:nowrap">Loại:</label>
                   <select id="vdKind" style="width:auto;flex:0 0 150px">
@@ -249,22 +275,8 @@
                   <span class="hint">Chọn <b>Tài liệu</b> cho link thư mục Drive, file doc/pdf... (không tính là video).</span>
                 </div>
               </div>
-            </div>
 
-            <div class="tc-card vd-write">
-              <div class="vd-panel-head">
-                <div class="vd-panel-ico ico-blue"><i class="fa-solid fa-eye"></i></div>
-                <div>
-                  <h3>Xem trước</h3>
-                  <span class="muted">Cách card xuất hiện trong mục lục Phòng học</span>
-                </div>
-              </div>
-              <div class="vd-preview">
-                <div style="background:#111827;border-radius:14px;aspect-ratio:16/9;display:grid;place-items:center;color:#64748b;font-size:13px;font-weight:600">
-                  <span><i class="fa-solid fa-circle-play" style="color:#22d3ee;margin-right:6px"></i> 16:9 · phát như YouTube</span>
-                </div>
-              </div>
-              <div style="font-size:12px;color:var(--sub);line-height:1.6;margin-top:10px">
+              <div style="font-size:12px;color:var(--sub);line-height:1.6;margin-top:2px">
                 Hỗ trợ link: <b>YouTube</b> (youtube.com / youtu.be / ID 11 ký tự), <b>Vimeo</b> (player.vimeo.com / vimeo.com), <b>TikTok</b> (tiktok.com — link video có /video/&lt;id&gt;), <b>Google Drive</b> (drive.google.com — file video hoặc cả thư mục).
               </div>
               <div class="vd-save-row">
@@ -394,21 +406,49 @@
       if (/youtube\.com|youtu\.be|^[\w-]{11}$/.test(u)) return { key: "youtube", label: "YouTube" };
       if (/vimeo\.com/.test(u)) return { key: "vimeo", label: "Vimeo" };
       if (/tiktok\.com/.test(u)) return { key: "tiktok", label: "TikTok" };
-      if (/drive\.google\.com/.test(u)) return { key: "drive", label: "Drive" };
+      if (/drive\.google\.com|docs\.google\.com/.test(u)) return { key: "drive", label: "Drive" };
       return { key: "other", label: "Link" };
     }
 
+    const vdPlatform = {
+      youtube: { icon: "fa-brands fa-youtube", color: "#dc2626" },
+      vimeo:   { icon: "fa-brands fa-vimeo", color: "#7c3aed" },
+      tiktok:  { icon: "fa-brands fa-tiktok", color: "#0f172a" },
+      drive:   { icon: "fa-brands fa-google-drive", color: "#b45309" }
+    };
+
     window.vdPreviewLink = function(url) {
-      const el = document.getElementById("vdUrlType");
-      const t = vdTypeOf(url);
-      el.classList.remove("hidden", "vd-type-youtube", "vd-type-vimeo", "vd-type-tiktok", "vd-type-drive", "vd-type-other");
-      if (!t) { el.classList.add("hidden"); return; }
-      el.classList.add("vd-type-" + t.key);
-      el.textContent = t.label;
+      const detectEl = document.getElementById("vdDetectCell");
+      const classifyEl = document.getElementById("vdClassifyCell");
+      const u = String(url || "").trim();
+      const t = vdTypeOf(u);
+      if (!u) {
+        if (detectEl) { detectEl.className = "vd-detect-val"; detectEl.textContent = "Chưa có link"; }
+        if (classifyEl) { classifyEl.className = "vd-detect-val"; classifyEl.textContent = "—"; }
+      } else if (t && t.key !== "other") {
+        const p = vdPlatform[t.key] || {};
+        if (detectEl) {
+          detectEl.className = "vd-detect-val ok";
+          detectEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> Thành công';
+        }
+        if (classifyEl) {
+          classifyEl.className = "vd-detect-val";
+          classifyEl.innerHTML = `<i class="${p.icon || "fa-solid fa-link"}" style="color:${p.color || "#64748b"}"></i> ${escapeHtml(t.label)}`;
+        }
+      } else {
+        if (detectEl) {
+          detectEl.className = "vd-detect-val err";
+          detectEl.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Không nhận diện được link';
+        }
+        if (classifyEl) {
+          classifyEl.className = "vd-detect-val";
+          classifyEl.innerHTML = '<i class="fa-solid fa-link" style="color:#94a3b8"></i> Không rõ';
+        }
+      }
       const kindEl = document.getElementById("vdKind");
       if (kindEl) {
-        if (t.key === "youtube" || t.key === "vimeo" || t.key === "tiktok") kindEl.value = "video";
-        else if (t.key === "drive" && /\/folders\//.test(String(url || ""))) kindEl.value = "document";
+        if (t && (t.key === "youtube" || t.key === "vimeo" || t.key === "tiktok")) kindEl.value = "video";
+        else if (t && t.key === "drive" && /\/folders\//.test(u)) kindEl.value = "document";
       }
     };
 
@@ -447,21 +487,58 @@
       return map;
     }
 
+    let vdCardMode = "select";   // "select" = chọn trong dropdown | "input" = đang nhập tên card mới
+    let vdPickBefore = "";       // giá trị pick trước khi bấm +
+    let vdDescBefore = "";       // mô tả trước khi bấm +
+
+    function vdSetCardMode(mode, restore) {
+      const pick = document.getElementById("vdCardPick");
+      const input = document.getElementById("vdCardTitle");
+      const btn = document.getElementById("vdCardPickBtn");
+      const descEl = document.getElementById("vdCardDesc");
+      if (!pick || !input) return;
+      if (mode === "input") {
+        if (vdCardMode !== "input") {
+          vdPickBefore = pick.value;
+          vdDescBefore = descEl ? descEl.value : "";
+        }
+        vdCardMode = "input";
+        pick.style.display = "none";
+        input.style.display = "";
+        input.value = "";
+        if (descEl && vdPickBefore) descEl.value = "";
+        if (btn) { btn.innerHTML = '<i class="fa-solid fa-chevron-down"></i>'; btn.title = "Quay lại danh sách card"; }
+        vdRenderGroupOptions();
+        setTimeout(() => input.focus(), 0);
+      } else {
+        vdCardMode = "select";
+        pick.style.display = "";
+        input.style.display = "none";
+        if (btn) { btn.innerHTML = '<i class="fa-solid fa-plus"></i>'; btn.title = "Tạo card mới"; }
+        if (restore) {
+          input.value = "";
+          vdRenderCardPickOptions(vdPickBefore || "");
+          if (descEl) descEl.value = vdDescBefore || "";
+        }
+      }
+    }
+
     function vdRenderCardPickOptions(sel) {
       const pick = document.getElementById("vdCardPick");
       if (!pick) return;
       const explicit = sel != null;
       if (!explicit) {
-        sel = pick.value === "__new__" ? "__new__" : (document.getElementById("vdCardTitle").value || "").trim();
+        sel = vdCardMode === "input"
+          ? (vdPickBefore || "")
+          : (document.getElementById("vdCardTitle").value || "").trim();
       }
       const subject = (document.getElementById("vdSubject").value || "").trim();
       const cards = vdCardsOfSubject(subject);
-      if (!explicit && sel && sel !== "__new__" && !cards.has(sel)) sel = "";
+      if (!explicit && sel && !cards.has(sel)) sel = "";
       const titles = [...cards.keys()].sort((a, b) => a.localeCompare(b, "vi"));
       const opts = ['<option value="">— Chọn card / khóa —</option>'];
       titles.forEach(t => opts.push(`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`));
-      if (sel && sel !== "__new__" && !cards.has(sel)) opts.push(`<option value="${escapeHtml(sel)}">${escapeHtml(sel)}</option>`);
-      opts.push('<option value="__new__">+ Tạo card mới...</option>');
+      if (sel && !cards.has(sel)) opts.push(`<option value="${escapeHtml(sel)}">${escapeHtml(sel)}</option>`);
       pick.innerHTML = opts.join("");
       pick.value = sel || "";
       if (pick.selectedIndex < 0) pick.value = "";
@@ -473,44 +550,22 @@
       const input = document.getElementById("vdCardTitle");
       const descEl = document.getElementById("vdCardDesc");
       if (!pick || !input) return;
+      if (vdCardMode === "input") { vdRenderGroupOptions(); return; }
       const subject = (document.getElementById("vdSubject").value || "").trim();
       const v = pick.value;
-      if (v === "__new__") {
-        input.style.display = "";
-        input.readOnly = false;
-        input.style.background = "";
-        if (fromPick) {
-          input.value = "";
-          if (descEl) descEl.value = "";
-          setTimeout(() => input.focus(), 0);
-        }
-      } else if (v) {
-        input.style.display = "";
-        input.readOnly = false;
-        input.value = v;
-        input.style.background = "";
+      input.value = v;
+      if (v) {
         const d = vdCardsOfSubject(subject).get(v) || "";
         if (descEl && (fromPick || !(descEl.value || "").trim())) descEl.value = d;
-      } else {
-        input.style.display = "none";
-        input.readOnly = false;
-        input.value = "";
-        input.style.background = "";
-        if (fromPick && descEl) descEl.value = "";
+      } else if (fromPick && descEl) {
+        descEl.value = "";
       }
       vdRenderGroupOptions();
     }
 
     window.vdNewCardName = function() {
-      const pick = document.getElementById("vdCardPick");
-      if (!pick) return;
-      if (pick.value === "__new__") {
-        const inp = document.getElementById("vdCardTitle");
-        if (inp) inp.focus();
-        return;
-      }
-      pick.value = "__new__";
-      vdApplyCardPick(true);
+      if (vdCardMode === "input") vdSetCardMode("select", true);
+      else vdSetCardMode("input", true);
     };
 
     function vdGroupNames(subject, cardTitle) {
@@ -541,22 +596,22 @@
     const vdCardPickEl = document.getElementById("vdCardPick");
     const vdGroupEl = document.getElementById("vdGroup");
     if (vdSubjectEl) vdSubjectEl.addEventListener("change", () => {
+      if (vdCardMode === "input") { vdRenderGroupOptions(); return; }
       const prevPick = vdCardPickEl ? vdCardPickEl.value : "";
       const newSubj = (vdSubjectEl.value || "").trim();
       const descEl = document.getElementById("vdCardDesc");
-      if (prevPick && prevPick !== "__new__" && descEl) descEl.value = "";
-      const keep = prevPick === "__new__" ? "__new__" : (vdCardsOfSubject(newSubj).has(prevPick) ? prevPick : "");
+      if (prevPick && descEl) descEl.value = "";
+      const keep = vdCardsOfSubject(newSubj).has(prevPick) ? prevPick : "";
       vdRenderCardPickOptions(keep);
       vdRenderGroupOptions();
     });
     if (vdCardPickEl) vdCardPickEl.addEventListener("change", () => vdApplyCardPick(true));
-    if (vdCardTitleEl) vdCardTitleEl.addEventListener("input", () => {
-      const cur = (vdCardTitleEl.value || "").trim();
-      if (vdCardPickEl && vdCardPickEl.value && vdCardPickEl.value !== "__new__" && cur !== vdCardPickEl.value) {
-        vdCardPickEl.value = "__new__";
-      }
-      vdRenderGroupOptions();
-    });
+    if (vdCardTitleEl) {
+      vdCardTitleEl.addEventListener("input", () => vdRenderGroupOptions());
+      vdCardTitleEl.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && vdCardMode === "input") vdSetCardMode("select", true);
+      });
+    }
     if (vdGroupEl) vdGroupEl.addEventListener("change", () => {
       const subject = (vdSubjectEl.value || "").trim();
       const group = vdGroupEl.value || "";
@@ -566,12 +621,13 @@
         (String(c.group_name || "").trim()) === group
       );
       if (card) {
+        if (vdCardMode === "input") vdSetCardMode("select", false);
         vdCardTitleEl.value = card.card_title || "";
         const descEl = document.getElementById("vdCardDesc");
         if (descEl && !(descEl.value || "").trim()) descEl.value = card.card_description || "";
         if (vdCardPickEl) {
           vdCardPickEl.value = card.card_title || "";
-          if (vdCardPickEl.selectedIndex < 0) vdCardPickEl.value = "__new__";
+          if (vdCardPickEl.selectedIndex < 0) vdCardPickEl.value = "";
         }
         vdApplyCardPick(false);
         vdRenderGroupOptions(group);
@@ -646,6 +702,7 @@
       vdEditId = null;
       document.getElementById("vdEditorTitle").textContent = "Card video mới";
       document.getElementById("vdEditorMode").textContent = "Tạo card video mới";
+      vdSetCardMode("select", false);
       const pickNew = document.getElementById("vdCardPick");
       if (pickNew) pickNew.value = "";
       document.getElementById("vdCardTitle").value = "";
@@ -672,6 +729,7 @@
     async function vdEdit(card) {
       if (!card) return;
       vdEditId = card.card_id;
+      vdSetCardMode("select", false);
       document.getElementById("vdEditorTitle").textContent = "Sửa card video";
       document.getElementById("vdEditorMode").textContent = "Chỉnh sửa card · " + (card.subject || "");
       document.getElementById("vdCardTitle").value = card.card_title || "";
@@ -709,7 +767,7 @@
       const kind = (document.getElementById("vdKind").value || "video").trim();
 
       if (!subject) { toast("Vui lòng chọn môn học", "error"); return; }
-      if (!cardTitle) { toast("Vui lòng chọn card / khóa trong danh sách hoặc bấm Tạo card mới", "error"); return; }
+      if (!cardTitle) { toast("Vui lòng chọn hoặc nhập tên card / khóa", "error"); return; }
       if (!group) { toast("Vui lòng nhập tên chủ đề (trong card)", "error"); return; }
       if (!title) { toast("Vui lòng nhập tiêu đề video", "error"); return; }
       if (!url) { toast("Vui lòng dán link video", "error"); return; }
