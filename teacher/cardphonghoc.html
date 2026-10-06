@@ -73,6 +73,12 @@
     button.btn-ghost:hover{background:#e2e8f0}
     .vd-save-row{display:flex;align-items:center;justify-content:flex-end;gap:14px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px dashed #e6e9f2}
 
+    /* Nút ghi nhớ lựa chọn */
+    .vd-remember{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:#475569;cursor:pointer;user-select:none;margin-bottom:14px;background:#f8fafc;border:1px solid var(--border);border-radius:999px;padding:6px 13px;width:auto;transition:all .15s}
+    .vd-remember input{width:auto;accent-color:var(--blue);cursor:pointer;margin:0}
+    .vd-remember:hover{background:#f1f5f9}
+    .vd-remember:has(input:checked){background:#eff6ff;border-color:#bfdbfe;color:#2563eb}
+
     /* Badge loại link */
     .vd-type-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 11px;font-size:11px;font-weight:800;font-family:inherit}
     .vd-type-badge.hidden{display:none}
@@ -193,6 +199,11 @@
                   <button class="btn-sm" type="button" style="background:#f1f5f9;color:#334155" onclick="vdCancel()"><i class="fa-solid fa-xmark"></i> Huỷ</button>
                 </div>
               </div>
+
+              <label class="vd-remember" title="Bật: giữ môn, tên card/khóa, mô tả, chủ đề cho lần mở tiếp theo. Tắt: làm mới mọi thứ.">
+                <input type="checkbox" id="vdRemember">
+                <span><i class="fa-solid fa-thumbtack"></i> Ghi nhớ lựa chọn</span>
+              </label>
 
               <div class="vd-field">
                 <label>Môn học <b>*</b></label>
@@ -606,7 +617,7 @@
     const vdCardPickEl = document.getElementById("vdCardPick");
     const vdGroupEl = document.getElementById("vdGroup");
     if (vdSubjectEl) vdSubjectEl.addEventListener("change", () => {
-      if (vdCardMode === "input") { vdRenderGroupOptions(); return; }
+      if (vdCardMode === "input") { vdRenderGroupOptions(); vdMemWrite(); return; }
       const prevPick = vdCardPickEl ? vdCardPickEl.value : "";
       const newSubj = (vdSubjectEl.value || "").trim();
       const descEl = document.getElementById("vdCardDesc");
@@ -614,14 +625,19 @@
       const keep = vdCardsOfSubject(newSubj).has(prevPick) ? prevPick : "";
       vdRenderCardPickOptions(keep);
       vdRenderGroupOptions();
+      vdMemWrite();
     });
-    if (vdCardPickEl) vdCardPickEl.addEventListener("change", () => vdApplyCardPick(true));
+    if (vdCardPickEl) vdCardPickEl.addEventListener("change", () => { vdApplyCardPick(true); vdMemWrite(); });
     if (vdCardTitleEl) {
-      vdCardTitleEl.addEventListener("input", () => vdRenderGroupOptions());
+      vdCardTitleEl.addEventListener("input", () => { vdRenderGroupOptions(); vdMemWrite(); });
       vdCardTitleEl.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && vdCardMode === "input") vdSetCardMode("select", true);
       });
     }
+    const vdCardDescEl = document.getElementById("vdCardDesc");
+    if (vdCardDescEl) vdCardDescEl.addEventListener("input", vdMemWrite);
+    const vdRememberEl = document.getElementById("vdRemember");
+    if (vdRememberEl) vdRememberEl.addEventListener("change", vdMemWrite);
     if (vdGroupEl) vdGroupEl.addEventListener("change", () => {
       const subject = (vdSubjectEl.value || "").trim();
       const group = vdGroupEl.value || "";
@@ -641,6 +657,7 @@
         }
         vdApplyCardPick(false);
         vdRenderGroupOptions(group);
+        vdMemWrite();
       }
     });
 
@@ -687,6 +704,7 @@
           vdCancelRenameGroup();
           await vdLoadList();
           document.getElementById("vdGroup").value = newGroup;
+          vdMemWrite();
         } else if (data && data.error) {
           const map = { empty_old_group: "Thiếu tên nhóm cũ", empty_new_group: "Thiếu tên nhóm mới", forbidden: "Hết quyền thao tác" };
           toast(map[data.error] || "Không đổi được tên nhóm: " + data.error, "error");
@@ -735,6 +753,7 @@
           vdRenderCardPickOptions(newTitle);
           const descEl = document.getElementById("vdCardDesc");
           if (descEl && !(descEl.value || "").trim()) descEl.value = vdCardsOfSubject(subject).get(newTitle) || "";
+          vdMemWrite();
         } else if (data && data.error) {
           const map = { empty_old_title: "Thiếu tên card cũ", empty_new_title: "Thiếu tên card mới", forbidden: "Hết quyền thao tác" };
           toast(map[data.error] || "Không đổi được tên card: " + data.error, "error");
@@ -756,6 +775,23 @@
       list.style.display = showIt ? "none" : "";
     }
 
+    // ===== GHI NHỚ LỰA CHỌN (môn, card, mô tả, chủ đề) =====
+    const vdMemKey = "lh_teacher_vd_memory";
+    function vdMemRead() {
+      try { return JSON.parse(localStorage.getItem(vdMemKey) || "null") || null; } catch (e) { return null; }
+    }
+    function vdMemWrite() {
+      const cb = document.getElementById("vdRemember");
+      if (!cb) return;
+      if (!cb.checked) { localStorage.removeItem(vdMemKey); return; }
+      localStorage.setItem(vdMemKey, JSON.stringify({
+        subject: (document.getElementById("vdSubject").value || "").trim(),
+        cardTitle: (document.getElementById("vdCardTitle").value || "").trim(),
+        cardDesc: (document.getElementById("vdCardDesc").value || "").trim(),
+        group: (document.getElementById("vdGroup").value || "").trim()
+      }));
+    }
+
     window.vdNew = function() {
       vdEditId = null;
       document.getElementById("vdEditorTitle").textContent = "Card video mới";
@@ -767,8 +803,14 @@
       document.getElementById("vdCardDesc").value = "";
       document.getElementById("vdTitle").value = "";
       document.getElementById("vdUrl").value = "";
-      vdRenderSubjectOptions(SUBJECTS[0]);
-      vdRenderGroupOptions("");
+      const mem = vdMemRead();
+      const memCb = document.getElementById("vdRemember");
+      if (memCb) memCb.checked = !!mem;
+      const memSubj = (mem && mem.subject && SUBJECTS.indexOf(mem.subject) !== -1) ? mem.subject : SUBJECTS[0];
+      vdRenderSubjectOptions(memSubj);
+      if (mem && mem.cardTitle) vdRenderCardPickOptions(mem.cardTitle);
+      if (mem && mem.cardDesc) document.getElementById("vdCardDesc").value = mem.cardDesc;
+      vdRenderGroupOptions((mem && mem.group) || "");
       document.getElementById("vdNewGroupRow").style.display = "none";
       document.getElementById("vdNewGroupInput").value = "";
       document.getElementById("vdRenameGroupRow").style.display = "none";
@@ -789,6 +831,8 @@
       if (!card) return;
       vdEditId = card.card_id;
       vdSetCardMode("select", false);
+      const memCbEdit = document.getElementById("vdRemember");
+      if (memCbEdit) memCbEdit.checked = !!vdMemRead();
       document.getElementById("vdEditorTitle").textContent = "Sửa card video";
       document.getElementById("vdEditorMode").textContent = "Chỉnh sửa card · " + (card.subject || "");
       document.getElementById("vdCardTitle").value = card.card_title || "";
@@ -852,9 +896,20 @@
         const { data, error } = await supabase.rpc("teacher_upsert_video_card", args);
         if (error) throw error;
         if (data && data.ok === true) {
-          toast(vdEditId ? "Đã cập nhật card video" : "Đã tạo card video", "success");
-          vdEditorVisible(false);
+          const wasEdit = !!vdEditId;
+          const keepGroup = (document.getElementById("vdGroup").value || "").trim();
+          toast(wasEdit ? "Đã cập nhật card video" : "Đã thêm video — tiếp tục nhập video tiếp theo", "success");
+          vdMemWrite();
           await vdLoadList();
+          if (wasEdit) {
+            vdEditorVisible(false);
+          } else {
+            if (keepGroup) vdRenderGroupOptions(keepGroup);
+            document.getElementById("vdTitle").value = "";
+            document.getElementById("vdUrl").value = "";
+            vdPreviewLink("");
+            document.getElementById("vdTitle").focus();
+          }
         } else if (data && data.error) {
           const map = { empty_subject: "Chưa chọn môn", empty_card_title: "Thiếu tên card / khóa", empty_title: "Thiếu tiêu đề video", empty_video_url: "Thiếu link video", forbidden: "Hết quyền thao tác" };
           toast(map[data.error] || "Không lưu được card video: " + data.error, "error");
