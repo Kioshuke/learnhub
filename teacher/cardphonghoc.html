@@ -193,8 +193,12 @@
 
               <div class="vd-field">
                 <label>Tên card / khóa <b>*</b></label>
-                <input id="vdCardTitle" type="text" placeholder="vd: Tổng ôn tiếng anh">
-                <span class="hint">Tên hiển thị trên card cho học sinh. Các video cùng môn + cùng tên card sẽ gộp chung 1 card.</span>
+                <div class="vd-cat-row">
+                  <select id="vdCardPick"></select>
+                  <button type="button" class="btn-sm" style="background:#cffafe;color:#0e7490" onclick="vdNewCardName()"><i class="fa-solid fa-plus"></i> Tạo card mới</button>
+                </div>
+                <input id="vdCardTitle" type="text" placeholder="vd: Tổng ôn tiếng anh" style="display:none;margin-top:8px">
+                <span class="hint">Chọn card có sẵn của môn đã chọn — mô tả card sẽ tự điền theo. Bấm <b>Tạo card mới</b> để nhập tên card / khóa mới. Các video cùng môn + cùng tên card gộp chung 1 card.</span>
               </div>
 
               <div class="vd-field">
@@ -425,8 +429,89 @@
       const select = document.getElementById("vdSubject");
       select.innerHTML = SUBJECTS.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
       if (sel) select.value = sel;
+      vdRenderCardPickOptions();
       vdRenderGroupOptions();
     }
+
+    // ===== Dropdown "Tên card / khóa": danh sách card có sẵn theo môn =====
+    function vdCardsOfSubject(subject) {
+      const map = new Map();
+      (vdListCache || []).forEach(c => {
+        if ((String(c.subject || "").trim()) !== subject) return;
+        const t = String(c.card_title || "").trim();
+        if (!t) return;
+        const d = String(c.card_description || "").trim();
+        if (!map.has(t)) map.set(t, d);
+        else if (!map.get(t) && d) map.set(t, d);
+      });
+      return map;
+    }
+
+    function vdRenderCardPickOptions(sel) {
+      const pick = document.getElementById("vdCardPick");
+      if (!pick) return;
+      const explicit = sel != null;
+      if (!explicit) {
+        sel = pick.value === "__new__" ? "__new__" : (document.getElementById("vdCardTitle").value || "").trim();
+      }
+      const subject = (document.getElementById("vdSubject").value || "").trim();
+      const cards = vdCardsOfSubject(subject);
+      if (!explicit && sel && sel !== "__new__" && !cards.has(sel)) sel = "";
+      const titles = [...cards.keys()].sort((a, b) => a.localeCompare(b, "vi"));
+      const opts = ['<option value="">— Chọn card / khóa —</option>'];
+      titles.forEach(t => opts.push(`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`));
+      if (sel && sel !== "__new__" && !cards.has(sel)) opts.push(`<option value="${escapeHtml(sel)}">${escapeHtml(sel)}</option>`);
+      opts.push('<option value="__new__">+ Tạo card mới...</option>');
+      pick.innerHTML = opts.join("");
+      pick.value = sel || "";
+      if (pick.selectedIndex < 0) pick.value = "";
+      vdApplyCardPick(false);
+    }
+
+    function vdApplyCardPick(fromPick) {
+      const pick = document.getElementById("vdCardPick");
+      const input = document.getElementById("vdCardTitle");
+      const descEl = document.getElementById("vdCardDesc");
+      if (!pick || !input) return;
+      const subject = (document.getElementById("vdSubject").value || "").trim();
+      const v = pick.value;
+      if (v === "__new__") {
+        input.style.display = "";
+        input.readOnly = false;
+        input.style.background = "";
+        if (fromPick) {
+          input.value = "";
+          if (descEl) descEl.value = "";
+          setTimeout(() => input.focus(), 0);
+        }
+      } else if (v) {
+        input.style.display = "";
+        input.readOnly = false;
+        input.value = v;
+        input.style.background = "";
+        const d = vdCardsOfSubject(subject).get(v) || "";
+        if (descEl && (fromPick || !(descEl.value || "").trim())) descEl.value = d;
+      } else {
+        input.style.display = "none";
+        input.readOnly = false;
+        input.value = "";
+        input.style.background = "";
+        if (fromPick && descEl) descEl.value = "";
+      }
+      vdRenderGroupOptions();
+    }
+
+    window.vdNewCardName = function() {
+      const pick = document.getElementById("vdCardPick");
+      if (!pick) return;
+      if (pick.value === "__new__") {
+        const inp = document.getElementById("vdCardTitle");
+        if (inp) inp.focus();
+        return;
+      }
+      pick.value = "__new__";
+      vdApplyCardPick(true);
+    };
 
     function vdGroupNames(subject, cardTitle) {
       const set = new Set();
@@ -453,9 +538,25 @@
 
     const vdSubjectEl = document.getElementById("vdSubject");
     const vdCardTitleEl = document.getElementById("vdCardTitle");
+    const vdCardPickEl = document.getElementById("vdCardPick");
     const vdGroupEl = document.getElementById("vdGroup");
-    if (vdSubjectEl) vdSubjectEl.addEventListener("change", () => vdRenderGroupOptions());
-    if (vdCardTitleEl) vdCardTitleEl.addEventListener("input", () => vdRenderGroupOptions());
+    if (vdSubjectEl) vdSubjectEl.addEventListener("change", () => {
+      const prevPick = vdCardPickEl ? vdCardPickEl.value : "";
+      const newSubj = (vdSubjectEl.value || "").trim();
+      const descEl = document.getElementById("vdCardDesc");
+      if (prevPick && prevPick !== "__new__" && descEl) descEl.value = "";
+      const keep = prevPick === "__new__" ? "__new__" : (vdCardsOfSubject(newSubj).has(prevPick) ? prevPick : "");
+      vdRenderCardPickOptions(keep);
+      vdRenderGroupOptions();
+    });
+    if (vdCardPickEl) vdCardPickEl.addEventListener("change", () => vdApplyCardPick(true));
+    if (vdCardTitleEl) vdCardTitleEl.addEventListener("input", () => {
+      const cur = (vdCardTitleEl.value || "").trim();
+      if (vdCardPickEl && vdCardPickEl.value && vdCardPickEl.value !== "__new__" && cur !== vdCardPickEl.value) {
+        vdCardPickEl.value = "__new__";
+      }
+      vdRenderGroupOptions();
+    });
     if (vdGroupEl) vdGroupEl.addEventListener("change", () => {
       const subject = (vdSubjectEl.value || "").trim();
       const group = vdGroupEl.value || "";
@@ -468,6 +569,11 @@
         vdCardTitleEl.value = card.card_title || "";
         const descEl = document.getElementById("vdCardDesc");
         if (descEl && !(descEl.value || "").trim()) descEl.value = card.card_description || "";
+        if (vdCardPickEl) {
+          vdCardPickEl.value = card.card_title || "";
+          if (vdCardPickEl.selectedIndex < 0) vdCardPickEl.value = "__new__";
+        }
+        vdApplyCardPick(false);
         vdRenderGroupOptions(group);
       }
     });
@@ -540,7 +646,10 @@
       vdEditId = null;
       document.getElementById("vdEditorTitle").textContent = "Card video mới";
       document.getElementById("vdEditorMode").textContent = "Tạo card video mới";
+      const pickNew = document.getElementById("vdCardPick");
+      if (pickNew) pickNew.value = "";
       document.getElementById("vdCardTitle").value = "";
+      document.getElementById("vdCardDesc").value = "";
       document.getElementById("vdTitle").value = "";
       document.getElementById("vdUrl").value = "";
       vdRenderSubjectOptions(SUBJECTS[0]);
@@ -553,7 +662,7 @@
       if (kindNew) kindNew.value = "video";
       vdPreviewLink("");
       vdEditorVisible(true);
-      document.getElementById("vdCardTitle").focus();
+      (document.getElementById("vdCardPick") || document.getElementById("vdCardTitle")).focus();
     };
 
     window.vdCancel = function() {
@@ -568,6 +677,7 @@
       document.getElementById("vdCardTitle").value = card.card_title || "";
       document.getElementById("vdCardDesc").value = card.card_description || "";
       vdRenderSubjectOptions(card.subject || SUBJECTS[0]);
+      vdRenderCardPickOptions(card.card_title || "");
       vdRenderGroupOptions(card.group_name || "");
       document.getElementById("vdTitle").value = card.title || "";
       document.getElementById("vdUrl").value = card.video_url || "";
@@ -599,7 +709,7 @@
       const kind = (document.getElementById("vdKind").value || "video").trim();
 
       if (!subject) { toast("Vui lòng chọn môn học", "error"); return; }
-      if (!cardTitle) { toast("Vui lòng nhập tên card / khóa", "error"); return; }
+      if (!cardTitle) { toast("Vui lòng chọn card / khóa trong danh sách hoặc bấm Tạo card mới", "error"); return; }
       if (!group) { toast("Vui lòng nhập tên chủ đề (trong card)", "error"); return; }
       if (!title) { toast("Vui lòng nhập tiêu đề video", "error"); return; }
       if (!url) { toast("Vui lòng dán link video", "error"); return; }
@@ -685,6 +795,7 @@
       const listEl = document.getElementById("vdList");
       const countEl = document.getElementById("vdCount");
       if (countEl) countEl.textContent = list.length ? `(${list.length} card video)` : "";
+      vdRenderCardPickOptions();
       vdRenderGroupOptions();
 
       if (!list.length) {
