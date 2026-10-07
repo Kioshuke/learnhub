@@ -748,6 +748,8 @@ function applyGuestHeader(){
   if(un) un.innerHTML = '<i class="fa-solid fa-lock" style="opacity:.6;font-size:12px;margin-right:2px"></i>Chưa đăng nhập';
   var av = document.getElementById("userAvatar");
   if(av){ av.alt = "Chưa đăng nhập"; if(!av.getAttribute("src") || av.getAttribute("src").indexOf("data:") === 0){ av.src = "pictures/newlogo.png"; } }
+  var avBox = document.querySelector(".avatar-box");
+  if(avBox) avBox.style.display = "none"; // ẩn avatar khi chưa đăng nhập
   var gn = document.getElementById("greetingText");
   if(gn) gn.innerHTML = "";
   var pn = document.getElementById("popupName");
@@ -832,7 +834,7 @@ document.addEventListener("click", function(e){
     lockGuestClick(e);
     return;
   }
-  var el = t.closest('.nav-link, .feature-card, .avatar-box, .user-right, #notifBellWrap');
+  var el = t.closest('.nav-link, .feature-card, .avatar-box, .user-right, #notifBellWrap, [onclick*="openFeedbackModal"]');
   if(!el) return;
   // Link Home giữ nguyên hoạt động
   if(el.classList && el.classList.contains("nav-link") && el.getAttribute("href") === "/index.html") return;
@@ -851,6 +853,8 @@ function exitGuestMode(){
   window.__lhGuest = false;
   if(guestHeaderTimer){ clearInterval(guestHeaderTimer); guestHeaderTimer = null; }
   document.body.classList.remove("guest-mode");
+  var avBox = document.querySelector(".avatar-box");
+  if(avBox) avBox.style.display = ""; // hiện lại avatar khi đã đăng nhập
 }
 window.exitGuestMode = exitGuestMode;
 
