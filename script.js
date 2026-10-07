@@ -479,134 +479,6 @@ if(box){
   });
 }
 
-const authSlideData = [
-  {
-    title: "LearnHub – Nâng cấp cách bạn học",
-    desc: "Ôn thi nhanh • Giao diện hiện đại • Tối ưu trải nghiệm"
-  },
-  {
-    title: "Giao diện chính - Hubie AI",
-    desc: "Trợ lý AI thông minh hỗ trợ học tập & tra từ điển Anh - Việt"
-  },
-  {
-    title: "LearnHub Forum",
-    desc: "Trao đổi • Hỏi đáp • Kết nối học sinh như một trang MXH"
-  },
-  {
-    title: "Tính năng Smart FlashCard",
-    desc: "Học từ vựng thông minh với nhiều thể loại học tập, từ vựng đa dạng"
-  }
-];
-
-let authSlideIndex = 0;
-let authSlideTimer = null;
-
-function switchAuthTab(type){
-  if(type === "register" && window.registrationOpen === false){
-    showAuthNotice("Đăng ký hiện đang đóng. Vui lòng liên hệ admin nếu bạn cần tài khoản.", "warning", "Đăng ký bị đóng", 2600, "thongbaoSound", "fa-ban");
-    return;
-  }
-  const login = document.getElementById("authLoginPanel");
-  const register = document.getElementById("authRegisterPanel");
-  const tabs = document.querySelectorAll("#loginBox .auth-tab");
-
-  tabs.forEach((tab) => tab.classList.remove("active"));
-
-  if(type === "login"){
-    if(login) login.style.display = "block";
-    if(register) register.style.display = "none";
-  }else{
-    if(login) login.style.display = "none";
-    if(register) register.style.display = "block";
-  }
-
-  const activeTab = document.querySelector(`#loginBox .auth-tab[data-auth-tab="${type}"]`);
-  if(activeTab) activeTab.classList.add("active");
-}
-
-function updateAuthSlideText(index){
-  const titleEl = document.getElementById("authSlideTitle");
-  const descEl = document.getElementById("authSlideDesc");
-  const mobileTitleEl = document.getElementById("authMobileTitle");
-  const mobileDescEl = document.getElementById("authMobileDesc");
-  if(!titleEl || !descEl) return;
-
-  // Staggered text reveal - wrap each char in span
-  const title = authSlideData[index].title;
-  const desc = authSlideData[index].desc;
-  
-  // Clear content and prepare for animation
-  titleEl.innerHTML = '';
-  descEl.innerHTML = '';
-  
-  // Create staggered title animation
-  title.split('').forEach((char, i) => {
-    const span = document.createElement('span');
-    span.className = 'char';
-    span.textContent = char === ' ' ? '\u00A0' : char;
-    span.style.animationDelay = `${i * 0.03}s`;
-    titleEl.appendChild(span);
-  });
-  
-  // Create description with reveal animation
-  const descSpan = document.createElement('span');
-  descSpan.className = 'desc-reveal';
-  descSpan.textContent = desc;
-  descEl.appendChild(descSpan);
-  
-  // Mobile version - simple fade for performance
-  if(mobileTitleEl){
-    mobileTitleEl.style.opacity = "0";
-    setTimeout(() => {
-      mobileTitleEl.textContent = title;
-      mobileTitleEl.style.opacity = "1";
-    }, 150);
-  }
-  if(mobileDescEl){
-    mobileDescEl.style.opacity = "0";
-    setTimeout(() => {
-      mobileDescEl.textContent = desc;
-      mobileDescEl.style.opacity = "1";
-    }, 250);
-  }
-}
-
-function initAuthSlides(){
-  const desktopSlides = document.querySelectorAll("#loginBox .auth-right .auth-slide");
-  const mobileSlides = document.querySelectorAll("#loginBox .auth-mobile-slide");
-  if(!desktopSlides.length && !mobileSlides.length) return;
-
-  if(desktopSlides.length){
-    desktopSlides[0].classList.add("active");
-  }
-  if(mobileSlides.length){
-    mobileSlides[0].classList.add("active");
-  }
-  updateAuthSlideText(0);
-
-  if(authSlideTimer) clearInterval(authSlideTimer);
-
-  authSlideTimer = setInterval(() => {
-    const totalSlides = desktopSlides.length || mobileSlides.length;
-    if(!totalSlides) return;
-
-    const prevIndex = authSlideIndex;
-    authSlideIndex = (authSlideIndex + 1) % totalSlides;
-
-    // Simple fade transition for all slides (no image effects)
-    if(desktopSlides.length){
-      desktopSlides[prevIndex].classList.remove("active");
-      desktopSlides[authSlideIndex].classList.add("active");
-    }
-    if(mobileSlides.length){
-      mobileSlides[prevIndex].classList.remove("active");
-      mobileSlides[authSlideIndex].classList.add("active");
-    }
-    
-    updateAuthSlideText(authSlideIndex);
-  }, 4000);
-}
-
 function playNotificationSound(soundId = "thongbaoSound"){
   const audio = document.getElementById(soundId);
   if(!audio) return;
@@ -672,23 +544,13 @@ function showAuthNotice(message, type = "info", title = "", durationMs = 2600, s
       type: type === "warn" ? "warning" : type,
       title: title || undefined,
       durationMs: Math.max(1200, Number(durationMs) || 2600),
-      icon: icon || undefined
+      icon: icon || undefined,
+      sound: /realtime/i.test(soundId || "") ? "realtime" : "thongbao"
     });
   }
 }
 
-function authComingSoon(){
-  showAuthNotice(
-    "Tính năng này đang phát triển. Hiện tại bạn vẫn đăng nhập bằng Google như cũ.",
-    "info",
-    "Tính năng sắp ra mắt"
-  );
-}
-
-window.switchAuthTab = switchAuthTab;
-window.authComingSoon = authComingSoon;
 window.showAuthNotice = showAuthNotice;
-initAuthSlides();
 
 // Hiển thị tab mặc định khi trang load
 document.addEventListener("DOMContentLoaded", () => {

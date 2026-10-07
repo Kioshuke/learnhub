@@ -831,8 +831,6 @@
 </head>
 <body>
 
-<audio id="thongbaoSound" src="sound/thongbao.mp3" preload="auto"></audio>
-
 <div id="loginBox">
 <button type="button" class="auth-scroll-down" id="authScrollDown" aria-label="Khám phá các tính năng">
   <span>Khám phá ngay</span>
@@ -1232,7 +1230,7 @@
 
 <script type="module">
 import { supabase, getMaintenance, subscribeMaintenance, emailAllowed, isWhitelistEnabled, isRegistrationOpen, getUserRow, onAuthChange, finalizeSession, logAppError } from "./supabase-config.js";
-import { redirectToResetPage, isPasswordRecovery } from "./reset-password.js";
+import { isPasswordRecovery } from "./reset-password.js";
 
 window.supabase = supabase;
 
@@ -1259,11 +1257,9 @@ try {
 } catch(e) { console.error("Maintenance check error:", e); }
 
 let registrationOpen = true;
-window.registrationOpen = true;
 let registrationMessage = "";
 isRegistrationOpen().then(ok => {
   registrationOpen = ok;
-  window.registrationOpen = ok;
 }).catch(e => console.error("Registration check error:", e));
 
 // Lắng nghe realtime: bật → redirect maintenance.html, tắt → redirect login.html
@@ -1277,13 +1273,6 @@ try {
       window.location.replace('maintenance.html');
     } else if (!maintenanceState.enabled && wasEnabled) {
       console.log("[MAINTENANCE] Maintenance just turned OFF");
-      // Chỉ redirect về login nếu không phải đang ở login.html
-      if (!location.pathname.endsWith('/login.html') && !location.pathname.endsWith('login.html')) {
-        console.log("[MAINTENANCE] Redirecting to login.html");
-        window.location.replace('login.html');
-      } else {
-        console.log("[MAINTENANCE] Already on login.html, no redirect needed");
-      }
     }
   });
 } catch(e) { console.error("Maintenance listener error:", e); }
@@ -1396,103 +1385,6 @@ function showLoginSuccess(message, redirectMs = 3000) {
     }
   }, 1000);
 }
-
-// Fallback: nếu mp3 bị chặn/lỗi tải thì kêu beep bằng WebAudio API (luôn available sau gesture)
-let _noticeAudioCtx = null;
-function playFallbackBeep() {
-  try {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return;
-    _noticeAudioCtx = _noticeAudioCtx || new AC();
-    const ctx = _noticeAudioCtx;
-    if (ctx.state === "suspended") { ctx.resume().catch(() => {}); }
-    const t0 = ctx.currentTime;
-    [[880, 0], [1244.51, 0.13]].forEach(([freq, offset]) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.value = freq;
-      const st = t0 + offset;
-      gain.gain.setValueAtTime(0.0001, st);
-      gain.gain.exponentialRampToValueAtTime(0.16, st + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, st + 0.24);
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(st); osc.stop(st + 0.26);
-    });
-  } catch (e) {}
-}
-
-function playNotificationSound(soundId = "thongbaoSound") {
-  const base = document.getElementById(soundId);
-  if (!base) { playFallbackBeep(); return; }
-  let audio = base;
-  // Thông báo trước chưa phát xong -> dùng bản clone để chồng tiếng, không cắt nhau
-  if (!base.paused && !base.ended && base.currentTime > 0) {
-    try { audio = base.cloneNode(); } catch (e) { audio = base; }
-  }
-  try { audio.currentTime = 0; } catch (e) {}
-audio.muted = false;
-audio.volume = 1;
-  const fail = () => playFallbackBeep();
-  audio.addEventListener("error", fail, { once: true });
-  const p = audio.play();
-  if (p && p.then) p.then(() => audio.removeEventListener("error", fail)).catch(fail);
-}
-
-// Mở khoá autoplay sau lần tương tác đầu tiên của người dùng.
-// Không có bước này, thông báo từ onAuthChange (restore session) bị trình duyệt chặn tiếng.
-// QUAN TRỌNG: listener click ở document chạy SAU onclick của nút (event bubbling),
-// nên nếu không guard thì nó sẽ mute/tải lại audio mà thông báo vừa bắt đầu phát
-// -> tiếng popup bị nuốt mất. Luôn bỏ qua nếu audio đang phát tiếng thật.
-(function unlockAudio() {
-  const ids = ["thongbaoSound"];
-  function tryUnlock() {
-    let loaded = false;
-    ids.forEach(function (id) {
-      const a = document.getElementById(id);
-      if (!a) return;
-      // Đang phát thông báo thật -> trình duyệt đã cho phép tiếng, đừng đụng vào
-      if (!a.paused && !a.muted && a.volume > 0) { loaded = true; return; }
-      a.muted = true;
-      a.volume = 0;
-      try {
-        const p = a.play();
-        if (p && p.then) {
-          p.then(function () {
-            // Nếu có một play() thật (có tiếng) đang chạy trong cùng lượt click
-            // (vd: bấm Đăng nhập bị lỗi → hiện thông báo), KHÔNG pause để
-            // tránh nuốt mất tiếng của thông báo.
-            if (a.muted === true) {
-              a.pause();
-              a.currentTime = 0;
-            }
-a.muted = false;
-a.volume = 1;
-loaded = true;
-          }).catch(function () {});
-        }
-      } catch (e) {}
-    });
-    // Warm-up luôn WebAudio context cho fallback beep
-    try {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (AC) {
-        _noticeAudioCtx = _noticeAudioCtx || new AC();
-        if (_noticeAudioCtx.state === "suspended") _noticeAudioCtx.resume().catch(function () {});
-      }
-    } catch (e) {}
-    if (loaded) {
-      document.removeEventListener("click", tryUnlock);
-      document.removeEventListener("touchstart", tryUnlock);
-      document.removeEventListener("pointerdown", tryUnlock);
-      document.removeEventListener("keydown", tryUnlock);
-    }
-  }
-  document.addEventListener("click", tryUnlock);
-  document.addEventListener("touchstart", tryUnlock);
-  document.addEventListener("pointerdown", tryUnlock);
-  document.addEventListener("keydown", tryUnlock);
-})();
 
 function showAuthNotice(message, type = "info", title = "", durationMs = 2600, soundId = "thongbaoSound", icon) {
   if (window.lhToast) {
@@ -1701,10 +1593,6 @@ function switchAuthTab(type) {
   }
 }
 
-function authComingSoon() {
-  showAuthNotice("Tính năng này đang phát triển. Hiện tại bạn vẫn đăng nhập bằng Google như cũ.", "info", "Tính năng sắp ra mắt");
-}
-
 const authSlideData = [
   { title: "LearnHub – Nâng cấp cách bạn học", desc: "Ôn thi nhanh • Giao diện hiện đại • Tối ưu trải nghiệm" },
   { title: "Giao diện chính - Hubie AI", desc: "Trợ lý AI hỗ trợ học tập và tra từ điển Anh - Việt cùng giao diện trực quan đầy đủ tính năng" },
@@ -1780,7 +1668,6 @@ function initMobileSlides() {
 initMobileSlides();
 
 window.switchAuthTab = switchAuthTab;
-window.authComingSoon = authComingSoon;
 window.showAuthNotice = showAuthNotice;
 
 /* ---------- QUÊN MẬT KHẨU / ĐẶT LẠI MẬT KHẨU ---------- */
@@ -1839,10 +1726,6 @@ window.sendPasswordReset = async function() {
 
 onAuthChange(async (event, session) => {
   const user = session?.user ?? null;
-  if (event === "PASSWORD_RECOVERY") {
-    redirectToResetPage();
-    return;
-  }
   if (user && !processingLogin) {
     processingLogin = true;
     try {
@@ -1955,7 +1838,6 @@ window.emailLogin = async function() {
   if (!password) { setFieldError("loginPassword", "Vui lòng nhập mật khẩu"); focusId = focusId || "loginPassword"; invalid = true; }
   if (invalid) {
     if (focusId) { shakeAuthBox(focusId); document.getElementById(focusId).focus(); }
-    showAuthNotice("Vui lòng kiểm tra lại thông tin", "error", "Thiếu thông tin");
     return;
   }
   const btn = document.getElementById("loginSubmitBtn");
@@ -1967,7 +1849,6 @@ window.emailLogin = async function() {
     const user = data.user;
     if (!await emailAllowed(user.email)) {
       logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED", message: "Đăng nhập email/mật khẩu bằng email không nằm trong whitelist.", email: user.email });
-      showAuthNotice("Email này chưa được cấp quyền truy cập LearnHub. Nếu cần tài khoản, hãy liên hệ quản trị viên.", "error", "Không có quyền truy cập", 4500, "thongbaoSound", "fa-user-xmark");
       setFieldError("loginEmail", "Email chưa được cấp quyền truy cập — liên hệ quản trị viên");
       await supabase.auth.signOut();
       processingLogin = false;
@@ -1977,7 +1858,6 @@ window.emailLogin = async function() {
     const row = await getUserRow(user.id);
     if (row && row.disabled) {
       logAppError({ source: "login", category: "disabled", level: "warning", code: "DISABLED", message: "Đăng nhập email/mật khẩu bằng tài khoản bị khóa.", email: user.email, detail: { name: row.name || "" } });
-      showAuthNotice("Tài khoản của bạn đang bị khóa. Hãy liên hệ quản trị viên để được hỗ trợ.", "error", "Tài khoản bị khóa", 4500, "thongbaoSound", "fa-user-lock");
       setFieldError("loginEmail", "Tài khoản đang bị khóa — liên hệ quản trị viên");
       await supabase.auth.signOut();
       processingLogin = false;
@@ -2031,7 +1911,6 @@ window.emailRegister = async function() {
   else if (confirmPassword !== password) { setFieldError("registerConfirmPassword", "Mật khẩu nhập lại không khớp"); focusId = focusId || "registerConfirmPassword"; invalid = true; }
   if (invalid) {
     if (focusId) { shakeAuthBox(focusId); document.getElementById(focusId).focus(); }
-    showAuthNotice("Vui lòng kiểm tra lại thông tin", "error", "Thiếu thông tin");
     return;
   }
   if (!document.getElementById("registerTerms") || !document.getElementById("registerTerms").checked) {
@@ -2044,13 +1923,11 @@ window.emailRegister = async function() {
   if (!registrationOpen && (!wlOn ? !await emailAllowed(email) : true)) {
     logAppError({ source: "login", category: "whitelist", level: "warning", code: "REG_CLOSED", message: "Đăng ký bị đóng, email không nằm trong whitelist.", email: email });
     setFieldError("registerEmail", "Đăng ký hiện đang đóng");
-    showAuthNotice("Đăng ký hiện đang đóng. Nếu bạn cần tài khoản, hãy liên hệ quản trị viên.", "error", "Đăng ký bị đóng", 2600, "thongbaoSound", "fa-ban");
     return;
   }
   if (!wlOn && !await emailAllowed(email)) {
     logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED_SIGNUP", message: "Cố đăng ký bằng email không nằm trong whitelist.", email: email });
     setFieldError("registerEmail", "Email chưa được cấp quyền đăng ký");
-    showAuthNotice("Email này chưa được cấp quyền đăng ký. Nếu cần tài khoản, hãy liên hệ quản trị viên.", "error", "Không có quyền truy cập");
     return;
   }
 
@@ -2058,7 +1935,6 @@ window.emailRegister = async function() {
   if (photoValue && !/^https?:\/\/\S+$/i.test(photoValue)) {
     setFieldError("registerPhoto", "Ảnh đại diện phải là đường dẫn http(s) hợp lệ");
     shakeAuthBox("registerPhoto"); document.getElementById("registerPhoto").focus();
-    showAuthNotice("Ảnh đại diện phải là đường dẫn http(s) hợp lệ", "error", "URL ảnh không hợp lệ");
     return;
   }
 
@@ -2071,26 +1947,17 @@ window.emailRegister = async function() {
   if (!code || code.length !== 6) {
     setFieldError("otpCode", "Vui lòng nhập mã xác nhận 6 chữ số");
     shakeAuthBox("otpCode"); otpInput.focus();
-    showAuthNotice("Vui lòng nhập mã xác nhận 6 chữ số", "error", "Thiếu mã xác nhận");
     return;
   }
   if (Date.now() > otpExpiry) {
     setFieldError("otpCode", "Mã đã hết hạn. Nhấn 'Gửi lại mã'");
-    showAuthNotice("Mã xác nhận đã hết hạn. Vui lòng nhấn 'Gửi lại mã'", "error", "Mã hết hạn");
     return;
   }
   if (code !== otpGenerated) {
     const serverResult = await verifyOTPOnServer(email, code);
-    if (serverResult === false) {
+    if (serverResult !== true) {
       setFieldError("otpCode", "Mã xác nhận không đúng");
       shakeAuthBox("otpCode"); otpInput.focus(); otpInput.select();
-      showAuthNotice("Mã xác nhận không đúng. Vui lòng kiểm tra lại", "error", "Sai mã");
-      return;
-    }
-    if (serverResult === null) {
-      setFieldError("otpCode", "Mã xác nhận không đúng");
-      shakeAuthBox("otpCode"); otpInput.focus(); otpInput.select();
-      showAuthNotice("Mã xác nhận không đúng. Vui lòng kiểm tra lại", "error", "Sai mã");
       return;
     }
   }
