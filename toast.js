@@ -233,4 +233,18 @@
 
   window.lhToast = lhToast;
   window.lhConfirm = lhConfirm;
+
+  /* ---- Toast mất / khôi phục kết nối mạng (online/offline) ----
+     Chỉ hiện khi trạng thái mạng THAY ĐỔI trong lúc dùng (không hiện lúc vừa mở trang). */
+  var networkToast = null;
+  function showNetworkToast(message, type) {
+    if (networkToast) { try { networkToast.close(); } catch (e) {} }
+    networkToast = lhToast(message, { type: type, durationMs: 4000, sound: type === "success" });
+  }
+  window.addEventListener("offline", function () {
+    showNetworkToast("Mất kết nối mạng — một số nội dung tạm không tải được.", "warning");
+  });
+  window.addEventListener("online", function () {
+    showNetworkToast("Đã có lại kết nối mạng.", "success");
+  });
 })();
