@@ -840,11 +840,12 @@ function switchSidebarPdf(item) {
 /* ===== GOOGLE DRIVE (video/tài liệu trong mục lục) ===== */
 
 /* Chấp nhận: link file /file/d/<ID>/view... , link ?id=<ID>,
-   link thư mục /drive/folders/<ID>, hoặc ID trần */
+   link thư mục /drive/folders/<ID>, Google Docs/Sheets/Slides (/<loai>/d/<ID>),
+   hoặc ID trần */
 function getDriveFileId(url) {
   if (!url) return "";
   var s = String(url).trim();
-  var m = s.match(/\/file\/d\/([\w-]+)/);
+  var m = s.match(/\/(?:file|document|spreadsheets|presentation)\/d\/([\w-]+)/);
   if (m && m[1]) return m[1];
   m = s.match(/\/folders\/([\w-]+)/);
   if (m && m[1]) return m[1];
@@ -857,8 +858,14 @@ function getDriveFileId(url) {
 function getDriveEmbedUrl(url) {
   var id = getDriveFileId(url);
   if (!id) return url ? String(url).trim() : "";
+  var s = String(url);
+  /* Google Docs/Sheets/Slides -> nhúng preview chính chủ (docs.google.com) */
+  var dm = s.match(/docs\.google\.com\/(document|spreadsheets|presentation)\/d\/([a-zA-Z0-9_-]+)/);
+  if (dm && dm[1] && dm[2]) {
+    return "https://docs.google.com/" + dm[1] + "/d/" + dm[2] + "/preview?usp=embed_googleplus";
+  }
   /* Link thư mục -> dạng xem lưới để duyệt tài liệu trong iframe */
-  if (/\/folders\//.test(String(url))) {
+  if (/\/folders\//.test(s)) {
     return "https://drive.google.com/embeddedfolderview?id=" + id + "#grid";
   }
   return "https://drive.google.com/file/d/" + id + "/preview";
@@ -905,15 +912,17 @@ function showDrivePlayer(driveUrl) {
   if (!frame) return;
   frame.style.aspectRatio = "";
   var isFolder = /\/folders\//.test(String(driveUrl || ""));
+  var isGoogleDoc = /docs\.google\.com\/(document|spreadsheets|presentation)\/d\//.test(String(driveUrl || ""));
   frame.classList.remove("pdf-mode", "drive-mode", "drive-folder-mode", "drive-preview-mode", "vimeo-mode", "tiktok-mode", "yt-zoom");
 
-  /* Link thư mục -> dạng xem lưới để duyệt tài liệu trong khung 16:9 */
-  if (isFolder) {
+  /* Link thư mục / Google Docs, Sheets, Slides -> dạng xem lưới / preview để
+     duyệt tài liệu trong khung 16:9 (không phải file video nên skip stream) */
+  if (isFolder || isGoogleDoc) {
     frame.classList.add("drive-folder-mode");
     frame.innerHTML =
       '<iframe src="' + escHtml(getDriveEmbedUrl(driveUrl)) +
       '" title="Google Drive" allow="autoplay; encrypted-media" allowfullscreen="true"></iframe>';
-    setDriveFolderLink(driveUrl);
+    setDriveFolderLink(isFolder ? driveUrl : null);
     return;
   }
 
@@ -1134,7 +1143,7 @@ function openCourse(el, courseId) {
 function detectPlayerType(url) {
   var s = String(url || "").trim();
   if (!s) return "other";
-  if (/drive\.google\.com/.test(s)) return "drive";
+  if (/drive\.google\.com|docs\.google\.com/.test(s)) return "drive";
   if (/youtube\.com|youtu\.be|^[\w-]{11}$/.test(s)) return "youtube";
   if (/vimeo\.com/.test(s)) return "vimeo";
   if (/tiktok\.com/.test(s)) return "tiktok";
