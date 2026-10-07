@@ -1881,6 +1881,18 @@ onAuthChange(async (event, session) => {
       showAuthNotice("Đăng xuất thành công!", "success", "Thành công", 2600, "thongbaoSound", "fa-right-from-bracket");
       window.history.replaceState({}, '', 'login.html');
     }
+    if (params.get("blocked")) {
+      const BLOCK_MSGS = {
+        whitelist: ["Quyền truy cập của bạn đã bị thu hồi (bị gỡ khỏi danh sách thành viên). Vui lòng liên hệ Admin để được hỗ trợ.", "Không có quyền truy cập", "fa-user-xmark"],
+        disabled: ["Tài khoản của bạn đã bị khóa/vô hiệu hóa. Vui lòng liên hệ Admin để được hỗ trợ.", "Tài khoản bị khóa", "fa-user-lock"],
+        deleted: ["Hồ sơ của bạn đã bị xóa khỏi hệ thống. Vui lòng liên hệ Admin để được hỗ trợ.", "Hồ sơ đã bị xóa", "fa-user-xmark"],
+        "1": ["Phiên đăng nhập của bạn đã bị chấm dứt. Vui lòng đăng nhập lại hoặc liên hệ Admin.", "Phiên hết hiệu lực", "fa-user-shield"]
+      };
+      const key = BLOCK_MSGS[params.get("blocked")] ? params.get("blocked") : "1";
+      const info = BLOCK_MSGS[key];
+      showAuthNotice(info[0], "warning", info[1], 6000, "thongbaoSound", info[2]);
+      window.history.replaceState({}, '', 'login.html');
+    }
   }
 });
 

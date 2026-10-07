@@ -204,6 +204,12 @@ document.addEventListener('DOMContentLoaded', function(){
     var tries = 0;
     var iv = setInterval(function(){
       tries++;
+      // Khách chưa đăng nhập: không vào tab tính năng, đẩy qua login
+      if(window.__lhGuest){
+        clearInterval(iv);
+        window.location.href = "login.html";
+        return;
+      }
       if(!window.currentLearnHubUser && tries < 32) return;
       clearInterval(iv);
       // Hiện màn che ngay khi user đã đăng nhập (trước khi chuyển tab phòng học) để chặn bấm lung tung

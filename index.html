@@ -86,6 +86,8 @@ window.addEventListener("beforeinstallprompt", function (e) {
 <script>
 fetch('header.html').then(r=>r.text()).then(html=>{
   document.getElementById('lh-header-placeholder').innerHTML = html;
+  // Nếu trang đang ở guest mode (chưa đăng nhập) -> áp lại UI "Chưa đăng nhập"
+  if(window.__lhGuest && typeof window.enterGuestMode === 'function') window.enterGuestMode();
   const active = document.getElementById('lh-header-placeholder').dataset.active;
   const map = {'home':'/index.html','flash':'flashcard/hub.html','forum':'element/forum.html','tai-lieu':'element/hubfile.html','phong-hoc':'element/phong-hoc.html'};
   const reverseMap = {'/index.html':'home','flashcard/hub.html':'flash','element/forum.html':'forum','element/hubfile.html':'tai-lieu','element/phong-hoc.html':'phong-hoc'};
@@ -243,6 +245,7 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 
     async function loadMailbox() {
       try {
+        if(window.__lhGuest) return; // khách chưa đăng nhập: không tải hộp thư
         var userCreatedAt = null;
         try {
           var sessResult = await window.supabaseClient.auth.getSession();
@@ -735,6 +738,122 @@ function showContent(){
   appLoadingComplete = true;
 }
 
+// ======================== GUEST MODE (chưa đăng nhập: ở lại trang chủ) ========================
+let guestHeaderTimer = null;
+
+function applyGuestHeader(){
+  var wt = document.getElementById("welcomeText");
+  if(wt) wt.innerHTML = ""; // bỏ câu chúc
+  var un = document.getElementById("userName");
+  if(un) un.innerHTML = '<i class="fa-solid fa-lock" style="opacity:.6;font-size:12px;margin-right:2px"></i>Chưa đăng nhập';
+  var av = document.getElementById("userAvatar");
+  if(av){ av.alt = "Chưa đăng nhập"; if(!av.getAttribute("src") || av.getAttribute("src").indexOf("data:") === 0){ av.src = "pictures/newlogo.png"; } }
+  var gn = document.getElementById("greetingText");
+  if(gn) gn.innerHTML = "";
+  var pn = document.getElementById("popupName");
+  if(pn) pn.textContent = "Chưa đăng nhập";
+  var pe = document.getElementById("popupEmail");
+  if(pe) pe.textContent = "Đăng nhập để sử dụng đầy đủ tính năng";
+  var pq = document.getElementById("popupQuote");
+  if(pq) pq.textContent = "";
+}
+
+function startGuestHeaderRetry(){
+  if(guestHeaderTimer) return;
+  let tries = 0;
+  guestHeaderTimer = setInterval(function(){
+    tries++;
+    if(!window.__lhGuest){
+      clearInterval(guestHeaderTimer);
+      guestHeaderTimer = null;
+      return;
+    }
+    if(document.getElementById("userName") && document.getElementById("userAvatar")){
+      clearInterval(guestHeaderTimer);
+      guestHeaderTimer = null;
+      applyGuestHeader();
+      return;
+    }
+    applyGuestHeader();
+    if(tries > 50){
+      clearInterval(guestHeaderTimer);
+      guestHeaderTimer = null;
+    }
+  }, 300);
+}
+
+function enterGuestMode(){
+  if(!window.__lhGuest){
+    window.__lhGuest = true;
+    document.body.classList.add("guest-mode");
+    showContent();
+    // Khách không mở được tab -> bỏ src iframe (tránh query DB nền & lộ nội dung)
+    document.querySelectorAll("#flashHubFrame,#forumFrame,#taiLieuFrame,#phongHocFrame").forEach(function(f){
+      if(f) f.removeAttribute("src");
+    });
+  }
+  applyGuestHeader();
+  startGuestHeaderRetry();
+}
+window.enterGuestMode = enterGuestMode;
+
+// Guest: cho kéo bong bóng Hubie, chỉ chặn CLICK (không phải kéo thả)
+(function(){
+  var gsx = 0, gsy = 0, gmoved = false, gdown = false;
+  function isBubble(t){ return t && t.closest && !!t.closest("#accessibilityButton"); }
+  document.addEventListener("pointerdown", function(e){
+    if(!window.__lhGuest || !isBubble(e.target)) return;
+    gdown = true; gmoved = false; gsx = e.clientX; gsy = e.clientY;
+  }, true);
+  document.addEventListener("pointermove", function(e){
+    if(!gdown || gmoved) return;
+    if(Math.abs(e.clientX - gsx) > 8 || Math.abs(e.clientY - gsy) > 8) gmoved = true;
+  }, true);
+  document.addEventListener("pointerup", function(e){
+    if(!gdown) return;
+    gdown = false;
+    if(!isBubble(e.target)) return;
+    if(window.__lhGuest && gmoved){ window.__lhBubbleDragged = true; }
+  }, true);
+})();
+
+// ====== Guest: mọi nút tính năng bấm -> đẩy qua login.html, trừ footer & Home ======
+document.addEventListener("click", function(e){
+  if(!window.__lhGuest) return;
+  var t = e.target;
+  if(!t || !t.closest) return;
+  // Cho phép kéo bong bóng Hubie (không phải click)
+  var bubble = t.closest("#accessibilityButton");
+  if(bubble){
+    if(window.__lhBubbleDragged){
+      window.__lhBubbleDragged = false;
+      return;
+    }
+    lockGuestClick(e);
+    return;
+  }
+  var el = t.closest('.nav-link, .feature-card, .avatar-box, .user-right, #notifBellWrap');
+  if(!el) return;
+  // Link Home giữ nguyên hoạt động
+  if(el.classList && el.classList.contains("nav-link") && el.getAttribute("href") === "/index.html") return;
+  lockGuestClick(e);
+}, true);
+
+function lockGuestClick(e){
+  e.preventDefault();
+  try { e.stopImmediatePropagation(); } catch(err){ try { e.stopPropagation(); } catch(err2){} }
+  window.location.href = "login.html";
+}
+
+// ====== Reset lại cờ guest khi đăng nhập (gọi ở onAuthChange user branch) ======
+function exitGuestMode(){
+  if(!window.__lhGuest) return;
+  window.__lhGuest = false;
+  if(guestHeaderTimer){ clearInterval(guestHeaderTimer); guestHeaderTimer = null; }
+  document.body.classList.remove("guest-mode");
+}
+window.exitGuestMode = exitGuestMode;
+
 let accessGuardInterval = null;
 let userGuardChannel = null;
 let broadcastGuardChannel = null;
@@ -802,7 +921,7 @@ function stopAccessGuards(){
   authGuardTriggered = false;
 }
 
-function forceLogoutWithCountdown(message, title, redirectMs = 5000, icon){
+function forceLogoutWithCountdown(message, title, redirectMs = 5000, icon, blockCode = "1"){
   if(authGuardTriggered) return;
   authGuardTriggered = true;
 
@@ -825,7 +944,7 @@ function forceLogoutWithCountdown(message, title, redirectMs = 5000, icon){
       const st = updateStatus(false);
       if(st && typeof st.catch === "function") st.catch(()=>{});
       supabase.auth.signOut().catch(()=>{}).finally(() => {
-        window.location.href = "login.html?loggedout=1";
+        window.location.href = "login.html?blocked=" + encodeURIComponent(String(blockCode || "1"));
       });
     } else if(toast){
       toast.update(`${message} Đang đăng xuất sau ${remaining}s...`);
@@ -833,8 +952,8 @@ function forceLogoutWithCountdown(message, title, redirectMs = 5000, icon){
   }, 1000);
 }
 
-async function forceLogoutNow(message, title = "Phiên đăng nhập đã hết hiệu lực", icon){
-  forceLogoutWithCountdown(message, title, 5000, icon);
+async function forceLogoutNow(message, title = "Phiên đăng nhập đã hết hiệu lực", icon, blockCode = "1"){
+  forceLogoutWithCountdown(message, title, 5000, icon, blockCode);
 }
 
 async function startAccessGuards(user){
@@ -854,7 +973,8 @@ async function startAccessGuards(user){
         forceLogoutNow(
           "Quyền truy cập của bạn vừa bị thu hồi. Vui lòng liên hệ admin nếu cần hỗ trợ.",
           "Đã bị gỡ whitelist",
-          "fa-user-xmark"
+          "fa-user-xmark",
+          "whitelist"
         );
       }
     }, 5000);
@@ -871,7 +991,8 @@ async function startAccessGuards(user){
           forceLogoutNow(
             "Tài khoản của bạn vừa bị vô hiệu hóa. Vui lòng liên hệ admin.",
             "Tài khoản bị khóa",
-            "fa-user-lock"
+            "fa-user-lock",
+            "disabled"
           );
         }
       })
@@ -880,7 +1001,8 @@ async function startAccessGuards(user){
         forceLogoutNow(
           "Hồ sơ người dùng của bạn vừa bị xóa khỏi hệ thống.",
           "Hồ sơ đã bị xóa",
-          "fa-user-xmark"
+          "fa-user-xmark",
+          "deleted"
         );
       })
       .subscribe();
@@ -952,6 +1074,14 @@ currentSupabaseUser = user ? { id: user.id, email: user.email } : null;
 if(isPasswordRecovery(event)) return;
 
 if(user){
+  exitGuestMode();
+  // Phục hồi iframe tab nếu trước đó trang đang ở guest mode (session hồi phục ngay trên trang)
+  if(!document.getElementById("flashHubFrame").getAttribute("src")){
+    document.getElementById("flashHubFrame").src = "flashcard/hub.html";
+    document.getElementById("forumFrame").src = "element/forum.html";
+    document.getElementById("taiLieuFrame").src = "element/hubfile.html";
+    document.getElementById("phongHocFrame").src = "element/phong-hoc.html";
+  }
   if (maintenanceState.initialized && maintenanceState.enabled) {
     applyMaintenanceUI();
     try { await finalizeOnlineSession(user.id); } catch (e) {}
@@ -965,7 +1095,8 @@ if(user){
       "Tài khoản này không nằm trong whitelist hiện tại.",
       "Không có quyền truy cập",
       5000,
-      "fa-user-xmark"
+      "fa-user-xmark",
+      "whitelist"
     );
     return;
   }
@@ -988,7 +1119,9 @@ if(user){
         forceLogoutWithCountdown(
           "Tài khoản của bạn đang bị vô hiệu hóa. Vui lòng liên hệ admin.",
           "Tài khoản bị khóa",
-          5000
+          5000,
+          "fa-user-lock",
+          "disabled"
         );
         return;
       }
@@ -1093,7 +1226,7 @@ if(user){
   if (maintenanceState.initialized && maintenanceState.enabled) {
     window.location.replace('maintenance.html');
   } else {
-    window.location.href = 'login.html';
+    enterGuestMode();
   }
 }
 });
@@ -1271,9 +1404,9 @@ if(refreshOnlineListTimer){
 }
 onlineUsersMap.clear();
 
-// logout
+// logout (tự nguyện) -> về trang chủ ở trạng thái khách
 supabase.auth.signOut().then(()=>{
-window.location.href = 'login.html?loggedout=1';
+window.location.href = 'index.html?loggedout=1';
 });
 }
 document.addEventListener("click", function(e){
@@ -1414,6 +1547,22 @@ window.addEventListener("message", async (event) => {
 
 </script>
 <div id="lh-footer-placeholder"></div>
+<script>
+// Hiện toast "Đăng xuất thành công" khi quay về trang chủ ở trạng thái khách
+(function(){
+  try {
+    var params = new URLSearchParams(window.location.search);
+    if(params.get("loggedout") === "1"){
+      window.history.replaceState(null, "", window.location.pathname);
+      setTimeout(function(){
+        if(window.lhToast){
+          window.lhToast("Bạn đã đăng xuất. Hẹn gặp lại!", { type: "success", title: "Thành công", icon: "fa-right-from-bracket", sound: "thongbao" });
+        }
+      }, 600);
+    }
+  } catch(e) {}
+})();
+</script>
 <script>
 fetch('footer.html').then(r => r.text()).then(html => {
   document.getElementById('lh-footer-placeholder').innerHTML = html;
