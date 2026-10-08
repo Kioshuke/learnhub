@@ -760,21 +760,25 @@ if (typeof window.supabaseClient !== 'undefined') {
   _bindEvt();
 }
 // ==================== SCROLL LOCK GIỮ VỊ TRÍ CUỘN ====================
-// body.no-scroll dùng position:fixed -> nếu không lưu vị trí trước khi khóa,
-// trang sẽ bị nhảy về đầu trang khi mở/đóng popup (bug bong bóng chat Hubie).
+// Khóa cuộn bằng overflow:hidden trên html/body (KHÔNG dời body bằng
+// position:fixed như trước). Cách này giữ nguyên vị trí cuộn khi mở popup
+// -> không làm ẩn giao diện chính và không mất nội dung phía dưới.
 function lhLockBodyScroll() {
+  if (document.documentElement.dataset.lhChatScrollLock === "1") return;
   const y = window.scrollY || document.documentElement.scrollTop || 0;
+  document.documentElement.dataset.lhChatScrollLock = "1";
   document.body.dataset.scrollLockY = String(y);
-  document.body.style.top = (-y) + "px";
-  document.body.classList.add("no-scroll");
+  document.documentElement.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
 }
 function lhUnlockBodyScroll() {
-  if (!document.body.classList.contains("no-scroll")) return;
-  const y = parseInt(document.body.dataset.scrollLockY || "0", 10);
-  document.body.classList.remove("no-scroll");
-  document.body.style.top = "";
+  if (document.documentElement.dataset.lhChatScrollLock !== "1") return;
+  delete document.documentElement.dataset.lhChatScrollLock;
+  document.documentElement.style.overflow = "";
+  document.body.style.overflow = "";
+  const y = parseInt(document.body.dataset.scrollLockY || "", 10);
   delete document.body.dataset.scrollLockY;
-  window.scrollTo(0, y);
+  if (Number.isFinite(y) && y > 0) window.scrollTo(0, y);
 }
 
 let chatBtn, frame, overlay;
