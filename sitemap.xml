@@ -31,6 +31,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://learnhubpf.pages.dev/element/blog.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://learnhubpf.pages.dev/element/lich-hoc.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

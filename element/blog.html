@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Blog LearnHub - Tổng hợp bài viết, hướng dẫn và chia sẻ kinh nghiệm hữu ích.">
+  <title>Blog - LearnHub</title>
+  <link rel="icon" href="../pictures/favicon.png" sizes="any">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="giaodien.css">
+  <style>
+    /* ====== Token riêng trang Blog: nền trong suốt, đổi màu theo sáng/tối ====== */
+    :root {
+      --blg-accent: #0284c7;
+      --blg-on-accent: #ffffff;
+      --blg-text: #0f172a;
+      --blg-muted: #475569;
+      --blg-border: rgba(15, 23, 42, 0.12);
+      --blg-soft: rgba(2, 132, 199, 0.10);
+      --blg-hover: rgba(15, 23, 42, 0.04);
+      --blg-hero-grad: linear-gradient(to right, #0284c7, #7c3aed);
+    }
+    body.dark-mode {
+      --blg-accent: #38bdf8;
+      --blg-on-accent: #0f172a;
+      --blg-text: #f1f5f9;
+      --blg-muted: #94a3b8;
+      --blg-border: rgba(148, 163, 184, 0.22);
+      --blg-soft: rgba(56, 189, 248, 0.12);
+      --blg-hover: rgba(148, 163, 184, 0.10);
+      --blg-hero-grad: linear-gradient(to right, #38bdf8, #818cf8);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      /* Xoá SẠCH nền (cả lưới chấm của giaodien.css) để chỉ thấy nền của web chính */
+      background: transparent !important;
+      background-image: none !important;
+      background-size: auto !important;
+      color: var(--blg-text);
+      line-height: 1.6;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    /* Padding đặt ở body (không đặt ở html) để đo chiều cao nội dung cho chuẩn */
+    body { padding: 1rem; }
+    /* Chỉ khi mở ĐỘC LẬP (không nhúng iframe) ở chế độ tối mới cần nền để đọc chữ;
+       còn trong iframe thì để trong suốt cho nền trang chính lộ ra. */
+    html.blg-standalone body.dark-mode { background: linear-gradient(180deg, #0b1220, #1a2332) !important; }
+
+    /* ===== Hero ===== */
+    .blg-hero { text-align: center; padding: 1.5rem 1rem; max-width: 1400px; margin: 0 auto; }
+    .blg-hero h1 {
+      font-size: 2.2rem; margin-bottom: 0.75rem;
+      background: var(--blg-hero-grad);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .blg-hero p { color: var(--blg-muted); font-size: 1rem; }
+
+    /* ===== Controls ===== */
+    .blg-controls {
+      max-width: 1400px; margin: 1.5rem auto; display: flex; flex-wrap: wrap;
+      gap: 1rem; justify-content: space-between; align-items: center;
+    }
+    .blg-search { flex: 1; min-width: 250px; position: relative; }
+    .blg-search i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--blg-muted); pointer-events: none; font-size: .9rem; }
+    .blg-search input {
+      width: 100%; padding: 0.75rem 1rem 0.75rem 2.4rem; border-radius: 10px;
+      border: 1px solid var(--blg-border); background-color: transparent;
+      color: var(--blg-text); outline: none; transition: border-color 0.25s, box-shadow .25s;
+      font-family: inherit;
+    }
+    .blg-search input::placeholder { color: var(--blg-muted); }
+    .blg-search input:focus { border-color: var(--blg-accent); box-shadow: 0 0 0 3px var(--blg-soft); }
+
+    .blg-cats { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .blg-cat {
+      padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--blg-border);
+      background-color: transparent; color: var(--blg-muted); cursor: pointer;
+      transition: all 0.25s; font-family: inherit; font-size: .9rem;
+    }
+    .blg-cat:hover { color: var(--blg-text); background-color: var(--blg-hover); }
+    .blg-cat.active {
+      background-color: var(--blg-accent); color: var(--blg-on-accent); border-color: var(--blg-accent); font-weight: 600;
+    }
+
+    /* ===== Grid ===== */
+    .blg-main { max-width: 1400px; margin: 0 auto 2rem; width: 100%; }
+    .blg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.5rem; }
+    .blg-status { grid-column: 1/-1; text-align: center; color: var(--blg-muted); padding: 2.5rem 1rem; }
+
+    /* ===== Card (là 1 link tới trang bài viết) — nền trong suốt ===== */
+    .blg-card {
+      background-color: transparent; border-radius: 14px;
+      border: 1px solid var(--blg-border); overflow: hidden; display: flex; flex-direction: column;
+      transition: transform 0.28s, border-color 0.28s, background-color .28s; cursor: pointer;
+      animation: blgIn .35s ease both; color: inherit; text-decoration: none;
+    }
+    @keyframes blgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .blg-card:hover {
+      transform: translateY(-4px); border-color: var(--blg-accent); background-color: var(--blg-hover);
+    }
+    .blg-card:focus-visible { outline: 2px solid var(--blg-accent); outline-offset: 3px; }
+    .blg-card-img { height: 170px; background-size: cover; background-position: center; }
+    .blg-card-content { padding: 1.25rem; display: flex; flex-direction: column; flex: 1; }
+    .blg-tag {
+      align-self: flex-start; font-size: 0.72rem; padding: 0.25rem 0.6rem; border-radius: 5px;
+      background-color: var(--blg-soft); color: var(--blg-accent);
+      text-transform: uppercase; font-weight: 700; letter-spacing: .03em; margin-bottom: 0.7rem;
+    }
+    .blg-title { font-size: 1.15rem; margin-bottom: 0.7rem; color: var(--blg-text); line-height: 1.4; }
+    .blg-excerpt { color: var(--blg-muted); font-size: 0.9rem; margin-bottom: 1.25rem; flex: 1; }
+    .blg-footer {
+      display: flex; justify-content: space-between; align-items: center; gap: .5rem;
+      font-size: 0.8rem; color: var(--blg-muted); border-top: 1px solid var(--blg-border); padding-top: 0.75rem;
+    }
+    .blg-author { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+    .blg-avatar {
+      width: 26px; height: 26px; border-radius: 50%; flex: none; position: relative; overflow: hidden;
+      display: grid; place-items: center; background: linear-gradient(135deg, #0284c7, #818cf8);
+      color: #fff; font-weight: 800; text-transform: uppercase; font-size: 11px;
+    }
+    .blg-av-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    /* Có ảnh tác giả -> nền TRẮNG (ảnh PNG trong suốt không còn lộ màu gradient phía sau). */
+    .blg-avatar:has(.blg-av-img) { background: #fff; }
+    .blg-avatar:has(.blg-av-img)::after {
+      content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+      box-shadow: inset 0 0 0 1px rgba(120, 120, 120, 0.35);
+    }
+    .blg-name { font-weight: 500; color: var(--blg-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .blg-read { color: var(--blg-accent); font-weight: 600; font-size: 0.85rem; flex: none; white-space: nowrap; }
+    .blg-card:hover .blg-read { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .blg-hero h1 { font-size: 1.6rem; }
+      .blg-controls { flex-direction: column; align-items: stretch; }
+    }
+    body.cc-reduced *, body.cc-reduced *::before, body.cc-reduced *::after { animation-duration: .01s !important; transition-duration: .08s !important; }
+  </style>
+  <script src="../version/version-check.js" defer></script>
+</head>
+<body>
+
+  <!-- Hero -->
+  <section class="blg-hero">
+    <h1>Khám Phá &amp; Học Hỏi</h1>
+    <p>Tổng hợp bài viết, hướng dẫn và chia sẻ kinh nghiệm hữu ích dành cho học sinh, sinh viên.</p>
+  </section>
+
+  <!-- Search & Categories -->
+  <div class="blg-controls">
+    <div class="blg-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="search" id="searchInput" placeholder="Tìm kiếm bài viết..." autocomplete="off" aria-label="Tìm kiếm bài viết">
+    </div>
+    <div class="blg-cats" id="categoryChips"></div>
+  </div>
+
+  <!-- Grid -->
+  <main class="blg-main">
+    <div class="blg-grid" id="blogGrid">
+      <p class="blg-status">Đang tải bài viết...</p>
+    </div>
+  </main>
+
+<script type="module">
+import { supabase, logAppError, escapeHtml, escapeUrl } from "../supabase-config.js";
+
+/* ====== Tiện ích ====== */
+function initials(name) { return (String(name || "L").trim()[0] || "L").toUpperCase(); }
+function dekOf(p, max) {
+  const raw = p.excerpt && String(p.excerpt).trim()
+    ? String(p.excerpt)
+    : String(p.content || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  return raw.length > max ? raw.slice(0, max).replace(/\s+\S*$/, "") + "…" : raw;
+}
+
+/* Nền gradient dự phòng khi bài viết không có ảnh bìa */
+const GRADS = [
+  "linear-gradient(135deg,#0284c7,#38bdf8)",
+  "linear-gradient(135deg,#4f46e5,#818cf8)",
+  "linear-gradient(135deg,#10b981,#34d399)",
+  "linear-gradient(135deg,#f59e0b,#fbbf24)",
+  "linear-gradient(135deg,#db2777,#f472b6)",
+  "linear-gradient(135deg,#7c3aed,#a78bfa)"
+];
+function gradFor(p) {
+  const s = String((p && (p.id || p.title)) || "");
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return GRADS[h % GRADS.length];
+}
+function avatarHtml(name, photo) {
+  const url = escapeUrl(photo);
+  const img = url
+    ? '<img class="blg-av-img" src="' + escapeHtml(url) + '" alt="" loading="lazy" onerror="this.remove()">'
+    : "";
+  return '<span class="blg-avatar" aria-hidden="true">' + escapeHtml(initials(name)) + img + '</span>';
+}
+function articleUrl(id) { return "bai-viet.html?id=" + encodeURIComponent(String(id)); }
+
+/* ====== State ====== */
+const state = { q: "", cat: "all", posts: [], photos: {} };
+
+const searchInput = document.getElementById("searchInput");
+const chipsEl = document.getElementById("categoryChips");
+const gridEl = document.getElementById("blogGrid");
+
+/* ====== Danh mục ====== */
+function categories() {
+  const out = [];
+  state.posts.forEach(p => { if (p.category && out.indexOf(p.category) === -1) out.push(p.category); });
+  return out;
+}
+function renderChips() {
+  const cats = categories();
+  let html = '<button type="button" class="blg-cat' + (state.cat === "all" ? " active" : "") + '" data-cat="all">Tất cả</button>';
+  html += cats.map(c => '<button type="button" class="blg-cat' + (state.cat === c ? " active" : "") + '" data-cat="' + escapeHtml(c) + '">' + escapeHtml(c) + '</button>').join("");
+  chipsEl.innerHTML = html;
+}
+
+chipsEl.addEventListener("click", (e) => {
+  const btn = e.target.closest(".blg-cat");
+  if (!btn) return;
+  state.cat = btn.getAttribute("data-cat") || "all";
+  chipsEl.querySelectorAll(".blg-cat").forEach(b => b.classList.toggle("active", b === btn));
+  renderGrid();
+  if (typeof window.scrollTo === "function") window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+/* ====== Lọc + render lưới ====== */
+function filtered() {
+  const q = state.q.trim().toLowerCase();
+  return state.posts.filter(p => {
+    if (state.cat !== "all" && p.category !== state.cat) return false;
+    if (!q) return true;
+    return String(p.title || "").toLowerCase().indexOf(q) !== -1 ||
+           String(p.excerpt || "").toLowerCase().indexOf(q) !== -1 ||
+           String(p.author || "").toLowerCase().indexOf(q) !== -1 ||
+           String(p.content || "").replace(/<[^>]*>/g, " ").toLowerCase().indexOf(q) !== -1;
+  });
+}
+
+function cardHtml(p, i) {
+  const cover = escapeUrl(p.cover_url);
+  const grad = gradFor(p);
+  const bg = cover
+    ? "background-image:url('" + escapeHtml(cover) + "')," + grad
+    : "background-image:" + grad;
+  const name = p.author || "Ban Quản Trị LearnHub";
+  const photo = (p.author_id && state.photos[String(p.author_id)]) || "";
+  const delay = document.body.classList.contains("cc-reduced") ? "" : "animation-delay:" + (i * 40) + "ms;";
+  return '<a class="blg-card" href="' + escapeHtml(articleUrl(p.id)) + '" style="' + delay + '">' +
+      '<div class="blg-card-img" style="' + bg + '"></div>' +
+      '<div class="blg-card-content">' +
+        '<span class="blg-tag">' + escapeHtml(p.category || "Tin tức") + '</span>' +
+        '<h3 class="blg-title">' + escapeHtml(p.title || "(không tiêu đề)") + '</h3>' +
+        '<p class="blg-excerpt">' + escapeHtml(dekOf(p, 150)) + '</p>' +
+        '<div class="blg-footer">' +
+          '<div class="blg-author">' + avatarHtml(name, photo) + '<span class="blg-name">' + escapeHtml(name) + '</span></div>' +
+          '<span class="blg-read">Đọc tiếp →</span>' +
+        '</div>' +
+      '</div>' +
+    '</a>';
+}
+
+function renderGrid() {
+  const list = filtered();
+  if (!list.length) {
+    gridEl.innerHTML = '<p class="blg-status">' +
+      (state.q.trim() || state.cat !== "all" ? "Không tìm thấy bài viết nào phù hợp." : "Chưa có bài viết nào. Blog đang được cập nhật.") +
+      '</p>';
+    return;
+  }
+  gridEl.innerHTML = list.map(cardHtml).join("");
+}
+
+/* ====== Tìm kiếm ====== */
+let searchTimer = null;
+searchInput.addEventListener("input", () => {
+  state.q = searchInput.value;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { renderGrid(); if (typeof window.scrollTo === "function") window.scrollTo({ top: 0, behavior: "smooth" }); }, 200);
+});
+
+/* Ảnh đại diện tác giả: lấy "sống" từ public.users qua RPC (đồng bộ avatar user trong DB).
+   - RPC blog_authors(): dùng được cho cả khách (anon) — cần chạy supabase/blog.sql.
+   - Nếu RPC chưa có: dự phòng đọc trực tiếp public.users (chỉ khi đang đăng nhập). */
+async function loadAuthorPhotos(ids) {
+  const map = {};
+  try {
+    const { data, error } = await supabase.rpc("blog_authors");
+    if (error) throw error;
+    (data || []).forEach(a => { if (a && a.id) map[String(a.id)] = a.photo || ""; });
+    return map;
+  } catch (e) {
+    console.warn("[blog] RPC blog_authors lỗi, thử đọc trực tiếp public.users:", (e && e.message) || e);
+  }
+  try {
+    const list = (ids || []).filter(Boolean);
+    if (!list.length) return map;
+    const { data } = await supabase.from("users").select("id,photo").in("id", list);
+    (data || []).forEach(u => { if (u && u.id) map[String(u.id)] = u.photo || ""; });
+  } catch (e2) {}
+  return map;
+}
+
+/* ====== Tải dữ liệu ====== */
+async function loadPosts() {
+  try {
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("id,title,excerpt,content,cover_url,category,tags,author,author_id,views,pinned,created_at,updated_at,published")
+      .eq("published", true)
+      .order("pinned", { ascending: false })
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    state.posts = data || [];
+    state.photos = await loadAuthorPhotos(state.posts.map(p => p.author_id));
+    renderChips();
+    renderGrid();
+  } catch (err) {
+    gridEl.innerHTML = '<p class="blg-status">Không tải được bài viết. Vui lòng thử lại sau ít phút.</p>';
+    console.error("[blog] tải bài viết lỗi:", err);
+    logAppError({ source: "blog", category: "feature", level: "error", code: "BLOG_LOAD_FAIL", message: String((err && err.message) || err) });
+  }
+}
+
+/* ====== Đồng bộ sáng/tối + giảm chuyển động từ trang cha (iframe) ====== */
+function applyDark(on) { document.body.classList.toggle("dark-mode", !!on); }
+try { if (window.self === window.top) document.documentElement.classList.add("blg-standalone"); } catch (e) {}
+applyDark(localStorage.getItem("darkMode") === "on");
+window.addEventListener("message", function (event) {
+  if (!event.data) return;
+  if (event.data.type === "DARK_MODE") applyDark(event.data.value);
+  if (event.data.type === "REDUCED_MOTION") document.body.classList.toggle("cc-reduced", !!event.data.value);
+  if (event.data.type === "LEARNHUB_USER") window.learnHubUser = event.data.user;
+});
+window.addEventListener("storage", function (e) { if (e.key === "darkMode") applyDark(e.newValue === "on"); });
+if (localStorage.getItem("cc_reduce") === "on") document.body.classList.add("cc-reduced");
+
+/* ====== Báo chiều cao nội dung cho trang chính (iframe tự giãn, cuộn bằng trang chính) ====== */
+let __frameHeightTimer = null;
+let __lastFrameHeight = -1;
+
+function measureContentHeight() {
+  const b = document.body;
+  if (!b) return 0;
+  const rect = b.getBoundingClientRect();
+  const cs = getComputedStyle(b);
+  const extra = (parseFloat(cs.marginTop) || 0) + (parseFloat(cs.marginBottom) || 0);
+  return Math.ceil(rect.height + extra);
+}
+
+function reportFrameHeight() {
+  const px = measureContentHeight();
+  if (px < 1 || Math.abs(px - __lastFrameHeight) < 2) return;
+  __lastFrameHeight = px;
+  try { parent.postMessage({ type: "IFRAME_HEIGHT", height: px }, "*"); } catch (e) {}
+}
+
+function queueFrameHeight() {
+  if (__frameHeightTimer) return;
+  __frameHeightTimer = setTimeout(function () { __frameHeightTimer = null; reportFrameHeight(); }, 120);
+}
+
+let __inIframe = false;
+try { __inIframe = window.self !== window.top; } catch (e) { __inIframe = true; }
+
+if (__inIframe) {
+  window.addEventListener("load", function () {
+    reportFrameHeight();
+    try { parent.postMessage({ type: "IFRAME_SCROLL_TOP" }, "*"); } catch (e) {}
+  });
+  window.addEventListener("resize", queueFrameHeight);
+  window.addEventListener("message", function (ev) {
+    if (ev.data && ev.data.type === "REQUEST_HEIGHT") reportFrameHeight();
+  });
+  if ("ResizeObserver" in window && document.body) {
+    const ro = new ResizeObserver(queueFrameHeight);
+    ro.observe(document.body);
+  }
+  document.addEventListener("load", function (e) {
+    if (e.target && e.target.tagName === "IMG") queueFrameHeight();
+  }, true);
+  reportFrameHeight();
+  setTimeout(reportFrameHeight, 80);
+  setTimeout(reportFrameHeight, 400);
+  setTimeout(reportFrameHeight, 1200);
+}
+
+/* Nếu ai đó mở blog.html?id=... thì chuyển sang đúng trang bài viết */
+const deepId = new URLSearchParams(location.search).get("id");
+if (deepId) location.replace(articleUrl(deepId));
+else loadPosts();
+</script>
+</body>
+</html>

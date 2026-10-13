@@ -6077,3 +6077,38 @@ body.dark-mode {
   --tint-amber: rgba(251, 191, 36, 0.14);
 }
 
+/* ===== Ghim header khi cuộn (chỉ tab: home, forum, blog, tài liệu) =====
+   #lh-header-placeholder là div bọc header (nạp từ header.html). Đặt display:contents
+   để .menu lấy <body> làm containing block -> position:sticky dính suốt trang.
+   <body> chỉ có overflow-x:clip (không tạo scroll container) nên sticky vẫn chạy. */
+#lh-header-placeholder{ display: contents; }
+
+body.sticky-header .menu{
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Chừa đúng chiều cao header khi cuộn tới đầu tab (tránh header ghim che mất nội dung).
+   --lh-menu-h được JS đo và gán; mặc định 80px nếu chưa đo được. */
+body.sticky-header #forum,
+body.sticky-header #blog,
+body.sticky-header #tai-lieu{
+  scroll-margin-top: var(--lh-menu-h, 80px);
+}
+
+/* Dòng chữ chạy: thu gọn khi đã cuộn, hiện lại khi về đầu trang (chỉ tab ghim header).
+   Header là nền mờ (rgba .7 + backdrop-filter) nên phải ẩn hẳn ticker, không để lộ mờ. */
+body.sticky-header .ticker-container{
+  transition: max-height .22s ease, opacity .18s ease, padding .22s ease;
+  max-height: 120px;
+}
+body.sticky-header.header-scrolled .ticker-container{
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+

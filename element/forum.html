@@ -31,6 +31,7 @@
 * { box-sizing: border-box; }
 
 html { background: var(--bg); overflow-x: hidden; }
+html.lh-in-iframe body { min-height: 0; }
 
 body {
   min-height: 100vh;
@@ -621,7 +622,10 @@ button:active { transform: translateY(0); }
 
 .modal-overlay {
   position: fixed;
-  inset: 0;
+  top: calc(-1 * var(--lh-frame-top, 0px));
+  left: 0;
+  right: 0;
+  height: var(--lh-view-h, 100vh);
   z-index: 1000;
   display: none;
   align-items: center;
@@ -633,6 +637,8 @@ button:active { transform: translateY(0); }
 
 .modal-content {
   width: min(94vw, 640px);
+  max-height: calc(var(--lh-view-h, 100vh) - 36px);
+  overflow-y: auto;
   padding: 16px;
   background: #fff;
   border: 1px solid rgba(255,255,255,0.70);
@@ -2067,6 +2073,72 @@ function applyHeaderUser(user) {
   if (window.learnHubUser && window.learnHubUser.uid && typeof window.__forumSetupOnline === 'function') window.__forumSetupOnline(user);
 }
 window.__forumApplyHeaderUser = applyHeaderUser;
+</script>
+<script>
+/* ====== Auto-size khi nằm trong iframe: báo chiều cao + giữ modal khớp vùng nhìn thấy ======
+   Trang chính (index.html) set lại height cho iframe theo chiều cao nội dung -> cuộn bằng
+   trang chính. Vì iframe cao bằng cả nội dung nên 100vh/position:fixed bên trong bị "cao theo
+   cả trang"; trang chính gửi {type:"FRAME_VIEW", top, vh} để đặt modal (.modal-overlay /
+   .detail-view) đúng vùng đang nhìn thấy. Khi KHÔNG nằm trong iframe thì mọi thứ giữ nguyên. */
+(function () {
+  var inIframe = false;
+  try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
+  if (!inIframe) return;
+
+  var root = document.documentElement;
+  root.classList.add("lh-in-iframe");
+
+  var timer = null, lastH = -1, lastVh = -1, lastTop = null;
+
+  function measure() {
+    var b = document.body;
+    if (!b) return 0;
+    var r = b.getBoundingClientRect();
+    var cs = getComputedStyle(b);
+    var extra = (parseFloat(cs.marginTop) || 0) + (parseFloat(cs.marginBottom) || 0);
+    return Math.ceil(r.height + extra);
+  }
+  function reportHeight() {
+    var px = measure();
+    if (px < 1 || Math.abs(px - lastH) < 2) return;
+    lastH = px;
+    try { parent.postMessage({ type: "IFRAME_HEIGHT", height: px }, "*"); } catch (e) {}
+  }
+  function queueHeight() {
+    if (timer) return;
+    timer = setTimeout(function () { timer = null; reportHeight(); }, 120);
+  }
+  function requestView() {
+    try { parent.postMessage({ type: "REQUEST_FRAME_VIEW" }, "*"); } catch (e) {}
+  }
+
+  window.addEventListener("message", function (ev) {
+    var d = ev.data;
+    if (!d || !d.type) return;
+    if (d.type === "REQUEST_HEIGHT") { reportHeight(); }
+    else if (d.type === "FRAME_VIEW") {
+      var vh = Number(d.vh) || 0;
+      var top = Number(d.top) || 0;
+      if (vh > 0 && vh !== lastVh) { lastVh = vh; root.style.setProperty("--lh-view-h", vh + "px"); }
+      if (top !== lastTop) { lastTop = top; root.style.setProperty("--lh-frame-top", top + "px"); }
+    }
+  });
+
+  window.addEventListener("resize", queueHeight);
+  if ("ResizeObserver" in window && document.body) {
+    new ResizeObserver(queueHeight).observe(document.body);
+  }
+  document.addEventListener("load", function (e) {
+    if (e.target && e.target.tagName === "IMG") queueHeight();
+  }, true);
+
+  requestView();
+  reportHeight();
+  window.addEventListener("load", function () { reportHeight(); requestView(); });
+  setTimeout(reportHeight, 80);
+  setTimeout(reportHeight, 400);
+  setTimeout(reportHeight, 1200);
+})();
 </script>
 </body>
 </html>

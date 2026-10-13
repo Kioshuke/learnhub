@@ -106,10 +106,253 @@ function closeQuiz(){
     });
   }, 100); // delay nhẹ cho mượt
 }
-const allTabs = ["home", "flash", "forum", "tai-lieu", "phong-hoc"];
-const iframeTabIds = {"flash":"flashHubFrame","forum":"forumFrame","tai-lieu":"taiLieuFrame","phong-hoc":"phongHocFrame"};
-const navMap = {'home':'/index.html','flash':'flashcard/hub.html','forum':'element/forum.html','tai-lieu':'element/hubfile.html','phong-hoc':'element/phong-hoc.html'};
-const reverseNavMap = {'/index.html':'home','flashcard/hub.html':'flash','element/forum.html':'forum','element/hubfile.html':'tai-lieu','element/phong-hoc.html':'phong-hoc'};
+const allTabs = ["home", "flash", "forum", "blog", "tai-lieu", "phong-hoc"];
+const iframeTabIds = {"flash":"flashHubFrame","forum":"forumFrame","blog":"blogFrame","tai-lieu":"taiLieuFrame","phong-hoc":"phongHocFrame"};
+const navMap = {'home':'/index.html','flash':'flashcard/hub.html','forum':'element/forum.html','blog':'element/blog.html','tai-lieu':'element/hubfile.html','phong-hoc':'element/phong-hoc.html'};
+const reverseNavMap = {'/index.html':'home','flashcard/hub.html':'flash','element/forum.html':'forum','element/blog.html':'blog','element/hubfile.html':'tai-lieu','element/phong-hoc.html':'phong-hoc'};
+
+/* ==== Iframe tự giãn theo chiều cao nội dung (Blog, Forum, Tài liệu) ====
+   Các trang con (element/blog.html, bai-viet.html, forum.html, hubfile.html) đo chiều cao
+   nội dung rồi gửi {type:"IFRAME_HEIGHT", height}. Trang chính set lại height cho iframe để
+   thanh cuộn nằm ở TRANG CHÍNH thay vì cuộn lồng bên trong iframe.
+   Vì iframe cao bằng cả nội dung nên 100vh/position:fixed bên trong bị "cao theo cả trang";
+   trang chính gửi {type:"FRAME_VIEW", top, vh} để phía con đặt modal đúng vùng đang nhìn thấy. */
+const autoHeightFrameIds = ["blogFrame", "forumFrame", "taiLieuFrame"];
+
+function findFrameBySource(src){
+  const ids = Object.values(iframeTabIds).concat(["chatbotFrame", "quizFrame"]);
+  for(let i = 0; i < ids.length; i++){
+    const f = document.getElementById(ids[i]);
+    if(f && f.contentWindow === src) return f;
+  }
+  return null;
+}
+
+function requestFrameHeight(frameId){
+  const f = document.getElementById(frameId);
+  if(!f || !f.contentWindow) return;
+  try { f.contentWindow.postMessage({ type:"REQUEST_HEIGHT" }, "*"); } catch(e){}
+}
+window.requestFrameHeight = requestFrameHeight;
+
+function syncAutoHeightOnShow(frameId){
+  requestFrameHeight(frameId);
+  setTimeout(function(){ requestFrameHeight(frameId); }, 150);
+  setTimeout(function(){ requestFrameHeight(frameId); }, 520);
+}
+
+/* Gửi cho iframe biết nó đang nằm ở đâu / vùng nhìn thấy của trang chính cao bao nhiêu,
+   để phía con đặt modal (position:fixed) đúng chỗ khi iframe bị kéo cao bằng cả nội dung. */
+function sendFrameView(frame){
+  if(!frame || !frame.contentWindow) return;
+  const r = frame.getBoundingClientRect();
+  try {
+    frame.contentWindow.postMessage({
+      type: "FRAME_VIEW",
+      top: Math.round(r.top),
+      vh: window.innerHeight
+    }, "*");
+  } catch(e){}
+}
+
+let __frameViewRaf = null;
+function broadcastFrameView(){
+  if(__frameViewRaf) return;
+  __frameViewRaf = requestAnimationFrame(function(){
+    __frameViewRaf = null;
+    autoHeightFrameIds.forEach(function(id){
+      const f = document.getElementById(id);
+      if(f && f.offsetParent !== null) sendFrameView(f); // chỉ iframe đang hiển thị
+    });
+  });
+}
+window.broadcastFrameView = broadcastFrameView;
+
+// Giữ iframe tối thiểu 1 màn hình khi cửa sổ đổi kích thước.
+function reapplyFrameHeightMin(){
+  autoHeightFrameIds.forEach(function(id){
+    const f = document.getElementById(id);
+    if(!f || f.offsetParent === null) return;
+    const ch = parseFloat(f.dataset.contentH);
+    if(!Number.isFinite(ch)) return;
+    f.style.height = Math.max(ch, window.innerHeight) + "px";
+  });
+}
+
+window.addEventListener("scroll", broadcastFrameView, { passive:true });
+window.addEventListener("resize", function(){ reapplyFrameHeightMin(); broadcastFrameView(); }, { passive:true });
+
+/* ==== Lượt xem blog: gom lại rồi gửi KÈM nhịp heartbeat "online" ====
+   - Iframe blog gửi {type:"BLOG_VIEW", id} khi có người mở một bài viết.
+   - Đang đăng nhập: hàng đợi được gửi CHUNG với heartbeat (users_heartbeat_views)
+     nên KHÔNG tốn thêm request nào.
+   - Khách (không có heartbeat) hoặc heartbeat tạm dừng: watchdog tự gửi gộp sau 7s.
+   - Rời trang: gửi nốt bằng fetch keepalive để không mất lượt xem. */
+let __pendingBlogViews = [];
+let __viewWatchdog = null;
+
+function armViewWatchdog(){
+  if(__viewWatchdog) return;
+  __viewWatchdog = setTimeout(function(){
+    __viewWatchdog = null;
+    flushPendingBlogViews();
+  }, 7000);
+}
+
+function clearViewWatchdog(){
+  if(__viewWatchdog){ clearTimeout(__viewWatchdog); __viewWatchdog = null; }
+}
+
+function queueBlogView(id){
+  if(!id) return;
+  if(__pendingBlogViews.length >= 200) __pendingBlogViews.shift(); // chặn phình vô hạn
+  __pendingBlogViews.push(id);
+  armViewWatchdog();
+}
+
+// Trang chính (index.html) lấy hàng đợi để gửi kèm heartbeat.
+window.takePendingBlogViews = function(){
+  clearViewWatchdog();
+  const ids = __pendingBlogViews;
+  __pendingBlogViews = [];
+  return ids;
+};
+
+// Trả lại lượt xem khi gửi kèm thất bại -> watchdog gửi riêng ở nhịp sau.
+window.pushPendingBlogViews = function(ids){
+  if(!ids || !ids.length) return;
+  __pendingBlogViews = ids.concat(__pendingBlogViews);
+  armViewWatchdog();
+};
+
+async function flushPendingBlogViews(){
+  clearViewWatchdog();
+  const ids = window.takePendingBlogViews();
+  if(!ids.length) return;
+  if(!window.supabaseClient){ window.pushPendingBlogViews(ids); return; }
+  try {
+    const { error } = await window.supabaseClient.rpc("blog_increment_views_many", { p_ids: ids });
+    if(error) throw error;
+  } catch(e){
+    // Chưa có RPC gộp -> quay lại gọi từng bài (luôn hoạt động).
+    ids.forEach(function(id){
+      try { window.supabaseClient.rpc("blog_increment_views", { p_id: id }).then(function(){}, function(){}); } catch(_e){}
+    });
+  }
+}
+window.flushPendingBlogViews = flushPendingBlogViews;
+
+window.addEventListener("pagehide", function(){
+  const ids = __pendingBlogViews;
+  if(!ids || !ids.length) return;
+  __pendingBlogViews = [];
+  clearViewWatchdog();
+  try {
+    const c = window.supabaseClient;
+    const url = c && c.supabaseUrl;
+    const key = c && c.supabaseKey;
+    if(!url || !key) return;
+    fetch(url + "/rest/v1/rpc/blog_increment_views_many", {
+      method: "POST",
+      keepalive: true,
+      headers: { "apikey": key, "Authorization": "Bearer " + key, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_ids: ids })
+    }).catch(function(){});
+  } catch(e){}
+});
+
+window.addEventListener("message", function(ev){
+  const d = ev.data;
+  if(!d || !d.type) return;
+
+  // Iframe blog: có người vừa mở một bài viết -> gom lượt xem lại.
+  if(d.type === "BLOG_VIEW"){
+    const bf = findFrameBySource(ev.source);
+    if(bf && bf.id === "blogFrame") queueBlogView(d.id);
+    return;
+  }
+
+  // Phía con xin thông tin vùng nhìn thấy (khi mở modal).
+  if(d.type === "REQUEST_FRAME_VIEW"){
+    const reqFrame = findFrameBySource(ev.source);
+    if(reqFrame) sendFrameView(reqFrame);
+    return;
+  }
+
+  if(d.type !== "IFRAME_HEIGHT" && d.type !== "IFRAME_SCROLL_TOP") return;
+  const frame = findFrameBySource(ev.source);
+  if(!frame || autoHeightFrameIds.indexOf(frame.id) === -1) return;
+  if(frame.offsetParent === null) return; // tab đang ẩn -> số đo không đáng tin, bỏ qua
+
+  if(d.type === "IFRAME_SCROLL_TOP"){
+    const wrap = frame.parentElement || frame;
+    try { wrap.scrollIntoView({ behavior:"auto", block:"start" }); } catch(e){}
+    return;
+  }
+
+  const h = Math.ceil(Number(d.height));
+  if(!Number.isFinite(h) || h < 80) return;
+  frame.dataset.contentH = String(h);
+  // Ít nhất bằng 1 màn hình -> modal (position:fixed) bên trong luôn đủ chỗ hiển thị.
+  const target = Math.max(h, window.innerHeight);
+  const cur = parseInt(frame.style.height, 10);
+  if(Number.isFinite(cur) && Math.abs(cur - target) < 2) return;
+  frame.style.height = target + "px";
+});
+
+autoHeightFrameIds.forEach(function(id){
+  const f = document.getElementById(id);
+  if(!f) return;
+  f.addEventListener("load", function(){
+    setTimeout(function(){ requestFrameHeight(id); }, 120);
+    setTimeout(function(){ requestFrameHeight(id); }, 600);
+  });
+});
+
+/* ==== Ghim (sticky) header cho các tab: home, forum, blog, tài liệu ====
+   CSS dùng body.sticky-header để ghim .menu và body.header-scrolled để thu gọn
+   dòng chữ chạy (ticker) khi đã cuộn. Các tab khác giữ nguyên như cũ. */
+const stickyHeaderTabs = ["home", "forum", "blog", "tai-lieu"];
+let __stickyOn = null;
+let __stickyScrolled = null;
+let __menuHeight = 0;
+
+function measureMenuHeight(){
+  const menu = document.getElementById("lhMenu");
+  if(!menu) return;
+  const h = menu.offsetHeight;
+  if(h && h !== __menuHeight){
+    __menuHeight = h;
+    document.documentElement.style.setProperty("--lh-menu-h", h + "px");
+  }
+}
+
+function applyStickyHeader(){
+  const on = stickyHeaderTabs.indexOf(currentTab) !== -1;
+  if(on !== __stickyOn){
+    __stickyOn = on;
+    document.body.classList.toggle("sticky-header", on);
+    if(on) measureMenuHeight();
+  }
+  const scrolled = on && window.scrollY > 4;
+  if(scrolled !== __stickyScrolled){
+    __stickyScrolled = scrolled;
+    document.body.classList.toggle("header-scrolled", scrolled);
+  }
+}
+window.applyStickyHeader = applyStickyHeader;
+
+window.addEventListener("scroll", applyStickyHeader, { passive:true });
+window.addEventListener("resize", function(){ if(__stickyOn) measureMenuHeight(); }, { passive:true });
+
+// Header được nhúng bất đồng bộ (fetch header.html) -> đo lại chiều cao khi .menu xuất hiện.
+(function watchMenuHeight(){
+  const ph = document.getElementById("lh-header-placeholder");
+  if(!ph || typeof MutationObserver === "undefined") return;
+  const mo = new MutationObserver(function(){ measureMenuHeight(); });
+  mo.observe(ph, { childList:true, subtree:true });
+  if(document.getElementById("lhMenu")) measureMenuHeight();
+})();
 
 function sendUserToFrame(frame){
   if(!frame || !frame.contentWindow) return;
@@ -122,6 +365,7 @@ function sendUserToFrame(frame){
 
 function show(id){
 currentTab = id;
+applyStickyHeader();
 
 const quizEl = document.getElementById("quiz");
 if(quizEl) quizEl.innerHTML = "";
@@ -138,19 +382,31 @@ allTabs.forEach(t => {
     if(iframeTabIds[t]){
       const frame = document.getElementById(iframeTabIds[t]);
       if(frame) sendUserToFrame(frame);
+      if(autoHeightFrameIds.indexOf(iframeTabIds[t]) !== -1){
+        syncAutoHeightOnShow(iframeTabIds[t]);
+        setTimeout(broadcastFrameView, 60);
+        setTimeout(broadcastFrameView, 400);
+      }
     }
   } else {
     el.style.display = "none";
   }
 });
 
-if(id !== "home"){
+if(id === "home"){
+  window.scrollTo({ top:0, behavior:"smooth" });
+} else if(stickyHeaderTabs.indexOf(id) !== -1 && iframeTabIds[id]){
+  // Tab ghim header có iframe (forum/blog/tài liệu): KHÔNG tự cuộn trang, chỉ focus vào iframe.
+  setTimeout(function(){
+    const frame = document.getElementById(iframeTabIds[id]);
+    if(!frame) return;
+    try { frame.focus({ preventScroll: true }); } catch(e){ try { frame.focus(); } catch(_e){} }
+  }, 50);
+} else {
   setTimeout(function(){
     var el = document.getElementById(id);
     if(el) el.scrollIntoView({ behavior:"smooth", block:"start" });
   }, 50);
-} else {
-  window.scrollTo({ top:0, behavior:"smooth" });
 }
 
 updateTabScrollTopBtn();
@@ -197,20 +453,20 @@ document.addEventListener('DOMContentLoaded', function(){
     var params = new URLSearchParams(window.location.search);
     var open = params.get("open");
     if(!open) return;
-    var validTabs = ["phong-hoc", "flash", "forum", "tai-lieu", "leaderboard"];
+    var validTabs = ["phong-hoc", "flash", "forum", "blog", "tai-lieu", "leaderboard"];
     if(validTabs.indexOf(open) === -1) return;
     var openQuizDe = params.get("de");
     history.replaceState(null, "", window.location.pathname);
     var tries = 0;
     var iv = setInterval(function(){
       tries++;
-      // Khách chưa đăng nhập: không vào tab tính năng, đẩy qua login
-      if(window.__lhGuest){
+      // Khách chưa đăng nhập: không vào tab tính năng, đẩy qua login (Blog cho đọc tự do)
+      if(window.__lhGuest && open !== "blog"){
         clearInterval(iv);
         window.location.href = "login.html";
         return;
       }
-      if(!window.currentLearnHubUser && tries < 32) return;
+      if(!window.__lhGuest && !window.currentLearnHubUser && tries < 32) return;
       clearInterval(iv);
       // Hiện màn che ngay khi user đã đăng nhập (trước khi chuyển tab phòng học) để chặn bấm lung tung
       if(open === "phong-hoc" && openQuizDe){
@@ -289,7 +545,7 @@ function updateTabScrollTopBtn(){
   const btn = document.getElementById("tabScrollTopBtn");
   if(!btn) return;
   const isHome = currentTab === "home";
-  if(!isHome && currentTab !== "flash" && currentTab !== "forum" && currentTab !== "tai-lieu"){
+  if(!isHome && currentTab !== "flash" && currentTab !== "forum" && currentTab !== "blog" && currentTab !== "tai-lieu"){
     btn.style.display = "none";
     return;
   }
@@ -351,6 +607,7 @@ function bindFrameScrollWatcher(frameId){
 
 bindFrameScrollWatcher("flashHubFrame");
 bindFrameScrollWatcher("forumFrame");
+bindFrameScrollWatcher("blogFrame");
 bindFrameScrollWatcher("taiLieuFrame");
 bindFrameScrollWatcher("phongHocFrame");
 
@@ -405,6 +662,7 @@ function attachFrameWheelHandoff(frameId){
 
 attachFrameWheelHandoff("forumFrame");
 attachFrameWheelHandoff("flashHubFrame");
+attachFrameWheelHandoff("blogFrame");
 attachFrameWheelHandoff("taiLieuFrame");
 attachFrameWheelHandoff("phongHocFrame");
 
@@ -630,6 +888,7 @@ const toggle = document.getElementById("darkModeToggle");
 const darkModeFrames = [
     document.getElementById("forumFrame"),
     document.getElementById("flashHubFrame"),
+    document.getElementById("blogFrame"),
     document.getElementById("taiLieuFrame"),
     document.getElementById("phongHocFrame"),
     document.getElementById("chatbotFrame")
@@ -647,6 +906,7 @@ function sendDarkModeToIframe(isDark) {
 // Đồng bộ trạng thái "giảm chuyển động" sang iframe
 const reducedMotionFrames = [
     document.getElementById("forumFrame"),
+    document.getElementById("blogFrame"),
     document.getElementById("taiLieuFrame"),
     document.getElementById("chatbotFrame")
 ].filter(Boolean);
@@ -2080,4 +2340,5 @@ if (chatBtnEl) {
   waitForUser();
   applyPillColor("home");
   placePill();
+  applyStickyHeader();
 })();

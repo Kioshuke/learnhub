@@ -68,6 +68,7 @@ const pageSubtitle = document.getElementById("pageSubtitle");
 const scheduleTabPanel = document.getElementById("scheduleTabPanel");
 const scheduleEventsList = document.getElementById("scheduleEventsList");
 const docsTabPanel = document.getElementById("docsTabPanel");
+const blogTabPanel = document.getElementById("blogTabPanel");
 const scheduleMeta = document.getElementById("scheduleMeta");
 let scheduleEvents = [];
 let scheduleWeekStart = getMonday(new Date());
@@ -97,6 +98,7 @@ const pageTitles = {
   weeklyReset: ["BXH & Reset tuần", "Bảng xếp hạng học viên và reset điểm theo tuần."],
   schedule: ["Lịch học & thi", "Chỉnh lịch học và lịch thi hiển thị trên trang Phòng Học."],
   docs: ["Quản lý Tài liệu", "Thêm, sửa, xóa tài liệu cho Thư viện."],
+  blog: ["Quản lý Blog", "Soạn và đăng bài viết cho trang Blog."],
   errorLogs: ["Lỗi hệ thống", "Xem lỗi từ user và tính năng, đánh dấu đã fix hoặc xóa."]
 };
 
@@ -113,6 +115,7 @@ function switchAdminTab(tab) {
   weeklyResetTabPanel.classList.toggle("hidden", tab !== "weeklyReset");
   scheduleTabPanel.classList.toggle("hidden", tab !== "schedule");
   docsTabPanel.classList.toggle("hidden", tab !== "docs");
+  blogTabPanel.classList.toggle("hidden", tab !== "blog");
   errorLogsTabPanel.classList.toggle("hidden", tab !== "errorLogs");
   const t = pageTitles[tab] || ["", ""];
   pageTitle.textContent = t[0];
@@ -126,6 +129,7 @@ function switchAdminTab(tab) {
   if (tab === "weeklyReset") loadWeeklyResetForm();
   if (tab === "schedule") loadScheduleForm();
   if (tab === "docs") loadDocsManage();
+  if (tab === "blog") loadBlogManage();
   if (tab === "errorLogs") loadErrorLogs();
   // close mobile sidebar
   document.querySelector('.sidebar').classList.remove('open');
@@ -146,6 +150,21 @@ async function loadDocsManage() {
     if (window.logAppError) window.logAppError({ source: "admin", category: "feature", level: "error", code: "TLMANAGE_LOAD_FAIL", message: "Không tải được module quản lý tài liệu: " + String((e && e.message) || e) });
   }
 }
+let blogManageLoaded = false;
+async function loadBlogManage() {
+  const root = document.getElementById("blogManageRoot");
+  if (!root || blogManageLoaded) return;
+  blogManageLoaded = true;
+  try {
+    const mod = await import("./element/blog-manage.js?v=3");
+    mod.mountBlogManage(root, { supabase, escapeHtml, logAppError });
+  } catch (e) {
+    console.error("[admin] tải module quản lý blog lỗi:", e);
+    root.innerHTML = '<div class="panel-desc">Không tải được module quản lý blog. Xem log bên dưới.</div>';
+    if (window.logAppError) window.logAppError({ source: "admin", category: "feature", level: "error", code: "BLGMANAGE_LOAD_FAIL", message: "Không tải được module quản lý blog: " + String((e && e.message) || e) });
+  }
+}
+
 window.switchAdminTab = switchAdminTab;
 
 adminTabButtons.forEach(b => b.addEventListener("click", () => switchAdminTab(b.dataset.adminTab)));

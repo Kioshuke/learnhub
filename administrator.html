@@ -530,6 +530,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         Quản lý Tài liệu
       </button>
+      <button class="sidebar-link" data-admin-tab="blog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6z"/></svg>
+        Quản lý Blog
+      </button>
       <div class="sidebar-label">Cài đặt</div>
       <button class="sidebar-link" data-admin-tab="welcomePopup">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
@@ -875,6 +879,17 @@
         </div>
       </div>
       <div id="docsManageRoot"></div>
+    </section>
+
+    <!-- QUẢN LÝ BLOG -->
+    <section class="panel tab-panel hidden" id="blogTabPanel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Quản lý Blog</div>
+          <div class="panel-desc" style="margin-bottom:0">Soạn và đăng bài viết kiểu bài báo cho trang Blog — ai cũng đọc được, kể cả khách chưa đăng nhập.</div>
+        </div>
+      </div>
+      <div id="blogManageRoot"></div>
     </section>
 
     <!-- ERROR LOGS -->

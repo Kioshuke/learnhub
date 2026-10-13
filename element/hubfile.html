@@ -42,6 +42,7 @@
       background: transparent;
       overflow-x: hidden;
     }
+    html.lh-in-iframe body { min-height: 0; }
 
 
 
@@ -295,7 +296,10 @@
     /* ===== DETAIL POPUP ===== */
     .detail-view {
       position: fixed;
-      inset: 0;
+      top: calc(-1 * var(--lh-frame-top, 0px));
+      left: 0;
+      right: 0;
+      height: var(--lh-view-h, 100vh);
       z-index: 1000;
       display: none;
       align-items: center;
@@ -310,7 +314,7 @@ justify-content: center;
       position: relative;
       width: 100%;
       max-width: 1440px;
-      max-height: calc(100vh - 24px);
+      max-height: calc(var(--lh-view-h, 100vh) - 24px);
       display: flex;
       flex-direction: column;
       background: var(--glass);
@@ -511,7 +515,7 @@ font-family: inherit;
 
 /* ===== RESPONSIVE ===== */
     @media (min-width: 901px) {
-      .detail-modal { height: calc(100vh - 24px); }
+      .detail-modal { height: calc(var(--lh-view-h, 100vh) - 24px); }
     }
     @media (max-width: 900px) {
       .detail-body {
@@ -521,9 +525,9 @@ font-family: inherit;
       .detail-preview {
         border-right: none;
         border-bottom: 1px solid var(--line);
-        min-height: 46vh;
+        min-height: calc(var(--lh-view-h, 100vh) * 0.46);
       }
-      .detail-preview iframe { position: static; display: block; height: 46vh; }
+      .detail-preview iframe { position: static; display: block; height: calc(var(--lh-view-h, 100vh) * 0.46); }
     }
     @media (max-width: 480px) {
       .cards-grid { grid-template-columns: 1fr; }
@@ -1047,6 +1051,72 @@ function categoryColor(cat) {
     document.body.classList.add("cc-reduced");
     state.page = 1;
   }
+})();
+</script>
+<script>
+/* ====== Auto-size khi nằm trong iframe: báo chiều cao + giữ modal khớp vùng nhìn thấy ======
+   Trang chính (index.html) set lại height cho iframe theo chiều cao nội dung -> cuộn bằng
+   trang chính. Vì iframe cao bằng cả nội dung nên 100vh/position:fixed bên trong bị "cao theo
+   cả trang"; trang chính gửi {type:"FRAME_VIEW", top, vh} để đặt modal (.modal-overlay /
+   .detail-view) đúng vùng đang nhìn thấy. Khi KHÔNG nằm trong iframe thì mọi thứ giữ nguyên. */
+(function () {
+  var inIframe = false;
+  try { inIframe = window.self !== window.top; } catch (e) { inIframe = true; }
+  if (!inIframe) return;
+
+  var root = document.documentElement;
+  root.classList.add("lh-in-iframe");
+
+  var timer = null, lastH = -1, lastVh = -1, lastTop = null;
+
+  function measure() {
+    var b = document.body;
+    if (!b) return 0;
+    var r = b.getBoundingClientRect();
+    var cs = getComputedStyle(b);
+    var extra = (parseFloat(cs.marginTop) || 0) + (parseFloat(cs.marginBottom) || 0);
+    return Math.ceil(r.height + extra);
+  }
+  function reportHeight() {
+    var px = measure();
+    if (px < 1 || Math.abs(px - lastH) < 2) return;
+    lastH = px;
+    try { parent.postMessage({ type: "IFRAME_HEIGHT", height: px }, "*"); } catch (e) {}
+  }
+  function queueHeight() {
+    if (timer) return;
+    timer = setTimeout(function () { timer = null; reportHeight(); }, 120);
+  }
+  function requestView() {
+    try { parent.postMessage({ type: "REQUEST_FRAME_VIEW" }, "*"); } catch (e) {}
+  }
+
+  window.addEventListener("message", function (ev) {
+    var d = ev.data;
+    if (!d || !d.type) return;
+    if (d.type === "REQUEST_HEIGHT") { reportHeight(); }
+    else if (d.type === "FRAME_VIEW") {
+      var vh = Number(d.vh) || 0;
+      var top = Number(d.top) || 0;
+      if (vh > 0 && vh !== lastVh) { lastVh = vh; root.style.setProperty("--lh-view-h", vh + "px"); }
+      if (top !== lastTop) { lastTop = top; root.style.setProperty("--lh-frame-top", top + "px"); }
+    }
+  });
+
+  window.addEventListener("resize", queueHeight);
+  if ("ResizeObserver" in window && document.body) {
+    new ResizeObserver(queueHeight).observe(document.body);
+  }
+  document.addEventListener("load", function (e) {
+    if (e.target && e.target.tagName === "IMG") queueHeight();
+  }, true);
+
+  requestView();
+  reportHeight();
+  window.addEventListener("load", function () { reportHeight(); requestView(); });
+  setTimeout(reportHeight, 80);
+  setTimeout(reportHeight, 400);
+  setTimeout(reportHeight, 1200);
 })();
 </script>
 </body>

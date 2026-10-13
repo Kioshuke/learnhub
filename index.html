@@ -89,8 +89,8 @@ fetch('header.html').then(r=>r.text()).then(html=>{
   // Nếu trang đang ở guest mode (chưa đăng nhập) -> áp lại UI "Chưa đăng nhập"
   if(window.__lhGuest && typeof window.enterGuestMode === 'function') window.enterGuestMode();
   const active = document.getElementById('lh-header-placeholder').dataset.active;
-  const map = {'home':'/index.html','flash':'flashcard/hub.html','forum':'element/forum.html','tai-lieu':'element/hubfile.html','phong-hoc':'element/phong-hoc.html'};
-  const reverseMap = {'/index.html':'home','flashcard/hub.html':'flash','element/forum.html':'forum','element/hubfile.html':'tai-lieu','element/phong-hoc.html':'phong-hoc'};
+  const map = {'home':'/index.html','flash':'flashcard/hub.html','forum':'element/forum.html','blog':'element/blog.html','tai-lieu':'element/hubfile.html','phong-hoc':'element/phong-hoc.html'};
+  const reverseMap = {'/index.html':'home','flashcard/hub.html':'flash','element/forum.html':'forum','element/blog.html':'blog','element/hubfile.html':'tai-lieu','element/phong-hoc.html':'phong-hoc'};
   document.querySelectorAll('.nav-link').forEach(a => {
     if(a.getAttribute('href') === map[active]) a.classList.add('active');
     a.addEventListener('click', function(e){
@@ -508,9 +508,10 @@ fetch('header.html').then(r=>r.text()).then(html=>{
 
 <button id="tabScrollTopBtn" type="button" aria-label="Cuộn lên đầu"><i class="fa-solid fa-circle-up"></i></button>
 
-<!-- ===== IFRAME TABS: flash, forum, tai-lieu, phong-hoc ===== -->
+<!-- ===== IFRAME TABS: flash, forum, blog, tai-lieu, phong-hoc ===== -->
 <div id="flash" style="display:none;width:100%;margin:0;padding:0;"><iframe id="flashHubFrame" src="flashcard/hub.html" style="width:100%;height:100vh;border:none;"></iframe></div>
 <div id="forum" style="display:none;width:100%;margin:0;padding:0;"><iframe id="forumFrame" src="element/forum.html" style="width:100%;height:100vh;border:none;"></iframe></div>
+<div id="blog" style="display:none;width:100%;margin:0;padding:0;"><iframe id="blogFrame" src="element/blog.html" style="width:100%;height:100vh;border:none;"></iframe></div>
 <div id="tai-lieu" style="display:none;width:100%;margin:0;padding:0;"><iframe id="taiLieuFrame" src="element/hubfile.html" style="width:100%;height:100vh;border:none;"></iframe></div>
 <div id="phong-hoc" style="display:none;width:100%;margin:0;padding:0;"><iframe id="phongHocFrame" src="element/phong-hoc.html" style="width:100%;height:100vh;border:none;"></iframe></div>
 
@@ -535,6 +536,18 @@ let onlineTimerInterval = null;
 let mailboxPollInterval = null;
 
 async function sendHeartbeat(uid) {
+  // Lượt xem blog đang chờ -> gửi CHUNG trong cùng 1 request với nhịp "online".
+  const views = (typeof window.takePendingBlogViews === "function") ? window.takePendingBlogViews() : [];
+  if (views.length) {
+    try {
+      const { error } = await supabase.rpc("users_heartbeat_views", { p_uid: uid, p_view_ids: views });
+      if (error) throw error;
+      return; // xong trong 1 request
+    } catch (e) {
+      // RPC gộp chưa được cài -> trả lượt xem lại để watchdog gửi riêng.
+      if (typeof window.pushPendingBlogViews === "function") window.pushPendingBlogViews(views);
+    }
+  }
   try { await supabase.rpc("users_heartbeat", { p_uid: uid }); } catch (e) { /* im lặng */ }
 }
 
@@ -836,8 +849,11 @@ document.addEventListener("click", function(e){
   }
   var el = t.closest('.nav-link, .feature-card, .avatar-box, .user-right, #notifBellWrap, [onclick*="openFeedbackModal"]');
   if(!el) return;
-  // Link Home giữ nguyên hoạt động
-  if(el.classList && el.classList.contains("nav-link") && el.getAttribute("href") === "/index.html") return;
+  // Link Home giữ nguyên hoạt động; Blog cho khách đọc tự do (không cần đăng nhập)
+  if(el.classList && el.classList.contains("nav-link")){
+    var gHref = el.getAttribute("href");
+    if(gHref === "/index.html" || gHref === "element/blog.html") return;
+  }
   lockGuestClick(e);
 }, true);
 
@@ -1086,6 +1102,8 @@ if(user){
     document.getElementById("taiLieuFrame").src = "element/hubfile.html";
     document.getElementById("phongHocFrame").src = "element/phong-hoc.html";
   }
+  var blogFrameEl = document.getElementById("blogFrame");
+  if(blogFrameEl && !blogFrameEl.getAttribute("src")) blogFrameEl.src = "element/blog.html";
   if (maintenanceState.initialized && maintenanceState.enabled) {
     applyMaintenanceUI();
     try { await finalizeOnlineSession(user.id); } catch (e) {}
@@ -1154,7 +1172,7 @@ if(user){
       photo: userData.photoURL,
       displayName: userData.displayName
     };
-    ["forumFrame","flashHubFrame","taiLieuFrame","phongHocFrame"].forEach(function(id){
+    ["forumFrame","flashHubFrame","taiLieuFrame","phongHocFrame","blogFrame"].forEach(function(id){
       var f = document.getElementById(id);
       if(f && f.contentWindow){
         try { f.contentWindow.postMessage({ type:"LEARNHUB_USER", user:window.currentLearnHubUser }, TRUSTED_ORIGIN); } catch(e){}
