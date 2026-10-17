@@ -1406,12 +1406,15 @@ let otpResendCooldown = null;
 const OTP_EXPIRE_MS = 15 * 60 * 1000;
 let otpServerId = null;
 
-// [FIX BUG #1] LƯU Ý CÒN LẠI: mã OTP hiện vẫn được sinh ở client rồi gửi kèm sang
-// store_otp + EmailJS. Vì EmailJS chạy ở trình duyệt nên mã luôn lộ với client — muốn
-// "sinh OTP phía server" triệt để phải chuyển việc sinh mã + gửi email vào một Supabase
-// Edge Function / RPC (server tự sinh, tự gửi, không trả mã về client). Phần đã sửa ở
-// đây là bịt lỗ hổng chính: xác thực OTP giờ LUÔN hỏi server (verify_otp), không so với
-// biến otpGenerated nữa nên không thể bypass bằng cách sửa biến trong console.
+// [FIX BUG #1] LƯU Ý: mã OTP vẫn sinh ở client rồi gửi kèm sang store_otp + EmailJS.
+// Vì EmailJS chạy ở trình duyệt nên mã luôn lộ với client — muốn "sinh OTP phía server"
+// triệt để phải chuyển việc sinh mã + gửi email vào Supabase Edge Function / RPC.
+//
+// ⚠️ QUAN TRỌNG: 2 RPC "store_otp"/"verify_otp" KHÔNG tồn tại trên DB live (đã kiểm tra
+// pg_proc mọi schema -> 0 dòng). Vì vậy verifyOTPOnServer luôn trả null; nếu bắt buộc
+// serverResult===true thì ĐĂNG KÝ SẼ LUÔN THẤT BẠI. Nên phải có fallback: khi server
+// không có thì so với otpGenerated (hành vi cũ) để không chặn người dùng.
+// Muốn vá triệt để: TẠO 2 RPC này (+ bảng lưu OTP) — xem [FIX BUG #12] cuối schema.sql.
 function generateOTP() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
@@ -1958,10 +1961,14 @@ window.emailRegister = async function() {
     setFieldError("otpCode", "Mã đã hết hạn. Nhấn 'Gửi lại mã'");
     return;
   }
-  // [FIX BUG #1][SECURITY] OTP LUÔN xác thực ở SERVER. Trước đây code so khớp biến
-  // otpGenerated phía client nên có thể bypass bằng cách sửa biến này trong console.
+  // [FIX BUG #1][SECURITY] Ưu tiên xác thực OTP ở SERVER. Trước đây code chỉ so khớp
+  // biến otpGenerated phía client nên bypass được bằng cách sửa biến trong console.
+  // NHƯNG 2 RPC store_otp/verify_otp KHÔNG tồn tại trên DB => serverResult luôn null;
+  // nếu bắt buộc === true thì đăng ký luôn thất bại. Nên: server nói SAI -> chặn;
+  // server KHÔNG có -> fallback so otpGenerated (hành vi cũ) để không chặn đăng ký.
   const serverResult = await verifyOTPOnServer(email, code);
-  if (serverResult !== true) {
+  const serverUnavailable = serverResult === null;
+  if (serverResult === false || (serverUnavailable && code !== otpGenerated)) {
     setFieldError("otpCode", "Mã xác nhận không đúng hoặc đã hết hạn");
     shakeAuthBox("otpCode"); otpInput.focus(); otpInput.select();
     return;

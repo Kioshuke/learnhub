@@ -171,9 +171,22 @@ export default {
       return corsJson({ error: "Method not allowed" }, 405);
     }
 
-    // [FIX BUG #13] Rate-limit theo IP (chống spam cơ bản)
+    // [FIX BUG #13] Rate-limit: ưu tiên binding RATE_LIMITER (đếm theo Cloudflare location,
+    // dùng chung hạ tầng WAF — hoạt động cả trên *.workers.dev). Nếu chưa cấu hình binding
+    // (vd chạy local / wrangler cũ) thì rơi về bộ đếm in-memory trong 1 isolate (yếu hơn).
     const clientIp = request.headers.get("CF-Connecting-IP") || "";
-    if (isRateLimited(clientIp)) {
+    let rateLimited = false;
+    if (env && env.RATE_LIMITER && typeof env.RATE_LIMITER.limit === "function") {
+      try {
+        const r = await env.RATE_LIMITER.limit({ key: clientIp || "anonymous" });
+        rateLimited = !(r && r.success);
+      } catch (e) {
+        rateLimited = isRateLimited(clientIp);
+      }
+    } else {
+      rateLimited = isRateLimited(clientIp);
+    }
+    if (rateLimited) {
       return corsJson({ error: "Too many requests. Please try again later." }, 429);
     }
 

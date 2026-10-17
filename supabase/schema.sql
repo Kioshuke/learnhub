@@ -1533,16 +1533,194 @@ set message = message || '<p style="margin-top:24px">Trân trọng,<br><strong>�
 where message not like '%Trân trọng%Đội ngũ phát triển%';
 
 -- ============================================================
--- [FIX BUG #12] SCHEMA DRIFT NOTE
--- The following objects exist on the LIVE database but are NOT defined in this file.
--- They were created manually via the Supabase dashboard (schema drift).
--- Please do NOT re-flag these as missing/bugs in future scans.
--- Tables:
+-- [FIX BUG #12] SCHEMA DRIFT NOTE (đã đối chiếu lại toàn repo)
+-- Các object dưới đây tồn tại trên DB LIVE nhưng KHÔNG có CREATE ở bất kỳ file
+-- .sql nào trong repo (tạo tay qua Supabase dashboard). ĐỪNG gắn cờ "thiếu" nữa.
+--
+-- Bảng (không có định nghĩa ở đâu trong repo):
 --   public.whitelist_settings (id boolean primary key default true, enabled boolean, updated_at timestamptz, updated_by text)
 --   public.video_cards
 --   public.tailieu_docs
--- Functions / RPCs:
---   store_otp, verify_otp, list_tailieu_docs, teacher_upsert_tailieu_doc,
---   teacher_delete_tailieu_doc, get_test_content, teacher_list_test_sets
--- TODO (optional): re-create these definitions here so this file becomes the source of truth.
+--
+-- Functions / RPCs (không có định nghĩa trong repo) — đã lấy được body thật:
+--   list_tailieu_docs, teacher_upsert_tailieu_doc, teacher_delete_tailieu_doc
+--
+-- CÁC OBJECT SAU ĐÂY THÌ ĐÃ CÓ ĐỊNH NGHĨA TRONG REPO (không tính là drift):
+--   video_cards RPC  -> supabase/videocards-v2.sql, supabase/videocards-video-type.sql
+--   test sets        -> supabase/test-sets.sql (teacher_upsert_test_set, teacher_list_test_sets,
+--                       teacher_delete_test_set, teacher_set_test_complete, list_published_test_sets,
+--                       get_test_content, test_structure_signature)
+--   flashcards       -> supabase/flashcards.sql (flashcard_sets, flashcard_groups)
+--
+-- ⚠️ KHÔNG PHẢI DRIFT — HOÀN TOÀN KHÔNG TỒN TẠI:
+--   store_otp, verify_otp — đã kiểm tra pg_proc (MỌI schema) => 0 dòng.
+--   => login.html gọi 2 RPC này nhưng DB không có; verifyOTPOnServer luôn trả null.
+--   => Xem [FIX BUG #1] trong login.html (đã thêm fallback để đăng ký không bị chặn).
+--      Muốn vá triệt để OTP phía server thì phải TẠO 2 hàm này + bảng lưu OTP.
+--
+-- TODO: chạy supabase/dump-drift.sql (CHỈ ĐỌC) để lấy nốt cột 2 bảng còn lại
+--       (whitelist_settings, video_cards) + policy RLS, rồi chốt CREATE ... IF NOT EXISTS vào đây.
+-- ============================================================
+
+-- ============================================================
+-- [FIX BUG #12] RECREATE 3 BẢNG + 3 FUNCTION đang là "schema drift"
+-- ----------------------------------------------------------------------------
+-- Body function dưới đây COPY NGUYÊN VĂN từ DB live (pg_get_functiondef), nên khi
+-- chạy lại trên DB live gần như no-op: bảng đã tồn tại -> IF NOT EXISTS bỏ qua;
+-- function create or replace với body y hệt -> không đổi hành vi.
+-- Cột/NOT NULL/DEFAULT của bảng là suy ra từ code + file migration (chưa có dump
+-- cột đầy đủ) -> đủ để dựng lại DB mới; nếu muốn khớp 100% hãy đối chiếu
+-- supabase/dump-drift.sql.
+-- ⚠️ CÒN THIẾU: policy RLS của 3 bảng (chưa lấy được). DB mới cần bổ sung policy.
+-- ============================================================
+
+-- (1) whitelist_settings — công tắc bật/tắt truy cập toàn cục (admin dashboard)
+create table if not exists public.whitelist_settings (
+  id         boolean primary key default true,
+  enabled    boolean not null default false,
+  updated_at timestamptz not null default now(),
+  updated_by text
+);
+
+-- (2) video_cards — bài giảng video / tài liệu của giáo viên
+create table if not exists public.video_cards (
+  id               uuid primary key default gen_random_uuid(),
+  teacher_id       text,
+  subject          text not null default '',
+  card_title       text not null default '',
+  card_description text not null default '',
+  group_name       text not null default '',
+  title            text not null default '',
+  video_url        text not null default '',
+  video_type       text not null default 'video',
+  is_complete      boolean not null default false,
+  sort_order       integer not null default 0,
+  created_at       timestamptz not null default now(),
+  updated_at       timestamptz not null default now()
+);
+create index if not exists video_cards_subject_idx on public.video_cards(subject);
+create index if not exists video_cards_teacher_idx on public.video_cards(teacher_id);
+
+-- (3) tailieu_docs — tài liệu (hub file)
+create table if not exists public.tailieu_docs (
+  id          uuid primary key default gen_random_uuid(),
+  name        text not null default '',
+  description text not null default '',
+  category    text not null default '',
+  type        text not null default 'direct',
+  url         text not null default '',
+  icon        text not null default '',
+  size        text not null default '',
+  date        date not null default current_date,
+  author      text not null default 'Admin',
+  sort_order  integer not null default 0,
+  created_by  text,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+create index if not exists tailieu_docs_sort_idx on public.tailieu_docs(sort_order, created_at desc);
+
+-- (4) list_tailieu_docs — danh sách tài liệu (đọc công khai)
+create or replace function public.list_tailieu_docs()
+returns table(id uuid, name text, description text, category text, type text, url text, icon text, size text, date date, author text, sort_order integer, created_by text, created_at timestamp with time zone)
+language sql
+stable security definer
+set search_path to 'public'
+as $function$
+  select d.id,
+         btrim(coalesce(d.name, '')),
+         coalesce(d.description, ''),
+         btrim(coalesce(d.category, '')),
+         coalesce(nullif(btrim(d.type), ''), 'direct'),
+         d.url,
+         coalesce(d.icon, ''),
+         coalesce(d.size, ''),
+         d.date,
+         coalesce(d.author, 'Admin'),
+         d.sort_order,
+         d.created_by,
+         d.created_at
+    from public.tailieu_docs d
+   order by d.sort_order asc, d.created_at desc;
+$function$;
+revoke execute on function public.list_tailieu_docs() from public;
+grant execute on function public.list_tailieu_docs() to anon, authenticated;
+
+-- (5) teacher_upsert_tailieu_doc — thêm/sửa tài liệu (giáo viên)
+create or replace function public.teacher_upsert_tailieu_doc(
+  p_id uuid default null, p_name text default '', p_description text default '',
+  p_category text default '', p_type text default 'direct', p_url text default '',
+  p_icon text default '', p_size text default ''
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+declare
+  v_author text := case when public.is_admin() then 'Admin' else 'Giáo viên' end;
+begin
+  if not public.is_teacher() then
+    return jsonb_build_object('ok', false, 'error', 'forbidden');
+  end if;
+  if btrim(coalesce(p_name, '')) = '' then
+    return jsonb_build_object('ok', false, 'error', 'empty_name');
+  end if;
+  if btrim(coalesce(p_category, '')) = '' then
+    return jsonb_build_object('ok', false, 'error', 'empty_category');
+  end if;
+  if btrim(coalesce(p_url, '')) = '' then
+    return jsonb_build_object('ok', false, 'error', 'empty_url');
+  end if;
+
+  if p_id is null then
+    insert into public.tailieu_docs (name, description, category, type, url, icon, size, author, created_by)
+    values (
+      btrim(p_name),
+      coalesce(p_description, ''),
+      btrim(p_category),
+      coalesce(nullif(btrim(p_type), ''), 'direct'),
+      btrim(p_url),
+      coalesce(p_icon, ''),
+      coalesce(p_size, ''),
+      v_author,
+      auth.uid()::text
+    )
+    returning id into p_id;
+    return jsonb_build_object('ok', true, 'id', p_id);
+  end if;
+
+  update public.tailieu_docs
+     set name        = btrim(p_name),
+         description = coalesce(p_description, ''),
+         category    = btrim(p_category),
+         type        = coalesce(nullif(btrim(p_type), ''), 'direct'),
+         url         = btrim(p_url),
+         icon        = coalesce(p_icon, ''),
+         size        = coalesce(p_size, ''),
+         updated_at  = now()
+   where id = p_id;
+  return jsonb_build_object('ok', true, 'id', p_id);
+end;
+$function$;
+revoke execute on function public.teacher_upsert_tailieu_doc(uuid, text, text, text, text, text, text, text) from public;
+grant execute on function public.teacher_upsert_tailieu_doc(uuid, text, text, text, text, text, text, text) to authenticated;
+
+-- (6) teacher_delete_tailieu_doc — xoá tài liệu (giáo viên)
+create or replace function public.teacher_delete_tailieu_doc(p_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path to 'public'
+as $function$
+begin
+  if not public.is_teacher() then
+    return jsonb_build_object('ok', false, 'error', 'forbidden');
+  end if;
+  delete from public.tailieu_docs where id = p_id;
+  return jsonb_build_object('ok', true);
+end;
+$function$;
+revoke execute on function public.teacher_delete_tailieu_doc(uuid) from public;
+grant execute on function public.teacher_delete_tailieu_doc(uuid) to authenticated;
 -- ============================================================

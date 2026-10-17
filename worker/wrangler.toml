@@ -1,3 +1,15 @@
 name = "hubie-proxy"
 main = "worker.js"
 compatibility_date = "2024-01-01"
+
+# [FIX BUG #13] Rate limit cho endpoint AI — chạy được trên *.workers.dev (khác WAF,
+# vốn chỉ áp cho zone bạn sở hữu). Đếm theo Cloudflare location, dùng chung hạ tầng với
+# WAF rate limiting rules. Cần wrangler >= 4.36.0. period chỉ nhận 10 hoặc 60 giây.
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 30
+  period = 60
+
