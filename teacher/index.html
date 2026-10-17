@@ -1240,7 +1240,7 @@
                 <span class="tc-quiz-stat-label">Hoàn thành</span>
               </div>
               <div class="tc-quiz-stat warn">
-                <span class="tc-quiz-stat-num" id="tcStatPending">0</span>
+                <span class="tc-quiz-stat-num" id="tcStatQuizPending">0</span>
                 <span class="tc-quiz-stat-label">Chưa hoàn thành</span>
               </div>
             </div>
@@ -1838,7 +1838,8 @@
       if (listEl) listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-spinner fa-spin"></i></div>Đang tải lịch học & lịch thi...</div>';
       try {
         const { data: d } = await supabase.from("schedule_settings").select("*").eq("id", true).maybeSingle();
-        scheduleEvents = (d && Array.isArray(d.events)) ? d.events.map(e => ({ id: e.id || scheduleEventId(), ...e })) : [];
+        // [FIX BUG #37] Spread trước rồi mới gán id để id tạo mới không bị ghi đè bởi e.id rỗng
+        scheduleEvents = (d && Array.isArray(d.events)) ? d.events.map(e => ({ ...e, id: e.id || scheduleEventId() })) : [];
         renderScheduleEvents();
         const meta = document.getElementById("scheduleMeta");
         if (meta) meta.textContent = d && d.updated_at ? `Cập nhật: ${scFormatDate(d.updated_at)}${d.updated_by ? ` · bởi ${d.updated_by}` : ""}` : "Chưa có bản lưu. Lưu lần đầu để áp dụng.";
@@ -1962,7 +1963,8 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
     function tcRenderQuizStats(total, done, pending) {
       const t = document.getElementById("tcStatTotal");
       const d = document.getElementById("tcStatDone");
-      const p = document.getElementById("tcStatPending");
+      // [FIX BUG #32] Dùng id riêng cho thống kê quiz để tránh trùng với tcStatPending của lớp
+      const p = document.getElementById("tcStatQuizPending");
       if (t) t.textContent = total;
       if (d) d.textContent = done;
       if (p) p.textContent = pending;

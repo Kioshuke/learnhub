@@ -432,7 +432,7 @@
           </div>
           <div class="fc-m-actions">
             <button class="btn-sm" type="button" style="background:#f1f5f9;color:#334155" id="fcCardCancelBtn" onclick="tcFcCardsCancel()"><i class="fa-solid fa-xmark"></i> Huỷ</button>
-            <button class="btn-sm" type="button" style="background:#d1fae5;color:#047857" id="fcCardSaveBtn" onclick="tcFcCardsSave()"><i class="fa-solid fa-check"></i> Lưu thẻ</button>
+            <button class="btn-sm" type="button" style="background:#d1fae5;color:#047857" id="fcCardSaveBtn"><i class="fa-solid fa-check"></i> Lưu thẻ</button>
           </div>
         </div>
       </div>
@@ -783,6 +783,7 @@
       bind("fcCardEditorClose", () => window.tcFcCardsClose());
       bind("fcCardAddBtn", () => window.tcFcCardsEdit(-1));
       bind("fcCardCancelBtn", () => window.tcFcCardsCancel());
+      // [FIX BUG #9] Bind 1 lần duy nhất; đã bỏ onclick inline trên nút để tránh double-bind.
       bind("fcCardSaveBtn", () => window.tcFcCardsSave());
       bind("fcGroupRenameCloseBtn", () => window.fcGroupRenameClose());
       bind("fcGroupRenameCancelBtn", () => window.fcGroupRenameClose());

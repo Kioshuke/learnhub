@@ -1103,15 +1103,41 @@
           const header = document.createElement("div");
           header.className = "section-header";
           const statusBadge = getSectionStatusBadge(section);
-          header.innerHTML = `
-            <h2 class="section-title">${section.title}</h2>
-            <div class="section-actions">
-              ${statusBadge}
-              ${shouldSlide ? '<button class="section-nav prev" type="button" aria-label="Ô trước">‹</button>' : ''}
-              <span class="section-note">${section.note}</span>
-              ${shouldSlide ? '<button class="section-nav next" type="button" aria-label="Ô sau">›</button>' : ''}
-            </div>
-          `;
+          // [FIX BUG #6] Fix XSS: build header without innerHTML of user text
+          {
+            const h2 = document.createElement("h2");
+            h2.className = "section-title";
+            h2.textContent = section.title || "";
+            header.appendChild(h2);
+            const actions = document.createElement("div");
+            actions.className = "section-actions";
+            if (statusBadge) {
+              const s = document.createElement("div");
+              s.innerHTML = statusBadge;
+              actions.appendChild(s);
+            }
+            if (shouldSlide) {
+              const prevBtn = document.createElement("button");
+              prevBtn.className = "section-nav prev";
+              prevBtn.type = "button";
+              prevBtn.setAttribute("aria-label", "Ô trước");
+              prevBtn.textContent = "‹";
+              actions.appendChild(prevBtn);
+            }
+            const noteSpan = document.createElement("span");
+            noteSpan.className = "section-note";
+            noteSpan.textContent = section.note || "";
+            actions.appendChild(noteSpan);
+            if (shouldSlide) {
+              const nextBtn = document.createElement("button");
+              nextBtn.className = "section-nav next";
+              nextBtn.type = "button";
+              nextBtn.setAttribute("aria-label", "Ô sau");
+              nextBtn.textContent = "›";
+              actions.appendChild(nextBtn);
+            }
+            header.appendChild(actions);
+          }
           block.appendChild(header);
 
           const slider = document.createElement("div");
@@ -1146,22 +1172,51 @@
             const card = document.createElement("article");
             card.className = "topic-card";
             if (topic.dbSetId) card.dataset.fcDbSet = topic.dbSetId;
-            card.innerHTML = `
-              <div class="card-top">
-                ${topic.dbSetId && window.__fcHubCanReorder
-                  ? `<span class="fc-hub-grip" draggable="true" title="Giữ và kéo để sắp xếp thứ tự"><i class="fa-solid fa-grip-vertical"></i></span>`
-                  : ""}
-                ${isUnavailable
-                  ? '<span class="card-updating-badge">⏳ Đang cập nhật</span>'
-                  : `<span class="chip">${topic.level || "Cơ bản"}</span>`}
-              </div>
-              <h3 class="topic-title">${topic.name}</h3>
-              <p class="topic-desc">${topic.description || ""}</p>
-              <div class="meta">
-                <span class="count">${topic.words || 0} mục</span>
-                <button class="open-btn${isUnavailable ? ' updating' : ''}" type="button">${isUnavailable ? '⏳ Chờ cập nhật' : 'Vào học'}</button>
-              </div>
-            `;
+            // [FIX BUG #6] Escape user text (name, description, level)
+            const topDiv = document.createElement("div");
+            topDiv.className = "card-top";
+            if (topic.dbSetId && window.__fcHubCanReorder) {
+              const grip = document.createElement("span");
+              grip.className = "fc-hub-grip";
+              grip.draggable = true;
+              grip.title = "Giữ và kéo để sắp xếp thứ tự";
+              const i = document.createElement("i");
+              i.className = "fa-solid fa-grip-vertical";
+              grip.appendChild(i);
+              topDiv.appendChild(grip);
+            }
+            if (isUnavailable) {
+              const bad = document.createElement("span");
+              bad.className = "card-updating-badge";
+              bad.textContent = "⏳ Đang cập nhật";
+              topDiv.appendChild(bad);
+            } else {
+              const chip = document.createElement("span");
+              chip.className = "chip";
+              chip.textContent = topic.level || "Cơ bản";
+              topDiv.appendChild(chip);
+            }
+            const h3 = document.createElement("h3");
+            h3.className = "topic-title";
+            h3.textContent = topic.name || "";
+            const desc = document.createElement("p");
+            desc.className = "topic-desc";
+            desc.textContent = topic.description || "";
+            const meta = document.createElement("div");
+            meta.className = "meta";
+            const cnt = document.createElement("span");
+            cnt.className = "count";
+            cnt.textContent = (topic.words || 0) + " mục";
+            const btn = document.createElement("button");
+            btn.className = "open-btn" + (isUnavailable ? " updating" : "");
+            btn.type = "button";
+            btn.textContent = isUnavailable ? "⏳ Chờ cập nhật" : "Vào học";
+            meta.appendChild(cnt);
+            meta.appendChild(btn);
+            card.appendChild(topDiv);
+            card.appendChild(h3);
+            card.appendChild(desc);
+            card.appendChild(meta);
 
             card.querySelector(".open-btn").addEventListener("click", () => {
               if (isUnavailable) {

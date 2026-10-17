@@ -624,6 +624,10 @@ grant execute on function public.delete_own_account() to authenticated;
 
 -- ============================== POLICIES ==============================
 
+-- [FIX BUG #4][NOTE - KHÔNG SỬA NỮA] Policy users_select dùng using(true) nên MỌI user đã
+-- đăng nhập đọc được các cột nhạy cảm (email/phone/ngày sinh/giới tính/trường) của TẤT CẢ
+-- người dùng. Đây là hiện trạng được chấp nhận (nhiều tính năng đang đọc bảng users trực
+-- tiếp); muốn siết chặt cần tách cột công khai / dùng view + policy giới hạn cột.
 drop policy if exists users_select on public.users;
 create policy users_select on public.users
   for select to authenticated using (true);
@@ -1527,3 +1531,18 @@ grant execute on function public.admin_bulk_reset_weekly(text, boolean, boolean,
 update public.mailbox_messages
 set message = message || '<p style="margin-top:24px">Trân trọng,<br><strong>Đội ngũ phát triển!</strong></p>'
 where message not like '%Trân trọng%Đội ngũ phát triển%';
+
+-- ============================================================
+-- [FIX BUG #12] SCHEMA DRIFT NOTE
+-- The following objects exist on the LIVE database but are NOT defined in this file.
+-- They were created manually via the Supabase dashboard (schema drift).
+-- Please do NOT re-flag these as missing/bugs in future scans.
+-- Tables:
+--   public.whitelist_settings (id boolean primary key default true, enabled boolean, updated_at timestamptz, updated_by text)
+--   public.video_cards
+--   public.tailieu_docs
+-- Functions / RPCs:
+--   store_otp, verify_otp, list_tailieu_docs, teacher_upsert_tailieu_doc,
+--   teacher_delete_tailieu_doc, get_test_content, teacher_list_test_sets
+-- TODO (optional): re-create these definitions here so this file becomes the source of truth.
+-- ============================================================

@@ -311,7 +311,14 @@
     // DEEPL_PROXY_URL: proxy dịch máy DeepL chạy trên Cloudflare Worker
     const DEEPL_PROXY_URL = "https://deepl-proxy.quanhao678.workers.dev";
 
-    let chatHistory = JSON.parse(localStorage.getItem("hubie_chat_history")) || [];
+    let chatHistory = [];
+    // [FIX BUG #14] Bọc try/catch quanh JSON.parse: localStorage hỏng → mảng rỗng thay vì sập script
+    try {
+      const raw = localStorage.getItem("hubie_chat_history");
+      if (raw) chatHistory = JSON.parse(raw) || [];
+    } catch (e) {
+      chatHistory = [];
+    }
     let selectedFileData = null;
 
     const systemInstructionText = `
@@ -486,8 +493,16 @@
     }
 
     function saveChatToLocal() {
-        localStorage.setItem("hubie_chat_history", JSON.stringify(chatHistory));
-        localStorage.setItem("hubie_chat_html", document.getElementById('chatBox').innerHTML);
+        // [FIX BUG #15] Trim chatHistory nếu quá lớn để tránh localStorage quota
+        if (chatHistory.length > 40) {
+            chatHistory = chatHistory.slice(chatHistory.length - 40);
+        }
+        try {
+            localStorage.setItem("hubie_chat_history", JSON.stringify(chatHistory));
+        } catch (e) {}
+        try {
+            localStorage.setItem("hubie_chat_html", document.getElementById('chatBox').innerHTML);
+        } catch (e) {}
     }
 
     window.addEventListener("beforeunload", () => {
@@ -573,7 +588,10 @@
     }
 
     // 🔄 TÁCH BIỆT HÀM GỌI API ĐỂ SỬ DỤNG CHO CẢ SEND VÀ REGENERATE
-    async function requestAiResponse() {
+    async function requestAiResponse(opts) {
+        // [FIX BUG #8] Chỉ rollback tin nhắn người dùng khi đây là lượt GỬI MỚI.
+        // Với regenerate, tin người dùng đã nằm sẵn trong lịch sử nên không được xoá.
+        const rollbackUserOnError = !(opts && opts.rollbackUserOnError === false);
         const statusEl = document.getElementById('status');
         const requestBody = {
             contents: chatHistory,
@@ -599,6 +617,7 @@
                 statusEl.innerText = `Hubie đã trả lời - ${activeModelName}`;
                 saveChatToLocal();
                 scrollToBottom();
+                return true;
             } else {
                 throw new Error("Phản hồi trống hoặc sai cấu trúc.");
             }
@@ -620,31 +639,46 @@
             }
             appendErrorMessage(`⚠️ Hubie bảo trì: ${errMsg}`);
             statusEl.innerText = "Gặp sự cố lỗi hệ thống";
-            chatHistory.pop();
-            const chatBox = document.getElementById('chatBox');
-            const userWrappers = chatBox.getElementsByClassName('user-wrapper');
-            if (userWrappers.length > 0) {
-                chatBox.removeChild(userWrappers[userWrappers.length - 1]);
+            // [FIX BUG #8] Chỉ xoá tin người dùng khi là lượt gửi mới (không phải regenerate)
+            if (rollbackUserOnError) {
+                if (chatHistory.length > 0 && chatHistory[chatHistory.length - 1].role === "user") {
+                    chatHistory.pop();
+                }
+                const chatBox = document.getElementById('chatBox');
+                const userWrappers = chatBox.getElementsByClassName('user-wrapper');
+                if (userWrappers.length > 0) {
+                    chatBox.removeChild(userWrappers[userWrappers.length - 1]);
+                }
+                saveChatToLocal();
             }
             scrollToBottom();
+            return false;
         }
     }
 
     // 🔄 HÀM TẠO LẠI CÂU TRẢ LỜI CỦA AI (REGENERATE)
+    // [FIX BUG #8] Nếu tạo lại thất bại, khôi phục câu trả lời cũ để không mất dữ liệu.
     async function regenerateAiResponse() {
         if (chatHistory.length > 0 && chatHistory[chatHistory.length - 1].role === "model") {
-            // Xóa câu trả lời model cũ trong mảng lịch sử bộ nhớ
-            chatHistory.pop();
-            
-            // Xóa bong bóng wrapper AI cuối cùng trên giao diện DOM hiển thị
+            const removedModel = chatHistory.pop();
             const chatBox = document.getElementById('chatBox');
             const aiWrappers = chatBox.getElementsByClassName('ai-wrapper');
+            let removedWrapper = null;
             if (aiWrappers.length > 0) {
-                chatBox.removeChild(aiWrappers[aiWrappers.length - 1]);
+                removedWrapper = aiWrappers[aiWrappers.length - 1];
+                chatBox.removeChild(removedWrapper);
             }
-            
-            // Kích hoạt yêu cầu lấy câu trả lời mới từ API
-            await requestAiResponse();
+            saveChatToLocal();
+            const ok = await requestAiResponse({ rollbackUserOnError: false });
+            if (ok === false && removedModel) {
+                // Khôi phục lại câu trả lời cũ (dữ liệu + DOM)
+                chatHistory.push(removedModel);
+                if (removedWrapper) {
+                    try { chatBox.appendChild(removedWrapper); } catch (e) {}
+                }
+                saveChatToLocal();
+                scrollToBottom();
+            }
         }
     }
 
@@ -901,7 +935,10 @@
     }
 
     function renderResult(word, phonetic, wordVi, meaningsData) {
+        // innerText không parse HTML nên KHÔNG cần escape ở đây
         document.getElementById("rWord").innerText = word;
+        // [FIX BUG #34] Helper escape chỉ dùng cho các chỗ gán innerHTML bên dưới (từ điển)
+        const esc = (s)=> (s||"").replace(/[<>&"']/g,c=>({"<":"&lt;","&gt":"&gt;","&":"&amp;","\"":"&quot;","'":"&#039;"})[c]);
         document.getElementById("rPhonetic").innerText = phonetic ? "/" + phonetic.replace(/\//g, "") + "/" : "";
         document.getElementById("rAudioBtn").disabled = !currentAudioUrl;
         const firstAbbrev = (meaningsData && meaningsData.length > 0) ? posAbbrev(meaningsData[0].pos) : "";
@@ -913,7 +950,8 @@
         meaningsData.forEach(m => {
             if (!m.en) return;
             const posTag = document.createElement("div");
-            posTag.innerHTML = '<span class="pos-tag">' + m.pos + '</span> <span class="pos-gloss">— ' + (shortGloss(m.vi) || "?") + '</span>';
+            // [FIX BUG #34] Escape dữ liệu từ API từ điển để tránh chèn HTML
+            posTag.innerHTML = '<span class="pos-tag">' + esc(m.pos) + '</span> <span class="pos-gloss">— ' + esc(shortGloss(m.vi) || "?") + '</span>';
             list.appendChild(posTag);
 
             const block = document.createElement("div");
@@ -943,6 +981,7 @@
             if (m.example) {
                 const ex = document.createElement("div");
                 ex.className = "example";
+                // innerText an toàn (không parse HTML)
                 ex.innerText = "VD: " + m.example;
                 block.appendChild(ex);
             }
@@ -953,7 +992,13 @@
 
     function playAudio() {
         if (!currentAudioUrl) return;
-        new Audio(currentAudioUrl).play();
+        // [FIX BUG #36] Bắt lỗi promise khi phát audio (trước đây lỗi bị nuốt âm thầm)
+        try {
+            const p = new Audio(currentAudioUrl).play();
+            if (p && typeof p.catch === "function") p.catch(function (e) { console.warn("Không phát được audio:", e && e.message); });
+        } catch (e) {
+            console.warn("Không phát được audio:", e && e.message);
+        }
     }
 
     setMode(getModeFromUrl());

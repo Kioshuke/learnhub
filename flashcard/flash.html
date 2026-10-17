@@ -372,10 +372,19 @@ function startLoad() {
     if (setId) {
         setTopicNameLabel(formatTopicNameFromDataFile("set_" + setId));
         if (window.__fcLoadSet) { window.__fcLoadSet(setId); return; }
+        // [FIX BUG #16] Giới hạn số lần chờ để tránh setInterval chạy vô hạn nếu
+        // __fcLoadSet không bao giờ xuất hiện (script lỗi/không tải được).
+        let tries = 0;
+        const MAX_TRIES = 150; // ~15s
         const wait = setInterval(() => {
+            tries++;
             if (window.__fcLoadSet) {
                 clearInterval(wait);
                 window.__fcLoadSet(setId);
+            } else if (tries >= MAX_TRIES) {
+                clearInterval(wait);
+                hideLoadPopup();
+                if (typeof lhToast === 'function') lhToast("Không tải được bộ flashcard. Vui lòng thử lại.", 'error');
             }
         }, 100);
         return;
@@ -426,10 +435,14 @@ document.body.appendChild(settingsModal);
 function loadSettings() {
   const saved = localStorage.getItem("learnhubSettings");
   if (saved) {
-    const settings = JSON.parse(saved);
-    document.getElementById("bgmVolume").value = settings.bgmVolume ?? 1;
-    document.getElementById("sfxVolume").value = settings.sfxVolume ?? 0.5;
-    document.getElementById("speechVolume").value = settings.speechVolume ?? 1;
+    try {
+      const settings = JSON.parse(saved);
+      document.getElementById("bgmVolume").value = settings.bgmVolume ?? 1;
+      document.getElementById("sfxVolume").value = settings.sfxVolume ?? 0.5;
+      document.getElementById("speechVolume").value = settings.speechVolume ?? 1;
+    } catch (e) {
+      // [FIX BUG #14] Bỏ qua settings hỏng
+    }
   }
 }
 
@@ -514,24 +527,27 @@ async function fetchDictInfo(word) {
     const data = await res.json();
     const entry = data[0];
     let html = '';
+    // [FIX BUG #34] Escape dữ liệu trả về từ API từ điển trước khi gán innerHTML
+    const esc = (s)=>(s||"").replace(/[<>&"']/g,c=>({"<": "&lt;",">": "&gt;","&": "&amp;","\"": "&quot;","'": "&#039;"})[c]);
     if (entry.phonetic) {
-      html += `<div style="margin-bottom:12px;"><span style="font-weight:700;color:#475569;font-size:13px;">🔤 Phiên âm:</span> <span style="color:#6366f1;font-size:16px;">/${entry.phonetic}/</span></div>`;
+      html += `<div style="margin-bottom:12px;"><span style="font-weight:700;color:#475569;font-size:13px;">🔤 Phiên âm:</span> <span style="color:#6366f1;font-size:16px;">/${esc(entry.phonetic)}/</span></div>`;
     }
     entry.meanings.slice(0, 3).forEach(m => {
-      html += `<div style="margin-bottom:14px;"><span style="display:inline-block;background:#eef2ff;color:#4f46e5;padding:2px 10px;border-radius:6px;font-size:12px;font-weight:700;text-transform:uppercase;">${m.partOfSpeech}</span>`;
+      html += `<div style="margin-bottom:14px;"><span style="display:inline-block;background:#eef2ff;color:#4f46e5;padding:2px 10px;border-radius:6px;font-size:12px;font-weight:700;text-transform:uppercase;">${esc(m.partOfSpeech||"")}</span>`;
       m.definitions.slice(0, 2).forEach(d => {
         html += `<div style="margin-top:8px;padding-left:10px;border-left:3px solid #6366f1;">
-          <div><span style="font-weight:700;color:#475569;font-size:13px;">📖 Định nghĩa:</span> <span style="color:#1e293b;">${d.definition}</span></div>`;
-        if (d.example) html += `<div style="color:#64748b;font-size:13px;margin-top:4px;"><span style="font-weight:700;color:#475569;">✏️ Ví dụ:</span> <span style="font-style:italic;">${d.example}</span></div>`;
+          <div><span style="font-weight:700;color:#475569;font-size:13px;">📖 Định nghĩa:</span> <span style="color:#1e293b;">${esc(d.definition||"")}</span></div>`;
+        if (d.example) html += `<div style="color:#64748b;font-size:13px;margin-top:4px;"><span style="font-weight:700;color:#475569;">✏️ Ví dụ:</span> <span style="font-style:italic;">${esc(d.example||"")}</span></div>`;
         html += `</div>`;
       });
       html += `</div>`;
     });
     el.innerHTML = html;
   } catch {
+    const esc2 = (s)=>(s||"").replace(/[<>&"']/g,c=>({"<": "&lt;",">": "&gt;","&": "&amp;","\"": "&quot;","'": "&#039;"})[c]);
     el.innerHTML = `<div style="text-align:center;padding:20px 0;">
       <div style="font-size:40px;margin-bottom:10px;">🤷</div>
-      <div style="font-weight:700;color:#64748b;">Không tìm thấy từ "${word}"</div>
+      <div style="font-weight:700;color:#64748b;">Không tìm thấy từ "${esc2(word)}"</div>
       <div style="font-size:13px;color:#94a3b8;margin-top:4px;">Bấm nút bên dưới để tra trên Cambridge</div>
     </div>`;
   }

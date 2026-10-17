@@ -1148,6 +1148,31 @@ async function loadQuestions() {
     }
 }
 
+    // [FIX BUG #22] Helper escape + lọc URL: nội dung đề (từ DB) được chèn thẳng qua
+    // innerHTML — nếu chứa HTML/JS sẽ chạy trên trình duyệt của học sinh.
+    function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+    function safeUrl(u) { return /^https?:\/\//i.test(String(u || "").trim()) ? String(u).trim() : ""; }
+    // [FIX BUG #22] Sanitize rich-text cho sectionDesc: nội dung do người tạo đề nhập và CHƯA
+    // escape (vì code cố ý giữ <b>/<i>/<u>). Dùng whitelist thẻ + gỡ TOÀN BỘ attribute để
+    // không còn <script>, <img onerror>, onclick... — chữ in đậm/nghiêng/gạch chân vẫn giữ.
+    const SAFE_TEXT_TAGS = ["b", "i", "u", "em", "strong", "br", "span", "code"];
+    function sanitizeHtml(html) {
+        const body = new DOMParser().parseFromString(String(html || ""), "text/html").body;
+        (function clean(parent) {
+            Array.from(parent.children).forEach(function (el) {
+                const tag = el.tagName.toLowerCase();
+                if (SAFE_TEXT_TAGS.indexOf(tag) === -1) {
+                    clean(el);
+                    el.replaceWith(...el.childNodes); // gỡ thẻ lạ, giữ lại chữ bên trong
+                } else {
+                    Array.from(el.attributes).forEach(function (a) { el.removeAttribute(a.name); });
+                    clean(el);
+                }
+            });
+        })(body);
+        return body.innerHTML;
+    }
+
     // 3. Hàm Render chính - Chia phần bài làm và mục lục
 function renderQuiz() {
     const quizContainer = document.getElementById('quiz-container');
@@ -1162,24 +1187,24 @@ function renderQuiz() {
         // 1. Tạo HTML cho tiêu đề phụ (dùng span để nhận diện <b>, <i>, <u>)
         const descHtml = (section.sectionDesc && section.sectionDesc.trim() !== "") ? 
             `<div style="margin-top: 4px; font-size: 0.78rem; color: var(--text-sub); font-weight: normal; font-style: italic; line-height: 1.4;">
-                <span>${section.sectionDesc}</span>
+                <span>${sanitizeHtml(section.sectionDesc)}</span>
             </div>` : '';
 
         // 2. Render tiêu đề phần (Dùng div thay cho h2 để tránh lỗi khoảng cách)
         quizHtml += `
             <div style="margin: 25px 0 15px; padding: 12px 15px; background: #eff6ff; color: #1a73e8; border-radius: 8px; border-left: 5px solid #1a73e8;">
                 <div style="font-weight: bold; text-transform: uppercase; font-size: 0.95rem; display: block !important;">
-                    ${section.sectionTitle}
+                    ${esc(section.sectionTitle)}
                 </div>
                 ${descHtml}
             </div>`;
         
-        navHtml += `<div class="nav-section-label" style="grid-column: 1/-1; font-weight: bold; margin: 10px 0 5px; font-size: 0.7rem; color: #64748b; text-transform: uppercase;">${section.sectionTitle}</div>`;
+        navHtml += `<div class="nav-section-label" style="grid-column: 1/-1; font-weight: bold; margin: 10px 0 5px; font-size: 0.7rem; color: #64748b; text-transform: uppercase;">${esc(section.sectionTitle)}</div>`;
 
         section.questions.forEach((item) => {
             const imageHtml = (item.image && item.image.trim() !== "") ? `
                 <div class="q-image" style="text-align: center; margin: 10px 0;">
-                    <img src="${item.image}" onerror="this.parentElement.style.display='none'" style="max-width: 100%; max-height: 250px; border-radius: 10px;">
+                    <img src="${safeUrl(item.image)}" onerror="this.parentElement.style.display='none'" style="max-width: 100%; max-height: 250px; border-radius: 10px;">
                 </div>` : '';
 
             let answersContent = '';
@@ -1189,7 +1214,7 @@ function renderQuiz() {
                     ${item.answers.map((ans, idx) => `
                         <label class="ans-label" id="label-${globalIdx}-${idx}" onclick="selectAnswer(this, ${globalIdx})">
                             <input type="radio" name="question-${globalIdx}" value="${idx}">
-                            <span>${ans}</span>
+                            <span>${esc(ans)}</span>
                         </label>`).join('')}
                 </div>`;
             } 
@@ -1200,7 +1225,7 @@ function renderQuiz() {
                         ${item.subQuestions.map((sub, subIdx) => `
                             <div class="tf-row" style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--tf-border); gap: 10px;">
                                 <div class="tf-question-text" style="flex: 1; font-size: 0.9rem;">
-                                    <strong style="color:var(--primary)">${String.fromCharCode(97 + subIdx)}.</strong> <span>${sub.text}</span>
+                                    <strong style="color:var(--primary)">${String.fromCharCode(97 + subIdx)}.</strong> <span>${esc(sub.text)}</span>
                                 </div>
                                 <div class="tf-options" style="display: flex; gap: 5px; flex-shrink: 0;">
                                     <label style="cursor:pointer; display:flex; align-items:center; gap:3px; background: transparent; padding:4px 10px; border-radius:6px; border: 1.2px solid var(--tf-border); font-size: 0.85rem;">
@@ -1223,7 +1248,7 @@ function renderQuiz() {
                 <div class="question-card" id="card-${globalIdx}" style="margin-bottom: 20px; padding: 15px;">
                     <div class="q-header" style="margin-bottom: 12px; font-size: 0.95rem;">
                         <span class="q-badge" style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 15px; font-size: 0.75rem; font-weight: bold; margin-right: 5px;">Câu ${globalIdx + 1}</span> 
-                        <span>${item.question}</span>
+                        <span>${esc(item.question)}</span>
                     </div>
                     ${imageHtml}
                     ${answersContent}
@@ -1268,7 +1293,7 @@ function renderQuiz() {
             if (handle && handle.el) {
                 handle.el.classList.add("lh-toast-mini");
                 const msgEl = handle.el.querySelector(".lh-toast-message");
-                if (msgEl) msgEl.innerHTML = `Đã lưu đáp án <b>${answerText}</b>`;
+                if (msgEl) msgEl.innerHTML = `Đã lưu đáp án <b>${String(answerText ?? "").replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" })[c])}</b>`;
             }
         } catch (e) {}
     }
@@ -1494,7 +1519,8 @@ questionsData.forEach((section) => {
             else if (item.type === 'short_answer') {
                 const inputEl = document.querySelector(`[data-qidx="${globalIdx}"]`);
                 const val = inputEl ? inputEl.value.trim().toLowerCase() : "";
-                if (val === item.correctAnswer.toLowerCase()) {
+                // [FIX BUG #20] Guard correctAnswer undefined để tránh crash khi chấm điểm
+                if (val === String(item.correctAnswer || "").toLowerCase()) {
                     userScore += basePerQuestion;
                     correctCount++;
                 } else isPerfect = false;
@@ -1512,9 +1538,10 @@ resultFlags.push(isPerfect);
     //  - show_answers='none'    → không cho phép
     const score = Number(((userScore / maxScore) * 10).toFixed(1));
     const fullMark = score >= 10;
+    // [FIX BUG #10] Bỏ điều kiện `showAnswers !== 'none'` — nó luôn đúng nên phá vỡ
+    // ràng buộc 'perfect' (chỉ cho xem khi đạt điểm tối đa).
     const canReview = examConfig.showAnswers === 'always' ||
-        (examConfig.showAnswers === 'perfect' && fullMark) ||
-        examConfig.showAnswers !== 'none';
+        (examConfig.showAnswers === 'perfect' && fullMark);
     examConfig.reviewLocked = !canReview;
 
     const scoreCircle = document.getElementById('scoreValue');
@@ -1671,7 +1698,8 @@ function reviewMode() {
             else if (item.type === 'short_answer') {
                 const input = card.querySelector('.short-input');
                 const userAns = input.value.trim().toLowerCase();
-                const isCorrect = userAns === item.correctAnswer.toLowerCase();
+                // [FIX BUG #20] Guard correctAnswer undefined
+                const isCorrect = userAns === String(item.correctAnswer || "").toLowerCase();
 
                 card.classList.add(isCorrect ? 'review-true' : 'review-false');
                 input.style.borderColor = isCorrect ? "var(--success)" : "var(--danger)";
@@ -1679,7 +1707,8 @@ function reviewMode() {
                 const resultDiv = document.createElement('div');
                 resultDiv.className = 'true-text';
                 resultDiv.style.marginTop = "10px";
-                resultDiv.innerHTML = `✓ Đáp án chuẩn: ${item.correctAnswer}`;
+                // [FIX BUG #22] Escape nội dung để tránh XSS
+                resultDiv.textContent = `✓ Đáp án chuẩn: ${item.correctAnswer || ""}`;
                 input.parentNode.appendChild(resultDiv);
             }
 

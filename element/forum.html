@@ -1130,20 +1130,28 @@ function showModal(title, msg, isInput, currentText, onConfirm, isHtml = false) 
 }
 
 /* ================= XÁC THỰC LẠI QUYỀN HẠN USER QUA SUPABASE ================= */
-let lastApplyUid = null;
+// [FIX BUG #26] Dedupe dựa trên NỘI DUNG user (uid+name+role) thay vì chỉ uid + 3s.
+// Trước đây lần gửi user thứ 2 trong vòng 3s luôn bị bỏ -> header/posts không refresh
+// khi nội dung user thực sự thay đổi. Nay chỉ bỏ qua khi nội dung GIỐNG NHAU.
+let lastApplySignature = null;
 let lastApplyTime = 0;
 
 async function applyReceivedUser(receivedUser) {
-  const uid = receivedUser && receivedUser.uid;
   const now = Date.now();
-  if (uid && uid === lastApplyUid && now - lastApplyTime < 3000) {
+  const sig = JSON.stringify([
+    receivedUser && receivedUser.uid,
+    receivedUser && (receivedUser.name || receivedUser.displayName),
+    receivedUser && receivedUser.role,
+    receivedUser && (receivedUser.photo || receivedUser.photoURL)
+  ]);
+  // [FIX BUG #26] Chỉ bỏ qua khi nội dung GIỐNG NHAU và vừa mới xử lý (<600ms).
+  // Nếu user đổi tên/ảnh/role thì chữ ký khác -> vẫn được áp dụng, không bị "ăn" mất.
+  if (sig === lastApplySignature && now - lastApplyTime < 600) {
     lastApplyTime = now;
     return;
   }
-  if (uid) {
-    lastApplyUid = uid;
-    lastApplyTime = now;
-  }
+  lastApplySignature = sig;
+  lastApplyTime = now;
 
   if (receivedUser && receivedUser.uid) {
     try {
@@ -1172,17 +1180,16 @@ async function applyReceivedUser(receivedUser) {
     currentUser = receivedUser;
   }
 
-  updateUserBox();
+  // [FIX BUG #18] (đã xóa lời gọi updateUserBox() vì hàm không còn và #userBox không tồn tại)
 
   // Ép làm mới lại danh sách bài đăng sau khi xác thực vai trò hoàn tất
   await loadPosts();
 }
 
-window.addEventListener("message", async (event) => {
-  if (event.data && event.data.type === "USER_INFO") {
-    await applyReceivedUser(event.data.user);
-  }
-});
+// [FIX BUG #26] Gộp về MỘT listener "message" duy nhất cho thông tin người dùng
+// (trước đây có 2 listener cùng gọi applyReceivedUser: USER_INFO ở đây và
+// LEARNHUB_USER ở script sau). Việc xử lý USER_INFO đã chuyển xuống listener
+// chính (script postMessage bên dưới) để không đăng ký trùng.
 
 
 function escapeHTML(value){
@@ -1195,20 +1202,9 @@ function getInitials(name){
   return parts.slice(-2).map(part => part[0]).join("").toUpperCase();
 }
 
-function updateUserBox(){
-  const userBox = document.getElementById("userBox");
-  if(!userBox) return;
-  if(!currentUser) {
-    userBox.innerText = "Chưa đăng nhập";
-    return;
-  }
-  const safeName = escapeHTML(currentUser.name || "Người dùng");
-  const isAdmin = currentUser.role === 'admin' || currentUser.role === 'Admin';
-  const avatarClass = isAdmin ? 'user-avatar admin' : 'user-avatar';
-  const nameClass = isAdmin ? 'user-name-current admin-name' : 'user-name-current';
-  const adminBadge = isAdmin ? ' <span class="admin-badge" style="background:#fee2e2;color:#dc2626;padding:3px 8px;font-weight:800;border-radius:999px;margin-left:8px;border:1px solid rgba(220,38,38,0.15);">🛡 Admin</span>' : '';
-  userBox.innerHTML = `<span class="${avatarClass}">${escapeHTML(getInitials(currentUser.name))}</span><span class="${nameClass}">${safeName}</span>${adminBadge}`;
-}
+// [FIX BUG #18] Đã xóa code chết: updateUserBox() luôn no-op vì #userBox KHÔNG tồn tại
+// trong markup của trang này (tên/avatar/badge chưa bao giờ hiển thị). Nếu sau này cần
+// hiển thị, hãy thêm markup #userBox rồi khôi phục hàm.
 
 /* ================= KHI TRANG LOAD XONG ================= */
 window.addEventListener("load", () => {
@@ -1902,14 +1898,25 @@ function editPost(postId) {
   const post = lastAllPosts.find(p => p.id === postId);
   if (!post) return;
   const oldText = post.text || "";
-  showModal("Chỉnh sửa bài viết", "", true, oldText, () => {
+  // [FIX BUG #27] await update, xử lý lỗi và refresh danh sách để nội dung mới hiện ngay
+  showModal("Chỉnh sửa bài viết", "", true, oldText, async () => {
     const newText = document.getElementById("modalInput").value.trim();
     if (newText && newText !== oldText) {
-      supabase.from("forum_posts").update({
-        text: newText,
-        is_edited: true,
-        edit_time: Date.now()
-      }).eq("id", postId).catch(e => console.error("Lỗi chỉnh sửa bài viết:", e.message));
+      try {
+        const { error } = await supabase.from("forum_posts").update({
+          text: newText,
+          is_edited: true,
+          edit_time: Date.now()
+        }).eq("id", postId);
+        if (error) throw error;
+        post.text = newText;
+        post.is_edited = true;
+        post.edit_time = Date.now();
+        if (typeof scheduleLoadPosts === "function") scheduleLoadPosts();
+      } catch (e) {
+        console.error("Lỗi chỉnh sửa bài viết:", e && e.message || e);
+        showModal("Lỗi", "Không sửa được bài viết. Vui lòng thử lại.", false, "", null);
+      }
     }
   });
 }
@@ -2030,6 +2037,12 @@ window.addEventListener('message', async function(event) {
     if (typeof window.__forumApplyHeaderUser === 'function') window.__forumApplyHeaderUser(receivedUser);
     if (typeof window.__forumSetUser === 'function') await window.__forumSetUser(receivedUser);
   }
+  // [FIX BUG #26] Xử lý luôn USER_INFO tại đây (đã gộp listener) để chỉ còn 1 chỗ apply user
+  if (event.data && event.data.type === 'USER_INFO' && event.data.user) {
+    window.learnHubUser = event.data.user;
+    if (typeof window.__forumApplyHeaderUser === 'function') window.__forumApplyHeaderUser(event.data.user);
+    if (typeof window.__forumSetUser === 'function') await window.__forumSetUser(event.data.user);
+  }
   if (event.data && event.data.type === 'DARK_MODE') {
     if (event.data.value) document.body.classList.add('dark-mode');
     else document.body.classList.remove('dark-mode');
@@ -2050,26 +2063,12 @@ if (localStorage.getItem("cc_reduce") === "on") {
 
 <script>
 /* ===== HEADER + AUTH ===== */
-function updateTime() {
-  const now = new Date();
-  let hours = now.getHours();
-  const minutes = now.getMinutes().toString().padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12 || 12;
-  const el = document.getElementById('currentTime');
-  if (el) el.innerText = `${hours}:${minutes} ${ampm}`;
-}
-updateTime();
-setInterval(updateTime, 30000);
+// [FIX BUG #18] Đã xóa code chết: updateTime() ghi vào #currentTime và các nhánh cũ trong
+// applyHeaderUser ghi vào #welcomeText/#userName/#userAvatar — các phần tử này KHÔNG tồn tại
+// trong markup nên luôn là no-op âm thầm (giờ/tên/avatar không bao giờ hiển thị). Chỉ giữ
+// lại phần có tác dụng thật: báo user cho hệ thống online.
 
 function applyHeaderUser(user) {
-  const avatar = user.photo || user.photoURL || "https://i.imgur.com/6VBx3io.png";
-  const wt = document.getElementById("welcomeText");
-  if (wt) wt.innerText = "";
-  const un = document.getElementById("userName");
-  if (un) un.innerText = user.displayName || user.name || user.email || "";
-  const userAvatar = document.getElementById("userAvatar");
-  if (userAvatar) userAvatar.src = avatar;
   if (window.learnHubUser && window.learnHubUser.uid && typeof window.__forumSetupOnline === 'function') window.__forumSetupOnline(user);
 }
 window.__forumApplyHeaderUser = applyHeaderUser;

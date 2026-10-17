@@ -14,7 +14,16 @@ const PENDING_RESET_KEY = "learnhub-pending-reset";
 // Lưu cờ "đang đợi đặt lại mật khẩu" rồi nhảy sang trang riêng.
 export function redirectToResetPage() {
   try { sessionStorage.setItem(PENDING_RESET_KEY, "1"); } catch (e) {}
-  window.location.replace("reset-password.html");
+  // [FIX BUG #35] Dùng đường dẫn TUYỆT ĐỐI "/reset-password.html" (trước đây là tương đối
+  // nên chạy từ trang trong thư mục con sẽ 404). Đồng thời giữ query + hash để link khôi phục
+  // của Supabase mang theo token (#access_token=...&type=recovery) hoặc ?code=...
+  var suffix = (window.location.search || "") + (window.location.hash || "");
+  var target = "/reset-password.html" + suffix;
+  try {
+    window.location.replace(target);
+  } catch (e) {
+    window.location.href = target;
+  }
 }
 
 // Trả về true nếu event là PASSWORD_RECOVERY (đã chuyển hướng sang trang riêng).

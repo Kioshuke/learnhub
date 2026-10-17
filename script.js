@@ -631,10 +631,35 @@ function attachFrameWheelHandoff(frameId){
         const root = frameDoc.scrollingElement || frameDoc.documentElement || frameDoc.body;
         if(!root) return;
 
+        const dy = e.deltaY;
+
+        // [FIX BUG #5] Nếu con trỏ đang nằm trong một phần tử cuộn được bên trong iframe
+        // (modal/detail/panel có overflow) và phần tử đó còn cuộn được theo hướng lăn,
+        // thì để nó tự cuộn — KHÔNG chuyển wheel ra window (trước đây bị chặn khi iframe
+        // được resize full-height nên root không có scrollbar -> maxScrollTop <= 0).
+        let node = e.target;
+        let guard = 0;
+        while (node && node.nodeType === 1 && node !== frameDoc.body && node !== frameDoc.documentElement && guard++ < 50) {
+          let style = null;
+          try { style = frameDoc.defaultView.getComputedStyle(node); } catch (_) {}
+          if (style) {
+            const oy = style.overflowY;
+            const ox = style.overflowX;
+            const scrollable = (oy === "auto" || oy === "scroll" || ox === "auto" || ox === "scroll");
+            if (scrollable && node.scrollHeight > node.clientHeight + 1) {
+              const canScrollDown = node.scrollTop < (node.scrollHeight - node.clientHeight - 2);
+              const canScrollUp = node.scrollTop > 2;
+              if ((dy > 0 && canScrollDown) || (dy < 0 && canScrollUp)) {
+                return; // để phần tử bên trong tự cuộn
+              }
+            }
+          }
+          node = node.parentElement;
+        }
+
         const maxScrollTop = Math.max(0, root.scrollHeight - root.clientHeight);
         const atTop = root.scrollTop <= 0;
         const atBottom = root.scrollTop >= maxScrollTop - 1;
-        const dy = e.deltaY;
 
         const shouldHandoff =
           maxScrollTop <= 0 ||
@@ -2226,6 +2251,10 @@ if (chatBtnEl) {
     }
   }
 
+  // [FIX BUG #3][NOTE - KHÔNG SỬA NỮA] Hiện nút Admin cho MỌI user đã đăng nhập là CHỦ ĐÍCH.
+  // Lý do: trang administrator.html có bước đăng nhập/kiểm tra quyền riêng (ensureAdmin +
+  // is_admin() ở RLS) nên truy cập thực tế đã bị chặn. Ẩn nút chỉ là UX, không tăng bảo mật.
+  // Không lọc theo role như nút Giáo viên.
   function checkAdmin() {
     const u = window.currentLearnHubUser;
     if (!u || !u.uid) return;

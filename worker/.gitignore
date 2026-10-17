@@ -1,2 +1,5 @@
-# Không commit API key lên GitHub
-worker.js
+# worker.js đã được BỎ KHỎI .gitignore: API key lấy từ env của Cloudflare Workers
+# (OPENROUTER_API_KEY / GEMINI_API_KEY), không còn hard-code trong file nên commit an toàn.
+# Giữ file trong Git để các bản sửa (CORS origin tuyệt đối, rate-limit, temperature=0)
+# không bị mất khi reset repo.
+# Sau này muốn giấu gì: dùng `wrangler secret put <TEN_SECRET>` chứ đừng hard-code vào đây.

@@ -763,11 +763,13 @@ function categoryColor(cat) {
   }
 
   function toDrivePreview(u) {
+    // [FIX BUG #30] Trả về "" nếu không trích được fileId (vd link folder) để cannot-embed
+    // hiển thị fallback thay vì nhúng URL Google Drive chắc chắn bị chặn (trang trắng).
     var m = u.match(/\/(?:file\/d|document\/d|spreadsheets\/d|presentation\/d)\/([a-zA-Z0-9_-]+)/);
     if (m) return "https://drive.google.com/file/d/" + m[1] + "/preview";
     m = u.match(/[?&]id=([a-zA-Z0-9_-]+)/);
     if (m) return "https://drive.google.com/file/d/" + m[1] + "/preview";
-    return u;
+    return "";
   }
 
   function buildEmbedUrl(doc) {
@@ -792,7 +794,8 @@ function categoryColor(cat) {
 
   function canEmbed(doc) {
     var u = String(doc.url || "");
-    if (doc.type === "drive") return true;
+    // [FIX BUG #30] Chỉ nhúng được Drive khi trích ra được fileId
+    if (doc.type === "drive") return !!toDrivePreview(u);
     var ext = extOf(u);
     if (EMBEDDABLE.indexOf(ext) !== -1) return true;
     return false;
@@ -860,6 +863,8 @@ function categoryColor(cat) {
       var st = fileStyle(doc);
       var card = document.createElement("div");
       card.className = "doc-card" + (state.activeId === doc.id ? " active" : "");
+      // [FIX BUG #29] Gắn id để openDetail khớp chính xác (tránh khớp theo tên)
+      card.dataset.id = doc.id;
       var catColor = categoryColor(doc.category);
       if (catColor) card.style.setProperty("--cat", catColor);
       if (!reduced) card.style.animationDelay = (i * 40) + "ms";
@@ -923,9 +928,11 @@ function categoryColor(cat) {
     state.activeId = doc.id;
     state.activeDoc = doc;
     document.querySelectorAll(".doc-card").forEach(function (c) { c.classList.remove("active"); });
+    // [FIX BUG #29] Khớp card theo id (dataset) thay vì theo tên (tránh khớp nhầm khi
+    // tên rỗng/trùng và tránh quét textContent).
     var match = null;
     gridEl.querySelectorAll(".doc-card").forEach(function (c) {
-      if (c.textContent.indexOf(doc.name) !== -1) { match = c; }
+      if (c.dataset && c.dataset.id === String(doc.id)) { match = c; }
     });
     if (match) match.classList.add("active");
 

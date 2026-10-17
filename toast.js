@@ -91,12 +91,21 @@
     };
   }
 
+  function escapeHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
   function iconMarkup(o) {
     var ic = o.icon;
     if (!ic) return '<i class="fa-solid ' + TYPES[o.type].icon + '"></i>';
-    if (ic.indexOf(" ") !== -1 || ic.indexOf("<") === 0) return ic.charAt(0) === "<" ? ic : '<i class="' + ic + '"></i>';
-    if (ic.indexOf("fa-") === 0) return '<i class="fa-solid ' + ic + '"></i>';
-    return "<span>" + ic + "</span>";
+    // [FIX BUG #34] Escape icon trước khi nhét vào innerHTML (trước đây nhét thẳng,
+    // nếu nguồn icon trở thành dữ liệu người dùng thì là lỗ hổng XSS). Chỉ cho phép
+    // tên class Font Awesome (fa-...) hoặc text/emoji; mọi thứ khác được escape.
+    if (ic.indexOf(" ") !== -1 || ic.indexOf("<") === 0) return "<span>" + escapeHtml(ic) + "</span>";
+    if (ic.indexOf("fa-") === 0) return '<i class="fa-solid ' + escapeHtml(ic) + '"></i>';
+    return "<span>" + escapeHtml(ic) + "</span>";
   }
 
   function lhToast(message, opts) {

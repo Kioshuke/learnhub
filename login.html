@@ -1406,6 +1406,12 @@ let otpResendCooldown = null;
 const OTP_EXPIRE_MS = 15 * 60 * 1000;
 let otpServerId = null;
 
+// [FIX BUG #1] LƯU Ý CÒN LẠI: mã OTP hiện vẫn được sinh ở client rồi gửi kèm sang
+// store_otp + EmailJS. Vì EmailJS chạy ở trình duyệt nên mã luôn lộ với client — muốn
+// "sinh OTP phía server" triệt để phải chuyển việc sinh mã + gửi email vào một Supabase
+// Edge Function / RPC (server tự sinh, tự gửi, không trả mã về client). Phần đã sửa ở
+// đây là bịt lỗ hổng chính: xác thực OTP giờ LUÔN hỏi server (verify_otp), không so với
+// biến otpGenerated nữa nên không thể bypass bằng cách sửa biến trong console.
 function generateOTP() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
@@ -1729,7 +1735,6 @@ onAuthChange(async (event, session) => {
   if (user && !processingLogin) {
     processingLogin = true;
     try {
-      // Kiểm tra whitelist
       const allowed = await emailAllowed(user.email);
       if (!allowed) {
         logAppError({ source: "login", category: "whitelist", level: "warning", code: "NOT_ALLOWED", message: "User không nằm trong whitelist cố đăng nhập (OAuth/quay lại khi có session).", email: user.email });
@@ -1953,13 +1958,13 @@ window.emailRegister = async function() {
     setFieldError("otpCode", "Mã đã hết hạn. Nhấn 'Gửi lại mã'");
     return;
   }
-  if (code !== otpGenerated) {
-    const serverResult = await verifyOTPOnServer(email, code);
-    if (serverResult !== true) {
-      setFieldError("otpCode", "Mã xác nhận không đúng");
-      shakeAuthBox("otpCode"); otpInput.focus(); otpInput.select();
-      return;
-    }
+  // [FIX BUG #1][SECURITY] OTP LUÔN xác thực ở SERVER. Trước đây code so khớp biến
+  // otpGenerated phía client nên có thể bypass bằng cách sửa biến này trong console.
+  const serverResult = await verifyOTPOnServer(email, code);
+  if (serverResult !== true) {
+    setFieldError("otpCode", "Mã xác nhận không đúng hoặc đã hết hạn");
+    shakeAuthBox("otpCode"); otpInput.focus(); otpInput.select();
+    return;
   }
 
   const btn = document.getElementById("registerSubmitBtn");
@@ -1973,7 +1978,8 @@ window.emailRegister = async function() {
     const photoUrl = document.getElementById("registerPhoto").value.trim() || "https://i.imgur.com/6VBx3io.png";
     await supabase.from("users").upsert({
       id: user.id, email: user.email, name: name, photo: photoUrl,
-      last_login: nowIso, online: false, created_at: nowIso
+      last_login: nowIso, online: false
+      // [FIX BUG #31] không ghi created_at phía client
     }, { onConflict: "id" });
     showAuthNotice("Đăng ký thành công! Vui lòng đăng nhập.", "success", "Thành công");
     document.getElementById("registerName").value = "";

@@ -305,8 +305,9 @@
         };
 
         let scoreLoadBusy = false;
+        let scoreLoadPending = false; // [FIX BUG #28] nếu đang bận mà có yêu cầu mới -> chạy lại sau
         async function load() {
-            if (scoreLoadBusy) return;
+            if (scoreLoadBusy) { scoreLoadPending = true; return; }
             scoreLoadBusy = true;
             document.getElementById("week-label").textContent = getWeekKey();
 
@@ -416,12 +417,15 @@
                 document.getElementById("table-body").innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu xếp hạng điểm.</td></tr>`;
             } finally {
                 scoreLoadBusy = false;
+                // [FIX BUG #28] Có yêu cầu nạp bị bỏ qua trong lúc bận -> chạy lại ngay
+                if (scoreLoadPending) { scoreLoadPending = false; load(); }
             }
         }
 
         let timeLoadBusy = false;
+        let timeLoadPending = false; // [FIX BUG #28]
         async function loadOnlineTime() {
-            if (timeLoadBusy) return;
+            if (timeLoadBusy) { timeLoadPending = true; return; }
             timeLoadBusy = true;
             try {
                 const { data: allUsers } = await activeSupabase.from("users")
@@ -535,6 +539,8 @@
                 document.getElementById("table-body-time").innerHTML = `<tr><td colspan="3" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu xếp hạng thời gian.</td></tr>`;
             } finally {
                 timeLoadBusy = false;
+                // [FIX BUG #28] Có yêu cầu nạp bị bỏ qua trong lúc bận -> chạy lại ngay
+                if (timeLoadPending) { timeLoadPending = false; loadOnlineTime(); }
             }
         }
 

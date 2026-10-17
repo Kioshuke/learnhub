@@ -1268,6 +1268,31 @@ async function loadQuestions() {
     }
 }
 
+    // [FIX BUG #22] Helper escape + lọc URL: nội dung đề (từ DB) được chèn thẳng qua
+    // innerHTML — nếu chứa HTML/JS sẽ chạy trên trình duyệt của học sinh.
+    function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+    function safeUrl(u) { return /^https?:\/\//i.test(String(u || "").trim()) ? String(u).trim() : ""; }
+    // [FIX BUG #22] Sanitize rich-text cho sectionDesc: nội dung do người tạo đề nhập và CHƯA
+    // escape (vì code cố ý giữ <b>/<i>/<u>). Dùng whitelist thẻ + gỡ TOÀN BỘ attribute để
+    // không còn <script>, <img onerror>, onclick... — chữ in đậm/nghiêng/gạch chân vẫn giữ.
+    const SAFE_TEXT_TAGS = ["b", "i", "u", "em", "strong", "br", "span", "code"];
+    function sanitizeHtml(html) {
+        const body = new DOMParser().parseFromString(String(html || ""), "text/html").body;
+        (function clean(parent) {
+            Array.from(parent.children).forEach(function (el) {
+                const tag = el.tagName.toLowerCase();
+                if (SAFE_TEXT_TAGS.indexOf(tag) === -1) {
+                    clean(el);
+                    el.replaceWith(...el.childNodes); // gỡ thẻ lạ, giữ lại chữ bên trong
+                } else {
+                    Array.from(el.attributes).forEach(function (a) { el.removeAttribute(a.name); });
+                    clean(el);
+                }
+            });
+        })(body);
+        return body.innerHTML;
+    }
+
     // 3. Hàm Render chính - Chia phần bài làm và mục lục
 function renderQuiz() {
     const quizContainer = document.getElementById('quiz-container');
@@ -1282,14 +1307,14 @@ function renderQuiz() {
         // 1. Tạo HTML cho tiêu đề phụ (dùng span để nhận diện <b>, <i>, <u>)
         const descHtml = (section.sectionDesc && section.sectionDesc.trim() !== "") ? 
             `<div style="margin-top: 4px; font-size: 0.78rem; color: var(--text-sub); font-weight: normal; font-style: italic; line-height: 1.4;">
-                <span>${section.sectionDesc}</span>
+                <span>${sanitizeHtml(section.sectionDesc)}</span>
             </div>` : '';
 
         // 2. Render tiêu đề phần (Dùng div thay cho h2 để tránh lỗi khoảng cách)
         quizHtml += `
             <div style="margin: 25px 0 15px; padding: 12px 15px; background: #eff6ff; color: #1a73e8; border-radius: 8px; border-left: 5px solid #1a73e8;">
                 <div style="font-weight: bold; text-transform: uppercase; font-size: 0.95rem; display: block !important;">
-                    ${section.sectionTitle}
+                    ${esc(section.sectionTitle)}
                 </div>
                 ${descHtml}
             </div>`;
@@ -1298,7 +1323,7 @@ function renderQuiz() {
         if (section.passage && section.passage.trim() !== "") {
             quizHtml += `
                 <div style="background: var(--card); padding: 15px; border-radius: 10px; margin-bottom: 15px; line-height: 1.7; border-left: 4px solid var(--primary); font-size: 0.95rem;">
-                    ${section.passage}
+                    ${esc(section.passage)}
                 </div>`;
         }
 
@@ -1306,10 +1331,10 @@ function renderQuiz() {
         if (section.type === 'listening' || (section.audio && String(section.audio).length > 0)) {
             const tracks = Array.isArray(section.audio) ? section.audio : [section.audio];
             const audioHtml = tracks.map((tr, i) => {
-                const url = (typeof tr === 'string') ? tr : tr.url;
+                const url = safeUrl((typeof tr === 'string') ? tr : tr.url);
                 const label = (typeof tr === 'string') ? (tracks.length > 1 ? `Bài nghe ${i + 1}` : "") : (tr.title || `Bài nghe ${i + 1}`);
                 return `<div style="${tracks.length > 1 ? 'margin-bottom: 10px;' : ''}">
-                    ${label ? `<div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 4px; color: var(--text-sub);">${label}</div>` : ''}
+                    ${label ? `<div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 4px; color: var(--text-sub);">${esc(label)}</div>` : ''}
                     <audio data-src="${url}" controls preload="none" style="width: 100%; height: 50px;">
                         <source src="${url}" type="audio/mpeg">
                     </audio>
@@ -1321,18 +1346,18 @@ function renderQuiz() {
                         <span style="background: var(--primary); color: #fff; border-radius: 8px; padding: 4px 10px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 6px;">
                             <i class="fa-solid fa-headphones"></i> Phần Nghe
                         </span>
-                        <span style="font-size: 0.85rem; font-weight: 600;">${section.listenTitle || "Bấm play, nghe và trả lời các câu hỏi bên dưới"}</span>
+                        <span style="font-size: 0.85rem; font-weight: 600;">${esc(section.listenTitle || "Bấm play, nghe và trả lời các câu hỏi bên dưới")}</span>
                     </div>
                     ${audioHtml}
                 </div>`;
         }
         
-        navHtml += `<div class="nav-section-label" style="grid-column: 1/-1; font-weight: bold; margin: 10px 0 5px; font-size: 0.7rem; color: #64748b; text-transform: uppercase;">${section.sectionTitle}</div>`;
+        navHtml += `<div class="nav-section-label" style="grid-column: 1/-1; font-weight: bold; margin: 10px 0 5px; font-size: 0.7rem; color: #64748b; text-transform: uppercase;">${esc(section.sectionTitle)}</div>`;
 
         section.questions.forEach((item) => {
             const imageHtml = (item.image && item.image.trim() !== "") ? `
                 <div class="q-image" style="text-align: center; margin: 10px 0;">
-                    <img src="${item.image}" onerror="this.parentElement.style.display='none'" style="max-width: 100%; max-height: 250px; border-radius: 10px;">
+                    <img src="${safeUrl(item.image)}" onerror="this.parentElement.style.display='none'" style="max-width: 100%; max-height: 250px; border-radius: 10px;">
                 </div>` : '';
 
             let answersContent = '';
@@ -1341,13 +1366,13 @@ function renderQuiz() {
                 // Nếu câu có title riêng thì đề bài (item.question) hiển thị ở thân card
                 const promptBody = (item.title && item.question && item.question !== item.title) ? `
                     <div style="margin-bottom: 12px; font-size: 0.95rem; line-height: 1.6; font-weight: 600; color: var(--text);">
-                        ${item.question}
+                        ${esc(item.question)}
                     </div>` : '';
                 answersContent = `${promptBody}<div class="answers-grid">
                     ${item.answers.map((ans, idx) => `
                         <label class="ans-label" id="label-${globalIdx}-${idx}" onclick="selectAnswer(this, ${globalIdx})">
                             <input type="radio" name="question-${globalIdx}" value="${idx}">
-                            <span>${ans}</span>
+                            <span>${esc(ans)}</span>
                         </label>`).join('')}
                 </div>`;
             } 
@@ -1358,7 +1383,7 @@ function renderQuiz() {
                         ${item.subQuestions.map((sub, subIdx) => `
                             <div class="tf-row" style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--tf-border); gap: 10px;">
                                 <div class="tf-question-text" style="flex: 1; font-size: 0.9rem;">
-                                    <strong style="color:var(--primary)">${String.fromCharCode(97 + subIdx)}.</strong> <span>${sub.text}</span>
+                                    <strong style="color:var(--primary)">${String.fromCharCode(97 + subIdx)}.</strong> <span>${esc(sub.text)}</span>
                                 </div>
                                 <div class="tf-options" style="display: flex; gap: 5px; flex-shrink: 0;">
                                     <label style="cursor:pointer; display:flex; align-items:center; gap:3px; background: transparent; padding:4px 10px; border-radius:6px; border: 1.2px solid var(--tf-border); font-size: 0.85rem;">
@@ -1377,7 +1402,7 @@ function renderQuiz() {
                 // Hiển thị đề bài (prompt) phía trên + ô nhập tự luận
                 const promptHtml = (item.question && item.question.trim() !== "") ? `
                     <div style="margin-bottom: 12px; font-size: 0.95rem; line-height: 1.6; font-weight: 600; color: var(--text);">
-                        ${item.question}
+                        ${esc(item.question)}
                     </div>` : '';
                 answersContent = `
                     ${promptHtml}
@@ -1386,7 +1411,7 @@ function renderQuiz() {
             // 🔥 [Tiếng Anh] Đọc hiểu: 1 đoạn văn (passage) + nhiều câu hỏi trắc nghiệm con
             else if (item.type === 'passage') {
                 window.totalMaxScore += 1;
-                const passageContent = (item.passage && item.passage.trim() !== "") ? item.passage : '';
+                const passageContent = (item.passage && item.passage.trim() !== "") ? esc(item.passage) : '';
                 answersContent = `
                     <div class="passage-layout">
                         <div class="passage-left">
@@ -1398,13 +1423,13 @@ function renderQuiz() {
                             ${(item.subQuestions || []).map((sub, subIdx) => `
                                 <div class="sub-q-block">
                                     <div class="sub-q-text" style="font-weight: 600; font-size: 0.92rem; margin-bottom: 10px;">
-                                        <strong style="color: var(--primary);">${String.fromCharCode(97 + subIdx)}.</strong> ${sub.question || ""}
+                                        <strong style="color: var(--primary);">${String.fromCharCode(97 + subIdx)}.</strong> ${esc(sub.question || "")}
                                     </div>
                                     <div class="answers-grid">
                                         ${sub.answers.map((ans, aIdx) => `
                                             <label class="ans-label" id="label-${globalIdx}-${subIdx}-${aIdx}" onclick="selectAnswer(this, ${globalIdx}, ${subIdx})">
                                                 <input type="radio" name="q-${globalIdx}-${subIdx}" value="${aIdx}">
-                                                <span><b>${String.fromCharCode(65 + aIdx)}.</b> ${ans}</span>
+                                                <span><b>${String.fromCharCode(65 + aIdx)}.</b> ${esc(ans)}</span>
                                             </label>`).join('')}
                                     </div>
                                 </div>
@@ -1415,7 +1440,7 @@ function renderQuiz() {
             // 🔥 [Tiếng Anh] Điền lỗ: câu văn có nhiều ô trống {{1}}, {{2}}...
             else if (item.type === 'cloze') {
                 window.totalMaxScore += 1;
-                let clozeHtml = String(item.question || "");
+                let clozeHtml = esc(String(item.question || ""));
                 const blanks = item.blanks || [];
                 clozeHtml = clozeHtml.replace(/\{\{(\d+)\}\}/g, (m, n) => {
                     const idx = parseInt(n, 10) - 1;
@@ -1443,7 +1468,7 @@ function renderQuiz() {
                 <div class="question-card" id="card-${globalIdx}" style="margin-bottom: 20px; padding: 15px;">
                     <div class="q-header" style="margin-bottom: 12px; font-size: 0.95rem;">
                         <span class="q-badge" style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 15px; font-size: 0.75rem; font-weight: bold; margin-right: 5px;">Câu ${globalIdx + 1}</span> 
-                        <span>${questionTitle}</span>
+                        <span>${esc(questionTitle)}</span>
                     </div>
                     ${imageHtml}
                     ${answersContent}
@@ -1511,7 +1536,7 @@ function loadListeningAudios() {
             if (handle && handle.el) {
                 handle.el.classList.add("lh-toast-mini");
                 const msgEl = handle.el.querySelector(".lh-toast-message");
-                if (msgEl) msgEl.innerHTML = `Đã lưu đáp án <b>${answerText}</b>`;
+                if (msgEl) msgEl.innerHTML = `Đã lưu đáp án <b>${String(answerText ?? "").replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" })[c])}</b>`;
             }
         } catch (e) {}
     }
@@ -1728,7 +1753,8 @@ let correctCount = 0;
             else if (item.type === 'short_answer') {
                 const inputEl = document.querySelector(`[data-qidx="${globalIdx}"]`);
                 const val = inputEl ? inputEl.value.trim().toLowerCase() : "";
-                if (val === item.correctAnswer.toLowerCase()) {
+                // [FIX BUG #20] Guard correctAnswer undefined để tránh crash khi chấm điểm
+                if (val === String(item.correctAnswer || "").toLowerCase()) {
                     userScore += basePerQuestion;
                     correctCount++;
                 } else isPerfect = false;
@@ -1781,9 +1807,9 @@ resultFlags.push(isPerfect);
     //  - show_answers='none'    → không cho phép
     const score = Number(((userScore / maxScore) * 10).toFixed(1));
     const fullMark = score >= 10;
+    // [FIX BUG #11] Bỏ điều kiện `showAnswers !== 'none'` (luôn đúng, phá ràng buộc 'perfect')
     const canReview = examConfig.showAnswers === 'always' ||
-        (examConfig.showAnswers === 'perfect' && fullMark) ||
-        examConfig.showAnswers !== 'none';
+        (examConfig.showAnswers === 'perfect' && fullMark);
     examConfig.reviewLocked = !canReview;
 
     const scoreCircle = document.getElementById('scoreValue');
@@ -1938,7 +1964,8 @@ function reviewMode() {
             else if (item.type === 'short_answer') {
                 const input = card.querySelector('.short-input');
                 const userAns = input.value.trim().toLowerCase();
-                const isCorrect = userAns === item.correctAnswer.toLowerCase();
+                // [FIX BUG #20] Guard correctAnswer undefined
+                const isCorrect = userAns === String(item.correctAnswer || "").toLowerCase();
 
                 card.classList.add(isCorrect ? 'review-true' : 'review-false');
                 input.style.borderColor = isCorrect ? "var(--success)" : "var(--danger)";
@@ -1946,7 +1973,8 @@ function reviewMode() {
                 const resultDiv = document.createElement('div');
                 resultDiv.className = 'true-text';
                 resultDiv.style.marginTop = "10px";
-                resultDiv.innerHTML = `✓ Đáp án chuẩn: ${item.correctAnswer}`;
+                // [FIX BUG #22] Escape nội dung để tránh XSS
+                resultDiv.textContent = `✓ Đáp án chuẩn: ${item.correctAnswer || ""}`;
                 input.parentNode.appendChild(resultDiv);
             }
             // --- 4. 🔥 [Tiếng Anh] XỬ LÝ CÂU ĐỌC HIỂU (nhiều câu con trắc nghiệm) ---

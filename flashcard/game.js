@@ -14,7 +14,8 @@ let BGM_VOLUME = 1.0;
 let audioUnlocked = false;
 
 // Settings from localStorage
-let settings = {
+// [FIX BUG #14] Tách giá trị mặc định ra hằng số để có thể khôi phục khi JSON hỏng.
+const DEFAULT_SETTINGS = {
   bgmEnabled: true,
   bgmVolume: 1,
   sfxEnabled: true,
@@ -22,12 +23,19 @@ let settings = {
   speechEnabled: true,
   speechVolume: 1
 };
+let settings = Object.assign({}, DEFAULT_SETTINGS);
 
 // Load settings from localStorage
 function loadGameSettings() {
   const saved = localStorage.getItem("learnhubSettings");
   if (saved) {
-    settings = JSON.parse(saved);
+    // [FIX BUG #14] Bọc try/catch quanh JSON.parse: dữ liệu localStorage hỏng/không hợp lệ
+    // sẽ không làm sập toàn bộ script, chỉ quay về cấu hình mặc định.
+    try {
+      settings = Object.assign({}, DEFAULT_SETTINGS, JSON.parse(saved));
+    } catch (e) {
+      settings = Object.assign({}, DEFAULT_SETTINGS);
+    }
   }
 }
 
@@ -191,24 +199,31 @@ function setGlobalProgressVisible(show) {
     }
 }
 function setTotal() {
+    // [FIX BUG #24] Interval này trước đây không bao giờ clear nếu `cards` không bao giờ
+    // được nạp (module lỗi) -> kẹt màn hình loading + rò interval. Thêm số lần thử tối đa
+    // để tự thoát và ẩn màn hình loading.
+    let attempts = 0;
+    const MAX_ATTEMPTS = 100; // ~10s
     const check = setInterval(() => {
+        attempts++;
         if (typeof cards !== "undefined" && cards.length > 0) {
             total = cards.length;
-            // Reset toàn bộ tiến độ về 0 khi load data mới
-            gameProgress.flashcard = 0;
-            gameProgress.match = 0;
-            gameProgress.blast = 0;
-            gameProgress.defender = 0;
-            gameProgress.fillblank = 0;
-            gameProgress.wordsearch = 0;
-            
+            // [FIX BUG #23] KHÔNG tự động reset gameProgress khi load lại trang
+            // -> tiến độ game/flashcard sẽ được phục hồi từ localStorage sau.
+
             updateProgress();
             if (typeof initFlashcard === "function") initFlashcard();
 
             const loadingScreen = document.getElementById("loading-screen");
             if (loadingScreen) loadingScreen.style.display = "none";
-            
+
             clearInterval(check);
+            return;
+        }
+        if (attempts >= MAX_ATTEMPTS) {
+            clearInterval(check);
+            const loadingScreen = document.getElementById("loading-screen");
+            if (loadingScreen) loadingScreen.style.display = "none";
         }
     }, 100);
 }
@@ -600,12 +615,23 @@ function goBackToHub() {
 
 function initFlashcard() {
     stopAllSounds();
-    initFlashcardCategories();
+    // [FIX BUG #23] Phục hồi tiến độ flashcard đã lưu (trước đây luôn reset ->
+    // load lại trang là mất tiến độ). Vẫn giữ fcQueuePos để tiếp tục đúng chỗ.
+    var restored = false;
+    try { restored = loadFlashcardProgress(); } catch (e) { restored = false; }
+    if (!restored) {
+        initFlashcardCategories();
+    } else {
+        gameProgress.flashcard = fcCategories.known.length;
+        updateCategoryUI();
+        updateProgress();
+    }
     var inner = document.querySelector(".flash-inner");
     if (inner) inner.classList.remove("flipped");
     var queue = getActiveQueue();
     if (queue.length > 0) {
-        fcQueuePos = 0;
+        if (!restored) fcQueuePos = 0;
+        if (fcQueuePos >= queue.length) fcQueuePos = 0;
         updateCategoryUI();
         showCard();
     }
@@ -874,10 +900,14 @@ function nextQuestion() {
     const correct = blastPool[blastIndex];
     blastIndex++;
 
+    // [FIX BUG #2] Bounded distractor selection
     let options = [correct.back];
-    while (options.length < 4) {
-        const rand = random(dataSource).back;
-        if (!options.includes(rand)) options.push(rand);
+    const distractorPool = Array.from(new Set(
+        dataSource.map(d => d && d.back).filter(v => v != null && v !== correct.back)
+    ));
+    while (options.length < 4 && distractorPool.length > 0) {
+        const idx = Math.floor(Math.random() * distractorPool.length);
+        options.push(distractorPool.splice(idx, 1)[0]);
     }
     options = shuffle(options);
 
@@ -1135,16 +1165,29 @@ function spawnMonster() {
     let topPos = -100;
     wrapper.style.top = topPos + "px";
     
-    wrapper.innerHTML = `
-        <div class="monster-visual" style="position: relative; display: flex; justify-content: center;">
-            <div class="monster-icon" style="font-size: 35px; filter: drop-shadow(0 0 10px ${randomMonster.color}); z-index: 2;">
-                ${randomMonster.icon}
-            </div>
-        </div>
-        <div class="monster-text-box" style="border: 1px solid ${randomMonster.color} !important; color: ${randomMonster.color} !important; box-shadow: 0 0 10px ${randomMonster.color}44 !important;">
-            ${currentData.back}
-        </div>
-    `;
+    // [FIX BUG #7] Escape monster text (back); icon/color from config safe-ish but escape back
+    const monsterVisual = document.createElement("div");
+    monsterVisual.className = "monster-visual";
+    monsterVisual.style.position = "relative";
+    monsterVisual.style.display = "flex";
+    monsterVisual.style.justifyContent = "center";
+    const monsterIcon = document.createElement("div");
+    monsterIcon.className = "monster-icon";
+    monsterIcon.style.fontSize = "35px";
+    monsterIcon.style.filter = `drop-shadow(0 0 10px ${randomMonster.color})`;
+    monsterIcon.style.zIndex = "2";
+    monsterIcon.innerHTML = randomMonster.icon; // icon là emoji, an toàn
+    monsterVisual.appendChild(monsterIcon);
+    const textBox = document.createElement("div");
+    textBox.className = "monster-text-box";
+    // [FIX BUG #7] Dùng setProperty để giữ được !important (gán .style.border = "...!important"
+    // qua CSSOM sẽ bị bỏ qua phần !important).
+    textBox.style.setProperty("border", `1px solid ${randomMonster.color}`, "important");
+    textBox.style.setProperty("color", randomMonster.color, "important");
+    textBox.style.setProperty("box-shadow", `0 0 10px ${randomMonster.color}44`, "important");
+    textBox.textContent = currentData.back || "";
+    wrapper.appendChild(monsterVisual);
+    wrapper.appendChild(textBox);
     
     area.appendChild(wrapper);
     currentMonsterNode = wrapper;
@@ -1172,16 +1215,20 @@ function loadAmmo(correctAnswer, dataSource) {
     if (!shelf) return;
     shelf.innerHTML = "";
 
+    // [FIX BUG #2] Giới hạn vòng lặp khi tạo đạn (ammo) tránh treo tab (Blast/Defender)
     let options = [correctAnswer];
-    while (options.length < 3 && dataSource.length >= 3) {
-        let rand = dataSource[Math.floor(Math.random() * dataSource.length)].front;
-        if (!options.includes(rand)) options.push(rand);
+    const ammoPool = Array.from(new Set(
+        dataSource.map(d => d && d.front).filter(v => v != null && v !== correctAnswer)
+    ));
+    while (options.length < 3 && ammoPool.length > 0) {
+        const idx = Math.floor(Math.random() * ammoPool.length);
+        options.push(ammoPool.splice(idx, 1)[0]);
     }
-    options = options.sort(() => Math.random() - 0.5);
+    options = shuffle(options);
 
     options.forEach(opt => {
         const btn = document.createElement("button");
-        btn.innerText = opt;
+        btn.textContent = opt;
         btn.onclick = () => shoot(opt, correctAnswer, btn);
         shelf.appendChild(btn);
     });

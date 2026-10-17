@@ -112,6 +112,7 @@ const WHITELIST_CACHE_TTL = 5000; // 5s
 // - TẮT: web ĐÓNG, chỉ email nằm trong whitelist (access_list.enabled=true) mới vào.
 //   User đang dùng mà bị gỡ quyền sẽ được guard trên index.html đăng xuất.
 // Lưu ở bảng whitelist_settings { id=true, enabled, updated_at, updated_by }.
+// (Bảng whitelist_settings tồn tại trên DB live nhưng không có trong schema.sql — xem ghi chú #12 ở cuối file đó.)
 let _wlEnabledCache = { result: null, ts: 0, inflight: null };
 const WL_ENABLED_TTL = 5000; // 5s
 

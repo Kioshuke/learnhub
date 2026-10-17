@@ -365,6 +365,7 @@
 
     let vdListCache = null;      // toàn bộ card từ teacher_list_video_cards
     let vdEditId = null;         // đang sửa card nào (null = tạo mới)
+    let vdEditSortOrder = 0;     // [FIX BUG #21] giữ nguyên sort_order khi sửa card
     let vdOpenMap = new Map();   // "subject|group" -> đang mở?
 
     function show(which) {
@@ -794,6 +795,7 @@
 
     window.vdNew = function() {
       vdEditId = null;
+      vdEditSortOrder = 0; // [FIX BUG #21] card mới bắt đầu sort_order = 0
       document.getElementById("vdEditorTitle").textContent = "Card video mới";
       document.getElementById("vdEditorMode").textContent = "Tạo card video mới";
       vdSetCardMode("select", false);
@@ -830,6 +832,8 @@
     async function vdEdit(card) {
       if (!card) return;
       vdEditId = card.card_id;
+      // [FIX BUG #21] Lưu lại sort_order hiện tại để không reset về 0 khi lưu
+      vdEditSortOrder = (typeof card.sort_order === "number") ? card.sort_order : 0;
       vdSetCardMode("select", false);
       const memCbEdit = document.getElementById("vdRemember");
       if (memCbEdit) memCbEdit.checked = !!vdMemRead();
@@ -890,7 +894,7 @@
           p_title: title,
           p_video_url: url,
           p_video_type: kind === "document" ? "document" : "video",
-          p_sort_order: 0,
+          p_sort_order: vdEditId ? vdEditSortOrder : 0, // [FIX BUG #21] giữ sort_order khi sửa
           p_is_complete: false
         };
         const { data, error } = await supabase.rpc("teacher_upsert_video_card", args);

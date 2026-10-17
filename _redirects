@@ -21,3 +21,7 @@
 /admin-dashboard.html   /administrator.html  301
 /teacher-dashboard.html   /teacher/  301
 /teacher.html            /teacher/  301
+
+# Blog & bai-viet: trang goc khong ton tai (chi co ban duoi element/) nen URL cu / bookmark go tay bi 404
+/blog.html        /element/blog.html      301
+/bai-viet.html    /element/bai-viet.html  301

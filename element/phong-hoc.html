@@ -362,9 +362,12 @@ function switchSubject(id) {
     closeQuiz();
   }
   document.querySelectorAll('.subject-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector('.subject-tab[data-subject="' + id + '"]').classList.add('active');
+  // [FIX BUG #19] Guard null: tránh crash khi không tìm thấy tab/panel tương ứng
+  var tabEl = document.querySelector('.subject-tab[data-subject="' + id + '"]');
+  if (tabEl) tabEl.classList.add('active');
   document.querySelectorAll('.subject-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  var panelEl = document.getElementById(id);
+  if (panelEl) panelEl.classList.add('active');
   applyCardDominoEffect();
 }
 
@@ -821,8 +824,9 @@ function switchSidebarVideo(item) {
     ytPlayer = null;
     if (frame) {
       frame.style.aspectRatio = "";
-      frame.innerHTML = '<div id="ytPlayerHost"></div>';
-      ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", videoId); });
+      // [FIX BUG #32] id riêng cho nhánh fallback (tránh trùng id ytPlayerHost trong source)
+      frame.innerHTML = '<div id="ytPlayerHostFb"></div>';
+      ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHostFb", videoId); });
     }
   }
 }
@@ -889,7 +893,8 @@ function getDriveStreamUrls(id) {
 /* Nút "Mở thư mục Drive" ở thanh trên player: chỉ hiện khi đang xem thư mục
    Drive (drive-folder-mode) để mở song song 1 tab khác. url = null -> ẩn nút. */
 function setDriveFolderLink(url) {
-  var btn = document.getElementById("driveFolderOpenBtn");
+  // [FIX BUG #32] Dùng class để tìm nút trong panel đang hiển thị (id từng bị trùng)
+  var btn = document.querySelector(".open-drive-btn") || document.getElementById("driveFolderOpenBtn");
   if (!btn) return;
   if (url) {
     btn.href = String(url);
@@ -1102,14 +1107,14 @@ function openCourse(el, courseId) {
   document.getElementById("quiz").innerHTML =
     '<div class="video-box">' +
       '<div class="video-topbar">' +
-        '<a id="driveFolderOpenBtn" class="quiz-btn open-drive-btn" target="_blank" rel="noopener" style="display:none">' +
+        '<a id="grammarDriveFolderOpenBtn" class="quiz-btn open-drive-btn" target="_blank" rel="noopener" style="display:none">' +
           '<i class="fas fa-folder-open"></i> Mở thư mục Drive' +
         '</a>' +
         '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng video</button>' +
       '</div>' +
       '<div class="grammar-player-content">' +
         '<div class="video-frame">' +
-          '<div id="ytPlayerHost"></div>' +
+          '<div id="quizYtPlayerHost"></div>' + // [FIX BUG #32] id riêng cho player trong quiz
         '</div>' +
         '<div class="grammar-sidebar">' +
           '<div class="grammar-sidebar-header">Mục lục<span class="watched-counter"></span></div>' +
@@ -1126,7 +1131,7 @@ function openCourse(el, courseId) {
     showDrivePlayer(firstItem.drive);
   } else if (firstItem && firstItem.video) {
     var firstVideoId = extractVideoId(firstItem.video);
-    ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", firstVideoId); });
+    ensureYouTubeAPI(function() { createYTPlayer("quizYtPlayerHost", firstVideoId); });
   }
 
   setTimeout(function() {
@@ -1279,7 +1284,13 @@ function seedGvVideoTab(data, order) {
 
     cardOrder.forEach(function(ct) {
       var key = n + "§" + ct;
-      if (grid.querySelector('.card[data-gv-card="' + key + '"]')) return;
+      // [FIX BUG #17] Không nhét card_title vào CSS selector (tiêu đề chứa "/\ hoặc "
+      // làm querySelector throw -> dừng render thẻ Video GV). So khớp qua dataset thay thế.
+      var existed = false;
+      for (var ci = 0; ci < grid.children.length; ci++) {
+        if (grid.children[ci].dataset && grid.children[ci].dataset.gvCard === key) { existed = true; break; }
+      }
+      if (existed) return;
       var cards = byCard[ct];
       var groupNames = [];
       cards.forEach(function(c) {
@@ -1292,7 +1303,7 @@ function seedGvVideoTab(data, order) {
       }
       if (!cardDesc) cardDesc = "Khóa video tổng hợp của giáo viên — bấm Xem video để bắt đầu.";
       grid.insertAdjacentHTML("beforeend",
-        '<div class="card" data-gv-card="' + key + '">' +
+        '<div class="card" data-gv-card="' + escHtml(key) + '">' +
           '<div class="card-color-bar"></div>' +
           '<div class="card-body">' +
             '<div class="card-top">' +
@@ -1421,7 +1432,7 @@ function openGvSubject(el, subjectName, cardTitle) {
   document.getElementById("quiz").innerHTML =
     '<div class="video-box">' +
       '<div class="video-topbar">' +
-        '<a id="driveFolderOpenBtn" class="quiz-btn open-drive-btn" target="_blank" rel="noopener" style="display:none">' +
+        '<a id="gvDriveFolderOpenBtn" class="quiz-btn open-drive-btn" target="_blank" rel="noopener" style="display:none">' +
           '<i class="fas fa-folder-open"></i> Mở thư mục Drive' +
         '</a>' +
         '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng video</button>' +
@@ -1522,8 +1533,11 @@ function applySubjectNotices(map) {
 })();
 
 /* Cập nhật realtime: giáo viên sửa thông báo → phòng học đổi ngay nếu đang mở. */
+// [FIX BUG #25] Giữ tham chiếu kênh và gỡ khi rời trang để tránh rò kênh realtime
+// (trước đây mỗi lần vào lại tạo thêm kênh mới nhưng không bao giờ removeChannel).
+var subjectNoticesChannel = null;
 if (typeof supabase.channel === "function") {
-  supabase
+  subjectNoticesChannel = supabase
     .channel("phong-hoc-notices")
     .on("postgres_changes", { event: "*", schema: "public", table: "subject_notices" }, function () {
       supabase.rpc("load_subject_notices").then(function ({ data, error }) {
@@ -1531,6 +1545,14 @@ if (typeof supabase.channel === "function") {
       });
     })
     .subscribe();
+  var _removeSubjectNoticesChannel = function () {
+    if (subjectNoticesChannel) {
+      try { supabase.removeChannel(subjectNoticesChannel); } catch (e) {}
+      subjectNoticesChannel = null;
+    }
+  };
+  window.addEventListener("pagehide", _removeSubjectNoticesChannel);
+  window.addEventListener("beforeunload", _removeSubjectNoticesChannel);
 }
 
 (async function initVideoGv() {
