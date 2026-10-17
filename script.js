@@ -146,19 +146,11 @@ function syncAutoHeightOnShow(frameId){
 function sendFrameView(frame){
   if(!frame || !frame.contentWindow) return;
   const r = frame.getBoundingClientRect();
-  // Chiều cao header đang GHIM (tab home/forum/blog/tài liệu) — header z-index 1000 đè lên
-  // iframe nên modal bên trong phải chừa đúng khoảng này, nếu không sẽ bị header che mất đỉnh.
-  let menuH = 0;
-  if(document.body.classList.contains("sticky-header")){
-    const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--lh-menu-h"));
-    if(Number.isFinite(v) && v > 0) menuH = Math.round(v);
-  }
   try {
     frame.contentWindow.postMessage({
       type: "FRAME_VIEW",
       top: Math.round(r.top),
-      vh: window.innerHeight,
-      menuH: menuH
+      vh: window.innerHeight
     }, "*");
   } catch(e){}
 }

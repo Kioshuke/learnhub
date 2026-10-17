@@ -1512,15 +1512,8 @@ window.addEventListener("beforeunload", () => {
 });
 window.addEventListener("message", (event) => {
   if (event.data && event.data.type === "LOCK_PAGE_SCROLL") {
-    // keepSticky: các tab có header GHIM (tài liệu/forum/blog) chỉ khoá ở <html>. Nếu đặt
-    // overflow:hidden lên <body> thì <body> thành scroll container -> header sticky bật khỏi
-    // vị trí (giật). Phòng học không có header ghim nên vẫn khoá cả hai như cũ.
-    if (event.data.keepSticky) {
-      document.documentElement.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-    }
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
   } else if (event.data && event.data.type === "UNLOCK_PAGE_SCROLL") {
     document.body.style.overflow = '';
     document.documentElement.style.overflow = '';

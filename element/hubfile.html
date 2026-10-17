@@ -304,10 +304,7 @@
       display: none;
       align-items: center;
 justify-content: center;
-      /* Chừa chỗ cho header đang GHIM của trang chính (--lh-frame-menu do FRAME_VIEW gửi sang)
-         để đỉnh khung review không bị header che mất. Khi không ghim thì = 0px. */
       padding: 12px;
-      padding-top: calc(var(--lh-frame-menu, 0px) + 12px);
       background: rgba(10, 15, 25, 0.55);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
@@ -317,7 +314,7 @@ justify-content: center;
       position: relative;
       width: 100%;
       max-width: 1440px;
-      max-height: calc(var(--lh-view-h, 100vh) - var(--lh-frame-menu, 0px) - 24px);
+      max-height: calc(var(--lh-view-h, 100vh) - 24px);
       display: flex;
       flex-direction: column;
       background: var(--glass);
@@ -518,7 +515,7 @@ font-family: inherit;
 
 /* ===== RESPONSIVE ===== */
     @media (min-width: 901px) {
-      .detail-modal { height: calc(var(--lh-view-h, 100vh) - var(--lh-frame-menu, 0px) - 24px); }
+      .detail-modal { height: calc(var(--lh-view-h, 100vh) - 24px); }
     }
     @media (max-width: 900px) {
       .detail-body {
@@ -989,14 +986,6 @@ function categoryColor(cat) {
 
     detailView.classList.add("show");
     document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-    // Iframe tự giãn chiều cao nên thanh cuộn nằm ở TRANG CHÍNH — khoá body bên trong iframe
-    // là không đủ. Báo trang chính khoá cuộn (giống cách phòng học làm với bài kiểm tra) và
-    // xin lại vùng nhìn thấy (kèm chiều cao header ghim) để đặt modal cho đúng.
-    if (window.parent && window.parent !== window) {
-      try { window.parent.postMessage({ type: "REQUEST_FRAME_VIEW" }, "*"); } catch (e) {}
-      try { window.parent.postMessage({ type: "LOCK_PAGE_SCROLL", keepSticky: true }, "*"); } catch (e) {}
-    }
   }
 
   window.closeDetail = function () {
@@ -1006,10 +995,6 @@ function categoryColor(cat) {
     document.querySelectorAll(".doc-card").forEach(function (c) { c.classList.remove("active"); });
     detailView.classList.remove("show");
     document.body.style.overflow = "";
-    document.documentElement.style.overflow = "";
-    if (window.parent && window.parent !== window) {
-      try { window.parent.postMessage({ type: "UNLOCK_PAGE_SCROLL" }, "*"); } catch (e) {}
-    }
   };
 
   detailView.addEventListener("click", function (e) {
@@ -1089,7 +1074,7 @@ function categoryColor(cat) {
   var root = document.documentElement;
   root.classList.add("lh-in-iframe");
 
-  var timer = null, lastH = -1, lastVh = -1, lastTop = null, lastMenu = -1;
+  var timer = null, lastH = -1, lastVh = -1, lastTop = null;
 
   function measure() {
     var b = document.body;
@@ -1120,10 +1105,8 @@ function categoryColor(cat) {
     else if (d.type === "FRAME_VIEW") {
       var vh = Number(d.vh) || 0;
       var top = Number(d.top) || 0;
-      var menu = Number(d.menuH) || 0;
       if (vh > 0 && vh !== lastVh) { lastVh = vh; root.style.setProperty("--lh-view-h", vh + "px"); }
       if (top !== lastTop) { lastTop = top; root.style.setProperty("--lh-frame-top", top + "px"); }
-      if (menu !== lastMenu) { lastMenu = menu; root.style.setProperty("--lh-frame-menu", menu + "px"); }
     }
   });
 
