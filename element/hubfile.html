@@ -306,8 +306,8 @@
 justify-content: center;
       /* Chừa chỗ cho header đang GHIM của trang chính (--lh-frame-menu do FRAME_VIEW gửi sang)
          để đỉnh khung review không bị header che mất. Khi không ghim thì = 0px. */
-      padding: 12px;
-      padding-top: calc(var(--lh-frame-menu, 0px) + 12px);
+      padding: 20px;
+      padding-top: calc(var(--lh-frame-menu, 0px) + 20px);
       background: rgba(10, 15, 25, 0.55);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
@@ -316,8 +316,8 @@ justify-content: center;
 .detail-modal {
       position: relative;
       width: 100%;
-      max-width: 1440px;
-      max-height: calc(var(--lh-view-h, 100vh) - var(--lh-frame-menu, 0px) - 24px);
+      max-width: 1000px;
+      max-height: calc(var(--lh-view-h, 100vh) - var(--lh-frame-menu, 0px) - 40px);
       display: flex;
       flex-direction: column;
       background: var(--glass);
@@ -368,7 +368,7 @@ justify-content: center;
     }
     .detail-body {
       display: grid;
-      grid-template-columns: 1fr 360px;
+      grid-template-columns: 1fr 300px;
       flex: 1;
       min-height: 0;
     }
@@ -377,7 +377,7 @@ justify-content: center;
       position: relative;
       background: #0f172a;
       border-right: 1px solid var(--line);
-      min-height: 420px;
+      min-height: 300px;
     }
     .detail-preview iframe {
       position: absolute;
@@ -518,7 +518,7 @@ font-family: inherit;
 
 /* ===== RESPONSIVE ===== */
     @media (min-width: 901px) {
-      .detail-modal { height: calc(var(--lh-view-h, 100vh) - var(--lh-frame-menu, 0px) - 24px); }
+      .detail-modal { height: min(660px, calc(var(--lh-view-h, 100vh) - var(--lh-frame-menu, 0px) - 40px)); }
     }
     @media (max-width: 900px) {
       .detail-body {
@@ -988,14 +988,10 @@ function categoryColor(cat) {
     }
 
     detailView.classList.add("show");
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-    // Iframe tự giãn chiều cao nên thanh cuộn nằm ở TRANG CHÍNH — khoá body bên trong iframe
-    // là không đủ. Báo trang chính khoá cuộn (giống cách phòng học làm với bài kiểm tra) và
-    // xin lại vùng nhìn thấy (kèm chiều cao header ghim) để đặt modal cho đúng.
+    // Không khoá cuộn trang: iframe cao bằng nội dung nên thanh cuộn nằm ở trang chính,
+    // khoá lại gây khó chịu. Chỉ xin vùng nhìn thấy (kèm chiều cao header ghim) để đặt modal.
     if (window.parent && window.parent !== window) {
       try { window.parent.postMessage({ type: "REQUEST_FRAME_VIEW" }, "*"); } catch (e) {}
-      try { window.parent.postMessage({ type: "LOCK_PAGE_SCROLL", keepSticky: true }, "*"); } catch (e) {}
     }
   }
 
@@ -1005,11 +1001,6 @@ function categoryColor(cat) {
     frame.removeAttribute("src");
     document.querySelectorAll(".doc-card").forEach(function (c) { c.classList.remove("active"); });
     detailView.classList.remove("show");
-    document.body.style.overflow = "";
-    document.documentElement.style.overflow = "";
-    if (window.parent && window.parent !== window) {
-      try { window.parent.postMessage({ type: "UNLOCK_PAGE_SCROLL" }, "*"); } catch (e) {}
-    }
   };
 
   detailView.addEventListener("click", function (e) {
