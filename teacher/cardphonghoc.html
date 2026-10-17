@@ -391,9 +391,16 @@
 
     async function guard() {
       show("loading");
-      const { data: { session } } = await supabase.auth.getSession();
+      let session = null, row = null;
+      try {
+        const r = await supabase.auth.getSession();
+        session = r.data?.session || null;
+        if (session && session.user) row = await getUserRow(session.user.id);
+      } catch (e) {
+        console.error("guard lỗi:", e);
+        show("denied"); return;
+      }
       if (!session || !session.user) { show("denied"); return; }
-      const row = await getUserRow(session.user.id);
       const role = row?.role || "";
       const isAdmin = isAdminRole(role);
       const isTeacher = isTeacherRole(role) || isAdmin;
@@ -879,7 +886,7 @@
       if (!group) { toast("Vui lòng nhập tên chủ đề (trong card)", "error"); return; }
       if (!title) { toast("Vui lòng nhập tiêu đề video", "error"); return; }
       if (!url) { toast("Vui lòng dán link video", "error"); return; }
-      if (!vdTypeOf(url)) { toast("Link video không hợp lệ (chỉ nhận YouTube / Vimeo / TikTok / Google Drive)", "error"); return; }
+      if (!vdTypeOf(url) || vdTypeOf(url).key === "other") { toast("Link video không hợp lệ (chỉ nhận YouTube / Vimeo / TikTok / Google Drive)", "error"); return; }
 
       const btn = document.getElementById("vdBtnSave");
       btn.disabled = true;
@@ -895,7 +902,7 @@
           p_video_url: url,
           p_video_type: kind === "document" ? "document" : "video",
           p_sort_order: vdEditId ? vdEditSortOrder : 0, // [FIX BUG #21] giữ sort_order khi sửa
-          p_is_complete: false
+          p_is_complete: vdEditId ? null : false // [FIX #14] giữ trạng thái hoàn thành khi sửa (null = RPC giữ nguyên)
         };
         const { data, error } = await supabase.rpc("teacher_upsert_video_card", args);
         if (error) throw error;

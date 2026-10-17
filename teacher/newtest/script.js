@@ -70,7 +70,11 @@ function setFileLabel(name) {
     el.title = "";
     return;
   }
-  el.innerHTML = '<i class="fa-solid fa-file-lines"></i> ' + name;   // giữ nguyên đuôi mở rộng
+  el.textContent = "";
+  var icon = document.createElement("i");
+  icon.className = "fa-solid fa-file-lines";
+  el.appendChild(icon);
+  el.appendChild(document.createTextNode(" " + name));   // giữ nguyên đuôi mở rộng
   el.title = name;
 }
 
@@ -600,12 +604,12 @@ function render() {
     var head = document.createElement("div");
     head.className = "rd-section-head";
     head.innerHTML =
-      "<h3>" + (section.sectionTitle || ("PHẦN " + (si + 1))) + "</h3>" +
-      (section.sectionDesc ? '<div class="desc">' + section.sectionDesc + "</div>" : "");
+      "<h3>" + sanitizeC(section.sectionTitle || ("PHẦN " + (si + 1))) + "</h3>" +
+      (section.sectionDesc ? '<div class="desc">' + sanitizeC(section.sectionDesc) + "</div>" : "");
 
     if (section.audio) {
       head.insertAdjacentHTML("beforeend",
-        '<div class="rd-listen"><span class="muted"><i class="fa-solid fa-headphones"></i> ' + (section.listenTitle || "Nghe") + ': </span>' +
+        '<div class="rd-listen"><span class="muted"><i class="fa-solid fa-headphones"></i> ' + escapeC(section.listenTitle || "Nghe") + ': </span>' +
         '<audio controls preload="none" src="' + escAttr(section.audio) + '"></audio></div>');
     }
     sec.appendChild(head);
@@ -613,7 +617,7 @@ function render() {
     if (section.passage && String(section.passage).trim()) {
       var pg = document.createElement("div");
       pg.className = "rd-passage";
-      pg.innerHTML = section.passage;
+      pg.innerHTML = sanitizeC(section.passage);
       sec.appendChild(pg);
     }
 
@@ -779,7 +783,8 @@ function render() {
           var rev = document.createElement("div");
           rev.className = "note " + (ok ? "" : "error");
           rev.style.margin = "8px 0 0";
-          rev.innerHTML = ok ? "✓ Đáp án chuẩn: " + item.correctAnswer : "✗ Đáp án chuẩn: <b>" + item.correctAnswer + "</b>";
+          var caSafe = escapeC(item.correctAnswer);
+          rev.innerHTML = ok ? "✓ Đáp án chuẩn: " + caSafe : "✗ Đáp án chuẩn: <b>" + caSafe + "</b>";
           card.appendChild(rev);
         }
       }
@@ -803,66 +808,6 @@ function render() {
 
 function norm(v) {
   return String(v == null ? "" : v).trim().toLowerCase().replace(/\s+/g, " ");
-}
-
-/* ============ GRADING ============ */
-
-function grade() {
-  if (!testData || !testData.length) { setNote("Chưa có đề để chấm.", true); return; }
-
-  var total = 0;
-  testData.forEach(function (s) {
-    if (s && Array.isArray(s.questions)) total += s.questions.length;
-  });
-  if (!total) { setNote("Đề không có câu hỏi.", true); return; }
-
-  var base = testMeta.score / total;
-  var score = 0, correctCount = 0;
-  var gi = 0;
-
-  testData.forEach(function (section) {
-    if (!section || !Array.isArray(section.questions)) return;
-    section.questions.forEach(function (item) {
-      var idx = gi;
-      if (item.type === "true_false") {
-        var subs = item.subQuestions || [];
-        var subScore = 0, subAll = subs.length > 0;
-        subs.forEach(function (sq, si) {
-          var val = userAnswers["tf_" + idx + "_" + si];
-          var ok = val === (sq.correct ? 1 : 0);
-          subScore += ok ? base / subs.length : 0;
-          if (!ok) subAll = false;
-        });
-        if (subAll) correctCount++;
-        score += subScore;
-      } else if (item.type === "short_answer") {
-        if (norm(userAnswers["short_" + idx]) === norm(item.correctAnswer)) {
-          score += base;
-          correctCount++;
-        }
-      } else {
-        var c = item.correct;
-        if (c !== null && c !== undefined && userAnswers[idx] === c) {
-          score += base;
-          correctCount++;
-        }
-      }
-      gi++;
-    });
-  });
-
-  graded = true;
-  render();
-
-  var rb = $("resultBox");
-  rb.hidden = false;
-  rb.innerHTML =
-    '<div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">' +
-      '<div><span class="score">' + score.toFixed(1) + '<small>/' + testMeta.score + '</small></span></div>' +
-      '<div class="stats">Đúng <b>' + correctCount + "/" + total + "</b> câu<br>" +
-      "Đáp án đúng tô <b>xanh</b>, chọn sai tô <b>đỏ</b>.</div>" +
-    "</div>";
-  $("resultBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 /* ============ ĐỀ MẪU ============ */
@@ -1070,10 +1015,10 @@ function renderReview() {
   testData.forEach(function (s, si) {
     var cnt = (s && Array.isArray(s.questions)) ? s.questions.length : 0;
     left += '<div class="rev-sec">' +
-      '<div class="rev-sec-head"><h3>' + (s.sectionTitle || ("PHẦN " + (si + 1))) + "</h3>" +
+      '<div class="rev-sec-head"><h3>' + sanitizeC(s.sectionTitle || ("PHẦN " + (si + 1))) + "</h3>" +
         '<span class="rev-sec-meta">' + cnt + " câu" + (s.timeLimit ? ' · <i class="fa-solid fa-clock"></i> ' + s.timeLimit + " phút" : "") + "</span>" +
       "</div>";
-    if (s.sectionDesc) left += '<div class="rev-sec-desc">' + s.sectionDesc + "</div>";
+    if (s.sectionDesc) left += '<div class="rev-sec-desc">' + sanitizeC(s.sectionDesc) + "</div>";
     if (s.audio) left += '<div class="rev-extra"><i class="fa-solid fa-headphones"></i> ' + escapeC(s.listenTitle || "Nghe") + "</div>";
     if (s.passage && String(s.passage).trim()) left += '<div class="rev-extra"><i class="fa-solid fa-book-open"></i> Có đoạn đọc hiểu kèm câu hỏi</div>';
     left += '<ol class="rev-qs">';
@@ -1534,6 +1479,45 @@ function normalize(sections) {
 
 function escapeC(s) {
   return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/* Sanitize HTML do giáo viên nhập: chỉ giữ thẻ định dạng an toàn, gỡ thuộc tính nguy hiểm
+   (on*, href/src javascript:...), loại bỏ hẳn script/iframe/object...
+   Dùng cho sectionDesc / passage / sectionTitle (nội dung cố ý cho phép HTML). */
+function sanitizeC(html) {
+  var ALLOW = ["B","STRONG","I","EM","U","S","STRIKE","DEL","INS","BR","P","DIV","SPAN","UL","OL","LI",
+    "A","IMG","SMALL","MARK","H1","H2","H3","H4","H5","H6","BLOCKQUOTE","CODE","PRE","SUB","SUP","HR",
+    "TABLE","THEAD","TBODY","TFOOT","TR","TH","TD","CAPTION"];
+  var DROP = ["SCRIPT","STYLE","IFRAME","OBJECT","EMBED","LINK","META","BASE","FORM","INPUT","TEXTAREA","SELECT","BUTTON","SVG","MATH","AUDIO","VIDEO","SOURCE"];
+  var SAFE = ["style","class","title","target","rel","href","src","alt","width","height","align","colspan","rowspan"];
+  function unsafeUrl(v) {
+    var s = String(v || "").replace(/[\u0000-\u0020]/g, "").toLowerCase();
+    return s.indexOf("javascript:") === 0 || s.indexOf("vbscript:") === 0 ||
+      (s.indexOf("data:") === 0 && s.indexOf("data:image/") !== 0);
+  }
+  var tpl = document.createElement("template");
+  tpl.innerHTML = String(html == null ? "" : html);
+  (function walk(node) {
+    Array.prototype.slice.call(node.childNodes).forEach(function (child) {
+      if (child.nodeType === 1) {
+        var tag = child.tagName;
+        if (DROP.indexOf(tag) !== -1) { child.remove(); return; }
+        if (ALLOW.indexOf(tag) === -1) {
+          node.replaceChild(document.createTextNode(child.textContent || ""), child); return;
+        }
+        Array.prototype.slice.call(child.attributes).forEach(function (a) {
+          var n = a.name.toLowerCase();
+          if (SAFE.indexOf(n) === -1 || n.indexOf("on") === 0) { child.removeAttribute(a.name); return; }
+          if ((n === "href" || n === "src") && unsafeUrl(a.value)) { child.removeAttribute(a.name); }
+        });
+        if (tag === "A") child.setAttribute("rel", "noopener noreferrer");
+        walk(child);
+      } else if (child.nodeType === 8) {
+        child.remove();
+      }
+    });
+  })(tpl.content);
+  return tpl.innerHTML;
 }
 
 /* Khởi tạo: chỉ hiện bước 1 với placeholder hướng dẫn — không tự nạp đề mẫu.

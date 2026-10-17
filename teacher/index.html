@@ -1402,9 +1402,16 @@
     async function guard() {
       if (accessChecked) return;
       show("loading");
-      const { data: { session } } = await supabase.auth.getSession();
+      let session = null, row = null;
+      try {
+        const r = await supabase.auth.getSession();
+        session = r.data?.session || null;
+        if (session && session.user) row = await getUserRow(session.user.id);
+      } catch (e) {
+        console.error("guard lỗi:", e);
+        show("denied"); accessChecked = true; return;
+      }
       if (!session || !session.user) { show("denied"); accessChecked = true; return; }
-      const row = await getUserRow(session.user.id);
       const role = row?.role || "";
       const isAdmin = isAdminRole(role);
       const isTeacher = isTeacherRole(role) || isAdmin;
@@ -1671,7 +1678,8 @@
     async function tcEnsureMembers(classId) {
       if (tcMembersCache[classId] !== undefined) return;
       const { data, error } = await supabase.rpc("class_members_of", { p_class_id: classId });
-      tcMembersCache[classId] = error ? [] : (data || []);
+      if (error) { console.error("class_members_of lỗi:", error); return; }
+      tcMembersCache[classId] = data || [];
     }
 
     window.tcOpenDetail = async function(classId) {
@@ -1855,13 +1863,14 @@
       if (dropped > 0) toast(`Có ${dropped} lịch thiếu ngày/tiêu đề sẽ bị bỏ qua khi lưu.`, "warning");
       try {
         const now = new Date().toISOString();
-        await supabase.from("schedule_settings").upsert({
+        const { error } = await supabase.from("schedule_settings").upsert({
           id: true,
           active: true,
           events,
           updated_at: now,
           updated_by: tcEmail
         }, { onConflict: "id" });
+        if (error) throw error;
         scheduleEvents = events;
         renderScheduleEvents();
         const meta = document.getElementById("scheduleMeta");

@@ -472,7 +472,7 @@
       </div>
       <p class="login-subtitle">Đăng nhập bằng đúng tài khoản admin để quản lý whitelist, khóa user và đồng bộ dữ liệu LearnHub.</p>
       <div class="login-form-wrap">
-        <form onsubmit="event.preventDefault();document.getElementById('adminLoginBtn').click()">
+        <form id="adminLoginForm" onsubmit="event.preventDefault()">
         <div class="login-field"><input id="adminEmailInput" class="input" type="email" value="learnhubadmin@gmail.com" readonly></div>
         <div class="login-field"><input id="adminPasswordInput" class="input" type="password" placeholder="Nhập mật khẩu admin"></div>
         <div class="login-field">

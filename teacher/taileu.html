@@ -115,9 +115,16 @@
 
     async function guard() {
       show("loading");
-      const { data: { session } } = await supabase.auth.getSession();
+      let session = null, row = null;
+      try {
+        const r = await supabase.auth.getSession();
+        session = r.data?.session || null;
+        if (session && session.user) row = await getUserRow(session.user.id);
+      } catch (e) {
+        console.error("guard lỗi:", e);
+        show("denied"); return;
+      }
       if (!session || !session.user) { show("denied"); return; }
-      const row = await getUserRow(session.user.id);
       const role = row?.role || "";
       const isAdmin = isAdminRole(role);
       const isTeacher = isTeacherRole(role) || isAdmin;

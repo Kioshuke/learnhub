@@ -549,6 +549,41 @@ function escHtml(s) {
 function escJs(s) {
   return String(s == null ? "" : s).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 }
+/* Sanitize HTML thông báo môn: giữ thẻ định dạng an toàn + style/class/href,
+   gỡ mọi thuộc tính on* và link javascript: (chống stored XSS). */
+function sanitizeNoticeHtml(html) {
+  var ALLOW = ["B","STRONG","I","EM","U","S","STRIKE","DEL","INS","BR","P","DIV","SPAN","UL","OL","LI","A","SMALL","MARK",
+    "H1","H2","H3","H4","H5","H6","BLOCKQUOTE","CODE","PRE","SUB","SUP","HR",
+    "TABLE","THEAD","TBODY","TFOOT","TR","TH","TD","CAPTION"];
+  var DROP = ["SCRIPT","STYLE","IFRAME","OBJECT","EMBED","LINK","META","BASE","FORM","INPUT","TEXTAREA","SELECT","BUTTON","SVG","MATH","AUDIO","VIDEO","SOURCE"];
+  var SAFE = ["style","class","title","target","rel","href","color","size","align","colspan","rowspan"];
+  function unsafeUrl(v) {
+    var s = String(v || "").replace(/[\u0000-\u0020]/g, "").toLowerCase();
+    return s.indexOf("javascript:") === 0 || s.indexOf("vbscript:") === 0 ||
+      (s.indexOf("data:") === 0 && s.indexOf("data:image/") !== 0);
+  }
+  var tpl = document.createElement("template");
+  tpl.innerHTML = String(html == null ? "" : html);
+  (function walk(node) {
+    Array.prototype.slice.call(node.childNodes).forEach(function (child) {
+      if (child.nodeType === 1) {
+        var tag = child.tagName;
+        if (DROP.indexOf(tag) !== -1) { child.remove(); return; }
+        if (ALLOW.indexOf(tag) === -1) {
+          node.replaceChild(document.createTextNode(child.textContent || ""), child); return;
+        }
+        Array.prototype.slice.call(child.attributes).forEach(function (a) {
+          var n = a.name.toLowerCase();
+          if (SAFE.indexOf(n) === -1 || n.indexOf("on") === 0) { child.removeAttribute(a.name); return; }
+          if ((n === "href" || n === "src") && unsafeUrl(a.value)) { child.removeAttribute(a.name); }
+        });
+        if (tag === "A") child.setAttribute("rel", "noopener noreferrer");
+        walk(child);
+      } else if (child.nodeType === 8) { child.remove(); }
+    });
+  })(tpl.content);
+  return tpl.innerHTML;
+}
 
 /* ============================================================
    RENDER TABS + PANELS + CARDS từ window.PHONGHOC_SUBJECTS
@@ -590,7 +625,7 @@ function buildNoticeHtml(s) {
   if (s && s.notice && s.notice.html && String(s.notice.html).trim() !== "") {
     return '<div class="subject-notice"><i class="fas ' + escHtml(s.notice.icon || "fa-bell") + '"></i> ' +
       '<strong>Thông báo môn ' + escHtml(s.name) + ':</strong> ' +
-      s.notice.html + '</div>';
+      sanitizeNoticeHtml(s.notice.html) + '</div>';
   }
   return "";
 }

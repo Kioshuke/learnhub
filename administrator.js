@@ -85,6 +85,7 @@ const errorLogsPagination = document.getElementById("errorLogsPagination");
 let errorLogsData = [];
 let errorLogsPage = 1;
 let errorLogsChannel = null;
+let dashboardRefreshTimer = null;
 
 const pageTitles = {
   users: ["Quản lý user", "Quản lý whitelist, khóa/mở khóa user."],
@@ -264,7 +265,7 @@ function renderDirectory() {
     return `<tr>
       <td><div class="identity-cell"><img class="mini-avatar" src="${sp}" alt=""><div><div class="identity-name">${sn}</div><div class="identity-email">${se||"Chưa có email"}</div><div class="mini-meta">UID: ${su||"Chưa có"}${i.hasUserDoc?"":"<br>Chưa tạo hồ sơ"}</div></div></div></td>
       <td><div class="status-stack">${chips}</div></td>
-      <td>${i.hasUserDoc?`<div class="role-select" data-uid="${su}" data-role="${cr}"><div class="role-trigger"><span class="role-dot ${cr==='Admin'?'r-admin':cr==='Giáo viên'?'r-teacher':'r-member'}"></span><span class="role-label">${cr}</span></div><div class="role-dropdown" role="menu" aria-label="Chọn vai trò">${["Thành viên","Giáo viên","Admin"].map(r=>`<div class="role-option${r===cr?' active':''}" data-role="${r}" role="menuitem"><span class="role-dot"></span>${r}<svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`).join("")}</div></div>`:`<div class="mini-meta">Chưa kích hoạt</div>`}</td>
+      <td>${i.hasUserDoc?`<div class="role-select" data-uid="${su}" data-role="${escapeHtml(cr)}"><div class="role-trigger"><span class="role-dot ${cr==='Admin'?'r-admin':cr==='Giáo viên'?'r-teacher':'r-member'}"></span><span class="role-label">${escapeHtml(cr)}</span></div><div class="role-dropdown" role="menu" aria-label="Chọn vai trò">${["Thành viên","Giáo viên","Admin"].map(r=>`<div class="role-option${r===cr?' active':''}" data-role="${r}" role="menuitem"><span class="role-dot"></span>${r}<svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`).join("")}</div></div>`:`<div class="mini-meta">Chưa kích hoạt</div>`}</td>
       <td><div class="mini-meta"><b>Đăng nhập cuối:</b> ${formatDate(i.lastLogin)}<br><b>Hoạt động cuối:</b> ${formatDate(i.lastActive)}<br><b>Tạo lúc:</b> ${formatDate(i.createdAt)}</div></td>
       <td><div class="row-actions"><button class="btn ${i.whitelisted?"btn-warning":"btn-success"}" onclick="toggleWhitelist('${escapeHtml(i.allowId)}',${i.whitelisted})">${i.whitelisted?"Tắt whitelist":"Cấp quyền"}</button>${i.hasUserDoc?`<button class="btn ${i.disabled?"btn-success":"btn-warning"}" onclick="toggleDisable('${su}',${i.disabled?"true":"false"})">${i.disabled?"Mở khóa":"Khóa user"}</button>`:``}<button class="btn btn-danger" onclick="deleteUserData('${su}','${se}')">${i.hasUserDoc?"Xóa user":"Xóa email"}</button></div></td>
     </tr>`;
@@ -315,6 +316,11 @@ async function refreshCollections() {
     supabase.from("access_list").select("*"),
     supabase.from("users").select("*")
   ]);
+  if (aRes.error || uRes.error) {
+    console.error("[admin] refreshCollections:", aRes.error || uRes.error);
+    if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_QUERY_FAIL", message: String(((aRes.error || uRes.error) && (aRes.error || uRes.error).message) || "") });
+    return;
+  }
   allowDocs = (aRes.data || []).map(d => ({ id: d.email, ...d })).sort((a,b)=>normalizeEmail(a.email).localeCompare(normalizeEmail(b.email)));
   userDocs = (uRes.data || []).map(d => ({ uid: d.id, ...d })).sort((a,b)=>normalizeEmail(a.name||a.email).localeCompare(normalizeEmail(b.name||b.email)));
   updateStats(); renderDirectory(); renderRenameList();
@@ -328,7 +334,7 @@ async function ensureAdmin(user) {
   return true;
 }
 
-document.getElementById("adminLoginBtn").addEventListener("click", async () => {
+document.getElementById("adminLoginForm").addEventListener("submit", async () => {
   try {
     const email = normalizeEmail(document.getElementById("adminEmailInput").value);
     const password = document.getElementById("adminPasswordInput").value;
@@ -446,8 +452,8 @@ async function loadMailboxHistory() {
         </div>
         <div style="color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml((m.message || "").replace(/<[^>]+>/g,"").substring(0, 100))}</div>
         <div style="display:flex;gap:6px;margin-top:8px">
-          <button onclick="mailboxEditMsg('${m.id}')" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer">Sửa</button>
-          <button onclick="mailboxDeleteMsg('${m.id}')" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer">Xoá</button>
+          <button onclick="mailboxEditMsg('${escapeHtml(m.id)}')" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer">Sửa</button>
+          <button onclick="mailboxDeleteMsg('${escapeHtml(m.id)}')" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer">Xoá</button>
         </div>
       </div>`;
     });
@@ -778,7 +784,8 @@ document.getElementById("refreshWhitelistBtn").addEventListener("click", loadWhi
 document.getElementById("addWhitelistBtn").addEventListener("click", async () => {
   const input=document.getElementById("allowEmailInput"), email=normalizeEmail(input.value);
   if (!email||!email.includes("@")) { showNotice("Vui lòng nhập email hợp lệ.", "error"); return; }
-  await supabase.from("access_list").upsert({ email, enabled: true, added_at: new Date().toISOString(), updated_at: new Date().toISOString() }, { onConflict: "email" });
+  const { error: addErr } = await supabase.from("access_list").upsert({ email, enabled: true, added_at: new Date().toISOString(), updated_at: new Date().toISOString() }, { onConflict: "email" });
+  if (addErr) { console.error(addErr); showNotice("Thêm email thất bại: " + (addErr.message || ""), "error"); return; }
   input.value=""; showNotice("Đã thêm email vào whitelist.", "success");
 });
 
@@ -786,27 +793,35 @@ directorySearchInput.addEventListener("input", () => { currentPage = 1; renderDi
 directoryFilterSelect.addEventListener("change", () => { currentPage = 1; renderDirectory(); });
 
 window.toggleWhitelist = async (email, cur) => {
-  await supabase.from("access_list").upsert({ email, enabled: !cur, updated_at: new Date().toISOString() }, { onConflict: "email" });
+  const { error } = await supabase.from("access_list").upsert({ email, enabled: !cur, updated_at: new Date().toISOString() }, { onConflict: "email" });
+  if (error) { console.error(error); showNotice("Cập nhật quyền thất bại: " + (error.message || ""), "error"); return; }
   showNotice(cur ? "Đã tắt quyền email này." : "Đã bật lại quyền email này.", "success", cur ? "fa-user-xmark" : "fa-user-check");
 };
 window.removeWhitelist = async (email) => {
   if (!(await lhConfirm("Xóa email này khỏi whitelist?"))) return;
-  await supabase.from("access_list").delete().eq("email", email); showNotice("Đã xóa email khỏi whitelist.", "success");
+  const { error } = await supabase.from("access_list").delete().eq("email", email);
+  if (error) { console.error(error); showNotice("Xóa email thất bại: " + (error.message || ""), "error"); return; }
+  showNotice("Đã xóa email khỏi whitelist.", "success");
 };
 window.renameUser = async (uid) => {
   const input=document.getElementById(`rename-${uid}`), name=String(input?.value||"").trim();
   if (name.length<2) { showNotice("Tên phải có ít nhất 2 ký tự.", "error"); return; }
-  await supabase.from("users").update({ name, updated_at: new Date().toISOString() }).eq("id", uid); showNotice("Đã cập nhật tên user.", "success");
+  const { error } = await supabase.from("users").update({ name, updated_at: new Date().toISOString() }).eq("id", uid);
+  if (error) { console.error(error); showNotice("Cập nhật tên thất bại: " + (error.message || ""), "error"); return; }
+  showNotice("Đã cập nhật tên user.", "success");
 };
 window.toggleDisable = async (uid, cur) => {
   if (!uid) return;
   if(!cur){ await adminFinalizeOnline(uid); } // finalize giờ online đang chạy trước khi khóa, không mất công sức
-  await supabase.from("users").update({ disabled: !cur, online: false, updated_at: new Date().toISOString() }).eq("id", uid);
+  const { error } = await supabase.from("users").update({ disabled: !cur, online: false, updated_at: new Date().toISOString() }).eq("id", uid);
+  if (error) { console.error(error); showNotice((cur ? "Mở khóa" : "Khóa") + " user thất bại: " + (error.message || ""), "error"); return; }
   showNotice(cur ? "Đã mở khóa user." : "Đã disable user.", "success", cur ? "fa-lock-open" : "fa-user-lock");
 };
 window.changeUserRole = async (uid, role) => {
-  if (!uid) return; try { await supabase.from("users").update({ role, updated_at: new Date().toISOString() }).eq("id", uid); showNotice(`Đã chuyển quyền thành: ${role}`, "success"); }
-  catch(e) { console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") }); showNotice("Không thể cập nhật quyền.", "error"); }
+  if (!uid) return;
+  const { error } = await supabase.from("users").update({ role, updated_at: new Date().toISOString() }).eq("id", uid);
+  if (error) { console.error(error); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((error && error.message) || error || "") }); showNotice("Không thể cập nhật quyền.", "error"); return; }
+  showNotice(`Đã chuyển quyền thành: ${role}`, "success");
 };
 function openRoleDropdown(trigger) {
   const wrap = trigger.closest(".role-select");
@@ -1172,6 +1187,7 @@ window.toggleErrorLogFixed = async (id, fixed) => {
 };
 
 let confirmDialogHandler = null;
+let confirmDialogCancelHandler = null;
 function openConfirmDialog(title, message, onYes) {
   const modal = document.getElementById("confirmModal");
   const cB = document.getElementById("confirmModalConfirm");
@@ -1179,19 +1195,20 @@ function openConfirmDialog(title, message, onYes) {
   document.getElementById("confirmModalIcon").innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
   document.getElementById("confirmModalTitle").textContent = title;
   document.getElementById("confirmModalMessage").textContent = message;
-  if (confirmDialogHandler) {
-    cB.removeEventListener("click", confirmDialogHandler);
-    cC.removeEventListener("click", confirmDialogHandler);
-  }
-  confirmDialogHandler = () => {
+  if (confirmDialogHandler) cB.removeEventListener("click", confirmDialogHandler);
+  if (confirmDialogCancelHandler) cC.removeEventListener("click", confirmDialogCancelHandler);
+  const cleanup = () => {
     modal.classList.remove("active");
-    cB.removeEventListener("click", confirmDialogHandler);
-    cC.removeEventListener("click", confirmDialogHandler);
+    if (confirmDialogHandler) cB.removeEventListener("click", confirmDialogHandler);
+    if (confirmDialogCancelHandler) cC.removeEventListener("click", confirmDialogCancelHandler);
     confirmDialogHandler = null;
-    onYes();
+    confirmDialogCancelHandler = null;
   };
+  // Nút "Đồng ý" → chạy hành động; nút "Hủy" → chỉ đóng modal (bug #1)
+  confirmDialogHandler = () => { cleanup(); onYes(); };
+  confirmDialogCancelHandler = () => { cleanup(); };
   cB.addEventListener("click", confirmDialogHandler);
-  cC.addEventListener("click", confirmDialogHandler);
+  cC.addEventListener("click", confirmDialogCancelHandler);
   modal.classList.add("active");
 }
 
@@ -1297,12 +1314,16 @@ document.getElementById("errorLogsMarkAllBtn").addEventListener("click", markAll
 supabase.auth.onAuthStateChange(async (event, session) => {
   const user = session?.user ?? null;
   if (!user) {
-    loginView.style.display="flex"; dashboardView.classList.add("hidden"); return;
+    loginView.style.display="flex"; dashboardView.classList.add("hidden");
+    if (dashboardRefreshTimer) { clearInterval(dashboardRefreshTimer); dashboardRefreshTimer = null; }
+    if (errorLogsChannel) { supabase.removeChannel(errorLogsChannel); errorLogsChannel = null; }
+    return;
   }
   const ok = await ensureAdmin(user); if (!ok) return;
   document.getElementById("adminPasswordInput").value="";
   loginView.style.display="none"; dashboardView.classList.remove("hidden"); dashboardView.style.display="flex";
   await refreshCollections();
+  startDashboardRefresh();
   const { count: total } = await supabase.from("error_logs").select("id", { count: "exact", head: true });
   const { count: open } = await supabase.from("error_logs").select("id", { count: "exact", head: true }).neq("status", "fixed");
   const badge = document.getElementById("errorLogsBadge");
@@ -1327,7 +1348,7 @@ async function sendAdminSessionToLeaderboard() {
         type: "ADMIN_SESSION",
         accessToken: session.access_token,
         refreshToken: session.refresh_token
-      }, "*");
+      }, location.origin);
     }
   } catch(e) {}
 }
@@ -1336,9 +1357,12 @@ if (leaderboardFrame) {
 }
 
 // Tự refresh dashboard + quét user online hết hạn (crash) mỗi 30s → chống báo online ảo.
-setInterval(async () => {
-  if (loginView.style.display === "flex") return;
-  await adminCleanupStaleOnline();
-  await refreshCollections();
-}, 30000);
+function startDashboardRefresh() {
+  if (dashboardRefreshTimer) return;
+  dashboardRefreshTimer = setInterval(async () => {
+    if (dashboardView.classList.contains("hidden")) return;
+    await adminCleanupStaleOnline();
+    await refreshCollections();
+  }, 30000);
+}
 
