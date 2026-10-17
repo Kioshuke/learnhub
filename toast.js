@@ -100,11 +100,17 @@
   function iconMarkup(o) {
     var ic = o.icon;
     if (!ic) return '<i class="fa-solid ' + TYPES[o.type].icon + '"></i>';
-    // [FIX BUG #34] Escape icon trước khi nhét vào innerHTML (trước đây nhét thẳng,
-    // nếu nguồn icon trở thành dữ liệu người dùng thì là lỗ hổng XSS). Chỉ cho phép
-    // tên class Font Awesome (fa-...) hoặc text/emoji; mọi thứ khác được escape.
-    if (ic.indexOf(" ") !== -1 || ic.indexOf("<") === 0) return "<span>" + escapeHtml(ic) + "</span>";
-    if (ic.indexOf("fa-") === 0) return '<i class="fa-solid ' + escapeHtml(ic) + '"></i>';
+    var s = String(ic).trim();
+    // [FIX BUG #34] Chống XSS: chỉ nhận chuỗi là danh sách class an toàn
+    // (token [A-Za-z0-9_-] cách nhau bởi khoảng trắng) VÀ có ít nhất 1 token fa-*.
+    // Nhờ vậy hỗ trợ được icon nhiều class như "fa-solid fa-hand lh-wave"
+    // (trước đây thấy dấu cách là tưởng text/emoji nên in ra chữ).
+    // Nếu thiếu class họ icon (fa-solid/fa-regular/fa-brands...) thì tự thêm fa-solid.
+    if (s && /^[A-Za-z0-9_-]+(?:\s+[A-Za-z0-9_-]+)*$/.test(s) && /(^|\s)fa-/.test(s)) {
+      if (!/(^|\s)fa-(solid|regular|brands|light|thin|duotone)(\s|$)/.test(s)) s = "fa-solid " + s;
+      return '<i class="' + s + '"></i>';
+    }
+    // Còn lại (emoji, chữ, hoặc dữ liệu không an toàn) -> escape, chỉ hiển thị dạng text.
     return "<span>" + escapeHtml(ic) + "</span>";
   }
 
