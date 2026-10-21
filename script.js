@@ -552,10 +552,9 @@ autoHeightFrameIds.forEach(function(id){
 
   function closeDocReview() {
     if (!overlay) return;
-    overlay.classList.remove("show");
-    var f = document.getElementByById("lhDrFrame");
-    if (f) f.removeAttribute("src");
-    document.documentElement.classList.remove("lh-doc-review-open");
+    try { overlay.classList.remove("show"); } catch (e) {}
+    try { var f = overlay.querySelector("#lhDrFrame"); if (f) f.removeAttribute("src"); } catch (e) {}
+    try { document.documentElement.classList.remove("lh-doc-review-open"); } catch (e) {}
     // Báo iframe nguồn bỏ trạng thái active của thẻ tài liệu.
     if (srcWin) {
       try { srcWin.postMessage({ type: "CLOSE_DOC_REVIEW" }, "*"); } catch (e) {}
@@ -630,7 +629,7 @@ currentTab = id;
 applyStickyHeader();
 
 // Đổi tab -> đóng popup review tài liệu (tránh popup treo lỗi sang tab khác).
-if(typeof window.closeDocReview === "function") window.closeDocReview();
+try { if(typeof window.closeDocReview === "function") window.closeDocReview(); } catch (e) {}
 
 const quizEl = document.getElementById("quiz");
 if(quizEl) quizEl.innerHTML = "";
