@@ -304,10 +304,9 @@
       display: none;
       align-items: center;
 justify-content: center;
-      /* Chừa chỗ cho header đang GHIM của trang chính (--lh-frame-menu do FRAME_VIEW gửi sang)
-         để đỉnh khung review không bị header che mất. Khi không ghim thì = 0px. */
-      padding: 20px;
-      padding-top: calc(var(--lh-frame-menu, 0px) + 20px);
+      /* Padding đều 4 cạnh -> khung review luôn CANH GIỮA MÀN HÌNH thật sự.
+         (Trước đây padding-top cộng thêm --lh-frame-menu làm khung lệch xuống ~30px.) */
+      padding: 24px;
       background: rgba(10, 15, 25, 0.55);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
@@ -316,8 +315,8 @@ justify-content: center;
 .detail-modal {
       position: relative;
       width: 100%;
-      max-width: 1000px;
-      max-height: calc(var(--lh-view-h, 100vh) - var(--lh-frame-menu, 0px) - 40px);
+      max-width: 1280px;
+      max-height: calc(var(--lh-view-h, 100vh) - 48px);
       display: flex;
       flex-direction: column;
       background: var(--glass);
@@ -368,7 +367,7 @@ justify-content: center;
     }
     .detail-body {
       display: grid;
-      grid-template-columns: 1fr 300px;
+      grid-template-columns: 1fr 360px;
       flex: 1;
       min-height: 0;
     }
@@ -518,7 +517,10 @@ font-family: inherit;
 
 /* ===== RESPONSIVE ===== */
     @media (min-width: 901px) {
-      .detail-modal { height: min(660px, calc(var(--lh-view-h, 100vh) - var(--lh-frame-menu, 0px) - 40px)); }
+      .detail-modal { height: min(760px, calc(var(--lh-view-h, 100vh) - 48px)); }
+    }
+    @media (min-width: 901px) and (max-width: 1180px) {
+      .detail-body { grid-template-columns: 1fr 300px; }
     }
     @media (max-width: 900px) {
       .detail-body {
