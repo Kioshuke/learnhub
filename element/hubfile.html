@@ -927,6 +927,40 @@ function categoryColor(cat) {
     paginationBar.appendChild(info);
   }
 
+  function inParentFrame() {
+    try { return window.self !== window.top; } catch (e) { return true; }
+  }
+
+  /* ===== [FIX] Popup review hiển thị Ở TRANG CHÍNH thay vì trong iframe =====
+     Iframe tab "Tài liệu" được nới cao = toàn bộ nội dung, nên `position:fixed`
+     bên trong iframe neo theo KHUNG IFRAME (không phải màn hình thật) -> popup bị
+     trôi theo khi người dùng cuộn trang và dễ bị header/đối tượng khác đè lên.
+     Cách sửa: nhờ TRANG CHÍNH (top-level document) render popup -> fixed neo đúng
+     viewport thật, không bao giờ trôi, và z-index cao nên nằm trên mọi thứ. */
+  function requestParentReview(doc) {
+    var st = fileStyle(doc);
+    var catColor = categoryColor(doc.category);
+    var embed = buildEmbedUrl(doc);
+    var payload = {
+      id: doc.id,
+      name: doc.name || "",
+      description: doc.description || "",
+      category: doc.category || "Chung",
+      catColor: catColor || "",
+      iconClass: st.icon,
+      iconBg: st.bg,
+      sourceLabel: SOURCE_LABEL[doc.type] || "Khác",
+      size: doc.size || "",
+      date: doc.date || "",
+      author: doc.author || "",
+      url: doc.url || "",
+      downloadUrl: buildDownloadUrl(doc),
+      embedUrl: embed,
+      embeddable: !!(canEmbed(doc) && embed)
+    };
+    try { window.parent.postMessage({ type: "OPEN_DOC_REVIEW", doc: payload }, "*"); } catch (e) {}
+  }
+
   function openDetail(doc) {
     state.activeId = doc.id;
     state.activeDoc = doc;
@@ -938,6 +972,13 @@ function categoryColor(cat) {
       if (c.dataset && c.dataset.id === String(doc.id)) { match = c; }
     });
     if (match) match.classList.add("active");
+
+    // Đang nằm trong iframe -> nhờ trang chính hiển thị popup (fix lỗi trôi theo cuộn).
+    // Mở trực tiếp element/hubfile.html (không iframe) thì vẫn dùng modal cục bộ.
+    if (inParentFrame()) {
+      requestParentReview(doc);
+      return;
+    }
 
     var st = fileStyle(doc);
     document.getElementById("detailIco").style.background = st.bg;
@@ -1001,13 +1042,23 @@ function categoryColor(cat) {
     frame.removeAttribute("src");
     document.querySelectorAll(".doc-card").forEach(function (c) { c.classList.remove("active"); });
     detailView.classList.remove("show");
+    // Popup đang nằm ở trang chính -> báo trang chính đóng luôn.
+    if (inParentFrame()) {
+      try { window.parent.postMessage({ type: "CLOSE_DOC_REVIEW" }, "*"); } catch (e) {}
+    }
   };
 
   detailView.addEventListener("click", function (e) {
     if (e.target === detailView) closeDetail();
   });
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") closeDetail();
+    if (e.key !== "Escape") return;
+    // Phím Esc khi focus còn trong iframe KHÔNG nổi lên trang chính -> phải báo trang chính.
+    if (inParentFrame()) {
+      try { window.parent.postMessage({ type: "CLOSE_DOC_REVIEW" }, "*"); } catch (e) {}
+      return;
+    }
+    closeDetail();
   });
 
   searchInput.addEventListener("input", function () {
@@ -1054,6 +1105,12 @@ function categoryColor(cat) {
     }
     if (event.data.type === "LEARNHUB_USER") {
       window.learnHubUser = event.data.user;
+    }
+    // Trang chính đóng popup review -> bỏ trạng thái active của thẻ tài liệu.
+    if (event.data.type === "CLOSE_DOC_REVIEW") {
+      state.activeId = null;
+      state.activeDoc = null;
+      document.querySelectorAll(".doc-card").forEach(function (c) { c.classList.remove("active"); });
     }
   });
 

@@ -287,6 +287,18 @@ window.addEventListener("message", function(ev){
     return;
   }
 
+  // Trang con (element/hubfile.html) yêu cầu mở popup review tài liệu Ở TRANG CHÍNH.
+  if(d.type === "OPEN_DOC_REVIEW"){
+    openDocReview(d.doc, ev.source);
+    return;
+  }
+
+  // Trang con báo đóng (vd: user bấm Esc khi focus còn trong iframe) -> đóng popup ở đây.
+  if(d.type === "CLOSE_DOC_REVIEW"){
+    closeDocReview();
+    return;
+  }
+
   if(d.type !== "IFRAME_HEIGHT" && d.type !== "IFRAME_SCROLL_TOP") return;
   const frame = findFrameBySource(ev.source);
   if(!frame || autoHeightFrameIds.indexOf(frame.id) === -1) return;
@@ -316,6 +328,247 @@ autoHeightFrameIds.forEach(function(id){
     setTimeout(function(){ requestFrameHeight(id); }, 600);
   });
 });
+
+/* ============================================================================
+   POPUP REVIEW TÀI LIỆU — RENDER Ở TRANG CHÍNH (top-level document)
+   ----------------------------------------------------------------------------
+   VÌ SAO KHÔNG render trong iframe:
+     Iframe tab "Tài liệu" (taiLieuFrame) được trang chính nới cao = TOÀN BỘ nội dung
+     (mục đích để thanh cuộn nằm ở trang chính). Bên trong một iframe cao hơn viewport,
+     `position:fixed` neo theo KHUNG IFRAME chứ không phải màn hình thật -> popup bị
+     trôi theo khi người dùng cuộn, dễ bị header ghim / đối tượng khác đè lên, và
+     `--lh-frame-top` chỉ bù lại được khoảng nửa nhịp khung hình nên hay bị lệch.
+
+   CÁCH SỬA:
+     Trang con (element/hubfile.html) gửi {type:"OPEN_DOC_REVIEW", doc:{...}} lên đây.
+     Popup được dựng ở document gốc:
+       - `position:fixed` neo đúng viewport thật -> không bao giờ trôi theo cuộn
+       - `z-index: 99999` -> nằm TRÊN mọi đối tượng (header ghim, chat bubble, toast...)
+     Nếu user mở trực tiếp element/hubfile.html (không qua iframe) thì trang con tự
+     dùng modal cục bộ, không gửi message nào lên.
+   ============================================================================ */
+(function () {
+  var STYLE_ID = "lh-doc-review-style";
+  var overlay = null;
+  var srcWin = null;          // window của iframe gửi yêu cầu (để báo đóng lại)
+  var lastFocus = null;
+
+  function fmtDate(v) {
+    if (!v) return "—";
+    var m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return m[3] + "/" + m[2] + "/" + m[1];
+    var d = new Date(v);
+    if (isNaN(d.getTime())) return v;
+    return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+  }
+
+  function ensureStyle() {
+    if (document.getElementById(STYLE_ID)) return;
+    var css = [
+      "#lhDocReview{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;",
+      "padding:20px;padding-top:calc(var(--lh-menu-h,0px) + 20px);background:rgba(10,15,25,.55);",
+      "backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}",
+      "#lhDocReview.show{display:flex;}",
+      "#lhDocReview .dr-modal{position:relative;width:100%;max-width:1000px;",
+      "max-height:calc(100vh - var(--lh-menu-h,0px) - 40px);display:flex;flex-direction:column;",
+      "background:rgba(255,255,255,.94);border-radius:22px;overflow:hidden;",
+      "box-shadow:0 30px 80px rgba(15,23,42,.38);animation:lhDrIn .3s ease both;}",
+      "@keyframes lhDrIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}",
+      "#lhDocReview .dr-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;",
+      "border-bottom:1px solid rgba(148,163,184,.35);background:#f8fbff;flex-shrink:0;}",
+      "#lhDocReview .dr-ico{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:17px;",
+      "color:#fff;flex-shrink:0;box-shadow:0 6px 14px rgba(15,23,42,.18);}",
+      "#lhDocReview .dr-head h2{margin:0;font-size:16px;font-weight:800;line-height:1.35;overflow-wrap:anywhere;}",
+      "#lhDocReview .dr-close{width:36px;height:36px;border-radius:50%;border:1px solid rgba(148,163,184,.35);",
+      "background:#fff;color:#0f172a;font-size:17px;cursor:pointer;display:grid;place-items:center;flex-shrink:0;",
+      "transition:all .15s ease;line-height:1;}",
+      "#lhDocReview .dr-close:hover{background:#fee2e2;border-color:#f87171;color:#b91c1c;}",
+      "#lhDocReview .dr-body{display:grid;grid-template-columns:1fr 300px;flex:1;min-height:0;}",
+      "#lhDocReview .dr-preview{position:relative;background:#0f172a;border-right:1px solid rgba(148,163,184,.35);min-height:300px;}",
+      "#lhDocReview .dr-preview iframe{position:absolute;inset:0;width:100%;height:100%;border:none;background:#fff;}",
+      "#lhDocReview .dr-spinner{position:absolute;inset:0;display:grid;place-items:center;color:#94a3b8;font-size:14px;gap:10px;}",
+      "#lhDocReview .dr-spinner .sp{width:40px;height:40px;border-radius:50%;border:4px solid rgba(148,163,184,.3);",
+      "border-top-color:#0891b2;animation:lhDrSpin .8s linear infinite;}",
+      "@keyframes lhDrSpin{to{transform:rotate(360deg)}}",
+      "#lhDocReview .dr-fallback{position:absolute;inset:0;display:none;place-items:center;text-align:center;color:#e2e8f0;padding:30px;}",
+      "#lhDocReview .dr-fallback i{font-size:56px;margin-bottom:14px;color:#38bdf8;}",
+      "#lhDocReview .dr-fallback p{max-width:380px;line-height:1.6;}",
+      "#lhDocReview .dr-info{padding:20px 22px;background:#f8fbff;display:flex;flex-direction:column;gap:18px;",
+      "overflow-y:auto;min-height:0;}",
+      "#lhDocReview .dr-desc{margin:0;color:#475569;font-size:14px;line-height:1.65;}",
+      "#lhDocReview .dr-meta{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}",
+      "#lhDocReview .dr-meta li{display:flex;align-items:center;gap:12px;font-size:13.5px;}",
+      "#lhDocReview .dr-meta .mi{width:34px;height:34px;border-radius:10px;background:rgba(8,145,178,.12);color:#0891b2;",
+      "display:grid;place-items:center;font-size:15px;flex-shrink:0;}",
+      "#lhDocReview .dr-meta .ml{color:#475569;font-weight:600;min-width:74px;}",
+      "#lhDocReview .dr-meta .mv{font-weight:600;word-break:break-word;}",
+      "#lhDocReview .dr-actions{margin-top:auto;display:flex;flex-direction:column;gap:10px;}",
+      "#lhDocReview .dr-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:12px;",
+      "padding:12px 16px;font-size:14.5px;font-weight:700;font-family:inherit;text-decoration:none;cursor:pointer;",
+      "border:1px solid transparent;transition:all .15s ease;}",
+      "#lhDocReview .dr-btn-primary{background:#0891b2;color:#fff;box-shadow:0 8px 18px rgba(8,145,178,.2);}",
+      "#lhDocReview .dr-btn-primary:hover{background:#0e7490;transform:translateY(-2px);}",
+      "#lhDocReview .dr-btn-ghost{background:#fff;border-color:rgba(148,163,184,.35);color:#0f172a;}",
+      "#lhDocReview .dr-btn-ghost:hover{border-color:#0891b2;color:#0891b2;}",
+      "#lhDocReview .dr-mobile-note{display:none;align-items:flex-start;gap:10px;position:relative;z-index:2;margin:12px;",
+      "padding:13px 14px;border-radius:12px;background:#fff;border:1px solid rgba(148,163,184,.35);color:#0f172a;",
+      "font-size:13.5px;line-height:1.55;box-shadow:0 12px 30px rgba(8,47,73,.08);}",
+      "@media (min-width:901px){#lhDocReview .dr-modal{height:min(660px,calc(100vh - var(--lh-menu-h,0px) - 40px));}}",
+      "@media (max-width:900px){",
+      "#lhDocReview .dr-body{grid-template-columns:1fr;overflow-y:auto;}",
+      "#lhDocReview .dr-preview{border-right:none;border-bottom:1px solid rgba(148,163,184,.35);min-height:46vh;}",
+      "#lhDocReview .dr-preview iframe{position:static;display:block;height:46vh;}}",
+      "@media (max-width:768px){",
+      "#lhDocReview .dr-mobile-note{display:flex;}",
+      "#lhDocReview .dr-preview{min-height:0;}",
+      "#lhDocReview .dr-preview iframe,#lhDocReview .dr-spinner,#lhDocReview .dr-fallback{display:none !important;}}",
+      "@media (prefers-reduced-motion:reduce){#lhDocReview .dr-modal{animation:none;}}",
+      "html.lh-doc-review-open,html.lh-doc-review-open body{overflow:hidden !important;}"
+    ].join("");
+    var st = document.createElement("style");
+    st.id = STYLE_ID;
+    st.textContent = css;
+    document.head.appendChild(st);
+  }
+
+  function build() {
+    if (overlay) return;
+    ensureStyle();
+    overlay = document.createElement("div");
+    overlay.id = "lhDocReview";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.innerHTML =
+      '<div class="dr-modal">' +
+        '<div class="dr-head">' +
+          '<div style="display:flex;align-items:center;gap:12px;min-width:0;">' +
+            '<span class="dr-ico" id="lhDrIco"><i class="fa-solid fa-file"></i></span>' +
+            '<h2 id="lhDrName"></h2>' +
+          '</div>' +
+          '<button class="dr-close" type="button" id="lhDrClose" title="Đóng chi tiết" aria-label="Đóng">✕</button>' +
+        '</div>' +
+        '<div class="dr-body">' +
+          '<div class="dr-preview">' +
+            '<div class="dr-mobile-note">' +
+              '<i class="fa-solid fa-triangle-exclamation"></i>' +
+              '<span><b>Chế độ xem trước chỉ có thể được sử dụng trên desktop</b><br>' +
+              'Để xem file trên điện thoại, vui lòng bấm nút <b>Mở file gốc</b> hoặc <b>Tải xuống</b> bên dưới.</span>' +
+            '</div>' +
+            '<div class="dr-spinner" id="lhDrSpinner"><div class="sp"></div><span>Đang tải file...</span></div>' +
+            '<iframe id="lhDrFrame" title="Xem trước tài liệu" allowfullscreen></iframe>' +
+            '<div class="dr-fallback" id="lhDrFallback"><div>' +
+              '<i class="fa-solid fa-file"></i>' +
+              '<h3 style="margin:0 0 8px;">Không thể xem trước trong trình duyệt</h3>' +
+              '<p>Loại file này không hỗ trợ nhúng xem trước. Vui lòng nhấn <b>Mở file gốc</b> ở khung bên phải.</p>' +
+            '</div></div>' +
+          '</div>' +
+          '<aside class="dr-info">' +
+            '<p class="dr-desc" id="lhDrDesc"></p>' +
+            '<ul class="dr-meta">' +
+              '<li><span class="mi" id="lhDrCatIco"><i class="fa-solid fa-tag"></i></span><span class="ml">Nhóm</span><span class="mv" id="lhDrCat"></span></li>' +
+              '<li><span class="mi"><i class="fa-solid fa-link"></i></span><span class="ml">Nguồn</span><span class="mv" id="lhDrSrc"></span></li>' +
+              '<li><span class="mi"><i class="fa-solid fa-file-arrow-down"></i></span><span class="ml">Kích thước</span><span class="mv" id="lhDrSize"></span></li>' +
+              '<li><span class="mi"><i class="fa-solid fa-calendar-days"></i></span><span class="ml">Ngày đăng</span><span class="mv" id="lhDrDate"></span></li>' +
+              '<li><span class="mi"><i class="fa-solid fa-user"></i></span><span class="ml">Người đăng</span><span class="mv" id="lhDrAuthor"></span></li>' +
+            '</ul>' +
+            '<div class="dr-actions">' +
+              '<a class="dr-btn dr-btn-primary" id="lhDrOpen" target="_blank" rel="noopener"><i class="fa-solid fa-up-right-from-square"></i> Mở file gốc</a>' +
+              '<a class="dr-btn dr-btn-ghost" id="lhDrDl" target="_blank" rel="noopener"><i class="fa-solid fa-download"></i> Tải xuống</a>' +
+            '</div>' +
+          '</aside>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener("click", function (e) {
+      if (e.target === overlay) closeDocReview();
+    });
+    document.getElementById("lhDrClose").addEventListener("click", function () { closeDocReview(); });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && overlay && overlay.classList.contains("show")) closeDocReview();
+    });
+  }
+
+  function openDocReview(doc, source) {
+    if (!doc) return;
+    build();
+    srcWin = source || null;
+    lastFocus = document.activeElement;
+
+    var ico = document.getElementById("lhDrIco");
+    ico.style.background = doc.iconBg || "#64748b";
+    ico.innerHTML = '<i class="' + (doc.iconClass || "fa-solid fa-file") + '"></i>';
+
+    document.getElementById("lhDrName").textContent = doc.name || "";
+    document.getElementById("lhDrDesc").textContent = doc.description || "Chưa có mô tả.";
+
+    var catEl = document.getElementById("lhDrCat");
+    catEl.textContent = doc.category || "Chung";
+    catEl.style.color = doc.catColor || "";
+    var catIco = document.getElementById("lhDrCatIco");
+    if (catIco) {
+      catIco.style.background = doc.catColor ? "color-mix(in srgb, " + doc.catColor + " 15%, transparent)" : "";
+      catIco.style.color = doc.catColor || "";
+    }
+
+    document.getElementById("lhDrSrc").textContent = doc.sourceLabel || "Khác";
+    document.getElementById("lhDrSize").textContent = doc.size || "—";
+    document.getElementById("lhDrDate").textContent = fmtDate(doc.date);
+    document.getElementById("lhDrAuthor").textContent = doc.author || "—";
+
+    var openBtn = document.getElementById("lhDrOpen");
+    openBtn.href = doc.url || "#";
+    var dlBtn = document.getElementById("lhDrDl");
+    dlBtn.href = doc.downloadUrl || doc.url || "#";
+    if (/^\.\.?\//.test(doc.url) || String(doc.url || "").indexOf(location.origin) === 0) {
+      dlBtn.setAttribute("download", "");
+    } else {
+      dlBtn.removeAttribute("download");
+    }
+
+    var f = document.getElementById("lhDrFrame");
+    var sp = document.getElementById("lhDrSpinner");
+    var fb = document.getElementById("lhDrFallback");
+    f.removeAttribute("src");
+    sp.style.display = "grid";
+    fb.style.display = "none";
+
+    if (doc.embeddable && doc.embedUrl) {
+      f.style.display = "block";
+      f.onload = function () { sp.style.display = "none"; };
+      f.setAttribute("src", doc.embedUrl);
+      setTimeout(function () { sp.style.display = "none"; }, 12000);
+    } else {
+      f.style.display = "none";
+      sp.style.display = "none";
+      fb.style.display = "grid";
+    }
+
+    overlay.classList.add("show");
+    // Khoá cuộn trang chính trong lúc mở popup để nền không nhảy theo.
+    document.documentElement.classList.add("lh-doc-review-open");
+  }
+
+  function closeDocReview() {
+    if (!overlay) return;
+    overlay.classList.remove("show");
+    var f = document.getElementByById("lhDrFrame");
+    if (f) f.removeAttribute("src");
+    document.documentElement.classList.remove("lh-doc-review-open");
+    // Báo iframe nguồn bỏ trạng thái active của thẻ tài liệu.
+    if (srcWin) {
+      try { srcWin.postMessage({ type: "CLOSE_DOC_REVIEW" }, "*"); } catch (e) {}
+    }
+    srcWin = null;
+    if (lastFocus && typeof lastFocus.focus === "function") {
+      try { lastFocus.focus({ preventScroll: true }); } catch (e) {}
+    }
+    lastFocus = null;
+  }
+
+  window.openDocReview = openDocReview;
+  window.closeDocReview = closeDocReview;
+})();
 
 /* ==== Ghim (sticky) header cho các tab: home, forum, blog, tài liệu ====
    CSS dùng body.sticky-header để ghim .menu và body.header-scrolled để thu gọn
@@ -374,6 +627,9 @@ function sendUserToFrame(frame){
 function show(id){
 currentTab = id;
 applyStickyHeader();
+
+// Đổi tab -> đóng popup review tài liệu (tránh popup treo lỗi sang tab khác).
+if(typeof window.closeDocReview === "function") window.closeDocReview();
 
 const quizEl = document.getElementById("quiz");
 if(quizEl) quizEl.innerHTML = "";
