@@ -734,18 +734,18 @@ document.getElementById("refreshRegistrationBtn").addEventListener("click", load
 // ---------- WHITELIST TOGGLE (mở/đóng web toàn cục) ----------
 function renderWhitelistBanner(d) {
   if (!whitelistStatusBanner) return;
-  const on = d && d.enabled === true; // true = web MỞ
+  const on = d && d.enabled === true; // true = web On
   whitelistStatusBanner.style.background = on ? "rgba(34,197,94,.12)" : "rgba(239,68,68,.10)";
   whitelistStatusBanner.style.color = on ? "#16a34a" : "#dc2626";
   whitelistStatusBanner.innerHTML = on
-    ? '<i class="fa-solid fa-earth-asia"></i> Web đang MỞ — mọi email đều được truy cập.'
-    : '<i class="fa-solid fa-lock"></i> Web đang ĐÓNG — chỉ email được cấp quyền (whitelist) mới vào; ai bị gỡ quyền sẽ bị đăng xuất ngay.';
+    ? '<i class="fa-solid fa-earth-asia"></i> Whitelist đang On — mọi email đều được truy cập.'
+    : '<i class="fa-solid fa-lock"></i> Whitelist đang Off — chỉ email được cấp quyền (whitelist) mới vào; ai bị gỡ quyền sẽ bị đăng xuất ngay.';
 }
 
 function updateWhitelistBadge(enabled) {
   const badge = document.getElementById("whitelistBadge");
   if (!badge) return;
-  badge.textContent = enabled ? "Mở" : "Đóng";
+  badge.textContent = enabled ? "On" : "Off";
   badge.classList.add("visible");
   badge.classList.toggle("on", Boolean(enabled));
   badge.classList.toggle("off", !enabled);
@@ -1336,6 +1336,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
   updateMaintenanceBadge(maint && maint.enabled);
   const { data: reg } = await supabase.from("registration_settings").select("enabled").eq("id", true).maybeSingle();
   updateRegistrationBadge(reg && reg.enabled);
+  await loadWhitelistForm(); // ← thêm: hiển thị trạng thái whitelist ngay khi load xong
 });
 
 // Relay admin session to leaderboard iframe
