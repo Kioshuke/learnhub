@@ -798,27 +798,111 @@ function showDeepLinkOverlay(on){
   }
 }
 
+/* === Modal thông báo khi bài test chưa hoàn thành / chưa tới thời gian === */
+function showTestBlockModal(msg){
+  var modal = document.getElementById("lhTestBlockModal");
+  if(!modal){
+    modal = document.createElement("div");
+    modal.id = "lhTestBlockModal";
+    modal.innerHTML =
+      '<div class="lh-test-block-backdrop"></div>' +
+      '<div class="lh-test-block-card" role="dialog" aria-modal="true">' +
+        '<div class="lh-test-block-header">' +
+          '<div class="lh-test-block-title"><i class="fas fa-circle-exclamation"></i> Thông báo</div>' +
+          '<button class="lh-test-block-close" aria-label="Đóng"><i class="fas fa-xmark"></i></button>' +
+        '</div>' +
+        '<div class="lh-test-block-body">' +
+          '<p id="lhTestBlockMsg"></p>' +
+        '</div>' +
+        '<div class="lh-test-block-footer">' +
+          '<button class="lh-test-block-ok">Đóng</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(modal);
+
+    var style = document.createElement("style");
+    style.id = "lhTestBlockModalStyle";
+    style.textContent =
+      "#lhTestBlockModal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:100000;}" +
+      "#lhTestBlockModal.active{display:flex;}" +
+      ".lh-test-block-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(2px);}" +
+      ".lh-test-block-card{position:relative;width:min(92vw,420px);background:var(--card-bg,#fff);color:var(--text-color,#1f2937);border-radius:16px;box-shadow:0 20px 60px rgba(15,23,42,.25);overflow:hidden;animation:lhTestBlockIn .18s ease-out;}" +
+      "body.dark-mode .lh-test-block-card{background:#1f2937;color:#e5e7eb;box-shadow:0 20px 60px rgba(0,0,0,.4);}" +
+      ".lh-test-block-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 10px;}" +
+      ".lh-test-block-title{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;}" +
+      ".lh-test-block-title i{color:#f59e0b;}" +
+      ".lh-test-block-close{border:0;background:transparent;color:inherit;cursor:pointer;font-size:18px;opacity:.7;}" +
+      ".lh-test-block-close:hover{opacity:1;}" +
+      ".lh-test-block-body{padding:0 18px 14px;line-height:1.7;font-size:15px;font-weight:bold;color:#b91c1c;white-space:normal;word-break:break-word;}" +
+      ".lh-test-block-footer{display:flex;justify-content:flex-end;gap:10px;padding:0 18px 18px;}" +
+      ".lh-test-block-ok{border:0;background:#2563eb;color:#fff;border-radius:999px;padding:9px 18px;font-weight:600;cursor:pointer;}" +
+      ".lh-test-block-ok:hover{filter:brightness(1.05);}" +
+      "@keyframes lhTestBlockIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}";
+    document.head.appendChild(style);
+
+    var close = function(){ modal.classList.remove("active"); };
+    modal.querySelector(".lh-test-block-close").addEventListener("click", close);
+    modal.querySelector(".lh-test-block-ok").addEventListener("click", close);
+    modal.querySelector(".lh-test-block-backdrop").addEventListener("click", close);
+    document.addEventListener("keydown", function onKey(e){
+      if(e.key === "Escape" && modal.classList.contains("active")) close();
+    });
+  }
+  var msgEl = modal.querySelector("#lhTestBlockMsg");
+  if(msgEl) msgEl.textContent = msg || "";
+  modal.classList.add("active");
+}
+
+/* === Xử lý tin nhắn blocked khi bài test chưa hoàn thành (các trường hợp: deep link + bấm card test UI) === */
+window.addEventListener("message", function globalBlockedHandler(ev){
+  if(!ev.data || ev.data.type !== "OPEN_QUIZ_BLOCKED") return;
+  showDeepLinkOverlay(false);
+  var msg = "Bài test hiện Không thể làm vì chưa tới thời gian xuất bản/chưa hoàn thành. Vui lòng quay lại sau";
+  if(typeof showTestBlockModal === "function"){
+    showTestBlockModal(msg);
+  }else if(typeof alert === "function"){
+    alert(msg);
+  }
+});
+
 /* === Mở thẳng một bài test trong phòng học qua deep link (?open=phong-hoc&de=...) === */
 function requestOpenQuiz(de){
   var frame = document.getElementById("phongHocFrame");
   if(!frame || !frame.contentWindow){ showDeepLinkOverlay(false); return; }
   var acked = false;
+  var rv = null;
   window.addEventListener("message", function handler(ev){
     if(!ev.data || ev.data.type !== "OPEN_QUIZ_ACK") return;
     acked = true;
-    clearInterval(rv);
+    if(rv) clearInterval(rv);
     window.removeEventListener("message", handler);
+    window.removeEventListener("message", handlerBlocked);
     showDeepLinkOverlay(false);
     if(ev.data.ok === false){
       var missingDe = ev.data.de || de;
       window.location.href = "/404.html?open=phong-hoc&de=" + encodeURIComponent(missingDe);
     }
   });
-  var rv = setInterval(function(){
-    if(acked) { clearInterval(rv); return; }
+  window.addEventListener("message", function handlerBlocked(ev){
+    if(!ev.data || ev.data.type !== "OPEN_QUIZ_BLOCKED") return;
+    if(acked) return;
+    acked = true;
+    if(rv) clearInterval(rv);
+    window.removeEventListener("message", handler);
+    window.removeEventListener("message", handlerBlocked);
+    showDeepLinkOverlay(false);
+    var msg = "Bài test hiện Không thể làm vì chưa tới thời gian xuất bản/chưa hoàn thành. Vui lòng quay lại sau";
+    if(typeof showTestBlockModal === "function"){
+      showTestBlockModal(msg);
+    }else if(typeof alert === "function"){
+      alert(msg);
+    }
+  });
+  rv = setInterval(function(){
+    if(acked) { if(rv) clearInterval(rv); return; }
     try { if(frame.contentWindow) frame.contentWindow.postMessage({ type: "OPEN_QUIZ", de: de }, "*"); } catch(e){}
   }, 250);
-  setTimeout(function(){ if(!acked) { clearInterval(rv); showDeepLinkOverlay(false); } }, 12000);
+  setTimeout(function(){ if(!acked) { if(rv) clearInterval(rv); showDeepLinkOverlay(false); } }, 12000);
   try { if(frame.contentWindow) frame.contentWindow.postMessage({ type: "OPEN_QUIZ", de: de }, "*"); } catch(e){}
 }
 

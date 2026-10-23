@@ -433,7 +433,9 @@ function openQuizByDe(de) {
   if (!dbHit || !dbHit.subjectId) return false;
   if (dbHit.done === false) {
     if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
-    if (typeof alert === "function") alert("Bài kiểm tra này chưa hoàn thành — chưa thể làm bài.");
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'OPEN_QUIZ_BLOCKED', reason: 'not_completed', de: target }, '*');
+    }
     return true;
   }
   if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
