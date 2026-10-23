@@ -167,6 +167,21 @@ const CSS = `
 .blm-btn-save{background:linear-gradient(135deg,var(--blm-pink),var(--blm-violet));color:#fff;box-shadow:0 6px 16px rgba(219,39,119,.3)}
 .blm-btn-save:disabled{opacity:.55;cursor:not-allowed;transform:none}
 .blm-btn-cancel{background:#fff;color:#334155;border:1px solid var(--blm-border)}
+
+/* ===== Popup nhập URL (ảnh / liên kết) ===== */
+.blm-url-dlg{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.5)}
+.blm-url-dlg.show{display:flex;animation:blmFade .16s ease both}
+.blm-url-box{width:100%;max-width:460px;background:#fff;border-radius:16px;box-shadow:0 24px 60px rgba(15,23,42,.35);padding:20px;animation:blmRise .18s cubic-bezier(.22,1,.36,1) both}
+.blm-url-box h4{margin:0 0 4px;font-size:16px;font-weight:800;color:var(--blm-text)}
+.blm-url-box .blm-url-desc{margin:0 0 12px;font-size:12.5px;color:var(--blm-sub);line-height:1.5}
+.blm-url-input{width:100%;border:1px solid var(--blm-border);border-radius:12px;padding:11px 14px;font-size:14px;outline:none;background:var(--blm-soft);transition:all .15s ease;font-family:inherit;color:var(--blm-text)}
+.blm-url-input:focus{border-color:var(--blm-pink);background:#fff;box-shadow:0 0 0 4px rgba(219,39,119,.1)}
+.blm-url-preview{display:none;margin-top:10px;border:1px solid var(--blm-border);border-radius:12px;overflow:hidden;background:var(--blm-soft)}
+.blm-url-preview.show{display:block}
+.blm-url-preview img{display:block;width:100%;max-height:190px;object-fit:contain}
+.blm-url-err{display:none;margin-top:6px;font-size:12px;font-weight:600;color:#dc2626}
+.blm-url-err.show{display:block}
+.blm-url-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
 @media (max-width:560px){.blm-row2{grid-template-columns:1fr}.blm-modal-body{padding:16px}.blm-modal-head,.blm-modal-foot{padding:14px 16px}}
 `;
 
@@ -276,6 +291,19 @@ export function mountBlogManage(root, opts = {}) {
         '<button type="button" class="blm-btn blm-btn-cancel">Đóng</button>' +
         '<button type="button" class="blm-btn blm-btn-save"><i class="fa-solid fa-paper-plane"></i> Đăng bài</button>' +
       '</div>' +
+    '</div>' +
+    '<div class="blm-url-dlg">' +
+      '<div class="blm-url-box" role="dialog" aria-modal="true" aria-labelledby="' + uid + '-urltitle">' +
+        '<h4 id="' + uid + '-urltitle">Chèn ảnh vào bài</h4>' +
+        '<p class="blm-url-desc">Dán URL ảnh trực tiếp (https://...).</p>' +
+        '<input class="blm-url-input" type="url" placeholder="https://.../anh.jpg" autocomplete="off" spellcheck="false">' +
+        '<div class="blm-url-preview"><img alt="Xem trước ảnh"></div>' +
+        '<div class="blm-url-err"></div>' +
+        '<div class="blm-url-actions">' +
+          '<button type="button" class="blm-btn blm-btn-cancel blm-url-cancel">Huỷ</button>' +
+          '<button type="button" class="blm-btn blm-btn-save blm-url-ok">Chèn ảnh</button>' +
+        '</div>' +
+      '</div>' +
     '</div>';
   document.body.appendChild(overlay);
 
@@ -291,8 +319,8 @@ export function mountBlogManage(root, opts = {}) {
   const editor = oq(".blm-editor");
   const publishedEl = oq(".blm-published");
   const pinnedEl = oq(".blm-pinned");
-  const saveBtn = oq(".blm-btn-save");
-  const cancelBtn = oq(".blm-btn-cancel");
+  const saveBtn = oq(".blm-modal-foot .blm-btn-save");
+  const cancelBtn = oq(".blm-modal-foot .blm-btn-cancel");
   const closeBtn = oq(".blm-x");
   const statusEl = oq(".blm-status");
   const modeEl = oq(".blm-mode");
@@ -301,6 +329,15 @@ export function mountBlogManage(root, opts = {}) {
   const countEl = q(".blm-count");
   const searchEl = q(".blm-search-input");
   const newBtn = q(".blm-btn-new");
+  const urlDlg = oq(".blm-url-dlg");
+  const urlTitle = oq(".blm-url-box h4");
+  const urlDesc = oq(".blm-url-desc");
+  const urlInput = oq(".blm-url-input");
+  const urlPreview = oq(".blm-url-preview");
+  const urlPreviewImg = urlPreview.querySelector("img");
+  const urlErr = oq(".blm-url-err");
+  const urlOkBtn = oq(".blm-url-ok");
+  const urlCancelBtn = oq(".blm-url-cancel");
 
   function toast(msg, type) {
     if (typeof window.lhToast === "function") { window.lhToast(msg, { type: type || "info" }); return; }
@@ -346,19 +383,110 @@ export function mountBlogManage(root, opts = {}) {
     btn.addEventListener("click", () => {
       const cmd = btn.getAttribute("data-cmd");
       let val = btn.getAttribute("data-val") || null;
-      if (cmd === "createLink") {
-        const url = prompt("Nhập URL liên kết (https://...):", "https://");
-        if (!url || !safeUrl(url, escUrl)) return;
-        val = safeUrl(url, escUrl);
-      } else if (cmd === "insertImage") {
-        const url = prompt("Nhập URL ảnh (https://...):", "https://");
-        if (!url || !safeUrl(url, escUrl)) return;
-        val = safeUrl(url, escUrl);
+      if (cmd === "createLink" || cmd === "insertImage") {
+        openUrlDialog(cmd === "insertImage" ? "image" : "link");
+        return;
       }
       editor.focus();
       try { document.execCommand(cmd, false, val); } catch (e) { /* bỏ qua */ }
     });
   });
+  /* ===== Popup nhập URL cho ảnh / liên kết (thay prompt mặc định của trình duyệt) ===== */
+  let urlMode = "";
+  let savedRange = null;
+
+  function saveEditorSelection() {
+    try {
+      const sel = window.getSelection();
+      if (!sel || !sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+      if (editor.contains(range.commonAncestorContainer)) savedRange = range.cloneRange();
+    } catch (e) { /* bỏ qua */ }
+  }
+
+  function restoreEditorSelection() {
+    editor.focus();
+    if (!savedRange) return;
+    try {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedRange);
+    } catch (e) { /* bỏ qua */ }
+  }
+
+  function updateUrlPreview() {
+    const u = safeUrl(urlInput.value, escUrl);
+    urlErr.classList.remove("show");
+    if (urlMode === "image" && u) {
+      urlPreviewImg.src = u;
+      urlPreview.classList.add("show");
+    } else {
+      urlPreview.classList.remove("show");
+      urlPreviewImg.removeAttribute("src");
+    }
+  }
+
+  function openUrlDialog(mode) {
+    saveEditorSelection();
+    urlMode = mode;
+    const isImg = mode === "image";
+    urlTitle.textContent = isImg ? "Chèn ảnh vào bài" : "Chèn liên kết";
+    urlDesc.textContent = isImg
+      ? "Dán URL ảnh trực tiếp (https://...). Ảnh sẽ nằm đúng vị trí con trỏ."
+      : "Dán URL liên kết (https://...). Nếu đang bôi đen chữ, liên kết sẽ gắn vào phần đó.";
+    urlInput.value = "";
+    urlInput.placeholder = isImg ? "https://.../anh.jpg" : "https://...";
+    urlErr.classList.remove("show");
+    urlPreview.classList.remove("show");
+    urlPreviewImg.removeAttribute("src");
+    urlOkBtn.innerHTML = isImg
+      ? '<i class="fa-solid fa-image"></i> Chèn ảnh'
+      : '<i class="fa-solid fa-link"></i> Chèn link';
+    urlDlg.classList.add("show");
+    setTimeout(function () { urlInput.focus(); }, 30);
+  }
+
+  function closeUrlDialog(restoreSel) {
+    urlDlg.classList.remove("show");
+    urlMode = "";
+    if (restoreSel) restoreEditorSelection();
+    savedRange = null;
+  }
+
+  function submitUrlDialog() {
+    const url = safeUrl(urlInput.value, escUrl);
+    if (!url) {
+      urlErr.textContent = urlMode === "image"
+        ? "URL ảnh không hợp lệ. Chỉ nhận link http/https."
+        : "URL không hợp lệ. Chỉ nhận link http/https.";
+      urlErr.classList.add("show");
+      urlInput.focus();
+      return;
+    }
+    const cmd = urlMode === "image" ? "insertImage" : "createLink";
+    urlDlg.classList.remove("show");
+    urlMode = "";
+    restoreEditorSelection();
+    try { document.execCommand(cmd, false, url); } catch (e) { /* bỏ qua */ }
+    savedRange = null;
+    editor.focus();
+  }
+
+  urlOkBtn.addEventListener("click", submitUrlDialog);
+  urlCancelBtn.addEventListener("click", function () { closeUrlDialog(true); });
+  urlDlg.addEventListener("mousedown", function (e) {
+    if (e.target === urlDlg) closeUrlDialog(true);
+  });
+  urlInput.addEventListener("input", updateUrlPreview);
+  urlInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); submitUrlDialog(); }
+    else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeUrlDialog(true); }
+  });
+  urlPreviewImg.addEventListener("error", function () {
+    urlPreview.classList.remove("show");
+    urlPreviewImg.removeAttribute("src");
+  });
+
   editor.addEventListener("focus", () => editorWrap.classList.add("focus"));
   editor.addEventListener("blur", () => editorWrap.classList.remove("focus"));
 
@@ -413,7 +541,9 @@ export function mountBlogManage(root, opts = {}) {
   closeBtn.addEventListener("click", closeEditor);
   overlay.addEventListener("mousedown", (e) => { if (e.target === overlay) closeEditor(); });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && overlay.classList.contains("show")) closeEditor();
+    if (e.key !== "Escape") return;
+    if (urlDlg.classList.contains("show")) { closeUrlDialog(true); return; }
+    if (overlay.classList.contains("show")) closeEditor();
   });
 
   /* ===== Lưu ===== */

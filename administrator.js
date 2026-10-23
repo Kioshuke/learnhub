@@ -157,7 +157,7 @@ async function loadBlogManage() {
   if (!root || blogManageLoaded) return;
   blogManageLoaded = true;
   try {
-    const mod = await import("./element/blog-manage.js?v=3");
+    const mod = await import("./element/blog-manage.js?v=4");
     mod.mountBlogManage(root, { supabase, escapeHtml, logAppError });
   } catch (e) {
     console.error("[admin] tải module quản lý blog lỗi:", e);
