@@ -131,7 +131,7 @@ select
 
 <p><em>Lưu ý:</em> tiến độ học flashcard hiện được lưu ngay trên trình duyệt và thiết bị bạn đang dùng. Nếu xóa dữ liệu trình duyệt hoặc đổi thiết bị, tiến độ có thể không còn — hãy học đều đặn thay vì phụ thuộc hoàn toàn vào thanh tiến độ. Nếu gặp lỗi hoặc có góp ý cho tính năng, bạn hãy gửi cho Ban Quản Trị qua trang <strong>Góp ý</strong> nhé.</p>
 $body$,
-  'https://learnhubpf.pages.dev/pictures/loading4.jpg',
+  'https://lh3.googleusercontent.com/d/17FJKkeKnybZs4oqB51ub5hY4nRXG59Li',
   'Học tập',
   array['Flashcard','Smart Flashcard','từ vựng','tiếng Anh','hướng dẫn'],
   'Ban Quản Trị LearnHub',

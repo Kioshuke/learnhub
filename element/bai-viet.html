@@ -71,10 +71,14 @@
     /* ===== Bài viết (cột trái) ===== */
     .bv-cover { width: 100%; height: 380px; border-radius: 14px; background-size: cover; background-position: center; margin-bottom: 1.5rem; }
     .bv-cat {
+      --cat-color: var(--bv-accent); --cat-soft: var(--bv-soft);
       display: inline-block; font-size: 0.75rem; padding: 0.3rem 0.7rem; border-radius: 5px;
-      background-color: var(--bv-soft); color: var(--bv-accent);
+      background-color: var(--cat-soft); color: var(--cat-color);
       text-transform: uppercase; font-weight: 700; letter-spacing: .04em; margin-bottom: 0.85rem;
     }
+    /* Tin tức dùng màu vàng; Học tập và các danh mục khác giữ màu xanh hiện tại. */
+    .bv-cat.cat-tin-tuc { --cat-color: #a16207; --cat-soft: rgba(234, 179, 8, .16); }
+    body.dark-mode .bv-cat.cat-tin-tuc { --cat-color: #facc15; --cat-soft: rgba(250, 204, 21, .16); }
     .bv-title { font-size: 2.1rem; line-height: 1.28; color: var(--bv-text); margin-bottom: 1rem; }
     .bv-meta {
       display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; color: var(--bv-muted);
@@ -255,6 +259,14 @@ function readMinutes(html) {
 }
 function fmtViews(n) { return Number(n || 0).toLocaleString("vi-VN"); }
 function initials(name) { return (String(name || "L").trim()[0] || "L").toUpperCase(); }
+function categoryClass(cat) {
+  const key = String(cat || "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  if (key === "tin tuc") return " cat-tin-tuc";
+  if (key === "hoc tap") return " cat-hoc-tap";
+  return "";
+}
 
 const GRADS = [
   "linear-gradient(135deg,#0284c7,#38bdf8)",
@@ -318,7 +330,7 @@ function render(p, photo) {
       /* ===== Cột trái: bài viết ===== */
       '<article class="bv-main">' +
         '<div class="bv-cover" style="' + coverStyle(p) + '"></div>' +
-        '<span class="bv-cat">' + escapeHtml(p.category || "Tin tức") + '</span>' +
+        '<span class="bv-cat' + categoryClass(p.category) + '">' + escapeHtml(p.category || "Tin tức") + '</span>' +
         '<h1 class="bv-title">' + escapeHtml(p.title || "(không tiêu đề)") + '</h1>' +
         '<div class="bv-meta">' +
           '<span>' + escapeHtml(fmtDate(p.created_at)) + '</span>' +

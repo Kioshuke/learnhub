@@ -75,13 +75,24 @@
 
     .blg-cats { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .blg-cat {
+      --cat-color: var(--blg-accent); --cat-border: var(--blg-accent); --cat-solid: var(--blg-accent);
+      --cat-soft: var(--blg-soft); --cat-on: var(--blg-on-accent);
       padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--blg-border);
       background-color: transparent; color: var(--blg-muted); cursor: pointer;
       transition: all 0.25s; font-family: inherit; font-size: .9rem;
     }
-    .blg-cat:hover { color: var(--blg-text); background-color: var(--blg-hover); }
+    /* Tin tức dùng màu vàng; Học tập và các danh mục khác giữ màu xanh hiện tại. */
+    .blg-cat.cat-tin-tuc {
+      --cat-color: #a16207; --cat-border: #eab308; --cat-solid: #facc15;
+      --cat-soft: rgba(234, 179, 8, .16); --cat-on: #422006;
+    }
+    body.dark-mode .blg-cat.cat-tin-tuc {
+      --cat-color: #facc15; --cat-border: #facc15; --cat-solid: #facc15;
+      --cat-soft: rgba(250, 204, 21, .16); --cat-on: #1c1917;
+    }
+    .blg-cat:hover { color: var(--cat-color); border-color: var(--cat-border); background-color: var(--cat-soft); }
     .blg-cat.active {
-      background-color: var(--blg-accent); color: var(--blg-on-accent); border-color: var(--blg-accent); font-weight: 600;
+      background-color: var(--cat-solid); color: var(--cat-on); border-color: var(--cat-border); font-weight: 600;
     }
 
     /* ===== Grid ===== */
@@ -91,21 +102,24 @@
 
     /* ===== Card (là 1 link tới trang bài viết) — nền trong suốt ===== */
     .blg-card {
+      --cat-color: var(--blg-accent); --cat-border: var(--blg-accent); --cat-soft: var(--blg-soft);
       background-color: transparent; border-radius: 14px;
       border: 1px solid var(--blg-border); overflow: hidden; display: flex; flex-direction: column;
       transition: transform 0.28s, border-color 0.28s, background-color .28s; cursor: pointer;
       animation: blgIn .35s ease both; color: inherit; text-decoration: none;
     }
+    .blg-card.cat-tin-tuc { --cat-color: #a16207; --cat-border: #eab308; --cat-soft: rgba(234, 179, 8, .16); }
+    body.dark-mode .blg-card.cat-tin-tuc { --cat-color: #facc15; --cat-border: #facc15; --cat-soft: rgba(250, 204, 21, .16); }
     @keyframes blgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .blg-card:hover {
-      transform: translateY(-4px); border-color: var(--blg-accent); background-color: var(--blg-hover);
+      transform: translateY(-4px); border-color: var(--cat-border); background-color: var(--blg-hover);
     }
-    .blg-card:focus-visible { outline: 2px solid var(--blg-accent); outline-offset: 3px; }
+    .blg-card:focus-visible { outline: 2px solid var(--cat-border); outline-offset: 3px; }
     .blg-card-img { height: 170px; background-size: cover; background-position: center; }
     .blg-card-content { padding: 1.25rem; display: flex; flex-direction: column; flex: 1; }
     .blg-tag {
       align-self: flex-start; font-size: 0.72rem; padding: 0.25rem 0.6rem; border-radius: 5px;
-      background-color: var(--blg-soft); color: var(--blg-accent);
+      background-color: var(--cat-soft); color: var(--cat-color);
       text-transform: uppercase; font-weight: 700; letter-spacing: .03em; margin-bottom: 0.7rem;
     }
     .blg-title { font-size: 1.15rem; margin-bottom: 0.7rem; color: var(--blg-text); line-height: 1.4; }
@@ -128,7 +142,7 @@
       box-shadow: inset 0 0 0 1px rgba(120, 120, 120, 0.35);
     }
     .blg-name { font-weight: 500; color: var(--blg-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .blg-read { color: var(--blg-accent); font-weight: 600; font-size: 0.85rem; flex: none; white-space: nowrap; }
+    .blg-read { color: var(--cat-color); font-weight: 600; font-size: 0.85rem; flex: none; white-space: nowrap; }
     .blg-card:hover .blg-read { text-decoration: underline; }
 
     @media (max-width: 600px) {
@@ -198,6 +212,14 @@ function avatarHtml(name, photo) {
   return '<span class="blg-avatar" aria-hidden="true">' + escapeHtml(initials(name)) + img + '</span>';
 }
 function articleUrl(id) { return "bai-viet.html?id=" + encodeURIComponent(String(id)); }
+function categoryClass(cat) {
+  const key = String(cat || "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  if (key === "tin tuc") return " cat-tin-tuc";
+  if (key === "hoc tap") return " cat-hoc-tap";
+  return "";
+}
 
 /* ====== State ====== */
 const state = { q: "", cat: "all", posts: [], photos: {} };
@@ -215,7 +237,7 @@ function categories() {
 function renderChips() {
   const cats = categories();
   let html = '<button type="button" class="blg-cat' + (state.cat === "all" ? " active" : "") + '" data-cat="all">Tất cả</button>';
-  html += cats.map(c => '<button type="button" class="blg-cat' + (state.cat === c ? " active" : "") + '" data-cat="' + escapeHtml(c) + '">' + escapeHtml(c) + '</button>').join("");
+  html += cats.map(c => '<button type="button" class="blg-cat' + categoryClass(c) + (state.cat === c ? " active" : "") + '" data-cat="' + escapeHtml(c) + '">' + escapeHtml(c) + '</button>').join("");
   chipsEl.innerHTML = html;
 }
 
@@ -250,7 +272,7 @@ function cardHtml(p, i) {
   const name = p.author || "Ban Quản Trị LearnHub";
   const photo = (p.author_id && state.photos[String(p.author_id)]) || "";
   const delay = document.body.classList.contains("cc-reduced") ? "" : "animation-delay:" + (i * 40) + "ms;";
-  return '<a class="blg-card" href="' + escapeHtml(articleUrl(p.id)) + '" style="' + delay + '">' +
+  return '<a class="blg-card' + categoryClass(p.category) + '" href="' + escapeHtml(articleUrl(p.id)) + '" style="' + delay + '">' +
       '<div class="blg-card-img" style="' + bg + '"></div>' +
       '<div class="blg-card-content">' +
         '<span class="blg-tag">' + escapeHtml(p.category || "Tin tức") + '</span>' +
