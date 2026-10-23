@@ -53,6 +53,16 @@ function safeUrl(u, escapeUrl) {
   return escapeUrl(s) || "";
 }
 
+/* Link chia sẻ Google Drive -> link ảnh trực tiếp (lh3) để thẻ <img> hiển thị được. */
+function normalizeImageUrl(u) {
+  const s = String(u || "").trim();
+  if (!s) return "";
+  let m = s.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]{10,})/);
+  if (!m) m = s.match(/drive\.google\.com\/(?:open|uc)\?(?:[^#]*&)?id=([A-Za-z0-9_-]{10,})/);
+  if (!m) m = s.match(/drive\.google\.com\/thumbnail\?id=([A-Za-z0-9_-]{10,})/);
+  return m ? "https://lh3.googleusercontent.com/d/" + m[1] : s;
+}
+
 function stripTags(html) {
   return String(html || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -274,7 +284,7 @@ export function mountBlogManage(root, opts = {}) {
           '<div class="blm-field"><label>Danh mục</label><input class="blm-category" type="text" list="' + uid + '-cats" placeholder="vd: Tin tức" autocomplete="off"><datalist id="' + uid + '-cats">' + CATEGORY_SUGGESTIONS.map(c => "<option value=\"" + esc(c) + "\">").join("") + '</datalist></div>' +
           '<div class="blm-field"><label>Thẻ (phân tách bằng dấu phẩy)</label><input class="blm-tags" type="text" placeholder="vd: tiếng anh, từ vựng" autocomplete="off"></div>' +
         '</div>' +
-        '<div class="blm-field"><label>Ảnh bìa (URL ảnh)</label><input class="blm-cover" type="text" placeholder="https://.../anh-bia.jpg" autocomplete="off"><div class="blm-cover-preview"></div><span class="blm-hint">Dán link ảnh có sẵn (Google Drive lấy link ảnh trực tiếp, hoặc link web).</span></div>' +
+        '<div class="blm-field"><label>Ảnh bìa (URL ảnh)</label><input class="blm-cover" type="text" placeholder="https://.../anh-bia.jpg" autocomplete="off"><div class="blm-cover-preview"></div><span class="blm-hint">Dán link ảnh trực tiếp hoặc link Google Drive đã bật chia sẻ “Anyone with the link” — hệ thống tự đổi sang link ảnh.</span></div>' +
         '<div class="blm-field"><label>Tóm tắt</label><textarea class="blm-excerpt" rows="2" placeholder="1-2 câu mô tả ngắn hiển thị trên thẻ bài viết..."></textarea></div>' +
         '<div class="blm-field"><label>Nội dung <b>*</b></label>' +
           '<div class="blm-editor-wrap"><div class="blm-toolbar">' + toolbarHtml + '</div>' +
@@ -369,7 +379,7 @@ export function mountBlogManage(root, opts = {}) {
 
   /* ===== Ảnh bìa preview ===== */
   function renderCover() {
-    const u = safeUrl(coverEl.value, escUrl);
+    const u = safeUrl(normalizeImageUrl(coverEl.value), escUrl);
     if (!u) { coverPrev.classList.remove("show"); coverPrev.innerHTML = ""; return; }
     coverPrev.classList.add("show");
     coverPrev.innerHTML = '<img src="' + esc(u) + '" alt="Ảnh bìa" onerror="this.parentNode.classList.remove(\'show\')">';
@@ -415,7 +425,7 @@ export function mountBlogManage(root, opts = {}) {
   }
 
   function updateUrlPreview() {
-    const u = safeUrl(urlInput.value, escUrl);
+    const u = safeUrl(urlMode === "image" ? normalizeImageUrl(urlInput.value) : urlInput.value, escUrl);
     urlErr.classList.remove("show");
     if (urlMode === "image" && u) {
       urlPreviewImg.src = u;
@@ -432,7 +442,7 @@ export function mountBlogManage(root, opts = {}) {
     const isImg = mode === "image";
     urlTitle.textContent = isImg ? "Chèn ảnh vào bài" : "Chèn liên kết";
     urlDesc.textContent = isImg
-      ? "Dán URL ảnh trực tiếp (https://...). Ảnh sẽ nằm đúng vị trí con trỏ."
+      ? "Dán URL ảnh trực tiếp hoặc link Google Drive đã chia sẻ công khai. Ảnh sẽ nằm đúng vị trí con trỏ."
       : "Dán URL liên kết (https://...). Nếu đang bôi đen chữ, liên kết sẽ gắn vào phần đó.";
     urlInput.value = "";
     urlInput.placeholder = isImg ? "https://.../anh.jpg" : "https://...";
@@ -454,7 +464,7 @@ export function mountBlogManage(root, opts = {}) {
   }
 
   function submitUrlDialog() {
-    const url = safeUrl(urlInput.value, escUrl);
+    const url = safeUrl(urlMode === "image" ? normalizeImageUrl(urlInput.value) : urlInput.value, escUrl);
     if (!url) {
       urlErr.textContent = urlMode === "image"
         ? "URL ảnh không hợp lệ. Chỉ nhận link http/https."
@@ -485,6 +495,10 @@ export function mountBlogManage(root, opts = {}) {
   urlPreviewImg.addEventListener("error", function () {
     urlPreview.classList.remove("show");
     urlPreviewImg.removeAttribute("src");
+    if (urlMode === "image") {
+      urlErr.textContent = "Không tải được ảnh. Nếu là Google Drive, hãy đặt quyền “Anyone with the link”.";
+      urlErr.classList.add("show");
+    }
   });
 
   editor.addEventListener("focus", () => editorWrap.classList.add("focus"));
@@ -559,7 +573,7 @@ export function mountBlogManage(root, opts = {}) {
       title,
       category: catEl.value.trim() || "Tin tức",
       tags: tagsEl.value.split(",").map(s => s.trim()).filter(Boolean),
-      cover_url: safeUrl(coverEl.value, escUrl) || null,
+      cover_url: safeUrl(normalizeImageUrl(coverEl.value), escUrl) || null,
       excerpt: excerptEl.value.trim(),
       content: content || "",
       published: !!publishedEl.checked,
