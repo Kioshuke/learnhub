@@ -280,6 +280,23 @@ window.addEventListener("message", function(ev){
     return;
   }
 
+  // Bài viết blog: link nội bộ -> chuyển tab/trang ngay trong web chính (không mở tab mới).
+  if(d.type === "OPEN_MAIN_LINK"){
+    if(ev.origin !== location.origin) return;
+    const bf = findFrameBySource(ev.source);
+    if(!bf || bf.id !== "blogFrame") return;
+    if(d.page === "profile"){ window.location.href = "profile.html"; return; }
+    const openTab = String(d.tab || "");
+    if(["phong-hoc","flash","forum","blog","tai-lieu","leaderboard"].indexOf(openTab) === -1) return;
+    if(window.__lhGuest && openTab !== "blog"){ window.location.href = "login.html"; return; }
+    if(openTab === "leaderboard"){
+      if(typeof openLeaderboardModal === "function") openLeaderboardModal();
+      return;
+    }
+    if(typeof show === "function") show(openTab);
+    return;
+  }
+
   // Phía con xin thông tin vùng nhìn thấy (khi mở modal).
   if(d.type === "REQUEST_FRAME_VIEW"){
     const reqFrame = findFrameBySource(ev.source);

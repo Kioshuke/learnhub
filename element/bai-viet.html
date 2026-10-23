@@ -180,6 +180,26 @@ function isSafeUrl(u, allowMailto) {
   return false;
 }
 
+const MAIN_SITE_ORIGIN = "https://learnhubpf.pages.dev";
+const LEGACY_TAB_LINKS = {
+  "/element/forum.html": "forum",
+  "/element/hubfile.html": "tai-lieu",
+  "/element/phong-hoc.html": "phong-hoc",
+  "/flashcard/hub.html": "flash"
+};
+
+/* Link nội bộ của web chính -> { tab } hoặc { page }. */
+function mainLinkTarget(href) {
+  let u;
+  try { u = new URL(String(href || ""), location.href); } catch (e) { return null; }
+  if (u.origin !== location.origin && u.origin !== MAIN_SITE_ORIGIN) return null;
+  const tab = u.searchParams.get("open");
+  if (tab) return { tab };
+  if (LEGACY_TAB_LINKS[u.pathname]) return { tab: LEGACY_TAB_LINKS[u.pathname] };
+  if (u.pathname === "/profile.html") return { page: "profile" };
+  return null;
+}
+
 function sanitizeHtml(html) {
   const doc = new DOMParser().parseFromString(String(html || ""), "text/html");
   const walk = (node) => {
@@ -207,7 +227,10 @@ function sanitizeHtml(html) {
           if (name === "href" && !isSafeUrl(attr.value, true)) child.removeAttribute("href");
           if (name === "src" && !isSafeUrl(attr.value, false)) child.removeAttribute("src");
         }
-        if (tag === "A" && child.getAttribute("href")) { child.setAttribute("target", "_blank"); child.setAttribute("rel", "noopener noreferrer"); }
+        if (tag === "A" && child.getAttribute("href")) {
+          child.setAttribute("target", mainLinkTarget(child.getAttribute("href")) ? "_top" : "_blank");
+          child.setAttribute("rel", "noopener noreferrer");
+        }
         if (!VOID_TAGS.has(tag)) walk(child);
       } else if (child.nodeType === 8) {
         child.remove();
@@ -256,6 +279,21 @@ function coverStyle(p) {
 function articleUrl(id) { return "bai-viet.html?id=" + encodeURIComponent(String(id)); }
 
 const root = document.getElementById("bvRoot");
+
+/* Link nội bộ trong bài -> nhờ trang chính chuyển tab, không mở tab mới. */
+root.addEventListener("click", function (e) {
+  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+  if (!a || !root.contains(a)) return;
+  const dest = mainLinkTarget(a.getAttribute("href"));
+  if (!dest) return;
+  const p = window.parent;
+  if (!p || p === window) return; // mở trực tiếp: để link _top tự điều hướng
+  try {
+    p.postMessage({ type: "OPEN_MAIN_LINK", tab: dest.tab || "", page: dest.page || "" }, location.origin);
+    e.preventDefault();
+  } catch (err) {}
+});
 
 function notFound() {
   root.innerHTML =
