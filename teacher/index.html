@@ -1938,13 +1938,14 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
           const de = "t:" + r.set_id;
           const badges =
             (r.show_score === 'none' ? '<span class="tc-qz-badge danger"><i class="fa-solid fa-lock"></i> Ẩn điểm</span>' : '') +
-            (r.show_answers === 'none' ? '<span class="tc-qz-badge danger"><i class="fa-solid fa-eye-slash"></i> Chặn xem đáp án</span>' : (r.show_answers === 'perfect' ? '<span class="tc-qz-badge info"><i class="fa-solid fa-eye"></i> Xem đáp án khi điểm tối đa</span>' : ''));
+            (r.show_answers === 'none' ? '<span class="tc-qz-badge danger"><i class="fa-solid fa-eye-slash"></i> Chặn xem đáp án</span>' : (r.show_answers === 'perfect' ? '<span class="tc-qz-badge info"><i class="fa-solid fa-eye"></i> Xem đáp án khi điểm tối đa</span>' : '')) +
+            (r.subtest_enabled ? '<span class="tc-qz-badge info"><i class="fa-solid fa-dice"></i> Đề con ' + (r.subtest_count || 0) + '/' + (r.question_count || 0) + '</span>' : '');
           return '<tr>' +
             '<td><div class="tc-t">' + escapeHtml(r.name) + '</div>' +
               (r.description ? '<div class="tc-sub">' + escapeHtml(r.description) + '</div>' : '') +
               (badges ? '<div class="tc-qz-badges">' + badges + '</div>' : '') + '</td>' +
             '<td class="tc-qz-nowrap">' + escapeHtml(r.subject) + '</td>' +
-            '<td class="tc-qz-nowrap">' + (r.question_count || 0) + '</td>' +
+            '<td class="tc-qz-nowrap">' + (r.subtest_enabled && r.subtest_count ? (r.subtest_count + '/' + (r.question_count || 0)) : (r.question_count || 0)) + '</td>' +
             '<td class="tc-qz-nowrap">' + (r.minutes > 0 ? '<i class="fa-solid fa-stopwatch"></i> ' + r.minutes + ' phút' : "Không giới hạn") + '</td>' +
             '<td class="tc-qz-nowrap">' + (r.score || 10) + '</td>' +
             '<td>' +

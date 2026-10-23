@@ -36,7 +36,9 @@ var testMeta = {
   shuffleQ: true,      // xáo trộn thứ tự câu
   shuffleA: true,      // xáo trộn thứ tự đáp án trong câu (mặc định bật)
   showScore: "always", // 'always' hiện điểm bình thường | 'none' ẩn điểm, hiện "Đã nộp bài"
-  showAnswers: "always" // 'always' luôn cho xem đáp án | 'perfect' chỉ khi đạt tối đa | 'none' không cho xem
+  showAnswers: "always", // 'always' luôn cho xem đáp án | 'perfect' chỉ khi đạt tối đa | 'none' không cho xem
+  subtestEnabled: false, // tạo đề con: mỗi lần mở đề bốc ngẫu nhiên N câu
+  subtestCount: null      // số câu của đề con (null khi tắt)
 };
 
 var LETTERS = "ABCDEFGH";
@@ -1132,6 +1134,10 @@ function renderReview() {
   }
   var qn = countQ(testData);
   var nSec = testData.filter(function (s) { return s && Array.isArray(s.questions); }).length;
+  var subtestOn = !!testMeta.subtestEnabled;
+  var subtestRaw = parseInt(testMeta.subtestCount, 10) || 0;
+  var subtestInvalid = subtestOn && (subtestRaw < 1 || subtestRaw > qn);
+  var subtestN = subtestOn ? Math.min(Math.max(subtestRaw, 0), qn) : 0;
 
   /* ---- Cột trái: rà soát đề ---- */
   var left = "";
@@ -1167,8 +1173,10 @@ function renderReview() {
     });
     left += "</ol></div>";
   });
+  var scoreBase = subtestOn ? subtestN : qn;
   left += '<div class="rev-total">Tổng <b>' + qn + "</b> câu · " + nSec + " phần · thang " + testMeta.score +
-    " (mỗi câu " + (testMeta.score / qn).toFixed(2) + " điểm)</div>";
+    (subtestOn ? ' · <b style="color:#7c3aed">đề con ' + subtestN + " câu</b>" : "") +
+    " (mỗi câu " + (scoreBase > 0 ? (testMeta.score / scoreBase).toFixed(2) : "0.00") + " điểm)</div>";
 
   /* ---- Cột phải: thiết lập + xuất bản ---- */
   var right =
@@ -1190,6 +1198,9 @@ function renderReview() {
       '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-shuffle" style="color:#0284c7"></i> Xáo trộn</span><span class="rev-v">Câu: <b>' +
         (testMeta.shuffleQ ? "Bật" : "Tắt") + "</b> · Đáp án: <b>" + (testMeta.shuffleA ? "Bật" : "Tắt") +
       "</b></span></div>" +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-dice" style="color:#7c3aed"></i> Đề con</span><span class="rev-v">' +
+        (subtestOn ? "<b>" + subtestN + "</b> câu · bốc ngẫu nhiên mỗi lần mở" : "Tắt") +
+      "</span></div>" +
       '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-chart-column" style="color:#16a34a"></i> Xem điểm</span><span class="rev-v"><b>' +
         (testMeta.showScore === "none" ? "Bị Ẩn" : "Có") +
       "</b></span></div>" +
@@ -1211,12 +1222,13 @@ function renderReview() {
   var warns = [];
   if (!testMeta.name) warns.push("Chưa đặt <b>tên đề</b> — bấm <b>← Sửa lại đề</b> rồi <b>▶ Tiếp tục</b> (màn 2) để điền trước khi xuất bản.");
   if (!testMeta.subject) warns.push("Chưa chọn <b>môn học</b> — đề sẽ xuất hiện ở Phòng Học theo môn.");
+  if (subtestInvalid) warns.push("Số câu <b>đề con</b> không hợp lệ — mở <b>Thiết lập đề</b> và nhập lại trong khoảng 1–" + qn + ".");
   var ne = $("revNote");
   if (ne) {
     ne.innerHTML = warns.join("<br>");
     ne.hidden = warns.length === 0;
   }
-  if (pub) pub.disabled = !testMeta.name;
+  if (pub) pub.disabled = !testMeta.name || subtestInvalid;
 }
 
 /* Xuất bản đề — GHI DATABASE THẬT qua RPC teacher_upsert_test_set.
@@ -1242,7 +1254,9 @@ async function publishTest() {
     p_shuffle_a: !!testMeta.shuffleA,
     p_is_complete: currentEditId ? currentEditComplete : true,
     p_show_score: testMeta.showScore || "always",
-    p_show_answers: testMeta.showAnswers || "always"
+    p_show_answers: testMeta.showAnswers || "always",
+    p_subtest_enabled: !!testMeta.subtestEnabled,
+    p_subtest_count: testMeta.subtestEnabled ? (parseInt(testMeta.subtestCount, 10) || null) : null
   };
   var left = $("revLeft");
   var rn = $("revNote");
@@ -1257,6 +1271,7 @@ async function publishTest() {
         : code === "empty_name" ? "Chưa đặt tên đề."
         : code === "empty_content" ? "Đề trống — không thể xuất bản."
         : code === "structure_locked" ? "Đề đã xuất bản — không thể thay đổi cấu trúc (thêm/bớt câu/section/đáp án). Chỉ được sửa nội dung/đáp án hoặc điểm."
+        : code === "invalid_subtest_count" ? "Số câu đề con phải từ 1 đến " + ((res.data && res.data.total) || countQ(testData)) + "."
         : "Không xuất bản được bài kiểm tra.";
       throw { message: msg };
     }
@@ -1274,7 +1289,8 @@ async function publishTest() {
             (payload.p_shuffle_q ? "Bật" : "Tắt") + "</b> · trộn đáp án: <b>" +
             (payload.p_shuffle_a ? "Bật" : "Tắt") + "</b>" +
             " · điểm: <b>" + (payload.p_show_score === "none" ? "Ẩn" : "Hiện") + "</b>" +
-            " · đáp án: <b>" + (payload.p_show_answers === "none" ? "Không" : payload.p_show_answers === "perfect" ? "Khi tối đa" : "Luôn") + "</b>." +
+            " · đáp án: <b>" + (payload.p_show_answers === "none" ? "Không" : payload.p_show_answers === "perfect" ? "Khi tối đa" : "Luôn") + "</b>" +
+            " · đề con: <b>" + (payload.p_subtest_enabled ? payload.p_subtest_count + "/" + countQ(testData) + " câu" : "Tắt") + "</b>." +
           "</p>" +
           '<button type="button" class="btn btn-primary" id="btnPublishAgain">＋ Xuất bản đề mới</button>' +
         "</div>";
@@ -1325,6 +1341,22 @@ function updateSetupBtn() {
   b.title = "";
 }
 
+/* Đồng bộ khối "đề con": chỉ hiện ô số câu khi bật, kèm tổng số câu hiện có */
+function syncSubtestUI() {
+  var chk = $("setSubtestEnabled"), box = $("subtestBox"), inp = $("setSubtestCount"), hint = $("subtestHint");
+  if (!chk || !box || !inp) return;
+  var total = countQ(testData);
+  box.hidden = !chk.checked;
+  inp.max = total > 0 ? String(total) : "";
+  if (hint) {
+    var cur = parseInt(inp.value, 10);
+    hint.innerHTML = total > 0
+      ? "Tổng đề có <b>" + total + "</b> câu. Mỗi lần mở đề sẽ bốc ngẫu nhiên <b>" +
+        (cur > 0 ? Math.min(cur, total) : "N") + "</b> câu; điểm và thời gian giữ nguyên."
+      : "Chưa có câu hỏi — hãy đọc/nạp đề trước khi bật đề con.";
+  }
+}
+
 $("btnSetup").addEventListener("click", function () {
   $("setSubject").value = testMeta.subject || "";
   $("setName").value = testMeta.name;
@@ -1339,9 +1371,21 @@ $("btnSetup").addEventListener("click", function () {
   setRadio("setShuffleA", testMeta.shuffleA ? "1" : "0");
   setRadio("setShowScore", testMeta.showScore || "always");
   setRadio("setShowAnswers", testMeta.showAnswers || "always");
+  $("setSubtestEnabled").checked = !!testMeta.subtestEnabled;
+  $("setSubtestCount").value = testMeta.subtestCount == null ? "" : String(testMeta.subtestCount);
+  syncSubtestUI();
   $("setupError").hidden = true;
   clearInvalidSetup();
   $("setupModal").hidden = false;
+});
+
+$("setSubtestEnabled").addEventListener("change", function () {
+  $("setSubtestCount").classList.remove("invalid");
+  syncSubtestUI();
+});
+$("setSubtestCount").addEventListener("input", function () {
+  this.classList.remove("invalid");
+  syncSubtestUI();
 });
 
 $("btnSetupClose").addEventListener("click", function () { $("setupModal").hidden = true; });
@@ -1362,12 +1406,30 @@ SETUP_REQUIRED.forEach(function (id) {
 
 $("btnSetupApply").addEventListener("click", function () {
   var subjEl = $("setSubject"), nameEl = $("setName"), minEl = $("setMinutes"), scoreEl = $("setScore");
+  var subtestChk = $("setSubtestEnabled"), subtestEl = $("setSubtestCount");
   var errs = [], bad = [];
 
   if (!subjEl.value) { errs.push("chọn <b>môn học</b>"); bad.push(subjEl); }
   if (!nameEl.value.trim()) { errs.push("nhập <b>tên đề</b>"); bad.push(nameEl); }
   if (String(minEl.value).trim() === "" || Number(minEl.value) < 0) { errs.push("nhập <b>thời gian làm bài</b> (0 = không giới hạn)"); bad.push(minEl); }
   if (String(scoreEl.value).trim() === "" || Number(scoreEl.value) < 1) { errs.push("nhập <b>điểm tối đa</b> (≥ 1)"); bad.push(scoreEl); }
+
+  var subtestEnabled = !!(subtestChk && subtestChk.checked);
+  var subtestCount = null;
+  if (subtestEnabled) {
+    var total = countQ(testData);
+    var raw = String(subtestEl.value).trim();
+    var n = Number(raw);
+    if (!total) {
+      errs.push("nạp đề có câu hỏi trước khi bật <b>đề con</b>");
+      bad.push(subtestEl);
+    } else if (raw === "" || !isFinite(n) || n < 1 || n > total || Math.floor(n) !== n) {
+      errs.push("nhập <b>số câu đề con</b> từ 1 đến " + total);
+      bad.push(subtestEl);
+    } else {
+      subtestCount = n;
+    }
+  }
 
   clearInvalidSetup();
   var se = $("setupError");
@@ -1388,6 +1450,8 @@ $("btnSetupApply").addEventListener("click", function () {
   testMeta.shuffleA = (document.querySelector('input[name="setShuffleA"]:checked') || {}).value === "1";
   testMeta.showScore = (document.querySelector('input[name="setShowScore"]:checked') || {}).value || "always";
   testMeta.showAnswers = (document.querySelector('input[name="setShowAnswers"]:checked') || {}).value || "always";
+  testMeta.subtestEnabled = subtestEnabled;
+  testMeta.subtestCount = subtestEnabled ? subtestCount : null;
   $("setupModal").hidden = true;
   updateSetupBtn();
   applyMeta(true);
@@ -1687,6 +1751,9 @@ showStage(1);
         testMeta.shuffleA = d.shuffle_a !== false;
         testMeta.showScore = d.show_score || "always";
         testMeta.showAnswers = d.show_answers || "always";
+        testMeta.subtestEnabled = d.subtest_enabled === true || d.subtest_enabled === 1;
+        var editSubtestCount = parseInt(d.subtest_count, 10);
+        testMeta.subtestCount = testMeta.subtestEnabled && editSubtestCount > 0 ? editSubtestCount : null;
         graded = false;
         userAnswers = {};
         $("resultBox").hidden = true;

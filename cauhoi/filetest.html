@@ -1040,7 +1040,7 @@ const DEFAULT_EXAM_TIME_LIMIT_MINUTES = 15;
 // ── ĐỀ ĐỌC 100% TỪ DATABASE: de=t:<uuid> → lấy bản ghi test_sets qua RPC get_test_content,
 // áp dụng trực tiếp các cột: score (điểm tối đa), shuffle_q (trộn câu hỏi),
 // shuffle_a (trộn đáp án), minutes (thời gian). Không còn đọc file JSON tĩnh.
-let examConfig = { maxScore: 10, shuffleQ: true, shuffleA: true, showScore: 'always', showAnswers: 'always', reviewLocked: true };
+let examConfig = { maxScore: 10, shuffleQ: true, shuffleA: true, showScore: 'always', showAnswers: 'always', reviewLocked: true, subtestEnabled: false, subtestCount: null };
 
 function getExamTimeLimitSeconds(data) {
     const sections = Array.isArray(data) ? data : (Array.isArray(data.sections) ? data.sections : []);
@@ -1061,6 +1061,34 @@ function shuffle(array) {
         [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+}
+
+// Đề con: bốc ngẫu nhiên N card câu hỏi trên TOÀN BỘ đề (mỗi card = 1 câu).
+// Chọn trước rồi mới xáo thứ tự câu/đáp án theo cấu hình. Passage/đọc hiểu
+// là 1 card nên được giữ nguyên cả cụm.
+function pickSubtestSections(sections, count) {
+    const list = Array.isArray(sections) ? sections : [];
+    const flat = [];
+    list.forEach((section, si) => {
+        if (!section || !Array.isArray(section.questions)) return;
+        section.questions.forEach(q => flat.push({ si, q }));
+    });
+    const n = Math.floor(Number(count));
+    if (!Number.isFinite(n) || n <= 0 || n >= flat.length) return list;
+
+    const bySection = new Map();
+    shuffle(flat.slice()).slice(0, n).forEach(({ si, q }) => {
+        if (!bySection.has(si)) bySection.set(si, new Set());
+        bySection.get(si).add(q);
+    });
+
+    return list.reduce((out, section, si) => {
+        const keep = bySection.get(si);
+        if (!keep || !section || !Array.isArray(section.questions)) return out;
+        const questions = section.questions.filter(q => keep.has(q));
+        if (questions.length) out.push({ ...section, questions });
+        return out;
+    }, []);
 }
 
 // 4. Hàm tải câu hỏi linh hoạt
@@ -1089,11 +1117,20 @@ async function loadQuestions() {
             ? rpcData.show_answers : 'always';
         const rawMinutes = Number(rpcData.minutes);
         examTimeLimitSeconds = (!isNaN(rawMinutes) && rawMinutes > 0) ? Math.round(rawMinutes * 60) : 0;
+        const rawSubtestEnabled = rpcData.subtest_enabled === true || rpcData.subtest_enabled === 1 || rpcData.subtest_enabled === 'true';
+        const rawSubtestCount = Number(rpcData.subtest_count);
+        examConfig.subtestEnabled = rawSubtestEnabled && Number.isFinite(rawSubtestCount) && rawSubtestCount > 0;
+        examConfig.subtestCount = examConfig.subtestEnabled ? Math.floor(rawSubtestCount) : null;
         
         totalQuestions = 0; 
 
+        // Đề con: chọn N card ngẫu nhiên trước, sau đó mới xáo câu/đáp án.
+        const sourceData = examConfig.subtestEnabled
+            ? pickSubtestSections(data, examConfig.subtestCount)
+            : data;
+
         // Xáo trộn theo cấu hình: trộn câu hỏi (shuffleQ) + trộn đáp án (shuffleA)
-        questionsData = data.map(section => {
+        questionsData = sourceData.map(section => {
             const sourceQuestions = examConfig.shuffleQ ? shuffle(section.questions) : section.questions;
             const sectionQuestions = sourceQuestions.map(q => {
                 totalQuestions++; 

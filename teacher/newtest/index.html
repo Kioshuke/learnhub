@@ -144,6 +144,18 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
         </label>
       </div>
       <div style="border-top:1px solid var(--sec-border);padding-top:10px;margin-bottom:10px">
+        <label style="display:flex;align-items:center;gap:8px;font-weight:600">
+          <input type="checkbox" id="setSubtestEnabled">
+          <span><i class="fa-solid fa-dice" style="color:#7c3aed"></i> Tạo đề con (bốc ngẫu nhiên)</span>
+        </label>
+        <div id="subtestBox" hidden style="margin:8px 0 0;padding:10px 12px;border:1px solid var(--sec-border);border-radius:12px;background:#f8fafc">
+          <label style="margin:0;font-weight:600">Số câu trong đề con <span class="req">*</span>
+            <input type="number" id="setSubtestCount" min="1" placeholder="VD: 40">
+          </label>
+          <div class="note" id="subtestHint" style="margin:6px 0 0;padding:0;background:none;border:none;font-size:12px"></div>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--sec-border);padding-top:10px;margin-bottom:10px">
         <div style="font-size:13px;margin-bottom:6px"><i class="fa-solid fa-chart-column" style="color:#16a34a"></i> Xem điểm sau khi nộp</div>
         <div style="display:flex;gap:14px;font-size:13px">
           <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="setShowScore" value="always" checked> Hiện</label>
@@ -169,6 +181,6 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
 </div>
 
 <script src="../../element/subjects-data.js"></script>
-<script src="script.js?v=36"></script>
+<script src="script.js?v=37"></script>
 </body>
 </html>
