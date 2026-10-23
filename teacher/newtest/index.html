@@ -6,7 +6,7 @@
 <title>LearnHub - Tạo đề</title>
 <link rel="icon" href="../../pictures/favicon.png" sizes="any">
 <link rel="icon" type="image/png" sizes="48x48" href="../../pictures/favicon.png">
-<link rel="stylesheet" href="style.css?v=40">
+<link rel="stylesheet" href="style.css?v=41">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 </head>
@@ -32,7 +32,7 @@
   <section class="panel" id="p1">
     <div class="panel-head">
       <h2>1. Nhập đề</h2>
-      <span class="muted">Dán văn bản, tải <b>.docx</b> (tự parse), tải <b>.json</b>, hoặc nạp đề mẫu. Dán <b>JSON</b> trực tiếp vào ô này cũng được — hệ thống tự nhận dạng.</span>
+      <span class="muted">Dán văn bản (có thể kèm ảnh câu hỏi), tải <b>.docx</b> (tự parse), tải <b>.json</b>, hoặc nạp đề mẫu. Dán <b>JSON</b> trực tiếp vào ô này cũng được — hệ thống tự nhận dạng.</span>
     </div>
 
     <div class="row tools">
@@ -58,6 +58,10 @@ Cách đánh dấu đáp án:
 – Trắc nghiệm: dòng 'Đáp án: A' sau phương án, hoặc dấu * trước phương án (*D. ...)
 – Đúng/Sai: mỗi ý đánh số a), b), c), d); ghi (Đ)/(S) cuối ý hoặc dấu * trước ý đúng (*a) ...)
 – Tự luận: dòng 'Đáp án: nội dung' sau câu hỏi
+– Ảnh câu hỏi: thêm dòng 'Ảnh: https://...' hoặc 'Link ảnh: https://...' ngay dưới câu hỏi
+  (link ảnh trực tiếp http/https; trong JSON dùng trường "image")
+– Đáp án ảnh: nếu phương án chỉ là link ảnh, ghi thẳng link hoặc 'Ảnh: https://...'
+  thay cho chữ — vẫn giữ vị trí A/B/C/D và bấm chọn bình thường
 
 Dành cho đề Tiếng Anh:
 – Phần ĐỌC HIỂU: dòng 'Passage: ...' đặt trước các câu hỏi của phần đó
@@ -79,7 +83,7 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
     <div class="split">
       <div class="col">
         <div class="col-hd"><span class="col-hd-ic"><i class="fa-solid fa-code" style="color:#2563eb"></i></span> Cửa sổ dữ liệu JSON <span class="col-sub">sửa tay → bên phải tự render</span></div>
-        <textarea id="jsonArea" rows="14" spellcheck="false" placeholder='Dán JSON ở đây (array các section) — xem docs/FORMAT-DE-THI.md'></textarea>
+        <textarea id="jsonArea" rows="14" spellcheck="false" placeholder='Dán JSON ở đây (array các section). Mỗi câu có thể thêm "image": "https://.../anh.png" để chèn ảnh câu hỏi.'></textarea>
         <div class="note" id="outNote"></div>
       </div>
 
@@ -165,6 +169,6 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
 </div>
 
 <script src="../../element/subjects-data.js"></script>
-<script src="script.js?v=32"></script>
+<script src="script.js?v=36"></script>
 </body>
 </html>

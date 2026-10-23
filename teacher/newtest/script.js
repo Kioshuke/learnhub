@@ -395,12 +395,76 @@ function parseToSections(lines) {
   return { sections: sections, warnings: warnings, error: null };
 }
 
+/* ============ NHẬN DIỆN ẢNH ============ */
+var IMG_MARKER_SRC = "(?:ảnh(?:\\s*minh\\s*họa)?|hình(?:\\s*ảnh)?|link\\s*ảnh|image|img)";
+
+/* Chuẩn hoá link Google Drive dạng share thành link xem ảnh trực tiếp */
+function normalizeImageUrl(u) {
+  u = String(u == null ? "" : u).trim().replace(/[.,;]+$/, "");
+  var m = u.match(/^https?:\/\/(?:drive|docs)\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:[^#]*&)?id=)([^/?#&]+)/i);
+  if (m) return "https://drive.google.com/thumbnail?id=" + m[1] + "&sz=w1200";
+  return u;
+}
+
+function isImageUrl(u) {
+  u = normalizeImageUrl(u);
+  if (!/^https?:\/\//i.test(u)) return false;
+  if (/\.(?:jpe?g|png|webp|gif|avif|svg)(?:[?#][^\s]*)?$/i.test(u)) return true;
+  if (/^https?:\/\/(?:placehold\.co|picsum\.photos|images\.unsplash\.com)\//i.test(u)) return true;
+  if (/^https?:\/\/lh3\.googleusercontent\.com\/d\/[^/?#]+/i.test(u)) return true;
+  if (/^https?:\/\/drive\.google\.com\/thumbnail\?[^#]*\bid=/i.test(u)) return true;
+  if (/^https?:\/\/[^/]*googleusercontent\.com\//i.test(u)) return true;
+  return false;
+}
+
+/* Trả về URL nếu đáp án CHỈ là một link ảnh (hoặc có tiền tố Ảnh:/Link ảnh:) */
+function answerImageUrl(ans) {
+  var s = String(ans == null ? "" : ans).trim();
+  if (!s) return "";
+  /* Bỏ thẻ HTML (VD nhãn A. bị bọc <strong>...</strong>) để nhận diện link ảnh */
+  s = s.replace(/<[^>]*>/g, " ").replace(/&nbsp;/gi, " ").replace(/\s+/g, " ").trim();
+  s = s.replace(/^([A-Za-z])\s*[.、)]\s+/, "");         // bỏ nhãn A./B) nếu còn sót
+  var m = s.match(new RegExp("^" + IMG_MARKER_SRC + "\\s*[:：]\\s*(https?:\\/\\/\\S+)\\s*$", "i"));
+  if (m) return normalizeImageUrl(m[1]);
+  var u = s.replace(/[.,;]+$/, "");
+  if (/^https?:\/\//i.test(u) && isImageUrl(u)) return normalizeImageUrl(u);
+  return "";
+}
+
+/* Tách dòng "Ảnh: <link>" / "Link ảnh: <link>" khỏi câu hỏi (đầu hoặc cuối đều được) */
+function extractImageMarker(text) {
+  var s = String(text == null ? "" : text);
+  var re = new RegExp("(?:^|[\\s;,(?!])(" + IMG_MARKER_SRC + "\\s*[:：]\\s*(https?:\\/\\/[^\\s<>\"']+))", "i");
+  var m = re.exec(s);
+  if (!m) return null;
+  var url = normalizeImageUrl(m[2]);
+  if (!/^https?:\/\//i.test(url)) return null;
+  var out = (s.slice(0, m.index) + " " + s.slice(m.index + m[0].length))
+    .replace(/\s+/g, " ").trim();
+  return { text: out, url: url };
+}
+
+/* Bỏ marker ảnh khỏi HTML (kể cả khi chữ "Ảnh:" bị bọc trong <b>, <span>...) */
+function stripImageMarkerHtml(html) {
+  var re = new RegExp("(?:<[^>]*>\\s*)*" + IMG_MARKER_SRC + "\\s*(?:<[^>]*>\\s*)*[:：]\\s*(?:<[^>]*>\\s*)*https?:\\/\\/[^\\s<>\"']+", "gi");
+  return String(html == null ? "" : html).replace(re, "").replace(/\s{2,}/g, " ").trim();
+}
+
+/* URL ảnh của câu hỏi: nhận cả trường "image" thuần link hoặc chuỗi "Ảnh: <link>" */
+function imageFieldUrl(v) {
+  var s = String(v == null ? "" : v).trim();
+  if (!s) return "";
+  var m = extractImageMarker(s);
+  return (m && !m.text) ? m.url : normalizeImageUrl(s);
+}
+
 function parseLines(lines) {
   var warnings = [];
   var questions = [];
   var cur = null;
   var answerMark = null;        // đáp án từ dòng "Đáp án: A"
   var pendingShort = null;      // đáp án dạng chữ từ dòng "Đáp án: html"
+  var pendingImage = null;      // link ảnh gặp trước khi câu hỏi được tạo
 
   function closeCur() {
     if (!cur) return;
@@ -449,15 +513,42 @@ function parseLines(lines) {
     cur = null;
   }
 
-  function handleLine(L) {
+  function handleLine(L, lineIdx) {
     var line = L.t;             // text thô để nhận dạng
     var html = L.h || L.t;      // html (giữ đậm/nghiêng/gạch chân nếu có)
 
     /* Đáp án nằm ngang cùng dòng (tách bằng tab): chia nhỏ rồi xử lý từng cái */
     var inline = splitInlineOpts(line, html);
     if (inline.length > 1) {
-      for (var k = 0; k < inline.length; k++) handleLine(inline[k]);
+      for (var k = 0; k < inline.length; k++) handleLine(inline[k], lineIdx);
       return;
+    }
+
+    /* Dòng ảnh câu hỏi (đứng riêng):
+       Ảnh: https://... | Link ảnh: https://... | Hình ảnh: ... | Image: ...
+       Nếu dòng kế tiếp là câu hỏi mới → ảnh thuộc câu hỏi đó (ảnh đặt đầu câu).
+       Ngược lại → ảnh thuộc câu hỏi hiện tại (ảnh đặt cuối câu). */
+    var loneImg = extractImageMarker(line);
+    if (loneImg && !loneImg.text) {
+      var nextIsQuestion = false;
+      if (typeof lineIdx === "number") {
+        for (var ni = lineIdx + 1; ni < lines.length; ni++) {
+          var nt = String((lines[ni] && lines[ni].t) || "").trim();
+          if (!nt) continue;
+          nextIsQuestion = /^(?:câu\s*\d{1,3}\s*[\.\):]|\d{1,3}\s*[\.\)]\s+)/i.test(nt);
+          break;
+        }
+      }
+      if (!cur || nextIsQuestion) pendingImage = loneImg.url;
+      else cur.image = loneImg.url;
+      return;
+    }
+
+    /* Ảnh đặt cùng dòng với câu hỏi: "Link ảnh: <url> 1. Câu hỏi..." */
+    if (loneImg && loneImg.text && /^(?:câu\s*\d{1,3}\s*[\.\):]|\d{1,3}\s*[\.\)]\s+)/i.test(loneImg.text)) {
+      pendingImage = loneImg.url;
+      line = loneImg.text;
+      html = stripImageMarkerHtml(html);
     }
 
     /* Dòng đáp án: Đáp án A | Đáp án đúng: B | Đáp án: html */
@@ -518,8 +609,11 @@ function parseLines(lines) {
             || line.match(/^(\d{1,3})\s*[\.\)]\s+(.+)$/);
     if (numM && !/^[A-Da-d]$/.test(numM[1])) {
       closeCur();
-      var qtext = numM[2].trim();
-      var qhtml = cleanOptionHtml(line, html, qtext);
+      var qtextRaw = numM[2].trim();
+      var inlineImg = extractImageMarker(qtextRaw);
+      var qtext = inlineImg ? inlineImg.text : qtextRaw;
+      var qhtml = cleanOptionHtml(line, html, qtextRaw);
+      if (inlineImg) qhtml = stripImageMarkerHtml(qhtml);
       var tf = qtext.match(/\(?\s*(Đ|S|đúng|sai|true|false)\s*\)?\s*$/i);
       if (tf) {
         cur = { type: "true_false", question: qhtml.replace(/\(?\s*(Đ|S|đúng|sai|true|false)\s*\)?\s*$/i, "").trim(), subQuestions: [] };
@@ -532,6 +626,9 @@ function parseLines(lines) {
       }
       cur.answerLetter = answerMark || null;
       answerMark = null;
+      if (inlineImg) cur.image = inlineImg.url;
+      else if (pendingImage) cur.image = pendingImage;
+      pendingImage = null;
       var pm = qtext.match(/\(([A-Da-d])\)\s*$/);
       if (pm && cur.type === "multiple") {
         cur.answerLetter = pm[1].toUpperCase();
@@ -544,7 +641,7 @@ function parseLines(lines) {
     if (String(line || "").trim()) warnings.push("Bỏ qua (không nhận dạng): “" + line + "”");
   }
 
-  (lines || []).forEach(handleLine);
+  (lines || []).forEach(function (L, i) { handleLine(L, i); });
   closeCur();
 
   if (!questions.length) {
@@ -628,26 +725,31 @@ function render() {
       var type = item.type === "true_false" ? "tf" : (item.type === "short_answer" ? "short" : "multiple");
       var tagTxt = item.type === "true_false" ? "Đúng/Sai" : (item.type === "short_answer" ? "Tự luận" : "Trắc nghiệm");
 
+      var qMarker = extractImageMarker(item.question);
+      var qText = qMarker ? qMarker.text : (item.question || "");
+
       var headQ = document.createElement("div");
       headQ.className = "q-head";
       headQ.innerHTML = '<span class="num">Câu ' + (idx + 1) + "</span>" +
-        '<div class="q-q">' + stripQuestionNo(item.question || "") +
+        '<div class="q-q">' + stripQuestionNo(qText) +
         '<span class="tag tag-' + type + '">' + tagTxt + "</span></div>";
       card.appendChild(headQ);
 
-      if (item.image && String(item.image).trim()) {
+      var qImgUrl = imageFieldUrl(item.image) || (qMarker ? qMarker.url : "");
+      if (qImgUrl && /^https?:\/\//i.test(qImgUrl)) {
         var imgBox = document.createElement("div");
         imgBox.className = "q-image";
-        imgBox.innerHTML = '<img src="' + escAttr(item.image) + '" onerror="this.parentElement.style.display=\'none\'">';
+        imgBox.innerHTML = '<img src="' + escAttr(qImgUrl) + '" loading="lazy" onerror="this.parentElement.style.display=\'none\'">';
         card.appendChild(imgBox);
       }
 
       if (type === "multiple") {
         var list = document.createElement("div");
         var ansArr = item.answers || [];
-        /* Câu có đáp án dài → xếp 1 cột dọc (nếu cứ 2x2 sẽ chật/xấu) */
+        /* Câu có đáp án chữ dài → xếp 1 cột dọc (nếu cứ 2x2 sẽ chật/xấu).
+           Đáp án ảnh vẫn để 2 cột cho gọn. */
         var stacked = ansArr.some(function (aa) {
-          return String(aa == null ? "" : aa).length > 38;
+          return !answerImageUrl(aa) && String(aa == null ? "" : aa).length > 38;
         });
         list.className = "opt-list" + (stacked ? " stacked" : "");
         /* Chỉ bóc nhãn "A." "B."... khi cả câu theo format nhãn (khớp đúng vị trí);
@@ -674,9 +776,13 @@ function render() {
             if (item.correct === i) o.classList.add("sel-correct");
           }
           var checked = (!graded && userAnswers[idx] === i) ? " checked" : "";
+          var imgA = answerImageUrl(dispA);
+          var answerHtml = imgA
+            ? '<img class="opt-img" src="' + escAttr(imgA) + '" alt="Đáp án ' + letter(i) + '" loading="lazy" onerror="this.style.display=\'none\'">'
+            : dispA;
           o.innerHTML = '<span class="lett">' + letter(i) + "</span>" +
             '<input type="radio" name="q' + idx + '" value="' + i + '"' + checked + ">" +
-            "<label>" + dispA + "</label>" +
+            "<label>" + answerHtml + "</label>" +
             '<span class="setcard">' + (item.correct === i ? "Đáp án ✔" : "bấm → gán đáp án") + "</span>";
           o.addEventListener("click", function () {
             if (graded) return;
@@ -816,11 +922,14 @@ function norm(v) {
    - Trắc nghiệm: dòng "Đáp án: A" sau phương án  HOẶC dấu * trước phương án (*D. ...)
    - Đúng/Sai: hậu tố (Đ)/(S) cuối câu  HOẶC dấu * trước chữ (a)/b)/c)/d)) = Đúng
    - Tự luận: dòng "Đáp án: nội_dung" sau câu hỏi
+   - Ảnh câu hỏi: dòng "Ảnh: https://..." hoặc "Link ảnh: https://..." ngay dưới câu hỏi
+   - Đáp án ảnh: phương án chỉ là link ảnh (hoặc "Ảnh: <link>") → tự render thành ảnh
    Muốn sửa đáp án → đổi chữ ở dòng "Đáp án:" hoặc chuyển dấu * sang phương án khác. */
 function sampleText() {
   return [
     "PHẦN I. TRẮC NGHIỆM",
     "1. Thủ đô của Việt Nam là thành phố nào?",
+    "Ảnh: https://placehold.co/640x320/png?text=Hinh+cau+hoi",
     "A. Hà Nội",
     "B. TP. Hồ Chí Minh",
     "C. Đà Nẵng",
@@ -833,11 +942,18 @@ function sampleText() {
     "C. v = a × t",
     "*D. v = s²",
     "",
+    "3. Chọn hình minh họa đúng cho khái niệm trên?",
+    "A. https://placehold.co/420x280/png?text=Hinh+A",
+    "B. Ảnh: https://placehold.co/420x280/png?text=Hinh+B",
+    "C. Link ảnh: https://placehold.co/420x280/png?text=Hinh+C",
+    "*D. https://placehold.co/420x280/png?text=Hinh+D",
+    "",
     "PHẦN II. ĐÚNG / SAI",
-    "3. Cho biết mỗi nhận định sau đúng hay sai?",
+    "4. Cho biết mỗi nhận định sau đúng hay sai?",
     "a) Trái Đất quay quanh Mặt Trời. (Đ)",
     "b) 1 + 1 = 3. (S)",
     "*c) Mặt Trời mọc ở hướng Đông.",
+    "d) Việt Nam nằm ở châu Á. (Đ)",
     "",
     "PHẦN III. TỰ LUẬN",
     "5. Ngôn ngữ dùng tạo cấu trúc web là gì? (viết tắt 4 chữ cái)",
@@ -850,21 +966,27 @@ function sampleText() {
 function sampleTextEN() {
   return [
     "PHẦN I. TRẮC NGHIỆM",
-    "1. What is the past tense of <b>go</b>?",
+    "1. Chọn đáp án đúng dưới dạng hình ảnh:",
+    "A. https://placehold.co/420x280/png?text=Go+A",
+    "B. Ảnh: https://placehold.co/420x280/png?text=Go+B",
+    "*C. Link ảnh: https://placehold.co/420x280/png?text=Go+C",
+    "D. https://placehold.co/420x280/png?text=Go+D",
+    "",
+    "2. What is the past tense of <b>go</b>?",
     "A. goed",
     "B. gone",
     "C. went",
     "D. goed",
     "Đáp án: C",
     "",
-    "2. Choose the correct word: She ___ to school every day.",
+    "3. Choose the correct word: She ___ to school every day.",
     "A. go",
     "B. goes",
     "C. going",
     "D. gone",
     "Đáp án: B",
     "",
-    "3. Which of these is a winter month?",
+    "4. Which of these is a winter month?",
     "A. June",
     "B. July",
     "*C. January",
@@ -872,14 +994,14 @@ function sampleTextEN() {
     "",
     "PHẦN II. ĐỌC HIỂU",
     "Passage: <b>My family is small.</b> There are four people in it: my father, my mother, my brother and me. My father is a doctor. My mother is a teacher.",
-    "4. How many people are in the family?",
+    "5. How many people are in the family?",
     "A. Three",
     "B. Four",
     "C. Five",
     "D. Six",
     "Đáp án: B",
     "",
-    "5. What is the mother's job?",
+    "6. What is the mother's job?",
     "A. A doctor",
     "B. A teacher",
     "C. A nurse",
@@ -888,7 +1010,7 @@ function sampleTextEN() {
     "",
     "PHẦN III. NGHE",
     "https://static-assets.prepcdn.com/content-management-system/Part_1_Listening_87386e8c4b.mp3",
-    "6. Listen and choose: What time is the meeting?",
+    "7. Listen and choose: What time is the meeting?",
     "A. 7:00 AM",
     "B. 8:00 AM",
     "C. 9:00 AM",
@@ -905,8 +1027,9 @@ function jsonSample() {
       "sectionDesc": "Chọn <b>một</b> đáp án chính xác nhất:",
       "timeLimit": 5,
       "questions": [
-        { "type": "multiple", "question": "Công thức tính vận tốc là:", "answers": ["v = s/t", "v = s*t", "v = a*t", "v = s^2"], "correct": 0 },
-        { "type": "multiple", "question": "Biểu thức <i>2 + 2 × 2</i> bằng:", "answers": ["4", "8", "6", "0"], "correct": 2 }
+        { "type": "multiple", "image": "https://placehold.co/640x320/png?text=Hinh+cau+hoi", "question": "Công thức tính vận tốc là:", "answers": ["v = s/t", "v = s*t", "v = a*t", "v = s^2"], "correct": 0 },
+        { "type": "multiple", "question": "Biểu thức <i>2 + 2 × 2</i> bằng:", "answers": ["4", "8", "6", "0"], "correct": 2 },
+        { "type": "multiple", "question": "Chọn hình đúng (đáp án dạng ảnh):", "answers": ["https://placehold.co/420x280/png?text=JSON+A", "Ảnh: https://placehold.co/420x280/png?text=JSON+B", "https://placehold.co/420x280/png?text=JSON+C", "https://placehold.co/420x280/png?text=JSON+D"], "correct": 1 }
       ]
     },
     {
@@ -1025,8 +1148,11 @@ function renderReview() {
     (s.questions || []).forEach(function (item) {
       var cls = item.type === "true_false" ? "tf" : (item.type === "short_answer" ? "short" : "multiple");
       var tagTxt = item.type === "true_false" ? "Đúng/Sai" : (item.type === "short_answer" ? "Tự luận" : "Trắc nghiệm");
+      var revMarker = extractImageMarker(item.question);
+      var revQ = revMarker ? revMarker.text : (item.question || "");
       left += "<li><span class='q-tag tag tag-" + cls + "'>" + tagTxt + "</span> " +
-        escapeC(textOf(stripQuestionNo(item.question || "")));
+        escapeC(textOf(stripQuestionNo(revQ)));
+      if (item.image || revMarker) left += ' <span class="muted"><i class="fa-regular fa-image"></i> có ảnh</span>';
       if (item.type === "true_false") {
         var subs = (item.subQuestions || []).map(function (sq, k) {
           return String.fromCharCode(97 + k) + "=" + (sq.correct ? "Đúng" : "Sai");

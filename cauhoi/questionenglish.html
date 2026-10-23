@@ -396,6 +396,7 @@
             cursor: pointer; display: flex; align-items: center; transition: all 0.2s;
             position: relative; overflow: hidden; align-items: center;
         }
+        .ans-img { display: block; max-width: 100%; max-height: 150px; margin: 0 auto; border-radius: 9px; object-fit: contain; background: #fff; }
         .ans-label:hover:not(.disabled) { background: var(--anshover); border-color: #cbd5e1; }
         .ans-label.selected { border-color: var(--primary); background: var(--primary-light); }
         
@@ -1272,6 +1273,58 @@ async function loadQuestions() {
     // innerHTML — nếu chứa HTML/JS sẽ chạy trên trình duyệt của học sinh.
     function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
     function safeUrl(u) { return /^https?:\/\//i.test(String(u || "").trim()) ? String(u).trim() : ""; }
+
+    // Ảnh câu hỏi / đáp án: nhận link trực tiếp, link Drive share, hoặc "Ảnh: <link>"
+    const IMG_MARKER_SRC = "(?:ảnh(?:\\s*minh\\s*họa)?|hình(?:\\s*ảnh)?|link\\s*ảnh|image|img)";
+    function normalizeImageUrl(u) {
+        u = String(u == null ? "" : u).trim().replace(/[.,;]+$/, "");
+        const m = u.match(/^https?:\/\/(?:drive|docs)\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:[^#]*&)?id=)([^/?#&]+)/i);
+        if (m) return "https://drive.google.com/thumbnail?id=" + m[1] + "&sz=w1200";
+        return u;
+    }
+    function isImageUrl(u) {
+        u = normalizeImageUrl(u);
+        if (!/^https?:\/\//i.test(u)) return false;
+        if (/\.(?:jpe?g|png|webp|gif|avif|svg)(?:[?#][^\s]*)?$/i.test(u)) return true;
+        if (/^https?:\/\/(?:placehold\.co|picsum\.photos|images\.unsplash\.com)\//i.test(u)) return true;
+        if (/^https?:\/\/lh3\.googleusercontent\.com\/d\/[^/?#]+/i.test(u)) return true;
+        if (/^https?:\/\/drive\.google\.com\/thumbnail\?[^#]*\bid=/i.test(u)) return true;
+        if (/^https?:\/\/[^/]*googleusercontent\.com\//i.test(u)) return true;
+        return false;
+    }
+    function answerImageUrl(ans) {
+        let s = String(ans == null ? "" : ans).trim();
+        if (!s) return "";
+        s = s.replace(/<[^>]*>/g, " ").replace(/&nbsp;/gi, " ").replace(/\s+/g, " ").trim();
+        s = s.replace(/^([A-Za-z])\s*[.、)]\s+/, "");
+        const m = s.match(new RegExp("^" + IMG_MARKER_SRC + "\\s*[:：]\\s*(https?:\\/\\/\\S+)\\s*$", "i"));
+        if (m) return safeUrl(normalizeImageUrl(m[1]));
+        const u = s.replace(/[.,;]+$/, "");
+        if (/^https?:\/\//i.test(u) && isImageUrl(u)) return safeUrl(normalizeImageUrl(u));
+        return "";
+    }
+    function extractImageMarker(text) {
+        const s = String(text == null ? "" : text);
+        const re = new RegExp("(?:^|[\\s;,(?!])(" + IMG_MARKER_SRC + "\\s*[:：]\\s*(https?:\\/\\/[^\\s<>\"']+))", "i");
+        const m = re.exec(s);
+        if (!m) return null;
+        const url = safeUrl(normalizeImageUrl(m[2]));
+        if (!url) return null;
+        const out = (s.slice(0, m.index) + " " + s.slice(m.index + m[0].length)).replace(/\s+/g, " ").trim();
+        return { text: out, url: url };
+    }
+    function imageFieldUrl(v) {
+        const s = String(v == null ? "" : v).trim();
+        if (!s) return "";
+        const m = extractImageMarker(s);
+        return (m && !m.text) ? m.url : safeUrl(normalizeImageUrl(s));
+    }
+    function answerInnerHtml(ans, idx) {
+        const imgUrl = answerImageUrl(ans);
+        return imgUrl
+            ? `<img class="ans-img" src="${esc(imgUrl)}" alt="Đáp án ${String.fromCharCode(65 + idx)}" loading="lazy" onerror="this.style.display='none'">`
+            : `<span>${esc(ans)}</span>`;
+    }
     // [FIX BUG #22] Sanitize rich-text cho sectionDesc: nội dung do người tạo đề nhập và CHƯA
     // escape (vì code cố ý giữ <b>/<i>/<u>). Dùng whitelist thẻ + gỡ TOÀN BỘ attribute để
     // không còn <script>, <img onerror>, onclick... — chữ in đậm/nghiêng/gạch chân vẫn giữ.
@@ -1355,24 +1408,27 @@ function renderQuiz() {
         navHtml += `<div class="nav-section-label" style="grid-column: 1/-1; font-weight: bold; margin: 10px 0 5px; font-size: 0.7rem; color: #64748b; text-transform: uppercase;">${esc(section.sectionTitle)}</div>`;
 
         section.questions.forEach((item) => {
-            const imageHtml = (item.image && item.image.trim() !== "") ? `
+            const promptMarker = extractImageMarker(item.question);
+            const promptText = promptMarker ? promptMarker.text : item.question;
+            const questionImage = imageFieldUrl(item.image) || (promptMarker ? promptMarker.url : "");
+            const imageHtml = questionImage ? `
                 <div class="q-image" style="text-align: center; margin: 10px 0;">
-                    <img src="${safeUrl(item.image)}" onerror="this.parentElement.style.display='none'" style="max-width: 100%; max-height: 250px; border-radius: 10px;">
+                    <img src="${esc(questionImage)}" onerror="this.parentElement.style.display='none'" style="max-width: 100%; max-height: 250px; border-radius: 10px;">
                 </div>` : '';
 
             let answersContent = '';
             if (item.type === 'multiple') {
                 window.totalMaxScore += 1;
                 // Nếu câu có title riêng thì đề bài (item.question) hiển thị ở thân card
-                const promptBody = (item.title && item.question && item.question !== item.title) ? `
+                const promptBody = (item.title && promptText && promptText !== item.title) ? `
                     <div style="margin-bottom: 12px; font-size: 0.95rem; line-height: 1.6; font-weight: 600; color: var(--text);">
-                        ${esc(item.question)}
+                        ${esc(promptText)}
                     </div>` : '';
                 answersContent = `${promptBody}<div class="answers-grid">
                     ${item.answers.map((ans, idx) => `
                         <label class="ans-label" id="label-${globalIdx}-${idx}" onclick="selectAnswer(this, ${globalIdx})">
                             <input type="radio" name="question-${globalIdx}" value="${idx}">
-                            <span>${esc(ans)}</span>
+                            ${answerInnerHtml(ans, idx)}
                         </label>`).join('')}
                 </div>`;
             } 
@@ -1400,9 +1456,9 @@ function renderQuiz() {
             else if (item.type === 'short_answer') {
                 window.totalMaxScore += 1;
                 // Hiển thị đề bài (prompt) phía trên + ô nhập tự luận
-                const promptHtml = (item.question && item.question.trim() !== "") ? `
+                const promptHtml = (promptText && promptText.trim() !== "") ? `
                     <div style="margin-bottom: 12px; font-size: 0.95rem; line-height: 1.6; font-weight: 600; color: var(--text);">
-                        ${esc(item.question)}
+                        ${esc(promptText)}
                     </div>` : '';
                 answersContent = `
                     ${promptHtml}
@@ -1429,7 +1485,7 @@ function renderQuiz() {
                                         ${sub.answers.map((ans, aIdx) => `
                                             <label class="ans-label" id="label-${globalIdx}-${subIdx}-${aIdx}" onclick="selectAnswer(this, ${globalIdx}, ${subIdx})">
                                                 <input type="radio" name="q-${globalIdx}-${subIdx}" value="${aIdx}">
-                                                <span><b>${String.fromCharCode(65 + aIdx)}.</b> ${esc(ans)}</span>
+                                                <span><b>${String.fromCharCode(65 + aIdx)}.</b> ${answerInnerHtml(ans, aIdx)}</span>
                                             </label>`).join('')}
                                     </div>
                                 </div>
@@ -1453,7 +1509,7 @@ function renderQuiz() {
                     </div>`;
             }
 
-            let questionTitle = item.title || item.question || "";
+            let questionTitle = item.title || promptText || "";
             if (item.type === 'passage') {
                 questionTitle = item.title || "Đọc đoạn văn và trả lời các câu hỏi bên dưới";
             } else if (item.type === 'cloze') {
