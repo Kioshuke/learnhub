@@ -41,17 +41,18 @@
   var PICTURES = toUrl("../../assets/images/");
   var HOME_URL = toUrl("../../index.html");
 
-  /* ===== DANH SÁCH MENU ===== */
+  /* ===== DANH SÁCH MENU =====
+     group: "main" = nhóm điều hướng chính, "sec" = nhóm phụ (sau đường phân cách) */
   var NAV = [
-    { key: "home",    icon: "fa-table-cells-large",    label: "Tổng quan" },
-    { key: "manage",  icon: "fa-chalkboard-user",      label: "Lớp học" },
-    { key: "fc",      icon: "fa-layer-group",          label: "Flashcard" },
-    { key: "video",   icon: "fa-door-open",          label: "Quản lý Phòng học" },
-    { key: "docs",    icon: "fa-book-open",          label: "Quản lý Tài liệu" },
-    { key: "schedule", icon: "fa-calendar-days",     label: "Lịch học & thi" },
-    { key: "notice",   icon: "fa-bell",              label: "Thông báo môn học" },
-    { key: "quiz",    icon: "fa-file-circle-check",    label: "Bài kiểm tra" },
-    { key: "report",  icon: "fa-chart-line",           label: "Báo cáo",    soon: true }
+    { key: "home",    icon: "fa-table-cells-large",    label: "Tổng quan",             group: "main" },
+    { key: "manage",  icon: "fa-chalkboard-user",      label: "Lớp học",               group: "main" },
+    { key: "fc",      icon: "fa-layer-group",          label: "Flashcard",             group: "main" },
+    { key: "video",   icon: "fa-door-open",            label: "Quản lý Phòng học",     group: "main" },
+    { key: "docs",    icon: "fa-book-open",            label: "Quản lý Tài liệu",      group: "main" },
+    { key: "quiz",    icon: "fa-file-circle-check",    label: "Bài kiểm tra",          group: "main" },
+    { key: "schedule", icon: "fa-calendar-days",       label: "Lịch học & thi",        group: "sec" },
+    { key: "notice",   icon: "fa-bell",                label: "Thông báo môn học",     group: "sec" },
+    { key: "report",  icon: "fa-chart-line",           label: "Báo cáo",    soon: true, group: "sec" }
   ];
 
   /* ===== CSS CỦA SIDEBAR + TOPBAR ===== */
@@ -62,6 +63,7 @@
     "  grid-template-columns: 256px minmax(0, 1fr);",
     "  min-height: 100vh;",
     "  background: #f8fafc;",
+    "  transition: grid-template-columns 0.25s ease;",
     "}",
     "#tcApp.teacher-app[style*=\"display:none\"] { display: none !important; }",
     "",
@@ -75,8 +77,12 @@
     "  border-right: 1px solid #e5e7eb;",
     "  padding: 24px 16px;",
     "  overflow-y: auto;",
+    "  scrollbar-width: none;",
+    "  -ms-overflow-style: none;",
     "  z-index: 40;",
+    "  transition: padding 0.25s ease;",
     "}",
+    ".teacher-rail::-webkit-scrollbar { display: none; width: 0; height: 0; }",
     ".teacher-identity {",
     "  display: flex;",
     "  align-items: center;",
@@ -84,6 +90,7 @@
     "  padding: 0 8px 24px;",
     "  border-bottom: 1px solid #f1f5f9;",
     "  margin-bottom: 8px;",
+    "  transition: padding 0.25s ease, gap 0.25s ease;",
     "}",
     ".teacher-identity img {",
     "  width: 40px;",
@@ -106,6 +113,24 @@
     "  font-weight: 500;",
     "  margin-top: 1px;",
     "}",
+    ".teacher-identity-text { flex: 1; min-width: 0; }",
+    "",
+    /* --- 2. Nút thu gọn / mở rộng thanh bên --- */
+    ".rail-toggle {",
+    "  flex-shrink: 0;",
+    "  width: 30px;",
+    "  height: 30px;",
+    "  display: grid;",
+    "  place-items: center;",
+    "  border: 1px solid #e5e7eb;",
+    "  border-radius: 9px;",
+    "  background: #fff;",
+    "  color: #64748b;",
+    "  cursor: pointer;",
+    "  transition: background 0.15s, color 0.15s, border-color 0.15s;",
+    "}",
+    ".rail-toggle:hover { background: #f1f5f9; color: #111827; border-color: #d1d5db; }",
+    ".rail-toggle i { font-size: 11px; transition: transform 0.22s ease; }",
     "",
     ".sidebar-search {",
     "  position: relative;",
@@ -166,7 +191,7 @@
     "  font: 500 13.5px/1 'Inter', sans-serif;",
     "  text-align: left;",
     "  cursor: pointer;",
-    "  transition: background 0.15s, color 0.15s;",
+    "  transition: background 0.15s, color 0.15s, width 0.25s ease, height 0.25s ease, padding 0.25s ease, gap 0.25s ease;",
     "}",
     ".teacher-nav button i {",
     "  width: 18px;",
@@ -192,18 +217,76 @@
     ".teacher-nav button.active[data-nav=\"quiz\"] { background: #ede9fe; color: #6d28d9; }",
     ".teacher-nav button.active[data-nav=\"report\"] { background: #f1f5f9; color: #475569; }",
     "",
+    /* --- 7. Đường phân cách giữa nhóm chính và nhóm phụ --- */
+    ".teacher-nav-divider {",
+    "  height: 1px;",
+    "  background: #eef1f6;",
+    "  margin: 10px 12px;",
+    "}",
+    "",
+    /* --- 8. Workspace settings (ghim đáy thanh bên) --- */
     ".teacher-rail-foot {",
     "  margin-top: auto;",
-    "  padding: 16px 10px 0;",
-    "  border-top: 1px solid #f1f5f9;",
-    "  font-size: 11px;",
-    "  color: #9ca3af;",
-    "  line-height: 1.6;",
+    "  padding: 14px 0 0;",
+    "  border-top: 1px solid #eef1f6;",
     "}",
-    ".teacher-rail-foot b {",
-    "  color: #475569;",
+    ".rail-foot-item {",
+    "  display: flex;",
+    "  align-items: center;",
+    "  gap: 12px;",
+    "  width: 100%;",
+    "  padding: 11px 14px;",
+    "  border-radius: 12px;",
+    "  color: #64748b;",
+    "  font-size: 13px;",
     "  font-weight: 600;",
+    "  transition: width 0.25s ease, height 0.25s ease, padding 0.25s ease, gap 0.25s ease;",
     "}",
+    ".rail-foot-item i {",
+    "  width: 18px;",
+    "  text-align: center;",
+    "  font-size: 14px;",
+    "  flex-shrink: 0;",
+    "}",
+    ".rail-foot-item em {",
+    "  display: block;",
+    "  font-style: normal;",
+    "  font-size: 11px;",
+    "  font-weight: 500;",
+    "  color: #9ca3af;",
+    "}",
+    "",
+    /* --- Chuyển động mượt cho chữ khi thu gọn / mở rộng --- */
+    ".teacher-identity img,",
+    ".teacher-identity-text,",
+    ".teacher-nav button span,",
+    ".rail-foot-item span {",
+    "  overflow: hidden;",
+    "  white-space: nowrap;",
+    "  opacity: 1;",
+    "  max-width: 260px;",
+    "  transition: opacity 0.18s ease, max-width 0.25s ease;",
+    "}",
+    ".teacher-nav-label { overflow: hidden; opacity: 1; max-height: 40px; transition: opacity 0.15s ease, max-height 0.25s ease, padding 0.25s ease; }",
+    ".teacher-nav-divider { overflow: hidden; opacity: 1; max-height: 20px; transition: opacity 0.15s ease, max-height 0.25s ease, margin 0.25s ease; }",
+    ".sidebar-search { overflow: hidden; opacity: 1; max-height: 80px; transition: opacity 0.18s ease, max-height 0.25s ease, margin 0.25s ease; }",
+    "",
+    /* --- Trạng thái thu gọn (icon-only) --- */
+    "#tcApp.teacher-app.rail-collapsed { grid-template-columns: 72px minmax(0, 1fr); }",
+    ".teacher-rail.collapsed { padding: 20px 12px; }",
+    ".teacher-rail.collapsed .teacher-identity { padding: 0 0 16px; justify-content: center; gap: 0; }",
+    ".teacher-rail.collapsed .teacher-identity img,",
+    ".teacher-rail.collapsed .teacher-identity-text,",
+    ".teacher-rail.collapsed .teacher-nav button span,",
+    ".teacher-rail.collapsed .rail-foot-item span { opacity: 0; max-width: 0; }",
+    ".teacher-rail.collapsed .sidebar-search { opacity: 0; max-height: 0; margin-top: 0; margin-bottom: 0; }",
+    ".teacher-rail.collapsed .teacher-nav-label { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; }",
+    ".teacher-rail.collapsed .teacher-nav-divider { opacity: 0; max-height: 0; margin-top: 0; margin-bottom: 0; }",
+    ".teacher-rail.collapsed .teacher-nav { align-items: center; }",
+    ".teacher-rail.collapsed .teacher-nav button { width: 44px; height: 44px; padding: 0; justify-content: center; gap: 0; }",
+    ".teacher-rail.collapsed .teacher-rail-foot { display: flex; justify-content: center; padding: 14px 0 0; }",
+    ".teacher-rail.collapsed .rail-foot-item { width: 44px; height: 44px; padding: 0; justify-content: center; gap: 0; }",
+    ".teacher-rail.collapsed .rail-toggle i { transform: rotate(180deg); }",
     "",
     ".teacher-canvas {",
     "  min-width: 0;",
@@ -293,11 +376,14 @@
     "  #tcApp.teacher-app {",
     "    grid-template-columns: 72px minmax(0, 1fr);",
     "  }",
-    "  .teacher-identity div,",
-    "  .sidebar-search,",
+    "  .teacher-identity img,",
+    "  .teacher-identity-text,",
     "  .teacher-nav button span,",
-    "  .teacher-nav-label,",
-    "  .teacher-rail-foot b { display: none; }",
+    "  .rail-foot-item span { opacity: 0; max-width: 0; }",
+    "  .sidebar-search { opacity: 0; max-height: 0; margin-top: 0; margin-bottom: 0; }",
+    "  .teacher-nav-label { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; }",
+    "  .teacher-nav-divider { opacity: 0; max-height: 0; margin-top: 0; margin-bottom: 0; }",
+    "  .rail-toggle { display: none; }",
     "  .teacher-rail {",
     "    padding: 20px 12px;",
     "    align-items: center;",
@@ -305,13 +391,17 @@
     "  .teacher-identity {",
     "    padding: 0 0 20px;",
     "    justify-content: center;",
+    "    gap: 0;",
     "  }",
     "  .teacher-nav button {",
     "    width: 44px;",
     "    height: 44px;",
     "    padding: 0;",
     "    justify-content: center;",
+    "    gap: 0;",
     "  }",
+    "  .teacher-rail-foot { display: flex; justify-content: center; }",
+    "  .rail-foot-item { width: 44px; height: 44px; padding: 0; justify-content: center; gap: 0; }",
     "}",
     "@media (max-width: 720px) {",
     "  #tcApp.teacher-app { display: block !important; }",
@@ -327,8 +417,8 @@
     return undefined;
   }
 
-  function navItemsHtml() {
-    return NAV.map(function (n) {
+  function navItemsHtml(group) {
+    return NAV.filter(function (n) { return n.group === group; }).map(function (n) {
       var attrs = ' type="button" data-nav="' + n.key + '"' +
         (n.soon ? ' title="Sắp ra mắt"' : "");
       return '<button' + attrs + '><i class="fa-solid ' + n.icon + '"></i><span>' +
@@ -336,11 +426,16 @@
     }).join("");
   }
 
+  /* Thứ tự thanh bên:
+     brand logo > thu gọn/mở rộng > nhóm điều hướng chính > nhóm phụ > phân cách > cài đặt không gian làm việc */
   function railHtml() {
     return [
       '<div class="teacher-identity">',
       '  <img src="' + PICTURES + 'logoweb.webp" alt="LearnHub">',
-      '  <div><strong>LearnHub</strong><span>Giáo viên</span></div>',
+      '  <div class="teacher-identity-text"><strong>LearnHub</strong><span>Giáo viên</span></div>',
+      '  <button type="button" class="rail-toggle" id="railToggle" aria-label="Thu gọn thanh bên" title="Thu gọn / mở rộng">',
+      '    <i class="fa-solid fa-angles-left"></i>',
+      "  </button>",
       "</div>",
       '<div class="sidebar-search">',
       '  <i class="fa-solid fa-magnifying-glass"></i>',
@@ -348,9 +443,14 @@
       "</div>",
       '<nav class="teacher-nav">',
       '  <div class="teacher-nav-label">Không gian làm việc</div>',
-      navItemsHtml(),
+      navItemsHtml("main"),
+      '  <div class="teacher-nav-divider"></div>',
+      '  <div class="teacher-nav-label">Khác</div>',
+      navItemsHtml("sec"),
       "</nav>",
-      '<div class="teacher-rail-foot"><b><i class="fa-solid fa-gear"></i> Cài đặt</b><br>Giáo viên LearnHub</div>'
+      '<div class="teacher-rail-foot">',
+      '  <div class="rail-foot-item"><i class="fa-solid fa-gear"></i><span>Cài đặt không gian làm việc<em>Giáo viên LearnHub</em></span></div>',
+      "</div>"
     ].join("");
   }
 
@@ -434,6 +534,22 @@
       setActive(key);
       navigate(key);
     });
+
+    /* Thu gọn / mở rộng thanh bên (ghi nhớ lựa chọn) */
+    function applyCollapsed(on) {
+      rail.classList.toggle("collapsed", on);
+      app.classList.toggle("rail-collapsed", on);
+      try { localStorage.setItem("lh-teacher-rail", on ? "1" : "0"); } catch (e) {}
+    }
+    var toggle = rail.querySelector(".rail-toggle");
+    if (toggle) {
+      toggle.addEventListener("click", function () {
+        applyCollapsed(!rail.classList.contains("collapsed"));
+      });
+    }
+    try {
+      if (localStorage.getItem("lh-teacher-rail") === "1") applyCollapsed(true);
+    } catch (e) {}
 
     setActive("home");
   }

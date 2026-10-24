@@ -34,7 +34,6 @@ let currentPage = 1;
 const adminTabButtons = document.querySelectorAll("[data-admin-tab]");
 const usersTabPanel = document.getElementById("usersTabPanel");
 const broadcastsTabPanel = document.getElementById("broadcastsTabPanel");
-const mailboxTabPanel = document.getElementById("mailboxTabPanel");
 const welcomePopupTabPanel = document.getElementById("welcomePopupTabPanel");
 const broadcastTargetEmailInput = document.getElementById("broadcastTargetEmailInput");
 const welcomePopupTitleInput = document.getElementById("welcomePopupTitleInput");
@@ -90,8 +89,7 @@ let dashboardRefreshTimer = null;
 const pageTitles = {
   users: ["Quản lý user", "Quản lý whitelist, khóa/mở khóa user."],
   rename: ["Tên hiển thị", "Đổi tên hiển thị cho từng user đã có tài khoản."],
-  broadcasts: ["Gửi thông báo", "Gửi thông báo realtime đến toàn bộ user hoặc từng người."],
-  mailbox: ["Hộp Thư", "Gửi thư đến hộp thư của user. Thư được lưu lại và xem lại bất kỳ lúc nào."],
+  broadcasts: ["Thông báo & Hộp thư", "Gửi thông báo realtime hoặc thư lưu trữ đến user."],
   welcomePopup: ["Popup chào mừng", "Chỉnh popup hiển thị sau khi user đăng nhập."],
   maintenance: ["Bảo trì hệ thống", "Bật/tắt chế độ bảo trì toàn hệ thống."],
   registration: ["Đăng ký", "Bật/tắt chức năng đăng ký tài khoản mới."],
@@ -108,7 +106,6 @@ function switchAdminTab(tab) {
   usersTabPanel.classList.toggle("hidden", tab !== "users");
   renameTabPanel.classList.toggle("hidden", tab !== "rename");
   broadcastsTabPanel.classList.toggle("hidden", tab !== "broadcasts");
-  mailboxTabPanel.classList.toggle("hidden", tab !== "mailbox");
   welcomePopupTabPanel.classList.toggle("hidden", tab !== "welcomePopup");
   maintenanceTabPanel.classList.toggle("hidden", tab !== "maintenance");
   registrationTabPanel.classList.toggle("hidden", tab !== "registration");
@@ -122,7 +119,7 @@ function switchAdminTab(tab) {
   pageTitle.textContent = t[0];
   pageSubtitle.textContent = t[1];
   if (tab === "welcomePopup") loadWelcomePopupForm();
-  if (tab === "mailbox") loadMailboxHistory();
+  if (tab === "broadcasts") loadMailboxHistory();
   if (tab === "maintenance") loadMaintenanceForm();
   if (tab === "registration") loadRegistrationForm();
   if (tab === "whitelist") loadWhitelistForm();
@@ -356,6 +353,21 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
   try { const { data } = await supabase.auth.getUser(); if (data?.user?.id) await adminFinalizeOnline(data.user.id); } catch(e){}
   await supabase.auth.signOut();
 });
+
+// Thu gọn / mở rộng thanh bên
+(function initSidebarToggle(){
+  const sidebar = document.querySelector("#dashboardView .sidebar");
+  const toggleBtn = document.getElementById("sidebarToggle");
+  if (!sidebar || !toggleBtn) return;
+  const wrap = document.getElementById("dashboardView");
+  function applyCollapsed(on){
+    sidebar.classList.toggle("collapsed", on);
+    wrap.classList.toggle("collapsed", on);
+    try { localStorage.setItem("lh-admin-rail", on ? "1" : "0"); } catch(e){}
+  }
+  toggleBtn.addEventListener("click", () => applyCollapsed(!sidebar.classList.contains("collapsed")));
+  try { if (localStorage.getItem("lh-admin-rail") === "1") applyCollapsed(true); } catch(e){}
+})();
 document.getElementById("seedBtn").addEventListener("click", () => document.getElementById("whitelistFileInput").click());
 document.getElementById("whitelistFileInput").addEventListener("change", async (e) => {
   const file = e.target.files[0];
