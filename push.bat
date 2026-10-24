@@ -1,13 +1,14 @@
 @echo off
+chcp 65001 >nul
 title LearnHub Git Push
 git add .
-:: Chỉ commit nếu có thay đổi (tránh commit rỗng gây confusion trong history)
+rem Chi commit neu co thay doi moi (tranh commit rong)
 git diff --staged --quiet
 if %errorlevel% equ 0 (
-  echo * Không có thay đổi nào để commit.
+  echo * Khong co thay doi nao de commit.
 ) else (
   git commit -m "feat: update - %date%"
   git push origin main
 )
-echo ✅ Đã push thay đổi.
+echo Da push thay doi.
 pause

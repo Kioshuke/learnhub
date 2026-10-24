@@ -38,7 +38,7 @@ try {
 
     # ---------- 2. Đọc version.json hiện tại ----------
     $vjPath = Join-Path $scriptDir "version.json"
-    if (-not (Test-Path $vjPath)) { throw "Không tìm thấy version.json" }
+    if (-not (Test-Path $vjPath)) { throw "Khong tim thay version.json" }
     $data = Get-Content $vjPath -Raw -Encoding UTF8 | ConvertFrom-Json
     $metaDate  = if ($data._meta -and $data._meta.date)  { [string]$data._meta.date }  else { "" }
     $metaCount = if ($data._meta -and $data._meta.count) { [int]$data._meta.count }   else { 0 }
@@ -67,24 +67,24 @@ try {
     Write-Host "=============================================" -ForegroundColor Cyan
     Write-Host " LearnHub Release" -ForegroundColor Cyan
     Write-Host "=============================================" -ForegroundColor Cyan
-    Write-Host " Hôm nay          : $updatedVi"
-    Write-Host " Phiên bản cũ     : v$($data.version)"
-    Write-Host " Phiên bản mới    : v$newVersion"
+    Write-Host " Hom nay          : $updatedVi"
+    Write-Host " Phien ban cu     : v$($data.version)"
+    Write-Host " Phien ban moi    : v$newVersion"
     if ($metaDate -eq $dateIso) {
-        Write-Host " (Lần thứ $count phát hành trong hôm nay)" -ForegroundColor Yellow
+        Write-Host " (Lan thu $count phat hanh trong hom nay)" -ForegroundColor Yellow
     }
     Write-Host "=============================================" -ForegroundColor Cyan
 
     if ($DryRun) {
         Write-Host ""
-        Write-Host "[DryRun] Không ghi file, không commit, không push." -ForegroundColor Magenta
+        Write-Host "[DryRun] Khong ghi file, khong commit, khong push." -ForegroundColor Magenta
         exit 0
     }
 
     # ---------- 5. Xác nhận ----------
     if (-not $Yes) {
-        $confirm = Read-Host " Commit + push bản mới? (Y/N)"
-        if ($confirm -notmatch '^[Yy]') { Write-Host "Đã hủy." ; exit 0 }
+        $confirm = Read-Host " Commit + push ban moi? (Y/N)"
+        if ($confirm -notmatch '^[Yy]') { Write-Host "Da huy." ; exit 0 }
     }
 
     # ---------- 6. Ghi version.json ----------
@@ -98,19 +98,19 @@ try {
 
     # ---------- 7. Vá LH_VERSION trong version-check.js ----------
     $jsPath = Join-Path $scriptDir "version-check.js"
-    if (-not (Test-Path $jsPath)) { throw "Không tìm thấy version-check.js" }
+    if (-not (Test-Path $jsPath)) { throw "Khong tim thay version-check.js" }
     $js = [System.IO.File]::ReadAllText($jsPath)
     $pattern = 'window\.LH_VERSION\s*=\s*"[^"]*"'
-    if ($js -notmatch $pattern) { throw "Không tìm thấy window.LH_VERSION trong version-check.js" }
+    if ($js -notmatch $pattern) { throw "Khong tim thay window.LH_VERSION trong version-check.js" }
     $js = [regex]::Replace($js, $pattern, ('window.LH_VERSION = "' + $newVersion + '"'))
     [System.IO.File]::WriteAllText($jsPath, $js, $utf8NoBom)
 
     # ---------- 8. Tự bump CACHE_VERSION trong service-worker.js ----------
     $swPath = Join-Path $root "service-worker.js"
-    if (-not (Test-Path $swPath)) { throw "Không tìm thấy service-worker.js" }
+    if (-not (Test-Path $swPath)) { throw "Khong tim thay service-worker.js" }
     $sw = [System.IO.File]::ReadAllText($swPath)
     $swPattern = 'CACHE_VERSION\s*=\s*"learnhub-v(\d+)"'
-    if ($sw -notmatch $swPattern) { throw "Không tìm thấy CACHE_VERSION trong service-worker.js" }
+    if ($sw -notmatch $swPattern) { throw "Khong tim thay CACHE_VERSION trong service-worker.js" }
     $sw = [regex]::Replace($sw, $swPattern, {
         param($m)
         $newNum = [int]$m.Groups[1].Value + 1
@@ -127,12 +127,17 @@ try {
         git push origin main
 
         Write-Host ""
-        Write-Host "✅ Đã phát hành v$newVersion — người dùng online sẽ thấy thông báo trong tối đa 2 phút." -ForegroundColor Green
+        Write-Host "Da phat hanh v$newVersion - nguoi dung online se thay thong bao trong toi da 2 phut." -ForegroundColor Green
     } else {
         Write-Host ""
-        Write-Host "ℹ️ Không có thay đổi nào đượcCommit (git status rỗng). Version.json vẫn đã được cập nhật." -ForegroundColor Yellow
-        Write-Host "   Run 'git reset HEAD version.json' nếu muốn hoàn tác file version." -ForegroundColor Cyan
+        Write-Host "Khong co thay doi nao de commit (git status rong). Version.json van da duoc cap nhat." -ForegroundColor Yellow
+        Write-Host "   Run 'git reset HEAD version.json' neu muon hoan tac file version." -ForegroundColor Cyan
         # Vẫn in thông báo thành công nhưng không push
-        Write-Host "✅ Version.json đã được cập nhật về v$newVersion." -ForegroundColor Green
+        Write-Host "Version.json da duoc cap nhat ve v$newVersion." -ForegroundColor Green
     }
+}
+catch {
+    Write-Host ""
+    Write-Host "LOI: $($_.Exception.Message)" -ForegroundColor Red
+    exit 1
 }
