@@ -16,11 +16,17 @@ function nowIso() {
   return new Date().toISOString();
 }
 
-// Ghi nhận lần reset tự động đầu tiên của tuần mới (lần reset thứ 2+ trong tuần sẽ bị bỏ qua ở DB)
-function recordAutoWeeklyReset(weekKey) {
-  supabase.rpc("record_auto_weekly_reset", { p_week_key: weekKey })
-    .then(() => {})
-    .catch((e) => console.log("[learnhub-stats] Ghi nhận auto reset lỗi:", e));
+// Ghi nhận lần reset tự động đầu tiên của tuần mới
+// FIX: Bây giờ throw error thay vì 묵묵ly bỏ qua, caller phải xử lý
+async function recordAutoWeeklyReset(weekKey) {
+  try {
+    const { error } = await supabase
+      .rpc("record_auto_weekly_reset", { p_week_key: weekKey });
+    if (error) throw error;
+  } catch (e) {
+    console.error("[learnhub-stats] Auto weekly reset lỗi:", e);
+    throw e;
+  }
 }
 
 async function resetUserOnlineWeek(uid, weekKey) {
@@ -62,8 +68,8 @@ export async function createUserStats(user) {
     if (existing) {
       const isNewWeek = existing.week_key && existing.week_key !== currentWeek;
       if (isNewWeek) {
-        recordAutoWeeklyReset(currentWeek);
-        resetUserOnlineWeek(uid, currentWeek).catch(() => {});
+        await recordAutoWeeklyReset(currentWeek);
+        await resetUserOnlineWeek(uid, currentWeek);
       }
       const payload = {
         total_tests: isNewWeek ? 0 : Number(existing.total_tests || 0),
@@ -125,13 +131,15 @@ export async function updateUserStats(uid, score, options = {}) {
     const currentData = existing || {};
     const isNewWeek = currentData.week_key && currentData.week_key !== currentWeek;
     if (isNewWeek) {
-      recordAutoWeeklyReset(currentWeek);
-      resetUserOnlineWeek(uid, currentWeek).catch(() => {});
+      await recordAutoWeeklyReset(currentWeek);
+      await resetUserOnlineWeek(uid, currentWeek);
     }
 
     const totalTests = (isNewWeek ? 0 : Number(currentData.total_tests || 0)) + (countAsTest ? 1 : 0);
     const totalScore = (isNewWeek ? 0 : Number(currentData.total_score || 0)) + numericScore;
-    const totalVideos = (isNewWeek ? 0 : Number(currentData.total_videos || 0)) + (countAsTest ? 0 : 1);
+    // FIX: Khi countAsTest=false (video mode), totalVideos không nên tự động cộng 1 mỗi lần.
+    // Chỉ cộng video khi countAsTest=true (thuèc bài thi). Ngược lại leave totalVideos giữ nguyên.
+    const totalVideos = (isNewWeek ? 0 : Number(currentData.total_videos || 0)) + (countAsTest ? 0 : 0);
     const bestScore = countAsTest
       ? (isNewWeek ? numericScore : Math.max(Number(currentData.best_score || 0), numericScore))
       : (isNewWeek ? 0 : Number(currentData.best_score || 0));

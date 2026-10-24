@@ -16342,6 +16342,1023 @@ revoke execute on function public.set_flashcard_group_complete(text, boolean) fr
 grant execute on function public.set_flashcard_group_complete(text, boolean) to authenticated;
 </file>
 
+<file path="AI.html">
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LearnHub AI - Hubie</title>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="element/giaodien.css">
+    <style>
+        /* ===== CHUNG ===== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* Ẩn scrollbar nhưng vẫn giữ chức năng cuộn */
+        html, body {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+        .chat-box::-webkit-scrollbar, .dict-body::-webkit-scrollbar, .input-area textarea::-webkit-scrollbar { display: none; }
+        .chat-box, .dict-body, .input-area textarea { scrollbar-width: none; -ms-overflow-style: none; }
+
+        body, html { width: 100%; height: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #fff; overflow: hidden; }
+
+        .app { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: #fff; }
+
+        /* ===== HEADER ===== */
+        .chat-header { background: #1a73e8; color: white; padding: 10px 14px; display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); z-index: 10; position: relative; flex-shrink: 0; }
+        .chat-header img { width: 32px; height: 32px; border-radius: 50%; background: white; object-fit: cover; flex-shrink: 0; }
+        .header-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 30px; }
+
+        .info-btn { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 4px; line-height: 1; transition: opacity 0.2s; }
+        .info-btn:hover { opacity: 0.7; }
+
+        /* ===== THANH TAB CHỌN CHẾ ĐỘ ===== */
+        .mode-bar { display: flex; background: #1557b0; padding: 6px 12px; gap: 6px; flex-shrink: 0; }
+        .mode-tab { flex: 1; border: none; background: rgba(255,255,255,0.14); color: #fff; border-radius: 8px; padding: 7px 0; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s, color 0.2s; font-family: inherit; }
+        .mode-tab.active { background: #fff; color: #1a73e8; }
+        .mode-tab:hover:not(.active) { background: rgba(255,255,255,0.26); }
+
+        /* ===== PANEL ===== */
+        .panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+
+        /* ===== CHAT ===== */
+        .chat-box { flex: 1; padding: 12px; overflow-y: auto; background: #f8f9fa; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+
+        .message-wrapper { display: flex; flex-direction: column; max-width: 80%; gap: 2px; position: relative; }
+        .message-wrapper.user-wrapper { align-self: flex-end; align-items: flex-end; margin-left: auto; }
+        .message-wrapper.ai-wrapper { align-self: flex-start; align-items: flex-start; padding-bottom: 22px; }
+
+        .ai-content-group { display: flex; gap: 8px; align-items: flex-start; width: 100%; }
+
+        .msg-avatar { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; background: #eee; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+        .message { padding: 8px 12px; border-radius: 14px; word-break: break-word; line-height: 1.4; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .user-msg { background: #1a73e8; color: white; border-top-right-radius: 2px; }
+        .ai-msg { background: white; color: #333; border-top-left-radius: 2px; border: 1px solid #e1e4e8; }
+        .error-msg { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; align-self: center; max-width: 90%; font-size: 12px; border-radius: 8px; padding: 8px; text-align: center; }
+
+        .chat-img { max-width: 100%; max-height: 150px; border-radius: 8px; margin-bottom: 4px; display: block; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+        .msg-time { font-size: 10px; color: #999; margin: 2px 4px 0 4px; padding: 0 2px; user-select: none; }
+
+        .ai-tools { position: absolute; bottom: 0; right: 4px; display: flex; gap: 4px; background: rgba(240, 242, 245, 0.85); padding: 2px 6px; border-radius: 10px; border: 1px solid #e1e4e8; opacity: 0; transition: opacity 0.2s ease; }
+        .message-wrapper.ai-wrapper:hover .ai-tools { opacity: 1; }
+        .tool-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: #5f6368; padding: 2px; display: flex; align-items: center; justify-content: center; transition: color 0.15s; }
+        .tool-btn:hover { color: #1a73e8; }
+
+        .message strong { font-weight: bold; color: inherit; }
+        .message em { font-style: italic; }
+        .message p { margin-bottom: 4px; }
+        .message p:last-child { margin-bottom: 0; }
+
+        .typing-bubble { display: flex; align-items: center; gap: 4px; padding: 10px 14px; background: white; border-radius: 14px; border-top-left-radius: 2px; border: 1px solid #e1e4e8; }
+        .typing-dot { width: 6px; height: 6px; background: #7f8c8d; border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+
+        .status { font-size: 11px; color: #888; text-align: center; padding: 4px; background: #fafafa; border-bottom: 1px solid #eee; flex-shrink: 0; position: static; display: block; pointer-events: auto; }
+        .status::before { content: none; }
+
+        .input-container { display: flex; flex-direction: column; background: #fff; border-top: 1px solid #eee; flex-shrink: 0; }
+
+        .preview-container { display: none; padding: 8px 12px; background: #f8f9fa; border-bottom: 1px solid #f1f1f1; align-items: center; gap: 8px; position: relative; }
+        .preview-image { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; }
+        .preview-remove { position: absolute; top: 4px; left: 45px; background: #ff4d4d; color: white; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        .input-area { display: flex; padding: 10px; gap: 6px; align-items: flex-end; }
+
+        .attach-btn { width: 34px; height: 34px; background: #f1f3f4; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #5f6368; flex-shrink: 0; transition: background 0.2s; }
+        .attach-btn:hover { background: #e8eaed; color: #1a73e8; }
+
+        .input-area textarea { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 18px; outline: none; font-size: 14px; background: #f8f9fa; transition: all 0.2s; resize: none; max-height: 80px; font-family: inherit; line-height: 1.3; overflow-y: auto; }
+        .input-area textarea:focus { background: #fff; border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.1); }
+
+        .input-area button.send-btn { width: 34px; height: 34px; background: #28a745; color: white; border: none; border-radius: 50%; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
+        .input-area button.send-btn:hover { background: #218838; }
+        .input-area button.send-btn svg { width: 16px; height: 16px; fill: white; }
+
+        /* ===== TRA TỪ ===== */
+        .dict-body { padding: 16px; flex: 1; overflow-y: auto; }
+        .search-row { display: flex; gap: 8px; margin-bottom: 14px; }
+        .search-row input {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            font-family: inherit;
+        }
+        .search-row input:focus { border-color: #1a73e8; }
+        .search-row button {
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .search-row button:hover { background: #1557b0; }
+        .search-row button:disabled { background: #9db8e8; cursor: default; }
+
+        .state-msg { font-size: 13px; color: #888; text-align: center; padding: 20px 0; }
+        .state-msg.error { color: #d93025; }
+
+        .result { display: none; }
+        .word-line { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+        .word-line .word { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+        .word-line .phonetic { font-size: 14px; color: #666; }
+        .word-vi {
+            font-size: 15px;
+            font-weight: 600;
+            color: #f9a825;
+            margin-bottom: 12px;
+        }
+        .audio-btn {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex; align-items: center; justify-content: center;
+            color: #1a73e8;
+        }
+        .audio-btn:hover { background: #e8f0fe; }
+        .audio-btn:disabled { opacity: 0.4; cursor: default; }
+
+        .pos-tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #1a73e8;
+            background: #e8f0fe;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin: 10px 6px 6px 0;
+        }
+        .pos-gloss {
+            font-size: 14px;
+            font-weight: 700;
+            color: #e65100;
+        }
+
+        .meaning-block { margin-bottom: 8px; }
+        .meaning-label { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; margin-bottom: 2px; }
+        .meaning-text { font-size: 14px; color: #333; line-height: 1.45; }
+        .meaning-text.vi { color: #1a1a1a; background: #fff8e1; padding: 8px 10px; border-radius: 8px; border-left: 3px solid #f9a825; }
+        .meaning-text.en { padding: 0 2px; }
+
+        .example { font-size: 12.5px; color: #777; font-style: italic; margin-top: 4px; padding-left: 2px; }
+
+        .disclaimer { font-size: 10.5px; color: #aaa; text-align: center; margin-top: 12px; }
+
+        /* ===== MODAL ===== */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
+        .modal-content { background: white; border-radius: 12px; width: 100%; max-width: 280px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: modalFadeIn 0.2s ease-out; }
+        .modal-title { font-size: 15px; font-weight: 600; color: #1a73e8; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .modal-body { font-size: 13px; color: #4a4a4a; line-height: 1.45; }
+        .modal-body ul { margin-left: 16px; margin-top: 4px; }
+        .modal-close-btn { display: block; width: 100%; margin-top: 12px; padding: 6px; background: #1a73e8; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
+        .modal-close-btn:hover { background: #1557b0; }
+
+@keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Bật "Giảm chuyển động" (từ trang chính hoặc hệ điều hành) => bỏ animation, hiện liền */
+        .lh-rm .modal-content,
+        .lh-rm .typing-dot,
+        html.lh-rm body { animation: none !important; }
+    </style>
+<script src="toast.js"></script>
+<script>
+/* Đồng bộ "Giảm chuyển động" từ trang chính (body.cc-reduced) hoặc hệ điều hành */
+(function () {
+    function applyReduced(on) { document.documentElement.classList.toggle("lh-rm", on); }
+    var mq = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mq && mq.addEventListener) mq.addEventListener("change", function (e) { applyReduced(e.matches); });
+    window.addEventListener("message", function (e) {
+        if (e.data && e.data.type === "REDUCED_MOTION") applyReduced(e.data.value === true);
+    });
+    applyReduced(mq ? mq.matches : false);
+})();
+</script>
+</head>
+<body>
+
+<div class="app">
+    <div class="chat-header">
+        <img src="pictures/chatboiavt.png" alt="Hubie" onerror="this.src='https://via.placeholder.com/32'">
+        <span class="header-title">Hubie - Trợ lý LearnHub</span>
+
+        <button class="info-btn" onclick="openInfoModal()" title="Thông tin về Hubie"><i class="fa-solid fa-circle-info"></i></button>
+    </div>
+
+    <div class="mode-bar">
+<button class="mode-tab active" data-mode="chat" onclick="setMode('chat')"><i class="fa-solid fa-comment-dots"></i> Chat</button>
+        <button class="mode-tab" data-mode="tut" onclick="setMode('tut')"><i class="fa-solid fa-book-open"></i> Tra từ</button>
+    </div>
+
+    <!-- ===== CHẾ ĐỘ CHAT ===== -->
+    <div id="panel-chat" class="panel">
+        <div class="status" id="status">Hubie sẵn sàng trực tuyến</div>
+
+        <div class="chat-box" id="chatBox">
+            <div class="message-wrapper ai-wrapper">
+                <div class="ai-content-group">
+                    <img class="msg-avatar" src="pictures/chatboiavt.png" onerror="this.src='https://via.placeholder.com/26'">
+                    <div class="message ai-msg">Chào bạn! Mình là Hubie đây, trợ thủ đắc lực của bạn trên LearnHub nè! 🤖✨<br><br>Bạn có câu hỏi gì hay cần mình hỗ trợ về bài vở không? Cứ hỏi, paste thẳng ảnh bài tập vô đây, hoặc dùng tab Tra từ để tra nhanh nghĩa tiếng Anh nha! 😊</div>
+                </div>
+                <div class="msg-time" id="welcome-time">10:00 PM</div>
+                <div class="ai-tools">
+                    <button class="tool-btn" onclick="copyToClipboard('Chào bạn! Mình là Hubie đây, trợ thủ đắc lực của bạn trên LearnHub nè! 🤖✨\n\nBạn có câu hỏi gì hay cần mình hỗ trợ về bài vở không? Cứ hỏi, paste thẳng ảnh bài tập vô đây, hoặc dùng tab Tra từ để tra nhanh nghĩa tiếng Anh nha! 😊')" title="Sao chép câu trả lời"><i class="fa-solid fa-copy"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="preview-container" id="previewContainer">
+                <img class="preview-image" id="previewImg" src="" alt="Preview">
+                <button class="preview-remove" onclick="clearSelectedFile()" title="Xóa ảnh">×</button>
+                <span style="font-size: 12px; color: #666; margin-left: 12px;">Ảnh đã được đính kèm</span>
+            </div>
+
+            <div class="input-area">
+                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+                <button class="attach-btn" onclick="document.getElementById('fileInput').click()" title="Đính kèm ảnh chụp bài tập"><i class="fa-solid fa-paperclip"></i></button>
+
+                <textarea id="userInput" rows="1" placeholder="Hỏi Hubie hoặc paste ảnh (Ctrl+V)..." onkeydown="handleKeyDown(event)" oninput="autoResizeTextarea(this)"></textarea>
+                <button class="send-btn" onclick="sendMessage()" title="Gửi tin nhắn"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CHẾ ĐỘ TRA TỪ ===== -->
+    <div id="panel-tut" class="panel" style="display:none;">
+        <div class="dict-body">
+            <div class="search-row">
+                <input type="text" id="wordInput" placeholder="Nhập từ tiếng Anh..." onkeydown="if(event.key==='Enter') lookupWord()">
+                <button id="searchBtn" onclick="lookupWord()">Tra</button>
+            </div>
+
+            <div class="state-msg" id="stateMsg">Nhập 1 từ tiếng Anh rồi bấm Tra cứu.</div>
+
+            <div class="result" id="resultBox">
+                <div class="word-line">
+                    <span class="word" id="rWord"></span>
+                    <span class="phonetic" id="rPhonetic"></span>
+                    <button class="audio-btn" id="rAudioBtn" onclick="playAudio()" disabled><i class="fa-solid fa-volume-high"></i></button>
+                </div>
+                <div class="word-vi" id="rWordVi"></div>
+
+                <div id="rMeaningsList"></div>
+
+                <div class="disclaimer">Nghĩa tiếng Anh: dictionaryapi.dev · Nghĩa tiếng Việt: dịch máy (DeepL) — chỉ mang tính tham khảo.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="infoModal" onclick="closeInfoModalOutside(event)">
+    <div class="modal-content">
+        <div class="modal-title"><i class="fa-solid fa-robot"></i> Về Trợ Lý Hubie</div>
+        <div class="modal-body">
+            <p><strong>Hubie</strong> là trợ lý ảo AI chính thức của website học tập <strong>LearnHub</strong>.</p>
+            <br>
+            <p><strong>Tính năng chính:</strong></p>
+            <ul>
+                <li>Giải đáp thần tốc bài tập, lý thuyết phổ thông.</li>
+                <li>Đọc hiểu hình ảnh bài tập chụp trực tiếp.</li>
+                <li>Tra từ điển Anh - Việt nhanh chóng (tab Tra từ).</li>
+                <li>Gợi ý Flashcard và Bài kiểm tra ôn luyện.</li>
+            </ul>
+        </div>
+        <button class="modal-close-btn" onclick="closeInfoModal()">Đóng</button>
+    </div>
+</div>
+
+<script>
+// 🔒 API Key được ẩn trên Cloudflare Worker - không bao giờ lộ ra trên frontend
+    const WORKER_URL = "https://hubie-proxy.quanhao678.workers.dev";
+    // DEEPL_PROXY_URL: proxy dịch máy DeepL chạy trên Cloudflare Worker
+    const DEEPL_PROXY_URL = "https://deepl-proxy.quanhao678.workers.dev";
+
+    let chatHistory = [];
+    // [FIX BUG #14] Bọc try/catch quanh JSON.parse: localStorage hỏng → mảng rỗng thay vì sập script
+    try {
+      const raw = localStorage.getItem("hubie_chat_history");
+      if (raw) chatHistory = JSON.parse(raw) || [];
+    } catch (e) {
+      chatHistory = [];
+    }
+    let selectedFileData = null;
+
+    const systemInstructionText = `
+    Bạn là Hubie, trợ lý ảo AI thân thiện, thông minh và vui tính của website học tập LearnHub. Bạn hỗ trợ học sinh (gọi là "bạn", xưng "Hubie"/"mình") học tập và ôn luyện. HÃY TUÂN THỦ NGHIÊM NGẶT CÁC QUY TẮC SAU:
+    1. QUY TẮC TRẢ LỜI KIẾN THỨC (QUAN TRỌNG NHẤT): Khi học sinh hỏi hoặc gửi ảnh chụp bài tập về bất kỳ môn nào (Toán, Lý, Hóa, Sinh, Văn, Địa, Lịch sử, Tiếng Anh...), Hubie PHẢI trả lời trực tiếp, đầy đủ và chính xác ngay lập tức. Không từ chối, không bắt học sinh tự tìm trên web.
+    2. QUY TẮC GIẢI THÍCH: Giải thích rõ ràng, dễ hiểu theo cấp độ của học sinh. Với bài tập cụ thể, nêu cách làm từng bước rồi mới đưa đáp án. Tránh dài dòng.
+    3. QUY TẮC GỢI Ý ÔN LUYỆN (cuối bài): Sau khi trả lời kiến thức, có thể khéo léo gợi ý 1 câu ngắn hướng dẫn vào mục ôn luyện phù hợp trên LearnHub (Flashcard, LearnHub Test/Phòng học) để củng cố.
+    4. GIỚI THIỆU TÍNH NĂNG LEARNHUB (khi học sinh hỏi về web):
+       - LearnHub Test & Phòng học: làm bài trắc nghiệm theo môn, bấm giờ, chấm tự động, lưu kết quả.
+       - Smart Flashcard: học từ vựng với 5 chế độ Thẻ lật, Ghép thẻ, Blast, Điền từ, Chiến thần.
+       - Thư viện Tài liệu: tài liệu, đề kiểm tra, bài giảng có tìm kiếm.
+       - Forum: hỏi đáp, thảo luận bài tập cùng bạn bè.
+       - Lịch học & Thi: xem lịch từ ban quản trị.
+       - Bảng xếp hạng: xem điểm số & thời gian online (reset theo tuần).
+       - Hồ sơ học viên: theo dõi thống kê học tập.
+       - Chỉ giới thiệu tab/tính năng, không tự khẳng định chức năng không có thật.
+    5. QUY ĐỊNH QUYỀN HẠN: Học sinh chỉ được xem/học nội dung có sẵn, KHÔNG có quyền tự tạo Flashcard hay bài kiểm tra mới (chỉ Admin tạo được).
+    6. QUY TẮC ICON: KHÔNG dùng emoji cờ quốc gia (như cờ VN, Lào...) vì lỗi font. Dùng icon khác như 🌍, ✨, 📚, 🤖, 🃏...
+    7. XƯNG HÔ: Trả lời ngắn gọn, vui vẻ, thân thiện; xưng "Hubie"/"mình", gọi học sinh là "bạn".
+    8. QUY TẮC TRA TỪ: Khi học sinh hỏi nghĩa từ tiếng Anh, trả lời nghĩa ngắn gọn và gợi ý dùng tab "Tra từ" trong popup để xem phiên âm, audio, ví dụ đầy đủ (nhanh và không tốn lượt AI).
+    9. GIỚI HẠN AN TOÀN: Từ chối nhẹ nhàng các yêu cầu nội dung nhạy cảm, không phù hợp học đường; hướng dẫn liên hệ Admin qua nút "Góp ý ý kiến" ở cuối trang nếu cần trợ giúp kỹ thuật.
+    `;
+
+    const MODEL_QUEUE = [
+        { id: "gemma-4-31b-it", name: "Gemma 4 31B" },
+        { id: "gemma-4-26b-a4b-it", name: "Gemma 4 26B" },
+        { id: "minimax-m3", name: "MiniMax M3" },
+        { id: "glm-5.2", name: "GLM 5.2" },
+        { id: "nemotron-3-ultra", name: "Nemotron 3 Ultra" },
+        { id: "nemotron-3-super", name: "Nemotron 3 Super" },
+        { id: "nemotron-3-nano", name: "Nemotron 3 Nano" },
+        { id: "openrouter-free", name: "Auto Router" }
+    ];
+
+    // ==================== CHỌN CHẾ ĐỘ ====================
+    let currentMode = "chat";
+
+    function getModeFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const m = params.get("mode");
+        return m === "tut" ? "tut" : "chat";
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById("panel-chat").style.display = mode === "chat" ? "flex" : "none";
+        document.getElementById("panel-tut").style.display = mode === "tut" ? "flex" : "none";
+        document.querySelectorAll(".mode-tab").forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.mode === mode);
+        });
+        if (mode === "tut") {
+            setTimeout(() => {
+                const inp = document.getElementById("wordInput");
+                if (inp) inp.focus();
+            }, 60);
+        }
+    }
+
+    // ==================== CHAT ====================
+    function getCurrentTimeFormatted() {
+        const now = new Date();
+        let hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; 
+        return `${hours}:${minutes} ${ampm}`;
+    }
+
+    document.getElementById('welcome-time').innerText = getCurrentTimeFormatted();
+
+    // ℹ️ HÀM ĐIỀU KHIỂN POPUP THÔNG TIN (MODAL)
+    function openInfoModal() {
+        document.getElementById('infoModal').style.display = 'flex';
+    }
+
+    function closeInfoModal() {
+        document.getElementById('infoModal').style.display = 'none';
+    }
+
+    function closeInfoModalOutside(event) {
+        if (event.target.id === 'infoModal') {
+            closeInfoModal();
+        }
+    }
+
+    // 📋 HÀM SAO CHÉP NỘI DUNG (COPY)
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            const statusEl = document.getElementById('status');
+            const originalStatus = statusEl.innerText;
+            statusEl.innerText = "✓ Đã copy nội dung tin nhắn!";
+            setTimeout(() => { statusEl.innerText = originalStatus; }, 2000);
+        }).catch(err => {
+            lhToast('Lỗi! Không thể copy văn bản.', 'error');
+        });
+    }
+
+    function escapeHtmlText(str) {
+        return String(str ?? "").replace(/[&<>"']/g, (c) => ({
+            "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        }[c]));
+    }
+
+    function formatMarkdown(text) {
+        let html = escapeHtmlText(text);
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+        return html.split('\n').map(line => line.trim() ? `<p>${line}</p>` : '<br>').join('');
+    }
+
+    function autoResizeTextarea(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    // 📸 XỬ LÝ CHỌN FILE QUA NÚT GHIM GIẤY
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        processFile(file);
+    }
+
+    // 📋 XỬ LÝ PASTE ẢNH TRỰC TIẾP (CTRL + V) VÀO Ô TEXTAREA
+    document.getElementById('userInput').addEventListener('paste', function(e) {
+        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const file = items[i].getAsFile();
+                processFile(file);
+                e.preventDefault(); 
+                break;
+            }
+        }
+    });
+
+    // HÀM CHUNG ĐỂ XỬ LÝ ĐỌC FILE ẢNH
+    function processFile(file) {
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            lhToast('Hubie hiện tại chỉ hỗ trợ nhận diện các định dạng hình ảnh thôi nè!', 'warning');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64Data = e.target.result.split(',')[1];
+            selectedFileData = {
+                mimeType: file.type,
+                data: base64Data,
+                dataUrl: e.target.result
+            };
+            
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('previewContainer').style.display = 'flex';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearSelectedFile() {
+        selectedFileData = null;
+        document.getElementById('fileInput').value = '';
+        document.getElementById('previewContainer').style.display = 'none';
+        document.getElementById('previewImg').src = '';
+    }
+
+    function renderSavedChat() {
+        const savedHTML = localStorage.getItem("hubie_chat_html");
+        if (savedHTML) {
+            document.getElementById('chatBox').innerHTML = savedHTML;
+            scrollToBottom();
+        }
+    }
+
+    function saveChatToLocal() {
+        // [FIX BUG #15] Trim chatHistory nếu quá lớn để tránh localStorage quota
+        if (chatHistory.length > 40) {
+            chatHistory = chatHistory.slice(chatHistory.length - 40);
+        }
+        try {
+            localStorage.setItem("hubie_chat_history", JSON.stringify(chatHistory));
+        } catch (e) {}
+        try {
+            localStorage.setItem("hubie_chat_html", document.getElementById('chatBox').innerHTML);
+        } catch (e) {}
+    }
+
+    window.addEventListener("beforeunload", () => {
+        localStorage.removeItem("hubie_chat_history");
+        localStorage.removeItem("hubie_chat_html");
+    });
+
+    async function fetchWithBackup(requestBody, modelIndex = 0, errorLog = []) {
+        if (modelIndex >= MODEL_QUEUE.length) {
+            const detail = errorLog
+                .map((e, i) => `${MODEL_QUEUE[i] ? MODEL_QUEUE[i].name : '?'} [${e.code || 'ERR'}]: ${e.message}`)
+                .join(' | ');
+            throw new Error(`Tất cả các model dự phòng đều đã hết lượt dùng trong ngày! (${detail})`);
+        }
+        const currentModel = MODEL_QUEUE[modelIndex];
+        const statusEl = document.getElementById('status');
+        statusEl.innerText = `Hubie đang kết nối với ${currentModel.name}...`;
+
+        try {
+            const response = await fetch(WORKER_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: currentModel.id,
+                    requestBody: requestBody
+                })
+            });
+            const data = await response.json();
+            // Tự đổi model dự phòng khi gặp các lỗi: hết lượt (429), model không tồn tại (404),
+            // bị chặn (403), hoặc lỗi máy chủ (5xx)
+            const retriableCodes = [429, 404, 403, 500, 502, 503];
+            if (data.error && retriableCodes.includes(data.error.code)) {
+                errorLog.push({ code: data.error.code, message: data.error.message });
+                return await fetchWithBackup(requestBody, modelIndex + 1, errorLog);
+            }
+            if (data.error) {
+                if (typeof data.error === 'string') throw new Error(`[${currentModel.id}] HTTP ${response.status}: ${data.error}`);
+                throw new Error(`[${currentModel.id}] ${data.error.status || data.error.code || response.status}: ${data.error.message}`);
+            }
+            return { data: data, activeModelName: currentModel.name };
+        } catch (err) {
+            if (err.message && err.message.startsWith('[')) throw err;
+            errorLog.push({ code: 'NET', message: err.message || 'Lỗi mạng' });
+            return await fetchWithBackup(requestBody, modelIndex + 1, errorLog);
+        }
+    }
+
+    async function sendMessage() {
+        const inputEl = document.getElementById('userInput');
+        const text = inputEl.value.trim();
+
+        if (!text && !selectedFileData) return;
+
+        let currentMessageParts = [];
+        let displayImgUrl = null;
+
+        if (selectedFileData) {
+            currentMessageParts.push({
+                inlineData: {
+                    mimeType: selectedFileData.mimeType,
+                    data: selectedFileData.data
+                }
+            });
+            displayImgUrl = selectedFileData.dataUrl;
+        }
+
+        if (text) {
+            currentMessageParts.push({ text: text });
+        } else if (selectedFileData) {
+            currentMessageParts.push({ text: "Hãy phân tích hình ảnh này giúp mình nhé!" });
+        }
+
+        appendUserMessage(text, displayImgUrl);
+        
+        inputEl.value = '';
+        inputEl.style.height = 'auto';
+        clearSelectedFile();
+
+        chatHistory.push({ role: "user", parts: currentMessageParts });
+        saveChatToLocal();
+
+        await requestAiResponse();
+    }
+
+    // 🔄 TÁCH BIỆT HÀM GỌI API ĐỂ SỬ DỤNG CHO CẢ SEND VÀ REGENERATE
+    async function requestAiResponse(opts) {
+        // [FIX BUG #8] Chỉ rollback tin nhắn người dùng khi đây là lượt GỬI MỚI.
+        // Với regenerate, tin người dùng đã nằm sẵn trong lịch sử nên không được xoá.
+        const rollbackUserOnError = !(opts && opts.rollbackUserOnError === false);
+        const statusEl = document.getElementById('status');
+        const requestBody = {
+            contents: chatHistory,
+            systemInstruction: { parts: [{ text: systemInstructionText }] },
+            generationConfig: { temperature: 0.7, maxOutputTokens: 3000 }
+        };
+
+        const typingIndicator = showTypingIndicator();
+        scrollToBottom();
+
+        try {
+            const result = await fetchWithBackup(requestBody, 0);
+            const data = result.data;
+            const activeModelName = result.activeModelName;
+            
+            removeTypingIndicator(typingIndicator);
+
+            if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
+                const responseText = data.candidates[0].content.parts[0].text;
+                chatHistory.push({ role: "model", parts: [{ text: responseText }] });
+
+                appendAiMessage(responseText);
+                statusEl.innerText = `Hubie đã trả lời - ${activeModelName}`;
+                saveChatToLocal();
+                scrollToBottom();
+                return true;
+            } else {
+                throw new Error("Phản hồi trống hoặc sai cấu trúc.");
+            }
+        } catch (error) {
+            removeTypingIndicator(typingIndicator);
+            console.error(`[Hubie] API Error:`, error);
+            const errMsg = String(error.message || "");
+            const codeMatch = errMsg.match(/\b(HTTP )?(\d{3})\b/) || errMsg.match(/\[(\d{3})\]/);
+            const errCode = codeMatch ? codeMatch[2] || codeMatch[1] : "AI_FAIL";
+            if (window.logAppError) {
+                window.logAppError({
+                    source: "chat",
+                    category: "ai",
+                    level: "error",
+                    code: errCode,
+                    message: errMsg.slice(0, 500),
+                    detail: { models: MODEL_QUEUE.map(m => m.name), activeTab: currentMode }
+                });
+            }
+            appendErrorMessage(`⚠️ Hubie bảo trì: ${errMsg}`);
+            statusEl.innerText = "Gặp sự cố lỗi hệ thống";
+            // [FIX BUG #8] Chỉ xoá tin người dùng khi là lượt gửi mới (không phải regenerate)
+            if (rollbackUserOnError) {
+                if (chatHistory.length > 0 && chatHistory[chatHistory.length - 1].role === "user") {
+                    chatHistory.pop();
+                }
+                const chatBox = document.getElementById('chatBox');
+                const userWrappers = chatBox.getElementsByClassName('user-wrapper');
+                if (userWrappers.length > 0) {
+                    chatBox.removeChild(userWrappers[userWrappers.length - 1]);
+                }
+                saveChatToLocal();
+            }
+            scrollToBottom();
+            return false;
+        }
+    }
+
+    // 🔄 HÀM TẠO LẠI CÂU TRẢ LỜI CỦA AI (REGENERATE)
+    // [FIX BUG #8] Nếu tạo lại thất bại, khôi phục câu trả lời cũ để không mất dữ liệu.
+    async function regenerateAiResponse() {
+        if (chatHistory.length > 0 && chatHistory[chatHistory.length - 1].role === "model") {
+            const removedModel = chatHistory.pop();
+            const chatBox = document.getElementById('chatBox');
+            const aiWrappers = chatBox.getElementsByClassName('ai-wrapper');
+            let removedWrapper = null;
+            if (aiWrappers.length > 0) {
+                removedWrapper = aiWrappers[aiWrappers.length - 1];
+                chatBox.removeChild(removedWrapper);
+            }
+            saveChatToLocal();
+            const ok = await requestAiResponse({ rollbackUserOnError: false });
+            if (ok === false && removedModel) {
+                // Khôi phục lại câu trả lời cũ (dữ liệu + DOM)
+                chatHistory.push(removedModel);
+                if (removedWrapper) {
+                    try { chatBox.appendChild(removedWrapper); } catch (e) {}
+                }
+                saveChatToLocal();
+                scrollToBottom();
+            }
+        }
+    }
+
+    function handleKeyDown(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    }
+
+    function scrollToBottom() {
+        const chatBox = document.getElementById('chatBox');
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function appendUserMessage(text, imageUrl) {
+        const chatBox = document.getElementById('chatBox');
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message-wrapper user-wrapper';
+        
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message user-msg';
+        
+        if (imageUrl) {
+            const imgEl = document.createElement('img');
+            imgEl.src = imageUrl;
+            imgEl.className = 'chat-img';
+            msgDiv.appendChild(imgEl);
+        }
+        
+        if (text) {
+            const textEl = document.createElement('span');
+            textEl.innerText = text;
+            msgDiv.appendChild(textEl);
+        } else if (imageUrl) {
+            const textEl = document.createElement('span');
+            textEl.style.fontSize = '12px';
+            textEl.style.opacity = '0.8';
+            textEl.innerHTML = '<i class="fa-solid fa-image" style="font-size:13px"></i> Đã gửi một hình ảnh';
+            msgDiv.appendChild(textEl);
+        }
+        
+        const timeDiv = document.createElement('div');
+        timeDiv.className = 'msg-time';
+        timeDiv.innerText = getCurrentTimeFormatted();
+        
+        wrapper.appendChild(msgDiv);
+        wrapper.appendChild(timeDiv);
+        chatBox.appendChild(wrapper);
+    }
+
+    function appendAiMessage(text) {
+        const chatBox = document.getElementById('chatBox');
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message-wrapper ai-wrapper';
+        
+        const contentGroup = document.createElement('div');
+        contentGroup.className = 'ai-content-group';
+        
+        const avatar = document.createElement('img');
+        avatar.className = 'msg-avatar';
+        avatar.src = 'pictures/chatboiavt.png';
+        avatar.onerror = function() { this.src = 'https://via.placeholder.com/26'; };
+        
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message ai-msg';
+        msgDiv.innerHTML = formatMarkdown(text);
+        
+        contentGroup.appendChild(avatar);
+        contentGroup.appendChild(msgDiv);
+        
+        const timeDiv = document.createElement('div');
+        timeDiv.className = 'msg-time';
+        timeDiv.style.paddingLeft = '34px'; 
+        timeDiv.innerText = getCurrentTimeFormatted();
+        
+        // 🛠️ TỰ ĐỘNG KHỞI TẠO CỤM PHÍM TẮT DƯỚI GÓC PHẢI TIN NHẮN
+        const toolsDiv = document.createElement('div');
+        toolsDiv.className = 'ai-tools';
+        
+        const copyBtn = document.createElement('button');
+        copyBtn.type = 'button';
+        copyBtn.className = 'tool-btn';
+        copyBtn.title = 'Sao chép câu trả lời';
+        copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+        copyBtn.addEventListener('click', () => copyToClipboard(text));
+        
+        const regenBtn = document.createElement('button');
+        regenBtn.type = 'button';
+        regenBtn.className = 'tool-btn';
+        regenBtn.title = 'Yêu cầu Hubie trả lời lại câu này';
+        regenBtn.innerHTML = '<i class="fa-solid fa-rotate"></i>';
+        regenBtn.addEventListener('click', () => regenerateAiResponse());
+        
+        toolsDiv.appendChild(copyBtn);
+        toolsDiv.appendChild(regenBtn);
+        
+        wrapper.appendChild(contentGroup);
+        wrapper.appendChild(timeDiv);
+        wrapper.appendChild(toolsDiv);
+        chatBox.appendChild(wrapper);
+    }
+
+    function showTypingIndicator() {
+        const chatBox = document.getElementById('chatBox');
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message-wrapper ai-wrapper';
+        
+        const contentGroup = document.createElement('div');
+        contentGroup.className = 'ai-content-group';
+        
+        const avatar = document.createElement('img');
+        avatar.className = 'msg-avatar';
+        avatar.src = 'pictures/chatboiavt.png';
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'typing-bubble';
+        bubble.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+        
+        contentGroup.appendChild(avatar);
+        contentGroup.appendChild(bubble);
+        wrapper.appendChild(contentGroup);
+        chatBox.appendChild(wrapper);
+        return wrapper;
+    }
+
+    function removeTypingIndicator(el) {
+        if (el && el.parentNode) el.parentNode.removeChild(el);
+    }
+
+    function appendErrorMessage(text) {
+        const chatBox = document.getElementById('chatBox');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message error-msg';
+        msgDiv.innerText = text;
+        chatBox.appendChild(msgDiv);
+    }
+
+    // ==================== TRA TỪ ====================
+    let currentAudioUrl = "";
+
+    async function lookupWord() {
+        const raw = document.getElementById("wordInput").value.trim();
+        if (!raw) return;
+
+        const btn = document.getElementById("searchBtn");
+        const stateMsg = document.getElementById("stateMsg");
+        const resultBox = document.getElementById("resultBox");
+
+        btn.disabled = true;
+        resultBox.style.display = "none";
+        stateMsg.style.display = "block";
+        stateMsg.className = "state-msg";
+        stateMsg.innerText = "Đang tra \"" + raw + "\"...";
+
+        try {
+            const word = raw.toLowerCase();
+
+            // 1) Tra tiếng Anh
+            const dictRes = await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(word));
+            if (!dictRes.ok) {
+                throw new Error("NOT_FOUND");
+            }
+            const dictData = await dictRes.json();
+            const entry = dictData[0];
+
+            // Lấy phiên âm + audio đầu tiên có sẵn
+            let phonetic = entry.phonetic || "";
+            let audioUrl = "";
+            (entry.phonetics || []).forEach(p => {
+                if (!phonetic && p.text) phonetic = p.text;
+                if (!audioUrl && p.audio) audioUrl = p.audio;
+            });
+            if (audioUrl && audioUrl.startsWith("//")) audioUrl = "https:" + audioUrl;
+            currentAudioUrl = audioUrl;
+
+            // Lấy tất cả từ loại (part of speech) mà từ này có, mỗi cái 1 definition đầu tiên
+            const meanings = entry.meanings || [];
+
+            // 2) Dịch từ đơn (nghĩa nhanh của cả từ) + dịch song song từng definition sang tiếng Việt
+            const wordViPromise = translateToVi(word).catch(() => "");
+
+            const meaningsData = await Promise.all(meanings.map(async (m) => {
+                const def = (m.definitions && m.definitions[0]) ? m.definitions[0] : null;
+                const enText = def ? def.definition : "";
+                const example = def ? def.example : "";
+                let viText = "";
+                if (enText) {
+                    try {
+                        viText = await translateToVi(enText);
+                    } catch (e) {
+                        viText = "(Không dịch được lúc này)";
+                    }
+                }
+                return { pos: m.partOfSpeech, en: enText, vi: viText, example };
+            }));
+
+            const wordVi = await wordViPromise;
+
+            renderResult(entry.word, phonetic, wordVi, meaningsData);
+            stateMsg.style.display = "none";
+            resultBox.style.display = "block";
+
+        } catch (err) {
+            console.error("Lỗi tra từ:", err);
+            stateMsg.className = "state-msg error";
+            if (err.message === "NOT_FOUND") {
+                stateMsg.innerText = "Không tìm thấy từ \"" + raw + "\" trong từ điển.";
+            } else {
+                stateMsg.innerText = "Có lỗi xảy ra, thử lại sau.";
+            }
+            resultBox.style.display = "none";
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    async function translateToVi(text) {
+        const res = await fetch(DEEPL_PROXY_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: text, target_lang: "VI", source_lang: "EN" })
+        });
+        if (!res.ok) throw new Error("Lỗi dịch");
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        return data.translatedText || "";
+    }
+
+    function shortGloss(viFull) {
+        if (!viFull) return "";
+        let seg = viFull.split(/[;,.]/)[0].trim();
+        seg = seg.replace(/^(Để|Đã|Là|Một|Sẽ|Đang)\s+/i, "").trim();
+        return seg;
+    }
+
+    function posAbbrev(pos) {
+        const map = {
+            "noun": "n",
+            "verb": "v",
+            "adjective": "adj",
+            "adverb": "adv",
+            "pronoun": "pron",
+            "preposition": "prep",
+            "conjunction": "conj",
+            "interjection": "interj",
+            "exclamation": "interj",
+            "determiner": "det",
+            "article": "art",
+            "number": "num"
+        };
+        const key = (pos || "").toLowerCase().trim();
+        return map[key] || key;
+    }
+
+    function renderResult(word, phonetic, wordVi, meaningsData) {
+        // innerText không parse HTML nên KHÔNG cần escape ở đây
+        document.getElementById("rWord").innerText = word;
+        // [FIX BUG #34] Helper escape chỉ dùng cho các chỗ gán innerHTML bên dưới (từ điển)
+        const esc = (s)=> (s||"").replace(/[<>&"']/g,c=>({"<":"&lt;","&gt":"&gt;","&":"&amp;","\"":"&quot;","'":"&#039;"})[c]);
+        document.getElementById("rPhonetic").innerText = phonetic ? "/" + phonetic.replace(/\//g, "") + "/" : "";
+        document.getElementById("rAudioBtn").disabled = !currentAudioUrl;
+        const firstAbbrev = (meaningsData && meaningsData.length > 0) ? posAbbrev(meaningsData[0].pos) : "";
+        document.getElementById("rWordVi").innerText = wordVi ? "→ " + (firstAbbrev ? "(" + firstAbbrev + ") " : "") + wordVi : "";
+
+        const list = document.getElementById("rMeaningsList");
+        list.innerHTML = "";
+
+        meaningsData.forEach(m => {
+            if (!m.en) return;
+            const posTag = document.createElement("div");
+            // [FIX BUG #34] Escape dữ liệu từ API từ điển để tránh chèn HTML
+            posTag.innerHTML = '<span class="pos-tag">' + esc(m.pos) + '</span> <span class="pos-gloss">— ' + esc(shortGloss(m.vi) || "?") + '</span>';
+            list.appendChild(posTag);
+
+            const block = document.createElement("div");
+            block.className = "meaning-block";
+
+            const enLabel = document.createElement("div");
+            enLabel.className = "meaning-label";
+            enLabel.innerText = "Tiếng Anh";
+            const enText = document.createElement("div");
+            enText.className = "meaning-text en";
+            enText.innerText = m.en;
+
+            const viLabel = document.createElement("div");
+            viLabel.className = "meaning-label";
+            viLabel.style.marginTop = "8px";
+            viLabel.innerText = "Tiếng Việt";
+            const viText = document.createElement("div");
+            viText.className = "meaning-text vi";
+            const abbrev = posAbbrev(m.pos);
+            viText.innerText = (abbrev ? "(" + abbrev + ") " : "") + (m.vi || "(chưa có bản dịch)");
+
+            block.appendChild(enLabel);
+            block.appendChild(enText);
+            block.appendChild(viLabel);
+            block.appendChild(viText);
+
+            if (m.example) {
+                const ex = document.createElement("div");
+                ex.className = "example";
+                // innerText an toàn (không parse HTML)
+                ex.innerText = "VD: " + m.example;
+                block.appendChild(ex);
+            }
+
+            list.appendChild(block);
+        });
+    }
+
+    function playAudio() {
+        if (!currentAudioUrl) return;
+        // [FIX BUG #36] Bắt lỗi promise khi phát audio (trước đây lỗi bị nuốt âm thầm)
+        try {
+            const p = new Audio(currentAudioUrl).play();
+            if (p && typeof p.catch === "function") p.catch(function (e) { console.warn("Không phát được audio:", e && e.message); });
+        } catch (e) {
+            console.warn("Không phát được audio:", e && e.message);
+        }
+    }
+
+    setMode(getModeFromUrl());
+    renderSavedChat();
+</script>
+
+<script type="module">
+import { logAppError } from "./supabase-config.js";
+window.logAppError = logAppError;
+</script>
+
+</body>
+</html>
+</file>
+
 <file path="_redirects">
 # Cloudflare Pages redirects — bảo vệ URL cũ sau khi dời file
 # Cú pháp: <nguồn> <đích> <mã>
@@ -21507,1023 +22524,6 @@ if (localStorage.getItem("darkMode") === "on") {
 
     guard();
   </script>
-</body>
-</html>
-</file>
-
-<file path="AI.html">
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LearnHub AI - Hubie</title>
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <link rel="stylesheet" href="element/giaodien.css">
-    <style>
-        /* ===== CHUNG ===== */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        /* Ẩn scrollbar nhưng vẫn giữ chức năng cuộn */
-        html, body {
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE/Edge */
-        }
-        html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; } /* Chrome/Safari */
-        .chat-box::-webkit-scrollbar, .dict-body::-webkit-scrollbar, .input-area textarea::-webkit-scrollbar { display: none; }
-        .chat-box, .dict-body, .input-area textarea { scrollbar-width: none; -ms-overflow-style: none; }
-
-        body, html { width: 100%; height: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #fff; overflow: hidden; }
-
-        .app { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; background: #fff; }
-
-        /* ===== HEADER ===== */
-        .chat-header { background: #1a73e8; color: white; padding: 10px 14px; display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); z-index: 10; position: relative; flex-shrink: 0; }
-        .chat-header img { width: 32px; height: 32px; border-radius: 50%; background: white; object-fit: cover; flex-shrink: 0; }
-        .header-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 30px; }
-
-        .info-btn { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 4px; line-height: 1; transition: opacity 0.2s; }
-        .info-btn:hover { opacity: 0.7; }
-
-        /* ===== THANH TAB CHỌN CHẾ ĐỘ ===== */
-        .mode-bar { display: flex; background: #1557b0; padding: 6px 12px; gap: 6px; flex-shrink: 0; }
-        .mode-tab { flex: 1; border: none; background: rgba(255,255,255,0.14); color: #fff; border-radius: 8px; padding: 7px 0; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s, color 0.2s; font-family: inherit; }
-        .mode-tab.active { background: #fff; color: #1a73e8; }
-        .mode-tab:hover:not(.active) { background: rgba(255,255,255,0.26); }
-
-        /* ===== PANEL ===== */
-        .panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
-
-        /* ===== CHAT ===== */
-        .chat-box { flex: 1; padding: 12px; overflow-y: auto; background: #f8f9fa; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
-
-        .message-wrapper { display: flex; flex-direction: column; max-width: 80%; gap: 2px; position: relative; }
-        .message-wrapper.user-wrapper { align-self: flex-end; align-items: flex-end; margin-left: auto; }
-        .message-wrapper.ai-wrapper { align-self: flex-start; align-items: flex-start; padding-bottom: 22px; }
-
-        .ai-content-group { display: flex; gap: 8px; align-items: flex-start; width: 100%; }
-
-        .msg-avatar { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; background: #eee; flex-shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-
-        .message { padding: 8px 12px; border-radius: 14px; word-break: break-word; line-height: 1.4; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .user-msg { background: #1a73e8; color: white; border-top-right-radius: 2px; }
-        .ai-msg { background: white; color: #333; border-top-left-radius: 2px; border: 1px solid #e1e4e8; }
-        .error-msg { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; align-self: center; max-width: 90%; font-size: 12px; border-radius: 8px; padding: 8px; text-align: center; }
-
-        .chat-img { max-width: 100%; max-height: 150px; border-radius: 8px; margin-bottom: 4px; display: block; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-
-        .msg-time { font-size: 10px; color: #999; margin: 2px 4px 0 4px; padding: 0 2px; user-select: none; }
-
-        .ai-tools { position: absolute; bottom: 0; right: 4px; display: flex; gap: 4px; background: rgba(240, 242, 245, 0.85); padding: 2px 6px; border-radius: 10px; border: 1px solid #e1e4e8; opacity: 0; transition: opacity 0.2s ease; }
-        .message-wrapper.ai-wrapper:hover .ai-tools { opacity: 1; }
-        .tool-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: #5f6368; padding: 2px; display: flex; align-items: center; justify-content: center; transition: color 0.15s; }
-        .tool-btn:hover { color: #1a73e8; }
-
-        .message strong { font-weight: bold; color: inherit; }
-        .message em { font-style: italic; }
-        .message p { margin-bottom: 4px; }
-        .message p:last-child { margin-bottom: 0; }
-
-        .typing-bubble { display: flex; align-items: center; gap: 4px; padding: 10px 14px; background: white; border-radius: 14px; border-top-left-radius: 2px; border: 1px solid #e1e4e8; }
-        .typing-dot { width: 6px; height: 6px; background: #7f8c8d; border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both; }
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes typingBounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1.0); }
-        }
-
-        .status { font-size: 11px; color: #888; text-align: center; padding: 4px; background: #fafafa; border-bottom: 1px solid #eee; flex-shrink: 0; position: static; display: block; pointer-events: auto; }
-        .status::before { content: none; }
-
-        .input-container { display: flex; flex-direction: column; background: #fff; border-top: 1px solid #eee; flex-shrink: 0; }
-
-        .preview-container { display: none; padding: 8px 12px; background: #f8f9fa; border-bottom: 1px solid #f1f1f1; align-items: center; gap: 8px; position: relative; }
-        .preview-image { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; }
-        .preview-remove { position: absolute; top: 4px; left: 45px; background: #ff4d4d; color: white; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-
-        .input-area { display: flex; padding: 10px; gap: 6px; align-items: flex-end; }
-
-        .attach-btn { width: 34px; height: 34px; background: #f1f3f4; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #5f6368; flex-shrink: 0; transition: background 0.2s; }
-        .attach-btn:hover { background: #e8eaed; color: #1a73e8; }
-
-        .input-area textarea { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 18px; outline: none; font-size: 14px; background: #f8f9fa; transition: all 0.2s; resize: none; max-height: 80px; font-family: inherit; line-height: 1.3; overflow-y: auto; }
-        .input-area textarea:focus { background: #fff; border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.1); }
-
-        .input-area button.send-btn { width: 34px; height: 34px; background: #28a745; color: white; border: none; border-radius: 50%; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
-        .input-area button.send-btn:hover { background: #218838; }
-        .input-area button.send-btn svg { width: 16px; height: 16px; fill: white; }
-
-        /* ===== TRA TỪ ===== */
-        .dict-body { padding: 16px; flex: 1; overflow-y: auto; }
-        .search-row { display: flex; gap: 8px; margin-bottom: 14px; }
-        .search-row input {
-            flex: 1;
-            padding: 9px 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            font-family: inherit;
-        }
-        .search-row input:focus { border-color: #1a73e8; }
-        .search-row button {
-            background: #1a73e8;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 0 16px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .search-row button:hover { background: #1557b0; }
-        .search-row button:disabled { background: #9db8e8; cursor: default; }
-
-        .state-msg { font-size: 13px; color: #888; text-align: center; padding: 20px 0; }
-        .state-msg.error { color: #d93025; }
-
-        .result { display: none; }
-        .word-line { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
-        .word-line .word { font-size: 20px; font-weight: 700; color: #1a1a1a; }
-        .word-line .phonetic { font-size: 14px; color: #666; }
-        .word-vi {
-            font-size: 15px;
-            font-weight: 600;
-            color: #f9a825;
-            margin-bottom: 12px;
-        }
-        .audio-btn {
-            width: 28px; height: 28px;
-            border-radius: 50%;
-            border: 1px solid #ddd;
-            background: #f8f9fa;
-            cursor: pointer;
-            font-size: 13px;
-            display: flex; align-items: center; justify-content: center;
-            color: #1a73e8;
-        }
-        .audio-btn:hover { background: #e8f0fe; }
-        .audio-btn:disabled { opacity: 0.4; cursor: default; }
-
-        .pos-tag {
-            display: inline-block;
-            font-size: 11px;
-            font-weight: 600;
-            color: #1a73e8;
-            background: #e8f0fe;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin: 10px 6px 6px 0;
-        }
-        .pos-gloss {
-            font-size: 14px;
-            font-weight: 700;
-            color: #e65100;
-        }
-
-        .meaning-block { margin-bottom: 8px; }
-        .meaning-label { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; margin-bottom: 2px; }
-        .meaning-text { font-size: 14px; color: #333; line-height: 1.45; }
-        .meaning-text.vi { color: #1a1a1a; background: #fff8e1; padding: 8px 10px; border-radius: 8px; border-left: 3px solid #f9a825; }
-        .meaning-text.en { padding: 0 2px; }
-
-        .example { font-size: 12.5px; color: #777; font-style: italic; margin-top: 4px; padding-left: 2px; }
-
-        .disclaimer { font-size: 10.5px; color: #aaa; text-align: center; margin-top: 12px; }
-
-        /* ===== MODAL ===== */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
-        .modal-content { background: white; border-radius: 12px; width: 100%; max-width: 280px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: modalFadeIn 0.2s ease-out; }
-        .modal-title { font-size: 15px; font-weight: 600; color: #1a73e8; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-        .modal-body { font-size: 13px; color: #4a4a4a; line-height: 1.45; }
-        .modal-body ul { margin-left: 16px; margin-top: 4px; }
-        .modal-close-btn { display: block; width: 100%; margin-top: 12px; padding: 6px; background: #1a73e8; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
-        .modal-close-btn:hover { background: #1557b0; }
-
-@keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* Bật "Giảm chuyển động" (từ trang chính hoặc hệ điều hành) => bỏ animation, hiện liền */
-        .lh-rm .modal-content,
-        .lh-rm .typing-dot,
-        html.lh-rm body { animation: none !important; }
-    </style>
-<script src="toast.js"></script>
-<script>
-/* Đồng bộ "Giảm chuyển động" từ trang chính (body.cc-reduced) hoặc hệ điều hành */
-(function () {
-    function applyReduced(on) { document.documentElement.classList.toggle("lh-rm", on); }
-    var mq = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mq && mq.addEventListener) mq.addEventListener("change", function (e) { applyReduced(e.matches); });
-    window.addEventListener("message", function (e) {
-        if (e.data && e.data.type === "REDUCED_MOTION") applyReduced(e.data.value === true);
-    });
-    applyReduced(mq ? mq.matches : false);
-})();
-</script>
-</head>
-<body>
-
-<div class="app">
-    <div class="chat-header">
-        <img src="pictures/chatboiavt.png" alt="Hubie" onerror="this.src='https://via.placeholder.com/32'">
-        <span class="header-title">Hubie - Trợ lý LearnHub</span>
-
-        <button class="info-btn" onclick="openInfoModal()" title="Thông tin về Hubie"><i class="fa-solid fa-circle-info"></i></button>
-    </div>
-
-    <div class="mode-bar">
-<button class="mode-tab active" data-mode="chat" onclick="setMode('chat')"><i class="fa-solid fa-comment-dots"></i> Chat</button>
-        <button class="mode-tab" data-mode="tut" onclick="setMode('tut')"><i class="fa-solid fa-book-open"></i> Tra từ</button>
-    </div>
-
-    <!-- ===== CHẾ ĐỘ CHAT ===== -->
-    <div id="panel-chat" class="panel">
-        <div class="status" id="status">Hubie sẵn sàng trực tuyến</div>
-
-        <div class="chat-box" id="chatBox">
-            <div class="message-wrapper ai-wrapper">
-                <div class="ai-content-group">
-                    <img class="msg-avatar" src="pictures/chatboiavt.png" onerror="this.src='https://via.placeholder.com/26'">
-                    <div class="message ai-msg">Chào bạn! Mình là Hubie đây, trợ thủ đắc lực của bạn trên LearnHub nè! 🤖✨<br><br>Bạn có câu hỏi gì hay cần mình hỗ trợ về bài vở không? Cứ hỏi, paste thẳng ảnh bài tập vô đây, hoặc dùng tab Tra từ để tra nhanh nghĩa tiếng Anh nha! 😊</div>
-                </div>
-                <div class="msg-time" id="welcome-time">10:00 PM</div>
-                <div class="ai-tools">
-                    <button class="tool-btn" onclick="copyToClipboard('Chào bạn! Mình là Hubie đây, trợ thủ đắc lực của bạn trên LearnHub nè! 🤖✨\n\nBạn có câu hỏi gì hay cần mình hỗ trợ về bài vở không? Cứ hỏi, paste thẳng ảnh bài tập vô đây, hoặc dùng tab Tra từ để tra nhanh nghĩa tiếng Anh nha! 😊')" title="Sao chép câu trả lời"><i class="fa-solid fa-copy"></i></button>
-                </div>
-            </div>
-        </div>
-
-        <div class="input-container">
-            <div class="preview-container" id="previewContainer">
-                <img class="preview-image" id="previewImg" src="" alt="Preview">
-                <button class="preview-remove" onclick="clearSelectedFile()" title="Xóa ảnh">×</button>
-                <span style="font-size: 12px; color: #666; margin-left: 12px;">Ảnh đã được đính kèm</span>
-            </div>
-
-            <div class="input-area">
-                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
-                <button class="attach-btn" onclick="document.getElementById('fileInput').click()" title="Đính kèm ảnh chụp bài tập"><i class="fa-solid fa-paperclip"></i></button>
-
-                <textarea id="userInput" rows="1" placeholder="Hỏi Hubie hoặc paste ảnh (Ctrl+V)..." onkeydown="handleKeyDown(event)" oninput="autoResizeTextarea(this)"></textarea>
-                <button class="send-btn" onclick="sendMessage()" title="Gửi tin nhắn"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== CHẾ ĐỘ TRA TỪ ===== -->
-    <div id="panel-tut" class="panel" style="display:none;">
-        <div class="dict-body">
-            <div class="search-row">
-                <input type="text" id="wordInput" placeholder="Nhập từ tiếng Anh..." onkeydown="if(event.key==='Enter') lookupWord()">
-                <button id="searchBtn" onclick="lookupWord()">Tra</button>
-            </div>
-
-            <div class="state-msg" id="stateMsg">Nhập 1 từ tiếng Anh rồi bấm Tra cứu.</div>
-
-            <div class="result" id="resultBox">
-                <div class="word-line">
-                    <span class="word" id="rWord"></span>
-                    <span class="phonetic" id="rPhonetic"></span>
-                    <button class="audio-btn" id="rAudioBtn" onclick="playAudio()" disabled><i class="fa-solid fa-volume-high"></i></button>
-                </div>
-                <div class="word-vi" id="rWordVi"></div>
-
-                <div id="rMeaningsList"></div>
-
-                <div class="disclaimer">Nghĩa tiếng Anh: dictionaryapi.dev · Nghĩa tiếng Việt: dịch máy (DeepL) — chỉ mang tính tham khảo.</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="infoModal" onclick="closeInfoModalOutside(event)">
-    <div class="modal-content">
-        <div class="modal-title"><i class="fa-solid fa-robot"></i> Về Trợ Lý Hubie</div>
-        <div class="modal-body">
-            <p><strong>Hubie</strong> là trợ lý ảo AI chính thức của website học tập <strong>LearnHub</strong>.</p>
-            <br>
-            <p><strong>Tính năng chính:</strong></p>
-            <ul>
-                <li>Giải đáp thần tốc bài tập, lý thuyết phổ thông.</li>
-                <li>Đọc hiểu hình ảnh bài tập chụp trực tiếp.</li>
-                <li>Tra từ điển Anh - Việt nhanh chóng (tab Tra từ).</li>
-                <li>Gợi ý Flashcard và Bài kiểm tra ôn luyện.</li>
-            </ul>
-        </div>
-        <button class="modal-close-btn" onclick="closeInfoModal()">Đóng</button>
-    </div>
-</div>
-
-<script>
-// 🔒 API Key được ẩn trên Cloudflare Worker - không bao giờ lộ ra trên frontend
-    const WORKER_URL = "https://hubie-proxy.quanhao678.workers.dev";
-    // DEEPL_PROXY_URL: proxy dịch máy DeepL chạy trên Cloudflare Worker
-    const DEEPL_PROXY_URL = "https://deepl-proxy.quanhao678.workers.dev";
-
-    let chatHistory = [];
-    // [FIX BUG #14] Bọc try/catch quanh JSON.parse: localStorage hỏng → mảng rỗng thay vì sập script
-    try {
-      const raw = localStorage.getItem("hubie_chat_history");
-      if (raw) chatHistory = JSON.parse(raw) || [];
-    } catch (e) {
-      chatHistory = [];
-    }
-    let selectedFileData = null;
-
-    const systemInstructionText = `
-    Bạn là Hubie, trợ lý ảo AI thân thiện, thông minh và vui tính của website học tập LearnHub. Bạn hỗ trợ học sinh (gọi là "bạn", xưng "Hubie"/"mình") học tập và ôn luyện. HÃY TUÂN THỦ NGHIÊM NGẶT CÁC QUY TẮC SAU:
-    1. QUY TẮC TRẢ LỜI KIẾN THỨC (QUAN TRỌNG NHẤT): Khi học sinh hỏi hoặc gửi ảnh chụp bài tập về bất kỳ môn nào (Toán, Lý, Hóa, Sinh, Văn, Địa, Lịch sử, Tiếng Anh...), Hubie PHẢI trả lời trực tiếp, đầy đủ và chính xác ngay lập tức. Không từ chối, không bắt học sinh tự tìm trên web.
-    2. QUY TẮC GIẢI THÍCH: Giải thích rõ ràng, dễ hiểu theo cấp độ của học sinh. Với bài tập cụ thể, nêu cách làm từng bước rồi mới đưa đáp án. Tránh dài dòng.
-    3. QUY TẮC GỢI Ý ÔN LUYỆN (cuối bài): Sau khi trả lời kiến thức, có thể khéo léo gợi ý 1 câu ngắn hướng dẫn vào mục ôn luyện phù hợp trên LearnHub (Flashcard, LearnHub Test/Phòng học) để củng cố.
-    4. GIỚI THIỆU TÍNH NĂNG LEARNHUB (khi học sinh hỏi về web):
-       - LearnHub Test & Phòng học: làm bài trắc nghiệm theo môn, bấm giờ, chấm tự động, lưu kết quả.
-       - Smart Flashcard: học từ vựng với 5 chế độ Thẻ lật, Ghép thẻ, Blast, Điền từ, Chiến thần.
-       - Thư viện Tài liệu: tài liệu, đề kiểm tra, bài giảng có tìm kiếm.
-       - Forum: hỏi đáp, thảo luận bài tập cùng bạn bè.
-       - Lịch học & Thi: xem lịch từ ban quản trị.
-       - Bảng xếp hạng: xem điểm số & thời gian online (reset theo tuần).
-       - Hồ sơ học viên: theo dõi thống kê học tập.
-       - Chỉ giới thiệu tab/tính năng, không tự khẳng định chức năng không có thật.
-    5. QUY ĐỊNH QUYỀN HẠN: Học sinh chỉ được xem/học nội dung có sẵn, KHÔNG có quyền tự tạo Flashcard hay bài kiểm tra mới (chỉ Admin tạo được).
-    6. QUY TẮC ICON: KHÔNG dùng emoji cờ quốc gia (như cờ VN, Lào...) vì lỗi font. Dùng icon khác như 🌍, ✨, 📚, 🤖, 🃏...
-    7. XƯNG HÔ: Trả lời ngắn gọn, vui vẻ, thân thiện; xưng "Hubie"/"mình", gọi học sinh là "bạn".
-    8. QUY TẮC TRA TỪ: Khi học sinh hỏi nghĩa từ tiếng Anh, trả lời nghĩa ngắn gọn và gợi ý dùng tab "Tra từ" trong popup để xem phiên âm, audio, ví dụ đầy đủ (nhanh và không tốn lượt AI).
-    9. GIỚI HẠN AN TOÀN: Từ chối nhẹ nhàng các yêu cầu nội dung nhạy cảm, không phù hợp học đường; hướng dẫn liên hệ Admin qua nút "Góp ý ý kiến" ở cuối trang nếu cần trợ giúp kỹ thuật.
-    `;
-
-    const MODEL_QUEUE = [
-        { id: "gemma-4-31b-it", name: "Gemma 4 31B" },
-        { id: "gemma-4-26b-a4b-it", name: "Gemma 4 26B" },
-        { id: "minimax-m3", name: "MiniMax M3" },
-        { id: "glm-5.2", name: "GLM 5.2" },
-        { id: "nemotron-3-ultra", name: "Nemotron 3 Ultra" },
-        { id: "nemotron-3-super", name: "Nemotron 3 Super" },
-        { id: "nemotron-3-nano", name: "Nemotron 3 Nano" },
-        { id: "openrouter-free", name: "Auto Router" }
-    ];
-
-    // ==================== CHỌN CHẾ ĐỘ ====================
-    let currentMode = "chat";
-
-    function getModeFromUrl() {
-        const params = new URLSearchParams(window.location.search);
-        const m = params.get("mode");
-        return m === "tut" ? "tut" : "chat";
-    }
-
-    function setMode(mode) {
-        currentMode = mode;
-        document.getElementById("panel-chat").style.display = mode === "chat" ? "flex" : "none";
-        document.getElementById("panel-tut").style.display = mode === "tut" ? "flex" : "none";
-        document.querySelectorAll(".mode-tab").forEach(btn => {
-            btn.classList.toggle("active", btn.dataset.mode === mode);
-        });
-        if (mode === "tut") {
-            setTimeout(() => {
-                const inp = document.getElementById("wordInput");
-                if (inp) inp.focus();
-            }, 60);
-        }
-    }
-
-    // ==================== CHAT ====================
-    function getCurrentTimeFormatted() {
-        const now = new Date();
-        let hours = now.getHours();
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12;
-        hours = hours ? hours : 12; 
-        return `${hours}:${minutes} ${ampm}`;
-    }
-
-    document.getElementById('welcome-time').innerText = getCurrentTimeFormatted();
-
-    // ℹ️ HÀM ĐIỀU KHIỂN POPUP THÔNG TIN (MODAL)
-    function openInfoModal() {
-        document.getElementById('infoModal').style.display = 'flex';
-    }
-
-    function closeInfoModal() {
-        document.getElementById('infoModal').style.display = 'none';
-    }
-
-    function closeInfoModalOutside(event) {
-        if (event.target.id === 'infoModal') {
-            closeInfoModal();
-        }
-    }
-
-    // 📋 HÀM SAO CHÉP NỘI DUNG (COPY)
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            const statusEl = document.getElementById('status');
-            const originalStatus = statusEl.innerText;
-            statusEl.innerText = "✓ Đã copy nội dung tin nhắn!";
-            setTimeout(() => { statusEl.innerText = originalStatus; }, 2000);
-        }).catch(err => {
-            lhToast('Lỗi! Không thể copy văn bản.', 'error');
-        });
-    }
-
-    function escapeHtmlText(str) {
-        return String(str ?? "").replace(/[&<>"']/g, (c) => ({
-            "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-        }[c]));
-    }
-
-    function formatMarkdown(text) {
-        let html = escapeHtmlText(text);
-        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
-        return html.split('\n').map(line => line.trim() ? `<p>${line}</p>` : '<br>').join('');
-    }
-
-    function autoResizeTextarea(textarea) {
-        textarea.style.height = 'auto';
-        textarea.style.height = textarea.scrollHeight + 'px';
-    }
-
-    // 📸 XỬ LÝ CHỌN FILE QUA NÚT GHIM GIẤY
-    function handleFileSelect(event) {
-        const file = event.target.files[0];
-        processFile(file);
-    }
-
-    // 📋 XỬ LÝ PASTE ẢNH TRỰC TIẾP (CTRL + V) VÀO Ô TEXTAREA
-    document.getElementById('userInput').addEventListener('paste', function(e) {
-        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf('image') !== -1) {
-                const file = items[i].getAsFile();
-                processFile(file);
-                e.preventDefault(); 
-                break;
-            }
-        }
-    });
-
-    // HÀM CHUNG ĐỂ XỬ LÝ ĐỌC FILE ẢNH
-    function processFile(file) {
-        if (!file) return;
-        if (!file.type.startsWith('image/')) {
-            lhToast('Hubie hiện tại chỉ hỗ trợ nhận diện các định dạng hình ảnh thôi nè!', 'warning');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const base64Data = e.target.result.split(',')[1];
-            selectedFileData = {
-                mimeType: file.type,
-                data: base64Data,
-                dataUrl: e.target.result
-            };
-            
-            document.getElementById('previewImg').src = e.target.result;
-            document.getElementById('previewContainer').style.display = 'flex';
-        };
-        reader.readAsDataURL(file);
-    }
-
-    function clearSelectedFile() {
-        selectedFileData = null;
-        document.getElementById('fileInput').value = '';
-        document.getElementById('previewContainer').style.display = 'none';
-        document.getElementById('previewImg').src = '';
-    }
-
-    function renderSavedChat() {
-        const savedHTML = localStorage.getItem("hubie_chat_html");
-        if (savedHTML) {
-            document.getElementById('chatBox').innerHTML = savedHTML;
-            scrollToBottom();
-        }
-    }
-
-    function saveChatToLocal() {
-        // [FIX BUG #15] Trim chatHistory nếu quá lớn để tránh localStorage quota
-        if (chatHistory.length > 40) {
-            chatHistory = chatHistory.slice(chatHistory.length - 40);
-        }
-        try {
-            localStorage.setItem("hubie_chat_history", JSON.stringify(chatHistory));
-        } catch (e) {}
-        try {
-            localStorage.setItem("hubie_chat_html", document.getElementById('chatBox').innerHTML);
-        } catch (e) {}
-    }
-
-    window.addEventListener("beforeunload", () => {
-        localStorage.removeItem("hubie_chat_history");
-        localStorage.removeItem("hubie_chat_html");
-    });
-
-    async function fetchWithBackup(requestBody, modelIndex = 0, errorLog = []) {
-        if (modelIndex >= MODEL_QUEUE.length) {
-            const detail = errorLog
-                .map((e, i) => `${MODEL_QUEUE[i] ? MODEL_QUEUE[i].name : '?'} [${e.code || 'ERR'}]: ${e.message}`)
-                .join(' | ');
-            throw new Error(`Tất cả các model dự phòng đều đã hết lượt dùng trong ngày! (${detail})`);
-        }
-        const currentModel = MODEL_QUEUE[modelIndex];
-        const statusEl = document.getElementById('status');
-        statusEl.innerText = `Hubie đang kết nối với ${currentModel.name}...`;
-
-        try {
-            const response = await fetch(WORKER_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: currentModel.id,
-                    requestBody: requestBody
-                })
-            });
-            const data = await response.json();
-            // Tự đổi model dự phòng khi gặp các lỗi: hết lượt (429), model không tồn tại (404),
-            // bị chặn (403), hoặc lỗi máy chủ (5xx)
-            const retriableCodes = [429, 404, 403, 500, 502, 503];
-            if (data.error && retriableCodes.includes(data.error.code)) {
-                errorLog.push({ code: data.error.code, message: data.error.message });
-                return await fetchWithBackup(requestBody, modelIndex + 1, errorLog);
-            }
-            if (data.error) {
-                if (typeof data.error === 'string') throw new Error(`[${currentModel.id}] HTTP ${response.status}: ${data.error}`);
-                throw new Error(`[${currentModel.id}] ${data.error.status || data.error.code || response.status}: ${data.error.message}`);
-            }
-            return { data: data, activeModelName: currentModel.name };
-        } catch (err) {
-            if (err.message && err.message.startsWith('[')) throw err;
-            errorLog.push({ code: 'NET', message: err.message || 'Lỗi mạng' });
-            return await fetchWithBackup(requestBody, modelIndex + 1, errorLog);
-        }
-    }
-
-    async function sendMessage() {
-        const inputEl = document.getElementById('userInput');
-        const text = inputEl.value.trim();
-
-        if (!text && !selectedFileData) return;
-
-        let currentMessageParts = [];
-        let displayImgUrl = null;
-
-        if (selectedFileData) {
-            currentMessageParts.push({
-                inlineData: {
-                    mimeType: selectedFileData.mimeType,
-                    data: selectedFileData.data
-                }
-            });
-            displayImgUrl = selectedFileData.dataUrl;
-        }
-
-        if (text) {
-            currentMessageParts.push({ text: text });
-        } else if (selectedFileData) {
-            currentMessageParts.push({ text: "Hãy phân tích hình ảnh này giúp mình nhé!" });
-        }
-
-        appendUserMessage(text, displayImgUrl);
-        
-        inputEl.value = '';
-        inputEl.style.height = 'auto';
-        clearSelectedFile();
-
-        chatHistory.push({ role: "user", parts: currentMessageParts });
-        saveChatToLocal();
-
-        await requestAiResponse();
-    }
-
-    // 🔄 TÁCH BIỆT HÀM GỌI API ĐỂ SỬ DỤNG CHO CẢ SEND VÀ REGENERATE
-    async function requestAiResponse(opts) {
-        // [FIX BUG #8] Chỉ rollback tin nhắn người dùng khi đây là lượt GỬI MỚI.
-        // Với regenerate, tin người dùng đã nằm sẵn trong lịch sử nên không được xoá.
-        const rollbackUserOnError = !(opts && opts.rollbackUserOnError === false);
-        const statusEl = document.getElementById('status');
-        const requestBody = {
-            contents: chatHistory,
-            systemInstruction: { parts: [{ text: systemInstructionText }] },
-            generationConfig: { temperature: 0.7, maxOutputTokens: 3000 }
-        };
-
-        const typingIndicator = showTypingIndicator();
-        scrollToBottom();
-
-        try {
-            const result = await fetchWithBackup(requestBody, 0);
-            const data = result.data;
-            const activeModelName = result.activeModelName;
-            
-            removeTypingIndicator(typingIndicator);
-
-            if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
-                const responseText = data.candidates[0].content.parts[0].text;
-                chatHistory.push({ role: "model", parts: [{ text: responseText }] });
-
-                appendAiMessage(responseText);
-                statusEl.innerText = `Hubie đã trả lời - ${activeModelName}`;
-                saveChatToLocal();
-                scrollToBottom();
-                return true;
-            } else {
-                throw new Error("Phản hồi trống hoặc sai cấu trúc.");
-            }
-        } catch (error) {
-            removeTypingIndicator(typingIndicator);
-            console.error(`[Hubie] API Error:`, error);
-            const errMsg = String(error.message || "");
-            const codeMatch = errMsg.match(/\b(HTTP )?(\d{3})\b/) || errMsg.match(/\[(\d{3})\]/);
-            const errCode = codeMatch ? codeMatch[2] || codeMatch[1] : "AI_FAIL";
-            if (window.logAppError) {
-                window.logAppError({
-                    source: "chat",
-                    category: "ai",
-                    level: "error",
-                    code: errCode,
-                    message: errMsg.slice(0, 500),
-                    detail: { models: MODEL_QUEUE.map(m => m.name), activeTab: currentMode }
-                });
-            }
-            appendErrorMessage(`⚠️ Hubie bảo trì: ${errMsg}`);
-            statusEl.innerText = "Gặp sự cố lỗi hệ thống";
-            // [FIX BUG #8] Chỉ xoá tin người dùng khi là lượt gửi mới (không phải regenerate)
-            if (rollbackUserOnError) {
-                if (chatHistory.length > 0 && chatHistory[chatHistory.length - 1].role === "user") {
-                    chatHistory.pop();
-                }
-                const chatBox = document.getElementById('chatBox');
-                const userWrappers = chatBox.getElementsByClassName('user-wrapper');
-                if (userWrappers.length > 0) {
-                    chatBox.removeChild(userWrappers[userWrappers.length - 1]);
-                }
-                saveChatToLocal();
-            }
-            scrollToBottom();
-            return false;
-        }
-    }
-
-    // 🔄 HÀM TẠO LẠI CÂU TRẢ LỜI CỦA AI (REGENERATE)
-    // [FIX BUG #8] Nếu tạo lại thất bại, khôi phục câu trả lời cũ để không mất dữ liệu.
-    async function regenerateAiResponse() {
-        if (chatHistory.length > 0 && chatHistory[chatHistory.length - 1].role === "model") {
-            const removedModel = chatHistory.pop();
-            const chatBox = document.getElementById('chatBox');
-            const aiWrappers = chatBox.getElementsByClassName('ai-wrapper');
-            let removedWrapper = null;
-            if (aiWrappers.length > 0) {
-                removedWrapper = aiWrappers[aiWrappers.length - 1];
-                chatBox.removeChild(removedWrapper);
-            }
-            saveChatToLocal();
-            const ok = await requestAiResponse({ rollbackUserOnError: false });
-            if (ok === false && removedModel) {
-                // Khôi phục lại câu trả lời cũ (dữ liệu + DOM)
-                chatHistory.push(removedModel);
-                if (removedWrapper) {
-                    try { chatBox.appendChild(removedWrapper); } catch (e) {}
-                }
-                saveChatToLocal();
-                scrollToBottom();
-            }
-        }
-    }
-
-    function handleKeyDown(event) {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            sendMessage();
-        }
-    }
-
-    function scrollToBottom() {
-        const chatBox = document.getElementById('chatBox');
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    function appendUserMessage(text, imageUrl) {
-        const chatBox = document.getElementById('chatBox');
-        const wrapper = document.createElement('div');
-        wrapper.className = 'message-wrapper user-wrapper';
-        
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'message user-msg';
-        
-        if (imageUrl) {
-            const imgEl = document.createElement('img');
-            imgEl.src = imageUrl;
-            imgEl.className = 'chat-img';
-            msgDiv.appendChild(imgEl);
-        }
-        
-        if (text) {
-            const textEl = document.createElement('span');
-            textEl.innerText = text;
-            msgDiv.appendChild(textEl);
-        } else if (imageUrl) {
-            const textEl = document.createElement('span');
-            textEl.style.fontSize = '12px';
-            textEl.style.opacity = '0.8';
-            textEl.innerHTML = '<i class="fa-solid fa-image" style="font-size:13px"></i> Đã gửi một hình ảnh';
-            msgDiv.appendChild(textEl);
-        }
-        
-        const timeDiv = document.createElement('div');
-        timeDiv.className = 'msg-time';
-        timeDiv.innerText = getCurrentTimeFormatted();
-        
-        wrapper.appendChild(msgDiv);
-        wrapper.appendChild(timeDiv);
-        chatBox.appendChild(wrapper);
-    }
-
-    function appendAiMessage(text) {
-        const chatBox = document.getElementById('chatBox');
-        const wrapper = document.createElement('div');
-        wrapper.className = 'message-wrapper ai-wrapper';
-        
-        const contentGroup = document.createElement('div');
-        contentGroup.className = 'ai-content-group';
-        
-        const avatar = document.createElement('img');
-        avatar.className = 'msg-avatar';
-        avatar.src = 'pictures/chatboiavt.png';
-        avatar.onerror = function() { this.src = 'https://via.placeholder.com/26'; };
-        
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'message ai-msg';
-        msgDiv.innerHTML = formatMarkdown(text);
-        
-        contentGroup.appendChild(avatar);
-        contentGroup.appendChild(msgDiv);
-        
-        const timeDiv = document.createElement('div');
-        timeDiv.className = 'msg-time';
-        timeDiv.style.paddingLeft = '34px'; 
-        timeDiv.innerText = getCurrentTimeFormatted();
-        
-        // 🛠️ TỰ ĐỘNG KHỞI TẠO CỤM PHÍM TẮT DƯỚI GÓC PHẢI TIN NHẮN
-        const toolsDiv = document.createElement('div');
-        toolsDiv.className = 'ai-tools';
-        
-        const copyBtn = document.createElement('button');
-        copyBtn.type = 'button';
-        copyBtn.className = 'tool-btn';
-        copyBtn.title = 'Sao chép câu trả lời';
-        copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
-        copyBtn.addEventListener('click', () => copyToClipboard(text));
-        
-        const regenBtn = document.createElement('button');
-        regenBtn.type = 'button';
-        regenBtn.className = 'tool-btn';
-        regenBtn.title = 'Yêu cầu Hubie trả lời lại câu này';
-        regenBtn.innerHTML = '<i class="fa-solid fa-rotate"></i>';
-        regenBtn.addEventListener('click', () => regenerateAiResponse());
-        
-        toolsDiv.appendChild(copyBtn);
-        toolsDiv.appendChild(regenBtn);
-        
-        wrapper.appendChild(contentGroup);
-        wrapper.appendChild(timeDiv);
-        wrapper.appendChild(toolsDiv);
-        chatBox.appendChild(wrapper);
-    }
-
-    function showTypingIndicator() {
-        const chatBox = document.getElementById('chatBox');
-        const wrapper = document.createElement('div');
-        wrapper.className = 'message-wrapper ai-wrapper';
-        
-        const contentGroup = document.createElement('div');
-        contentGroup.className = 'ai-content-group';
-        
-        const avatar = document.createElement('img');
-        avatar.className = 'msg-avatar';
-        avatar.src = 'pictures/chatboiavt.png';
-        
-        const bubble = document.createElement('div');
-        bubble.className = 'typing-bubble';
-        bubble.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
-        
-        contentGroup.appendChild(avatar);
-        contentGroup.appendChild(bubble);
-        wrapper.appendChild(contentGroup);
-        chatBox.appendChild(wrapper);
-        return wrapper;
-    }
-
-    function removeTypingIndicator(el) {
-        if (el && el.parentNode) el.parentNode.removeChild(el);
-    }
-
-    function appendErrorMessage(text) {
-        const chatBox = document.getElementById('chatBox');
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'message error-msg';
-        msgDiv.innerText = text;
-        chatBox.appendChild(msgDiv);
-    }
-
-    // ==================== TRA TỪ ====================
-    let currentAudioUrl = "";
-
-    async function lookupWord() {
-        const raw = document.getElementById("wordInput").value.trim();
-        if (!raw) return;
-
-        const btn = document.getElementById("searchBtn");
-        const stateMsg = document.getElementById("stateMsg");
-        const resultBox = document.getElementById("resultBox");
-
-        btn.disabled = true;
-        resultBox.style.display = "none";
-        stateMsg.style.display = "block";
-        stateMsg.className = "state-msg";
-        stateMsg.innerText = "Đang tra \"" + raw + "\"...";
-
-        try {
-            const word = raw.toLowerCase();
-
-            // 1) Tra tiếng Anh
-            const dictRes = await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(word));
-            if (!dictRes.ok) {
-                throw new Error("NOT_FOUND");
-            }
-            const dictData = await dictRes.json();
-            const entry = dictData[0];
-
-            // Lấy phiên âm + audio đầu tiên có sẵn
-            let phonetic = entry.phonetic || "";
-            let audioUrl = "";
-            (entry.phonetics || []).forEach(p => {
-                if (!phonetic && p.text) phonetic = p.text;
-                if (!audioUrl && p.audio) audioUrl = p.audio;
-            });
-            if (audioUrl && audioUrl.startsWith("//")) audioUrl = "https:" + audioUrl;
-            currentAudioUrl = audioUrl;
-
-            // Lấy tất cả từ loại (part of speech) mà từ này có, mỗi cái 1 definition đầu tiên
-            const meanings = entry.meanings || [];
-
-            // 2) Dịch từ đơn (nghĩa nhanh của cả từ) + dịch song song từng definition sang tiếng Việt
-            const wordViPromise = translateToVi(word).catch(() => "");
-
-            const meaningsData = await Promise.all(meanings.map(async (m) => {
-                const def = (m.definitions && m.definitions[0]) ? m.definitions[0] : null;
-                const enText = def ? def.definition : "";
-                const example = def ? def.example : "";
-                let viText = "";
-                if (enText) {
-                    try {
-                        viText = await translateToVi(enText);
-                    } catch (e) {
-                        viText = "(Không dịch được lúc này)";
-                    }
-                }
-                return { pos: m.partOfSpeech, en: enText, vi: viText, example };
-            }));
-
-            const wordVi = await wordViPromise;
-
-            renderResult(entry.word, phonetic, wordVi, meaningsData);
-            stateMsg.style.display = "none";
-            resultBox.style.display = "block";
-
-        } catch (err) {
-            console.error("Lỗi tra từ:", err);
-            stateMsg.className = "state-msg error";
-            if (err.message === "NOT_FOUND") {
-                stateMsg.innerText = "Không tìm thấy từ \"" + raw + "\" trong từ điển.";
-            } else {
-                stateMsg.innerText = "Có lỗi xảy ra, thử lại sau.";
-            }
-            resultBox.style.display = "none";
-        } finally {
-            btn.disabled = false;
-        }
-    }
-
-    async function translateToVi(text) {
-        const res = await fetch(DEEPL_PROXY_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: text, target_lang: "VI", source_lang: "EN" })
-        });
-        if (!res.ok) throw new Error("Lỗi dịch");
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-        return data.translatedText || "";
-    }
-
-    function shortGloss(viFull) {
-        if (!viFull) return "";
-        let seg = viFull.split(/[;,.]/)[0].trim();
-        seg = seg.replace(/^(Để|Đã|Là|Một|Sẽ|Đang)\s+/i, "").trim();
-        return seg;
-    }
-
-    function posAbbrev(pos) {
-        const map = {
-            "noun": "n",
-            "verb": "v",
-            "adjective": "adj",
-            "adverb": "adv",
-            "pronoun": "pron",
-            "preposition": "prep",
-            "conjunction": "conj",
-            "interjection": "interj",
-            "exclamation": "interj",
-            "determiner": "det",
-            "article": "art",
-            "number": "num"
-        };
-        const key = (pos || "").toLowerCase().trim();
-        return map[key] || key;
-    }
-
-    function renderResult(word, phonetic, wordVi, meaningsData) {
-        // innerText không parse HTML nên KHÔNG cần escape ở đây
-        document.getElementById("rWord").innerText = word;
-        // [FIX BUG #34] Helper escape chỉ dùng cho các chỗ gán innerHTML bên dưới (từ điển)
-        const esc = (s)=> (s||"").replace(/[<>&"']/g,c=>({"<":"&lt;","&gt":"&gt;","&":"&amp;","\"":"&quot;","'":"&#039;"})[c]);
-        document.getElementById("rPhonetic").innerText = phonetic ? "/" + phonetic.replace(/\//g, "") + "/" : "";
-        document.getElementById("rAudioBtn").disabled = !currentAudioUrl;
-        const firstAbbrev = (meaningsData && meaningsData.length > 0) ? posAbbrev(meaningsData[0].pos) : "";
-        document.getElementById("rWordVi").innerText = wordVi ? "→ " + (firstAbbrev ? "(" + firstAbbrev + ") " : "") + wordVi : "";
-
-        const list = document.getElementById("rMeaningsList");
-        list.innerHTML = "";
-
-        meaningsData.forEach(m => {
-            if (!m.en) return;
-            const posTag = document.createElement("div");
-            // [FIX BUG #34] Escape dữ liệu từ API từ điển để tránh chèn HTML
-            posTag.innerHTML = '<span class="pos-tag">' + esc(m.pos) + '</span> <span class="pos-gloss">— ' + esc(shortGloss(m.vi) || "?") + '</span>';
-            list.appendChild(posTag);
-
-            const block = document.createElement("div");
-            block.className = "meaning-block";
-
-            const enLabel = document.createElement("div");
-            enLabel.className = "meaning-label";
-            enLabel.innerText = "Tiếng Anh";
-            const enText = document.createElement("div");
-            enText.className = "meaning-text en";
-            enText.innerText = m.en;
-
-            const viLabel = document.createElement("div");
-            viLabel.className = "meaning-label";
-            viLabel.style.marginTop = "8px";
-            viLabel.innerText = "Tiếng Việt";
-            const viText = document.createElement("div");
-            viText.className = "meaning-text vi";
-            const abbrev = posAbbrev(m.pos);
-            viText.innerText = (abbrev ? "(" + abbrev + ") " : "") + (m.vi || "(chưa có bản dịch)");
-
-            block.appendChild(enLabel);
-            block.appendChild(enText);
-            block.appendChild(viLabel);
-            block.appendChild(viText);
-
-            if (m.example) {
-                const ex = document.createElement("div");
-                ex.className = "example";
-                // innerText an toàn (không parse HTML)
-                ex.innerText = "VD: " + m.example;
-                block.appendChild(ex);
-            }
-
-            list.appendChild(block);
-        });
-    }
-
-    function playAudio() {
-        if (!currentAudioUrl) return;
-        // [FIX BUG #36] Bắt lỗi promise khi phát audio (trước đây lỗi bị nuốt âm thầm)
-        try {
-            const p = new Audio(currentAudioUrl).play();
-            if (p && typeof p.catch === "function") p.catch(function (e) { console.warn("Không phát được audio:", e && e.message); });
-        } catch (e) {
-            console.warn("Không phát được audio:", e && e.message);
-        }
-    }
-
-    setMode(getModeFromUrl());
-    renderSavedChat();
-</script>
-
-<script type="module">
-import { logAppError } from "./supabase-config.js";
-window.logAppError = logAppError;
-</script>
-
 </body>
 </html>
 </file>
@@ -52134,7 +52134,9 @@ function openQuizByDe(de) {
   if (!dbHit || !dbHit.subjectId) return false;
   if (dbHit.done === false) {
     if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
-    if (typeof alert === "function") alert("Bài kiểm tra này chưa hoàn thành — chưa thể làm bài.");
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'OPEN_QUIZ_BLOCKED', reason: 'not_completed', de: target }, '*');
+    }
     return true;
   }
   if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
@@ -53975,6 +53977,42 @@ function sendUserToFrame(frame){
   } catch(e){}
 }
 
+// ==================== QUẢN LÝ TÊN TRANG (Document Title) ====================
+// Sử dụng Map với keys chính xác giống allTabs để tránh mismatch
+const pageTitleMap = new Map([
+  ["home", "Trang Chủ"],
+  ["flash", "Flashcard"],
+  ["forum", "Forum"],
+  ["blog", "Blog Học Tập"],
+  ["tai-lieu", "Thư Viện Tài Liệu"],
+  ["phong-hoc", "Phòng Học"]
+]);
+
+// Hàm lấy tên trang theo ID (dùng get() của Map)
+function getPageTitle(tabId){
+  return pageTitleMap.get(tabId) || "Trang Học Tập";
+}
+
+// Hàm cập nhật document.title: format "[Tên Trang] - LearnHub Platform"
+// - Trang Home: giữ nguyên title gốc từ <title> (không thay đổi)
+// - Các tab khác: đặt title theo format [Tên Trang] - LearnHub Platform
+function updatePageTitle(tabId){
+  if(tabId === 'home'){
+    // Trang chủ: về title gốc "LearnHub Platform"
+    document.title = "LearnHub Platform";
+  } else {
+    const titleName = pageTitleMap.get(tabId) || "Trang Học Tập";
+    document.title = `${titleName} - LearnHub Platform`;
+  }
+}
+
+// Gọi hàm này khi khởi động ban đầu
+document.addEventListener("DOMContentLoaded", () => {
+  show('home');
+  updatePageTitle('home');
+});
+
+// ==================== CẬP NHẬT TÊN TRONG HÀM show ====================
 function show(id){
 currentTab = id;
 applyStickyHeader();
@@ -53988,6 +54026,8 @@ if(quizEl) quizEl.innerHTML = "";
 document.querySelectorAll('.nav-link').forEach(a => {
   a.classList.toggle('active', a.getAttribute('href') === navMap[id]);
 });
+
+updatePageTitle(id); // <-- THÊM DÒNG NÀY: cập nhật title khi chuyển tab
 
 allTabs.forEach(t => {
   const el = document.getElementById(t);
@@ -54132,27 +54172,111 @@ function showDeepLinkOverlay(on){
   }
 }
 
+/* === Modal thông báo khi bài test chưa hoàn thành / chưa tới thời gian === */
+function showTestBlockModal(msg){
+  var modal = document.getElementById("lhTestBlockModal");
+  if(!modal){
+    modal = document.createElement("div");
+    modal.id = "lhTestBlockModal";
+    modal.innerHTML =
+      '<div class="lh-test-block-backdrop"></div>' +
+      '<div class="lh-test-block-card" role="dialog" aria-modal="true">' +
+        '<div class="lh-test-block-header">' +
+          '<div class="lh-test-block-title"><i class="fas fa-circle-exclamation"></i> Thông báo</div>' +
+          '<button class="lh-test-block-close" aria-label="Đóng"><i class="fas fa-xmark"></i></button>' +
+        '</div>' +
+        '<div class="lh-test-block-body">' +
+          '<p id="lhTestBlockMsg"></p>' +
+        '</div>' +
+        '<div class="lh-test-block-footer">' +
+          '<button class="lh-test-block-ok">Đóng</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(modal);
+
+    var style = document.createElement("style");
+    style.id = "lhTestBlockModalStyle";
+    style.textContent =
+      "#lhTestBlockModal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:100000;}" +
+      "#lhTestBlockModal.active{display:flex;}" +
+      ".lh-test-block-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(2px);}" +
+      ".lh-test-block-card{position:relative;width:min(92vw,420px);background:var(--card-bg,#fff);color:var(--text-color,#1f2937);border-radius:16px;box-shadow:0 20px 60px rgba(15,23,42,.25);overflow:hidden;animation:lhTestBlockIn .18s ease-out;}" +
+      "body.dark-mode .lh-test-block-card{background:#1f2937;color:#e5e7eb;box-shadow:0 20px 60px rgba(0,0,0,.4);}" +
+      ".lh-test-block-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 10px;}" +
+      ".lh-test-block-title{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;}" +
+      ".lh-test-block-title i{color:#f59e0b;}" +
+      ".lh-test-block-close{border:0;background:transparent;color:inherit;cursor:pointer;font-size:18px;opacity:.7;}" +
+      ".lh-test-block-close:hover{opacity:1;}" +
+      ".lh-test-block-body{padding:0 18px 14px;line-height:1.7;font-size:15px;font-weight:bold;color:#b91c1c;white-space:normal;word-break:break-word;}" +
+      ".lh-test-block-footer{display:flex;justify-content:flex-end;gap:10px;padding:0 18px 18px;}" +
+      ".lh-test-block-ok{border:0;background:#2563eb;color:#fff;border-radius:999px;padding:9px 18px;font-weight:600;cursor:pointer;}" +
+      ".lh-test-block-ok:hover{filter:brightness(1.05);}" +
+      "@keyframes lhTestBlockIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}";
+    document.head.appendChild(style);
+
+    var close = function(){ modal.classList.remove("active"); };
+    modal.querySelector(".lh-test-block-close").addEventListener("click", close);
+    modal.querySelector(".lh-test-block-ok").addEventListener("click", close);
+    modal.querySelector(".lh-test-block-backdrop").addEventListener("click", close);
+    document.addEventListener("keydown", function onKey(e){
+      if(e.key === "Escape" && modal.classList.contains("active")) close();
+    });
+  }
+  var msgEl = modal.querySelector("#lhTestBlockMsg");
+  if(msgEl) msgEl.textContent = msg || "";
+  modal.classList.add("active");
+}
+
+/* === Xử lý tin nhắn blocked khi bài test chưa hoàn thành (các trường hợp: deep link + bấm card test UI) === */
+window.addEventListener("message", function globalBlockedHandler(ev){
+  if(!ev.data || ev.data.type !== "OPEN_QUIZ_BLOCKED") return;
+  showDeepLinkOverlay(false);
+  var msg = "Bài test hiện Không thể làm vì chưa tới thời gian xuất bản/chưa hoàn thành. Vui lòng quay lại sau";
+  if(typeof showTestBlockModal === "function"){
+    showTestBlockModal(msg);
+  }else if(typeof alert === "function"){
+    alert(msg);
+  }
+});
+
 /* === Mở thẳng một bài test trong phòng học qua deep link (?open=phong-hoc&de=...) === */
 function requestOpenQuiz(de){
   var frame = document.getElementById("phongHocFrame");
   if(!frame || !frame.contentWindow){ showDeepLinkOverlay(false); return; }
   var acked = false;
+  var rv = null;
   window.addEventListener("message", function handler(ev){
     if(!ev.data || ev.data.type !== "OPEN_QUIZ_ACK") return;
     acked = true;
-    clearInterval(rv);
+    if(rv) clearInterval(rv);
     window.removeEventListener("message", handler);
+    window.removeEventListener("message", handlerBlocked);
     showDeepLinkOverlay(false);
     if(ev.data.ok === false){
       var missingDe = ev.data.de || de;
       window.location.href = "/404.html?open=phong-hoc&de=" + encodeURIComponent(missingDe);
     }
   });
-  var rv = setInterval(function(){
-    if(acked) { clearInterval(rv); return; }
+  window.addEventListener("message", function handlerBlocked(ev){
+    if(!ev.data || ev.data.type !== "OPEN_QUIZ_BLOCKED") return;
+    if(acked) return;
+    acked = true;
+    if(rv) clearInterval(rv);
+    window.removeEventListener("message", handler);
+    window.removeEventListener("message", handlerBlocked);
+    showDeepLinkOverlay(false);
+    var msg = "Bài test hiện Không thể làm vì chưa tới thời gian xuất bản/chưa hoàn thành. Vui lòng quay lại sau";
+    if(typeof showTestBlockModal === "function"){
+      showTestBlockModal(msg);
+    }else if(typeof alert === "function"){
+      alert(msg);
+    }
+  });
+  rv = setInterval(function(){
+    if(acked) { if(rv) clearInterval(rv); return; }
     try { if(frame.contentWindow) frame.contentWindow.postMessage({ type: "OPEN_QUIZ", de: de }, "*"); } catch(e){}
   }, 250);
-  setTimeout(function(){ if(!acked) { clearInterval(rv); showDeepLinkOverlay(false); } }, 12000);
+  setTimeout(function(){ if(!acked) { if(rv) clearInterval(rv); showDeepLinkOverlay(false); } }, 12000);
   try { if(frame.contentWindow) frame.contentWindow.postMessage({ type: "OPEN_QUIZ", de: de }, "*"); } catch(e){}
 }
 
@@ -54453,6 +54577,7 @@ window.showAuthNotice = showAuthNotice;
 // Hiển thị tab mặc định khi trang load
 document.addEventListener("DOMContentLoaded", () => {
   show('home');
+  updatePageTitle('home');
 });
   const feedbackOverlay = document.getElementById('lh-feedback-overlay');
 

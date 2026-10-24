@@ -19,6 +19,7 @@
 # LƯU Ý: release.bat = push.bat + tự bump phiên bản (đẩy toàn bộ thay đổi code).
 # Muốn đẩy code mà KHÔNG đổi phiên bản thì dùng push.bat như cũ.
 # ============================================================================
+
 param(
     [switch]$Yes,
     [switch]$DryRun
@@ -117,15 +118,21 @@ try {
     })
     [System.IO.File]::WriteAllText($swPath, $sw, $utf8NoBom)
 
-    # ---------- 9. Commit + push TOÀN BỘ thay đổi (như push.bat) + kèm version mới ----------
-    git add .
-    git commit -m "release v$newVersion ($updatedVi)"
-    git push origin main
+    # ---------- 9. Commit + push ONLY nếu có thay đổi ---
+    # Kiểm tra có file thay đổi nào không trước khi commit
+    $hasChanges = git status --porcelain | Measure-Object -Line > $null
+    if ($hasChanges.Line -gt 0) {
+        git add .
+        git commit -m "release v$newVersion ($updatedVi)"
+        git push origin main
 
-    Write-Host ""
-    Write-Host "✅ Đã phát hành v$newVersion — người dùng online sẽ thấy thông báo trong tối đa 2 phút." -ForegroundColor Green
-} catch {
-    Write-Host ""
-    Write-Host "❌ Lỗi: $($_.Exception.Message)" -ForegroundColor Red
-    exit 1
+        Write-Host ""
+        Write-Host "✅ Đã phát hành v$newVersion — người dùng online sẽ thấy thông báo trong tối đa 2 phút." -ForegroundColor Green
+    } else {
+        Write-Host ""
+        Write-Host "ℹ️ Không có thay đổi nào đượcCommit (git status rỗng). Version.json vẫn đã được cập nhật." -ForegroundColor Yellow
+        Write-Host "   Run 'git reset HEAD version.json' nếu muốn hoàn tác file version." -ForegroundColor Cyan
+        # Vẫn in thông báo thành công nhưng không push
+        Write-Host "✅ Version.json đã được cập nhật về v$newVersion." -ForegroundColor Green
+    }
 }
