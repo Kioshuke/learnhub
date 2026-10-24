@@ -1162,9 +1162,12 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
 
         // Nếu danh sách lịch sử làm trang cao lên, một số trình duyệt sẽ tự khôi
         // phục vị trí cuộn cũ. Chỉ xem đây là thao tác cuộn chủ động khi có input.
-        ["wheel", "touchstart", "pointerdown"].forEach((eventName) => {
+        ["wheel", "touchmove"].forEach((eventName) => {
             window.addEventListener(eventName, () => { profileScrollIntentVersion++; }, { passive: true });
         });
+        window.addEventListener("pointerdown", (event) => {
+            if (event.pointerType !== "touch") profileScrollIntentVersion++;
+        }, { passive: true });
         window.addEventListener("keydown", (event) => {
             if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) {
                 profileScrollIntentVersion++;
@@ -1186,6 +1189,9 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
             });
             setTimeout(restore, 120);
             setTimeout(restore, 400);
+            setTimeout(restore, 900);
+            setTimeout(restore, 1600);
+            setTimeout(restore, 2600);
         }
 
         function formatDateTime(iso) {
