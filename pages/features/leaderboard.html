@@ -404,7 +404,8 @@
                     </tr>`;
                 }).join('');
 
-                if (myId) {
+                // Không cuộn trang cha khi leaderboard được nhúng trong profile compact.
+                if (myId && !document.body.classList.contains("compact")) {
                     const meRow = tbodyEl.querySelector('tr.ld-me');
                     if (meRow) setTimeout(() => {
                         const r = meRow.getBoundingClientRect();
@@ -526,7 +527,8 @@
                     </tr>`;
                 }).join('');
 
-                if (myId) {
+                // Không cuộn trang cha khi leaderboard được nhúng trong profile compact.
+                if (myId && !document.body.classList.contains("compact")) {
                     const meRow = tbodyEl.querySelector('tr.ld-me');
                     if (meRow) setTimeout(() => {
                         const r = meRow.getBoundingClientRect();

@@ -457,7 +457,7 @@
                     </h3>
                     <button id="attempts-refresh" type="button" class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors" style="color:#10b981" title="Tải lại"><i class="fas fa-rotate text-xs"></i></button>
                 </div>
-                <div id="attempts-list" class="space-y-2"></div>
+                <div id="attempts-list" class="space-y-2" style="min-height:112px;overflow-anchor:none"></div>
                 <div id="attempts-pagination" class="hidden flex items-center justify-between gap-3 pt-1">
                     <button id="attempts-prev" type="button" class="px-3 py-2 rounded-lg text-xs font-bold disabled:opacity-40" style="background:#f1f5f9;color:#475569">Trang trước</button>
                     <span id="attempts-page-label" class="text-xs font-semibold" style="color:var(--text-sub)"></span>
@@ -1154,6 +1154,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
 
         // ================= LỊCH SỬ LÀM BÀI =================
         let attemptsLoading = false;
+        let attemptsHasLoaded = false;
         let attemptGroups = [];
         let attemptsPage = 0;
         let attemptsModalTrigger = null;
@@ -1337,7 +1338,8 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
             const { reset = false } = options;
             const listEl = document.getElementById("attempts-list");
             if (!listEl || !uid || attemptsLoading) return;
-            if (reset) {
+            const showInitialSkeleton = reset && !attemptsHasLoaded;
+            if (showInitialSkeleton) {
                 attemptsPage = 0;
                 listEl.innerHTML = `<div class="attempt-group p-3"><div class="skeleton rounded" style="width:60%;height:12px;margin-bottom:8px"></div><div class="skeleton rounded" style="width:85%;height:10px"></div></div>`;
             }
@@ -1345,10 +1347,13 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
             try {
                 const rows = await loadTestAttempts(uid);
                 attemptGroups = groupTestAttempts(rows);
+                attemptsHasLoaded = true;
+                if (reset) attemptsPage = 0;
                 renderAttemptGroups();
             } catch (e) {
                 console.error("Tải lịch sử làm bài lỗi:", e);
-                if (reset) listEl.innerHTML = `<p class="text-xs font-medium text-center py-4" style="color:#ef4444">Không tải được lịch sử làm bài. Hãy bấm nút tải lại để thử lại.</p>`;
+                attemptsHasLoaded = true;
+                if (showInitialSkeleton) listEl.innerHTML = `<p class="text-xs font-medium text-center py-4" style="color:#ef4444">Không tải được lịch sử làm bài. Hãy bấm nút tải lại để thử lại.</p>`;
             } finally {
                 attemptsLoading = false;
             }
@@ -2034,15 +2039,21 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
             }
         }
 
+        let routedUserId = null;
         onAuthChange(async (event, session) => {
             const user = session?.user ?? null;
             if (user) {
+                // Supabase có thể phát INITIAL_SESSION, SIGNED_IN, TOKEN_REFRESHED
+                // cho cùng một tài khoản. Chỉ khởi tạo trang một lần cho mỗi UID.
+                if (routedUserId === user.id) return;
+                routedUserId = user.id;
                 currentUserId = user.id;
 
                 // ✅ ONLINE TIMER - begin phiên (atomic trên DB, chống cộng khoảng offline / double-count)
                 try {
                     await beginOnlineSession(user.id);
                 } catch(e){}
+                if (routedUserId !== user.id) return;
 
                 // Bắt đầu cập nhật online status và listener users
                 startOnlineInterval();
@@ -2052,6 +2063,8 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 routeProfile();
 
             } else {
+                routedUserId = null;
+                currentUserId = null;
                 console.log("Học viên chưa đăng nhập!");
                 cleanup();
                 window.location.href = "../auth/login.html";
