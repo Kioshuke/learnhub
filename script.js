@@ -641,6 +641,42 @@ function sendUserToFrame(frame){
   } catch(e){}
 }
 
+// ==================== QUẢN LÝ TÊN TRANG (Document Title) ====================
+// Sử dụng Map với keys chính xác giống allTabs để tránh mismatch
+const pageTitleMap = new Map([
+  ["home", "Trang Chủ"],
+  ["flash", "Flashcard"],
+  ["forum", "Forum"],
+  ["blog", "Blog Học Tập"],
+  ["tai-lieu", "Thư Viện Tài Liệu"],
+  ["phong-hoc", "Phòng Học"]
+]);
+
+// Hàm lấy tên trang theo ID (dùng get() của Map)
+function getPageTitle(tabId){
+  return pageTitleMap.get(tabId) || "Trang Học Tập";
+}
+
+// Hàm cập nhật document.title: format "[Tên Trang] - LearnHub Platform"
+// - Trang Home: giữ nguyên title gốc từ <title> (không thay đổi)
+// - Các tab khác: đặt title theo format [Tên Trang] - LearnHub Platform
+function updatePageTitle(tabId){
+  if(tabId === 'home'){
+    // Trang chủ: về title gốc "LearnHub Platform"
+    document.title = "LearnHub Platform";
+  } else {
+    const titleName = pageTitleMap.get(tabId) || "Trang Học Tập";
+    document.title = `${titleName} - LearnHub Platform`;
+  }
+}
+
+// Gọi hàm này khi khởi động ban đầu
+document.addEventListener("DOMContentLoaded", () => {
+  show('home');
+  updatePageTitle('home');
+});
+
+// ==================== CẬP NHẬT TÊN TRONG HÀM show ====================
 function show(id){
 currentTab = id;
 applyStickyHeader();
@@ -654,6 +690,8 @@ if(quizEl) quizEl.innerHTML = "";
 document.querySelectorAll('.nav-link').forEach(a => {
   a.classList.toggle('active', a.getAttribute('href') === navMap[id]);
 });
+
+updatePageTitle(id); // <-- THÊM DÒNG NÀY: cập nhật title khi chuyển tab
 
 allTabs.forEach(t => {
   const el = document.getElementById(t);
@@ -1203,6 +1241,7 @@ window.showAuthNotice = showAuthNotice;
 // Hiển thị tab mặc định khi trang load
 document.addEventListener("DOMContentLoaded", () => {
   show('home');
+  updatePageTitle('home');
 });
   const feedbackOverlay = document.getElementById('lh-feedback-overlay');
 
