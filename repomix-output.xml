@@ -19746,382 +19746,6 @@ export function isPasswordRecovery(event) {
 export { PENDING_RESET_KEY };
 </file>
 
-<file path="scripts/core/supabase-config.js">
-// ============================================================================
-// supabase-config.js
-// ----------------------------------------------------------------------------
-// File DUY NHẤT chứa toàn bộ phần Supabase của LearnHub:
-//   1) Khởi tạo client   (supabase, createLearnHubClient, SUPABASE_URL)
-//   2) Helpers dùng chung (trước đây là supabase-helpers.js: maintenance,
-//      whitelist email, session, hồ sơ, online session, escape...)
-//   3) Ghi log lỗi        (logAppError — trước đây là log-errors.js)
-//
-// Cách dùng:
-//   import { supabase, escapeHtml, logAppError, ... } from "./supabase-config.js";
-// ============================================================================
-
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const SUPABASE_URL = "https://hyuzukvxulwouaexatqv.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J";
-
-// Client mặc định của web chính — dùng storage key chuẩn của Supabase
-// (giữ nguyên session đang có của user trên web chính).
-export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-
-// Tạo client với storage key riêng — dùng để tách session độc lập
-// (vd: administrator.html dùng storageKey "learnhub-admin-auth" để không
-// đánh lộn account với web chính).
-export function createLearnHubClient(options = {}) {
-  return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    auth: {
-      storageKey: options.storageKey || "learnhub-auth",
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true
-    }
-  });
-}
-
-export { SUPABASE_URL };
-
-// ============================================================================
-// HELPERS DÙNG CHUNG (gộp từ supabase-helpers.js)
-// Các hàm dùng chung cho mọi trang LearnHub sau khi migrate sang Supabase:
-// maintenance (get + realtime), whitelist email, session, đồng bộ hồ sơ.
-// ============================================================================
-
-export function normalizeEmail(email) {
-  return String(email || "").trim().toLowerCase();
-}
-
-// ---------- ESCAPE (chống XSS khi render dữ liệu user vào innerHTML) ----------
-
-export function escapeHtml(v) {
-  return String(v ?? "").replace(/[&<>"'`=\/]/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;", "`": "&#96;", "=": "&#61;", "/": "&#47;"
-  }[c]));
-}
-
-// Chỉ cho phép URL http/https (chặn javascript:, data:text/html, sai scheme).
-export function escapeUrl(u) {
-  const s = String(u ?? "").trim();
-  if (!s) return "";
-  try {
-    const p = new URL(s);
-    if (p.protocol === "http:" || p.protocol === "https:") return s;
-  } catch (e) { /* bỏ qua */ }
-  return "";
-}
-
-// ---------- MAINTENANCE ----------
-
-export async function getMaintenance() {
-  try {
-    const { data, error } = await supabase
-      .from("maintenance_settings")
-      .select("enabled, message")
-      .eq("id", true)
-      .maybeSingle();
-    if (error) throw error;
-    return {
-      enabled: !!(data && data.enabled),
-      message: String((data && data.message) || ""),
-      ok: true
-    };
-  } catch (e) {
-    console.error("[supabase-helpers] getMaintenance lỗi:", e);
-    return { enabled: false, message: "", ok: false };
-  }
-}
-
-// Lắng nghe realtime trạng thái bảo trì. Trả về channel (có thể remove()).
-export function subscribeMaintenance(cb) {
-  const channel = supabase
-    .channel("maintenance-settings")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "maintenance_settings" },
-      (payload) => {
-        const data = payload.new || payload.old || {};
-        cb({ enabled: !!data.enabled, message: String(data.message || "") });
-      }
-    )
-    .subscribe();
-  return channel;
-}
-
-// ---------- WHITELIST EMAIL ----------
-// Cache theo email: { email: string|null, result: boolean, ts: number }
-let _whitelistCache = { email: null, result: null, ts: 0 };
-const WHITELIST_CACHE_TTL = 5000; // 5s
-
-// Cơ chế bật/tắt truy cập toàn cục (admin dashboard).
-// - BẬT: web MỞ, mọi email đều vào được (không cần whitelist).
-// - TẮT: web ĐÓNG, chỉ email nằm trong whitelist (access_list.enabled=true) mới vào.
-//   User đang dùng mà bị gỡ quyền sẽ được guard trên index.html đăng xuất.
-// Lưu ở bảng whitelist_settings { id=true, enabled, updated_at, updated_by }.
-// (Bảng whitelist_settings tồn tại trên DB live nhưng không có trong schema.sql — xem ghi chú #12 ở cuối file đó.)
-let _wlEnabledCache = { result: null, ts: 0, inflight: null };
-const WL_ENABLED_TTL = 5000; // 5s
-
-export async function isWhitelistEnabled() {
-  const now = Date.now();
-  if (_wlEnabledCache.result !== null && (now - _wlEnabledCache.ts) < WL_ENABLED_TTL) {
-    return _wlEnabledCache.result;
-  }
-  if (_wlEnabledCache.inflight) return _wlEnabledCache.inflight;
-  _wlEnabledCache.inflight = (async () => {
-    try {
-      const { data, error } = await supabase
-        .from("whitelist_settings")
-        .select("enabled")
-        .eq("id", true)
-        .maybeSingle();
-      if (error) throw error;
-      // Mặc định ĐÓNG nếu chưa từng lưu (giữ hành vi an toàn)
-      const ok = data ? data.enabled === true : false;
-      _wlEnabledCache = { result: ok, ts: Date.now(), inflight: null };
-      return ok;
-    } catch (e) {
-      console.warn("[supabase-helpers] isWhitelistEnabled lỗi:", e && e.message || e);
-      _wlEnabledCache.inflight = null;
-      // Mặc định an toàn: ĐÓNG web nếu không đọc được setting
-      return false;
-    }
-  })();
-  try { return await _wlEnabledCache.inflight; } finally { _wlEnabledCache.inflight = null; }
-}
-
-export async function emailAllowed(email) {
-  if (!email) return false;
-  // Nếu web đang MỞ (whitelist toàn cục BẬT) -> cho phép mọi email (không cần check RPC)
-  const webOpen = await isWhitelistEnabled();
-  if (webOpen) return true;
-  const now = Date.now();
-  // Dùng cache nếu < TTL (chỉ hợp lệ cho ĐÚNG email đã cache)
-  if (_whitelistCache.email === email && _whitelistCache.result !== null && (now - _whitelistCache.ts) < WHITELIST_CACHE_TTL) {
-    return _whitelistCache.result;
-  }
-  // Thử 2 lần (retry 1 lần nếu lỗi mạng)
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      const { data, error } = await supabase.rpc("is_email_allowed", { p_email: email });
-      if (error) throw error;
-      const ok = data === true;
-      _whitelistCache = { email, result: ok, ts: now };
-      return ok;
-    } catch (e) {
-      console.warn("[supabase-helpers] emailAllowed retry " + (attempt + 1) + ":", e.message || e);
-      if (attempt === 0) await new Promise(r => setTimeout(r, 1500)); // chờ 1.5s rồi thử lại
-    }
-  }
-  // Cả 2 lần đều lỗi → dùng cache nếu còn hạn, nếu không → return false (an toàn)
-  if (_whitelistCache.email === email && _whitelistCache.result !== null && (now - _whitelistCache.ts) < WHITELIST_CACHE_TTL) {
-    console.warn("[supabase-helpers] emailAllowed: dùng cache do RPC lỗi");
-    return _whitelistCache.result;
-  }
-  console.error("[supabase-helpers] emailAllowed: RPC lỗi cả 2 lần, không có cache");
-  return false;
-}
-
-// ---------- REGISTRATION TOGGLE ----------
-let _regCache = { result: null, ts: 0 };
-const REG_CACHE_TTL = 30000;
-
-export async function isRegistrationOpen() {
-  const now = Date.now();
-  if (_regCache.result !== null && (now - _regCache.ts) < REG_CACHE_TTL) {
-    return _regCache.result;
-  }
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      const { data, error } = await supabase.rpc("is_registration_open");
-      if (error) throw error;
-      const ok = data === true;
-      _regCache = { result: ok, ts: now };
-      return ok;
-    } catch (e) {
-      console.warn("[supabase-helpers] isRegistrationOpen retry " + (attempt + 1) + ":", e.message || e);
-      if (attempt === 0) await new Promise(r => setTimeout(r, 1500));
-    }
-  }
-  if (_regCache.result !== null && (now - _regCache.ts) < REG_CACHE_TTL) {
-    return _regCache.result;
-  }
-  return true; // default: open
-}
-
-// ---------- SESSION ----------
-
-export async function getSession() {
-  const { data, error } = await supabase.auth.getSession();
-  if (error) throw error;
-  return data.session;
-}
-
-export function onAuthChange(cb) {
-  return supabase.auth.onAuthStateChange(cb);
-}
-
-// ---------- HỒ SƠ NGƯỜI DÙNG ----------
-
-export function normRole(role) {
-  return String(role || "").trim().toLowerCase();
-}
-
-export function isTeacherRole(role) {
-  const r = normRole(role);
-  return r === "giáo viên" || r === "giao vien";
-}
-
-export function isAdminRole(role) {
-  return normRole(role) === "admin";
-}
-
-export function canManageContent(role) {
-  return isTeacherRole(role) || isAdminRole(role);
-}
-
-export async function getUserRow(uid) {
-  if (!uid) return null;
-  try {
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", uid)
-      .maybeSingle();
-    if (error) throw error;
-    return data;
-  } catch (e) {
-    console.error("[supabase-helpers] getUserRow lỗi:", e);
-    return null;
-  }
-}
-
-// Sau khi đăng nhập: cập nhật hồ sơ vào bảng users (user tạo mới nằm thẳng trên Supabase).
-export async function finalizeSession(user) {
-  if (!user || !user.id) return null;
-  const email = user.email;
-  const nowIso = new Date().toISOString();
-
-  const patch = {
-    last_login: nowIso
-    // KHÔNG set online/last_active ở đây: để users_begin_online (RPC) là nguồn duy nhất
-    // quyết định phiên online. Nếu login ghi last_active=now sẽ "che" phiên cũ chết (crash),
-    // khiến begin tưởng phiên vẫn liên tục → vẫn cộng cả khoảng offline (giờ ảo).
-  };
-  const name =
-    user.user_metadata?.name ||
-    user.user_metadata?.full_name ||
-    user.user_metadata?.display_name;
-  const photo =
-    user.user_metadata?.avatar_url ||
-    user.user_metadata?.picture ||
-    user.user_metadata?.avatar;
-  if (name) patch.name = name;
-  if (photo) patch.photo = photo;
-
-  const payload = { id: user.id, ...patch };
-  const normEmail = normalizeEmail(email);
-  if (normEmail) payload.email = normEmail;
-
-  try {
-    const { error } = await supabase
-      .from("users")
-      .upsert(payload, { onConflict: "id" });
-    if (error) throw error;
-  } catch (e) {
-    console.error("[supabase-helpers] finalizeSession upsert lỗi:", e);
-  }
-
-  return { ...user, name, photo };
-}
-
-// ---------- ONLINE SESSION (atomic qua RPC, chống giờ ảo / double-count) ----------
-// Toàn bộ thay đổi online_start_time / online_timer được thực hiện trong DB bằng
-// function atomic (SELECT ... FOR UPDATE) nên 2 tab/pages cùng ghi không thể double-count.
-
-// Bắt đầu/claim phiên online: giữ start nếu phiên liên tục; nếu phiên cũ chết (crash)
-// chỉ cộng phần online thật (start -> last_active), KHÔNG cộng khoảng offline.
-export async function beginOnlineSession(uid) {
-  if (!uid) return;
-  try {
-    const { error } = await supabase.rpc("users_begin_online", { p_uid: uid });
-    if (error) throw error;
-  } catch (e) {
-    console.error("[supabase-helpers] beginOnlineSession lỗi:", e);
-  }
-}
-
-// Kết thúc phiên online (ẩn tab / logout / rời trang): cộng dồn đúng (now - start) rồi reset.
-// Idempotent: gọi trùng (visibilitychange + pagehide + beforeunload) vẫn an toàn.
-export async function finalizeOnlineSession(uid) {
-  if (!uid) return;
-  try {
-    const { error } = await supabase.rpc("users_finalize_online", { p_uid: uid });
-    if (error) throw error;
-  } catch (e) {
-    console.error("[supabase-helpers] finalizeOnlineSession lỗi:", e);
-  }
-}
-
-// Admin: quét user đang online nhưng hết hạn (crash/browser kill) → tự finalize,
-// chống báo online ảo trên DB. Chỉ admin mới được chạy (chặn trong function).
-export async function cleanupStaleOnline(staleMs = 120000) {
-  try {
-    const { data, error } = await supabase.rpc("users_cleanup_stale_online", { p_stale_ms: staleMs });
-    if (error) throw error;
-    return Number(data || 0);
-  } catch (e) {
-    console.error("[supabase-helpers] cleanupStaleOnline lỗi:", e);
-    return 0;
-  }
-}
-
-// ============================================================================
-// GHI LOG LỖI HỆ THỐNG (gộp từ log-errors.js)
-// Ghi log lỗi hệ thống lên Supabase (bảng error_logs) qua RPC log_app_error.
-// Dùng chung cho mọi trang: login, index (guard), AI (chatbot), test, quiz...
-// Cho phép ghi cả trước khi đăng nhập (RPC cấp cho anon).
-// Tự dedup: cùng source+category+code+message trong 30s sẽ bỏ qua để tránh spam.
-// ============================================================================
-
-const lastKey = {};
-const DEDUP_MS = 30000;
-
-export async function logAppError({
-  source = "",
-  level = "warning",
-  category = "feature",
-  code = "",
-  message = "",
-  url = "",
-  email = "",
-  detail = {}
-} = {}) {
-  const key = `${source}|${category}|${code}|${message}`;
-  const now = Date.now();
-  if (lastKey[key] && now - lastKey[key] < DEDUP_MS) return;
-  lastKey[key] = now;
-
-  try {
-    await supabase.rpc("log_app_error", {
-      p_source: String(source || "").slice(0, 60),
-      p_level: String(level || "warning").slice(0, 20),
-      p_category: String(category || "feature").slice(0, 30),
-      p_code: String(code || "").slice(0, 40),
-      p_message: String(message || "").slice(0, 600),
-      p_url: String(url || (typeof location !== "undefined" ? location.href : "")).slice(0, 300),
-      p_email: String(email || "").slice(0, 150),
-      p_detail: (detail && typeof detail === "object") ? detail : {}
-    });
-  } catch (e) {
-    console.error("[logAppError] ghi log lỗi thất bại:", e);
-  }
-}
-</file>
-
 <file path="scripts/core/toast.js">
 /*!
  * LearnHub Toast System — lhToast / lhConfirm
@@ -35165,569 +34789,6 @@ window.addEventListener("storage", function (e) {
 </html>
 </file>
 
-<file path="pages/features/leaderboard.html">
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng Xếp Hạng - LearnHub</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../styles/global.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <style>
-        /* RESET & BASE */
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{
-            font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-            background:linear-gradient(160deg,#f8f7ff 0%,#eef2ff 45%,#fff7ed 100%);
-            min-height:100vh;
-            -webkit-font-smoothing:antialiased;
-            color:#1e293b;
-            overflow-x:hidden;
-            scrollbar-width:none;
-        }
-        html{scrollbar-width:none}
-        html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0}
-
-        /* FLOATING SHAPES (subtle) */
-        .bg-shapes{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-        .bg-shapes span{position:absolute;border-radius:50%;opacity:.09;animation:floatUp linear infinite}
-        .bg-shapes span:nth-child(1){width:60px;height:60px;background:#4f46e5;left:8%;animation-duration:20s;animation-delay:0s}
-        .bg-shapes span:nth-child(2){width:36px;height:36px;background:#f59e0b;left:24%;animation-duration:24s;animation-delay:3s}
-        .bg-shapes span:nth-child(3){width:76px;height:76px;background:#ec4899;left:52%;animation-duration:28s;animation-delay:1s}
-        .bg-shapes span:nth-child(4){width:30px;height:30px;background:#10b981;left:72%;animation-duration:22s;animation-delay:5s}
-        .bg-shapes span:nth-child(5){width:46px;height:46px;background:#8b5cf6;left:86%;animation-duration:26s;animation-delay:2s}
-        .bg-shapes span:nth-child(6){width:22px;height:22px;background:#06b6d4;left:38%;animation-duration:18s;animation-delay:4s}
-        @keyframes floatUp{0%{bottom:-80px;transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.1)}100%{bottom:110vh;transform:rotate(360deg) scale(1)}}
-
-        .wrap{max-width:1120px;margin:0 auto;min-height:100vh;padding:0 20px;container-type:inline-size;container-name:lb;position:relative;z-index:1}
-
-        /* ===== HEADER ===== */
-        .hdr{padding:26px 0 22px}
-        .hdr-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-bottom:6px}
-        .hdr-top .week-tag{justify-self:start}
-        .hdr-top .mode-switch{justify-self:end}
-        .week-tag{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;background:#fff;border-radius:99px;font-size:12px;font-weight:700;color:#475569;box-shadow:0 2px 12px rgba(99,102,241,.10);border:1px solid rgba(99,102,241,.14)}
-        .week-dot{width:9px;height:9px;border-radius:50%;background:#10b981;box-shadow:0 0 8px rgba(16,185,129,.5);animation:pulse 2s ease-in-out infinite}
-        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
-
-        .mode-switch{display:inline-flex;padding:4px;background:#fff;border:1px solid rgba(99,102,241,.14);border-radius:99px;box-shadow:0 2px 12px rgba(99,102,241,.08)}
-        .mode-btn{padding:7px 18px;border:none;background:transparent;border-radius:99px;font-size:12px;font-weight:700;color:#64748b;cursor:pointer;transition:all .2s ease;font-family:inherit}
-        .mode-btn:hover{color:#4f46e5}
-        .mode-btn.active{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;box-shadow:0 4px 12px rgba(99,102,241,.35)}
-
-        .hdr-title{text-align:center;justify-self:center}
-        .hdr-title h1{font-size:24px;font-weight:900;letter-spacing:-.01em;text-transform:none;line-height:1.1;background:linear-gradient(90deg,#4338ca,#7c3aed 55%,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .hdr-title p{font-size:11px;color:#64748b;font-weight:500;margin-top:4px;letter-spacing:.02em}
-
-        /* ===== LAYOUT GRID ===== */
-        .lb-layout{display:grid;grid-template-columns:1fr;gap:22px;align-items:flex-start;padding-bottom:40px}
-
-        /* ===== BỤC VINH QUANG ===== */
-        .podium-side{display:none;background:#fff;padding:26px 20px 20px;border-radius:22px;box-shadow:0 10px 40px rgba(99,102,241,.08),0 2px 8px rgba(0,0,0,.03);border:1px solid rgba(99,102,241,.10);position:relative;overflow:hidden}
-        .podium-side::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 12% 12%,rgba(99,102,241,.10) 0%,transparent 50%),radial-gradient(circle at 88% 88%,rgba(251,191,36,.08) 0%,transparent 50%);pointer-events:none}
-        .podium-title{font-size:12.5px;font-weight:800;text-align:center;text-transform:uppercase;letter-spacing:.06em;color:#4f46e5;margin-bottom:22px;position:relative}
-
-        .top3{display:flex;justify-content:center;align-items:flex-end;gap:14px;padding:0 4px;position:relative}
-        .top3-item{display:flex;flex-direction:column;align-items:center;width:98px;min-height:270px;justify-content:flex-end;position:relative}
-        .ava-ring{display:inline-block;border-radius:50%;padding:4px;line-height:0;position:relative}
-        .ring-gold{background:linear-gradient(135deg,#fbbf24,#f59e0b);box-shadow:0 0 22px rgba(251,191,36,.35),0 0 44px rgba(251,191,36,.12);animation:goldGlow 2s ease-in-out infinite alternate}
-        .ring-silver{background:linear-gradient(135deg,#cbd5e1,#94a3b8);box-shadow:0 0 14px rgba(148,163,184,.25)}
-        .ring-bronze{background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 0 14px rgba(217,119,6,.25)}
-        @keyframes goldGlow{from{box-shadow:0 0 14px rgba(251,191,36,.25),0 0 30px rgba(251,191,36,.08)}to{box-shadow:0 0 26px rgba(251,191,36,.5),0 0 52px rgba(251,191,36,.16)}}
-        .ava-inner{border-radius:50%;overflow:hidden;background:#f1f5f9;display:flex;align-items:center;justify-content:center}
-        .ava-inner img{width:100%;height:100%;object-fit:cover;display:block}
-        .ava-initial{font-weight:800;color:#64748b}
-        .t3-medal{font-size:20px;margin-top:5px;line-height:1}
-        .rank-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;margin-bottom:6px;box-shadow:0 2px 6px rgba(0,0,0,.12)}
-        .rank-1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#451a03}
-        .rank-2{background:linear-gradient(135deg,#e2e8f0,#94a3b8);color:#1e293b}
-        .rank-3{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
-        .t3-name{font-size:12.5px;font-weight:700;color:#1e293b;margin-top:6px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-        .t3-score{font-size:16px;font-weight:900;margin-top:2px;color:#4f46e5}
-        .t3-time{font-size:14px;font-weight:800;margin-top:2px;color:#10b981}
-        .t3-meta{font-size:10.5px;color:#94a3b8;font-weight:500;margin-top:1px}
-        .t3-bar{width:100%;border-radius:8px 8px 0 0;margin-top:8px;position:relative;overflow:hidden}
-        .bar-rank{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:26px;font-weight:900;opacity:.06;pointer-events:none}
-        .bar-gold{background:linear-gradient(180deg,rgba(251,191,36,.25),rgba(251,191,36,.04))}
-        .bar-silver{background:linear-gradient(180deg,rgba(148,163,184,.18),rgba(148,163,184,.03))}
-        .bar-bronze{background:linear-gradient(180deg,rgba(245,158,11,.16),rgba(245,158,11,.02))}
-
-        /* ===== BẢNG ===== */
-        .list-side{background:#fff;padding:8px;border-radius:18px;box-shadow:0 10px 40px rgba(99,102,241,.07),0 2px 8px rgba(0,0,0,.02);border:1px solid rgba(99,102,241,.10);overflow:hidden}
-        .table-responsive{width:100%;overflow:hidden}
-        table{width:100%;border-collapse:collapse;text-align:left;table-layout:fixed}
-        th,td{padding:10px 12px;font-size:13px;vertical-align:middle}
-        
-        /* FIX CHỒNG CHỮ: Cố định độ rộng và canh lề rõ ràng cho các cột */
-        th:first-child,td:first-child{width:60px;text-align:center;} /* Cột Hạng rộng hơn và canh giữa */
-        th:nth-child(3),td:nth-child(3){width:80px;text-align:center;}
-        th:nth-child(4),td:nth-child(4){width:80px;text-align:center;}
-        th:nth-child(5),td:nth-child(5){width:75px;text-align:right;}
-
-        th{background:linear-gradient(135deg,#eef2ff,#f5f3ff);color:#4f46e5;font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:.05em;border-bottom:2px solid rgba(99,102,241,.14)}
-        tr{border-bottom:1px solid #f1f5f9;transition:all .2s ease}
-        tr:last-child{border-bottom:none}
-        tr:hover{background:#f8f7ff}
-        tr.row-rank-1{background:linear-gradient(90deg,#fef9c3,#fffbeb)}
-        tr.row-rank-2{background-color:#f1f5f9}
-        tr.row-rank-3{background-color:#fff7ed}
-        /* SELF HIGHLIGHT */
-        tr.ld-me{background:linear-gradient(90deg,rgba(79,70,229,.13),rgba(79,70,229,.02))!important;box-shadow:inset 3px 0 0 #4f46e5}
-        tr.ld-me .name-cell span:not(.me-badge){font-weight:800;color:#4f46e5}
-        .me-badge{display:inline-flex;align-items:center;margin-left:8px;padding:2px 8px;border-radius:999px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.3px;flex-shrink:0}
-        .t3-me-badge{display:inline-block;margin:3px auto 0;padding:2px 10px;border-radius:999px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:11px;font-weight:700}
-
-        .rank-badge{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#64748b;background:#e2e8f0;margin:0 auto;}
-        tr.row-rank-1 .rank-badge{background:#fef3c7;color:#b45309}
-        tr.row-rank-2 .rank-badge{background:#cbd5e1;color:#334155}
-        tr.row-rank-3 .rank-badge{background:#ffedd5;color:#c2410c}
-        .rank-badge-medal{font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center}
-
-        .name-cell{display:flex;align-items:center;gap:8px;font-weight:600;color:#0f172a;overflow:hidden}
-        .name-cell span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-        .row-ava{width:28px;height:28px;border-radius:50%;object-fit:cover;background:#e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-        .row-ava-fb{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#e0e7ff,#f3e8ff);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#6366f1}
-        .count-cell{color:#475569;font-weight:500;text-align:center;}
-        .th-short{display:none}
-        .score-cell{background:linear-gradient(135deg,#4f46e5,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;font-size:13.5px}
-        .time-cell{color:#4f46e5;font-weight:700;font-family:'Inter',monospace;font-size:13px;letter-spacing:.02em}
-
-        /* LOADING SKELETON */
-        .sk{height:16px;border-radius:4px;background:linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 37%,#e2e8f0 63%);background-size:400% 100%;animation:sh 1.4s ease infinite}
-        @keyframes sh{0%{background-position:100% 50%}100%{background-position:0% 50%}}
-
-        /* EMPTY STATE */
-        .lb-empty{padding:44px 20px;text-align:center}
-        .lb-empty-icon{font-size:46px;line-height:1;margin-bottom:12px;display:inline-block;animation:lbEmptyFloat 3s ease-in-out infinite}
-        @keyframes lbEmptyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-        .lb-empty-title{font-size:15px;font-weight:800;color:#334155;margin-bottom:5px}
-        .lb-empty-sub{font-size:12.5px;color:#94a3b8;margin-bottom:0;line-height:1.7}
-        @media (prefers-reduced-motion: reduce){.lb-empty-icon{animation:none}}
-
-        /* COMPACT MODE (profile embed) */
-        body.compact .hdr,
-        body.compact .podium-side,
-        body.compact .bg-shapes,
-        body.compact .mode-switch{display:none!important}
-        body.compact .wrap{min-height:auto;padding-top:8px}
-        body.compact .lb-layout{padding-bottom:0}
-        body.compact .list-side{box-shadow:none;border:none;padding:4px}
-
-        /* RESPONSIVE */
-        @container lb (min-width: 860px) {
-            .lb-layout{grid-template-columns:340px 1fr}
-            .podium-side{display:block;position:sticky;top:16px}
-        }
-
-        @container lb (max-width: 640px) {
-            .hdr-top{grid-template-columns:1fr;justify-items:center;gap:10px}
-            .hdr-top .week-tag,.hdr-top .mode-switch{justify-self:center}
-            .hdr-title h1{font-size:20px}
-            th,td{padding:9px 6px;font-size:12px}
-            th:first-child,td:first-child{width:40px}
-            th:nth-child(2){text-align:center}
-            /* Mobile: header rút gọn, cột Tên chiếm chỗ nhiều nhất */
-            .th-long{display:none}
-            .th-short{display:inline}
-            th:nth-child(3),td:nth-child(3){width:44px}
-            th:nth-child(4),td:nth-child(4){width:56px}
-            th:nth-child(5),td:nth-child(5){width:48px}
-            .name-cell span:not(.me-badge){min-width:0}
-            .row-ava,.row-ava-fb{display:none}
-            .cell-unit{display:none}
-        }
-
-        .tab-panel{display:none}
-        .tab-panel.active{display:block}
-    </style>
-<script src="../../version/version-check.js" defer></script>
-</head>
-<body>
-    <div class="bg-shapes"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-    <div class="wrap">
-        <header class="hdr">
-            <div class="hdr-top">
-                <div class="week-tag"><span class="week-dot"></span><span id="week-label">—</span></div>
-                <div class="hdr-title">
-                    <h1><i class="fas fa-trophy"></i> Bảng Xếp Hạng</h1>
-                    <p>Vinh danh học viên xuất sắc</p>
-                </div>
-                <div class="mode-switch">
-                    <button type="button" class="mode-btn active" data-mode="score" onclick="switchTab('score')">Điểm số</button>
-                    <button type="button" class="mode-btn" data-mode="time" onclick="switchTab('time')">Thời gian online</button>
-                </div>
-            </div>
-        </header>
-
-        <!-- TAB: ĐIỂM SỐ -->
-        <div class="tab-panel active" id="tab-score">
-        <div class="lb-layout">
-            <div class="podium-side">
-                <div class="podium-title"><i class="fas fa-trophy"></i> Vinh danh Top 3 Tuần</div>
-                <div class="top3" id="podium"></div>
-            </div>
-
-            <div class="list-side">
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Hạng</th>
-                                <th><span class="th-long">Tên người dùng</span><span class="th-short">Tên</span></th>
-                                <th><span class="th-long">Đã làm</span><span class="th-short">Bài</span></th>
-                                <th style="text-align: center;">Video</th>
-                                <th style="text-align: right;">Điểm</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body">
-                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:60%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:40px; margin:auto"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
-                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:45%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:40px; margin:auto"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
-                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:50%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:40px; margin:auto"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        </div>
-
-        <!-- TAB: THỜI GIAN ONLINE -->
-        <div class="tab-panel" id="tab-time">
-        <div class="lb-layout">
-            <div class="podium-side">
-                <div class="podium-title"><i class="fas fa-clock"></i> Vinh danh Top 3 Online</div>
-                <div class="top3" id="podium-time"></div>
-            </div>
-
-            <div class="list-side">
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 60px; text-align: center;">Hạng</th>
-                                <th>Tên người dùng</th>
-                                <th style="width: 120px; text-align: right;">Tổng online</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body-time">
-                            <tr class="ld-row"><td><div class="sk" style="width:30px; margin:auto"></div></td><td><div class="sk" style="width:60%"></div></td><td><div class="sk" style="width:80px; margin-left:auto"></div></td></tr>
-                            <tr class="ld-row"><td><div class="sk" style="width:30px; margin:auto"></div></td><td><div class="sk" style="width:45%"></div></td><td><div class="sk" style="width:80px; margin-left:auto"></div></td></tr>
-                            <tr class="ld-row"><td><div class="sk" style="width:30px; margin:auto"></div></td><td><div class="sk" style="width:50%"></div></td><td><div class="sk" style="width:80px; margin-left:auto"></div></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        </div>
-    </div>
-
-    <script type="module">
-        import { supabase, createLearnHubClient, logAppError } from "../../scripts/core/supabase-config.js";
-        window.logAppError = logAppError;
-        import { getWeekKey, getWeekStartMs, formatTimer } from "../../scripts/features/week-math.js";
-
-        let activeSupabase = supabase;
-        let myId = null;
-
-        window.addEventListener("message", async (e) => {
-            if (e.data && e.data.type === "ADMIN_SESSION" && e.data.accessToken) {
-                try {
-                    const adminClient = createLearnHubClient({ storageKey: "learnhub-admin-auth" });
-                    await adminClient.auth.setSession({
-                        access_token: e.data.accessToken,
-                        refresh_token: e.data.refresh_token
-                    });
-                    activeSupabase = adminClient;
-                    try {
-                        const { data: { user } } = await adminClient.auth.getUser();
-                        myId = user ? user.id : null;
-                    } catch (_) { myId = null; }
-                    load();
-                    loadOnlineTime();
-                } catch(err) {
-                    console.warn("[leaderboard] Failed to set admin session:", err);
-                }
-            }
-        });
-
-        function esc(t) { return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-        function ringAva(photo, name, size, ringCls) {
-            const fs = Math.round(size * .38);
-            const inner = photo
-                ? `<img src="${esc(photo)}" style="width:${size}px;height:${size}px" alt="">`
-                : `<div class="ava-initial" style="width:${size}px;height:${size}px;font-size:${fs}px;display:flex;align-items:center;justify-content:center">${esc(name.charAt(0))}</div>`;
-            return `<div class="ava-ring ${ringCls}"><div class="ava-inner">${inner}</div></div>`;
-        }
-
-        function rowAva(photo, name) {
-            if (photo) return `<img class="row-ava" src="${esc(photo)}" alt="">`;
-            return `<div class="row-ava-fb">${esc(name.charAt(0))}</div>`;
-        }
-
-        window.switchTab = function(tab) {
-            document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + tab));
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === tab));
-        };
-
-        let scoreLoadBusy = false;
-        let scoreLoadPending = false; // [FIX BUG #28] nếu đang bận mà có yêu cầu mới -> chạy lại sau
-        async function load() {
-            if (scoreLoadBusy) { scoreLoadPending = true; return; }
-            scoreLoadBusy = true;
-            document.getElementById("week-label").textContent = getWeekKey();
-
-            try {
-                const [{ data: stats }, { data: users }] = await Promise.all([
-                    activeSupabase.from("test_stats").select("user_id, total_score, total_tests, total_videos").eq("week_key", getWeekKey()),
-                    activeSupabase.from("users").select("id, name, email, photo")
-                ]);
-
-                const userMap = new Map((users || []).map(u => [u.id, u]));
-                const rows = [];
-                for (const s of (stats || [])) {
-                    const score = Number(s.total_score || 0);
-                    if (score <= 0) continue;
-                    const ud = userMap.get(s.user_id) || {};
-                    rows.push({
-                        uid: s.user_id,
-                        name: ud.name || ud.email || "Ẩn danh",
-                        photo: ud.photo || "",
-                        score,
-                        tests: Number(s.total_tests || 0),
-                        videos: Number(s.total_videos || 0)
-                    });
-                }
-                rows.sort((a, b) => b.score - a.score);
-
-                const podiumEl = document.getElementById("podium");
-                const tbodyEl = document.getElementById("table-body");
-
-                if (!rows.length) {
-                    tbodyEl.innerHTML = `<tr><td colspan="5">
-                        <div class="lb-empty">
-                            <div class="lb-empty-icon"><i class="fas fa-trophy"></i></div>
-                            <div class="lb-empty-title">Bảng xếp hạng còn trống</div>
-                            <div class="lb-empty-sub">Chưa có ai làm bài thi trong tuần này.<br>Hãy là người đầu tiên ghi tên mình lên bảng vinh danh!</div>
-
-                        </div>
-                    </td></tr>`;
-                    return;
-                }
-
-                const top3 = rows.slice(0, 3);
-
-                function buildPodium(items, layout) {
-                    return layout.map(({ idx, ring, bar, avSz, barH, rank, medal }) => {
-                        const u = items[idx];
-                        if (!u) return '';
-                        return `<div class="top3-item">
-                            <div class="rank-num rank-${rank}">${rank}</div>
-                            ${ringAva(u.photo, u.name, avSz, ring)}
-                            <div class="t3-medal">${medal}</div>
-                            <div class="t3-name" title="${esc(u.name)}">${esc(u.name)}</div>
-                            ${u.uid === myId ? '<div class="t3-me-badge">Bạn</div>' : ''}
-                            <div class="t3-score">${u.score}đ</div>
-                            <div class="t3-meta">${u.tests} bài thi</div>
-                            <div class="t3-bar ${bar}" style="height:${barH}px"><span class="bar-rank">#${rank}</span></div>
-                        </div>`;
-                    }).join('');
-                }
-
-                if (top3.length === 1) {
-                    podiumEl.innerHTML = buildPodium(top3, [{ idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }]);
-                } else if (top3.length === 2) {
-                    podiumEl.innerHTML = buildPodium(top3, [
-                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
-                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }
-                    ]);
-                } else {
-                    podiumEl.innerHTML = buildPodium(top3, [
-                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
-                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' },
-                        { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: '<i class="fas fa-medal" style="color:#b45309"></i>' }
-                    ]);
-                }
-
-                const medals = ['<i class="fas fa-medal" style="color:#f59e0b"></i>', '<i class="fas fa-medal" style="color:#94a3b8"></i>', '<i class="fas fa-medal" style="color:#b45309"></i>'];
-                tbodyEl.innerHTML = rows.map((u, i) => {
-                    const rankNum = i + 1;
-                    const specialClass = rankNum <= 3 ? `row-rank-${rankNum}` : '';
-                    const rankDisplay = rankNum <= 3 ? `<span class="rank-badge-medal">${medals[rankNum - 1]}</span>` : `<span class="rank-badge">${rankNum}</span>`;
-                    
-                    return `<tr class="${specialClass}${u.uid === myId ? ' ld-me' : ''}">
-                        <td style="text-align: center;">${rankDisplay}</td>
-                        <td>
-                            <div class="name-cell">
-                                ${rowAva(u.photo, u.name)}
-                                <span title="${esc(u.name)}">${esc(u.name)}</span>
-                                ${u.uid === myId ? '<span class="me-badge">Bạn</span>' : ''}
-                            </div>
-                        </td>
-                        <td class="count-cell">${u.tests}<span class="cell-unit"> bài</span></td>
-                        <td class="count-cell">${u.videos}<span class="cell-unit"> video</span></td>
-                        <td class="score-cell" style="text-align: right;">${u.score}đ</td>
-                    </tr>`;
-                }).join('');
-
-                // Không cuộn trang cha khi leaderboard được nhúng trong profile compact.
-                if (myId && !document.body.classList.contains("compact")) {
-                    const meRow = tbodyEl.querySelector('tr.ld-me');
-                    if (meRow) setTimeout(() => {
-                        const r = meRow.getBoundingClientRect();
-                        if (r.top < 80 || r.bottom > window.innerHeight - 40) meRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 400);
-                }
-
-            } catch (e) {
-                console.error("[load-score]", e);
-                document.getElementById("table-body").innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu xếp hạng điểm.</td></tr>`;
-            } finally {
-                scoreLoadBusy = false;
-                // [FIX BUG #28] Có yêu cầu nạp bị bỏ qua trong lúc bận -> chạy lại ngay
-                if (scoreLoadPending) { scoreLoadPending = false; load(); }
-            }
-        }
-
-        let timeLoadBusy = false;
-        let timeLoadPending = false; // [FIX BUG #28]
-        async function loadOnlineTime() {
-            if (timeLoadBusy) { timeLoadPending = true; return; }
-            timeLoadBusy = true;
-            try {
-                const { data: allUsers } = await activeSupabase.from("users")
-                    .select("id, name, email, photo, online, online_timer, online_start_time, online_week_key, last_active, disabled");
-                const rows = [];
-                const now = Date.now();
-                const THRESHOLD = 10000;
-                const currentWeekKey = getWeekKey();
-                const weekStart = getWeekStartMs();
-                for (const ud of (allUsers || [])) {
-                    if (ud.disabled) continue;
-                    const userWeekKey = ud.online_week_key || "";
-                    let effectiveTimer = 0;
-                    if (userWeekKey === currentWeekKey) {
-                        effectiveTimer = Number(ud.online_timer || 0);
-                        if (ud.online && ud.last_active && (now - ud.last_active) < THRESHOLD && ud.online_start_time > 0) {
-                            const sessionStart = Math.max(ud.online_start_time, weekStart);
-                            effectiveTimer += Math.floor((now - sessionStart) / 1000);
-                        }
-                    } else if (ud.online && ud.last_active && (now - ud.last_active) < THRESHOLD && ud.online_start_time > 0) {
-                        const sessionStart = Math.max(ud.online_start_time, weekStart);
-                        effectiveTimer = Math.floor((now - sessionStart) / 1000);
-                    }
-                    if (effectiveTimer <= 0) continue;
-                    rows.push({
-                        uid: ud.id,
-                        name: ud.name || ud.email || "Ẩn danh",
-                        photo: ud.photo || "",
-                        timer: effectiveTimer
-                    });
-                }
-                rows.sort((a, b) => b.timer - a.timer);
-
-                const podiumEl = document.getElementById("podium-time");
-                const tbodyEl = document.getElementById("table-body-time");
-
-                if (!rows.length) {
-                    tbodyEl.innerHTML = `<tr><td colspan="3">
-                        <div class="lb-empty">
-                            <div class="lb-empty-icon"><i class="fas fa-clock"></i></div>
-                            <div class="lb-empty-title">Chưa có dữ liệu online</div>
-                            <div class="lb-empty-sub">Thời gian học online tuần này của bạn sẽ được ghi nhận<br>khi bạn truy cập và học tập trên LearnHub.</div>
-                        </div>
-                    </td></tr>`;
-                    return;
-                }
-
-                const top3 = rows.slice(0, 3);
-
-                function buildTimePodium(items, layout) {
-                    return layout.map(({ idx, ring, bar, avSz, barH, rank, medal }) => {
-                        const u = items[idx];
-                        if (!u) return '';
-                        return `<div class="top3-item">
-                            <div class="rank-num rank-${rank}">${rank}</div>
-                            ${ringAva(u.photo, u.name, avSz, ring)}
-                            <div class="t3-medal">${medal}</div>
-                            <div class="t3-name" title="${esc(u.name)}">${esc(u.name)}</div>
-                            ${u.uid === myId ? '<div class="t3-me-badge">Bạn</div>' : ''}
-                            <div class="t3-time">${formatTimer(u.timer)}</div>
-                            <div class="t3-meta">online</div>
-                            <div class="t3-bar ${bar}" style="height:${barH}px"><span class="bar-rank">#${rank}</span></div>
-                        </div>`;
-                    }).join('');
-                }
-
-                if (top3.length === 1) {
-                    podiumEl.innerHTML = buildTimePodium(top3, [{ idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }]);
-                } else if (top3.length === 2) {
-                    podiumEl.innerHTML = buildTimePodium(top3, [
-                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
-                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }
-                    ]);
-                } else {
-                    podiumEl.innerHTML = buildTimePodium(top3, [
-                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
-                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' },
-                        { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: '<i class="fas fa-medal" style="color:#b45309"></i>' }
-                    ]);
-                }
-
-                const medals = ['<i class="fas fa-medal" style="color:#f59e0b"></i>', '<i class="fas fa-medal" style="color:#94a3b8"></i>', '<i class="fas fa-medal" style="color:#b45309"></i>'];
-                tbodyEl.innerHTML = rows.map((u, i) => {
-                    const rankNum = i + 1;
-                    const specialClass = rankNum <= 3 ? `row-rank-${rankNum}` : '';
-                    const rankDisplay = rankNum <= 3 ? `<span class="rank-badge-medal">${medals[rankNum - 1]}</span>` : `<span class="rank-badge">${rankNum}</span>`;
-
-                    return `<tr class="${specialClass}${u.uid === myId ? ' ld-me' : ''}">
-                        <td style="text-align: center;">${rankDisplay}</td>
-                        <td>
-                            <div class="name-cell">
-                                ${rowAva(u.photo, u.name)}
-                                <span title="${esc(u.name)}">${esc(u.name)}</span>
-                                ${u.uid === myId ? '<span class="me-badge">Bạn</span>' : ''}
-                            </div>
-                        </td>
-                        <td class="time-cell" style="text-align: right;">${formatTimer(u.timer)}</td>
-                    </tr>`;
-                }).join('');
-
-                // Không cuộn trang cha khi leaderboard được nhúng trong profile compact.
-                if (myId && !document.body.classList.contains("compact")) {
-                    const meRow = tbodyEl.querySelector('tr.ld-me');
-                    if (meRow) setTimeout(() => {
-                        const r = meRow.getBoundingClientRect();
-                        if (r.top < 80 || r.bottom > window.innerHeight - 40) meRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 400);
-                }
-
-            } catch (e) {
-                console.error("[load-online-time]", e);
-                document.getElementById("table-body-time").innerHTML = `<tr><td colspan="3" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu xếp hạng thời gian.</td></tr>`;
-            } finally {
-                timeLoadBusy = false;
-                // [FIX BUG #28] Có yêu cầu nạp bị bỏ qua trong lúc bận -> chạy lại ngay
-                if (timeLoadPending) { timeLoadPending = false; loadOnlineTime(); }
-            }
-        }
-
-        if (new URLSearchParams(location.search).get("compact") === "1") document.body.classList.add("compact");
-        (async () => {
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                myId = user ? user.id : null;
-            } catch (_) { myId = null; }
-            load();
-            loadOnlineTime();
-        })();
-    </script>
-</body>
-</html>
-</file>
-
 <file path="pages/teacher/newtest/index.html">
 <!DOCTYPE html>
 <html lang="vi">
@@ -40123,6 +39184,410 @@ function startDashboardRefresh() {
 }
 </file>
 
+<file path="scripts/core/supabase-config.js">
+// ============================================================================
+// supabase-config.js
+// ----------------------------------------------------------------------------
+// File DUY NHẤT chứa toàn bộ phần Supabase của LearnHub:
+//   1) Khởi tạo client   (supabase, createLearnHubClient, SUPABASE_URL)
+//   2) Helpers dùng chung (trước đây là supabase-helpers.js: maintenance,
+//      whitelist email, session, hồ sơ, online session, escape...)
+//   3) Ghi log lỗi        (logAppError — trước đây là log-errors.js)
+//
+// Cách dùng:
+//   import { supabase, escapeHtml, logAppError, ... } from "./supabase-config.js";
+// ============================================================================
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const SUPABASE_URL = "https://hyuzukvxulwouaexatqv.supabase.co";
+export const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J";
+
+// Client mặc định của web chính — dùng storage key chuẩn của Supabase
+// (giữ nguyên session đang có của user trên web chính).
+export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+let currentAccessToken = null;
+let authStateRevision = 0;
+supabase.auth.onAuthStateChange((_event, session) => {
+  authStateRevision += 1;
+  currentAccessToken = session?.access_token || null;
+});
+const initialAuthStateRevision = authStateRevision;
+supabase.auth.getSession().then(({ data }) => {
+  if (authStateRevision === initialAuthStateRevision) {
+    currentAccessToken = data?.session?.access_token || null;
+  }
+}).catch(() => {});
+
+// Tạo client với storage key riêng — dùng để tách session độc lập
+// (vd: administrator.html dùng storageKey "learnhub-admin-auth" để không
+// đánh lộn account với web chính).
+export function createLearnHubClient(options = {}) {
+  return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: {
+      storageKey: options.storageKey || "learnhub-auth",
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  });
+}
+
+export { SUPABASE_URL };
+
+// Use fetch keepalive for lifecycle events where the page may be frozen immediately.
+export function finalizeOnlineSessionKeepalive(uid) {
+  if (!uid || !currentAccessToken) return;
+  return fetch(`${SUPABASE_URL}/rest/v1/rpc/users_finalize_online`, {
+    method: "POST",
+    keepalive: true,
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_PUBLISHABLE_KEY,
+      Authorization: `Bearer ${currentAccessToken}`
+    },
+    body: JSON.stringify({ p_uid: uid })
+  }).catch(() => {});
+}
+
+// ============================================================================
+// HELPERS DÙNG CHUNG (gộp từ supabase-helpers.js)
+// Các hàm dùng chung cho mọi trang LearnHub sau khi migrate sang Supabase:
+// maintenance (get + realtime), whitelist email, session, đồng bộ hồ sơ.
+// ============================================================================
+
+export function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+// ---------- ESCAPE (chống XSS khi render dữ liệu user vào innerHTML) ----------
+
+export function escapeHtml(v) {
+  return String(v ?? "").replace(/[&<>"'`=\/]/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;", "`": "&#96;", "=": "&#61;", "/": "&#47;"
+  }[c]));
+}
+
+// Chỉ cho phép URL http/https (chặn javascript:, data:text/html, sai scheme).
+export function escapeUrl(u) {
+  const s = String(u ?? "").trim();
+  if (!s) return "";
+  try {
+    const p = new URL(s);
+    if (p.protocol === "http:" || p.protocol === "https:") return s;
+  } catch (e) { /* bỏ qua */ }
+  return "";
+}
+
+// ---------- MAINTENANCE ----------
+
+export async function getMaintenance() {
+  try {
+    const { data, error } = await supabase
+      .from("maintenance_settings")
+      .select("enabled, message")
+      .eq("id", true)
+      .maybeSingle();
+    if (error) throw error;
+    return {
+      enabled: !!(data && data.enabled),
+      message: String((data && data.message) || ""),
+      ok: true
+    };
+  } catch (e) {
+    console.error("[supabase-helpers] getMaintenance lỗi:", e);
+    return { enabled: false, message: "", ok: false };
+  }
+}
+
+// Lắng nghe realtime trạng thái bảo trì. Trả về channel (có thể remove()).
+export function subscribeMaintenance(cb) {
+  const channel = supabase
+    .channel("maintenance-settings")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "maintenance_settings" },
+      (payload) => {
+        const data = payload.new || payload.old || {};
+        cb({ enabled: !!data.enabled, message: String(data.message || "") });
+      }
+    )
+    .subscribe();
+  return channel;
+}
+
+// ---------- WHITELIST EMAIL ----------
+// Cache theo email: { email: string|null, result: boolean, ts: number }
+let _whitelistCache = { email: null, result: null, ts: 0 };
+const WHITELIST_CACHE_TTL = 5000; // 5s
+
+// Cơ chế bật/tắt truy cập toàn cục (admin dashboard).
+// - BẬT: web MỞ, mọi email đều vào được (không cần whitelist).
+// - TẮT: web ĐÓNG, chỉ email nằm trong whitelist (access_list.enabled=true) mới vào.
+//   User đang dùng mà bị gỡ quyền sẽ được guard trên index.html đăng xuất.
+// Lưu ở bảng whitelist_settings { id=true, enabled, updated_at, updated_by }.
+// (Bảng whitelist_settings tồn tại trên DB live nhưng không có trong schema.sql — xem ghi chú #12 ở cuối file đó.)
+let _wlEnabledCache = { result: null, ts: 0, inflight: null };
+const WL_ENABLED_TTL = 5000; // 5s
+
+export async function isWhitelistEnabled() {
+  const now = Date.now();
+  if (_wlEnabledCache.result !== null && (now - _wlEnabledCache.ts) < WL_ENABLED_TTL) {
+    return _wlEnabledCache.result;
+  }
+  if (_wlEnabledCache.inflight) return _wlEnabledCache.inflight;
+  _wlEnabledCache.inflight = (async () => {
+    try {
+      const { data, error } = await supabase
+        .from("whitelist_settings")
+        .select("enabled")
+        .eq("id", true)
+        .maybeSingle();
+      if (error) throw error;
+      // Mặc định ĐÓNG nếu chưa từng lưu (giữ hành vi an toàn)
+      const ok = data ? data.enabled === true : false;
+      _wlEnabledCache = { result: ok, ts: Date.now(), inflight: null };
+      return ok;
+    } catch (e) {
+      console.warn("[supabase-helpers] isWhitelistEnabled lỗi:", e && e.message || e);
+      _wlEnabledCache.inflight = null;
+      // Mặc định an toàn: ĐÓNG web nếu không đọc được setting
+      return false;
+    }
+  })();
+  try { return await _wlEnabledCache.inflight; } finally { _wlEnabledCache.inflight = null; }
+}
+
+export async function emailAllowed(email) {
+  if (!email) return false;
+  // Nếu web đang MỞ (whitelist toàn cục BẬT) -> cho phép mọi email (không cần check RPC)
+  const webOpen = await isWhitelistEnabled();
+  if (webOpen) return true;
+  const now = Date.now();
+  // Dùng cache nếu < TTL (chỉ hợp lệ cho ĐÚNG email đã cache)
+  if (_whitelistCache.email === email && _whitelistCache.result !== null && (now - _whitelistCache.ts) < WHITELIST_CACHE_TTL) {
+    return _whitelistCache.result;
+  }
+  // Thử 2 lần (retry 1 lần nếu lỗi mạng)
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const { data, error } = await supabase.rpc("is_email_allowed", { p_email: email });
+      if (error) throw error;
+      const ok = data === true;
+      _whitelistCache = { email, result: ok, ts: now };
+      return ok;
+    } catch (e) {
+      console.warn("[supabase-helpers] emailAllowed retry " + (attempt + 1) + ":", e.message || e);
+      if (attempt === 0) await new Promise(r => setTimeout(r, 1500)); // chờ 1.5s rồi thử lại
+    }
+  }
+  // Cả 2 lần đều lỗi → dùng cache nếu còn hạn, nếu không → return false (an toàn)
+  if (_whitelistCache.email === email && _whitelistCache.result !== null && (now - _whitelistCache.ts) < WHITELIST_CACHE_TTL) {
+    console.warn("[supabase-helpers] emailAllowed: dùng cache do RPC lỗi");
+    return _whitelistCache.result;
+  }
+  console.error("[supabase-helpers] emailAllowed: RPC lỗi cả 2 lần, không có cache");
+  return false;
+}
+
+// ---------- REGISTRATION TOGGLE ----------
+let _regCache = { result: null, ts: 0 };
+const REG_CACHE_TTL = 30000;
+
+export async function isRegistrationOpen() {
+  const now = Date.now();
+  if (_regCache.result !== null && (now - _regCache.ts) < REG_CACHE_TTL) {
+    return _regCache.result;
+  }
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const { data, error } = await supabase.rpc("is_registration_open");
+      if (error) throw error;
+      const ok = data === true;
+      _regCache = { result: ok, ts: now };
+      return ok;
+    } catch (e) {
+      console.warn("[supabase-helpers] isRegistrationOpen retry " + (attempt + 1) + ":", e.message || e);
+      if (attempt === 0) await new Promise(r => setTimeout(r, 1500));
+    }
+  }
+  if (_regCache.result !== null && (now - _regCache.ts) < REG_CACHE_TTL) {
+    return _regCache.result;
+  }
+  return true; // default: open
+}
+
+// ---------- SESSION ----------
+
+export async function getSession() {
+  const { data, error } = await supabase.auth.getSession();
+  if (error) throw error;
+  return data.session;
+}
+
+export function onAuthChange(cb) {
+  return supabase.auth.onAuthStateChange(cb);
+}
+
+// ---------- HỒ SƠ NGƯỜI DÙNG ----------
+
+export function normRole(role) {
+  return String(role || "").trim().toLowerCase();
+}
+
+export function isTeacherRole(role) {
+  const r = normRole(role);
+  return r === "giáo viên" || r === "giao vien";
+}
+
+export function isAdminRole(role) {
+  return normRole(role) === "admin";
+}
+
+export function canManageContent(role) {
+  return isTeacherRole(role) || isAdminRole(role);
+}
+
+export async function getUserRow(uid) {
+  if (!uid) return null;
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", uid)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  } catch (e) {
+    console.error("[supabase-helpers] getUserRow lỗi:", e);
+    return null;
+  }
+}
+
+// Sau khi đăng nhập: cập nhật hồ sơ vào bảng users (user tạo mới nằm thẳng trên Supabase).
+export async function finalizeSession(user) {
+  if (!user || !user.id) return null;
+  const email = user.email;
+  const nowIso = new Date().toISOString();
+
+  const patch = {
+    last_login: nowIso
+    // KHÔNG set online/last_active ở đây: để users_begin_online (RPC) là nguồn duy nhất
+    // quyết định phiên online. Nếu login ghi last_active=now sẽ "che" phiên cũ chết (crash),
+    // khiến begin tưởng phiên vẫn liên tục → vẫn cộng cả khoảng offline (giờ ảo).
+  };
+  const name =
+    user.user_metadata?.name ||
+    user.user_metadata?.full_name ||
+    user.user_metadata?.display_name;
+  const photo =
+    user.user_metadata?.avatar_url ||
+    user.user_metadata?.picture ||
+    user.user_metadata?.avatar;
+  if (name) patch.name = name;
+  if (photo) patch.photo = photo;
+
+  const payload = { id: user.id, ...patch };
+  const normEmail = normalizeEmail(email);
+  if (normEmail) payload.email = normEmail;
+
+  try {
+    const { error } = await supabase
+      .from("users")
+      .upsert(payload, { onConflict: "id" });
+    if (error) throw error;
+  } catch (e) {
+    console.error("[supabase-helpers] finalizeSession upsert lỗi:", e);
+  }
+
+  return { ...user, name, photo };
+}
+
+// ---------- ONLINE SESSION (atomic qua RPC, chống giờ ảo / double-count) ----------
+// Toàn bộ thay đổi online_start_time / online_timer được thực hiện trong DB bằng
+// function atomic (SELECT ... FOR UPDATE) nên 2 tab/pages cùng ghi không thể double-count.
+
+// Bắt đầu/claim phiên online: giữ start nếu phiên liên tục; nếu phiên cũ chết (crash)
+// chỉ cộng phần online thật (start -> last_active), KHÔNG cộng khoảng offline.
+export async function beginOnlineSession(uid) {
+  if (!uid) return;
+  try {
+    const { error } = await supabase.rpc("users_begin_online", { p_uid: uid });
+    if (error) throw error;
+  } catch (e) {
+    console.error("[supabase-helpers] beginOnlineSession lỗi:", e);
+  }
+}
+
+// Kết thúc phiên online (ẩn tab / logout / rời trang): cộng dồn đúng (now - start) rồi reset.
+// Idempotent: gọi trùng từ visibilitychange + pagehide vẫn an toàn.
+export async function finalizeOnlineSession(uid) {
+  if (!uid) return;
+  try {
+    const { error } = await supabase.rpc("users_finalize_online", { p_uid: uid });
+    if (error) throw error;
+  } catch (e) {
+    console.error("[supabase-helpers] finalizeOnlineSession lỗi:", e);
+  }
+}
+
+// Admin: quét user đang online nhưng hết hạn (crash/browser kill) → tự finalize,
+// chống báo online ảo trên DB. Chỉ admin mới được chạy (chặn trong function).
+export async function cleanupStaleOnline(staleMs = 120000) {
+  try {
+    const { data, error } = await supabase.rpc("users_cleanup_stale_online", { p_stale_ms: staleMs });
+    if (error) throw error;
+    return Number(data || 0);
+  } catch (e) {
+    console.error("[supabase-helpers] cleanupStaleOnline lỗi:", e);
+    return 0;
+  }
+}
+
+// ============================================================================
+// GHI LOG LỖI HỆ THỐNG (gộp từ log-errors.js)
+// Ghi log lỗi hệ thống lên Supabase (bảng error_logs) qua RPC log_app_error.
+// Dùng chung cho mọi trang: login, index (guard), AI (chatbot), test, quiz...
+// Cho phép ghi cả trước khi đăng nhập (RPC cấp cho anon).
+// Tự dedup: cùng source+category+code+message trong 30s sẽ bỏ qua để tránh spam.
+// ============================================================================
+
+const lastKey = {};
+const DEDUP_MS = 30000;
+
+export async function logAppError({
+  source = "",
+  level = "warning",
+  category = "feature",
+  code = "",
+  message = "",
+  url = "",
+  email = "",
+  detail = {}
+} = {}) {
+  const key = `${source}|${category}|${code}|${message}`;
+  const now = Date.now();
+  if (lastKey[key] && now - lastKey[key] < DEDUP_MS) return;
+  lastKey[key] = now;
+
+  try {
+    await supabase.rpc("log_app_error", {
+      p_source: String(source || "").slice(0, 60),
+      p_level: String(level || "warning").slice(0, 20),
+      p_category: String(category || "feature").slice(0, 30),
+      p_code: String(code || "").slice(0, 40),
+      p_message: String(message || "").slice(0, 600),
+      p_url: String(url || (typeof location !== "undefined" ? location.href : "")).slice(0, 300),
+      p_email: String(email || "").slice(0, 150),
+      p_detail: (detail && typeof detail === "object") ? detail : {}
+    });
+  } catch (e) {
+    console.error("[logAppError] ghi log lỗi thất bại:", e);
+  }
+}
+</file>
+
 <file path="supabase/seed-blog-flashcard.sql">
 -- ============================================================================
 -- Seed: bài blog giới thiệu chi tiết tính năng LearnHub Flashcard
@@ -40937,6 +40402,571 @@ Disallow: /404.html
 Disallow: /pages/features/leaderboard.html
 
 Sitemap: https://learnhubpf.pages.dev/sitemap.xml
+</file>
+
+<file path="pages/features/leaderboard.html">
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Xếp Hạng - LearnHub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* RESET & BASE */
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+            background:linear-gradient(160deg,#f8f7ff 0%,#eef2ff 45%,#fff7ed 100%);
+            min-height:100vh;
+            -webkit-font-smoothing:antialiased;
+            color:#1e293b;
+            overflow-x:hidden;
+            scrollbar-width:none;
+        }
+        html{scrollbar-width:none}
+        html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0}
+
+        /* FLOATING SHAPES (subtle) */
+        .bg-shapes{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+        .bg-shapes span{position:absolute;border-radius:50%;opacity:.09;animation:floatUp linear infinite}
+        .bg-shapes span:nth-child(1){width:60px;height:60px;background:#4f46e5;left:8%;animation-duration:20s;animation-delay:0s}
+        .bg-shapes span:nth-child(2){width:36px;height:36px;background:#f59e0b;left:24%;animation-duration:24s;animation-delay:3s}
+        .bg-shapes span:nth-child(3){width:76px;height:76px;background:#ec4899;left:52%;animation-duration:28s;animation-delay:1s}
+        .bg-shapes span:nth-child(4){width:30px;height:30px;background:#10b981;left:72%;animation-duration:22s;animation-delay:5s}
+        .bg-shapes span:nth-child(5){width:46px;height:46px;background:#8b5cf6;left:86%;animation-duration:26s;animation-delay:2s}
+        .bg-shapes span:nth-child(6){width:22px;height:22px;background:#06b6d4;left:38%;animation-duration:18s;animation-delay:4s}
+        @keyframes floatUp{0%{bottom:-80px;transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.1)}100%{bottom:110vh;transform:rotate(360deg) scale(1)}}
+
+        .wrap{max-width:1120px;margin:0 auto;min-height:100vh;padding:0 20px;container-type:inline-size;container-name:lb;position:relative;z-index:1}
+
+        /* ===== HEADER ===== */
+        .hdr{padding:26px 0 22px}
+        .hdr-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-bottom:6px}
+        .hdr-top .week-tag{justify-self:start}
+        .hdr-top .mode-switch{justify-self:end}
+        .week-tag{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;background:#fff;border-radius:99px;font-size:12px;font-weight:700;color:#475569;box-shadow:0 2px 12px rgba(99,102,241,.10);border:1px solid rgba(99,102,241,.14)}
+        .week-dot{width:9px;height:9px;border-radius:50%;background:#10b981;box-shadow:0 0 8px rgba(16,185,129,.5);animation:pulse 2s ease-in-out infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+        .mode-switch{display:inline-flex;padding:4px;background:#fff;border:1px solid rgba(99,102,241,.14);border-radius:99px;box-shadow:0 2px 12px rgba(99,102,241,.08)}
+        .mode-btn{padding:7px 18px;border:none;background:transparent;border-radius:99px;font-size:12px;font-weight:700;color:#64748b;cursor:pointer;transition:all .2s ease;font-family:inherit}
+        .mode-btn:hover{color:#4f46e5}
+        .mode-btn.active{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;box-shadow:0 4px 12px rgba(99,102,241,.35)}
+
+        .hdr-title{text-align:center;justify-self:center}
+        .hdr-title h1{font-size:24px;font-weight:900;letter-spacing:-.01em;text-transform:none;line-height:1.1;background:linear-gradient(90deg,#4338ca,#7c3aed 55%,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .hdr-title p{font-size:11px;color:#64748b;font-weight:500;margin-top:4px;letter-spacing:.02em}
+
+        /* ===== LAYOUT GRID ===== */
+        .lb-layout{display:grid;grid-template-columns:1fr;gap:22px;align-items:flex-start;padding-bottom:40px}
+
+        /* ===== BỤC VINH QUANG ===== */
+        .podium-side{display:none;background:#fff;padding:26px 20px 20px;border-radius:22px;box-shadow:0 10px 40px rgba(99,102,241,.08),0 2px 8px rgba(0,0,0,.03);border:1px solid rgba(99,102,241,.10);position:relative;overflow:hidden}
+        .podium-side::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 12% 12%,rgba(99,102,241,.10) 0%,transparent 50%),radial-gradient(circle at 88% 88%,rgba(251,191,36,.08) 0%,transparent 50%);pointer-events:none}
+        .podium-title{font-size:12.5px;font-weight:800;text-align:center;text-transform:uppercase;letter-spacing:.06em;color:#4f46e5;margin-bottom:22px;position:relative}
+
+        .top3{display:flex;justify-content:center;align-items:flex-end;gap:14px;padding:0 4px;position:relative}
+        .top3-item{display:flex;flex-direction:column;align-items:center;width:98px;min-height:270px;justify-content:flex-end;position:relative}
+        .ava-ring{display:inline-block;border-radius:50%;padding:4px;line-height:0;position:relative}
+        .ring-gold{background:linear-gradient(135deg,#fbbf24,#f59e0b);box-shadow:0 0 22px rgba(251,191,36,.35),0 0 44px rgba(251,191,36,.12);animation:goldGlow 2s ease-in-out infinite alternate}
+        .ring-silver{background:linear-gradient(135deg,#cbd5e1,#94a3b8);box-shadow:0 0 14px rgba(148,163,184,.25)}
+        .ring-bronze{background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 0 14px rgba(217,119,6,.25)}
+        @keyframes goldGlow{from{box-shadow:0 0 14px rgba(251,191,36,.25),0 0 30px rgba(251,191,36,.08)}to{box-shadow:0 0 26px rgba(251,191,36,.5),0 0 52px rgba(251,191,36,.16)}}
+        .ava-inner{border-radius:50%;overflow:hidden;background:#f1f5f9;display:flex;align-items:center;justify-content:center}
+        .ava-inner img{width:100%;height:100%;object-fit:cover;display:block}
+        .ava-initial{font-weight:800;color:#64748b}
+        .t3-medal{font-size:20px;margin-top:5px;line-height:1}
+        .rank-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;margin-bottom:6px;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+        .rank-1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#451a03}
+        .rank-2{background:linear-gradient(135deg,#e2e8f0,#94a3b8);color:#1e293b}
+        .rank-3{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+        .t3-name{font-size:12.5px;font-weight:700;color:#1e293b;margin-top:6px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+        .t3-score{font-size:16px;font-weight:900;margin-top:2px;color:#4f46e5}
+        .t3-time{font-size:14px;font-weight:800;margin-top:2px;color:#10b981}
+        .t3-meta{font-size:10.5px;color:#94a3b8;font-weight:500;margin-top:1px}
+        .t3-bar{width:100%;border-radius:8px 8px 0 0;margin-top:8px;position:relative;overflow:hidden}
+        .bar-rank{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:26px;font-weight:900;opacity:.06;pointer-events:none}
+        .bar-gold{background:linear-gradient(180deg,rgba(251,191,36,.25),rgba(251,191,36,.04))}
+        .bar-silver{background:linear-gradient(180deg,rgba(148,163,184,.18),rgba(148,163,184,.03))}
+        .bar-bronze{background:linear-gradient(180deg,rgba(245,158,11,.16),rgba(245,158,11,.02))}
+
+        /* ===== BẢNG ===== */
+        .list-side{background:#fff;padding:8px;border-radius:18px;box-shadow:0 10px 40px rgba(99,102,241,.07),0 2px 8px rgba(0,0,0,.02);border:1px solid rgba(99,102,241,.10);overflow:hidden}
+        .table-responsive{width:100%;overflow:hidden}
+        table{width:100%;border-collapse:collapse;text-align:left;table-layout:fixed}
+        th,td{padding:10px 12px;font-size:13px;vertical-align:middle}
+        
+        /* FIX CHỒNG CHỮ: Cố định độ rộng và canh lề rõ ràng cho các cột */
+        th:first-child,td:first-child{width:60px;text-align:center;} /* Cột Hạng rộng hơn và canh giữa */
+        th:nth-child(3),td:nth-child(3){width:80px;text-align:center;}
+        th:nth-child(4),td:nth-child(4){width:80px;text-align:center;}
+        th:nth-child(5),td:nth-child(5){width:75px;text-align:right;}
+
+        th{background:linear-gradient(135deg,#eef2ff,#f5f3ff);color:#4f46e5;font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:.05em;border-bottom:2px solid rgba(99,102,241,.14)}
+        tr{border-bottom:1px solid #f1f5f9;transition:all .2s ease}
+        tr:last-child{border-bottom:none}
+        tr:hover{background:#f8f7ff}
+        tr.row-rank-1{background:linear-gradient(90deg,#fef9c3,#fffbeb)}
+        tr.row-rank-2{background-color:#f1f5f9}
+        tr.row-rank-3{background-color:#fff7ed}
+        /* SELF HIGHLIGHT */
+        tr.ld-me{background:linear-gradient(90deg,rgba(79,70,229,.13),rgba(79,70,229,.02))!important;box-shadow:inset 3px 0 0 #4f46e5}
+        tr.ld-me .name-cell span:not(.me-badge){font-weight:800;color:#4f46e5}
+        .me-badge{display:inline-flex;align-items:center;margin-left:8px;padding:2px 8px;border-radius:999px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.3px;flex-shrink:0}
+        .t3-me-badge{display:inline-block;margin:3px auto 0;padding:2px 10px;border-radius:999px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:11px;font-weight:700}
+
+        .rank-badge{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#64748b;background:#e2e8f0;margin:0 auto;}
+        tr.row-rank-1 .rank-badge{background:#fef3c7;color:#b45309}
+        tr.row-rank-2 .rank-badge{background:#cbd5e1;color:#334155}
+        tr.row-rank-3 .rank-badge{background:#ffedd5;color:#c2410c}
+        .rank-badge-medal{font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center}
+
+        .name-cell{display:flex;align-items:center;gap:8px;font-weight:600;color:#0f172a;overflow:hidden}
+        .name-cell span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .row-ava{width:28px;height:28px;border-radius:50%;object-fit:cover;background:#e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+        .row-ava-fb{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#e0e7ff,#f3e8ff);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#6366f1}
+        .count-cell{color:#475569;font-weight:500;text-align:center;}
+        .th-short{display:none}
+        .score-cell{background:linear-gradient(135deg,#4f46e5,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:800;font-size:13.5px}
+        .time-cell{color:#4f46e5;font-weight:700;font-family:'Inter',monospace;font-size:13px;letter-spacing:.02em}
+
+        /* LOADING SKELETON */
+        .sk{height:16px;border-radius:4px;background:linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 37%,#e2e8f0 63%);background-size:400% 100%;animation:sh 1.4s ease infinite}
+        @keyframes sh{0%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+        /* EMPTY STATE */
+        .lb-empty{padding:44px 20px;text-align:center}
+        .lb-empty-icon{font-size:46px;line-height:1;margin-bottom:12px;display:inline-block;animation:lbEmptyFloat 3s ease-in-out infinite}
+        @keyframes lbEmptyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+        .lb-empty-title{font-size:15px;font-weight:800;color:#334155;margin-bottom:5px}
+        .lb-empty-sub{font-size:12.5px;color:#94a3b8;margin-bottom:0;line-height:1.7}
+        @media (prefers-reduced-motion: reduce){.lb-empty-icon{animation:none}}
+
+        /* COMPACT MODE (profile embed) */
+        body.compact .hdr,
+        body.compact .podium-side,
+        body.compact .bg-shapes,
+        body.compact .mode-switch{display:none!important}
+        body.compact .wrap{min-height:auto;padding-top:8px}
+        body.compact .lb-layout{padding-bottom:0}
+        body.compact .list-side{box-shadow:none;border:none;padding:4px}
+
+        /* RESPONSIVE */
+        @container lb (min-width: 860px) {
+            .lb-layout{grid-template-columns:340px 1fr}
+            .podium-side{display:block;position:sticky;top:16px}
+        }
+
+        @container lb (max-width: 640px) {
+            .hdr-top{grid-template-columns:1fr;justify-items:center;gap:10px}
+            .hdr-top .week-tag,.hdr-top .mode-switch{justify-self:center}
+            .hdr-title h1{font-size:20px}
+            th,td{padding:9px 6px;font-size:12px}
+            th:first-child,td:first-child{width:40px}
+            th:nth-child(2){text-align:center}
+            /* Mobile: header rút gọn, cột Tên chiếm chỗ nhiều nhất */
+            .th-long{display:none}
+            .th-short{display:inline}
+            th:nth-child(3),td:nth-child(3){width:44px}
+            th:nth-child(4),td:nth-child(4){width:56px}
+            th:nth-child(5),td:nth-child(5){width:48px}
+            .name-cell span:not(.me-badge){min-width:0}
+            .row-ava,.row-ava-fb{display:none}
+            .cell-unit{display:none}
+        }
+
+        .tab-panel{display:none}
+        .tab-panel.active{display:block}
+    </style>
+<script src="../../version/version-check.js" defer></script>
+</head>
+<body>
+    <div class="bg-shapes"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="wrap">
+        <header class="hdr">
+            <div class="hdr-top">
+                <div class="week-tag"><span class="week-dot"></span><span id="week-label">—</span></div>
+                <div class="hdr-title">
+                    <h1><i class="fas fa-trophy"></i> Bảng Xếp Hạng</h1>
+                    <p>Vinh danh học viên xuất sắc</p>
+                </div>
+                <div class="mode-switch">
+                    <button type="button" class="mode-btn active" data-mode="score" onclick="switchTab('score')">Điểm số</button>
+                    <button type="button" class="mode-btn" data-mode="time" onclick="switchTab('time')">Thời gian online</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- TAB: ĐIỂM SỐ -->
+        <div class="tab-panel active" id="tab-score">
+        <div class="lb-layout">
+            <div class="podium-side">
+                <div class="podium-title"><i class="fas fa-trophy"></i> Vinh danh Top 3 Tuần</div>
+                <div class="top3" id="podium"></div>
+            </div>
+
+            <div class="list-side">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Hạng</th>
+                                <th><span class="th-long">Tên người dùng</span><span class="th-short">Tên</span></th>
+                                <th><span class="th-long">Đã làm</span><span class="th-short">Bài</span></th>
+                                <th style="text-align: center;">Video</th>
+                                <th style="text-align: right;">Điểm</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:60%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:40px; margin:auto"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:45%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:40px; margin:auto"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:50%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:40px; margin:auto"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- TAB: THỜI GIAN ONLINE -->
+        <div class="tab-panel" id="tab-time">
+        <div class="lb-layout">
+            <div class="podium-side">
+                <div class="podium-title"><i class="fas fa-clock"></i> Vinh danh Top 3 Online</div>
+                <div class="top3" id="podium-time"></div>
+            </div>
+
+            <div class="list-side">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 60px; text-align: center;">Hạng</th>
+                                <th>Tên người dùng</th>
+                                <th style="width: 120px; text-align: right;">Tổng online</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body-time">
+                            <tr class="ld-row"><td><div class="sk" style="width:30px; margin:auto"></div></td><td><div class="sk" style="width:60%"></div></td><td><div class="sk" style="width:80px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px; margin:auto"></div></td><td><div class="sk" style="width:45%"></div></td><td><div class="sk" style="width:80px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px; margin:auto"></div></td><td><div class="sk" style="width:50%"></div></td><td><div class="sk" style="width:80px; margin-left:auto"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase, createLearnHubClient, logAppError } from "../../scripts/core/supabase-config.js";
+        window.logAppError = logAppError;
+        import { getWeekKey, getWeekStartMs, formatTimer } from "../../scripts/features/week-math.js";
+
+        let activeSupabase = supabase;
+        let myId = null;
+
+        window.addEventListener("message", async (e) => {
+            if (e.data && e.data.type === "ADMIN_SESSION" && e.data.accessToken) {
+                try {
+                    const adminClient = createLearnHubClient({ storageKey: "learnhub-admin-auth" });
+                    await adminClient.auth.setSession({
+                        access_token: e.data.accessToken,
+                        refresh_token: e.data.refresh_token
+                    });
+                    activeSupabase = adminClient;
+                    try {
+                        const { data: { user } } = await adminClient.auth.getUser();
+                        myId = user ? user.id : null;
+                    } catch (_) { myId = null; }
+                    load();
+                    loadOnlineTime();
+                } catch(err) {
+                    console.warn("[leaderboard] Failed to set admin session:", err);
+                }
+            }
+        });
+
+        function esc(t) { return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+        function ringAva(photo, name, size, ringCls) {
+            const fs = Math.round(size * .38);
+            const inner = photo
+                ? `<img src="${esc(photo)}" style="width:${size}px;height:${size}px" alt="">`
+                : `<div class="ava-initial" style="width:${size}px;height:${size}px;font-size:${fs}px;display:flex;align-items:center;justify-content:center">${esc(name.charAt(0))}</div>`;
+            return `<div class="ava-ring ${ringCls}"><div class="ava-inner">${inner}</div></div>`;
+        }
+
+        function rowAva(photo, name) {
+            if (photo) return `<img class="row-ava" src="${esc(photo)}" alt="">`;
+            return `<div class="row-ava-fb">${esc(name.charAt(0))}</div>`;
+        }
+
+        window.switchTab = function(tab) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + tab));
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === tab));
+        };
+
+        let scoreLoadBusy = false;
+        let scoreLoadPending = false; // [FIX BUG #28] nếu đang bận mà có yêu cầu mới -> chạy lại sau
+        async function load() {
+            if (scoreLoadBusy) { scoreLoadPending = true; return; }
+            scoreLoadBusy = true;
+            document.getElementById("week-label").textContent = getWeekKey();
+
+            try {
+                const [{ data: stats }, { data: users }] = await Promise.all([
+                    activeSupabase.from("test_stats").select("user_id, total_score, total_tests, total_videos").eq("week_key", getWeekKey()),
+                    activeSupabase.from("users").select("id, name, email, photo")
+                ]);
+
+                const userMap = new Map((users || []).map(u => [u.id, u]));
+                const rows = [];
+                for (const s of (stats || [])) {
+                    const score = Number(s.total_score || 0);
+                    if (score <= 0) continue;
+                    const ud = userMap.get(s.user_id) || {};
+                    rows.push({
+                        uid: s.user_id,
+                        name: ud.name || ud.email || "Ẩn danh",
+                        photo: ud.photo || "",
+                        score,
+                        tests: Number(s.total_tests || 0),
+                        videos: Number(s.total_videos || 0)
+                    });
+                }
+                rows.sort((a, b) => b.score - a.score);
+
+                const podiumEl = document.getElementById("podium");
+                const tbodyEl = document.getElementById("table-body");
+
+                if (!rows.length) {
+                    tbodyEl.innerHTML = `<tr><td colspan="5">
+                        <div class="lb-empty">
+                            <div class="lb-empty-icon"><i class="fas fa-trophy"></i></div>
+                            <div class="lb-empty-title">Bảng xếp hạng còn trống</div>
+                            <div class="lb-empty-sub">Chưa có ai làm bài thi trong tuần này.<br>Hãy là người đầu tiên ghi tên mình lên bảng vinh danh!</div>
+
+                        </div>
+                    </td></tr>`;
+                    return;
+                }
+
+                const top3 = rows.slice(0, 3);
+
+                function buildPodium(items, layout) {
+                    return layout.map(({ idx, ring, bar, avSz, barH, rank, medal }) => {
+                        const u = items[idx];
+                        if (!u) return '';
+                        return `<div class="top3-item">
+                            <div class="rank-num rank-${rank}">${rank}</div>
+                            ${ringAva(u.photo, u.name, avSz, ring)}
+                            <div class="t3-medal">${medal}</div>
+                            <div class="t3-name" title="${esc(u.name)}">${esc(u.name)}</div>
+                            ${u.uid === myId ? '<div class="t3-me-badge">Bạn</div>' : ''}
+                            <div class="t3-score">${u.score}đ</div>
+                            <div class="t3-meta">${u.tests} bài thi</div>
+                            <div class="t3-bar ${bar}" style="height:${barH}px"><span class="bar-rank">#${rank}</span></div>
+                        </div>`;
+                    }).join('');
+                }
+
+                if (top3.length === 1) {
+                    podiumEl.innerHTML = buildPodium(top3, [{ idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }]);
+                } else if (top3.length === 2) {
+                    podiumEl.innerHTML = buildPodium(top3, [
+                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
+                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }
+                    ]);
+                } else {
+                    podiumEl.innerHTML = buildPodium(top3, [
+                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
+                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' },
+                        { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: '<i class="fas fa-medal" style="color:#b45309"></i>' }
+                    ]);
+                }
+
+                const medals = ['<i class="fas fa-medal" style="color:#f59e0b"></i>', '<i class="fas fa-medal" style="color:#94a3b8"></i>', '<i class="fas fa-medal" style="color:#b45309"></i>'];
+                tbodyEl.innerHTML = rows.map((u, i) => {
+                    const rankNum = i + 1;
+                    const specialClass = rankNum <= 3 ? `row-rank-${rankNum}` : '';
+                    const rankDisplay = rankNum <= 3 ? `<span class="rank-badge-medal">${medals[rankNum - 1]}</span>` : `<span class="rank-badge">${rankNum}</span>`;
+                    
+                    return `<tr class="${specialClass}${u.uid === myId ? ' ld-me' : ''}">
+                        <td style="text-align: center;">${rankDisplay}</td>
+                        <td>
+                            <div class="name-cell">
+                                ${rowAva(u.photo, u.name)}
+                                <span title="${esc(u.name)}">${esc(u.name)}</span>
+                                ${u.uid === myId ? '<span class="me-badge">Bạn</span>' : ''}
+                            </div>
+                        </td>
+                        <td class="count-cell">${u.tests}<span class="cell-unit"> bài</span></td>
+                        <td class="count-cell">${u.videos}<span class="cell-unit"> video</span></td>
+                        <td class="score-cell" style="text-align: right;">${u.score}đ</td>
+                    </tr>`;
+                }).join('');
+
+                // Không cuộn trang cha khi leaderboard được nhúng trong profile compact.
+                if (myId && !document.body.classList.contains("compact")) {
+                    const meRow = tbodyEl.querySelector('tr.ld-me');
+                    if (meRow) setTimeout(() => {
+                        const r = meRow.getBoundingClientRect();
+                        if (r.top < 80 || r.bottom > window.innerHeight - 40) meRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 400);
+                }
+
+            } catch (e) {
+                console.error("[load-score]", e);
+                document.getElementById("table-body").innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu xếp hạng điểm.</td></tr>`;
+            } finally {
+                scoreLoadBusy = false;
+                // [FIX BUG #28] Có yêu cầu nạp bị bỏ qua trong lúc bận -> chạy lại ngay
+                if (scoreLoadPending) { scoreLoadPending = false; load(); }
+            }
+        }
+
+        let timeLoadBusy = false;
+        let timeLoadPending = false; // [FIX BUG #28]
+        async function loadOnlineTime() {
+            if (timeLoadBusy) { timeLoadPending = true; return; }
+            timeLoadBusy = true;
+            try {
+                const { data: allUsers } = await activeSupabase.from("users")
+                    .select("id, name, email, photo, online, online_timer, online_start_time, online_week_key, last_active, disabled");
+                const rows = [];
+                const now = Date.now();
+                const THRESHOLD = 10000;
+                const currentWeekKey = getWeekKey();
+                const weekStart = getWeekStartMs();
+                for (const ud of (allUsers || [])) {
+                    if (ud.disabled) continue;
+                    const userWeekKey = ud.online_week_key || "";
+                    let effectiveTimer = 0;
+                    if (userWeekKey === currentWeekKey) {
+                        effectiveTimer = Number(ud.online_timer || 0);
+                    }
+                    if (ud.online && ud.online_start_time > 0 && ud.last_active) {
+                        const sessionStart = Math.max(ud.online_start_time, weekStart);
+                        const endMs = (now - ud.last_active) < THRESHOLD ? now : ud.last_active;
+                        const sessionSeconds = Math.max(0, Math.floor((endMs - sessionStart) / 1000));
+                        if (userWeekKey === currentWeekKey) effectiveTimer += sessionSeconds;
+                        else effectiveTimer = sessionSeconds;
+                    } else if (userWeekKey !== currentWeekKey) {
+                        effectiveTimer = 0;
+                    }
+                    if (effectiveTimer <= 0) continue;
+                    rows.push({
+                        uid: ud.id,
+                        name: ud.name || ud.email || "Ẩn danh",
+                        photo: ud.photo || "",
+                        timer: effectiveTimer
+                    });
+                }
+                rows.sort((a, b) => b.timer - a.timer);
+
+                const podiumEl = document.getElementById("podium-time");
+                const tbodyEl = document.getElementById("table-body-time");
+
+                if (!rows.length) {
+                    tbodyEl.innerHTML = `<tr><td colspan="3">
+                        <div class="lb-empty">
+                            <div class="lb-empty-icon"><i class="fas fa-clock"></i></div>
+                            <div class="lb-empty-title">Chưa có dữ liệu online</div>
+                            <div class="lb-empty-sub">Thời gian học online tuần này của bạn sẽ được ghi nhận<br>khi bạn truy cập và học tập trên LearnHub.</div>
+                        </div>
+                    </td></tr>`;
+                    return;
+                }
+
+                const top3 = rows.slice(0, 3);
+
+                function buildTimePodium(items, layout) {
+                    return layout.map(({ idx, ring, bar, avSz, barH, rank, medal }) => {
+                        const u = items[idx];
+                        if (!u) return '';
+                        return `<div class="top3-item">
+                            <div class="rank-num rank-${rank}">${rank}</div>
+                            ${ringAva(u.photo, u.name, avSz, ring)}
+                            <div class="t3-medal">${medal}</div>
+                            <div class="t3-name" title="${esc(u.name)}">${esc(u.name)}</div>
+                            ${u.uid === myId ? '<div class="t3-me-badge">Bạn</div>' : ''}
+                            <div class="t3-time">${formatTimer(u.timer)}</div>
+                            <div class="t3-meta">online</div>
+                            <div class="t3-bar ${bar}" style="height:${barH}px"><span class="bar-rank">#${rank}</span></div>
+                        </div>`;
+                    }).join('');
+                }
+
+                if (top3.length === 1) {
+                    podiumEl.innerHTML = buildTimePodium(top3, [{ idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }]);
+                } else if (top3.length === 2) {
+                    podiumEl.innerHTML = buildTimePodium(top3, [
+                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
+                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }
+                    ]);
+                } else {
+                    podiumEl.innerHTML = buildTimePodium(top3, [
+                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
+                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' },
+                        { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: '<i class="fas fa-medal" style="color:#b45309"></i>' }
+                    ]);
+                }
+
+                const medals = ['<i class="fas fa-medal" style="color:#f59e0b"></i>', '<i class="fas fa-medal" style="color:#94a3b8"></i>', '<i class="fas fa-medal" style="color:#b45309"></i>'];
+                tbodyEl.innerHTML = rows.map((u, i) => {
+                    const rankNum = i + 1;
+                    const specialClass = rankNum <= 3 ? `row-rank-${rankNum}` : '';
+                    const rankDisplay = rankNum <= 3 ? `<span class="rank-badge-medal">${medals[rankNum - 1]}</span>` : `<span class="rank-badge">${rankNum}</span>`;
+
+                    return `<tr class="${specialClass}${u.uid === myId ? ' ld-me' : ''}">
+                        <td style="text-align: center;">${rankDisplay}</td>
+                        <td>
+                            <div class="name-cell">
+                                ${rowAva(u.photo, u.name)}
+                                <span title="${esc(u.name)}">${esc(u.name)}</span>
+                                ${u.uid === myId ? '<span class="me-badge">Bạn</span>' : ''}
+                            </div>
+                        </td>
+                        <td class="time-cell" style="text-align: right;">${formatTimer(u.timer)}</td>
+                    </tr>`;
+                }).join('');
+
+                // Không cuộn trang cha khi leaderboard được nhúng trong profile compact.
+                if (myId && !document.body.classList.contains("compact")) {
+                    const meRow = tbodyEl.querySelector('tr.ld-me');
+                    if (meRow) setTimeout(() => {
+                        const r = meRow.getBoundingClientRect();
+                        if (r.top < 80 || r.bottom > window.innerHeight - 40) meRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 400);
+                }
+
+            } catch (e) {
+                console.error("[load-online-time]", e);
+                document.getElementById("table-body-time").innerHTML = `<tr><td colspan="3" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu xếp hạng thời gian.</td></tr>`;
+            } finally {
+                timeLoadBusy = false;
+                // [FIX BUG #28] Có yêu cầu nạp bị bỏ qua trong lúc bận -> chạy lại ngay
+                if (timeLoadPending) { timeLoadPending = false; loadOnlineTime(); }
+            }
+        }
+
+        if (new URLSearchParams(location.search).get("compact") === "1") document.body.classList.add("compact");
+        (async () => {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                myId = user ? user.id : null;
+            } catch (_) { myId = null; }
+            load();
+            loadOnlineTime();
+        })();
+    </script>
+</body>
+</html>
 </file>
 
 <file path="scripts/features/learnhub-stats.js">
@@ -53579,7 +53609,7 @@ grant execute on function public.teacher_delete_tailieu_doc(uuid) to authenticat
     </script>
 
     <script type="module">
-import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession, logAppError } from "../../scripts/core/supabase-config.js";
+import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSessionKeepalive, logAppError } from "../../scripts/core/supabase-config.js";
         window.logAppError = logAppError;
         import { getWeekKey, getWeekStartMs, formatTimer } from "../../scripts/features/week-math.js";
         import { loadTestAttempts, loadTestAttempt } from "../../scripts/features/learnhub-stats.js";
@@ -53601,7 +53631,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
             if (isOnline) {
                 return beginOnlineSession(currentUserId);
             } else {
-                return finalizeOnlineSession(currentUserId);
+                return finalizeOnlineSessionKeepalive(currentUserId);
             }
         }
 
@@ -53625,30 +53655,6 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
         // pagehide: finalize kể cả khi đóng tab / rời trang (RPC idempotent nên an toàn khi gọi trùng)
         window.addEventListener("pagehide", () => {
             if(activeInterval){ clearInterval(activeInterval); activeInterval = null; }
-            updateOnlineStatus(false);
-        });
-
-        // beforeunload: dùng sendBeacon + keepalive fetch đảm bảo RPC hoàn thành trước khi trang đóng
-        window.addEventListener("beforeunload", () => {
-            if (!currentUserId) return;
-            try {
-                const rpcUrl = "https://hyuzukvxulwouaexatqv.supabase.co/rest/v1/rpc/users_finalize_online";
-                const body = JSON.stringify({ p_uid: currentUserId });
-                navigator.sendBeacon(rpcUrl, new Blob([body], { type: "application/json" }));
-            } catch(e) {}
-            try {
-                const rpcUrl = "https://hyuzukvxulwouaexatqv.supabase.co/rest/v1/rpc/users_finalize_online";
-                fetch(rpcUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "apikey": "sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J",
-                        "Authorization": "Bearer sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J"
-                    },
-                    body: JSON.stringify({ p_uid: currentUserId }),
-                    keepalive: true
-                }).catch(()=>{});
-            } catch(e) {}
             updateOnlineStatus(false);
         });
 
@@ -54572,13 +54578,15 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                     let effectiveTimer = 0;
                     if (userWeekKey === weekKey) {
                         effectiveTimer = Number(data.online_timer || 0);
-                        if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
-                            const sessionStart = Math.max(data.online_start_time, weekStart);
-                            effectiveTimer += Math.floor((now - sessionStart) / 1000);
-                        }
-                    } else if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
+                    }
+                    if (data.online && data.online_start_time > 0 && data.last_active) {
                         const sessionStart = Math.max(data.online_start_time, weekStart);
-                        effectiveTimer = Math.floor((now - sessionStart) / 1000);
+                        const endMs = (now - data.last_active) < 10000 ? now : data.last_active;
+                        const sessionSeconds = Math.max(0, Math.floor((endMs - sessionStart) / 1000));
+                        if (userWeekKey === weekKey) effectiveTimer += sessionSeconds;
+                        else effectiveTimer = sessionSeconds;
+                    } else if (userWeekKey !== weekKey) {
+                        effectiveTimer = 0;
                     }
                     setOnlineDisplay(effectiveTimer, 'view-' + userId);
 
@@ -54657,13 +54665,15 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                     let effectiveTimer = 0;
                     if (userWeekKey === weekKey) {
                         effectiveTimer = Number(data.online_timer || 0);
-                        if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
-                            const sessionStart = Math.max(data.online_start_time, weekStart);
-                            effectiveTimer += Math.floor((now - sessionStart) / 1000);
-                        }
-                    } else if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
+                    }
+                    if (data.online && data.online_start_time > 0 && data.last_active) {
                         const sessionStart = Math.max(data.online_start_time, weekStart);
-                        effectiveTimer = Math.floor((now - sessionStart) / 1000);
+                        const endMs = (now - data.last_active) < 10000 ? now : data.last_active;
+                        const sessionSeconds = Math.max(0, Math.floor((endMs - sessionStart) / 1000));
+                        if (userWeekKey === weekKey) effectiveTimer += sessionSeconds;
+                        else effectiveTimer = sessionSeconds;
+                    } else if (userWeekKey !== weekKey) {
+                        effectiveTimer = 0;
                     }
                     setOnlineDisplay(effectiveTimer, 'own');
 
@@ -55197,6 +55207,104 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
 </html>
 </file>
 
+<file path="service-worker.js">
+/* ============================================================
+   LearnHub Service Worker
+   - HTML (navigation): network-first → offline fallback cache
+   - Tài nguyên tĩnh cùng origin: cache-first + cập nhật ngầm (SWR)
+   - Bỏ qua mọi request cross-origin (Supabase, CDN, YouTube...)
+   ============================================================ */
+
+const CACHE_VERSION = "learnhub-v41";
+
+const CORE_ASSETS = [
+  "/",
+  "/index.html",
+  "/pages/auth/login.html",
+  "/styles/global.css",
+  "/scripts/core/script.js",
+  "/scripts/core/toast.js",
+  "/scripts/core/supabase-config.js",
+  "/manifest.json",
+  "/service-worker.js",
+  "/version/version-check.js",
+  "/assets/images/favicon.png",
+  "/assets/images/icons/icon-192.png",
+  "/assets/images/icons/icon-512.png"
+];
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_VERSION)
+      .then((cache) => cache.addAll(CORE_ASSETS))
+      .then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then((keys) => Promise.all(
+        keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k))
+      ))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener("fetch", (event) => {
+  const req = event.request;
+  if (req.method !== "GET") return;
+
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return; // Supabase / CDN / font... để trình duyệt tự lo
+
+  const isNavigation = req.mode === "navigate"
+    || (req.headers.get("accept") || "").includes("text/html")
+    || url.pathname === "/"
+    || url.pathname.endsWith(".html");
+
+  // File phiên bản (version-check.js, version.json) luôn ưu tiên mạng:
+  // nếu để cache-first thì sau khi reload trang vẫn chạy LH_VERSION cũ
+  // trong khi version.json đã mới => banner "Tải lại" hiện lặp lại 2 lần.
+  const isVersionAsset = url.pathname.indexOf("/version/") === 0;
+
+  if (isNavigation || isVersionAsset) {
+    // Trang HTML + file phiên bản: ưu tiên mạng để luôn nhận bản mới sau deploy, offline thì dùng cache
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          // Không cache các URL poll có query (?t=timestamp) — tránh phình Cache Storage
+          if (isNavigation && !url.search) {
+            const copy = res.clone();
+            caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() =>
+          caches.match(req).then((hit) => hit || caches.match("/index.html"))
+        )
+    );
+    return;
+  }
+
+  // Tài nguyên tĩnh: trả từ cache ngay (nhanh), đồng thời tải bản mới cập nhật ngầm
+  event.respondWith(
+    caches.match(req).then((hit) => {
+      const refresh = fetch(req)
+        .then((res) => {
+          if (res && res.status === 200 && res.type === "basic") {
+            const copy = res.clone();
+            caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() => hit);
+      return hit || refresh;
+    })
+  );
+});
+</file>
+
 <file path="index.html">
 <!DOCTYPE html>
 <html lang="vi">
@@ -55720,7 +55828,7 @@ fetch('components/header.html').then(r=>r.text()).then(html=>{
 
 
 <script type="module">
-import { supabase, SUPABASE_URL, getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession, logAppError } from "./scripts/core/supabase-config.js";
+import { supabase, getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession, finalizeOnlineSessionKeepalive, logAppError } from "./scripts/core/supabase-config.js";
 import { createUserStats, updateUserStats, insertTestAttempt } from "./scripts/features/learnhub-stats.js";
 import { isPasswordRecovery } from "./scripts/auth/reset-password.js";
 window.logAppError = logAppError;
@@ -56461,7 +56569,7 @@ if (user) {
   if(isOnline){
     return beginOnlineSession(user.id);
   } else {
-    return finalizeOnlineSession(user.id);
+    return finalizeOnlineSessionKeepalive(user.id);
   }
 }
 };
@@ -56484,7 +56592,7 @@ document.addEventListener("visibilitychange", () => {
 });
 
 // pagehide: bắn khi đóng tab / rời trang — finalize kể cả khi visibilitychange bị bỏ lỡ.
-// RPC finalize idempotent nên gọi trùng với visibilitychange/beforeunload vẫn an toàn.
+// RPC finalize idempotent nên gọi trùng với visibilitychange vẫn an toàn.
 window.addEventListener("pagehide", () => {
   if(activeInterval){ clearInterval(activeInterval); activeInterval = null; }
   if(mailboxPollInterval){ clearInterval(mailboxPollInterval); mailboxPollInterval = null; }
@@ -56493,8 +56601,6 @@ window.addEventListener("pagehide", () => {
   stopAccessGuards();
   updateStatus(false);
 });
-
-// Trick để ép trình duyệt gửi dữ liệu cuối cùng trước khi đóng
 
 let usersChannel = null;
 let onlineUsersMap = new Map(); // userId -> DOM element
@@ -56637,30 +56743,6 @@ popup &&
 ){
 popup.style.display = "none";
 }
-});
-window.addEventListener("beforeunload", () => {
-  const user = currentSupabaseUser;
-  if(user){
-    try {
-      const rpcUrl = SUPABASE_URL + "/rest/v1/rpc/users_finalize_online";
-      const body = JSON.stringify({ p_uid: user.id });
-      navigator.sendBeacon(rpcUrl, new Blob([body], { type: "application/json" }));
-    } catch(e) {}
-    try {
-      const rpcUrl = SUPABASE_URL + "/rest/v1/rpc/users_finalize_online";
-      fetch(rpcUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": "sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J",
-          "Authorization": "Bearer sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J"
-        },
-        body: JSON.stringify({ p_uid: user.id }),
-        keepalive: true
-      }).catch(()=>{});
-    } catch(e) {}
-    updateStatus(false);
-  }
 });
   window.supabaseClient = supabase;
   window.getCurrentLearnHubUser = () => window.currentLearnHubUser || null;
@@ -57215,104 +57297,6 @@ if ("serviceWorker" in navigator) {
 </script>
 </body>
 </html>
-</file>
-
-<file path="service-worker.js">
-/* ============================================================
-   LearnHub Service Worker
-   - HTML (navigation): network-first → offline fallback cache
-   - Tài nguyên tĩnh cùng origin: cache-first + cập nhật ngầm (SWR)
-   - Bỏ qua mọi request cross-origin (Supabase, CDN, YouTube...)
-   ============================================================ */
-
-const CACHE_VERSION = "learnhub-v41";
-
-const CORE_ASSETS = [
-  "/",
-  "/index.html",
-  "/pages/auth/login.html",
-  "/styles/global.css",
-  "/scripts/core/script.js",
-  "/scripts/core/toast.js",
-  "/scripts/core/supabase-config.js",
-  "/manifest.json",
-  "/service-worker.js",
-  "/version/version-check.js",
-  "/assets/images/favicon.png",
-  "/assets/images/icons/icon-192.png",
-  "/assets/images/icons/icon-512.png"
-];
-
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_VERSION)
-      .then((cache) => cache.addAll(CORE_ASSETS))
-      .then(() => self.skipWaiting())
-  );
-});
-
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys()
-      .then((keys) => Promise.all(
-        keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k))
-      ))
-      .then(() => self.clients.claim())
-  );
-});
-
-self.addEventListener("fetch", (event) => {
-  const req = event.request;
-  if (req.method !== "GET") return;
-
-  const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return; // Supabase / CDN / font... để trình duyệt tự lo
-
-  const isNavigation = req.mode === "navigate"
-    || (req.headers.get("accept") || "").includes("text/html")
-    || url.pathname === "/"
-    || url.pathname.endsWith(".html");
-
-  // File phiên bản (version-check.js, version.json) luôn ưu tiên mạng:
-  // nếu để cache-first thì sau khi reload trang vẫn chạy LH_VERSION cũ
-  // trong khi version.json đã mới => banner "Tải lại" hiện lặp lại 2 lần.
-  const isVersionAsset = url.pathname.indexOf("/version/") === 0;
-
-  if (isNavigation || isVersionAsset) {
-    // Trang HTML + file phiên bản: ưu tiên mạng để luôn nhận bản mới sau deploy, offline thì dùng cache
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
-          // Không cache các URL poll có query (?t=timestamp) — tránh phình Cache Storage
-          if (isNavigation && !url.search) {
-            const copy = res.clone();
-            caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
-          }
-          return res;
-        })
-        .catch(() =>
-          caches.match(req).then((hit) => hit || caches.match("/index.html"))
-        )
-    );
-    return;
-  }
-
-  // Tài nguyên tĩnh: trả từ cache ngay (nhanh), đồng thời tải bản mới cập nhật ngầm
-  event.respondWith(
-    caches.match(req).then((hit) => {
-      const refresh = fetch(req)
-        .then((res) => {
-          if (res && res.status === 200 && res.type === "basic") {
-            const copy = res.clone();
-            caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
-          }
-          return res;
-        })
-        .catch(() => hit);
-      return hit || refresh;
-    })
-  );
-});
 </file>
 
 </files>

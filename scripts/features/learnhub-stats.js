@@ -30,11 +30,19 @@ async function recordAutoWeeklyReset(weekKey) {
 }
 
 async function resetUserOnlineWeek(uid, weekKey) {
-  await supabase.from("users").update({
-    online_timer: 0,
-    online_start_time: 0,
-    online_week_key: weekKey
-  }).eq("id", uid);
+  try {
+    const { error } = await supabase.from("users").update({
+      online_timer: 0,
+      online_start_time: 0,
+      online_week_key: weekKey
+    }).eq("id", uid)
+      .or(`online_week_key.is.null,online_week_key.neq.${weekKey}`);
+    if (error) {
+      console.error("[learnhub-stats] Reset online week lỗi:", error);
+    }
+  } catch (error) {
+    console.error("[learnhub-stats] Reset online week lỗi:", error);
+  }
 }
 
 function camelStats(row) {
