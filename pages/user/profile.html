@@ -796,7 +796,7 @@
     </script>
 
     <script type="module">
-import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession, logAppError } from "../../scripts/core/supabase-config.js";
+import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSessionKeepalive, logAppError } from "../../scripts/core/supabase-config.js";
         window.logAppError = logAppError;
         import { getWeekKey, getWeekStartMs, formatTimer } from "../../scripts/features/week-math.js";
         import { loadTestAttempts, loadTestAttempt } from "../../scripts/features/learnhub-stats.js";
@@ -818,7 +818,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
             if (isOnline) {
                 return beginOnlineSession(currentUserId);
             } else {
-                return finalizeOnlineSession(currentUserId);
+                return finalizeOnlineSessionKeepalive(currentUserId);
             }
         }
 
@@ -842,30 +842,6 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
         // pagehide: finalize kể cả khi đóng tab / rời trang (RPC idempotent nên an toàn khi gọi trùng)
         window.addEventListener("pagehide", () => {
             if(activeInterval){ clearInterval(activeInterval); activeInterval = null; }
-            updateOnlineStatus(false);
-        });
-
-        // beforeunload: dùng sendBeacon + keepalive fetch đảm bảo RPC hoàn thành trước khi trang đóng
-        window.addEventListener("beforeunload", () => {
-            if (!currentUserId) return;
-            try {
-                const rpcUrl = "https://hyuzukvxulwouaexatqv.supabase.co/rest/v1/rpc/users_finalize_online";
-                const body = JSON.stringify({ p_uid: currentUserId });
-                navigator.sendBeacon(rpcUrl, new Blob([body], { type: "application/json" }));
-            } catch(e) {}
-            try {
-                const rpcUrl = "https://hyuzukvxulwouaexatqv.supabase.co/rest/v1/rpc/users_finalize_online";
-                fetch(rpcUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "apikey": "sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J",
-                        "Authorization": "Bearer sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J"
-                    },
-                    body: JSON.stringify({ p_uid: currentUserId }),
-                    keepalive: true
-                }).catch(()=>{});
-            } catch(e) {}
             updateOnlineStatus(false);
         });
 
@@ -1789,13 +1765,15 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                     let effectiveTimer = 0;
                     if (userWeekKey === weekKey) {
                         effectiveTimer = Number(data.online_timer || 0);
-                        if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
-                            const sessionStart = Math.max(data.online_start_time, weekStart);
-                            effectiveTimer += Math.floor((now - sessionStart) / 1000);
-                        }
-                    } else if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
+                    }
+                    if (data.online && data.online_start_time > 0 && data.last_active) {
                         const sessionStart = Math.max(data.online_start_time, weekStart);
-                        effectiveTimer = Math.floor((now - sessionStart) / 1000);
+                        const endMs = (now - data.last_active) < 10000 ? now : data.last_active;
+                        const sessionSeconds = Math.max(0, Math.floor((endMs - sessionStart) / 1000));
+                        if (userWeekKey === weekKey) effectiveTimer += sessionSeconds;
+                        else effectiveTimer = sessionSeconds;
+                    } else if (userWeekKey !== weekKey) {
+                        effectiveTimer = 0;
                     }
                     setOnlineDisplay(effectiveTimer, 'view-' + userId);
 
@@ -1874,13 +1852,15 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                     let effectiveTimer = 0;
                     if (userWeekKey === weekKey) {
                         effectiveTimer = Number(data.online_timer || 0);
-                        if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
-                            const sessionStart = Math.max(data.online_start_time, weekStart);
-                            effectiveTimer += Math.floor((now - sessionStart) / 1000);
-                        }
-                    } else if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
+                    }
+                    if (data.online && data.online_start_time > 0 && data.last_active) {
                         const sessionStart = Math.max(data.online_start_time, weekStart);
-                        effectiveTimer = Math.floor((now - sessionStart) / 1000);
+                        const endMs = (now - data.last_active) < 10000 ? now : data.last_active;
+                        const sessionSeconds = Math.max(0, Math.floor((endMs - sessionStart) / 1000));
+                        if (userWeekKey === weekKey) effectiveTimer += sessionSeconds;
+                        else effectiveTimer = sessionSeconds;
+                    } else if (userWeekKey !== weekKey) {
+                        effectiveTimer = 0;
                     }
                     setOnlineDisplay(effectiveTimer, 'own');
 

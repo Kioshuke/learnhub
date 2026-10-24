@@ -521,7 +521,7 @@ fetch('components/header.html').then(r=>r.text()).then(html=>{
 
 
 <script type="module">
-import { supabase, SUPABASE_URL, getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession, logAppError } from "./scripts/core/supabase-config.js";
+import { supabase, getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession, finalizeOnlineSessionKeepalive, logAppError } from "./scripts/core/supabase-config.js";
 import { createUserStats, updateUserStats, insertTestAttempt } from "./scripts/features/learnhub-stats.js";
 import { isPasswordRecovery } from "./scripts/auth/reset-password.js";
 window.logAppError = logAppError;
@@ -1262,7 +1262,7 @@ if (user) {
   if(isOnline){
     return beginOnlineSession(user.id);
   } else {
-    return finalizeOnlineSession(user.id);
+    return finalizeOnlineSessionKeepalive(user.id);
   }
 }
 };
@@ -1285,7 +1285,7 @@ document.addEventListener("visibilitychange", () => {
 });
 
 // pagehide: bắn khi đóng tab / rời trang — finalize kể cả khi visibilitychange bị bỏ lỡ.
-// RPC finalize idempotent nên gọi trùng với visibilitychange/beforeunload vẫn an toàn.
+// RPC finalize idempotent nên gọi trùng với visibilitychange vẫn an toàn.
 window.addEventListener("pagehide", () => {
   if(activeInterval){ clearInterval(activeInterval); activeInterval = null; }
   if(mailboxPollInterval){ clearInterval(mailboxPollInterval); mailboxPollInterval = null; }
@@ -1294,8 +1294,6 @@ window.addEventListener("pagehide", () => {
   stopAccessGuards();
   updateStatus(false);
 });
-
-// Trick để ép trình duyệt gửi dữ liệu cuối cùng trước khi đóng
 
 let usersChannel = null;
 let onlineUsersMap = new Map(); // userId -> DOM element
@@ -1438,30 +1436,6 @@ popup &&
 ){
 popup.style.display = "none";
 }
-});
-window.addEventListener("beforeunload", () => {
-  const user = currentSupabaseUser;
-  if(user){
-    try {
-      const rpcUrl = SUPABASE_URL + "/rest/v1/rpc/users_finalize_online";
-      const body = JSON.stringify({ p_uid: user.id });
-      navigator.sendBeacon(rpcUrl, new Blob([body], { type: "application/json" }));
-    } catch(e) {}
-    try {
-      const rpcUrl = SUPABASE_URL + "/rest/v1/rpc/users_finalize_online";
-      fetch(rpcUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": "sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J",
-          "Authorization": "Bearer sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J"
-        },
-        body: JSON.stringify({ p_uid: user.id }),
-        keepalive: true
-      }).catch(()=>{});
-    } catch(e) {}
-    updateStatus(false);
-  }
 });
   window.supabaseClient = supabase;
   window.getCurrentLearnHubUser = () => window.currentLearnHubUser || null;

@@ -442,13 +442,15 @@
                     let effectiveTimer = 0;
                     if (userWeekKey === currentWeekKey) {
                         effectiveTimer = Number(ud.online_timer || 0);
-                        if (ud.online && ud.last_active && (now - ud.last_active) < THRESHOLD && ud.online_start_time > 0) {
-                            const sessionStart = Math.max(ud.online_start_time, weekStart);
-                            effectiveTimer += Math.floor((now - sessionStart) / 1000);
-                        }
-                    } else if (ud.online && ud.last_active && (now - ud.last_active) < THRESHOLD && ud.online_start_time > 0) {
+                    }
+                    if (ud.online && ud.online_start_time > 0 && ud.last_active) {
                         const sessionStart = Math.max(ud.online_start_time, weekStart);
-                        effectiveTimer = Math.floor((now - sessionStart) / 1000);
+                        const endMs = (now - ud.last_active) < THRESHOLD ? now : ud.last_active;
+                        const sessionSeconds = Math.max(0, Math.floor((endMs - sessionStart) / 1000));
+                        if (userWeekKey === currentWeekKey) effectiveTimer += sessionSeconds;
+                        else effectiveTimer = sessionSeconds;
+                    } else if (userWeekKey !== currentWeekKey) {
+                        effectiveTimer = 0;
                     }
                     if (effectiveTimer <= 0) continue;
                     rows.push({

@@ -14,11 +14,24 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = "https://hyuzukvxulwouaexatqv.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J";
+export const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J";
 
 // Client mặc định của web chính — dùng storage key chuẩn của Supabase
 // (giữ nguyên session đang có của user trên web chính).
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+let currentAccessToken = null;
+let authStateRevision = 0;
+supabase.auth.onAuthStateChange((_event, session) => {
+  authStateRevision += 1;
+  currentAccessToken = session?.access_token || null;
+});
+const initialAuthStateRevision = authStateRevision;
+supabase.auth.getSession().then(({ data }) => {
+  if (authStateRevision === initialAuthStateRevision) {
+    currentAccessToken = data?.session?.access_token || null;
+  }
+}).catch(() => {});
 
 // Tạo client với storage key riêng — dùng để tách session độc lập
 // (vd: administrator.html dùng storageKey "learnhub-admin-auth" để không
@@ -35,6 +48,21 @@ export function createLearnHubClient(options = {}) {
 }
 
 export { SUPABASE_URL };
+
+// Use fetch keepalive for lifecycle events where the page may be frozen immediately.
+export function finalizeOnlineSessionKeepalive(uid) {
+  if (!uid || !currentAccessToken) return;
+  return fetch(`${SUPABASE_URL}/rest/v1/rpc/users_finalize_online`, {
+    method: "POST",
+    keepalive: true,
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_PUBLISHABLE_KEY,
+      Authorization: `Bearer ${currentAccessToken}`
+    },
+    body: JSON.stringify({ p_uid: uid })
+  }).catch(() => {});
+}
 
 // ============================================================================
 // HELPERS DÙNG CHUNG (gộp từ supabase-helpers.js)
@@ -306,7 +334,7 @@ export async function beginOnlineSession(uid) {
 }
 
 // Kết thúc phiên online (ẩn tab / logout / rời trang): cộng dồn đúng (now - start) rồi reset.
-// Idempotent: gọi trùng (visibilitychange + pagehide + beforeunload) vẫn an toàn.
+// Idempotent: gọi trùng từ visibilitychange + pagehide vẫn an toàn.
 export async function finalizeOnlineSession(uid) {
   if (!uid) return;
   try {
