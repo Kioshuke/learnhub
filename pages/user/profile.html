@@ -1342,6 +1342,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
         }
 
         function showProfileGrid() {
+            document.title = "Hồ Sơ Học Viên - LearnHub";
             const box = document.getElementById("attempt-detail");
             if (box) { box.style.display = "none"; box.innerHTML = ""; }
             const grid = document.getElementById("profile-grid");
@@ -1369,6 +1370,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 return;
             }
             if (!attempt) {
+                document.title = "Không tìm thấy bài làm - LearnHub";
                 box.innerHTML = `<div class="lh-card p-6 text-center space-y-3">
                     <p class="text-sm font-semibold" style="color:var(--text-sub)">Không tìm thấy bài làm này.</p>
                     <button id="attempt-back" type="button" class="px-4 py-2 rounded-xl text-xs font-bold" style="background:#f1f5f9;color:#475569">Quay lại</button>
@@ -1376,6 +1378,8 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 bindAttemptBack();
                 return;
             }
+            const testName = (attempt.paper && attempt.paper.meta && attempt.paper.meta.name) || attempt.test_name || "Bài kiểm tra";
+            document.title = testName + " - LearnHub";
             box.innerHTML = renderAttemptDetail(attempt);
             bindAttemptBack();
         }
