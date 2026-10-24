@@ -847,13 +847,10 @@ function fmtBlockDate(v){
 }
 
 /* Dựng nội dung thông báo chặn làm bài.
-   - reason 'not_completed': giáo viên chưa bật "Hoàn thành" → thông báo riêng.
-   - reason 'not_in_time': ngoài khoảng thời gian mở đề → thông báo riêng kèm mốc thời gian. */
+   Ưu tiên thông báo theo khung thời gian (kèm mốc ngày) vì đây là nguyên nhân cụ thể nhất;
+   chỉ khi không vướng khung thời gian mới dùng thông báo "chưa hoàn thành". */
 function buildTestBlockMsg(data){
   data = data || {};
-  if(data.reason === "not_completed"){
-    return "Bài test hiện không thể làm vì giáo viên chưa hoàn thành đề. Vui lòng quay lại sau.";
-  }
   var now = Date.now();
   var s = data.start_at ? new Date(data.start_at).getTime() : NaN;
   var e = data.end_at ? new Date(data.end_at).getTime() : NaN;
@@ -864,6 +861,9 @@ function buildTestBlockMsg(data){
   if(!isNaN(s) && now < s){
     var fs = fmtBlockDate(data.start_at);
     return "Bài test chưa tới thời gian mở đề" + (fs ? " (bắt đầu: " + fs + ")" : "") + ". Vui lòng quay lại sau.";
+  }
+  if(data.reason === "not_completed" || data.done === false){
+    return "Bài test hiện không thể làm vì giáo viên chưa hoàn thành đề. Vui lòng quay lại sau.";
   }
   return "Bài test hiện không thể làm. Vui lòng quay lại sau.";
 }

@@ -575,7 +575,7 @@ function blockQuizByDe(de) {
   if (window.parent && window.parent !== window) {
     window.parent.postMessage({
       type: 'OPEN_QUIZ_BLOCKED',
-      reason: (dbHit.done === false ? 'not_completed' : 'not_in_time'),
+      done: !!dbHit.done,
       de: target,
       start_at: dbHit.start_at || null,
       end_at: dbHit.end_at || null
