@@ -837,6 +837,23 @@ function showDeepLinkOverlay(on){
 }
 
 /* === Modal thông báo khi bài test chưa hoàn thành / chưa tới thời gian === */
+/* Định dạng mốc thời gian (ISO từ DB) thành dd/mm/yyyy. */
+function fmtBlockDate(v){
+  if(!v) return "";
+  var d = new Date(v);
+  if(isNaN(d.getTime())) return "";
+  var p = function(n){ return (n < 10 ? "0" : "") + n; };
+  return p(d.getDate()) + "/" + p(d.getMonth() + 1) + "/" + d.getFullYear();
+}
+
+/* Dựng nội dung thông báo chặn làm bài; kèm thời gian bắt đầu nếu có trong DB. */
+function buildTestBlockMsg(startAt){
+  var msg = "Bài test hiện Không thể làm vì chưa tới thời gian xuất bản/chưa hoàn thành. Vui lòng quay lại sau";
+  var f = fmtBlockDate(startAt);
+  if(f) msg += " (Thời gian bắt đầu: " + f + ")";
+  return msg;
+}
+
 function showTestBlockModal(msg){
   var modal = document.getElementById("lhTestBlockModal");
   if(!modal){
@@ -895,7 +912,7 @@ function showTestBlockModal(msg){
 window.addEventListener("message", function globalBlockedHandler(ev){
   if(!ev.data || ev.data.type !== "OPEN_QUIZ_BLOCKED") return;
   showDeepLinkOverlay(false);
-  var msg = "Bài test hiện Không thể làm vì chưa tới thời gian xuất bản/chưa hoàn thành. Vui lòng quay lại sau";
+  var msg = (typeof buildTestBlockMsg === "function") ? buildTestBlockMsg(ev.data.start_at) : "Bài test hiện Không thể làm vì chưa tới thời gian xuất bản/chưa hoàn thành. Vui lòng quay lại sau";
   if(typeof showTestBlockModal === "function"){
     showTestBlockModal(msg);
   }else if(typeof alert === "function"){
@@ -929,7 +946,7 @@ function requestOpenQuiz(de){
     window.removeEventListener("message", handler);
     window.removeEventListener("message", handlerBlocked);
     showDeepLinkOverlay(false);
-    var msg = "Bài test hiện Không thể làm vì chưa tới thời gian xuất bản/chưa hoàn thành. Vui lòng quay lại sau";
+    var msg = (typeof buildTestBlockMsg === "function") ? buildTestBlockMsg(ev.data.start_at) : "Bài test hiện Không thể làm vì chưa tới thời gian xuất bản/chưa hoàn thành. Vui lòng quay lại sau";
     if(typeof showTestBlockModal === "function"){
       showTestBlockModal(msg);
     }else if(typeof alert === "function"){

@@ -38,7 +38,10 @@ var testMeta = {
   showScore: "always", // 'always' hiện điểm bình thường | 'none' ẩn điểm, hiện "Đã nộp bài"
   showAnswers: "always", // 'always' luôn cho xem đáp án | 'perfect' chỉ khi đạt tối đa | 'none' không cho xem
   subtestEnabled: false, // tạo đề con: mỗi lần mở đề bốc ngẫu nhiên N câu
-  subtestCount: null      // số câu của đề con (null khi tắt)
+  subtestCount: null,     // số câu của đề con (null khi tắt)
+  timeEnabled: false,     // bật giới hạn thời gian mở đề
+  startAt: null,          // ISO thời gian bắt đầu mở đề (null khi tắt)
+  endAt: null             // ISO thời gian kết thúc mở đề (null khi tắt)
 };
 
 var LETTERS = "ABCDEFGH";
@@ -80,34 +83,55 @@ function setFileLabel(name) {
   el.title = name;
 }
 
-/* Chuyển màn hình: 1 (nhập đề) / 2 (JSON + xem trước) / 3 (rà soát & xuất bản) */
+/* Bước cao nhất đã từng đạt — chỉ cho phép quay lại bước đã qua,
+   KHÔNG cho bấm nhảy tới bước chưa tới (vd: chưa nhập đề mà bấm "Rà soát"). */
+var maxStage = 1;
+
+/* Chuyển màn hình: 1 (nhập đề) / 2 (JSON + xem trước) / 3 (thiết lập đề) / 4 (rà soát & xuất bản) */
 function showStage(n) {
+  if (n > maxStage) maxStage = n;
   $("p1").hidden = n !== 1;
-  var p2 = $("p2");
-  p2.hidden = n !== 2;
-  var p3 = $("p3");
-  p3.hidden = n !== 3;
+  $("p2").hidden = n !== 2;
+  $("p3").hidden = n !== 3;
+  $("p4").hidden = n !== 4;
   var setupBtn = $("btnSetup");
   if (setupBtn) setupBtn.hidden = n !== 2;   // "Tiếp tục" chỉ hiện ở màn 2
   document.body.classList.toggle("stage2", n === 2);
   updateSteps(n);
-  if (n === 2 || n === 3) {
-    /* Cuộn về đầu trang để header dính trên, khung màn 2/3 không bị che */
+  if (n !== 1) {
+    /* Cuộn về đầu trang để header dính trên, khung màn 2/3/4 không bị che */
     try { window.scrollTo({ top: 0, behavior: "smooth" }); }
     catch (e) { window.scrollTo(0, 0); }
   }
-  if (n === 3) renderReview();
+  if (n === 3) syncSetupForm();
+  if (n === 4) renderReview();
 }
 
-/* Đánh dấu bước đang làm + bước đã xong trên thanh 1·2·3 */
+/* Đánh dấu bước đang làm + bước đã xong trên thanh 1·2·3·4.
+   Bước chưa tới (vượt quá maxStage) bị khoá, không bấm được. */
 function updateSteps(n) {
   var steps = document.querySelectorAll("#steps .step");
   for (var i = 0; i < steps.length; i++) {
     var st = steps[i];
-    st.classList.toggle("done", Number(st.getAttribute("data-s")) < n);
-    st.classList.toggle("active", Number(st.getAttribute("data-s")) === n);
+    var s = Number(st.getAttribute("data-s"));
+    st.classList.toggle("done", s < n);
+    st.classList.toggle("active", s === n);
+    st.classList.toggle("locked", s > maxStage);
   }
 }
+
+/* Bấm vào ô bước trên thanh 1·2·3·4 → mở bước tương ứng.
+   Chỉ cho phép với bước đã đạt (<= maxStage); bước chưa tới bị chặn. */
+(function () {
+  var nav = $("steps");
+  if (!nav) return;
+  nav.addEventListener("click", function (e) {
+    var st = e.target && e.target.closest ? e.target.closest(".step") : null;
+    if (!st) return;
+    var n = Number(st.getAttribute("data-s"));
+    if (n && n <= maxStage) showStage(n);
+  });
+})();
 
 /* ============ 1) PARSE TEXT → JSON (heuristic) ============ */
 
@@ -1111,7 +1135,7 @@ function applyMeta(goNext) {
   $("resultBox").hidden = true;
   if (!jsonAreaDirty) writeJson(JSON.stringify(testData, null, 2));
   render();
-  if (goNext) showStage(3);
+  if (goNext) showStage(4);   // áp dụng thiết lập → sang bước 4 (rà soát & xuất bản)
 }
 
 /* Lấy text thật (bỏ thẻ) của 1 chuỗi HTML — dùng cho danh sách câu ở màn rà soát */
@@ -1220,7 +1244,7 @@ function renderReview() {
 
   var pub = $("btnPublish");
   var warns = [];
-  if (!testMeta.name) warns.push("Chưa đặt <b>tên đề</b> — bấm <b>← Sửa lại đề</b> rồi <b>▶ Tiếp tục</b> (màn 2) để điền trước khi xuất bản.");
+  if (!testMeta.name) warns.push("Chưa đặt <b>tên đề</b> — mở <b>bước 3 Thiết lập đề</b> để điền trước khi xuất bản.");
   if (!testMeta.subject) warns.push("Chưa chọn <b>môn học</b> — đề sẽ xuất hiện ở Phòng Học theo môn.");
   if (subtestInvalid) warns.push("Số câu <b>đề con</b> không hợp lệ — mở <b>Thiết lập đề</b> và nhập lại trong khoảng 1–" + qn + ".");
   var ne = $("revNote");
@@ -1256,7 +1280,9 @@ async function publishTest() {
     p_show_score: testMeta.showScore || "always",
     p_show_answers: testMeta.showAnswers || "always",
     p_subtest_enabled: !!testMeta.subtestEnabled,
-    p_subtest_count: testMeta.subtestEnabled ? (parseInt(testMeta.subtestCount, 10) || null) : null
+    p_subtest_count: testMeta.subtestEnabled ? (parseInt(testMeta.subtestCount, 10) || null) : null,
+    p_start_at: testMeta.timeEnabled ? (testMeta.startAt || null) : null,
+    p_end_at: testMeta.timeEnabled ? (testMeta.endAt || null) : null
   };
   var left = $("revLeft");
   var rn = $("revNote");
@@ -1272,6 +1298,7 @@ async function publishTest() {
         : code === "empty_content" ? "Đề trống — không thể xuất bản."
         : code === "structure_locked" ? "Đề đã xuất bản — không thể thay đổi cấu trúc (thêm/bớt câu/section/đáp án). Chỉ được sửa nội dung/đáp án hoặc điểm."
         : code === "invalid_subtest_count" ? "Số câu đề con phải từ 1 đến " + ((res.data && res.data.total) || countQ(testData)) + "."
+        : code === "invalid_time_range" ? "Thời gian kết thúc phải sau thời gian bắt đầu."
         : "Không xuất bản được bài kiểm tra.";
       throw { message: msg };
     }
@@ -1290,7 +1317,9 @@ async function publishTest() {
             (payload.p_shuffle_a ? "Bật" : "Tắt") + "</b>" +
             " · điểm: <b>" + (payload.p_show_score === "none" ? "Ẩn" : "Hiện") + "</b>" +
             " · đáp án: <b>" + (payload.p_show_answers === "none" ? "Không" : payload.p_show_answers === "perfect" ? "Khi tối đa" : "Luôn") + "</b>" +
-            " · đề con: <b>" + (payload.p_subtest_enabled ? payload.p_subtest_count + "/" + countQ(testData) + " câu" : "Tắt") + "</b>." +
+            " · đề con: <b>" + (payload.p_subtest_enabled ? payload.p_subtest_count + "/" + countQ(testData) + " câu" : "Tắt") + "</b>" +
+            (testMeta.timeEnabled && testMeta.startAt && testMeta.endAt ? " · mở đề: <b>" + fmtDateTime(testMeta.startAt) + " → " + fmtDateTime(testMeta.endAt) + "</b>" : "") +
+            "." +
           "</p>" +
           '<button type="button" class="btn btn-primary" id="btnPublishAgain">＋ Xuất bản đề mới</button>' +
         "</div>";
@@ -1324,13 +1353,13 @@ async function publishTest() {
   }
 }
 
-/* Delegation cho màn 3 (nút dựng lại mỗi lần render nên không bind trực tiếp) */
-$("p3").addEventListener("click", function (e) {
+/* Delegation cho màn 4 (nút dựng lại mỗi lần render nên không bind trực tiếp) */
+$("p4").addEventListener("click", function (e) {
   var el = e.target && e.target.closest ? e.target.closest("#btnPublish, #btnRevBack, #btnPublishAgain") : null;
   if (!el) return;
   if (el.id === "btnPublish") publishTest();
   else if (el.id === "btnRevBack") showStage(2);
-  else if (el.id === "btnPublishAgain") showStage(1);
+  else if (el.id === "btnPublishAgain") { maxStage = 1; showStage(1); }
 });
 
 /* Cập nhật nhãn nút "Tiếp tục" theo tên đề đã đặt */
@@ -1357,7 +1386,40 @@ function syncSubtestUI() {
   }
 }
 
-$("btnSetup").addEventListener("click", function () {
+/* Định dạng Date → giá trị cho <input type="datetime-local"> (giờ địa phương) */
+function toLocalInput(d) {
+  var p = function (n) { return (n < 10 ? "0" : "") + n; };
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) +
+    "T" + p(d.getHours()) + ":" + p(d.getMinutes());
+}
+
+/* Định dạng dd/mm/yyyy HH:mm để hiển thị */
+function fmtDateTime(v) {
+  var d = (v instanceof Date) ? v : new Date(v);
+  if (isNaN(d.getTime())) return "";
+  var p = function (n) { return (n < 10 ? "0" : "") + n; };
+  return p(d.getDate()) + "/" + p(d.getMonth() + 1) + "/" + d.getFullYear() +
+    " " + p(d.getHours()) + ":" + p(d.getMinutes());
+}
+
+/* Đồng bộ khối "thời gian mở đề": mặc định bắt đầu = bây giờ, kết thúc = +7 ngày */
+function syncTimeUI() {
+  var chk = $("setTimeEnabled"), box = $("timeBox"), st = $("setStartAt"), en = $("setEndAt"), hint = $("timeHint");
+  if (!chk || !box || !st || !en) return;
+  box.hidden = !chk.checked;
+  if (box.hidden) return;
+  if (!st.value) st.value = toLocalInput(new Date());
+  if (!en.value) en.value = toLocalInput(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+  if (hint) {
+    var s = st.value ? new Date(st.value) : null, e = en.value ? new Date(en.value) : null;
+    hint.textContent = (s && e && !isNaN(s.getTime()) && !isNaN(e.getTime()) && e > s)
+      ? "Học sinh làm được từ " + fmtDateTime(s) + " đến " + fmtDateTime(e) + " — vẫn phải bật công tắc Hoàn thành."
+      : "Mặc định: bắt đầu là bây giờ, kết thúc sau 7 ngày. Kết thúc phải sau bắt đầu.";
+  }
+}
+
+/* Nạp trạng thái hiện tại vào form thiết lập (bước 3) */
+function syncSetupForm() {
   $("setSubject").value = testMeta.subject || "";
   $("setName").value = testMeta.name;
   $("setDesc").value = testMeta.desc;
@@ -1374,10 +1436,19 @@ $("btnSetup").addEventListener("click", function () {
   $("setSubtestEnabled").checked = !!testMeta.subtestEnabled;
   $("setSubtestCount").value = testMeta.subtestCount == null ? "" : String(testMeta.subtestCount);
   syncSubtestUI();
+  $("setTimeEnabled").checked = !!testMeta.timeEnabled;
+  $("setStartAt").value = testMeta.startAt ? toLocalInput(new Date(testMeta.startAt)) : "";
+  $("setEndAt").value = testMeta.endAt ? toLocalInput(new Date(testMeta.endAt)) : "";
+  syncTimeUI();
   $("setupError").hidden = true;
   clearInvalidSetup();
-  $("setupModal").hidden = false;
-});
+}
+
+/* Nút "▶ Tiếp tục" ở màn 2 → sang bước 3 (thiết lập đề) */
+$("btnSetup").addEventListener("click", function () { showStage(3); });
+
+/* Nút "← Quay lại" ở bước 3 → về màn 2 */
+$("btnSetupBack").addEventListener("click", function () { showStage(2); });
 
 $("setSubtestEnabled").addEventListener("change", function () {
   $("setSubtestCount").classList.remove("invalid");
@@ -1388,8 +1459,12 @@ $("setSubtestCount").addEventListener("input", function () {
   syncSubtestUI();
 });
 
-$("btnSetupClose").addEventListener("click", function () { $("setupModal").hidden = true; });
-$("setupModal").addEventListener("click", function (e) { if (e.target === this) this.hidden = true; });
+$("setTimeEnabled").addEventListener("change", function () {
+  if (!this.checked) { $("setStartAt").value = ""; $("setEndAt").value = ""; }
+  syncTimeUI();
+});
+$("setStartAt").addEventListener("input", syncTimeUI);
+$("setEndAt").addEventListener("input", syncTimeUI);
 
 /* 4 mục bắt buộc: môn học, tên đề, thời gian, điểm tối đa */
 var SETUP_REQUIRED = ["setSubject", "setName", "setMinutes", "setScore"];
@@ -1431,6 +1506,26 @@ $("btnSetupApply").addEventListener("click", function () {
     }
   }
 
+  var timeEnabled = !!($("setTimeEnabled") && $("setTimeEnabled").checked);
+  var startAtIso = null, endAtIso = null;
+  if (timeEnabled) {
+    var stEl = $("setStartAt"), enEl = $("setEndAt");
+    var sv = stEl.value, ev = enEl.value;
+    if (!sv) { errs.push("chọn <b>thời gian bắt đầu</b>"); bad.push(stEl); }
+    if (!ev) { errs.push("chọn <b>thời gian kết thúc</b>"); bad.push(enEl); }
+    if (sv && ev) {
+      var sd = new Date(sv), ed = new Date(ev);
+      if (isNaN(sd.getTime()) || isNaN(ed.getTime())) {
+        errs.push("<b>thời gian mở đề</b> không hợp lệ"); bad.push(stEl);
+      } else if (ed <= sd) {
+        errs.push("<b>thời gian kết thúc</b> phải sau thời gian bắt đầu"); bad.push(enEl);
+      } else {
+        startAtIso = sd.toISOString();
+        endAtIso = ed.toISOString();
+      }
+    }
+  }
+
   clearInvalidSetup();
   var se = $("setupError");
   if (errs.length) {
@@ -1452,9 +1547,11 @@ $("btnSetupApply").addEventListener("click", function () {
   testMeta.showAnswers = (document.querySelector('input[name="setShowAnswers"]:checked') || {}).value || "always";
   testMeta.subtestEnabled = subtestEnabled;
   testMeta.subtestCount = subtestEnabled ? subtestCount : null;
-  $("setupModal").hidden = true;
+  testMeta.timeEnabled = timeEnabled;
+  testMeta.startAt = timeEnabled ? startAtIso : null;
+  testMeta.endAt = timeEnabled ? endAtIso : null;
   updateSetupBtn();
-  applyMeta(true);
+  applyMeta(true);   // applyMeta(true) → nhảy sang bước 4 (rà soát & xuất bản)
 });
 
 /* Nạp dropdown môn học (8 môn trong Phòng Học) — đề xuất bản sẽ hiện đúng môn này */
@@ -1754,6 +1851,9 @@ showStage(1);
         testMeta.subtestEnabled = d.subtest_enabled === true || d.subtest_enabled === 1;
         var editSubtestCount = parseInt(d.subtest_count, 10);
         testMeta.subtestCount = testMeta.subtestEnabled && editSubtestCount > 0 ? editSubtestCount : null;
+        testMeta.startAt = (row && row.start_at) ? row.start_at : null;
+        testMeta.endAt = (row && row.end_at) ? row.end_at : null;
+        testMeta.timeEnabled = !!(testMeta.startAt || testMeta.endAt);
         graded = false;
         userAnswers = {};
         $("resultBox").hidden = true;
@@ -1763,7 +1863,7 @@ showStage(1);
         var lockNote = currentEditComplete
           ? '<br><b style="color:#b45309"><i class="fa-solid fa-lock"></i> Đề đã xuất bản</b> — được sửa nội dung/đáp án/điểm/mô tả, nhưng <b>KHÔNG</b> được thêm/bớt câu, section, đáp án hay mệnh đề. Muốn đổi cấu trúc hãy tạo đề mới.'
           : "";
-        setNote("Đã nạp sẵn đề <b>" + escapeC(d.name || "chưa đặt tên") + "</b> để sửa (màn 2). Sửa xong bấm <b>▶ Tiếp tục</b> để rà soát & lưu lại." + lockNote, false);
+        setNote("Đã nạp sẵn đề <b>" + escapeC(d.name || "chưa đặt tên") + "</b> để sửa (bước 2). Sửa xong bấm <b>▶ Tiếp tục</b> để sang bước 3 (thiết lập) rồi bước 4 (rà soát & lưu lại)." + lockNote, false);
         showStage(2);
       } catch (e) {
         console.error("[SỬA ĐỀ]", e);

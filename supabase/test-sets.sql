@@ -18,6 +18,10 @@
 --   is_complete → trạng thái "Chưa hoàn thành"/"Hoàn thành" (badge trên card
 --                 Phòng Học + web giáo viên). MỌI bài đều HIỆN trong Phòng Học —
 --                 không còn trạng thái ẩn.
+--   start_at / end_at → khoảng thời gian mở đề (NULL = không giới hạn thời gian).
+--                 Công tắc is_complete là QUYỀN CAO NHẤT: nếu is_complete = false
+--                 thì chặn làm bài bất kể thời gian; khi is_complete = true vẫn
+--                 phải nằm trong [start_at, end_at] mới làm được.
 -- Thứ tự hiển thị: THEO THỜI GIAN TẠO (created_at ASC) — ai up trước xếp trước.
 -- Không có cột attempts (sẽ thống kê qua test_attempts ở GĐ2) và sort_order.
 -- Idempotent: chạy lại nhiều lần an toàn.
@@ -37,6 +41,8 @@ create table if not exists public.test_sets (
   shuffle_q   boolean not null default true,
   shuffle_a   boolean not null default true,
   is_complete boolean not null default false,
+  start_at    timestamptz,
+  end_at      timestamptz,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
@@ -50,6 +56,8 @@ alter table public.test_sets add column if not exists show_score text not null d
 alter table public.test_sets add column if not exists show_answers text not null default 'always';
 alter table public.test_sets add column if not exists subtest_enabled boolean not null default false;
 alter table public.test_sets add column if not exists subtest_count int;
+alter table public.test_sets add column if not exists start_at timestamptz;
+alter table public.test_sets add column if not exists end_at timestamptz;
 
 create index if not exists test_sets_teacher_idx on public.test_sets (teacher_id);
 create index if not exists test_sets_subject_idx on public.test_sets (subject);
@@ -79,6 +87,7 @@ drop function if exists public.reorder_test_sets(jsonb);
 drop function if exists public.teacher_upsert_test_set(uuid, text, text, text, jsonb, int, int, boolean, boolean, boolean);
 drop function if exists public.teacher_upsert_test_set(uuid, text, text, text, jsonb, int, int, boolean, boolean, boolean, text, text);
 drop function if exists public.teacher_upsert_test_set(uuid, text, text, text, jsonb, int, int, boolean, boolean, boolean, text, text, boolean, int);
+drop function if exists public.teacher_upsert_test_set(uuid, text, text, text, jsonb, int, int, boolean, boolean, boolean, text, text, boolean, int, timestamptz, timestamptz);
 create or replace function public.teacher_upsert_test_set(
   p_id              uuid default null,
   p_subject         text default '',
@@ -93,7 +102,9 @@ create or replace function public.teacher_upsert_test_set(
   p_show_score      text default null,
   p_show_answers    text default null,
   p_subtest_enabled boolean default null,
-  p_subtest_count   int default null
+  p_subtest_count   int default null,
+  p_start_at        timestamptz default null,
+  p_end_at          timestamptz default null
 )
 returns jsonb
 language plpgsql security definer
@@ -131,6 +142,11 @@ begin
     v_subtest_count := null;
   end if;
 
+  -- Khoảng thời gian mở đề: nếu có đủ 2 mốc thì mốc kết thúc phải SAU mốc bắt đầu.
+  if p_start_at is not null and p_end_at is not null and p_end_at <= p_start_at then
+    return jsonb_build_object('ok', false, 'error', 'invalid_time_range');
+  end if;
+
   -- [Chặn cấu trúc] Khi đề đã xuất bản (is_complete=true), không cho phép thay đổi cấu trúc.
   if p_id is not null then
     perform 1 from public.test_sets
@@ -143,7 +159,7 @@ begin
   end if;
 
   if p_id is null then
-    insert into public.test_sets (teacher_id, subject, name, description, content, minutes, score, shuffle_q, shuffle_a, is_complete, show_score, show_answers, subtest_enabled, subtest_count)
+    insert into public.test_sets (teacher_id, subject, name, description, content, minutes, score, shuffle_q, shuffle_a, is_complete, show_score, show_answers, subtest_enabled, subtest_count, start_at, end_at)
     values (
       auth.uid()::text,
       btrim(p_subject),
@@ -158,7 +174,9 @@ begin
       coalesce(p_show_score, 'always'),
       coalesce(p_show_answers, 'always'),
       v_subtest_enabled,
-      v_subtest_count
+      v_subtest_count,
+      p_start_at,
+      p_end_at
     )
     returning id into p_id;
     return jsonb_build_object('ok', true, 'id', p_id);
@@ -177,14 +195,16 @@ begin
          show_answers    = coalesce(p_show_answers, show_answers),
          subtest_enabled = v_subtest_enabled,
          subtest_count   = v_subtest_count,
+         start_at        = p_start_at,
+         end_at          = p_end_at,
          updated_at      = now()
    where id = p_id
      and (teacher_id = auth.uid()::text or public.is_teacher());
   return jsonb_build_object('ok', true, 'id', p_id);
 end;
 $$;
-revoke execute on function public.teacher_upsert_test_set(uuid, text, text, text, jsonb, int, int, boolean, boolean, boolean, text, text, boolean, int) from public;
-grant execute on function public.teacher_upsert_test_set(uuid, text, text, text, jsonb, int, int, boolean, boolean, boolean, text, text, boolean, int) to authenticated;
+revoke execute on function public.teacher_upsert_test_set(uuid, text, text, text, jsonb, int, int, boolean, boolean, boolean, text, text, boolean, int, timestamptz, timestamptz) from public;
+grant execute on function public.teacher_upsert_test_set(uuid, text, text, text, jsonb, int, int, boolean, boolean, boolean, text, text, boolean, int, timestamptz, timestamptz) to authenticated;
 
 -- Danh sách bài kiểm tra cho trang giáo viên (kèm question_count).
 -- Sắp xếp theo thời gian tạo — ai up trước xếp trước.
@@ -194,7 +214,8 @@ returns table (
   set_id uuid, subject text, name text, description text, minutes int, score int,
   shuffle_q boolean, shuffle_a boolean, is_complete boolean,
   show_score text, show_answers text, subtest_enabled boolean, subtest_count int,
-  question_count bigint, created_at timestamptz, updated_at timestamptz
+  question_count bigint, start_at timestamptz, end_at timestamptz,
+  created_at timestamptz, updated_at timestamptz
 )
 language sql stable security definer
 set search_path = public
@@ -207,6 +228,7 @@ as $$
          s.show_score, s.show_answers, s.subtest_enabled, s.subtest_count,
          (select coalesce(sum(coalesce(jsonb_array_length(x->'questions'), 0)), 0)::bigint
             from jsonb_array_elements(s.content) x),
+         s.start_at, s.end_at,
          s.created_at, s.updated_at
     from public.test_sets s
    order by s.subject, s.created_at asc;
@@ -296,7 +318,8 @@ drop function if exists public.list_published_test_sets();
 create or replace function public.list_published_test_sets()
 returns table (
   set_id uuid, subject text, name text, description text, minutes int, score int,
-  question_count bigint, is_complete boolean, created_at timestamptz
+  question_count bigint, is_complete boolean, start_at timestamptz, end_at timestamptz,
+  created_at timestamptz
 )
 language sql stable security definer
 set search_path = public
@@ -309,6 +332,7 @@ as $$
          (select coalesce(sum(coalesce(jsonb_array_length(x->'questions'), 0)), 0)::bigint
             from jsonb_array_elements(s.content) x),
          s.is_complete,
+         s.start_at, s.end_at,
          s.created_at
     from public.test_sets s
    order by s.subject, s.created_at asc;
@@ -356,7 +380,9 @@ begin
     'show_score', v_row.show_score,
     'show_answers', v_row.show_answers,
     'subtest_enabled', v_row.subtest_enabled,
-    'subtest_count', v_row.subtest_count
+    'subtest_count', v_row.subtest_count,
+    'start_at', v_row.start_at,
+    'end_at', v_row.end_at
   );
 end;
 $$;

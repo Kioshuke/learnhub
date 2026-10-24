@@ -34,20 +34,67 @@ code{background:#eef2ff;border:1px solid #dfe7fb;border-radius:6px;padding:1px 6
   border-bottom:1px solid rgba(226,232,240,.9);
   box-shadow:0 6px 18px rgba(15,23,42,.06);
 }
-.tb-left{display:flex;align-items:center;gap:12px;flex-shrink:0;min-width:0}
+.tb-left{display:flex;align-items:center;gap:12px;flex:1 1 0;min-width:0;overflow:hidden}
+.tb-right{display:flex;align-items:center;justify-content:flex-end;flex:1 1 0;min-width:0}
 .tb-brand{font-size:15px;font-weight:800;color:var(--primary);letter-spacing:-.2px;white-space:nowrap}
 .tb-file{font-size:13.5px;font-weight:700;color:#334155;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.topbar #btnSetup{margin-left:auto;flex-shrink:0}
+.topbar #btnSetup{flex-shrink:0}
 .topbar .btn{flex-shrink:0}
 
-/* ===== THANH BƯỚC 1·2·3 (đặt trong header) ===== */
-.steps{display:flex;align-items:center;gap:5px;flex:1;justify-content:center;padding:0 8px}
-.step{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--muted);font-size:12px;font-weight:700;white-space:nowrap;box-shadow:var(--shadow-sm);transition:all .18s}
+/* ===== THANH BƯỚC 1·2·3·4 (đặt trong header) =====
+   Căn giữa cố định: hai bên trái/phải chia đôi không gian còn lại,
+   nên các ô bước không bị dịch khi nút bên phải ẩn/hiện. */
+.steps{display:flex;align-items:center;gap:5px;flex:0 0 auto;justify-content:center;padding:0 8px}
+.step{cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--muted);font-size:12px;font-weight:700;white-space:nowrap;box-shadow:var(--shadow-sm);transition:all .18s}
+.step:hover{border-color:#9ec2f8;color:var(--primary)}
+.step.active:hover{border-color:transparent;color:#fff}
+.step.locked{cursor:not-allowed;opacity:.45}
+.step.locked:hover{border-color:var(--line);color:var(--muted)}
 .step span{width:19px;height:19px;border-radius:50%;background:#eef2ff;color:var(--primary);display:grid;place-items:center;font-size:10.5px;font-weight:800}
 .step.active{background:linear-gradient(135deg,#2f7ff0,#1a73e8);border-color:transparent;color:#fff;box-shadow:0 5px 14px rgba(26,115,232,.32)}
 .step.active span{background:rgba(255,255,255,.22);color:#fff}
 .step.done{border-color:#b9e6d2;background:#f0faf4;color:var(--green)}
 .step.done span{background:var(--green-soft);color:var(--green)}
+
+/* Hàng 3 cột trong bước 3: Môn học · Thời gian · Điểm tối đa */
+.setup-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 18px}
+
+/* ===== BƯỚC 3: KHỐI "CÀI ĐẶT KHÁC" ===== */
+.set-title{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800;color:#334155;margin-bottom:12px}
+.set-title i{font-size:13px}
+
+/* Hàng 4 ô (2 Xáo trộn · Xem điểm · Xem đáp án) — chia cắt bằng đường kẻ dọc */
+.set-grid{display:grid;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;box-shadow:var(--shadow-sm)}
+.set-grid-4{grid-template-columns:1fr 1fr 1fr 2fr}
+.set-grid>.set-cell{border-left:1px solid var(--line)}
+.set-grid>.set-cell:first-child{border-left:none}
+
+/* Hàng 2 ô (Tạo đề con | Giới hạn thời gian mở đề) */
+.set-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+
+.set-cell{padding:11px 14px;min-width:0}
+.set-lbl{display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:8px}
+
+/* Hàng radio: các option nằm cùng 1 hàng */
+.set-opts{display:flex;flex-wrap:wrap;gap:8px 16px}
+.modal .set-opts label{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#374151;cursor:pointer;margin-bottom:0;white-space:nowrap}
+.modal .set-opts input[type=radio]{accent-color:var(--primary);width:auto;margin:0;transform:scale(1.1);flex-shrink:0}
+
+/* Ô 2 cột: checkbox bật/tắt + khung con */
+.set-grid-2>.set-cell{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.modal .set-check{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:#334155;cursor:pointer;margin-bottom:0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 12px;transition:all .15s}
+.modal .set-check:hover{border-color:#9ec2f8;background:#f4f8ff}
+.modal .set-check input[type=checkbox]{accent-color:var(--primary);width:auto;margin:0;transform:scale(1.15);flex-shrink:0}
+.modal .set-check i{font-size:13px}
+.set-box{margin-top:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 12px}
+.modal .set-box label{display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:10px}
+.modal .set-box label:last-child{margin-bottom:0}
+
+/* Khung thời gian datetime-local — không để mặc định */
+.modal input[type=datetime-local]{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:7px 12px;font-size:13px;outline:none;margin-top:4px;font-family:inherit;background:#fbfdff;color:var(--text);transition:all .15s}
+.modal input[type=datetime-local]:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(26,115,232,.13);background:#fff}
+.modal input[type=datetime-local]::-webkit-calendar-picker-indicator{cursor:pointer;padding:3px;border-radius:7px;opacity:.7;transition:all .15s}
+.modal input[type=datetime-local]::-webkit-calendar-picker-indicator:hover{opacity:1;background:var(--primary-soft)}
 
 .wrap{width:100%;padding:20px 20px 60px;display:flex;flex-direction:column;gap:22px}
 
@@ -279,6 +326,11 @@ body.stage2{overflow:hidden}
   .steps{padding:0 2px;gap:3px}
   .step{font-size:0;padding:3px 6px;gap:0}
   .step span{font-size:10px}
+  .setup-row{grid-template-columns:1fr}
+  .set-grid-4{grid-template-columns:1fr}
+  .set-grid>.set-cell{border-left:none;border-top:1px solid var(--line)}
+  .set-grid>.set-cell:first-child{border-top:none}
+  .set-grid-2{grid-template-columns:1fr}
   body.stage2{overflow:auto}
   .stage2 .wrap{height:auto;padding:16px 12px 14px;overflow:visible}
   .stage2 #p2{display:block;overflow:visible}

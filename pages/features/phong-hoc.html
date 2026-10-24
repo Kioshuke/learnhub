@@ -431,11 +431,10 @@ function openQuizByDe(de) {
   if (!target) return false;
   var dbHit = (window.__testCardMap || {})[target];
   if (!dbHit || !dbHit.subjectId) return false;
-  if (dbHit.done === false) {
+  // Chặn khi: giáo viên chưa bật "Hoàn thành" (quyền cao nhất) HOẶC ngoài khoảng thời gian mở đề.
+  if (dbHit.canOpen === false) {
     if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
-    if (window.parent && window.parent !== window) {
-      window.parent.postMessage({ type: 'OPEN_QUIZ_BLOCKED', reason: 'not_completed', de: target }, '*');
-    }
+    blockQuizByDe(target);
     return true;
   }
   if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
@@ -550,6 +549,39 @@ function escHtml(s) {
 }
 function escJs(s) {
   return String(s == null ? "" : s).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
+/* ===== KIỂM TRA THỜI GIAN MỞ ĐỀ =====
+   Trả về true nếu thời điểm hiện tại nằm trong khoảng [start_at, end_at].
+   Nếu không đặt mốc thời gian nào thì coi như luôn trong khoảng. */
+function isTestInTimeWindow(startAt, endAt) {
+  var now = Date.now();
+  if (startAt) {
+    var s = new Date(startAt).getTime();
+    if (!isNaN(s) && now < s) return false;
+  }
+  if (endAt) {
+    var e = new Date(endAt).getTime();
+    if (!isNaN(e) && now > e) return false;
+  }
+  return true;
+}
+
+/* Gửi sự kiện chặn làm bài lên web chính (kèm thời gian bắt đầu để hiển thị). */
+function blockQuizByDe(de) {
+  var target = String(de || "").trim();
+  var dbHit = (window.__testCardMap || {})[target];
+  if (!dbHit) return false;
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      type: 'OPEN_QUIZ_BLOCKED',
+      reason: (dbHit.done === false ? 'not_completed' : 'not_in_time'),
+      de: target,
+      start_at: dbHit.start_at || null,
+      end_at: dbHit.end_at || null
+    }, '*');
+  }
+  return true;
 }
 /* Sanitize HTML thông báo môn: giữ thẻ định dạng an toàn + style/class/href,
    gỡ mọi thuộc tính on* và link javascript: (chống stored XSS). */
@@ -1380,9 +1412,26 @@ function mergeDbTestCards(list) {
     var de = "t:" + key;
     var url = "../cauhoi/" + ((s.id === "anh") ? "questionenglish.html" : "filetest.html") + "?de=" + de;
     var copyLink = location.origin + "/?open=phong-hoc&de=" + de;
-    window.__testCardMap[de] = { url: url, subjectId: s.id, done: !!t.is_complete };
+    var done = !!t.is_complete;
+    var startAt = t.start_at || null;
+    var endAt = t.end_at || null;
+    // Quyền cao nhất: giáo viên bật "Hoàn thành" VÀ thời điểm hiện tại nằm trong khoảng mở đề.
+    var canOpen = done && isTestInTimeWindow(startAt, endAt);
+    window.__testCardMap[de] = { url: url, subjectId: s.id, done: done, start_at: startAt, end_at: endAt, canOpen: canOpen };
     var stats = [];
     if (t.minutes > 0) stats.push(t.minutes + " phút");
+    var timeStat = "";
+    if (startAt || endAt) {
+      var fmtD = function (v) {
+        var d = new Date(v);
+        if (isNaN(d.getTime())) return "";
+        var p = function (n) { return (n < 10 ? "0" : "") + n; };
+        return p(d.getDate()) + "/" + p(d.getMonth() + 1) + "/" + d.getFullYear();
+      };
+      var from = startAt ? fmtD(startAt) : "—";
+      var to = endAt ? fmtD(endAt) : "—";
+      timeStat = "Mở: " + from + " → " + to;
+    }
     grid.insertAdjacentHTML("beforeend",
       '<div class="card" data-test-card="' + escHtml(key) + '">' +
         '<div class="card-color-bar"></div>' +
@@ -1390,17 +1439,20 @@ function mergeDbTestCards(list) {
           '<div class="card-top">' +
             '<div class="card-icon" style="background:' + escHtml(color) + '"><i class="fas ' + escHtml(icon) + '"></i></div>' +
             '<h3>' + escHtml(t.name || "Bài kiểm tra") + '</h3>' +
-            '<span class="status ' + (t.is_complete ? 'done' : 'pending') + '"></span>' +
+            '<span class="status ' + (canOpen ? 'done' : 'pending') + '"></span>' +
           '</div>' +
           '<p class="card-desc">' + escHtml(t.description || "Bài kiểm tra từ giáo viên — bấm Làm bài để bắt đầu.") + '</p>' +
           '<div class="btn-row">' +
-            (t.is_complete
+            (canOpen
               ? '<a class="btn" href="#" onclick="loadQuiz(this,\'' + escJs(url) + '\'); return false;">Làm bài</a>' +
                 '<a class="btn-copy-icon" href="#" title="Copy link bài test" onclick="copyQuizLink(this,\'' + escJs(copyLink) + '\'); return false;"><i class="fas fa-link"></i></a>'
-              : '<a class="btn disabled" href="#">Sắp ra mắt</a>') +
+              : '<a class="btn disabled" href="#" style="pointer-events:auto" onclick="blockQuizByDe(\'' + escJs(de) + '\'); return false;">' + (done ? 'Chưa mở' : 'Sắp ra mắt') + '</a>') +
           '</div>' +
           (stats.length
             ? '<div style="margin-top:8px;font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:6px"><i class="fa-regular fa-clock"></i> ' + escHtml(stats.join(" · ")) + '</div>'
+            : '') +
+          (timeStat
+            ? '<div style="margin-top:6px;font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:6px"><i class="fa-regular fa-calendar-days"></i> ' + escHtml(timeStat) + '</div>'
             : '') +
         '</div>' +
       '</div>');

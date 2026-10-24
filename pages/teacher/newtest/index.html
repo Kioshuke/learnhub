@@ -6,7 +6,7 @@
 <title>LearnHub - Tạo đề</title>
 <link rel="icon" href="../../../assets/images/favicon.png" sizes="any">
 <link rel="icon" type="image/png" sizes="48x48" href="../../../assets/images/favicon.png">
-<link rel="stylesheet" href="style.css?v=41">
+<link rel="stylesheet" href="style.css?v=47">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 </head>
@@ -21,9 +21,12 @@
   <nav class="steps" id="steps">
     <div class="step" data-s="1"><span>1</span> Nhập đề</div>
     <div class="step" data-s="2"><span>2</span> JSON &amp; Xem trước</div>
-    <div class="step" data-s="3"><span>3</span> Rà soát &amp; Xuất bản</div>
+    <div class="step" data-s="3"><span>3</span> Thiết lập đề</div>
+    <div class="step" data-s="4"><span>4</span> Rà soát &amp; Xuất bản</div>
   </nav>
-  <button type="button" class="btn btn-primary" id="btnSetup" hidden>▶ Tiếp tục</button>
+  <div class="tb-right">
+    <button type="button" class="btn btn-primary" id="btnSetup" hidden>▶ Tiếp tục</button>
+  </div>
 </header>
 
 <main class="wrap">
@@ -97,90 +100,107 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
     </div>
   </section>
 
-  <!-- ===== BƯỚC 3: RÀ SOÁT & XUẤT BẢN (demo: giả lập) ===== -->
+  <!-- ===== BƯỚC 3: THIẾT LẬP ĐỀ ===== -->
   <section class="panel" id="p3" hidden>
     <div class="panel-head">
-      <h2>3. Rà soát &amp; Xuất bản</h2>
-      <span class="muted">Xem lại số câu hỏi, tóm tắt chỉnh sửa/thiết lập đề. Bấm <b><i class="fa-solid fa-rocket"></i> Xuất bản đề</b> để cập nhật/đăng tải đề.</span>
+      <h2>3. Thiết lập đề</h2>
+      <span class="muted">Điền thông tin chung, thời gian làm bài, thời gian mở đề và các cài đặt khác. Bấm <b>Áp dụng &amp; tiếp tục</b> để sang bước rà soát.</span>
     </div>
-    <div id="revArea" class="rev-area"></div>
-  </section>
-</main>
-
-<div class="modal-overlay" id="setupModal" hidden>
-  <div class="modal" style="max-width:680px">
-    <div class="modal-hd">
-      <h3><i class="fa-solid fa-gear"></i> Thiết lập đề</h3>
-      <div class="sub">Điền thông tin chung trước khi xuất bản</div>
-    </div>
-    <div class="modal-body" style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px">
-    <div>
-      <label><i class="fa-solid fa-book-open" style="color:#2563eb"></i> Môn học <span class="req">*</span>
-        <select id="setSubject" required></select>
-      </label>
+    <div class="modal" style="max-width:none;max-height:none;overflow:visible;box-shadow:none;border:none;background:transparent;padding:0">
+    <div class="modal-body" style="padding:0;display:block">
       <label><i class="fa-solid fa-pen-to-square" style="color:#7c3aed"></i> Tên đề <span class="req">*</span>
         <input type="text" id="setName" placeholder="VD: Kiểm tra giữa kỳ 1 – Hóa học" required>
       </label>
       <label><i class="fa-solid fa-file-lines" style="color:#0d9488"></i> Mô tả
         <textarea id="setDesc" rows="2" placeholder="Mô tả ngắn về đề thi..."></textarea>
       </label>
-      <label><i class="fa-solid fa-stopwatch" style="color:#ea580c"></i> Thời gian (phút) — 0 = vô hạn <span class="req">*</span>
-        <input type="number" id="setMinutes" min="0" value="0" required>
-      </label>
-      <label><i class="fa-solid fa-bullseye" style="color:#e11d48"></i> Điểm tối đa <span class="req">*</span>
-        <input type="number" id="setScore" min="1" value="10" required>
-      </label>
-    </div>
-    <div>
-      <div style="font-weight:700;font-size:13px;color:var(--sec-text);margin-bottom:10px"><i class="fa-solid fa-gear" style="color:#64748b"></i> Cài đặt khác</div>
-      <div style="display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap">
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px">Xáo trộn câu hỏi
-          <input type="radio" name="setShuffleQ" value="1" checked><span style="font-size:12px">Bật</span>
-          <input type="radio" name="setShuffleQ" value="0"><span style="font-size:12px">Tắt</span>
+      <div class="setup-row">
+        <label><i class="fa-solid fa-book-open" style="color:#2563eb"></i> Môn học <span class="req">*</span>
+          <select id="setSubject" required></select>
         </label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:13px">Xáo trộn đáp án
-          <input type="radio" name="setShuffleA" value="1" checked><span style="font-size:12px">Bật</span>
-          <input type="radio" name="setShuffleA" value="0"><span style="font-size:12px">Tắt</span>
+        <label><i class="fa-solid fa-stopwatch" style="color:#ea580c"></i> Thời gian (phút) <span style="font-weight:500;color:var(--muted)">(0 = vô hạn)</span> <span class="req">*</span>
+          <input type="number" id="setMinutes" min="0" value="0" required>
+        </label>
+        <label><i class="fa-solid fa-bullseye" style="color:#e11d48"></i> Điểm tối đa <span class="req">*</span>
+          <input type="number" id="setScore" min="1" value="10" required>
         </label>
       </div>
-      <div style="border-top:1px solid var(--sec-border);padding-top:10px;margin-bottom:10px">
-        <label style="display:flex;align-items:center;gap:8px;font-weight:600">
-          <input type="checkbox" id="setSubtestEnabled">
-          <span><i class="fa-solid fa-dice" style="color:#7c3aed"></i> Tạo đề con (bốc ngẫu nhiên)</span>
-        </label>
-        <div id="subtestBox" hidden style="margin:8px 0 0;padding:10px 12px;border:1px solid var(--sec-border);border-radius:12px;background:#f8fafc">
-          <label style="margin:0;font-weight:600">Số câu trong đề con <span class="req">*</span>
-            <input type="number" id="setSubtestCount" min="1" placeholder="VD: 40">
-          </label>
-          <div class="note" id="subtestHint" style="margin:6px 0 0;padding:0;background:none;border:none;font-size:12px"></div>
+      <div style="border-top:1px solid var(--line);padding-top:14px;margin-top:4px">
+        <div class="set-title"><i class="fa-solid fa-gear" style="color:#64748b"></i> Cài đặt khác</div>
+
+        <div class="set-grid set-grid-4">
+          <div class="set-cell">
+            <span class="set-lbl">Xáo trộn câu hỏi</span>
+            <div class="set-opts">
+              <label><input type="radio" name="setShuffleQ" value="1" checked> Bật</label>
+              <label><input type="radio" name="setShuffleQ" value="0"> Tắt</label>
+            </div>
+          </div>
+          <div class="set-cell">
+            <span class="set-lbl">Xáo trộn đáp án</span>
+            <div class="set-opts">
+              <label><input type="radio" name="setShuffleA" value="1" checked> Bật</label>
+              <label><input type="radio" name="setShuffleA" value="0"> Tắt</label>
+            </div>
+          </div>
+          <div class="set-cell">
+            <span class="set-lbl">Xem điểm sau khi nộp</span>
+            <div class="set-opts">
+              <label><input type="radio" name="setShowScore" value="always" checked> Hiện</label>
+              <label><input type="radio" name="setShowScore" value="none"> Ẩn</label>
+            </div>
+          </div>
+          <div class="set-cell">
+            <span class="set-lbl">Xem đáp án chi tiết</span>
+            <div class="set-opts">
+              <label><input type="radio" name="setShowAnswers" value="always" checked> Luôn cho phép</label>
+              <label><input type="radio" name="setShowAnswers" value="perfect"> Chỉ khi đạt tối đa</label>
+              <label><input type="radio" name="setShowAnswers" value="none"> Không cho xem</label>
+            </div>
+          </div>
         </div>
+
+        <div class="set-grid-2">
+          <div class="set-cell">
+            <label class="set-check"><input type="checkbox" id="setSubtestEnabled"> <span><i class="fa-solid fa-dice" style="color:#7c3aed"></i> Tạo đề con (bốc ngẫu nhiên)</span></label>
+            <div id="subtestBox" class="set-box" hidden>
+              <label>Số câu trong đề con <span class="req">*</span>
+                <input type="number" id="setSubtestCount" min="1" placeholder="VD: 40">
+              </label>
+              <div class="note" id="subtestHint" style="margin:6px 0 0;padding:0;background:none;border:none;font-size:12px"></div>
+            </div>
+          </div>
+          <div class="set-cell">
+            <label class="set-check"><input type="checkbox" id="setTimeEnabled"> <span><i class="fa-solid fa-calendar-days" style="color:#0ea5e9"></i> Giới hạn thời gian mở đề</span></label>
+            <div id="timeBox" class="set-box" hidden>
+              <label>Bắt đầu <input type="datetime-local" id="setStartAt"></label>
+              <label>Kết thúc <input type="datetime-local" id="setEndAt"></label>
+              <div class="note" id="timeHint" style="margin:6px 0 0;padding:0;background:none;border:none;font-size:12px"></div>
+            </div>
+          </div>
+        </div>
+
       </div>
-      <div style="border-top:1px solid var(--sec-border);padding-top:10px;margin-bottom:10px">
-        <div style="font-size:13px;margin-bottom:6px"><i class="fa-solid fa-chart-column" style="color:#16a34a"></i> Xem điểm sau khi nộp</div>
-        <div style="display:flex;gap:14px;font-size:13px">
-          <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="setShowScore" value="always" checked> Hiện</label>
-          <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="setShowScore" value="none"> Ẩn</label>
-        </div>
-      </div>
-      <div style="border-top:1px solid var(--sec-border);padding-top:10px">
-        <div style="font-size:13px;margin-bottom:6px"><i class="fa-solid fa-eye" style="color:#db2777"></i> Xem đáp án chi tiết</div>
-        <div style="display:flex;flex-direction:column;gap:4px;font-size:13px">
-          <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="setShowAnswers" value="always" checked> Luôn cho phép</label>
-          <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="setShowAnswers" value="perfect"> Chỉ khi đạt tối đa</label>
-          <label style="display:flex;align-items:center;gap:4px"><input type="radio" name="setShowAnswers" value="none"> Không cho xem</label>
-        </div>
+      <div class="note error" id="setupError" hidden style="margin-top:10px"></div>
+      <div class="modal-actions" style="margin-top:12px">
+        <button type="button" class="btn btn-ghost" id="btnSetupBack">← Quay lại</button>
+        <button type="button" class="btn btn-primary" id="btnSetupApply"><i class="fa-solid fa-check"></i> Áp dụng &amp; tiếp tục</button>
       </div>
     </div>
-    <div class="note error" id="setupError" hidden style="grid-column:1/-1"></div>
-    <div class="modal-actions" style="grid-column:1/-1">
-      <button type="button" class="btn btn-ghost" id="btnSetupClose">Đóng</button>
-      <button type="button" class="btn btn-primary" id="btnSetupApply"><i class="fa-solid fa-check"></i> Áp dụng</button>
     </div>
+  </section>
+
+  <!-- ===== BƯỚC 4: RÀ SOÁT & XUẤT BẢN ===== -->
+  <section class="panel" id="p4" hidden>
+    <div class="panel-head">
+      <h2>4. Rà soát &amp; Xuất bản</h2>
+      <span class="muted">Xem lại số câu hỏi, tóm tắt chỉnh sửa/thiết lập đề. Bấm <b><i class="fa-solid fa-rocket"></i> Xuất bản đề</b> để cập nhật/đăng tải đề.</span>
     </div>
-  </div>
-</div>
+    <div id="revArea" class="rev-area"></div>
+  </section>
+</main>
 
 <script src="../../../scripts/features/subjects-data.js"></script>
-<script src="script.js?v=37"></script>
+<script src="script.js?v=39"></script>
 </body>
 </html>
