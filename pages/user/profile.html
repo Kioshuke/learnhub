@@ -1157,7 +1157,36 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
         let attemptGroups = [];
         let attemptsPage = 0;
         let attemptsModalTrigger = null;
+        let profileScrollIntentVersion = 0;
         const ATTEMPTS_PAGE_SIZE = 4;
+
+        // Nếu danh sách lịch sử làm trang cao lên, một số trình duyệt sẽ tự khôi
+        // phục vị trí cuộn cũ. Chỉ xem đây là thao tác cuộn chủ động khi có input.
+        ["wheel", "touchstart", "pointerdown"].forEach((eventName) => {
+            window.addEventListener(eventName, () => { profileScrollIntentVersion++; }, { passive: true });
+        });
+        window.addEventListener("keydown", (event) => {
+            if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) {
+                profileScrollIntentVersion++;
+            }
+        });
+
+        function restoreProfileScrollIfUntouched(position, intentVersion) {
+            const restore = () => {
+                if (profileScrollIntentVersion !== intentVersion) return;
+                if (Math.abs(window.scrollX - position.x) < 1 && Math.abs(window.scrollY - position.y) < 1) return;
+                const oldBehavior = document.documentElement.style.scrollBehavior;
+                document.documentElement.style.scrollBehavior = "auto";
+                window.scrollTo(position.x, position.y);
+                document.documentElement.style.scrollBehavior = oldBehavior;
+            };
+            requestAnimationFrame(() => {
+                restore();
+                requestAnimationFrame(restore);
+            });
+            setTimeout(restore, 120);
+            setTimeout(restore, 400);
+        }
 
         function formatDateTime(iso) {
             if (!iso) return "—";
@@ -1337,6 +1366,8 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
             const { reset = false } = options;
             const listEl = document.getElementById("attempts-list");
             if (!listEl || !uid || attemptsLoading) return;
+            const scrollPosition = { x: window.scrollX, y: window.scrollY };
+            const scrollIntentVersion = profileScrollIntentVersion;
             if (reset) {
                 attemptsPage = 0;
                 listEl.innerHTML = `<div class="attempt-group p-3"><div class="skeleton rounded" style="width:60%;height:12px;margin-bottom:8px"></div><div class="skeleton rounded" style="width:85%;height:10px"></div></div>`;
@@ -1351,6 +1382,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 if (reset) listEl.innerHTML = `<p class="text-xs font-medium text-center py-4" style="color:#ef4444">Không tải được lịch sử làm bài. Hãy bấm nút tải lại để thử lại.</p>`;
             } finally {
                 attemptsLoading = false;
+                if (reset) restoreProfileScrollIfUntouched(scrollPosition, scrollIntentVersion);
             }
         }
 
