@@ -1379,7 +1379,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 return;
             }
             const testName = (attempt.paper && attempt.paper.meta && attempt.paper.meta.name) || attempt.test_name || "Bài kiểm tra";
-            document.title = testName + " - LearnHub";
+            document.title = testName + " - Xem lại bài";
             box.innerHTML = renderAttemptDetail(attempt);
             bindAttemptBack();
         }
