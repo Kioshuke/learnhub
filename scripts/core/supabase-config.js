@@ -12,9 +12,8 @@
 // ============================================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const SUPABASE_URL = "https://hyuzukvxulwouaexatqv.supabase.co";
-export const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J";
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "./supabase-public-config.js";
+export { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY };
 
 // Client mặc định của web chính — dùng storage key chuẩn của Supabase
 // (giữ nguyên session đang có của user trên web chính).
@@ -46,8 +45,6 @@ export function createLearnHubClient(options = {}) {
     }
   });
 }
-
-export { SUPABASE_URL };
 
 // Use fetch keepalive for lifecycle events where the page may be frozen immediately.
 export function finalizeOnlineSessionKeepalive(uid) {
