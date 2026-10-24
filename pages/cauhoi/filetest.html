@@ -996,6 +996,7 @@ async function loadQuestions() {
         // [Lịch sử làm bài] chép môn/tên đề để lưu kèm mỗi lần nộp
         examMeta.subject = rpcData.subject || "";
         examMeta.name = rpcData.name || "";
+        examMeta.description = rpcData.description || "";
 
         // Đọc cấu hình từ các CỘT trong test_sets
         const rawScore = Number(rpcData.score);
@@ -1192,7 +1193,7 @@ function renderQuiz() {
                         const imgUrl = answerImageUrl(ans);
                         const answerInner = imgUrl
                             ? `<img class="ans-img" src="${esc(imgUrl)}" alt="Đáp án ${String.fromCharCode(65 + idx)}" loading="lazy" onerror="this.style.display='none'">`
-                            : `<span>${esc(ans)}</span>`;
+                            : `<span>${sanitizeHtml(ans)}</span>`;
                         return `
                         <label class="ans-label" id="label-${globalIdx}-${idx}" onclick="selectAnswer(this, ${globalIdx})">
                             <input type="radio" name="question-${globalIdx}" value="${idx}">
@@ -1208,7 +1209,7 @@ function renderQuiz() {
                         ${item.subQuestions.map((sub, subIdx) => `
                             <div class="tf-row" style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--tf-border); gap: 10px;">
                                 <div class="tf-question-text" style="flex: 1; font-size: 0.9rem;">
-                                    <strong style="color:var(--primary)">${String.fromCharCode(97 + subIdx)}.</strong> <span>${esc(sub.text)}</span>
+                                    <strong style="color:var(--primary)">${String.fromCharCode(97 + subIdx)}.</strong> <span>${sanitizeHtml(sub.text)}</span>
                                 </div>
                                 <div class="tf-options" style="display: flex; gap: 5px; flex-shrink: 0;">
                                     <label style="cursor:pointer; display:flex; align-items:center; gap:3px; background: transparent; padding:4px 10px; border-radius:6px; border: 1.2px solid var(--tf-border); font-size: 0.85rem;">
@@ -1231,7 +1232,7 @@ function renderQuiz() {
                 <div class="question-card" id="card-${globalIdx}" style="margin-bottom: 20px; padding: 15px;">
                     <div class="q-header" style="margin-bottom: 12px; font-size: 0.95rem;">
                         <span class="q-badge" style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 15px; font-size: 0.75rem; font-weight: bold; margin-right: 5px;">Câu ${globalIdx + 1}</span> 
-                        <span>${esc(questionText)}</span>
+                        <span>${sanitizeHtml(questionText)}</span>
                     </div>
                     ${imageHtml}
                     ${answersContent}
@@ -1640,7 +1641,7 @@ timeSpentEl.innerText = timeSpentMsg;
             durationMs: durationMs,
             autoSubmitted: !!autoSubmitted,
             paper: {
-                meta: { testId: TEST_DE, subject: examMeta.subject, name: examMeta.name, maxScore: maxScore, showAnswers: examConfig.showAnswers, showScore: examConfig.showScore },
+                meta: { testId: TEST_DE, subject: examMeta.subject, name: examMeta.name, description: examMeta.description, maxScore: maxScore, showAnswers: examConfig.showAnswers, showScore: examConfig.showScore },
                 result: { score: score, rawScore: rawScoreVal, correctCount: correctCount, totalQuestions: totalQuestions, durationMs: durationMs, autoSubmitted: !!autoSubmitted },
                 sections: attemptSections
             }

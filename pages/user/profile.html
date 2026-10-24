@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ Sơ Học Viên - LearnHub</title>
+    <script>
+        // Trang hồ sơ tải dữ liệu bất đồng bộ; tránh trình duyệt khôi phục scroll cũ
+        // sau khi nội dung được render và làm trang cao lên.
+        if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    </script>
     <link rel="icon" href="../../assets/images/favicon.png" sizes="any">
     <link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/favicon.png">
     <link rel="apple-touch-icon" href="../../assets/images/favicon.png">
@@ -78,6 +83,7 @@
         html, body {
             scrollbar-width: none;
             -ms-overflow-style: none;
+            overflow-anchor: none;
         }
         html::-webkit-scrollbar, body::-webkit-scrollbar {
             display: none;
@@ -452,7 +458,11 @@
                     <button id="attempts-refresh" type="button" class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors" style="color:#10b981" title="Tải lại"><i class="fas fa-rotate text-xs"></i></button>
                 </div>
                 <div id="attempts-list" class="space-y-2"></div>
-                <button id="attempts-more" type="button" class="hidden w-full py-2 rounded-xl text-xs font-bold transition-colors" style="background:#f1f5f9;color:#475569">Xem thêm</button>
+                <div id="attempts-pagination" class="hidden flex items-center justify-between gap-3 pt-1">
+                    <button id="attempts-prev" type="button" class="px-3 py-2 rounded-lg text-xs font-bold disabled:opacity-40" style="background:#f1f5f9;color:#475569">Trang trước</button>
+                    <span id="attempts-page-label" class="text-xs font-semibold" style="color:var(--text-sub)"></span>
+                    <button id="attempts-next" type="button" class="px-3 py-2 rounded-lg text-xs font-bold disabled:opacity-40" style="background:#f1f5f9;color:#475569">Trang sau</button>
+                </div>
             </section>
         </div>
 
@@ -509,6 +519,20 @@
     <div id="attempt-detail" style="display:none"></div>
 </div>
 
+<div id="attempts-modal" class="attempts-modal" role="dialog" aria-modal="true" aria-labelledby="attempts-modal-title" hidden>
+    <div class="attempts-modal-backdrop" data-close-attempts-modal></div>
+    <div class="attempts-modal-panel lh-modal-box" role="document">
+        <div class="flex items-start justify-between gap-3 pb-3 border-b" style="border-color:var(--card-border)">
+            <div class="min-w-0">
+                <h3 id="attempts-modal-title" class="text-base font-extrabold truncate" style="color:var(--text-main)">Các lần làm bài</h3>
+                <p id="attempts-modal-description" class="text-xs mt-1 line-clamp-2" style="color:var(--text-sub)"></p>
+            </div>
+            <button id="attempts-modal-close" type="button" class="lh-modal-close flex-shrink-0" aria-label="Đóng danh sách lần làm"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div id="attempts-modal-list" class="space-y-2 overflow-y-auto pt-3" style="max-height:min(60vh,520px)"></div>
+    </div>
+</div>
+
     <style>
         .no-scrollbar::-webkit-scrollbar{width:0;height:0}
         .no-scrollbar{scrollbar-width:none}
@@ -516,6 +540,19 @@
         /* ---- Lịch sử làm bài ---- */
         .attempt-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid var(--card-border);background:var(--card,#fff);cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
         .attempt-item:hover{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.35);transform:translateY(-1px)}
+        .attempt-group{overflow:hidden;border:1px solid var(--card-border);border-radius:12px;background:var(--card,#fff)}
+        .attempt-group-head{width:100%;text-align:left;display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,1.25fr);align-items:center;gap:14px;padding:12px;background:transparent;cursor:pointer}
+        .attempt-group-head:hover{background:rgba(16,185,129,.06)}
+        .attempt-group-copy{min-width:0}
+        .attempt-group-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+        .attempt-group-stat{min-width:0;padding:7px 8px;border-radius:9px;background:rgba(148,163,184,.1)}
+        .attempt-group-stat-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--text-sub)}
+        .attempt-group-stat-value{font-size:11px;font-weight:800;margin-top:3px;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .attempts-modal{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:16px}
+        .attempts-modal[hidden]{display:none}
+        .attempts-modal-backdrop{position:absolute;inset:0;background:rgba(2,12,27,.55);backdrop-filter:blur(4px)}
+        .attempts-modal-panel{position:relative;display:flex;flex-direction:column;width:min(560px,100%);max-height:80vh;padding:18px}
+        @media(max-width:640px){.attempt-group-head{grid-template-columns:minmax(0,1fr);gap:10px}.attempt-group-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.attempt-group-stat{padding:6px}.attempt-group-stat-value{font-size:10px}.attempts-modal{padding:10px}.attempts-modal-panel{max-height:88vh;padding:14px}}
         .attempt-score{font-weight:800;font-size:15px;min-width:48px;text-align:center;border-radius:10px;padding:6px 4px;flex-shrink:0}
         .attempt-tag{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:999px;font-size:9px;font-weight:800;background:rgba(239,68,68,.12);color:#ef4444}
 
@@ -1116,9 +1153,11 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
         }
 
         // ================= LỊCH SỬ LÀM BÀI =================
-        let attemptsOffset = 0;
         let attemptsLoading = false;
-        const ATTEMPTS_PAGE = 20;
+        let attemptGroups = [];
+        let attemptsPage = 0;
+        let attemptsModalTrigger = null;
+        const ATTEMPTS_PAGE_SIZE = 4;
 
         function formatDateTime(iso) {
             if (!iso) return "—";
@@ -1182,46 +1221,134 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
 
         function attemptItemHtml(a) {
             const sc = Number(a.score) || 0;
-            const st = attemptScoreStyle(sc);
+            const scoreHidden = String(a.show_score || "always").toLowerCase() === "none";
+            const st = scoreHidden ? { bg: "rgba(148,163,184,.14)", fg: "#64748b" } : attemptScoreStyle(sc);
             const dur = formatDurationMs(a.duration_ms);
-            const title = a.test_name || "Bài kiểm tra";
             const metaBits = [];
-            if (a.subject) metaBits.push(escapeHtml(a.subject));
-            if (a.total_questions != null) metaBits.push(`Đúng ${a.correct_count ?? 0}/${a.total_questions}`);
+            if (!scoreHidden && a.total_questions != null) metaBits.push(`Đúng ${a.correct_count ?? 0}/${a.total_questions}`);
             if (dur) metaBits.push(dur);
             metaBits.push(formatDateTime(a.created_at));
-            return `<div class="attempt-item" data-attempt-id="${escapeHtml(a.id)}">
-                <div class="attempt-score" style="background:${st.bg};color:${st.fg}">${sc}</div>
+            return `<div class="attempt-item" data-attempt-id="${escapeHtml(a.id)}" role="button" tabindex="0" aria-label="Xem kết quả lần làm lúc ${escapeHtml(formatDateTime(a.created_at))}">
+                <div class="attempt-score" style="background:${st.bg};color:${st.fg}">${scoreHidden ? "Ẩn" : sc}</div>
                 <div style="flex:1;min-width:0">
-                    <div class="text-[13px] font-bold truncate" style="color:var(--text-main)">${escapeHtml(title)}</div>
                     <div class="text-[10.5px] font-medium truncate mt-0.5" style="color:var(--text-sub)">${metaBits.join(" · ")}</div>
                     ${a.auto_submitted ? `<span class="attempt-tag mt-1"><i class="fas fa-clock"></i> Tự động nộp</span>` : ""}
                 </div>
-                <i class="fas fa-chevron-right text-xs flex-shrink-0" style="color:var(--text-sub);opacity:.6"></i>
+                <span class="text-[10px] font-bold flex-shrink-0" style="color:var(--blue-accent)">Xem kết quả</span>
             </div>`;
+        }
+
+        function groupTestAttempts(rows) {
+            const groups = new Map();
+            (rows || []).forEach((attempt) => {
+                const groupKey = String(attempt.test_id || attempt.test_name || attempt.id || "unknown");
+                if (!groups.has(groupKey)) {
+                    groups.set(groupKey, {
+                        key: groupKey,
+                        name: attempt.test_name || "",
+                        description: attempt.test_description || "",
+                        subject: attempt.subject || "",
+                        attempts: []
+                    });
+                }
+                const group = groups.get(groupKey);
+                if (!group.description && attempt.test_description) group.description = attempt.test_description;
+                if (!group.name && attempt.test_name) group.name = attempt.test_name;
+                group.attempts.push(attempt);
+            });
+            return Array.from(groups.values()).sort((a, b) =>
+                new Date(b.attempts[0]?.created_at || 0) - new Date(a.attempts[0]?.created_at || 0)
+            );
+        }
+
+        function openAttemptsModal(groupIndex, trigger) {
+            const group = attemptGroups[groupIndex];
+            const modal = document.getElementById("attempts-modal");
+            const title = document.getElementById("attempts-modal-title");
+            const description = document.getElementById("attempts-modal-description");
+            const list = document.getElementById("attempts-modal-list");
+            if (!group || !modal || !title || !description || !list) return;
+            title.textContent = group.name || "Bài kiểm tra";
+            description.textContent = group.description || "Chưa có mô tả cho lần làm này.";
+            list.innerHTML = group.attempts.map(attemptItemHtml).join("");
+            attemptsModalTrigger = trigger || null;
+            modal.hidden = false;
+            document.getElementById("attempts-modal-close")?.focus();
+        }
+
+        function closeAttemptsModal(restoreFocus = true) {
+            const modal = document.getElementById("attempts-modal");
+            if (!modal || modal.hidden) return;
+            modal.hidden = true;
+            if (restoreFocus) attemptsModalTrigger?.focus();
+            attemptsModalTrigger = null;
+        }
+
+        function renderAttemptGroups() {
+            const listEl = document.getElementById("attempts-list");
+            const pagination = document.getElementById("attempts-pagination");
+            const prevBtn = document.getElementById("attempts-prev");
+            const nextBtn = document.getElementById("attempts-next");
+            const pageLabel = document.getElementById("attempts-page-label");
+            if (!listEl) return;
+
+            const pageCount = Math.ceil(attemptGroups.length / ATTEMPTS_PAGE_SIZE);
+            if (!attemptGroups.length) {
+                listEl.innerHTML = `<p class="text-xs font-medium text-center py-4" style="color:var(--text-sub)">Bạn chưa có lịch sử làm bài nào.</p>`;
+                if (pagination) pagination.classList.add("hidden");
+                return;
+            }
+
+            attemptsPage = Math.min(attemptsPage, pageCount - 1);
+            const start = attemptsPage * ATTEMPTS_PAGE_SIZE;
+            const visibleGroups = attemptGroups.slice(start, start + ATTEMPTS_PAGE_SIZE);
+            listEl.innerHTML = visibleGroups.map((group, visibleIndex) => {
+                const groupIndex = start + visibleIndex;
+                const last = group.attempts[0];
+                const scoreHidden = String(last.show_score || "always").toLowerCase() === "none";
+                const score = scoreHidden ? "Ẩn" : String(Number(last.score) || 0);
+                const lastTime = formatDateTime(last.created_at);
+                const description = group.description
+                    ? escapeHtml(group.description)
+                    : "Chưa có mô tả cho lần làm này.";
+                return `<article class="attempt-group">
+                    <button type="button" class="attempt-group-head" data-attempt-group="${groupIndex}" aria-label="Mở danh sách lần làm: ${escapeHtml(group.name || "Bài kiểm tra")}">
+                        <div class="attempt-group-copy">
+                            <div class="text-[13px] font-bold truncate" style="color:var(--text-main)">${escapeHtml(group.name || "Bài kiểm tra")}</div>
+                            <div class="text-[11px] mt-1 line-clamp-2" style="color:var(--text-sub)">${description}</div>
+                            ${group.subject ? `<div class="text-[10px] font-semibold mt-1 truncate" style="color:var(--blue-accent)">${escapeHtml(group.subject)}</div>` : ""}
+                        </div>
+                        <div class="attempt-group-stats">
+                            <div class="attempt-group-stat"><div class="attempt-group-stat-label">Tổng lần làm</div><div class="attempt-group-stat-value">${group.attempts.length}</div></div>
+                            <div class="attempt-group-stat"><div class="attempt-group-stat-label">Lần cuối</div><div class="attempt-group-stat-value" title="${escapeHtml(lastTime)}">${escapeHtml(lastTime)}</div></div>
+                            <div class="attempt-group-stat"><div class="attempt-group-stat-label">Điểm gần nhất</div><div class="attempt-group-stat-value">${score}</div></div>
+                        </div>
+                    </button>
+                </article>`;
+            }).join("");
+
+            if (pagination) pagination.classList.toggle("hidden", pageCount <= 1);
+            if (pageLabel) pageLabel.textContent = `Trang ${attemptsPage + 1} / ${pageCount}`;
+            if (prevBtn) prevBtn.disabled = attemptsPage === 0;
+            if (nextBtn) nextBtn.disabled = attemptsPage >= pageCount - 1;
         }
 
         async function loadAttemptsList(uid, options = {}) {
             const { reset = false } = options;
             const listEl = document.getElementById("attempts-list");
-            const moreBtn = document.getElementById("attempts-more");
             if (!listEl || !uid || attemptsLoading) return;
             if (reset) {
-                attemptsOffset = 0;
-                listEl.innerHTML = `<div class="attempt-item" style="cursor:default"><div class="skeleton" style="width:48px;height:34px;border-radius:10px"></div><div style="flex:1"><div class="skeleton rounded" style="width:60%;height:12px;margin-bottom:6px"></div><div class="skeleton rounded" style="width:40%;height:10px"></div></div></div>`;
+                attemptsPage = 0;
+                listEl.innerHTML = `<div class="attempt-group p-3"><div class="skeleton rounded" style="width:60%;height:12px;margin-bottom:8px"></div><div class="skeleton rounded" style="width:85%;height:10px"></div></div>`;
             }
             attemptsLoading = true;
             try {
-                const rows = await loadTestAttempts(uid, { limit: ATTEMPTS_PAGE, offset: attemptsOffset });
-                if (reset) listEl.innerHTML = "";
-                if (!rows.length) {
-                    if (reset) listEl.innerHTML = `<p class="text-xs font-medium text-center py-4" style="color:var(--text-sub)">Bạn chưa có lịch sử làm bài nào.</p>`;
-                    if (moreBtn) moreBtn.classList.add("hidden");
-                    return;
-                }
-                listEl.insertAdjacentHTML("beforeend", rows.map(attemptItemHtml).join(""));
-                attemptsOffset += rows.length;
-                if (moreBtn) moreBtn.classList.toggle("hidden", rows.length < ATTEMPTS_PAGE);
+                const rows = await loadTestAttempts(uid);
+                attemptGroups = groupTestAttempts(rows);
+                renderAttemptGroups();
+            } catch (e) {
+                console.error("Tải lịch sử làm bài lỗi:", e);
+                if (reset) listEl.innerHTML = `<p class="text-xs font-medium text-center py-4" style="color:#ef4444">Không tải được lịch sử làm bài. Hãy bấm nút tải lại để thử lại.</p>`;
             } finally {
                 attemptsLoading = false;
             }
@@ -1247,9 +1374,19 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
             if (grid) grid.style.display = "none";
             box.style.display = "block";
             box.innerHTML = `<div class="lh-card p-6 flex items-center justify-center gap-3" style="color:var(--text-sub)"><i class="fas fa-spinner fa-spin"></i> Đang tải bài làm...</div>`;
-            window.scrollTo({ top: 0, behavior: "smooth" });
 
-            const attempt = await loadTestAttempt(id);
+            let attempt;
+            try {
+                attempt = await loadTestAttempt(id);
+            } catch (e) {
+                console.error("Tải chi tiết bài làm lỗi:", e);
+                box.innerHTML = `<div class="lh-card p-6 text-center space-y-3">
+                    <p class="text-sm font-semibold" style="color:#ef4444">Không tải được chi tiết bài làm. Hãy quay lại và thử lại.</p>
+                    <button id="attempt-back" type="button" class="px-4 py-2 rounded-xl text-xs font-bold" style="background:#f1f5f9;color:#475569">Quay lại</button>
+                </div>`;
+                bindAttemptBack();
+                return;
+            }
             if (!attempt) {
                 box.innerHTML = `<div class="lh-card p-6 text-center space-y-3">
                     <p class="text-sm font-semibold" style="color:var(--text-sub)">Không tìm thấy bài làm này.</p>
@@ -1265,6 +1402,25 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
         function bindAttemptBack() {
             const btn = document.getElementById("attempt-back");
             if (btn) btn.addEventListener("click", () => window.history.back());
+        }
+
+        // Sanitize rich-text cho sectionDesc (giữ <b>/<i>/<u>... như trang quiz, gỡ thẻ lạ + mọi attribute)
+        const SAFE_TEXT_TAGS = ["b", "i", "u", "em", "strong", "br", "span", "code"];
+        function sanitizeHtml(html) {
+            const body = new DOMParser().parseFromString(String(html || ""), "text/html").body;
+            (function clean(parent) {
+                Array.from(parent.children).forEach(function (el) {
+                    const tag = el.tagName.toLowerCase();
+                    if (SAFE_TEXT_TAGS.indexOf(tag) === -1) {
+                        clean(el);
+                        el.replaceWith(...el.childNodes);
+                    } else {
+                        Array.from(el.attributes).forEach(function (a) { el.removeAttribute(a.name); });
+                        clean(el);
+                    }
+                });
+            })(body);
+            return body.innerHTML;
         }
 
         function renderOptionsHtml(answers, chosenIdx, correctIdx, canReveal) {
@@ -1283,7 +1439,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 const imgUrl = imgUrlOf(ans);
                 const innerHtml = imgUrl
                     ? `<img class="ans-img" src="${imgUrl}" alt="Đáp án ${String.fromCharCode(65 + idx)}" loading="lazy" onerror="this.style.display='none'">`
-                    : `<span>${escapeHtml(answerTextOf(ans))}</span>`;
+                    : `<span>${sanitizeHtml(answerTextOf(ans))}</span>`;
                 return `<div class="${cls}"><input type="radio" disabled ${isChosen ? "checked" : ""}>${innerHtml}</div>`;
             }).join("") + `</div>`;
         }
@@ -1305,7 +1461,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
             if (imgUrl) inner += `<div class="q-image" style="text-align:center;margin:10px 0;"><img src="${imgUrl}" alt="" onerror="this.parentElement.style.display='none'" style="max-width:100%;max-height:250px;border-radius:10px;"></div>`;
             // Đề bài riêng (khi câu vừa có title vừa có question) hiển thị ở thân card — giống trang quiz
             if (q.title && q.question && q.question !== q.title) {
-                inner += `<div style="margin-bottom:12px;font-size:0.95rem;line-height:1.6;font-weight:600;color:var(--text);">${escapeHtml(q.question)}</div>`;
+                inner += `<div style="margin-bottom:12px;font-size:0.95rem;line-height:1.6;font-weight:600;color:var(--text);">${sanitizeHtml(q.question)}</div>`;
             }
 
             let ok = null; // true/false khi xác định được, null khi ẩn đáp án
@@ -1328,7 +1484,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                     const bg = canReveal ? `background:${subOk ? "var(--success-light)" : "var(--danger-light)"};` : "";
                     const tip = canReveal ? `<span class="tf-answer-tip ${subOk ? "true-text" : "false-text"}"> (Đáp án: ${correctVal === 1 ? "Đúng" : "Sai"})</span>` : "";
                     return `<div class="tf-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid var(--tf-border);gap:10px;${bg}">
-                        <div class="tf-question-text" style="flex:1;font-size:0.9rem;"><strong style="color:var(--primary)">${String.fromCharCode(97 + i)}.</strong> <span>${escapeHtml(sub.text || "")}</span>${tip}</div>
+                        <div class="tf-question-text" style="flex:1;font-size:0.9rem;"><strong style="color:var(--primary)">${String.fromCharCode(97 + i)}.</strong> <span>${sanitizeHtml(sub.text || "")}</span>${tip}</div>
                         <div class="tf-options" style="display:flex;gap:5px;flex-shrink:0;">
                             <label style="${optStyle}"><input type="radio" disabled ${userVal === 1 ? "checked" : ""}> <b>Đ</b></label>
                             <label style="${optStyle}"><input type="radio" disabled ${userVal === 0 ? "checked" : ""}> <b>S</b></label>
@@ -1344,7 +1500,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 inner += `<textarea class="short-input writing-input" disabled rows="${q.rows || 3}" style="width:100%;box-sizing:border-box;padding:12px;border:2px solid ${border};border-radius:10px;outline:none;font-size:0.95rem;resize:vertical;font-family:inherit;line-height:1.6;color:var(--text);background:var(--card);">${escapeHtml(chosen)}</textarea>`;
                 if (canReveal) {
                     ok = subOk;
-                    inner += `<div class="true-text" style="margin-top:10px;">✓ Đáp án chuẩn: ${escapeHtml(correct)}</div>`;
+                    inner += `<div class="true-text" style="margin-top:10px;">✓ Đáp án chuẩn: ${sanitizeHtml(correct)}</div>`;
                 }
             } else if (type === "passage") {
                 const subs = Array.isArray(q.subQuestions) ? q.subQuestions : [];
@@ -1356,18 +1512,18 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                     if (!subOk) allOk = false;
                     const border = canReveal ? ` style="border-color:${subOk ? "var(--success)" : "var(--danger)"};"` : "";
                     return `<div class="sub-q-block"${border}>
-                        <div class="sub-q-text" style="font-weight:600;font-size:0.92rem;margin-bottom:10px;"><strong style="color:var(--primary)">${String.fromCharCode(97 + i)}.</strong> ${escapeHtml(sub.question || "")}</div>
+                        <div class="sub-q-text" style="font-weight:600;font-size:0.92rem;margin-bottom:10px;"><strong style="color:var(--primary)">${String.fromCharCode(97 + i)}.</strong> ${sanitizeHtml(sub.question || "")}</div>
                         ${renderOptionsHtml(sub.answers, chosenArr[i], sub.correct, canReveal)}
                     </div>`;
                 }).join("");
-                const passageContent = q.passage ? `<div class="passage-left"><div class="passage-left-inner">${escapeHtml(q.passage)}</div></div>` : "";
+                const passageContent = q.passage ? `<div class="passage-left"><div class="passage-left-inner">${sanitizeHtml(q.passage)}</div></div>` : "";
                 inner += `<div class="passage-layout">${passageContent}<div class="passage-right sub-questions">${subsHtml}</div></div>`;
                 if (canReveal) ok = allOk;
             } else if (type === "cloze") {
                 const chosenArr = Array.isArray(q.chosen) ? q.chosen : [];
                 const blanks = Array.isArray(q.blanks) ? q.blanks : [];
                 let allOk = true;
-                let text = escapeHtml(String(q.question || ""));
+                let text = sanitizeHtml(String(q.question || ""));
                 text = text.replace(/\{\{(\d+)\}\}/g, (m, n) => {
                     const i = parseInt(n, 10) - 1;
                     const val = chosenArr[i];
@@ -1380,7 +1536,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                         ? `border-color:${subOk ? "var(--success)" : "var(--danger)"};background:${subOk ? "var(--success-light)" : "var(--danger-light)"};`
                         : "";
                     let out = `<input type="text" class="cloze-input short-input" disabled value="${has ? escapeHtml(String(val)) : ""}" style="width:${w}px;min-width:80px;box-sizing:border-box;padding:6px 8px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;text-align:center;${style}">`;
-                    if (canReveal && !subOk) out += `<span class="cloze-answer-tip true-text" style="margin-left:6px;font-size:0.8rem;">(${escapeHtml(correctVal)})</span>`;
+                    if (canReveal && !subOk) out += `<span class="cloze-answer-tip true-text" style="margin-left:6px;font-size:0.8rem;">(${sanitizeHtml(correctVal)})</span>`;
                     return out;
                 });
                 if (canReveal) ok = allOk;
@@ -1392,7 +1548,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
             const html = `<div class="${cardCls}" id="card-${idx}" style="margin-bottom:20px;padding:15px;">
                 <div class="q-header" style="margin-bottom:12px;font-size:0.95rem;">
                     <span class="q-badge" style="background:var(--primary);color:white;padding:2px 8px;border-radius:15px;font-size:0.75rem;font-weight:bold;margin-right:5px;">Câu ${qNo}</span> 
-                    <span>${escapeHtml(title)}</span>
+                    <span>${sanitizeHtml(title)}</span>
                 </div>
                 ${inner}
             </div>`;
@@ -1407,10 +1563,11 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
 
             const showAnswers = meta.showAnswers || "always";
             const showScore = meta.showScore || "always";
+            const scoreHidden = String(showScore).toLowerCase() === "none";
             const score = Number(result.score != null ? result.score : (a.score || 0));
             const canReveal = showAnswers === "always" || (showAnswers === "perfect" && score >= 10);
 
-            const st = attemptScoreStyle(score);
+            const st = scoreHidden ? { bg: "rgba(148,163,184,.14)", fg: "#64748b" } : attemptScoreStyle(score);
             const dur = formatDurationMs(result.durationMs != null ? result.durationMs : a.duration_ms);
             const correct = result.correctCount != null ? result.correctCount : (a.correct_count ?? 0);
             const total = result.totalQuestions != null ? result.totalQuestions : (a.total_questions ?? 0);
@@ -1428,7 +1585,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                     if (sec.sectionTitle) {
                         nav += `<div class="nav-section-label" style="grid-column:1/-1;font-weight:bold;margin:10px 0 5px;font-size:0.7rem;color:#64748b;text-transform:uppercase;">${escapeHtml(sec.sectionTitle)}</div>`;
                         const descHtml = (sec.sectionDesc && String(sec.sectionDesc).trim() !== "")
-                            ? `<div style="margin-top:4px;font-size:0.78rem;color:var(--text-sub);font-weight:normal;font-style:italic;line-height:1.4;">${escapeHtml(sec.sectionDesc)}</div>`
+                            ? `<div style="margin-top:4px;font-size:0.78rem;color:var(--text-sub);font-weight:normal;font-style:italic;line-height:1.4;">${sanitizeHtml(sec.sectionDesc)}</div>`
                             : "";
                         body += `<div style="margin:25px 0 15px;padding:12px 15px;background:#eff6ff;color:#1a73e8;border-radius:8px;border-left:5px solid #1a73e8;">
                             <div style="font-weight:bold;text-transform:uppercase;font-size:0.95rem;display:block !important;">${escapeHtml(sec.sectionTitle)}</div>
@@ -1436,7 +1593,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                         </div>`;
                     }
                     if (sec.passage && sec.type !== "passage") {
-                        body += `<div style="background:var(--card);padding:14px 18px;border-radius:12px;border:1px solid var(--tf-border);line-height:1.75;margin-bottom:14px;color:var(--text);">${escapeHtml(sec.passage)}</div>`;
+                        body += `<div style="background:var(--card);padding:14px 18px;border-radius:12px;border:1px solid var(--tf-border);line-height:1.75;margin-bottom:14px;color:var(--text);">${sanitizeHtml(sec.passage)}</div>`;
                     }
                     const aHtml = audioListHtml(sec.audio);
                     if (aHtml) {
@@ -1457,7 +1614,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 body = `<p class="at-empty-note">Không có dữ liệu bài làm chi tiết cho lần nộp này.</p>`;
             }
 
-            const progressHtml = showScore === "none"
+            const progressHtml = scoreHidden
                 ? `<span id="progressText" style="color:var(--primary);font-size:0.9rem;">Đã nộp bài</span>`
                 : `<span id="progressText" style="color:var(--success);font-size:0.9rem;">${score.toFixed(2)} / ${maxScore}</span>`;
 
@@ -1469,10 +1626,10 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                             <h3 class="text-base sm:text-lg font-extrabold truncate" style="color:var(--text-main)">${escapeHtml(title)}</h3>
                             <p class="text-xs font-semibold truncate" style="color:var(--text-sub)">${subject ? escapeHtml(subject) + " · " : ""}${formatDateTime(a.created_at)}</p>
                         </div>
-                        <div class="attempt-score" style="background:${st.bg};color:${st.fg};min-width:56px;font-size:20px">${score}</div>
+                        ${scoreHidden ? "" : `<div class="attempt-score" style="background:${st.bg};color:${st.fg};min-width:56px;font-size:20px">${score}</div>`}
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        ${miniStat("Đúng", `${correct}/${total}`, "#2563eb", "rgba(37,99,235,.08)")}
+                        ${miniStat("Đúng", scoreHidden ? "Ẩn" : `${correct}/${total}`, "#2563eb", "rgba(37,99,235,.08)")}
                         ${miniStat("Thời gian", dur || "—", "#8b5cf6", "rgba(139,92,246,.08)")}
                         ${miniStat("Thang điểm", String(maxScore), "#f59e0b", "rgba(245,158,11,.1)")}
                         ${miniStat("Trạng thái", autoSub ? "Tự động nộp" : "Đã nộp", autoSub ? "#ef4444" : "#10b981", autoSub ? "rgba(239,68,68,.08)" : "rgba(16,185,129,.08)")}
@@ -1513,13 +1670,54 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
         // Gắn sự kiện cho khối lịch sử làm bài (chỉ có với chính mình)
         (function initAttemptsUI() {
             const refreshBtn = document.getElementById("attempts-refresh");
-            const moreBtn = document.getElementById("attempts-more");
             const listEl = document.getElementById("attempts-list");
+            const prevBtn = document.getElementById("attempts-prev");
+            const nextBtn = document.getElementById("attempts-next");
+            const modal = document.getElementById("attempts-modal");
+            const modalList = document.getElementById("attempts-modal-list");
+            const modalClose = document.getElementById("attempts-modal-close");
             if (refreshBtn) refreshBtn.addEventListener("click", () => { if (currentUserId) loadAttemptsList(currentUserId, { reset: true }); });
-            if (moreBtn) moreBtn.addEventListener("click", () => { if (currentUserId) loadAttemptsList(currentUserId); });
+            if (prevBtn) prevBtn.addEventListener("click", () => {
+                if (attemptsPage > 0) { attemptsPage--; renderAttemptGroups(); }
+            });
+            if (nextBtn) nextBtn.addEventListener("click", () => {
+                if ((attemptsPage + 1) * ATTEMPTS_PAGE_SIZE < attemptGroups.length) { attemptsPage++; renderAttemptGroups(); }
+            });
             if (listEl) listEl.addEventListener("click", (e) => {
-                const item = e.target.closest("[data-attempt-id]");
-                if (item) openAttempt(item.dataset.attemptId);
+                const attempt = e.target.closest("[data-attempt-id]");
+                if (attempt) {
+                    openAttempt(attempt.dataset.attemptId);
+                    return;
+                }
+                const groupButton = e.target.closest("[data-attempt-group]");
+                if (groupButton) {
+                    openAttemptsModal(Number(groupButton.dataset.attemptGroup), groupButton);
+                    return;
+                }
+            });
+            if (modalList) modalList.addEventListener("click", (e) => {
+                const attempt = e.target.closest("[data-attempt-id]");
+                if (attempt) {
+                    closeAttemptsModal(false);
+                    openAttempt(attempt.dataset.attemptId);
+                }
+            });
+            if (modalList) modalList.addEventListener("keydown", (e) => {
+                const attempt = e.target.closest("[data-attempt-id]");
+                if (attempt && (e.key === "Enter" || e.key === " ")) {
+                    e.preventDefault();
+                    closeAttemptsModal(false);
+                    openAttempt(attempt.dataset.attemptId);
+                }
+            });
+            if (modalClose) modalClose.addEventListener("click", () => closeAttemptsModal());
+            if (modal) {
+                modal.addEventListener("click", (e) => {
+                    if (e.target.closest("[data-close-attempts-modal]")) closeAttemptsModal();
+                });
+            }
+            window.addEventListener("keydown", (e) => {
+                if (e.key === "Escape" && modal && !modal.hidden) closeAttemptsModal();
             });
         })();
 

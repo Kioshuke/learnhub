@@ -1004,6 +1004,7 @@ async function loadQuestions() {
         // [Lịch sử làm bài] chép môn/tên đề để lưu kèm mỗi lần nộp
         examMeta.subject = rpcData.subject || "";
         examMeta.name = rpcData.name || "";
+        examMeta.description = rpcData.description || "";
 
         // Đọc cấu hình từ các CỘT trong test_sets
         const rawScore = Number(rpcData.score);
@@ -1820,7 +1821,7 @@ timeSpentEl.innerText = timeSpentMsg;
             durationMs: durationMs,
             autoSubmitted: !!autoSubmitted,
             paper: {
-                meta: { testId: TEST_DE, subject: examMeta.subject, name: examMeta.name, maxScore: maxScore, showAnswers: examConfig.showAnswers, showScore: examConfig.showScore },
+                meta: { testId: TEST_DE, subject: examMeta.subject, name: examMeta.name, description: examMeta.description, maxScore: maxScore, showAnswers: examConfig.showAnswers, showScore: examConfig.showScore },
                 result: { score: score, rawScore: rawScoreVal, correctCount: correctCount, totalQuestions: totalQuestions, durationMs: durationMs, autoSubmitted: !!autoSubmitted },
                 sections: attemptSections
             }
