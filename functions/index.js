@@ -43,7 +43,7 @@ export async function onRequestGet(context) {
     clearTimeout(timeoutId);
   }
 
-  const title = `${String(meta.name || "Bài kiểm tra")} - learnhub test`;
+  const title = `${String(meta.name || "Bài kiểm tra")} - LearnHub Test`;
   const subject = stripTags(meta.subject);
   const questionCount = Number(meta.question_count) || 0;
   const minutes = Number(meta.minutes) || 0;
