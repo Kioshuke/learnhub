@@ -846,12 +846,26 @@ function fmtBlockDate(v){
   return p(d.getDate()) + "/" + p(d.getMonth() + 1) + "/" + d.getFullYear();
 }
 
-/* Dựng nội dung thông báo chặn làm bài; kèm thời gian bắt đầu nếu có trong DB. */
-function buildTestBlockMsg(startAt){
-  var msg = "Bài test hiện Không thể làm vì chưa tới thời gian xuất bản/chưa hoàn thành. Vui lòng quay lại sau";
-  var f = fmtBlockDate(startAt);
-  if(f) msg += " (Thời gian bắt đầu: " + f + ")";
-  return msg;
+/* Dựng nội dung thông báo chặn làm bài.
+   - reason 'not_completed': giáo viên chưa bật "Hoàn thành" → thông báo riêng.
+   - reason 'not_in_time': ngoài khoảng thời gian mở đề → thông báo riêng kèm mốc thời gian. */
+function buildTestBlockMsg(data){
+  data = data || {};
+  if(data.reason === "not_completed"){
+    return "Bài test hiện không thể làm vì giáo viên chưa hoàn thành đề. Vui lòng quay lại sau.";
+  }
+  var now = Date.now();
+  var s = data.start_at ? new Date(data.start_at).getTime() : NaN;
+  var e = data.end_at ? new Date(data.end_at).getTime() : NaN;
+  if(!isNaN(e) && now > e){
+    var fe = fmtBlockDate(data.end_at);
+    return "Bài test đã hết thời gian mở đề" + (fe ? " (kết thúc: " + fe + ")" : "") + ". Vui lòng quay lại sau.";
+  }
+  if(!isNaN(s) && now < s){
+    var fs = fmtBlockDate(data.start_at);
+    return "Bài test chưa tới thời gian mở đề" + (fs ? " (bắt đầu: " + fs + ")" : "") + ". Vui lòng quay lại sau.";
+  }
+  return "Bài test hiện không thể làm. Vui lòng quay lại sau.";
 }
 
 function showTestBlockModal(msg){
@@ -912,7 +926,7 @@ function showTestBlockModal(msg){
 window.addEventListener("message", function globalBlockedHandler(ev){
   if(!ev.data || ev.data.type !== "OPEN_QUIZ_BLOCKED") return;
   showDeepLinkOverlay(false);
-  var msg = (typeof buildTestBlockMsg === "function") ? buildTestBlockMsg(ev.data.start_at) : "Bài test hiện Không thể làm vì chưa tới thời gian xuất bản/chưa hoàn thành. Vui lòng quay lại sau";
+  var msg = (typeof buildTestBlockMsg === "function") ? buildTestBlockMsg(ev.data) : "Bài test hiện không thể làm. Vui lòng quay lại sau.";
   if(typeof showTestBlockModal === "function"){
     showTestBlockModal(msg);
   }else if(typeof alert === "function"){
@@ -946,7 +960,7 @@ function requestOpenQuiz(de){
     window.removeEventListener("message", handler);
     window.removeEventListener("message", handlerBlocked);
     showDeepLinkOverlay(false);
-    var msg = (typeof buildTestBlockMsg === "function") ? buildTestBlockMsg(ev.data.start_at) : "Bài test hiện Không thể làm vì chưa tới thời gian xuất bản/chưa hoàn thành. Vui lòng quay lại sau";
+    var msg = (typeof buildTestBlockMsg === "function") ? buildTestBlockMsg(ev.data) : "Bài test hiện không thể làm. Vui lòng quay lại sau.";
     if(typeof showTestBlockModal === "function"){
       showTestBlockModal(msg);
     }else if(typeof alert === "function"){
