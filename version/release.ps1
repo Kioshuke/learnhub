@@ -1,16 +1,16 @@
 ﻿# ============================================================================
 # release.ps1 — Phát hành phiên bản mới LearnHub Platform (tự sinh số version)
 # ----------------------------------------------------------------------------
-# Công thức: v{era}.{YY}.{M}.{dec}
+# Công thức: v{era}.{YY}.{M}.{day}
 #   era = năm phát hành đầu tiên - 2025 (2026 → 1)
 #   YY  = 2 số cuối năm (2026 → 26)
 #   M   = tháng, không thêm số 0 (tháng 8 → 8)
-#   dec = floor(ngày / 10) (ngày 21 → 2, nhóm 20-29)
+#   day = ngày trong tháng (1..31) — luôn full ngày để version tăng đơn điệu qua các ngày
 #
 # Trùng ngày:
-#   Lần 1 trong ngày      → v1.26.8.2
-#   Lần 2 cùng ngày       → v1.26.8.27       (full ngày, bỏ hàng chục)
-#   Lần 3+ cùng ngày      → v1.26.8.27.3 ...  (thêm số đếm)
+#   Lần 1 trong ngày      → v1.26.10.24
+#   Lần 2 cùng ngày       → v1.26.10.24.2
+#   Lần 3+ cùng ngày      → v1.26.10.24.3 ...  (thêm số đếm)
 #
 # Cách dùng:  release.bat              (hỏi xác nhận trước khi push)
 #             release.bat -Yes         (không hỏi, đẩy luôn)
@@ -47,21 +47,18 @@ try {
     $era  = $now.Year - 2025
     $yy   = $now.ToString("yy")
     $m    = $now.Month
-    $dec  = [math]::Floor($now.Day / 10)
-    $base = "{0}.{1}.{2}.{3}" -f $era, $yy, $m, $dec
+    # Đoạn thứ 4 LUÔN là full ngày (1..31) để version tăng đơn điệu qua các ngày.
+    # (Trước đây dùng floor(day/10) → chỉ 0..3, khiến release đầu tiên của ngày mới
+    #  trùng với ngày cũ → so sánh version = 0 → banner cập nhật không hiện.)
+    $base = "{0}.{1}.{2}.{3}" -f $era, $yy, $m, $now.Day
 
     # ---------- 4. Xử lý trùng ngày ----------
-    # Lần 1: v1.26.8.2  (lấy hàng chục ngày: floor(day/10))
-    # Lần 2: v1.26.8.27 (lấy full ngày, bỏ hàng chục)
-    # Lần 3+: v1.26.8.27.3, v1.26.8.27.4 ... (thêm số đếm)
-    if ($metaDate -eq $dateIso) {
-        $count = $metaCount + 1
-        if ($count -eq 2) { $newVersion = "{0}.{1}.{2}.{3}" -f $era, $yy, $m, $now.Day }
-        else              { $newVersion = "{0}.{1}.{2}.{3}.{4}" -f $era, $yy, $m, $now.Day, $count }
-    } else {
-        $count      = 1
-        $newVersion = $base
-    }
+    # Lần 1 trong ngày: v1.26.10.24
+    # Lần 2: v1.26.10.24.2
+    # Lần 3+: v1.26.10.24.3, v1.26.10.24.4 ... (thêm số đếm)
+    if ($metaDate -eq $dateIso) { $count = $metaCount + 1 } else { $count = 1 }
+    if ($count -eq 1) { $newVersion = $base }
+    else              { $newVersion = "{0}.{1}" -f $base, $count }
 
     Write-Host ""
     Write-Host "=============================================" -ForegroundColor Cyan
