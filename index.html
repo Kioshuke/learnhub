@@ -522,7 +522,7 @@ fetch('components/header.html').then(r=>r.text()).then(html=>{
 
 <script type="module">
 import { supabase, SUPABASE_URL, getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession, logAppError } from "./scripts/core/supabase-config.js";
-import { createUserStats, updateUserStats } from "./scripts/features/learnhub-stats.js";
+import { createUserStats, updateUserStats, insertTestAttempt } from "./scripts/features/learnhub-stats.js";
 import { isPasswordRecovery } from "./scripts/auth/reset-password.js";
 window.logAppError = logAppError;
 window.supabaseClient = supabase;
@@ -1501,6 +1501,10 @@ window.addEventListener("beforeunload", () => {
     try {
       await createUserStats(u);
       await updateUserStats(u.uid, score);
+      // [Lịch sử làm bài] lưu snapshot đề + bài làm (nếu iframe gửi kèm)
+      if (event.data.attempt) {
+        await insertTestAttempt(u.uid, event.data.attempt);
+      }
     } catch (e) {
       console.log("Không thể lưu kết quả từ iframe:", e);
     }

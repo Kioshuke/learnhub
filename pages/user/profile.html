@@ -329,7 +329,7 @@
     </div>
 
     <div class="w-full px-2 sm:px-4 pb-5 sm:pb-7">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
+    <div id="profile-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
 
         <!-- LEFT COLUMN -->
         <div class="space-y-5">
@@ -421,6 +421,18 @@
                     </div>
                 </div>
             </section>
+
+            <!-- LỊCH SỬ LÀM BÀI (chỉ hiển thị với chính mình — Giai đoạn 1) -->
+            <section id="attempts-section" class="lh-card p-4 sm:p-5 space-y-2.5" style="display:none">
+                <div class="flex items-center justify-between gap-2">
+                    <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+                        <span class="lh-tile-icon" style="background:var(--tint-green);color:#10b981"><i class="fas fa-clock-rotate-left"></i></span> Lịch Sử Làm Bài
+                    </h3>
+                    <button id="attempts-refresh" type="button" class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors" style="color:#10b981" title="Tải lại"><i class="fas fa-rotate text-xs"></i></button>
+                </div>
+                <div id="attempts-list" class="space-y-2"></div>
+                <button id="attempts-more" type="button" class="hidden w-full py-2 rounded-xl text-xs font-bold transition-colors" style="background:#f1f5f9;color:#475569">Xem thêm</button>
+            </section>
         </div>
 
         <!-- RIGHT COLUMN -->
@@ -471,11 +483,78 @@
             </section>
         </div>
     </div>
+
+    <!-- CHI TIẾT BÀI LÀM (mở qua profile.html?attempt=<id>) -->
+    <div id="attempt-detail" style="display:none"></div>
 </div>
 
     <style>
         .no-scrollbar::-webkit-scrollbar{width:0;height:0}
         .no-scrollbar{scrollbar-width:none}
+
+        /* ---- Lịch sử làm bài ---- */
+        .attempt-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid var(--card-border);background:var(--card,#fff);cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
+        .attempt-item:hover{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.35);transform:translateY(-1px)}
+        .attempt-score{font-weight:800;font-size:15px;min-width:48px;text-align:center;border-radius:10px;padding:6px 4px;flex-shrink:0}
+        .attempt-tag{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:999px;font-size:9px;font-weight:800;background:rgba(239,68,68,.12);color:#ef4444}
+
+        /* Đồng bộ giao diện "xem lại bài làm" (review mode) */
+        #attempt-detail{--rv-success:#10b981;--rv-success-light:#b6fdcf;--rv-danger:#ef4444;--rv-danger-light:#f7b7b7;--rv-info:#3173de;--rv-primary-light:#eff6ff;--rv-answrong:#fdacac;--rv-true-asw:#15803d;--rv-false-asw:#b91d1d}
+        .at-q{padding:12px;border-radius:12px;border:1px solid var(--card-border);background:var(--card,#fff);margin-bottom:10px}
+        .at-q.at-review-true{background:var(--rv-success-light)!important;border:2px solid var(--rv-success)!important}
+        .at-q.at-review-false{background:var(--rv-danger-light)!important;border:2px solid var(--rv-danger)!important}
+        .at-opt{position:relative;display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:9px;border:1.2px solid var(--card-border);font-size:12.5px;line-height:1.5}
+        .at-opt.is-correct{border:2px solid var(--rv-info)!important;background:var(--rv-primary-light)!important}
+        .at-opt.is-correct::after{content:"✓ Đáp án đúng";position:absolute;right:8px;top:2px;font-size:10px;font-weight:800;color:var(--rv-info)}
+        .at-opt.is-wrong{border:2px solid var(--rv-danger)!important;background:var(--rv-answrong)!important}
+
+        /* ---- Chi tiết bài làm ---- */
+        .at-notice{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:10px;font-size:12px;font-weight:700;background:rgba(245,158,11,.1);color:#b45309}
+        .at-section{margin-top:6px}
+        .at-sec-title{font-weight:800;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:#1a73e8;background:#eff6ff;border-left:4px solid #1a73e8;border-radius:8px;padding:8px 12px;margin:14px 0 8px}
+        .at-sec-desc{font-size:12px;font-style:italic;color:var(--text-sub);margin:0 2px 8px}
+        .at-passage{background:var(--card,#fff);border:1px solid var(--card-border);border-left:4px solid var(--primary,#1a73e8);border-radius:10px;padding:12px;line-height:1.7;font-size:13.5px;margin-bottom:10px;white-space:pre-wrap}
+        .at-audio{background:var(--card,#fff);border:1px solid var(--card-border);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+        .at-audio-head{font-weight:700;font-size:12px;color:var(--text-main);margin-bottom:8px}
+        .at-audio-label{font-size:11px;font-weight:600;color:var(--text-sub);margin-bottom:3px}
+        .at-q-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+        .at-q-badge{background:var(--primary,#1a73e8);color:#fff;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:800}
+        .at-q-title{font-weight:600;font-size:13.5px;line-height:1.55;color:var(--text-main);margin-bottom:8px}
+        .at-body-prompt{font-weight:600;font-size:13px;line-height:1.55;color:var(--text-main);margin-bottom:8px}
+        .at-img{display:block;max-width:100%;max-height:230px;border-radius:10px;margin:6px auto 10px}
+        .at-opts{display:flex;flex-direction:column;gap:6px}
+        .at-opt-key{flex-shrink:0;font-weight:800;font-size:12px;width:18px;text-align:center;color:var(--text-sub)}
+        .at-opt-text{flex:1;min-width:0;word-break:break-word}
+        .at-opt.is-correct .at-opt-key,.at-opt.is-wrong .at-opt-key,.at-opt.is-chosen .at-opt-key{color:inherit}
+        .at-opt.is-chosen{border-color:rgba(37,99,235,.45);background:rgba(37,99,235,.07)}
+        .at-pick{margin-left:auto;flex-shrink:0;font-size:9.5px;font-weight:800;padding:1px 6px;border-radius:999px;background:rgba(37,99,235,.12);color:#2563eb}
+        .at-tf-table{display:flex;flex-direction:column;gap:6px}
+        .at-tf-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;border:1.2px solid var(--card-border)}
+        .at-tf-row.at-row-true{background:var(--rv-success-light)!important;border-color:var(--rv-success)!important}
+        .at-tf-row.at-row-false{background:var(--rv-danger-light)!important;border-color:var(--rv-danger)!important}
+        .at-tf-text{flex:1;min-width:0;font-size:13px;line-height:1.5}
+        .at-tip{font-weight:800}
+        .at-tip-true{color:var(--rv-true-asw)}
+        .at-tip-false{color:var(--rv-false-asw)}
+        .at-chip{flex-shrink:0;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;border:1.2px solid var(--card-border);color:var(--text-sub);white-space:nowrap}
+        .at-chip-ok{background:rgba(16,185,129,.16);border-color:rgba(16,185,129,.45);color:var(--rv-true-asw)}
+        .at-chip-no{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.4);color:var(--rv-false-asw)}
+        .at-sa-box{border:2px solid var(--card-border);border-radius:10px;padding:9px 11px;margin-bottom:8px;background:var(--card,#fff);font-size:13px;line-height:1.6;color:var(--text-main);white-space:pre-wrap;word-break:break-word}
+        .at-sa-box.at-sa-ok{border-color:var(--rv-success)!important}
+        .at-sa-box.at-sa-no{border-color:var(--rv-danger)!important}
+        .at-sa-box.at-empty{color:var(--text-sub);font-style:italic}
+        .at-subq{padding:9px 0;border-top:1px dashed var(--card-border)}
+        .at-subq:first-child{border-top:none}
+        .at-subq.at-subq-true{border-top:2px solid var(--rv-success)}
+        .at-subq.at-subq-no{border-top:2px solid var(--rv-danger)}
+        .at-subq-text{font-weight:600;font-size:13px;line-height:1.5;margin-bottom:7px;color:var(--text-main)}
+        .at-cloze{background:var(--card,#fff);border:1px solid var(--card-border);border-radius:10px;padding:12px;line-height:2;font-size:14px}
+        .at-blank{display:inline-block;min-width:60px;text-align:center;padding:1px 8px;margin:0 2px;border-radius:7px;border:1.2px solid var(--card-border);font-weight:700;font-size:13px;color:var(--text-main);background:rgba(148,163,184,.08)}
+        .at-blank.is-correct{background:var(--rv-success-light);border:2px solid var(--rv-success);color:var(--rv-true-asw)}
+        .at-blank.is-wrong{background:var(--rv-danger-light);border:2px solid var(--rv-danger);color:var(--rv-false-asw)}
+        .at-blank.is-chosen{border-color:rgba(37,99,235,.45);background:rgba(37,99,235,.07);color:#2563eb}
+        .at-blank-ans{display:inline-block;font-size:11.5px;font-weight:800;color:var(--rv-true-asw);margin:0 3px}
+        .at-empty-note{font-size:12.5px;color:var(--text-sub);text-align:center;padding:14px 0}
     </style>
     <!-- LEADERBOARD FULL MODAL -->
     <div id="lb-modal" class="lh-modal-overlay fixed inset-0 z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
@@ -713,6 +792,7 @@
 import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession, logAppError } from "../../scripts/core/supabase-config.js";
         window.logAppError = logAppError;
         import { getWeekKey, getWeekStartMs, formatTimer } from "../../scripts/features/week-math.js";
+        import { loadTestAttempts, loadTestAttempt } from "../../scripts/features/learnhub-stats.js";
 
         const settingsModal = document.getElementById('settings-modal');
         let settingsEditing = false;
@@ -1065,6 +1145,372 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 .subscribe();
         }
 
+        // ================= LỊCH SỬ LÀM BÀI =================
+        let attemptsOffset = 0;
+        let attemptsLoading = false;
+        const ATTEMPTS_PAGE = 20;
+
+        function formatDateTime(iso) {
+            if (!iso) return "—";
+            try {
+                const d = new Date(iso);
+                if (isNaN(d.getTime())) return "—";
+                return d.toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+            } catch (e) { return "—"; }
+        }
+
+        function formatDurationMs(ms) {
+            const n = Number(ms);
+            if (!Number.isFinite(n) || n <= 0) return "";
+            const total = Math.round(n / 1000);
+            const h = Math.floor(total / 3600);
+            const m = Math.floor((total % 3600) / 60);
+            const s = total % 60;
+            if (h > 0) return `${h}g ${m}p`;
+            if (m > 0) return `${m}p ${s}s`;
+            return `${s}s`;
+        }
+
+        function attemptScoreStyle(score) {
+            const s = Number(score);
+            if (s >= 8) return { bg: "rgba(16,185,129,.14)", fg: "#059669" };
+            if (s >= 5) return { bg: "rgba(245,158,11,.16)", fg: "#d97706" };
+            return { bg: "rgba(239,68,68,.12)", fg: "#dc2626" };
+        }
+
+        function answerTextOf(ans) {
+            if (ans === null || ans === undefined) return "";
+            if (typeof ans === "string") return ans;
+            if (typeof ans === "object") return String(ans.text ?? ans.content ?? ans.value ?? "");
+            return String(ans);
+        }
+
+        function imgUrlOf(v) {
+            if (!v) return "";
+            if (typeof v === "string") return escapeUrl(v) || "";
+            if (typeof v === "object") return escapeUrl(v.url || v.src || "") || "";
+            return "";
+        }
+
+        function audioListHtml(audio) {
+            if (!audio) return "";
+            const tracks = Array.isArray(audio) ? audio : [audio];
+            return tracks.map((tr) => {
+                const url = escapeUrl(typeof tr === "string" ? tr : (tr && tr.url) || "");
+                if (!url) return "";
+                const label = typeof tr === "string" ? "" : (tr.title || "");
+                return `<div>${label ? `<div class="at-audio-label">${escapeHtml(label)}</div>` : ""}<audio controls preload="none" style="width:100%;height:42px"><source src="${url}" type="audio/mpeg"></audio></div>`;
+            }).join("");
+        }
+
+        function miniStat(label, value, color, bg) {
+            return `<div class="lh-stat p-2.5" style="background:${bg};border-color:transparent">
+                <div class="text-[10px] font-bold uppercase tracking-wider" style="color:${color}">${escapeHtml(label)}</div>
+                <div class="text-sm font-extrabold mt-0.5" style="color:${color}">${escapeHtml(value)}</div>
+            </div>`;
+        }
+
+        function attemptItemHtml(a) {
+            const sc = Number(a.score) || 0;
+            const st = attemptScoreStyle(sc);
+            const dur = formatDurationMs(a.duration_ms);
+            const title = a.test_name || "Bài kiểm tra";
+            const metaBits = [];
+            if (a.subject) metaBits.push(escapeHtml(a.subject));
+            if (a.total_questions != null) metaBits.push(`Đúng ${a.correct_count ?? 0}/${a.total_questions}`);
+            if (dur) metaBits.push(dur);
+            metaBits.push(formatDateTime(a.created_at));
+            return `<div class="attempt-item" data-attempt-id="${escapeHtml(a.id)}">
+                <div class="attempt-score" style="background:${st.bg};color:${st.fg}">${sc}</div>
+                <div style="flex:1;min-width:0">
+                    <div class="text-[13px] font-bold truncate" style="color:var(--text-main)">${escapeHtml(title)}</div>
+                    <div class="text-[10.5px] font-medium truncate mt-0.5" style="color:var(--text-sub)">${metaBits.join(" · ")}</div>
+                    ${a.auto_submitted ? `<span class="attempt-tag mt-1"><i class="fas fa-clock"></i> Tự động nộp</span>` : ""}
+                </div>
+                <i class="fas fa-chevron-right text-xs flex-shrink-0" style="color:var(--text-sub);opacity:.6"></i>
+            </div>`;
+        }
+
+        async function loadAttemptsList(uid, options = {}) {
+            const { reset = false } = options;
+            const listEl = document.getElementById("attempts-list");
+            const moreBtn = document.getElementById("attempts-more");
+            if (!listEl || !uid || attemptsLoading) return;
+            if (reset) {
+                attemptsOffset = 0;
+                listEl.innerHTML = `<div class="attempt-item" style="cursor:default"><div class="skeleton" style="width:48px;height:34px;border-radius:10px"></div><div style="flex:1"><div class="skeleton rounded" style="width:60%;height:12px;margin-bottom:6px"></div><div class="skeleton rounded" style="width:40%;height:10px"></div></div></div>`;
+            }
+            attemptsLoading = true;
+            try {
+                const rows = await loadTestAttempts(uid, { limit: ATTEMPTS_PAGE, offset: attemptsOffset });
+                if (reset) listEl.innerHTML = "";
+                if (!rows.length) {
+                    if (reset) listEl.innerHTML = `<p class="text-xs font-medium text-center py-4" style="color:var(--text-sub)">Bạn chưa có lịch sử làm bài nào.</p>`;
+                    if (moreBtn) moreBtn.classList.add("hidden");
+                    return;
+                }
+                listEl.insertAdjacentHTML("beforeend", rows.map(attemptItemHtml).join(""));
+                attemptsOffset += rows.length;
+                if (moreBtn) moreBtn.classList.toggle("hidden", rows.length < ATTEMPTS_PAGE);
+            } finally {
+                attemptsLoading = false;
+            }
+        }
+
+        function openAttempt(id) {
+            if (!id) return;
+            window.history.pushState({ attempt: id }, "", "profile.html?attempt=" + encodeURIComponent(id));
+            showAttemptDetail(id);
+        }
+
+        function showProfileGrid() {
+            const box = document.getElementById("attempt-detail");
+            if (box) { box.style.display = "none"; box.innerHTML = ""; }
+            const grid = document.getElementById("profile-grid");
+            if (grid) grid.style.display = "";
+        }
+
+        async function showAttemptDetail(id) {
+            const box = document.getElementById("attempt-detail");
+            const grid = document.getElementById("profile-grid");
+            if (!box) return;
+            if (grid) grid.style.display = "none";
+            box.style.display = "block";
+            box.innerHTML = `<div class="lh-card p-6 flex items-center justify-center gap-3" style="color:var(--text-sub)"><i class="fas fa-spinner fa-spin"></i> Đang tải bài làm...</div>`;
+            window.scrollTo({ top: 0, behavior: "smooth" });
+
+            const attempt = await loadTestAttempt(id);
+            if (!attempt) {
+                box.innerHTML = `<div class="lh-card p-6 text-center space-y-3">
+                    <p class="text-sm font-semibold" style="color:var(--text-sub)">Không tìm thấy bài làm này.</p>
+                    <button id="attempt-back" type="button" class="px-4 py-2 rounded-xl text-xs font-bold" style="background:#f1f5f9;color:#475569">Quay lại</button>
+                </div>`;
+                bindAttemptBack();
+                return;
+            }
+            box.innerHTML = renderAttemptDetail(attempt);
+            bindAttemptBack();
+        }
+
+        function bindAttemptBack() {
+            const btn = document.getElementById("attempt-back");
+            if (btn) btn.addEventListener("click", () => window.history.back());
+        }
+
+        function renderOptionsHtml(answers, chosenIdx, correctIdx, canReveal) {
+            const list = Array.isArray(answers) ? answers : [];
+            if (!list.length) return "";
+            return `<div class="at-opts">` + list.map((ans, idx) => {
+                const isCorrect = idx === Number(correctIdx);
+                const isChosen = chosenIdx !== null && chosenIdx !== undefined && idx === Number(chosenIdx);
+                let cls = "at-opt";
+                let right = "";
+                if (canReveal) {
+                    if (isCorrect) cls += " is-correct";
+                    else if (isChosen) cls += " is-wrong";
+                } else if (isChosen) {
+                    cls += " is-chosen";
+                    right = `<span class="at-pick">Bạn chọn</span>`;
+                }
+                return `<div class="${cls}"><span class="at-opt-key">${String.fromCharCode(65 + idx)}</span><span class="at-opt-text">${escapeHtml(answerTextOf(ans))}</span>${right}</div>`;
+            }).join("") + `</div>`;
+        }
+
+        function renderQuestionHtml(q, qNo, canReveal) {
+            const type = q.type || "multiple";
+            let title = q.title || "";
+            if (!title) {
+                if (type === "passage") title = "Đọc đoạn văn và trả lời các câu hỏi bên dưới";
+                else if (type === "cloze") title = "Điền từ thích hợp vào chỗ trống";
+                else if (type === "short_answer") title = "Tự luận";
+                else if (type === "true_false") title = q.question || "Đúng hay Sai";
+                else title = q.question || "";
+            }
+
+            let inner = "";
+            const imgUrl = imgUrlOf(q.image);
+            if (imgUrl) inner += `<img class="at-img" src="${imgUrl}" alt="" onerror="this.style.display='none'">`;
+            if (q.title && q.question && q.question !== q.title) {
+                inner += `<div class="at-body-prompt">${escapeHtml(q.question)}</div>`;
+            }
+
+            let ok = null; // true/false khi xác định được, null khi ẩn đáp án
+
+            if (type === "multiple") {
+                const chosen = q.chosen === null || q.chosen === undefined ? null : Number(q.chosen);
+                if (chosen !== null) ok = chosen === Number(q.correct);
+                inner += renderOptionsHtml(q.answers, q.chosen, q.correct, canReveal);
+            } else if (type === "true_false") {
+                const subs = Array.isArray(q.subQuestions) ? q.subQuestions : [];
+                const chosenArr = Array.isArray(q.chosen) ? q.chosen : [];
+                let allOk = true;
+                inner += `<div class="at-tf-table">` + subs.map((sub, i) => {
+                    const has = chosenArr[i] !== null && chosenArr[i] !== undefined;
+                    const userVal = has ? Number(chosenArr[i]) : null;
+                    const correctVal = Number(sub.correct);
+                    const subOk = has && userVal === correctVal;
+                    if (!subOk) allOk = false;
+                    let rowCls = "at-tf-row";
+                    if (canReveal) rowCls += subOk ? " at-row-true" : " at-row-false";
+                    const tip = canReveal ? `<span class="at-tip ${subOk ? "at-tip-true" : "at-tip-false"}"> (Đáp án: ${correctVal === 1 ? "Đúng" : "Sai"})</span>` : "";
+                    const chip = canReveal
+                        ? (has ? `<span class="at-chip ${subOk ? "at-chip-ok" : "at-chip-no"}">Bạn chọn: ${userVal === 1 ? "Đúng" : "Sai"}</span>` : `<span class="at-chip">Chưa chọn</span>`)
+                        : "";
+                    return `<div class="${rowCls}">
+                        <div class="at-tf-text"><b>${String.fromCharCode(97 + i)}.</b> ${escapeHtml(sub.text || "")}${tip}</div>
+                        ${chip}
+                    </div>`;
+                }).join("") + `</div>`;
+                if (canReveal) ok = allOk;
+            } else if (type === "short_answer") {
+                const chosen = q.chosen == null ? "" : String(q.chosen);
+                const correct = q.correctAnswer == null ? "" : String(q.correctAnswer);
+                const subOk = chosen.trim().toLowerCase() === correct.trim().toLowerCase();
+                let boxCls = "at-sa-box";
+                if (canReveal) boxCls += subOk ? " at-sa-ok" : " at-sa-no";
+                if (!chosen) boxCls += " at-empty";
+                inner += `<div class="${boxCls}">${chosen ? escapeHtml(chosen) : "(Bỏ trống)"}</div>`;
+                if (canReveal) {
+                    ok = subOk;
+                    inner += `<div class="at-tip at-tip-true">✓ Đáp án chuẩn: ${escapeHtml(correct)}</div>`;
+                }
+            } else if (type === "passage") {
+                if (q.passage) inner += `<div class="at-passage">${escapeHtml(q.passage)}</div>`;
+                const subs = Array.isArray(q.subQuestions) ? q.subQuestions : [];
+                const chosenArr = Array.isArray(q.chosen) ? q.chosen : [];
+                let allOk = true;
+                inner += subs.map((sub, i) => {
+                    const chosen = chosenArr[i] === null || chosenArr[i] === undefined ? null : Number(chosenArr[i]);
+                    const subOk = chosen !== null && chosen === Number(sub.correct);
+                    if (!subOk) allOk = false;
+                    let subCls = "at-subq";
+                    if (canReveal) subCls += subOk ? " at-subq-true" : " at-subq-no";
+                    return `<div class="${subCls}">
+                        <div class="at-subq-text"><b>${String.fromCharCode(97 + i)}.</b> ${escapeHtml(sub.question || "")}</div>
+                        ${renderOptionsHtml(sub.answers, chosenArr[i], sub.correct, canReveal)}
+                    </div>`;
+                }).join("");
+                if (canReveal) ok = allOk;
+            } else if (type === "cloze") {
+                const chosenArr = Array.isArray(q.chosen) ? q.chosen : [];
+                const blanks = Array.isArray(q.blanks) ? q.blanks : [];
+                let allOk = true;
+                let text = escapeHtml(String(q.question || ""));
+                text = text.replace(/\{\{(\d+)\}\}/g, (m, n) => {
+                    const i = parseInt(n, 10) - 1;
+                    const val = chosenArr[i];
+                    const correctVal = blanks[i] === undefined ? "" : String(blanks[i]);
+                    const has = val !== undefined && val !== null && String(val).trim() !== "";
+                    const subOk = has && String(val).trim().toLowerCase() === correctVal.trim().toLowerCase();
+                    if (!subOk) allOk = false;
+                    let cls = "at-blank";
+                    if (canReveal) cls += subOk ? " is-correct" : " is-wrong";
+                    else if (has) cls += " is-chosen";
+                    let out = `<span class="${cls}">${has ? escapeHtml(String(val)) : "____"}</span>`;
+                    if (canReveal && !subOk) out += `<span class="at-blank-ans">(${escapeHtml(correctVal)})</span>`;
+                    return out;
+                });
+                if (canReveal) ok = allOk;
+                inner += `<div class="at-cloze">${text}</div>`;
+            }
+
+            let cardCls = "at-q";
+            if (canReveal && ok !== null) cardCls += ok ? " at-review-true" : " at-review-false";
+            return `<div class="${cardCls}">
+                <div class="at-q-head"><span class="at-q-badge">Câu ${qNo}</span></div>
+                <div class="at-q-title">${escapeHtml(title)}</div>
+                ${inner}
+            </div>`;
+        }
+
+        function renderAttemptDetail(a) {
+            const paper = (a && a.paper) || {};
+            const meta = paper.meta || {};
+            const result = paper.result || {};
+            const sections = Array.isArray(paper.sections) ? paper.sections : [];
+
+            const showAnswers = meta.showAnswers || "always";
+            const score = Number(result.score != null ? result.score : (a.score || 0));
+            const canReveal = showAnswers === "always" || (showAnswers === "perfect" && score >= 10);
+
+            const st = attemptScoreStyle(score);
+            const dur = formatDurationMs(result.durationMs != null ? result.durationMs : a.duration_ms);
+            const correct = result.correctCount != null ? result.correctCount : (a.correct_count ?? 0);
+            const total = result.totalQuestions != null ? result.totalQuestions : (a.total_questions ?? 0);
+            const autoSub = result.autoSubmitted != null ? result.autoSubmitted : a.auto_submitted;
+            const title = meta.name || a.test_name || "Bài kiểm tra";
+            const subject = meta.subject || a.subject || "";
+            const maxScore = meta.maxScore != null ? meta.maxScore : (a.max_score ?? 10);
+
+            let qNo = 0;
+            let body = "";
+            if (sections.length) {
+                sections.forEach((sec) => {
+                    body += `<div class="at-section">`;
+                    if (sec.sectionTitle) body += `<div class="at-sec-title">${escapeHtml(sec.sectionTitle)}</div>`;
+                    if (sec.sectionDesc) body += `<div class="at-sec-desc">${escapeHtml(sec.sectionDesc)}</div>`;
+                    if (sec.passage && sec.type !== "passage") body += `<div class="at-passage">${escapeHtml(sec.passage)}</div>`;
+                    const aHtml = audioListHtml(sec.audio);
+                    if (aHtml) body += `<div class="at-audio"><div class="at-audio-head"><i class="fas fa-headphones"></i> Phần Nghe${sec.listenTitle ? " · " + escapeHtml(sec.listenTitle) : ""}</div>${aHtml}</div>`;
+                    (sec.questions || []).forEach((q) => { qNo++; body += renderQuestionHtml(q, qNo, canReveal); });
+                    body += `</div>`;
+                });
+            } else {
+                body = `<p class="at-empty-note">Không có dữ liệu bài làm chi tiết cho lần nộp này.</p>`;
+            }
+
+            return `<div class="space-y-3">
+                <div class="lh-card p-4 sm:p-5 space-y-3">
+                    <div class="flex items-center gap-3">
+                        <button id="attempt-back" type="button" class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors" style="background:#f1f5f9;color:#475569" title="Quay lại"><i class="fas fa-arrow-left"></i></button>
+                        <div style="flex:1;min-width:0">
+                            <h3 class="text-base sm:text-lg font-extrabold truncate" style="color:var(--text-main)">${escapeHtml(title)}</h3>
+                            <p class="text-xs font-semibold truncate" style="color:var(--text-sub)">${subject ? escapeHtml(subject) + " · " : ""}${formatDateTime(a.created_at)}</p>
+                        </div>
+                        <div class="attempt-score" style="background:${st.bg};color:${st.fg};min-width:56px;font-size:20px">${score}</div>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        ${miniStat("Đúng", `${correct}/${total}`, "#2563eb", "rgba(37,99,235,.08)")}
+                        ${miniStat("Thời gian", dur || "—", "#8b5cf6", "rgba(139,92,246,.08)")}
+                        ${miniStat("Thang điểm", String(maxScore), "#f59e0b", "rgba(245,158,11,.1)")}
+                        ${miniStat("Trạng thái", autoSub ? "Tự động nộp" : "Đã nộp", autoSub ? "#ef4444" : "#10b981", autoSub ? "rgba(239,68,68,.08)" : "rgba(16,185,129,.08)")}
+                    </div>
+                    ${canReveal ? "" : `<div class="at-notice"><i class="fas fa-lock"></i> Đề này không cho phép xem đáp án chi tiết${showAnswers === "perfect" ? " (chỉ mở khi đạt điểm tối đa)" : ""}.</div>`}
+                </div>
+                <div class="lh-card p-4 sm:p-5">${body}</div>
+            </div>`;
+        }
+
+        // Gắn sự kiện cho khối lịch sử làm bài (chỉ có với chính mình)
+        (function initAttemptsUI() {
+            const refreshBtn = document.getElementById("attempts-refresh");
+            const moreBtn = document.getElementById("attempts-more");
+            const listEl = document.getElementById("attempts-list");
+            if (refreshBtn) refreshBtn.addEventListener("click", () => { if (currentUserId) loadAttemptsList(currentUserId, { reset: true }); });
+            if (moreBtn) moreBtn.addEventListener("click", () => { if (currentUserId) loadAttemptsList(currentUserId); });
+            if (listEl) listEl.addEventListener("click", (e) => {
+                const item = e.target.closest("[data-attempt-id]");
+                if (item) openAttempt(item.dataset.attemptId);
+            });
+        })();
+
+        // Điều hướng dựa trên URL (?user=<uid> hoặc ?attempt=<id>)
+        function routeProfile() {
+            const params = new URLSearchParams(window.location.search);
+            const attemptId = params.get("attempt");
+            const viewUserId = params.get("user");
+            if (attemptId) {
+                showAttemptDetail(attemptId);
+            } else {
+                showProfileGrid();
+                if (viewUserId && viewUserId !== currentUserId) {
+                    loadViewUserProfile(viewUserId);
+                } else {
+                    loadOwnProfile();
+                }
+            }
+        }
+
         // Load profile người khác
         function loadViewUserProfile(userId) {
             // Hủy listener profile của mình trước
@@ -1084,6 +1530,10 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
             // Ẩn phần Hệ Thống Hồ Sơ Người Dùng khi xem profile người khác
             const usersSection = document.getElementById('users-section');
             if (usersSection) usersSection.style.display = 'none';
+
+            // Lịch sử làm bài chỉ hiển thị với chính mình
+            const attemptsSection = document.getElementById('attempts-section');
+            if (attemptsSection) attemptsSection.style.display = 'none';
 
             const renderViewUser = async () => {
                 const { data } = await supabase.from("users")
@@ -1162,6 +1612,11 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
             // Hiển thị lại phần Hệ Thống Hồ Sơ Người Dùng khi xem profile của mình
             const usersSection = document.getElementById('users-section');
             if (usersSection) usersSection.style.display = 'block';
+
+            // Hiển thị + tải lịch sử làm bài của chính mình
+            const attemptsSection = document.getElementById('attempts-section');
+            if (attemptsSection) attemptsSection.style.display = 'block';
+            loadAttemptsList(currentUserId, { reset: true });
 
             const renderOwnProfile = async () => {
                 const { data } = await supabase.from("users")
@@ -1252,14 +1707,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
 
         // Theo dõi thay đổi URL để load profile tương ứng
         window.addEventListener('popstate', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const viewUserId = urlParams.get('user');
-
-            if (viewUserId && viewUserId !== currentUserId) {
-                loadViewUserProfile(viewUserId);
-            } else {
-                loadOwnProfile();
-            }
+            routeProfile();
         });
 
         window.openSettingsModal = function() {
@@ -1373,15 +1821,8 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 startOnlineInterval();
                 startUsersListener();
 
-                // Kiểm tra xem có đang xem profile người khác không
-                const urlParams = new URLSearchParams(window.location.search);
-                const viewUserId = urlParams.get('user');
-
-                if (viewUserId && viewUserId !== currentUserId) {
-                    loadViewUserProfile(viewUserId);
-                } else {
-                    loadOwnProfile();
-                }
+                // Điều hướng theo URL (?user=<uid> hoặc ?attempt=<id>)
+                routeProfile();
 
             } else {
                 console.log("Học viên chưa đăng nhập!");

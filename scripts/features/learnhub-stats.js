@@ -207,6 +207,82 @@ export async function loadUserStats(uid, fallbackUser = null) {
   }
 }
 
+// ============================================================================
+// LỊCH SỬ LÀM BÀI (bảng test_attempts) — Giai đoạn 1: chỉ học sinh xem bài mình
+// ============================================================================
+
+// Lưu 1 lần nộp bài (kèm snapshot toàn bộ đề + bài làm trong cột paper).
+// payload: { testId, subject, name, score, rawScore, maxScore, correctCount,
+//            totalQuestions, durationMs, autoSubmitted, paper }
+export async function insertTestAttempt(uid, payload = {}) {
+  if (!uid) return false;
+
+  const num = (v) => (v === null || v === undefined || v === "" ? null : Number(v));
+
+  try {
+    const row = {
+      user_id: uid,
+      test_id: String(payload.testId || ""),
+      subject: String(payload.subject || ""),
+      test_name: String(payload.name || ""),
+      score: Number(payload.score) || 0,
+      raw_score: num(payload.rawScore),
+      max_score: num(payload.maxScore),
+      correct_count: num(payload.correctCount),
+      total_questions: num(payload.totalQuestions),
+      duration_ms: num(payload.durationMs),
+      auto_submitted: !!payload.autoSubmitted,
+      paper: payload.paper || {},
+      created_at: nowIso()
+    };
+    const { error } = await supabase.from("test_attempts").insert(row);
+    if (error) throw error;
+    return true;
+  } catch (e) {
+    console.log("[learnhub-stats] insertTestAttempt lỗi:", e);
+    return false;
+  }
+}
+
+// Danh sách các lần nộp của 1 user (mới nhất trước).
+// KHÔNG kéo cột paper để nhẹ payload — chỉ lấy dữ liệu hiển thị ở danh sách.
+export async function loadTestAttempts(uid, options = {}) {
+  if (!uid) return [];
+  const { limit = 20, offset = 0 } = options;
+
+  try {
+    const { data, error } = await supabase
+      .from("test_attempts")
+      .select("id,test_id,subject,test_name,score,raw_score,max_score,correct_count,total_questions,duration_ms,auto_submitted,created_at")
+      .eq("user_id", uid)
+      .order("created_at", { ascending: false })
+      .range(offset, offset + Math.max(0, limit - 1));
+    if (error) throw error;
+    return data || [];
+  } catch (e) {
+    console.log("[learnhub-stats] loadTestAttempts lỗi:", e);
+    return [];
+  }
+}
+
+// Chi tiết 1 lần nộp (kèm paper để dựng lại bài làm).
+export async function loadTestAttempt(id) {
+  if (!id) return null;
+
+  try {
+    const { data, error } = await supabase
+      .from("test_attempts")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw error;
+    return data || null;
+  } catch (e) {
+    console.log("[learnhub-stats] loadTestAttempt lỗi:", e);
+    return null;
+  }
+}
+
 export async function loadLeaderboard(options = {}) {
   const {
     orderByField = "totalScore",

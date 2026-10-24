@@ -935,7 +935,7 @@ window.ensureTestStatsProfile = async function(user){
     window.learnHubTestStats = user || null;
 };
 
-window.saveTestResult = async function(score){
+window.saveTestResult = async function(score, attempt){
     const user = window.learnHubUser;
     if (!user || !user.uid || window.parent === window) {
         showSaveStatus(false);
@@ -959,7 +959,9 @@ window.saveTestResult = async function(score){
     window.parent.postMessage({
         type: "LEARNHUB_TEST_RESULT",
         requestId,
-        score
+        score,
+        // [Lịch sử làm bài] kèm snapshot đề + bài làm để web chính lưu vào test_attempts
+        attempt: attempt || null
     }, "*");
 };
 
@@ -1042,6 +1044,9 @@ const DEFAULT_EXAM_TIME_LIMIT_MINUTES = 15;
 // shuffle_a (trộn đáp án), minutes (thời gian). Không còn đọc file JSON tĩnh.
 let examConfig = { maxScore: 10, shuffleQ: true, shuffleA: true, showScore: 'always', showAnswers: 'always', reviewLocked: true, subtestEnabled: false, subtestCount: null };
 
+// [Lịch sử làm bài] Thông tin đề (môn/tên) chép lại vào mỗi lần nộp, đọc từ get_test_content
+let examMeta = { subject: "", name: "" };
+
 function getExamTimeLimitSeconds(data) {
     const sections = Array.isArray(data) ? data : (Array.isArray(data.sections) ? data.sections : []);
     const rawLimit =
@@ -1106,6 +1111,10 @@ async function loadQuestions() {
                 : 'Không tải được bài kiểm tra từ database');
         }
         const data = rpcData.content;
+
+        // [Lịch sử làm bài] chép môn/tên đề để lưu kèm mỗi lần nộp
+        examMeta.subject = rpcData.subject || "";
+        examMeta.name = rpcData.name || "";
 
         // Đọc cấu hình từ các CỘT trong test_sets
         const rawScore = Number(rpcData.score);
@@ -1582,21 +1591,36 @@ let correctCount = 0;
     const maxScore = (examConfig && examConfig.maxScore > 0) ? examConfig.maxScore : 10;
     const basePerQuestion = totalQuestions > 0 ? (maxScore / totalQuestions) : 0;
 
-questionsData.forEach((section) => {
+    // [Lịch sử làm bài] snapshot đề (bản đã xáo trộn như HS thấy) + bài làm để lưu lịch sử
+    const attemptSections = questionsData.map((section) => ({
+        sectionTitle: section.sectionTitle || "",
+        sectionDesc: section.sectionDesc || "",
+        passage: section.passage || "",
+        type: section.type || "",
+        audio: section.audio || null,
+        listenTitle: section.listenTitle || "",
+        questions: []
+    }));
+
+questionsData.forEach((section, secIdx) => {
         section.questions.forEach((item) => {
             let isPerfect = true;
+            const qSnap = JSON.parse(JSON.stringify(item)); // chép nguyên câu gốc (text/answers/correct...)
 
             if (item.type === 'multiple') {
                 const sel = document.querySelector(`input[name="question-${globalIdx}"]:checked`);
-                if (sel && parseInt(sel.value) === item.correct) {
+                qSnap.chosen = sel ? parseInt(sel.value) : null;
+                if (sel && qSnap.chosen === item.correct) {
                     userScore += basePerQuestion;
                     correctCount++;
                 } else isPerfect = false;
             } 
             else if (item.type === 'true_false') {
                 let subCorrect = 0;
+                qSnap.chosen = [];
                 item.subQuestions.forEach((sub, subIdx) => {
                     const sel = document.querySelector(`input[name="tf-${globalIdx}-${subIdx}"]:checked`);
+                    qSnap.chosen.push(sel ? parseInt(sel.value) : null);
                     if (sel && parseInt(sel.value) === sub.correct) {
                         userScore += (basePerQuestion / (item.subQuestions.length || 1));
                         subCorrect++;
@@ -1612,6 +1636,7 @@ questionsData.forEach((section) => {
             else if (item.type === 'short_answer') {
                 const inputEl = document.querySelector(`[data-qidx="${globalIdx}"]`);
                 const val = inputEl ? inputEl.value.trim().toLowerCase() : "";
+                qSnap.chosen = inputEl ? inputEl.value.trim() : "";
                 // [FIX BUG #20] Guard correctAnswer undefined để tránh crash khi chấm điểm
                 if (val === String(item.correctAnswer || "").toLowerCase()) {
                     userScore += basePerQuestion;
@@ -1619,6 +1644,8 @@ questionsData.forEach((section) => {
                 } else isPerfect = false;
             }
 
+            qSnap.isCorrect = isPerfect;
+            attemptSections[secIdx].questions.push(qSnap);
 resultFlags.push(isPerfect);
             globalIdx++;
         });
@@ -1719,7 +1746,24 @@ timeSpentEl.innerText = timeSpentMsg;
 
     // 🆕 [LearnHub Test - Giai đoạn 2] Lưu kết quả vào testStats/{uid} sau khi đã chấm điểm xong (score đã tính ở trên)
     if (typeof window.saveTestResult === "function") {
-        window.saveTestResult(score);
+        const durationMs = (examStartTime && examEndTime) ? Math.max(0, examEndTime - examStartTime) : null;
+        const rawScoreVal = Number(userScore.toFixed(2));
+        window.saveTestResult(score, {
+            testId: TEST_DE,
+            subject: examMeta.subject,
+            name: examMeta.name,
+            rawScore: rawScoreVal,
+            maxScore: maxScore,
+            correctCount: correctCount,
+            totalQuestions: totalQuestions,
+            durationMs: durationMs,
+            autoSubmitted: !!autoSubmitted,
+            paper: {
+                meta: { testId: TEST_DE, subject: examMeta.subject, name: examMeta.name, maxScore: maxScore, showAnswers: examConfig.showAnswers },
+                result: { score: score, rawScore: rawScoreVal, correctCount: correctCount, totalQuestions: totalQuestions, durationMs: durationMs, autoSubmitted: !!autoSubmitted },
+                sections: attemptSections
+            }
+        });
     }
 }
 function reviewMode() {
