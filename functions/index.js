@@ -4,6 +4,7 @@ const TEST_DE_UUID = /^t:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]
 
 function trimDescription(value, maxLength = 160) {
   const chars = Array.from(String(value || "").trim());
+  if (maxLength <= 0) return "";
   if (chars.length <= maxLength) return chars.join("");
   return `${chars.slice(0, maxLength - 1).join("").trimEnd()}…`;
 }
@@ -43,22 +44,49 @@ export async function onRequestGet(context) {
   }
 
   const title = `${String(meta.name || "Bài kiểm tra")} - LearnHub`;
-  const subject = String(meta.subject || "").trim();
+  const subject = stripTags(meta.subject);
+  const questionCount = Number(meta.question_count) || 0;
   const minutes = Number(meta.minutes) || 0;
-  const fallbackDescription = [
-    subject ? `Bài kiểm tra ${subject}` : "Bài kiểm tra",
-    minutes > 0 ? `${minutes} phút` : "",
-    "LearnHub"
-  ].filter(Boolean).join(" - ");
-  const description = trimDescription(
-    stripTags(meta.description) || fallbackDescription
-  );
+  const stats = [
+    questionCount > 0 ? `${questionCount} câu` : "",
+    minutes > 0 ? `${minutes} phút` : ""
+  ].filter(Boolean);
+  const testDescription = stripTags(meta.description);
+  const statsText = stats.join(" · ");
+  let description;
+  if (testDescription) {
+    if (!statsText) {
+      description = trimDescription(testDescription);
+    } else {
+      const separator = " · ";
+      const descriptionBudget = Math.max(
+        0,
+        160 - Array.from(statsText).length - Array.from(separator).length
+      );
+      const trimmedTestDescription = trimDescription(testDescription, descriptionBudget);
+      description = trimmedTestDescription
+        ? `${statsText}${separator}${trimmedTestDescription}`
+        : statsText;
+    }
+  } else {
+    const fallbackParts = [...stats, subject ? `Môn ${subject}` : ""];
+    description = fallbackParts.some(Boolean)
+      ? fallbackParts.filter(Boolean).join(" · ")
+      : "Bài kiểm tra - LearnHub";
+  }
+
+  const metaTags = {
+    "og:title": { attribute: "property", value: title },
+    "og:description": { attribute: "property", value: description },
+    "og:url": { attribute: "property", value: requestUrl.href },
+    "og:type": { attribute: "property", value: "website" },
+    description: { attribute: "name", value: description },
+    "twitter:title": { attribute: "name", value: title },
+    "twitter:description": { attribute: "name", value: description }
+  };
   const tags = {
     title,
-    "og:title": title,
-    "og:description": description,
-    "og:url": requestUrl.href,
-    "og:type": "website"
+    ...Object.fromEntries(Object.entries(metaTags).map(([key, metaTag]) => [key, metaTag.value]))
   };
 
   const response = await context.next();
@@ -67,35 +95,29 @@ export async function onRequestGet(context) {
   }
 
   const present = Object.fromEntries(Object.keys(tags).map((key) => [key, false]));
+  const metaSlots = Object.keys(metaTags);
   const placeholders = [
     '<title data-lh-meta-slot="title"></title>',
-    '<meta data-lh-meta-slot="og:title">',
-    '<meta data-lh-meta-slot="og:description">',
-    '<meta data-lh-meta-slot="og:url">',
-    '<meta data-lh-meta-slot="og:type">'
+    ...metaSlots.map((key) => `<meta data-lh-meta-slot="${key}">`)
   ].join("");
+
+  const updateMeta = (key) => ({ element(element) {
+    present[key] = true;
+    element.setAttribute("content", tags[key]);
+  } });
 
   const updatedExisting = new HTMLRewriter()
     .on("title", { element(element) {
       present.title = true;
       element.setInnerContent(tags.title);
     } })
-    .on('meta[property="og:title"]', { element(element) {
-      present["og:title"] = true;
-      element.setAttribute("content", tags["og:title"]);
-    } })
-    .on('meta[property="og:description"]', { element(element) {
-      present["og:description"] = true;
-      element.setAttribute("content", tags["og:description"]);
-    } })
-    .on('meta[property="og:url"]', { element(element) {
-      present["og:url"] = true;
-      element.setAttribute("content", tags["og:url"]);
-    } })
-    .on('meta[property="og:type"]', { element(element) {
-      present["og:type"] = true;
-      element.setAttribute("content", tags["og:type"]);
-    } })
+    .on('meta[property="og:title"]', updateMeta("og:title"))
+    .on('meta[property="og:description"]', updateMeta("og:description"))
+    .on('meta[property="og:url"]', updateMeta("og:url"))
+    .on('meta[property="og:type"]', updateMeta("og:type"))
+    .on('meta[name="description"]', updateMeta("description"))
+    .on('meta[name="twitter:title"]', updateMeta("twitter:title"))
+    .on('meta[name="twitter:description"]', updateMeta("twitter:description"))
     .on("head", { element(element) {
       // Static placeholders are filled in a second pass through setInnerContent/setAttribute.
       element.append(placeholders, { html: true });
@@ -116,7 +138,7 @@ export async function onRequestGet(context) {
       if (present[key]) {
         element.remove();
       } else {
-        element.setAttribute("property", key);
+        element.setAttribute(metaTags[key].attribute, key);
         element.setAttribute("content", tags[key]);
         element.removeAttribute("data-lh-meta-slot");
       }

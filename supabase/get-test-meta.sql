@@ -8,10 +8,8 @@ as $$
 declare
   v_key text := btrim(coalesce(p_de, ''));
   v_id uuid;
-  v_name text;
-  v_description text;
-  v_subject text;
-  v_minutes integer;
+  v_row public.test_sets%rowtype;
+  v_total int;
 begin
   if v_key like 't:%' then
     v_key := substr(v_key, 3);
@@ -23,21 +21,26 @@ begin
     return jsonb_build_object('ok', false);
   end;
 
-  select name, description, subject, minutes
-    into v_name, v_description, v_subject, v_minutes
-    from public.test_sets
-   where id = v_id;
-
+  select * into v_row from public.test_sets where id = v_id;
   if not found then
     return jsonb_build_object('ok', false);
   end if;
 
+  select coalesce(sum(coalesce(jsonb_array_length(sec->'questions'), 0)), 0)::int
+    into v_total
+    from jsonb_array_elements(
+           case when jsonb_typeof(v_row.content) = 'array' then v_row.content else '[]'::jsonb end
+         ) sec;
+
   return jsonb_build_object(
     'ok', true,
-    'name', v_name,
-    'description', v_description,
-    'subject', v_subject,
-    'minutes', v_minutes
+    'name', v_row.name,
+    'description', v_row.description,
+    'subject', v_row.subject,
+    'minutes', v_row.minutes,
+    'question_count',
+      case when v_row.subtest_enabled and coalesce(v_row.subtest_count, 0) > 0
+           then v_row.subtest_count else v_total end
   );
 end;
 $$;
