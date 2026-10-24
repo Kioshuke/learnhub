@@ -1503,7 +1503,7 @@ window.addEventListener("beforeunload", () => {
       await updateUserStats(u.uid, score);
       // [Lịch sử làm bài] lưu snapshot đề + bài làm (nếu iframe gửi kèm)
       if (event.data.attempt) {
-        await insertTestAttempt(u.uid, event.data.attempt);
+        await insertTestAttempt(u.uid, { ...event.data.attempt, score });
       }
     } catch (e) {
       console.log("Không thể lưu kết quả từ iframe:", e);

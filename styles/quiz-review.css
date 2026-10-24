@@ -1,0 +1,249 @@
+/* ============================================================================
+   quiz-review.css — CSS DÙNG CHUNG cho card câu hỏi + chế độ xem lại (review)
+   ----------------------------------------------------------------------------
+   Nguồn duy nhất cho: card câu hỏi, ô đáp án, đúng/sai, đọc hiểu, điền lỗ và
+   toàn bộ màu "review mode". Được link bởi:
+     - pages/cauhoi/questionenglish.html
+     - pages/cauhoi/filetest.html
+     - pages/user/profile.html   (khung "Lịch sử làm bài")
+
+   Các biến màu (--primary, --card, --text, --success...) KHÔNG khai báo ở đây.
+   Trang nào dùng thì tự cung cấp: 2 trang quiz khai báo ở :root trong <style>;
+   profile.html khai báo ở :root (light) và nhận dark mode từ global.css.
+   ============================================================================ */
+
+/* ============================ CARD CÂU HỎI ============================ */
+.question-card {
+  background: var(--card-gradient);
+  border-radius: 20px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  border: 2px solid rgba(0, 0, 0, 0.05);
+  color: var(--text);
+}
+.q-header { display: block; gap: 12px; margin-bottom: 20px; font-weight: 600; font-size: 1.05rem; align-items: flex-start; line-height: 1.6; }
+.q-badge {
+  display: inline-block;
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 2px 10px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* ============================ Ô ĐÁP ÁN ============================ */
+.answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ans-label {
+  border: 2px solid #e2e8f0; padding: 14px; border-radius: 12px;
+  cursor: pointer; display: flex; align-items: center; transition: all 0.2s;
+  position: relative; overflow: hidden; align-items: center;
+}
+.ans-img { display: block; max-width: 100%; max-height: 150px; margin: 0 auto; border-radius: 9px; object-fit: contain; background: #fff; }
+.ans-label:hover:not(.disabled) { background: var(--anshover); border-color: #cbd5e1; }
+.ans-label.selected { border-color: var(--primary); background: var(--primary-light); }
+
+/* ============================ TỰ LUẬN / ĐIỀN LỖ ============================ */
+.short-input:focus {
+  outline: none;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+/* Không dùng !important để màu đúng/sai ở review mode (đặt inline) ghi đè được */
+.cloze-input {
+  border: 2px solid #e2e8f0;
+  color: var(--text);
+  background: var(--card);
+}
+.cloze-answer-tip { font-weight: 700; }
+
+/* ============================ ĐÚNG / SAI ============================ */
+.tf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 15px;
+}
+.tf-wrapper {
+  background: var(--card);
+  border: 1px solid var(--tf-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.tf-row {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid var(--tf-border);
+  gap: 15px;
+  transition: background 0.2s;
+  background: var(--tf-bg);
+}
+.tf-row:hover { background: var(--tf-hover); }
+.tf-question-text { flex: 1; font-size: 0.95rem; line-height: 1.5; }
+.tf-options { display: flex; gap: 10px; }
+.tf-options input { accent-color: var(--primary); }
+.tf-options label { transition: all 0.2s; }
+.tf-options input:checked + b { color: var(--primary); }
+
+/* ============================ ĐỌC HIỂU (PASSAGE) ============================ */
+.passage-layout { display: flex; gap: 20px; align-items: flex-start; }
+.passage-left {
+  flex: 1;
+  min-width: 0;
+  position: sticky;
+  top: 100px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding-right: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.passage-left::-webkit-scrollbar { width: 5px; }
+.passage-left::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.passage-left-inner {
+  background: var(--card);
+  padding: 18px 20px;
+  border-radius: 14px;
+  border: 2px solid var(--primary);
+  border-left: 5px solid var(--primary);
+  line-height: 1.75;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.08);
+  position: relative;
+}
+.passage-left-inner::before {
+  content: "📖";
+  position: absolute;
+  top: -10px;
+  left: 14px;
+  background: var(--bg);
+  padding: 0 6px;
+  font-size: 1rem;
+}
+.passage-right {
+  flex: 1.1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.sub-q-block {
+  background: var(--card);
+  border: 1.5px solid var(--tf-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  transition: border-color 0.2s;
+}
+.sub-q-block:hover { border-color: var(--primary); }
+.passage-right .answers-grid { grid-template-columns: 1fr; gap: 8px; }
+
+/* ============================ REVIEW MODE ============================ */
+.review-correct { border: 2px solid var(--success) !important; background: transparent !important; }
+.review-wrong { border: 2px solid var(--danger) !important; background: transparent !important; }
+.ans-label.review-wrong { background: var(--answrong) !important; }
+.true-answer-highlight { border: 2px solid var(--info) !important; background: var(--primary-light) !important; }
+.true-answer-highlight::after { content: "✓ Đáp án đúng"; position: absolute; right: 8px; top: 2px; font-size: 0.65rem; color: var(--info); font-weight: bold; }
+
+.review-true {
+  background: var(--success-light) !important;
+  border-color: var(--success) !important;
+}
+.review-false {
+  background: var(--danger-light) !important;
+  border-color: var(--danger) !important;
+}
+
+.true-text { color: var(--true-asw); font-weight: bold; }
+.false-text { color: var(--false-asw); font-weight: bold; }
+
+/* Khóa bài ở chế độ xem lại */
+.quiz-locked { user-select: text; }
+.quiz-locked .ans-label,
+.quiz-locked .tf-options label { pointer-events: none; }
+.quiz-locked .tf-row:hover { background: var(--tf-hover); }
+.quiz-locked .ans-label:hover {
+  background: var(--tf-hover) !important;
+  border-color: var(--tf-border) !important;
+  cursor: not-allowed;
+}
+
+/* ============================ RESPONSIVE ============================ */
+@media (max-width: 1024px) {
+  .question-card { padding: 15px; margin-bottom: 12px; border-radius: 12px; }
+  .answers-grid { grid-template-columns: 1fr; gap: 8px; }
+}
+@media (max-width: 900px) {
+  .passage-layout { flex-direction: column; }
+  .passage-left { position: static; max-height: none; overflow-y: visible; padding-right: 0; }
+  .passage-left-inner { max-height: 260px; overflow-y: auto; scrollbar-width: thin; }
+}
+@media (max-width: 600px) {
+  .answers-grid { grid-template-columns: 1fr; }
+}
+
+/* ============================ MỤC LỤC (SIDEBAR) ============================ */
+/* Bố cục 2 cột: phần bài làm + thanh mục lục bên phải (giống các trang quiz) */
+.main-layout { display: flex; gap: 25px; align-items: flex-start; width: 100%; }
+.quiz-section { flex: 2; min-width: 0; }
+
+.sidebar {
+  width: 280px;
+  min-width: 300px;
+  max-width: 400px;
+  background: var(--card);
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  position: sticky;
+  top: 85px;
+  border: 1px solid #e2e8f0;
+}
+.sidebar-header { font-weight: 800; margin-bottom: 15px; display: flex; justify-content: space-between; }
+.nav-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 6px;
+}
+.nav-item {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.8rem;
+  font-weight: 600; cursor: pointer; transition: 0.2s; background: transparent;
+}
+.nav-item.done { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+.nav-item:hover { border-color: var(--primary); }
+.nav-item.nav-correct { background: #ecfdf5 !important; border-color: var(--success) !important; color: var(--success) !important; }
+.nav-item.nav-wrong { background: #fef2f2 !important; border-color: var(--danger) !important; color: var(--danger) !important; }
+
+.mobile-nav-btn { display: none; position: fixed; bottom: 20px; right: 20px; }
+
+@media (max-width: 1024px) {
+  .mobile-nav-btn {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 30px; right: 20px;
+    width: 50px; height: 50px;
+    background: var(--primary); color: white;
+    border-radius: 50%; border: none;
+    align-items: center; justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    z-index: 9999; font-size: 20px; cursor: pointer;
+  }
+  /* Mục lục khi mở trên điện thoại: hiện dạng popup giữa màn hình */
+  .sidebar {
+    display: none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2100;
+    max-height: 75vh;
+    overflow-y: auto;
+    width: 92%;
+    max-width: 420px;
+    padding: 15px;
+    border-radius: 16px;
+  }
+  .main-layout { display: block; }
+}

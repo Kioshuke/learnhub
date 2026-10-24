@@ -35,8 +35,29 @@
     </script>
     
 <link rel="stylesheet" href="../../styles/global.css">
+<link rel="stylesheet" href="../../styles/quiz-review.css">
     <style>
         :root {
+            /* Biến màu cho khối xem lại bài làm (dùng chung với trang quiz) */
+            --bg: #f6f8ff;
+            --text: #111827;
+            --card: #ffffff;
+            --card-gradient: linear-gradient(135deg, #ffffff, #f3f6ff);
+            --primary: #1a73e8;
+            --primary-light: #eff6ff;
+            --danger: #ef4444;
+            --success: #10b981;
+            --info: #3173de;
+            --anshover: #d0d7df;
+            --answrong: #fdacac;
+            --success-light: #b6fdcf;
+            --danger-light: #f7b7b7;
+            --tf-bg: #f8fafc;
+            --tf-hover: #eef2ff;
+            --tf-border: #e2e8f0;
+            --true-asw: #15803d;
+            --false-asw: #b91d1d;
+
             --bg-main: #f6f8ff;
             --bg-pattern: #d6dcff;
             --text-main: #111827;
@@ -498,62 +519,11 @@
         .attempt-score{font-weight:800;font-size:15px;min-width:48px;text-align:center;border-radius:10px;padding:6px 4px;flex-shrink:0}
         .attempt-tag{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:999px;font-size:9px;font-weight:800;background:rgba(239,68,68,.12);color:#ef4444}
 
-        /* Đồng bộ giao diện "xem lại bài làm" (review mode) */
-        #attempt-detail{--rv-success:#10b981;--rv-success-light:#b6fdcf;--rv-danger:#ef4444;--rv-danger-light:#f7b7b7;--rv-info:#3173de;--rv-primary-light:#eff6ff;--rv-answrong:#fdacac;--rv-true-asw:#15803d;--rv-false-asw:#b91d1d}
-        .at-q{padding:12px;border-radius:12px;border:1px solid var(--card-border);background:var(--card,#fff);margin-bottom:10px}
-        .at-q.at-review-true{background:var(--rv-success-light)!important;border:2px solid var(--rv-success)!important}
-        .at-q.at-review-false{background:var(--rv-danger-light)!important;border:2px solid var(--rv-danger)!important}
-        .at-opt{position:relative;display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:9px;border:1.2px solid var(--card-border);font-size:12.5px;line-height:1.5}
-        .at-opt.is-correct{border:2px solid var(--rv-info)!important;background:var(--rv-primary-light)!important}
-        .at-opt.is-correct::after{content:"✓ Đáp án đúng";position:absolute;right:8px;top:2px;font-size:10px;font-weight:800;color:var(--rv-info)}
-        .at-opt.is-wrong{border:2px solid var(--rv-danger)!important;background:var(--rv-answrong)!important}
-
-        /* ---- Chi tiết bài làm ---- */
+        /* ---- Chi tiết bài làm: dùng lại class chung của trang quiz (quiz-review.css) ---- */
+        /* Khung chi tiết dùng chung: card câu hỏi, ô đáp án, đúng/sai, đọc hiểu, điền lỗ,
+           màu review (.review-true/.review-false), mục lục (.main-layout/.sidebar/.nav-*)
+           đều được định nghĩa trong styles/quiz-review.css để đồng bộ 100% với trang thi. */
         .at-notice{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:10px;font-size:12px;font-weight:700;background:rgba(245,158,11,.1);color:#b45309}
-        .at-section{margin-top:6px}
-        .at-sec-title{font-weight:800;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:#1a73e8;background:#eff6ff;border-left:4px solid #1a73e8;border-radius:8px;padding:8px 12px;margin:14px 0 8px}
-        .at-sec-desc{font-size:12px;font-style:italic;color:var(--text-sub);margin:0 2px 8px}
-        .at-passage{background:var(--card,#fff);border:1px solid var(--card-border);border-left:4px solid var(--primary,#1a73e8);border-radius:10px;padding:12px;line-height:1.7;font-size:13.5px;margin-bottom:10px;white-space:pre-wrap}
-        .at-audio{background:var(--card,#fff);border:1px solid var(--card-border);border-radius:12px;padding:10px 12px;margin-bottom:10px}
-        .at-audio-head{font-weight:700;font-size:12px;color:var(--text-main);margin-bottom:8px}
-        .at-audio-label{font-size:11px;font-weight:600;color:var(--text-sub);margin-bottom:3px}
-        .at-q-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-        .at-q-badge{background:var(--primary,#1a73e8);color:#fff;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:800}
-        .at-q-title{font-weight:600;font-size:13.5px;line-height:1.55;color:var(--text-main);margin-bottom:8px}
-        .at-body-prompt{font-weight:600;font-size:13px;line-height:1.55;color:var(--text-main);margin-bottom:8px}
-        .at-img{display:block;max-width:100%;max-height:230px;border-radius:10px;margin:6px auto 10px}
-        .at-opts{display:flex;flex-direction:column;gap:6px}
-        .at-opt-key{flex-shrink:0;font-weight:800;font-size:12px;width:18px;text-align:center;color:var(--text-sub)}
-        .at-opt-text{flex:1;min-width:0;word-break:break-word}
-        .at-opt.is-correct .at-opt-key,.at-opt.is-wrong .at-opt-key,.at-opt.is-chosen .at-opt-key{color:inherit}
-        .at-opt.is-chosen{border-color:rgba(37,99,235,.45);background:rgba(37,99,235,.07)}
-        .at-pick{margin-left:auto;flex-shrink:0;font-size:9.5px;font-weight:800;padding:1px 6px;border-radius:999px;background:rgba(37,99,235,.12);color:#2563eb}
-        .at-tf-table{display:flex;flex-direction:column;gap:6px}
-        .at-tf-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;border:1.2px solid var(--card-border)}
-        .at-tf-row.at-row-true{background:var(--rv-success-light)!important;border-color:var(--rv-success)!important}
-        .at-tf-row.at-row-false{background:var(--rv-danger-light)!important;border-color:var(--rv-danger)!important}
-        .at-tf-text{flex:1;min-width:0;font-size:13px;line-height:1.5}
-        .at-tip{font-weight:800}
-        .at-tip-true{color:var(--rv-true-asw)}
-        .at-tip-false{color:var(--rv-false-asw)}
-        .at-chip{flex-shrink:0;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;border:1.2px solid var(--card-border);color:var(--text-sub);white-space:nowrap}
-        .at-chip-ok{background:rgba(16,185,129,.16);border-color:rgba(16,185,129,.45);color:var(--rv-true-asw)}
-        .at-chip-no{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.4);color:var(--rv-false-asw)}
-        .at-sa-box{border:2px solid var(--card-border);border-radius:10px;padding:9px 11px;margin-bottom:8px;background:var(--card,#fff);font-size:13px;line-height:1.6;color:var(--text-main);white-space:pre-wrap;word-break:break-word}
-        .at-sa-box.at-sa-ok{border-color:var(--rv-success)!important}
-        .at-sa-box.at-sa-no{border-color:var(--rv-danger)!important}
-        .at-sa-box.at-empty{color:var(--text-sub);font-style:italic}
-        .at-subq{padding:9px 0;border-top:1px dashed var(--card-border)}
-        .at-subq:first-child{border-top:none}
-        .at-subq.at-subq-true{border-top:2px solid var(--rv-success)}
-        .at-subq.at-subq-no{border-top:2px solid var(--rv-danger)}
-        .at-subq-text{font-weight:600;font-size:13px;line-height:1.5;margin-bottom:7px;color:var(--text-main)}
-        .at-cloze{background:var(--card,#fff);border:1px solid var(--card-border);border-radius:10px;padding:12px;line-height:2;font-size:14px}
-        .at-blank{display:inline-block;min-width:60px;text-align:center;padding:1px 8px;margin:0 2px;border-radius:7px;border:1.2px solid var(--card-border);font-weight:700;font-size:13px;color:var(--text-main);background:rgba(148,163,184,.08)}
-        .at-blank.is-correct{background:var(--rv-success-light);border:2px solid var(--rv-success);color:var(--rv-true-asw)}
-        .at-blank.is-wrong{background:var(--rv-danger-light);border:2px solid var(--rv-danger);color:var(--rv-false-asw)}
-        .at-blank.is-chosen{border-color:rgba(37,99,235,.45);background:rgba(37,99,235,.07);color:#2563eb}
-        .at-blank-ans{display:inline-block;font-size:11.5px;font-weight:800;color:var(--rv-true-asw);margin:0 3px}
         .at-empty-note{font-size:12.5px;color:var(--text-sub);text-align:center;padding:14px 0}
     </style>
     <!-- LEADERBOARD FULL MODAL -->
@@ -1199,7 +1169,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 const url = escapeUrl(typeof tr === "string" ? tr : (tr && tr.url) || "");
                 if (!url) return "";
                 const label = typeof tr === "string" ? "" : (tr.title || "");
-                return `<div>${label ? `<div class="at-audio-label">${escapeHtml(label)}</div>` : ""}<audio controls preload="none" style="width:100%;height:42px"><source src="${url}" type="audio/mpeg"></audio></div>`;
+                return `<div style="margin:6px 0;">${label ? `<div style="font-size:0.78rem;font-weight:600;color:var(--text-sub);margin-bottom:4px;">${escapeHtml(label)}</div>` : ""}<audio controls preload="none" style="width:100%;height:42px"><source src="${url}" type="audio/mpeg"></audio></div>`;
             }).join("");
         }
 
@@ -1300,24 +1270,27 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
         function renderOptionsHtml(answers, chosenIdx, correctIdx, canReveal) {
             const list = Array.isArray(answers) ? answers : [];
             if (!list.length) return "";
-            return `<div class="at-opts">` + list.map((ans, idx) => {
+            return `<div class="answers-grid">` + list.map((ans, idx) => {
                 const isCorrect = idx === Number(correctIdx);
                 const isChosen = chosenIdx !== null && chosenIdx !== undefined && idx === Number(chosenIdx);
-                let cls = "at-opt";
-                let right = "";
+                let cls = "ans-label";
                 if (canReveal) {
-                    if (isCorrect) cls += " is-correct";
-                    else if (isChosen) cls += " is-wrong";
+                    if (isCorrect) cls += " true-answer-highlight";
+                    else if (isChosen) cls += " review-wrong";
                 } else if (isChosen) {
-                    cls += " is-chosen";
-                    right = `<span class="at-pick">Bạn chọn</span>`;
+                    cls += " selected";
                 }
-                return `<div class="${cls}"><span class="at-opt-key">${String.fromCharCode(65 + idx)}</span><span class="at-opt-text">${escapeHtml(answerTextOf(ans))}</span>${right}</div>`;
+                const imgUrl = imgUrlOf(ans);
+                const innerHtml = imgUrl
+                    ? `<img class="ans-img" src="${imgUrl}" alt="Đáp án ${String.fromCharCode(65 + idx)}" loading="lazy" onerror="this.style.display='none'">`
+                    : `<span>${escapeHtml(answerTextOf(ans))}</span>`;
+                return `<div class="${cls}"><input type="radio" disabled ${isChosen ? "checked" : ""}>${innerHtml}</div>`;
             }).join("") + `</div>`;
         }
 
         function renderQuestionHtml(q, qNo, canReveal) {
             const type = q.type || "multiple";
+            const idx = qNo - 1;
             let title = q.title || "";
             if (!title) {
                 if (type === "passage") title = "Đọc đoạn văn và trả lời các câu hỏi bên dưới";
@@ -1329,9 +1302,10 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
 
             let inner = "";
             const imgUrl = imgUrlOf(q.image);
-            if (imgUrl) inner += `<img class="at-img" src="${imgUrl}" alt="" onerror="this.style.display='none'">`;
+            if (imgUrl) inner += `<div class="q-image" style="text-align:center;margin:10px 0;"><img src="${imgUrl}" alt="" onerror="this.parentElement.style.display='none'" style="max-width:100%;max-height:250px;border-radius:10px;"></div>`;
+            // Đề bài riêng (khi câu vừa có title vừa có question) hiển thị ở thân card — giống trang quiz
             if (q.title && q.question && q.question !== q.title) {
-                inner += `<div class="at-body-prompt">${escapeHtml(q.question)}</div>`;
+                inner += `<div style="margin-bottom:12px;font-size:0.95rem;line-height:1.6;font-weight:600;color:var(--text);">${escapeHtml(q.question)}</div>`;
             }
 
             let ok = null; // true/false khi xác định được, null khi ẩn đáp án
@@ -1344,21 +1318,21 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 const subs = Array.isArray(q.subQuestions) ? q.subQuestions : [];
                 const chosenArr = Array.isArray(q.chosen) ? q.chosen : [];
                 let allOk = true;
-                inner += `<div class="at-tf-table">` + subs.map((sub, i) => {
+                const optStyle = "cursor:pointer;display:flex;align-items:center;gap:3px;background:transparent;padding:4px 10px;border-radius:6px;border:1.2px solid var(--tf-border);font-size:0.85rem;";
+                inner += `<div class="tf-wrapper" style="background:var(--card);border:1px solid var(--tf-border);border-radius:10px;overflow:hidden;">` + subs.map((sub, i) => {
                     const has = chosenArr[i] !== null && chosenArr[i] !== undefined;
                     const userVal = has ? Number(chosenArr[i]) : null;
                     const correctVal = Number(sub.correct);
                     const subOk = has && userVal === correctVal;
                     if (!subOk) allOk = false;
-                    let rowCls = "at-tf-row";
-                    if (canReveal) rowCls += subOk ? " at-row-true" : " at-row-false";
-                    const tip = canReveal ? `<span class="at-tip ${subOk ? "at-tip-true" : "at-tip-false"}"> (Đáp án: ${correctVal === 1 ? "Đúng" : "Sai"})</span>` : "";
-                    const chip = canReveal
-                        ? (has ? `<span class="at-chip ${subOk ? "at-chip-ok" : "at-chip-no"}">Bạn chọn: ${userVal === 1 ? "Đúng" : "Sai"}</span>` : `<span class="at-chip">Chưa chọn</span>`)
-                        : "";
-                    return `<div class="${rowCls}">
-                        <div class="at-tf-text"><b>${String.fromCharCode(97 + i)}.</b> ${escapeHtml(sub.text || "")}${tip}</div>
-                        ${chip}
+                    const bg = canReveal ? `background:${subOk ? "var(--success-light)" : "var(--danger-light)"};` : "";
+                    const tip = canReveal ? `<span class="tf-answer-tip ${subOk ? "true-text" : "false-text"}"> (Đáp án: ${correctVal === 1 ? "Đúng" : "Sai"})</span>` : "";
+                    return `<div class="tf-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid var(--tf-border);gap:10px;${bg}">
+                        <div class="tf-question-text" style="flex:1;font-size:0.9rem;"><strong style="color:var(--primary)">${String.fromCharCode(97 + i)}.</strong> <span>${escapeHtml(sub.text || "")}</span>${tip}</div>
+                        <div class="tf-options" style="display:flex;gap:5px;flex-shrink:0;">
+                            <label style="${optStyle}"><input type="radio" disabled ${userVal === 1 ? "checked" : ""}> <b>Đ</b></label>
+                            <label style="${optStyle}"><input type="radio" disabled ${userVal === 0 ? "checked" : ""}> <b>S</b></label>
+                        </div>
                     </div>`;
                 }).join("") + `</div>`;
                 if (canReveal) ok = allOk;
@@ -1366,30 +1340,28 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 const chosen = q.chosen == null ? "" : String(q.chosen);
                 const correct = q.correctAnswer == null ? "" : String(q.correctAnswer);
                 const subOk = chosen.trim().toLowerCase() === correct.trim().toLowerCase();
-                let boxCls = "at-sa-box";
-                if (canReveal) boxCls += subOk ? " at-sa-ok" : " at-sa-no";
-                if (!chosen) boxCls += " at-empty";
-                inner += `<div class="${boxCls}">${chosen ? escapeHtml(chosen) : "(Bỏ trống)"}</div>`;
+                const border = canReveal ? (subOk ? "var(--success)" : "var(--danger)") : "#e2e8f0";
+                inner += `<textarea class="short-input writing-input" disabled rows="${q.rows || 3}" style="width:100%;box-sizing:border-box;padding:12px;border:2px solid ${border};border-radius:10px;outline:none;font-size:0.95rem;resize:vertical;font-family:inherit;line-height:1.6;color:var(--text);background:var(--card);">${escapeHtml(chosen)}</textarea>`;
                 if (canReveal) {
                     ok = subOk;
-                    inner += `<div class="at-tip at-tip-true">✓ Đáp án chuẩn: ${escapeHtml(correct)}</div>`;
+                    inner += `<div class="true-text" style="margin-top:10px;">✓ Đáp án chuẩn: ${escapeHtml(correct)}</div>`;
                 }
             } else if (type === "passage") {
-                if (q.passage) inner += `<div class="at-passage">${escapeHtml(q.passage)}</div>`;
                 const subs = Array.isArray(q.subQuestions) ? q.subQuestions : [];
                 const chosenArr = Array.isArray(q.chosen) ? q.chosen : [];
                 let allOk = true;
-                inner += subs.map((sub, i) => {
+                const subsHtml = subs.map((sub, i) => {
                     const chosen = chosenArr[i] === null || chosenArr[i] === undefined ? null : Number(chosenArr[i]);
                     const subOk = chosen !== null && chosen === Number(sub.correct);
                     if (!subOk) allOk = false;
-                    let subCls = "at-subq";
-                    if (canReveal) subCls += subOk ? " at-subq-true" : " at-subq-no";
-                    return `<div class="${subCls}">
-                        <div class="at-subq-text"><b>${String.fromCharCode(97 + i)}.</b> ${escapeHtml(sub.question || "")}</div>
+                    const border = canReveal ? ` style="border-color:${subOk ? "var(--success)" : "var(--danger)"};"` : "";
+                    return `<div class="sub-q-block"${border}>
+                        <div class="sub-q-text" style="font-weight:600;font-size:0.92rem;margin-bottom:10px;"><strong style="color:var(--primary)">${String.fromCharCode(97 + i)}.</strong> ${escapeHtml(sub.question || "")}</div>
                         ${renderOptionsHtml(sub.answers, chosenArr[i], sub.correct, canReveal)}
                     </div>`;
                 }).join("");
+                const passageContent = q.passage ? `<div class="passage-left"><div class="passage-left-inner">${escapeHtml(q.passage)}</div></div>` : "";
+                inner += `<div class="passage-layout">${passageContent}<div class="passage-right sub-questions">${subsHtml}</div></div>`;
                 if (canReveal) ok = allOk;
             } else if (type === "cloze") {
                 const chosenArr = Array.isArray(q.chosen) ? q.chosen : [];
@@ -1403,24 +1375,28 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                     const has = val !== undefined && val !== null && String(val).trim() !== "";
                     const subOk = has && String(val).trim().toLowerCase() === correctVal.trim().toLowerCase();
                     if (!subOk) allOk = false;
-                    let cls = "at-blank";
-                    if (canReveal) cls += subOk ? " is-correct" : " is-wrong";
-                    else if (has) cls += " is-chosen";
-                    let out = `<span class="${cls}">${has ? escapeHtml(String(val)) : "____"}</span>`;
-                    if (canReveal && !subOk) out += `<span class="at-blank-ans">(${escapeHtml(correctVal)})</span>`;
+                    const w = Math.max(80, ((correctVal.length || (has ? String(val).length : 0) || 8)) * 10);
+                    const style = canReveal
+                        ? `border-color:${subOk ? "var(--success)" : "var(--danger)"};background:${subOk ? "var(--success-light)" : "var(--danger-light)"};`
+                        : "";
+                    let out = `<input type="text" class="cloze-input short-input" disabled value="${has ? escapeHtml(String(val)) : ""}" style="width:${w}px;min-width:80px;box-sizing:border-box;padding:6px 8px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.9rem;text-align:center;${style}">`;
+                    if (canReveal && !subOk) out += `<span class="cloze-answer-tip true-text" style="margin-left:6px;font-size:0.8rem;">(${escapeHtml(correctVal)})</span>`;
                     return out;
                 });
                 if (canReveal) ok = allOk;
-                inner += `<div class="at-cloze">${text}</div>`;
+                inner += `<div style="background:var(--card);padding:14px;border-radius:10px;border:1px solid var(--tf-border);line-height:2.1;font-size:1rem;color:var(--text);">${text}</div>`;
             }
 
-            let cardCls = "at-q";
-            if (canReveal && ok !== null) cardCls += ok ? " at-review-true" : " at-review-false";
-            return `<div class="${cardCls}">
-                <div class="at-q-head"><span class="at-q-badge">Câu ${qNo}</span></div>
-                <div class="at-q-title">${escapeHtml(title)}</div>
+            let cardCls = "question-card";
+            if (canReveal && ok !== null) cardCls += ok ? " review-true" : " review-false";
+            const html = `<div class="${cardCls}" id="card-${idx}" style="margin-bottom:20px;padding:15px;">
+                <div class="q-header" style="margin-bottom:12px;font-size:0.95rem;">
+                    <span class="q-badge" style="background:var(--primary);color:white;padding:2px 8px;border-radius:15px;font-size:0.75rem;font-weight:bold;margin-right:5px;">Câu ${qNo}</span> 
+                    <span>${escapeHtml(title)}</span>
+                </div>
                 ${inner}
             </div>`;
+            return { html, ok: canReveal ? ok : null };
         }
 
         function renderAttemptDetail(a) {
@@ -1430,6 +1406,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
             const sections = Array.isArray(paper.sections) ? paper.sections : [];
 
             const showAnswers = meta.showAnswers || "always";
+            const showScore = meta.showScore || "always";
             const score = Number(result.score != null ? result.score : (a.score || 0));
             const canReveal = showAnswers === "always" || (showAnswers === "perfect" && score >= 10);
 
@@ -1444,20 +1421,45 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
 
             let qNo = 0;
             let body = "";
+            let nav = "";
             if (sections.length) {
                 sections.forEach((sec) => {
-                    body += `<div class="at-section">`;
-                    if (sec.sectionTitle) body += `<div class="at-sec-title">${escapeHtml(sec.sectionTitle)}</div>`;
-                    if (sec.sectionDesc) body += `<div class="at-sec-desc">${escapeHtml(sec.sectionDesc)}</div>`;
-                    if (sec.passage && sec.type !== "passage") body += `<div class="at-passage">${escapeHtml(sec.passage)}</div>`;
+                    // Tiêu đề phần — inline giống hệt trang quiz
+                    if (sec.sectionTitle) {
+                        nav += `<div class="nav-section-label" style="grid-column:1/-1;font-weight:bold;margin:10px 0 5px;font-size:0.7rem;color:#64748b;text-transform:uppercase;">${escapeHtml(sec.sectionTitle)}</div>`;
+                        const descHtml = (sec.sectionDesc && String(sec.sectionDesc).trim() !== "")
+                            ? `<div style="margin-top:4px;font-size:0.78rem;color:var(--text-sub);font-weight:normal;font-style:italic;line-height:1.4;">${escapeHtml(sec.sectionDesc)}</div>`
+                            : "";
+                        body += `<div style="margin:25px 0 15px;padding:12px 15px;background:#eff6ff;color:#1a73e8;border-radius:8px;border-left:5px solid #1a73e8;">
+                            <div style="font-weight:bold;text-transform:uppercase;font-size:0.95rem;display:block !important;">${escapeHtml(sec.sectionTitle)}</div>
+                            ${descHtml}
+                        </div>`;
+                    }
+                    if (sec.passage && sec.type !== "passage") {
+                        body += `<div style="background:var(--card);padding:14px 18px;border-radius:12px;border:1px solid var(--tf-border);line-height:1.75;margin-bottom:14px;color:var(--text);">${escapeHtml(sec.passage)}</div>`;
+                    }
                     const aHtml = audioListHtml(sec.audio);
-                    if (aHtml) body += `<div class="at-audio"><div class="at-audio-head"><i class="fas fa-headphones"></i> Phần Nghe${sec.listenTitle ? " · " + escapeHtml(sec.listenTitle) : ""}</div>${aHtml}</div>`;
-                    (sec.questions || []).forEach((q) => { qNo++; body += renderQuestionHtml(q, qNo, canReveal); });
-                    body += `</div>`;
+                    if (aHtml) {
+                        body += `<div style="background:var(--primary-light);border:1px solid var(--primary);border-radius:12px;padding:12px;margin-bottom:14px;">
+                            <div style="font-weight:700;color:var(--primary);margin-bottom:8px;display:flex;align-items:center;gap:6px;"><i class="fas fa-headphones"></i> Phần Nghe${sec.listenTitle ? " · " + escapeHtml(sec.listenTitle) : ""}</div>
+                            ${aHtml}
+                        </div>`;
+                    }
+                    (sec.questions || []).forEach((q) => {
+                        const r = renderQuestionHtml(q, qNo + 1, canReveal);
+                        body += r.html;
+                        const navStyle = (r.ok === null) ? "" : ` style="background:${r.ok ? "var(--success)" : "var(--danger)"};color:white;"`;
+                        nav += `<div class="nav-item" id="nav-${qNo}" onclick="scrollToQuestion(${qNo})"${navStyle}>${qNo + 1}</div>`;
+                        qNo++;
+                    });
                 });
             } else {
                 body = `<p class="at-empty-note">Không có dữ liệu bài làm chi tiết cho lần nộp này.</p>`;
             }
+
+            const progressHtml = showScore === "none"
+                ? `<span id="progressText" style="color:var(--primary);font-size:0.9rem;">Đã nộp bài</span>`
+                : `<span id="progressText" style="color:var(--success);font-size:0.9rem;">${score.toFixed(2)} / ${maxScore}</span>`;
 
             return `<div class="space-y-3">
                 <div class="lh-card p-4 sm:p-5 space-y-3">
@@ -1477,9 +1479,36 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                     </div>
                     ${canReveal ? "" : `<div class="at-notice"><i class="fas fa-lock"></i> Đề này không cho phép xem đáp án chi tiết${showAnswers === "perfect" ? " (chỉ mở khi đạt điểm tối đa)" : ""}.</div>`}
                 </div>
-                <div class="lh-card p-4 sm:p-5">${body}</div>
-            </div>`;
+                <div class="main-layout">
+                    <div class="quiz-section quiz-locked" id="quiz-container">${body}</div>
+                    <aside class="sidebar" id="sidebarNav">
+                        <div class="sidebar-header"><span>MỤC LỤC</span>${progressHtml}</div>
+                        <div class="nav-grid" id="navGrid">${nav}</div>
+                    </aside>
+                </div>
+            </div>
+            <button class="mobile-nav-btn" onclick="toggleSidebar()"><i class="fa-solid fa-list"></i></button>
+            <div id="sidebarOverlay" onclick="toggleSidebar()" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.7);z-index:2050;"></div>`;
         }
+
+        // Điều hướng mục lục cho khung xem lại bài làm — giống hệt trang quiz
+        function scrollToQuestion(i) {
+            const el = document.getElementById(`card-${i}`);
+            if (!el) return;
+            const top = el.getBoundingClientRect().top + window.scrollY - 90;
+            window.scrollTo({ top, behavior: "smooth" });
+            if (window.innerWidth <= 1024) toggleSidebar();
+        }
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebarNav");
+            const overlay = document.getElementById("sidebarOverlay");
+            if (!sidebar || !overlay) return;
+            const isVisible = (sidebar.style.display === "block");
+            sidebar.style.display = isVisible ? "" : "block";
+            overlay.style.display = isVisible ? "none" : "flex";
+        }
+        window.scrollToQuestion = scrollToQuestion;
+        window.toggleSidebar = toggleSidebar;
 
         // Gắn sự kiện cho khối lịch sử làm bài (chỉ có với chính mình)
         (function initAttemptsUI() {
