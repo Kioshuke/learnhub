@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ Sơ Học Viên - LearnHub</title>
+    <link rel="icon" href="../../assets/images/favicon.png" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/favicon.png">
+    <link rel="apple-touch-icon" href="../../assets/images/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lh: {
+                            bg: '#f6f8ff',
+                            primary: '#1a73e8',
+                            primaryLight: '#eff6ff',
+                            card: '#ffffff',
+                            text: '#111827',
+                            textSub: '#6b7280',
+                            border: '#e5e7eb'
+                        }
+                    },
+                    borderRadius: {
+                        'lh': '18px',
+                    }
+                }
+            }
+        }
+    </script>
+    
+<link rel="stylesheet" href="../../styles/global.css">
+    <style>
+        :root {
+            --bg-main: #f6f8ff;
+            --bg-pattern: #d6dcff;
+            --text-main: #111827;
+            --text-sub: #6b7280;
+            --card-bg: linear-gradient(135deg, #ffffff, #f3f6ff);
+            --card-border: rgba(226,232,240,0.7);
+            --card-shadow: 0 8px 24px rgba(2,12,27,0.07);
+            --blue-accent: #2563eb;
+            --popup-bg: rgba(255,255,255,0.88);
+            --footer-border: #e2e8f0;
+            --input-bg: #f8fafc;
+            --tint-blue: rgba(37,99,235,0.08);
+            --tint-green: rgba(16,185,129,0.10);
+            --tint-violet: rgba(139,92,246,0.10);
+            --tint-amber: rgba(245,158,11,0.12);
+        }
+
+        html, body {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar {
+            display: none;
+        }
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            color: var(--text-main);
+            background-color: var(--bg-main);
+            background-image: radial-gradient(var(--bg-pattern) 1.2px, transparent 1.2px);
+            background-size: 28px 28px;
+            overflow-x: hidden;
+            transition: background-color .3s ease, color .3s ease;
+        }
+
+        /* ===== HEADER (đồng bộ vibe web chính) ===== */
+        .lh-header {
+            position: relative;
+            background: linear-gradient(135deg, rgb(30,90,200), rgb(58,134,255), rgb(120,100,255));
+            background-size: 300% 300%;
+            border-radius: 0 0 18px 18px;
+            box-shadow: 0 8px 22px rgba(2,12,27,0.15);
+            animation: lhHeaderFlow 10s ease infinite;
+        }
+        @keyframes lhHeaderFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .lh-header-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all .2s ease;
+        }
+        .lh-header-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        /* ===== CARDS ===== */
+        .lh-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            box-shadow: var(--card-shadow);
+            transition: background .3s ease, border-color .3s ease, transform .2s ease, box-shadow .2s ease;
+        }
+        .lh-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 26px rgba(2,12,27,0.09);
+        }
+
+        .lh-tile-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+        .lh-stat {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(2,12,27,0.04);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .lh-stat:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(2,12,27,0.07);
+        }
+        .lh-frame-box {
+            background: rgba(255,255,255,0.55);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .lh-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: rgba(16,185,129,0.12);
+            color: #059669;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+
+        /* ===== SKELETON LOADING ===== */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(148,163,184,0.25) 25%, rgba(148,163,184,0.45) 50%, rgba(148,163,184,0.25) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ===== MODAL ===== */
+        .lh-modal-overlay {
+            background: rgba(2,12,27,0.5);
+            backdrop-filter: blur(6px);
+        }
+        .lh-modal-box {
+            background: var(--popup-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            box-shadow: 0 24px 60px rgba(2,12,27,0.25);
+            transition: background .3s ease, border-color .3s ease;
+        }
+        .lh-modal-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 12px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .lh-modal-close {
+            margin-left: auto;
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-sub);
+            transition: all .18s ease;
+        }
+        .lh-modal-close:hover {
+            background: rgba(148,163,184,0.18);
+            color: var(--text-main);
+        }
+        .lh-link {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--blue-accent);
+        }
+        .lh-link:hover {
+            text-decoration: underline;
+        }
+        .lh-input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            font-size: 13px;
+            padding: 7px 10px;
+            color: var(--text-main);
+            outline: none;
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
+        .lh-input:focus {
+            border-color: var(--blue-accent);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        }
+        .lh-input::placeholder {
+            color: rgba(148,163,184,0.8);
+        }
+        .lh-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-bottom: 4px;
+            color: var(--text-sub);
+        }
+        .lh-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            border-radius: 10px;
+            padding: 9px 12px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all .18s ease;
+        }
+        .lh-btn-ghost {
+            background: rgba(148,163,184,0.14);
+            color: var(--text-sub);
+        }
+        .lh-btn-ghost:hover {
+            background: rgba(148,163,184,0.22);
+            color: var(--text-main);
+        }
+        .lh-btn-primary {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(37,99,235,0.25);
+        }
+        .lh-btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(37,99,235,0.35);
+        }
+
+        .lh-tabs {
+            display: flex;
+            gap: 4px;
+            background: rgba(148,163,184,0.14);
+            padding: 4px;
+            border-radius: 10px;
+        }
+        .lh-tab {
+            flex: 1;
+            padding: 7px 0;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-sub);
+            background: transparent;
+            cursor: pointer;
+            transition: all .18s ease;
+        }
+        .lh-tab.lh-tab-active {
+            background: var(--popup-bg);
+            color: var(--blue-accent);
+            box-shadow: 0 2px 6px rgba(2,12,27,0.08);
+        }
+
+
+        /* ===== DARK MODE tweaks cho nội dung render động ===== */
+
+
+
+
+    </style>
+<script src="../../version/version-check.js" defer></script>
+<script src="../../scripts/core/toast.js"></script>
+</head>
+<body class="min-h-screen">
+
+<script>
+    window.addEventListener("DOMContentLoaded", function () {
+        if (localStorage.getItem("darkMode") === "on") document.body.classList.add("dark-mode");
+    });
+</script>
+
+<div class="w-full flex flex-col gap-3">
+
+    <!-- HEADER (full-bleed sát mép trên) -->
+    <div class="lh-header w-full grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-3 sm:px-5 py-2.5">
+        <div class="flex items-center justify-start min-w-0">
+            <button onclick="history.back()" class="lh-header-btn text-sm font-semibold text-white/90 hover:text-white">
+                <i class="fas fa-arrow-left text-xs"></i> <span class="hidden sm:inline">Quay lại</span>
+            </button>
+        </div>
+        <div class="flex items-center gap-3 min-w-0">
+            <img src="../../assets/images/favicon.png" alt="LearnHub" class="w-8 h-8 rounded-lg shadow-md bg-transparent object-contain">
+            <div class="min-w-0">
+                <h1 class="text-lg sm:text-xl font-extrabold text-white tracking-tight leading-tight truncate">Hồ Sơ Học Viên</h1>
+                <p class="text-xs sm:text-sm text-white/75 font-medium truncate">LearnHub Platform · Hệ sinh thái học tập</p>
+            </div>
+        </div>
+        <div class="flex items-center justify-end min-w-0">
+            <button id="settings-btn" onclick="openSettingsModal()" class="lh-header-btn w-8 h-8 rounded-full items-center justify-center text-white/90 hover:bg-white/15 hover:text-white">
+                <i class="fas fa-cog text-sm"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="w-full px-2 sm:px-4 pb-5 sm:pb-7">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
+
+        <!-- LEFT COLUMN -->
+        <div class="space-y-5">
+
+            <!-- PROFILE DETAIL -->
+            <section id="user-profile-section" class="lh-card p-4 sm:p-5 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+                        <span class="lh-tile-icon" style="background:var(--tint-blue);color:var(--blue-accent)"><i class="fas fa-id-card"></i></span> Hồ Sơ Chi Tiết
+                    </h3>
+                    <button id="delete-account-quick-btn" onclick="openSettingsModal(); setTimeout(() => switchSettingsTab('danger'), 100)" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:scale-105" style="background:rgba(239,68,68,0.08);color:#ef4444;border:1px solid rgba(239,68,68,0.2)">
+                        <i class="fas fa-trash-can text-[10px]"></i> Xóa tài khoản
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                    <div class="flex flex-col items-center sm:items-start text-center sm:text-left gap-2">
+                        <div class="relative w-20 h-20 rounded-xl overflow-hidden border shadow-lg bg-gray-100 flex-shrink-0">
+                            <img id="profile-avatar-display" src="https://lh3.googleusercontent.com/a/default-user=s120-c" alt="Avatar" class="w-full h-full object-cover">
+                        </div>
+                        <div class="space-y-1 w-full">
+                            <h2 id="profile-name-display" class="text-xl font-bold tracking-tight leading-snug line-clamp-2 min-h-[2.4em]" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:130px;height:1.1em;vertical-align:middle;">&nbsp;</span></h2>
+                            <p id="profile-bio-display" class="text-sm font-semibold italic line-clamp-1" style="color:var(--text-sub)"><span class="skeleton inline-block rounded" style="width:180px;height:0.9em;vertical-align:middle;">&nbsp;</span></p>
+                            <div>
+                                <span id="profile-role-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-extrabold bg-gray-50 text-gray-600 border border-gray-200">
+                                    <span id="profile-role-dot" class="w-2 h-2 rounded-full bg-gray-500 animate-pulse"></span> <span id="profile-role-display"><span class="skeleton inline-block rounded" style="width:60px;height:0.9em;vertical-align:middle;">&nbsp;</span></span>
+                                </span>
+                            </div>
+                            <div class="text-base font-medium space-y-1 pt-2 border-t" style="color:var(--text-sub);border-color:var(--card-border)">
+                                <p class="flex items-center justify-center sm:justify-start gap-1.5">
+                                    <i class="fas fa-envelope text-xs w-4 text-center" style="color:var(--text-sub)"></i><span id="profile-email-display"><span class="skeleton inline-block rounded" style="width:150px;height:0.9em;vertical-align:middle;">&nbsp;</span></span>
+                                </p>
+                                <p class="flex items-center justify-center sm:justify-start gap-1.5">
+                                    <i class="fas fa-phone text-xs w-4 text-center" style="color:var(--text-sub)"></i><span id="profile-phone-display"><span class="skeleton inline-block rounded" style="width:100px;height:0.9em;vertical-align:middle;">&nbsp;</span></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5 text-base font-medium sm:border-l sm:border-gray-200/60 sm:pl-3" style="color:var(--text-sub)">
+                        <div class="flex items-center gap-1.5">
+                            <i class="fas fa-birthday-cake text-blue-500 w-4 text-center"></i>
+                            <span>Ngày sinh: <span id="profile-birth-display" class="font-semibold" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:80px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <i class="fas fa-venus-mars text-indigo-500 w-4 text-center"></i>
+                            <span>Giới tính: <span id="profile-gender-display" class="font-semibold" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:60px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
+                        </div>
+                        <div class="flex items-start gap-1.5">
+                            <i class="fas fa-school text-emerald-500 w-4 mt-0.5 text-center"></i>
+                            <span>Trường: <span id="profile-school-display" class="font-semibold" style="color:var(--text-main)"><span class="skeleton inline-block rounded" style="width:100px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <i class="fas fa-clock text-cyan-500 w-4 text-center"></i>
+                            <span>Online tuần: <span id="profile-online-display" class="font-semibold text-cyan-500"><span class="skeleton inline-block rounded" style="width:80px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="profile-classes-block" style="display:none;border-color:var(--card-border)" class="pt-2.5 border-t">
+                    <p class="text-xs font-extrabold uppercase tracking-widest mb-2 flex items-center gap-1.5" style="color:var(--text-sub)">
+                        <i class="fa-solid fa-chalkboard-user" style="color:var(--blue-accent)"></i> Các lớp đang tham gia
+                    </p>
+                    <div id="profile-classes-list" class="space-y-1.5"></div>
+                </div>
+            </section>
+
+            <!-- STATS -->
+            <section class="lh-card p-4 sm:p-5 space-y-2.5">
+                <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+                    <span class="lh-tile-icon" style="background:var(--tint-amber);color:#f59e0b"><i class="fas fa-chart-bar"></i></span> Thống kê hiệu suất tuần này
+                </h3>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                    <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]" style="background:var(--tint-blue);border-color:rgba(37,99,235,0.25)">
+                        <span class="text-xs font-bold uppercase tracking-wider" style="color:var(--blue-accent)"><i class="fas fa-book-open text-[11px] mr-1" style="color:#1d4ed8"></i> Bài Đã Làm</span>
+                        <span id="stat-total-tests" class="text-xl font-extrabold mt-0.5" style="color:var(--blue-accent)"><span class="skeleton inline-block rounded" style="width:30px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                    </div>
+                    <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]" style="background:var(--tint-amber);border-color:rgba(245,158,11,0.3)">
+                        <span class="text-xs font-bold uppercase tracking-wider" style="color:#f59e0b"><i class="fas fa-bullseye text-[11px] mr-1" style="color:#b45309"></i> Tổng Điểm</span>
+                        <span id="stat-total-score" class="text-xl font-extrabold mt-0.5" style="color:#f59e0b"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                    </div>
+                    <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]" style="background:var(--tint-violet);border-color:rgba(139,92,246,0.25)">
+                        <span class="text-xs font-bold uppercase tracking-wider" style="color:#8b5cf6"><i class="fas fa-chart-line text-[11px] mr-1" style="color:#6d28d9"></i> Điểm Trung Bình</span>
+                        <span id="stat-avg-score" class="text-xl font-extrabold mt-0.5" style="color:#8b5cf6"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                    </div>
+                    <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]" style="background:var(--tint-green);border-color:rgba(16,185,129,0.25)">
+                        <span class="text-xs font-bold uppercase tracking-wider" style="color:#10b981"><i class="fas fa-trophy text-[11px] mr-1" style="color:#047857"></i> Điểm Cao Nhất</span>
+                        <span id="stat-best-score" class="text-xl font-extrabold mt-0.5" style="color:#10b981"><span class="skeleton inline-block rounded" style="width:40px;height:1.2em;vertical-align:middle;">&nbsp;</span></span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="space-y-5">
+
+            <!-- USERS -->
+            <section id="users-section" class="lh-card p-4 sm:p-5 space-y-2.5">
+                <div class="flex justify-between items-center gap-2 min-w-0">
+                    <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2 min-w-0" style="color:var(--text-sub)">
+                        <span class="lh-tile-icon flex-shrink-0" style="background:var(--tint-green);color:#10b981"><i class="fas fa-users"></i></span> <span class="truncate">Hệ Thống Hồ Sơ Người Dùng</span>
+                    </h3>
+                    <span class="lh-status-badge">Đang hoạt động</span>
+                </div>
+                <div id="users-grid" class="grid grid-cols-6 gap-2">
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                    <div class="flex flex-col items-center text-center p-0.5"><div class="skeleton rounded-full" style="width:40px;height:40px;"></div><div class="skeleton rounded mt-1" style="width:32px;height:10px;"></div></div>
+                </div>
+            </section>
+
+            <!-- LEADERBOARD -->
+            <section class="lh-card p-4 sm:p-5 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+                        <span class="lh-tile-icon" style="background:var(--tint-violet);color:#8b5cf6"><i class="fas fa-trophy"></i></span> Bảng Xếp Hạng Tuần
+                    </h3>
+                    <button onclick="openLeaderboardModal()" class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors" style="color:#8b5cf6" title="Xem đầy đủ">
+                        <i class="fas fa-expand-alt text-xs"></i>
+                    </button>
+                </div>
+                <div class="lh-frame-box h-[230px]">
+                <iframe src="../features/leaderboard.html?compact=1" class="w-full h-full border-0" scrolling="no"></iframe>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+    <style>
+        .no-scrollbar::-webkit-scrollbar{width:0;height:0}
+        .no-scrollbar{scrollbar-width:none}
+    </style>
+    <!-- LEADERBOARD FULL MODAL -->
+    <div id="lb-modal" class="lh-modal-overlay fixed inset-0 z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="lh-modal-box rounded-2xl w-full max-w-6xl mx-4 shadow-2xl transform scale-95 transition-transform duration-300 relative flex flex-col" style="height:80vh">
+            <div class="flex items-center justify-between px-5 py-3 border-b" style="border-color:var(--card-border)">
+                <h3 class="text-sm font-bold flex items-center gap-1.5" style="color:var(--text-main)">
+                    <i class="fas fa-trophy text-amber-500"></i> Bảng Xếp Hạng Tuần
+                </h3>
+                <button onclick="closeLeaderboardModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fas fa-times text-base"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-hidden">
+                <iframe id="lb-full-frame" src="" class="w-full h-full border-0 no-scrollbar"></iframe>
+            </div>
+        </div>
+    </div>
+    <script>
+        function openLeaderboardModal() {
+            const m = document.getElementById('lb-modal');
+            document.getElementById('lb-full-frame').src = '../features/leaderboard.html?t=' + Date.now();
+            m.classList.remove('opacity-0','pointer-events-none');
+            m.classList.add('opacity-100');
+            m.querySelector('div').classList.remove('scale-95');
+            m.querySelector('div').classList.add('scale-100');
+        }
+        function closeLeaderboardModal() {
+            const m = document.getElementById('lb-modal');
+            m.classList.add('opacity-0','pointer-events-none');
+            m.classList.remove('opacity-100');
+            m.querySelector('div').classList.add('scale-95');
+            m.querySelector('div').classList.remove('scale-100');
+            setTimeout(() => { document.getElementById('lb-full-frame').src = ''; }, 300);
+        }
+        document.getElementById('lb-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeLeaderboardModal(); });
+    </script>
+
+    <!-- ALL USERS MODAL -->
+    <div id="all-users-modal" class="lh-modal-overlay fixed inset-0 z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="lh-modal-box w-full max-w-md p-5 shadow-2xl transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col max-h-[85vh]">
+            <div class="lh-modal-head">
+                <span class="lh-tile-icon" style="background:var(--tint-green);color:#10b981"><i class="fas fa-users"></i></span>
+                <h3 class="text-base font-extrabold tracking-tight" style="color:var(--text-main)">Danh sách người dùng</h3>
+                <span id="all-users-count" class="text-[11px] font-bold px-2 py-0.5 rounded-full" style="background:var(--tint-blue);color:var(--blue-accent)"></span>
+                <button onclick="closeAllUsersModal()" class="lh-modal-close" title="Đóng">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="all-users-list" class="space-y-1 flex-1 overflow-y-auto pr-1"></div>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="lh-modal-overlay fixed inset-0 z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="lh-modal-box w-full max-w-md p-5 shadow-2xl transform scale-95 transition-transform duration-300 relative max-h-[90vh] overflow-y-auto">
+            <div class="lh-modal-head">
+                <span class="lh-tile-icon" style="background:var(--tint-blue);color:var(--blue-accent)"><i class="fas fa-user-cog"></i></span>
+                <h3 class="text-base font-extrabold tracking-tight" style="color:var(--text-main)">Thiết lập tài khoản</h3>
+                <button onclick="closeSettingsModal()" class="lh-modal-close" title="Đóng">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="lh-tabs mb-3.5">
+                <button type="button" onclick="switchSettingsTab('info')" id="tab-btn-info" class="lh-tab">
+                    <i class="fas fa-user mr-1"></i> Thông tin
+                </button>
+                <button type="button" onclick="switchSettingsTab('password')" id="tab-btn-password" class="lh-tab">
+                    <i class="fas fa-lock mr-1"></i> Mật khẩu
+                </button>
+                <button type="button" onclick="switchSettingsTab('classes')" id="tab-btn-classes" class="lh-tab">
+                    <i class="fa-solid fa-chalkboard-user mr-1"></i> Lớp học
+                </button>
+                <button type="button" onclick="switchSettingsTab('danger')" id="tab-btn-danger" class="lh-tab">
+                    <i class="fas fa-triangle-exclamation mr-1"></i> Xoá TK
+                </button>
+            </div>
+
+            <form id="settings-form" onsubmit="saveSettings(event)" class="space-y-3.5">
+                <div>
+                    <label class="lh-label">Đổi Avatar (URL Hình riêng)</label>
+                    <input type="url" id="input-avatar" placeholder="https://example.com/photo.png" class="lh-input">
+                </div>
+
+                <div>
+                    <label class="lh-label">Tên hiển thị học viên</label>
+                    <input type="text" id="input-name" required class="lh-input">
+                </div>
+
+                <div>
+                    <label class="lh-label">Tiểu sử / Châm ngôn</label>
+                    <input type="text" id="input-bio" placeholder="Nhập châm ngôn học tập của bạn..." class="lh-input">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="lh-label">Ngày tháng năm sinh</label>
+                        <input type="date" id="input-birth" class="lh-input">
+                    </div>
+                    <div>
+                        <label class="lh-label">Số điện thoại</label>
+                        <input type="tel" id="input-phone" placeholder="09xxxxxxxx" class="lh-input">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2.5">
+                    <div class="col-span-1">
+                        <label class="lh-label">Giới tính</label>
+                        <select id="input-gender" class="lh-input">
+                            <option value="">Chọn</option>
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="lh-label">Thông tin trường học</label>
+                        <input type="text" id="school-name-display" placeholder="Tên trường học..." class="lh-input">
+                    </div>
+                </div>
+
+                <div class="flex gap-2 pt-2.5 border-t" style="border-color:var(--card-border)">
+                    <button type="button" onclick="closeSettingsModal()" class="lh-btn lh-btn-ghost w-1/2">
+                        Hủy bỏ
+                    </button>
+                    <button type="submit" class="lh-btn lh-btn-primary w-1/2">
+                        Lưu thông tin
+                    </button>
+                </div>
+            </form>
+
+            <form id="password-form" onsubmit="savePassword(event)" class="space-y-3.5 hidden">
+                <div>
+                    <label class="lh-label">Mật khẩu hiện tại</label>
+                    <input type="password" id="input-old-password" placeholder="••••••••" class="lh-input">
+                    <button type="button" onclick="sendForgotPasswordLink()" class="lh-link mt-1.5 inline-block">Quên mật khẩu?</button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="lh-label">Mật khẩu mới</label>
+                        <input type="password" id="input-new-password" placeholder="••••••••" class="lh-input">
+                    </div>
+                    <div>
+                        <label class="lh-label">Xác nhận lại</label>
+                        <input type="password" id="input-confirm-password" placeholder="••••••••" class="lh-input">
+                    </div>
+                </div>
+
+                <div class="flex gap-2 pt-2.5 border-t" style="border-color:var(--card-border)">
+                    <button type="button" onclick="closeSettingsModal()" class="lh-btn lh-btn-ghost w-1/2">
+                        Hủy bỏ
+                    </button>
+                    <button type="submit" class="lh-btn lh-btn-primary w-1/2">
+                        Đổi mật khẩu
+                    </button>
+                </div>
+            </form>
+
+            <div id="class-form" class="space-y-3.5 hidden">
+                <div>
+                    <label class="lh-label">Lớp học của tôi</label>
+                    <div id="class-my-list" class="space-y-1.5 max-h-40 overflow-y-auto pr-1"></div>
+                </div>
+
+                <div class="rounded-xl p-3.5" style="background:var(--tint-blue);border:1px solid rgba(37,99,235,0.2)">
+                    <label class="lh-label">Nhập mã mời để tham gia ngay</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="class-input-code" placeholder="VD: A1B2C3" class="lh-input" maxlength="6" style="text-transform:uppercase;letter-spacing:2px">
+                        <button type="button" onclick="classJoinByCode()" id="class-btn-code" class="lh-btn lh-btn-primary flex-shrink-0">Tham gia</button>
+                    </div>
+                    <p class="text-[11px] mt-1.5 mb-0" style="color:var(--text-sub)">Nhận mã mời từ giáo viên. Tham gia bằng mã sẽ vào lớp ngay.</p>
+                </div>
+
+                <div class="rounded-xl p-3.5" style="background:var(--tint-violet);border:1px solid rgba(139,92,246,0.2)">
+                    <label class="lh-label">Hoặc chọn khối &amp; lớp để gửi yêu cầu</label>
+                    <div class="flex gap-2">
+                        <select id="class-select-block" class="lh-input flex-shrink-0" style="width:34%" onchange="classLoadList()">
+                            <option value="">Chọn khối</option>
+                        </select>
+                        <select id="class-select-class" class="lh-input" onchange="">
+                            <option value="">Chọn lớp</option>
+                        </select>
+                        <button type="button" onclick="classSendRequest()" id="class-btn-request" class="lh-btn lh-btn-primary flex-shrink-0">Gửi yêu cầu</button>
+                    </div>
+                    <p class="text-[11px] mt-1.5 mb-0" style="color:var(--text-sub)">Giáo viên sẽ duyệt. Trạng thái "Đang chờ" hiển thị trong Lớp học của tôi.</p>
+                </div>
+            </div>
+
+            <div id="danger-form" class="space-y-3.5 hidden">
+                <div class="rounded-xl p-3.5" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2)">
+                    <div class="flex items-start gap-2.5">
+                        <span class="mt-0.5 flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(239,68,68,0.12);color:#ef4444"><i class="fas fa-triangle-exclamation text-xs"></i></span>
+                        <div>
+                            <h4 class="text-sm font-bold" style="color:#ef4444">Xóa vĩnh viễn tài khoản</h4>
+                            <p class="text-xs mt-1 leading-relaxed" style="color:var(--text-sub)">Hành động này không thể hoàn tác. Toàn bộ dữ liệu của bạn sẽ bị xóa vĩnh viễn trong vòng 7 ngày, bao gồm: hồ sơ, lịch sử làm bài, bài viết diễn đàn và mọi dữ liệu liên quan.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="lh-label" style="color:#ef4444">Nhập mật khẩu để xác nhận</label>
+                    <input type="password" id="input-delete-password" placeholder="••••••••" class="lh-input" style="border-color:rgba(239,68,68,0.3)">
+                </div>
+
+                <div>
+                    <label class="lh-label" style="color:#ef4444">Gõ <b>xoa tai khoan</b> để xác nhận</label>
+                    <input type="text" id="input-delete-confirm" placeholder="xoa tai khoan" class="lh-input" style="border-color:rgba(239,68,68,0.3)">
+                </div>
+
+                <div class="flex gap-2 pt-2.5 border-t" style="border-color:var(--card-border)">
+                    <button type="button" onclick="closeSettingsModal()" class="lh-btn lh-btn-ghost w-1/2">
+                        Hủy bỏ
+                    </button>
+                    <button type="button" onclick="deleteOwnAccount()" id="btn-delete-account" class="lh-btn w-1/2" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.25);font-weight:700;cursor:pointer;opacity:0.5;pointer-events:none">
+                        <i class="fas fa-trash-can mr-1"></i> Xóa tài khoản
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        function showToast(message, type = 'success', icon) {
+            var t = type === 'err' ? 'error' : type;
+            if (window.lhToast) {
+                lhToast(message, { type: ['info', 'success', 'warning', 'error'].indexOf(t) !== -1 ? t : 'info', icon: icon || undefined });
+            }
+        }
+
+        window.showToast = showToast;
+    </script>
+
+    <script type="module">
+import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSession, logAppError } from "../../scripts/core/supabase-config.js";
+        window.logAppError = logAppError;
+        import { getWeekKey, getWeekStartMs, formatTimer } from "../../scripts/features/week-math.js";
+
+        const settingsModal = document.getElementById('settings-modal');
+        let settingsEditing = false;
+        let currentUserId = null;
+        let activeInterval = null;
+        let usersChannel = null;
+        let viewUserChannel = null; // Channel cho profile người khác
+        let ownProfileChannel = null; // Channel cho profile của mình
+        let statsChannel = null; // Channel cho stats
+        let currentViewUserId = null; // Track user đang xem
+        let allUsersData = []; // Toàn bộ users cho modal "Xem thêm"
+
+        // ===== UPDATE ONLINE STATUS =====
+        async function updateOnlineStatus(isOnline) {
+            if (!currentUserId) return;
+            if (isOnline) {
+                return beginOnlineSession(currentUserId);
+            } else {
+                return finalizeOnlineSession(currentUserId);
+            }
+        }
+
+        // Theo dõi visibility change để cập nhật online status
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "hidden") {
+                if(activeInterval){ clearInterval(activeInterval); activeInterval = null; }
+                updateOnlineStatus(false);
+            } else {
+                updateOnlineStatus(true);
+                if(!activeInterval){
+                    activeInterval = setInterval(() => {
+                        if (currentUserId) {
+                            supabase.rpc("users_heartbeat", { p_uid: currentUserId });
+                        }
+                    }, 5000);
+                }
+            }
+        });
+
+        // pagehide: finalize kể cả khi đóng tab / rời trang (RPC idempotent nên an toàn khi gọi trùng)
+        window.addEventListener("pagehide", () => {
+            if(activeInterval){ clearInterval(activeInterval); activeInterval = null; }
+            updateOnlineStatus(false);
+        });
+
+        // beforeunload: dùng sendBeacon + keepalive fetch đảm bảo RPC hoàn thành trước khi trang đóng
+        window.addEventListener("beforeunload", () => {
+            if (!currentUserId) return;
+            try {
+                const rpcUrl = "https://hyuzukvxulwouaexatqv.supabase.co/rest/v1/rpc/users_finalize_online";
+                const body = JSON.stringify({ p_uid: currentUserId });
+                navigator.sendBeacon(rpcUrl, new Blob([body], { type: "application/json" }));
+            } catch(e) {}
+            try {
+                const rpcUrl = "https://hyuzukvxulwouaexatqv.supabase.co/rest/v1/rpc/users_finalize_online";
+                fetch(rpcUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "apikey": "sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J",
+                        "Authorization": "Bearer sb_publishable_cFWEQ0SQuM8SSrOgbkQ8Kg_tJb3Qw9J"
+                    },
+                    body: JSON.stringify({ p_uid: currentUserId }),
+                    keepalive: true
+                }).catch(()=>{});
+            } catch(e) {}
+            updateOnlineStatus(false);
+        });
+
+        // Interval để cập nhật online status mỗi 15 giây (heartbeat qua RPC)
+        function startOnlineInterval() {
+            if (!activeInterval) {
+                activeInterval = setInterval(() => {
+                    if (currentUserId) {
+                        supabase.rpc("users_heartbeat", { p_uid: currentUserId });
+                    }
+                }, 5000);
+            }
+        }
+
+        // Render lưới users: tối đa 17 người + ô "Xem thêm" (18 ô = 3 hàng x 6)
+        function renderUserGrid(container, users) {
+            const now = Date.now();
+            const ACTIVE_THRESHOLD = 10000; // presence theo heartbeat: quá 10s không có tín hiệu = offline
+
+            const displayUsers = users.slice(0, 17);
+            const hasMore = users.length > 17;
+
+            let html = '';
+            displayUsers.forEach(u => {
+                const isOnline = u.online && u.last_active && (now - u.last_active) < ACTIVE_THRESHOLD;
+                const statusColor = isOnline ? 'bg-green-500' : 'bg-red-500';
+                const statusPulse = isOnline ? 'animate-pulse' : '';
+
+                html += `
+                    <div class="flex flex-col items-center text-center p-0.5 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group" data-uid="${escapeHtml(u.id)}">
+                        <div class="relative">
+                            <img src="${escapeUrl(u.photo) || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
+                            <span class="absolute bottom-0 right-0 w-2 h-2 ${statusColor} border border-white rounded-full ${statusPulse}"></span>
+                        </div>
+                        <span class="text-xs font-medium mt-1 text-gray-700 truncate w-full px-0.5">${escapeHtml(u.name) || 'User'}</span>
+                    </div>
+                `;
+            });
+
+            // Ô "Xem thêm" chiếm vị trí thứ 18
+            if (hasMore) {
+                html += `
+                    <div class="flex flex-col items-center justify-center p-0.5 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer border border-dashed border-blue-200 bg-blue-50/30 h-[60px]" onclick="viewAllUsers()">
+                        <i class="fas fa-ellipsis-h text-xs text-lh-primary"></i>
+                        <span class="text-xs font-bold text-lh-primary mt-1">Xem thêm</span>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // ===== LISTEN TO USERS TABLE =====
+        async function renderUsers() {
+            const usersContainer = document.getElementById('users-grid');
+            if (!usersContainer) return;
+
+            const { data } = await supabase.from("users")
+                .select("id, name, photo, online, last_active");
+
+            const users = data || [];
+
+            // Sắp xếp: online trước (theo bảng chữ cái), offline sau (theo bảng chữ cái)
+            const now = Date.now();
+            const ACTIVE_THRESHOLD = 10000; // presence theo heartbeat: quá 30s không có tín hiệu = offline
+
+            users.sort((a, b) => {
+                const aOnline = a.online && a.last_active && (now - a.last_active) < ACTIVE_THRESHOLD;
+                const bOnline = b.online && b.last_active && (now - b.last_active) < ACTIVE_THRESHOLD;
+
+                // Online trước, offline sau
+                if (aOnline && !bOnline) return -1;
+                if (!aOnline && bOnline) return 1;
+
+                // Cùng trạng thái, sắp xếp theo bảng chữ cái
+                const nameA = (a.name || '').toLowerCase();
+                const nameB = (b.name || '').toLowerCase();
+                return nameA.localeCompare(nameB, 'vi');
+            });
+
+            allUsersData = users;
+            renderUserGrid(usersContainer, users);
+        }
+
+        // Click 1 lần ủy quyền cho toàn bộ grid (thay onclick inline → chống attribute injection).
+        (function () {
+            const gridEl = document.getElementById('users-grid');
+            if (!gridEl) return;
+            gridEl.addEventListener('click', (e) => {
+                const item = e.target.closest('[data-uid]');
+                if (!item) return;
+                if (typeof window.viewUserProfile === 'function') {
+                    window.viewUserProfile(item.dataset.uid);
+                }
+            });
+        })();
+
+        function startUsersListener() {
+            if (usersChannel) supabase.removeChannel(usersChannel);
+            renderUsers();
+            usersChannel = supabase.channel("profile-users")
+                .on("postgres_changes", { event: "*", schema: "public", table: "users" }, () => renderUsers())
+                .subscribe();
+        }
+
+        // Xem profile người khác
+        window.viewUserProfile = function(userId) {
+            const currentUrl = new URL(window.location.href);
+            const currentViewUser = currentUrl.searchParams.get('user');
+
+            // Nếu click vào cùng người, không làm gì
+            if (currentViewUser === userId) {
+                return;
+            }
+
+            // Cập nhật URL mà không reload trang
+            const newUrl = `profile.html?user=${userId}`;
+            window.history.pushState({ userId: userId }, '', newUrl);
+
+            // Load profile người khác
+            loadViewUserProfile(userId);
+        };
+
+        // Xem tất cả users (mở modal danh sách đầy đủ)
+        window.viewAllUsers = function() {
+            const modal = document.getElementById('all-users-modal');
+            const listEl = document.getElementById('all-users-list');
+            if (!modal || !listEl) return;
+
+            const now = Date.now();
+            const ACTIVE_THRESHOLD = 10000;
+
+            let html = '';
+            allUsersData.forEach(u => {
+                const isOnline = u.online && u.last_active && (now - u.last_active) < ACTIVE_THRESHOLD;
+                const statusColor = isOnline ? 'bg-green-500' : 'bg-red-500';
+                const statusPulse = isOnline ? 'animate-pulse' : '';
+                html += `
+                    <button type="button" data-uid="${escapeHtml(u.id)}" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white hover:shadow-sm transition-all text-left" style="border:none;background:transparent">
+                        <div class="relative flex-shrink-0">
+                            <img src="${escapeUrl(u.photo) || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm object-cover">
+                            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 ${statusColor} border-2 border-white rounded-full ${statusPulse}"></span>
+                        </div>
+                        <span class="text-sm font-semibold truncate" style="color:var(--text-main)">${escapeHtml(u.name) || 'User'}</span>
+                        <span class="ml-auto text-[11px] font-bold flex-shrink-0 ${isOnline ? 'text-emerald-500' : 'text-gray-400'}">${isOnline ? '● Online' : '● Offline'}</span>
+                    </button>
+                `;
+            });
+
+            if (!allUsersData.length) {
+                html = '<p class="text-sm font-medium text-center py-8" style="color:var(--text-sub)">Chưa có người dùng nào.</p>';
+            }
+            listEl.innerHTML = html;
+
+            const countEl = document.getElementById('all-users-count');
+            if (countEl) countEl.textContent = allUsersData.length + ' người';
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100');
+            modal.querySelector('div').classList.remove('scale-95');
+            modal.querySelector('div').classList.add('scale-100');
+        };
+
+        window.closeAllUsersModal = function() {
+            const modal = document.getElementById('all-users-modal');
+            if (!modal) return;
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.classList.remove('opacity-100');
+            modal.querySelector('div').classList.add('scale-95');
+            modal.querySelector('div').classList.remove('scale-100');
+        };
+
+        (function () {
+            const modal = document.getElementById('all-users-modal');
+            if (!modal) return;
+            modal.addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeAllUsersModal();
+            });
+            const listEl = document.getElementById('all-users-list');
+            if (listEl) {
+                listEl.addEventListener('click', (e) => {
+                    const item = e.target.closest('[data-uid]');
+                    if (!item) return;
+                    closeAllUsersModal();
+                    if (typeof window.viewUserProfile === 'function') {
+                        window.viewUserProfile(item.dataset.uid);
+                    }
+                });
+            }
+        })();
+
+        // Cleanup khi logout
+        function cleanup() {
+            if (activeInterval) {
+                clearInterval(activeInterval);
+                activeInterval = null;
+            }
+            if (usersChannel) {
+                supabase.removeChannel(usersChannel);
+                usersChannel = null;
+            }
+            if (viewUserChannel) {
+                supabase.removeChannel(viewUserChannel);
+                viewUserChannel = null;
+            }
+            if (ownProfileChannel) {
+                supabase.removeChannel(ownProfileChannel);
+                ownProfileChannel = null;
+            }
+            if (statsChannel) {
+                supabase.removeChannel(statsChannel);
+                statsChannel = null;
+            }
+        }
+
+        // Đếm số chạy mượt từ 0 lên giá trị đích (count-up), tôn trọng reduced-motion
+        function animateCountUp(el, target, opts) {
+            if (!el) return;
+            opts = opts || {};
+            const decimals = opts.decimals || 0;
+            const duration = opts.duration || 900;
+            const formatter = opts.formatter || function (v) { return v.toFixed(decimals); };
+            const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            if (reduceMotion || duration <= 0 || !isFinite(target)) { el.innerText = formatter(target); return; }
+            if (el._cuRaf) cancelAnimationFrame(el._cuRaf);
+            const start = performance.now();
+            function frame(now) {
+                const p = Math.min(1, (now - start) / duration);
+                const eased = 1 - Math.pow(1 - p, 3);
+                el.innerText = formatter(target * eased);
+                if (p < 1) {
+                    el._cuRaf = requestAnimationFrame(frame);
+                } else {
+                    el.innerText = formatter(target);
+                    el._cuRaf = null;
+                }
+            }
+            el._cuRaf = requestAnimationFrame(frame);
+        }
+
+        // Chỉ animate giờ online khi mới mở/đổi profile xem, các lần cập nhật realtime sau đó set thẳng
+        let onlineAnimKey = null;
+        function setOnlineDisplay(seconds, key) {
+            const el = document.getElementById('profile-online-display');
+            if (!el) return;
+            if (onlineAnimKey !== key) {
+                onlineAnimKey = key;
+                animateCountUp(el, seconds, { formatter: formatTimer, duration: 1200 });
+            } else {
+                el.innerText = formatTimer(seconds);
+            }
+        }
+
+        // Load stats theo UID
+        async function fetchStats(uid) {
+            const { data } = await supabase.from("test_stats")
+                .select("total_tests, total_score, best_score")
+                .eq("user_id", uid)
+                .maybeSingle();
+
+            if (data) {
+                animateCountUp(document.getElementById('stat-total-tests'), data.total_tests || 0);
+                animateCountUp(document.getElementById('stat-total-score'), parseFloat(data.total_score || 0), { decimals: 2 });
+                animateCountUp(document.getElementById('stat-best-score'), parseFloat(data.best_score || 0), { decimals: 2 });
+
+                const avg = data.total_tests ? (data.total_score / data.total_tests) : 0;
+                animateCountUp(document.getElementById('stat-avg-score'), avg, { decimals: 2 });
+            } else {
+                document.getElementById('stat-total-tests').innerText = 0;
+                document.getElementById('stat-total-score').innerText = "0.00";
+                document.getElementById('stat-best-score').innerText = "0.00";
+                document.getElementById('stat-avg-score').innerText = "0.00";
+            }
+        }
+
+        function loadStatsForUser(uid) {
+            if (statsChannel) {
+                supabase.removeChannel(statsChannel);
+                statsChannel = null;
+            }
+            fetchStats(uid);
+            statsChannel = supabase.channel("profile-stats-" + uid)
+                .on("postgres_changes", { event: "*", schema: "public", table: "test_stats", filter: "user_id=eq." + uid }, () => fetchStats(uid))
+                .subscribe();
+        }
+
+        // Load profile người khác
+        function loadViewUserProfile(userId) {
+            // Hủy listener profile của mình trước
+            if (ownProfileChannel) {
+                supabase.removeChannel(ownProfileChannel);
+                ownProfileChannel = null;
+            }
+
+            // Hủy listener người khác cũ nếu có
+            if (viewUserChannel) {
+                supabase.removeChannel(viewUserChannel);
+                viewUserChannel = null;
+            }
+
+            currentViewUserId = userId;
+
+            // Ẩn phần Hệ Thống Hồ Sơ Người Dùng khi xem profile người khác
+            const usersSection = document.getElementById('users-section');
+            if (usersSection) usersSection.style.display = 'none';
+
+            const renderViewUser = async () => {
+                const { data } = await supabase.from("users")
+                    .select("*")
+                    .eq("id", userId)
+                    .maybeSingle();
+                if (data) {
+                    document.getElementById('profile-name-display').innerText = data.name || "Người dùng";
+                    document.getElementById('profile-email-display').innerText = data.email || "N/A";
+                    document.getElementById('profile-avatar-display').src = data.photo || "https://lh3.googleusercontent.com/a/default-user=s120-c";
+                    document.getElementById('profile-bio-display').innerText = data.bio ? `"${data.bio}"` : `"Chưa có tiểu sử"`;
+                    document.getElementById('profile-phone-display').innerText = data.phone || "Chưa cập nhật";
+                    document.getElementById('profile-birth-display').innerText = formatDate(data.birthdate);
+                    document.getElementById('profile-gender-display').innerText = data.gender || "Chưa cập nhật";
+                    document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
+
+                    const now = Date.now();
+                    const weekKey = getWeekKey();
+                    const weekStart = getWeekStartMs();
+                    const userWeekKey = data.online_week_key || "";
+                    let effectiveTimer = 0;
+                    if (userWeekKey === weekKey) {
+                        effectiveTimer = Number(data.online_timer || 0);
+                        if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
+                            const sessionStart = Math.max(data.online_start_time, weekStart);
+                            effectiveTimer += Math.floor((now - sessionStart) / 1000);
+                        }
+                    } else if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
+                        const sessionStart = Math.max(data.online_start_time, weekStart);
+                        effectiveTimer = Math.floor((now - sessionStart) / 1000);
+                    }
+                    setOnlineDisplay(effectiveTimer, 'view-' + userId);
+
+                    const finalRole = data.role || "Thành viên";
+                    document.getElementById('profile-role-display').innerText = finalRole;
+                    applyRoleBadgeStyle(finalRole);
+
+                    // Hiển thị lớp đang tham gia của user đang xem (nếu là học sinh)
+                    loadProfileClasses(userId, finalRole);
+
+                    // Ẩn nút settings khi xem profile người khác
+                    const settingsBtn = document.getElementById('settings-btn');
+                    if (settingsBtn) settingsBtn.style.display = 'none';
+
+                    // Ẩn nút Xóa tài khoản khi xem profile người khác
+                    const deleteQuickBtn = document.getElementById('delete-account-quick-btn');
+                    if (deleteQuickBtn) deleteQuickBtn.style.display = 'none';
+
+                    // Load stats của user đang xem
+                    loadStatsForUser(userId);
+                }
+            };
+
+            renderViewUser();
+            viewUserChannel = supabase.channel("profile-view-" + userId)
+                .on("postgres_changes", { event: "*", schema: "public", table: "users", filter: "id=eq." + userId }, () => renderViewUser())
+                .subscribe();
+        }
+
+        // Load profile của chính mình
+        function loadOwnProfile() {
+            // Hủy listener người khác trước
+            if (viewUserChannel) {
+                supabase.removeChannel(viewUserChannel);
+                viewUserChannel = null;
+            }
+
+            // Hủy listener profile mình cũ nếu có
+            if (ownProfileChannel) {
+                supabase.removeChannel(ownProfileChannel);
+                ownProfileChannel = null;
+            }
+
+            currentViewUserId = null;
+
+            // Hiển thị lại phần Hệ Thống Hồ Sơ Người Dùng khi xem profile của mình
+            const usersSection = document.getElementById('users-section');
+            if (usersSection) usersSection.style.display = 'block';
+
+            const renderOwnProfile = async () => {
+                const { data } = await supabase.from("users")
+                    .select("*")
+                    .eq("id", currentUserId)
+                    .maybeSingle();
+                if (data) {
+                    document.getElementById('profile-name-display').innerText = data.name || "Chưa cập nhật";
+                    document.getElementById('profile-email-display').innerText = data.email || "";
+                    document.getElementById('profile-avatar-display').src = data.photo || "https://lh3.googleusercontent.com/a/default-user=s120-c";
+
+                    document.getElementById('profile-bio-display').innerText = data.bio ? `"${data.bio}"` : `"Chưa có tiểu sử"`;
+                    document.getElementById('profile-phone-display').innerText = data.phone || "Chưa cập nhật";
+
+                    document.getElementById('profile-birth-display').innerText = formatDate(data.birthdate);
+                    document.getElementById('profile-gender-display').innerText = data.gender || "Chưa cập nhật";
+                    document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
+
+                    const now = Date.now();
+                    const weekKey = getWeekKey();
+                    const weekStart = getWeekStartMs();
+                    const userWeekKey = data.online_week_key || "";
+                    let effectiveTimer = 0;
+                    if (userWeekKey === weekKey) {
+                        effectiveTimer = Number(data.online_timer || 0);
+                        if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
+                            const sessionStart = Math.max(data.online_start_time, weekStart);
+                            effectiveTimer += Math.floor((now - sessionStart) / 1000);
+                        }
+                    } else if (data.online && data.last_active && (now - data.last_active) < 10000 && data.online_start_time > 0) {
+                        const sessionStart = Math.max(data.online_start_time, weekStart);
+                        effectiveTimer = Math.floor((now - sessionStart) / 1000);
+                    }
+                    setOnlineDisplay(effectiveTimer, 'own');
+
+                    const finalRole = data.role || "Thành viên";
+                    document.getElementById('profile-role-display').innerText = finalRole;
+
+                    applyRoleBadgeStyle(finalRole);
+
+                    // Hiển thị các lớp đang tham gia của chính mình (nếu là học sinh)
+                    loadProfileClasses(currentUserId, finalRole);
+
+                    if (!settingsEditing) {
+                        document.getElementById('input-name').value = data.name || "";
+                        document.getElementById('input-avatar').value = data.photo || "";
+                        document.getElementById('input-bio').value = data.bio || "";
+                        document.getElementById('input-phone').value = data.phone || "";
+                        document.getElementById('input-birth').value = data.birthdate || "";
+                        document.getElementById('input-gender').value = data.gender || "";
+                        document.getElementById('school-name-display').value = data.school || "";
+                    }
+
+                    // Hiển thị nút settings khi xem profile của mình
+                    const settingsBtn = document.getElementById('settings-btn');
+                    if (settingsBtn) settingsBtn.style.display = 'flex';
+
+                    // Hiển thị lại nút Xóa tài khoản khi xem profile của mình
+                    const deleteQuickBtn = document.getElementById('delete-account-quick-btn');
+                    if (deleteQuickBtn) deleteQuickBtn.style.display = 'inline-flex';
+
+                    // Load stats của chính mình
+                    loadStatsForUser(currentUserId);
+                } else {
+                    // Tạo profile mặc định nếu chưa có
+                    const defaultData = {
+                        id: currentUserId,
+                        name: "",
+                        photo: "",
+                        bio: "",
+                        phone: "",
+                        birthdate: "",
+                        gender: "",
+                        school: "",
+                        role: "Thành viên",
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    };
+                    supabase.from("users").upsert(defaultData, { onConflict: "id" }).then(() => renderOwnProfile());
+                }
+            };
+
+            renderOwnProfile();
+            ownProfileChannel = supabase.channel("profile-own")
+                .on("postgres_changes", { event: "*", schema: "public", table: "users", filter: "id=eq." + currentUserId }, () => renderOwnProfile())
+                .subscribe();
+        }
+
+        // Theo dõi thay đổi URL để load profile tương ứng
+        window.addEventListener('popstate', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewUserId = urlParams.get('user');
+
+            if (viewUserId && viewUserId !== currentUserId) {
+                loadViewUserProfile(viewUserId);
+            } else {
+                loadOwnProfile();
+            }
+        });
+
+        window.openSettingsModal = function() {
+            settingsEditing = true;
+            settingsModal.classList.remove('opacity-0', 'pointer-events-none');
+            settingsModal.firstElementChild.classList.remove('scale-95');
+            settingsModal.firstElementChild.classList.add('scale-100');
+            switchSettingsTab('info');
+        }
+
+        settingsModal.addEventListener('click', function(e) {
+            if (e.target === settingsModal) closeSettingsModal();
+        });
+
+        window.switchSettingsTab = function(tab) {
+            const infoForm = document.getElementById('settings-form');
+            const passwordForm = document.getElementById('password-form');
+            const classForm = document.getElementById('class-form');
+            const dangerForm = document.getElementById('danger-form');
+            const btnInfo = document.getElementById('tab-btn-info');
+            const btnPassword = document.getElementById('tab-btn-password');
+            const btnClasses = document.getElementById('tab-btn-classes');
+            const btnDanger = document.getElementById('tab-btn-danger');
+            const activeClasses = ['lh-tab-active', 'text-lh-primary', 'shadow-sm'];
+            const inactiveClasses = ['text-gray-500'];
+
+            [btnInfo, btnPassword, btnClasses, btnDanger].forEach(b => {
+                if (b) { b.classList.remove(...activeClasses); b.classList.add(...inactiveClasses); }
+            });
+            [infoForm, passwordForm, classForm, dangerForm].forEach(f => { if (f) f.classList.add('hidden'); });
+
+            if (tab === 'password') {
+                passwordForm.classList.remove('hidden');
+                btnPassword.classList.add(...activeClasses);
+                btnPassword.classList.remove(...inactiveClasses);
+            } else if (tab === 'classes') {
+                classForm.classList.remove('hidden');
+                btnClasses.classList.add(...activeClasses);
+                btnClasses.classList.remove(...inactiveClasses);
+                classLoadClasses();
+            } else if (tab === 'danger') {
+                dangerForm.classList.remove('hidden');
+                btnDanger.classList.add(...activeClasses);
+                btnDanger.classList.remove(...inactiveClasses);
+            } else {
+                infoForm.classList.remove('hidden');
+                btnInfo.classList.add(...activeClasses);
+                btnInfo.classList.remove(...inactiveClasses);
+            }
+        }
+
+        window.closeSettingsModal = function() {
+            settingsEditing = false;
+            settingsModal.classList.add('opacity-0', 'pointer-events-none');
+            settingsModal.firstElementChild.classList.remove('scale-100');
+            settingsModal.firstElementChild.classList.add('scale-95');
+            document.getElementById('input-old-password').value = "";
+            document.getElementById('input-new-password').value = "";
+            document.getElementById('input-confirm-password').value = "";
+            document.getElementById('input-delete-password').value = "";
+            document.getElementById('input-delete-confirm').value = "";
+            const delBtn = document.getElementById('btn-delete-account');
+            if (delBtn) { delBtn.disabled = false; delBtn.style.opacity = '0.5'; delBtn.style.pointerEvents = 'none'; delBtn.innerHTML = '<i class="fas fa-trash-can mr-1"></i> Xóa tài khoản'; }
+        }
+
+        // SỬA LẠI: Hàm format đảm bảo hiển thị đúng cấu trúc DD/MM/YYYY chuẩn chỉnh lên giao diện
+        function formatDate(dateString) {
+            if (!dateString) return "Chưa cập nhật";
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString;
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // SỬA LẠI: Logic phân phối màu chuẩn: Admin -> Đỏ, Giáo viên -> Vàng, Thành viên -> Xanh lá
+        function applyRoleBadgeStyle(roleName) {
+            const badge = document.getElementById('profile-role-badge');
+            const dot = document.getElementById('profile-role-dot');
+            if (!badge || !dot) return;
+
+            badge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold border transition-all duration-300";
+            dot.className = "w-2 h-2 rounded-full animate-pulse";
+
+            const normalizedRole = String(roleName).trim().toLowerCase();
+
+            if (normalizedRole === 'admin') {
+                badge.classList.add('bg-rose-50', 'text-rose-600', 'border-rose-200');
+                dot.classList.add('bg-rose-500');
+            } else if (normalizedRole === 'giáo viên' || normalizedRole === 'giao vien') {
+                badge.classList.add('bg-amber-50', 'text-amber-600', 'border-amber-200');
+                dot.classList.add('bg-amber-500');
+            } else {
+                badge.classList.add('bg-green-50', 'text-green-600', 'border-green-200');
+                dot.classList.add('bg-green-500');
+            }
+        }
+
+        onAuthChange(async (event, session) => {
+            const user = session?.user ?? null;
+            if (user) {
+                currentUserId = user.id;
+
+                // ✅ ONLINE TIMER - begin phiên (atomic trên DB, chống cộng khoảng offline / double-count)
+                try {
+                    await beginOnlineSession(user.id);
+                } catch(e){}
+
+                // Bắt đầu cập nhật online status và listener users
+                startOnlineInterval();
+                startUsersListener();
+
+                // Kiểm tra xem có đang xem profile người khác không
+                const urlParams = new URLSearchParams(window.location.search);
+                const viewUserId = urlParams.get('user');
+
+                if (viewUserId && viewUserId !== currentUserId) {
+                    loadViewUserProfile(viewUserId);
+                } else {
+                    loadOwnProfile();
+                }
+
+            } else {
+                console.log("Học viên chưa đăng nhập!");
+                cleanup();
+                window.location.href = "../auth/login.html";
+            }
+        });
+
+        // Validate đầu vào hồ sơ trước khi lưu (chống lưu nội dung gây XSS).
+        function validateProfileInput(p) {
+            const name = String(p.name || "").trim();
+            const bio = String(p.bio || "").trim();
+            if (name.length > 60) return "Tên không được dài quá 60 ký tự.";
+            if (bio.length > 200) return "Tiểu sử không được dài quá 200 ký tự.";
+            if (/[<>]/.test(name)) return "Tên không được chứa ký tự < hoặc >.";
+            if (/[<>]/.test(bio)) return "Tiểu sử không được chứa ký tự < hoặc >.";
+            const photo = String(p.photo || "").trim();
+            if (photo) {
+                try {
+                    const u = new URL(photo);
+                    if (u.protocol !== "http:" && u.protocol !== "https:") {
+                        return "URL ảnh không hợp lệ (chỉ chấp nhận http/https).";
+                    }
+                } catch (err) {
+                    return "URL ảnh không hợp lệ (chỉ chấp nhận http/https).";
+                }
+            }
+            return null;
+        }
+
+        // ===== LỚP HỌC (tham gia & hiển thị) =====
+        window.classLoadClasses = async function() {
+            const listEl = document.getElementById('class-my-list');
+            if (!listEl) return;
+            try {
+                const { data, error } = await supabase.rpc("my_classes");
+                if (error) throw error;
+                const rows = data || [];
+                if (!rows.length) {
+                    listEl.innerHTML = '<p class="text-xs font-medium text-center py-2" style="color:var(--text-sub)">Bạn chưa tham gia lớp học nào.</p>';
+                } else {
+                    listEl.innerHTML = rows.map(c => {
+                        const st = String(c.status || "").toLowerCase();
+                        const badge = st === 'approved'
+                            ? '<span class="text-[10px] font-bold" style="color:#10b981">Đã vào</span>'
+                            : '<span class="text-[10px] font-bold" style="color:#f59e0b">Đang chờ duyệt</span>';
+                        return `<div class="flex items-center gap-2 px-3 py-2 rounded-lg" style="background:var(--tint-blue);border:1px solid rgba(37,99,235,0.15)">
+                            <i class="fa-solid fa-chalkboard-user text-[11px]" style="color:var(--blue-accent)"></i>
+                            <div class="min-w-0">
+                                <div class="text-[13px] font-bold truncate" style="color:var(--text-main)">${escapeHtml(c.class_name)}</div>
+                                <div class="text-[10px] font-medium" style="color:var(--text-sub)">Khối ${escapeHtml(c.block || "—")} <span style="opacity:.6">· GV: ${escapeHtml(c.teacher_name || "—")}</span></div>
+                            </div>
+                            <span class="ml-auto flex-shrink-0">${badge}</span>
+                        </div>`;
+                    }).join('');
+                }
+            } catch (e) {
+                console.error("my_classes lỗi:", e);
+                listEl.innerHTML = '<p class="text-xs font-medium text-center py-2" style="color:#ef4444">Không tải được lớp học.</p>';
+            }
+        };
+
+        // Hiển thị "Các lớp đang tham gia" trong Hồ Sơ Chi Tiết (chỉ cho Thành viên/Học sinh).
+        function isStaffRole(role) {
+            const r = String(role || "").trim().toLowerCase();
+            return r === "admin" || r === "giáo viên" || r === "giao vien";
+        }
+        window.loadProfileClasses = async function(userId, role) {
+            const block = document.getElementById('profile-classes-block');
+            const listEl = document.getElementById('profile-classes-list');
+            if (!block || !listEl) return;
+            if (isStaffRole(role) || !userId) {
+                block.style.display = 'none';
+                return;
+            }
+            block.style.display = '';
+            listEl.innerHTML = '<p class="text-xs font-medium text-center py-2" style="color:var(--text-sub)">Đang tải...</p>';
+            try {
+                const { data, error } = await supabase.rpc("user_classes", { p_user_id: userId });
+                if (error) throw error;
+                const rows = data || [];
+                if (!rows.length) {
+                    listEl.innerHTML = '<p class="text-xs font-medium text-center py-2" style="color:var(--text-sub)">Chưa tham gia lớp học nào.</p>';
+                    return;
+                }
+                listEl.innerHTML = rows.map(c => {
+                    const st = String(c.status || "").toLowerCase();
+                    const badge = st === 'approved'
+                        ? '<span class="text-[10px] font-bold" style="color:#10b981">Đã vào</span>'
+                        : '<span class="text-[10px] font-bold" style="color:#f59e0b">Đang chờ duyệt</span>';
+                    return `<div class="flex items-center gap-2 px-3 py-2 rounded-lg" style="background:var(--tint-blue);border:1px solid rgba(37,99,235,0.15)">
+                        <i class="fa-solid fa-chalkboard-user text-[11px]" style="color:var(--blue-accent)"></i>
+                        <div class="min-w-0">
+                            <div class="text-[12.5px] font-bold truncate" style="color:var(--text-main)">${escapeHtml(c.class_name)}</div>
+                            <div class="text-[10px] font-medium" style="color:var(--text-sub)">Khối ${escapeHtml(c.block || "—")} <span style="opacity:.6">· GV: ${escapeHtml(c.teacher_name || "—")}</span></div>
+                        </div>
+                        <span class="ml-auto flex-shrink-0">${badge}</span>
+                    </div>`;
+                }).join('');
+            } catch (e) {
+                console.error("user_classes lỗi:", e);
+                listEl.innerHTML = '<p class="text-xs font-medium text-center py-2" style="color:#ef4444">Không tải được lớp học.</p>';
+            }
+        };
+
+        window.classJoinByCode = async function() {
+            const input = document.getElementById('class-input-code');
+            const btn = document.getElementById('class-btn-code');
+            const code = String(input.value || "").trim().toUpperCase();
+            if (!code) return window.showToast("Vui lòng nhập mã mời!", "warning");
+            btn.disabled = true;
+            try {
+                const { data, error } = await supabase.rpc("join_class_by_code", { p_code: code });
+                if (error) throw error;
+                if (!data || data.ok !== true) {
+                    const msgs = { not_found: "Không tìm thấy lớp với mã này!", already: "Bạn đã ở trong lớp này rồi!", self: "Đây là lớp của chính bạn!", invalid: "Mã mời không hợp lệ!" };
+                    return window.showToast(msgs[data?.error] || "Không tham gia được lớp!", "error");
+                }
+                input.value = "";
+                window.showToast("Đã vào lớp thành công!", "success");
+                classLoadClasses();
+            } catch (e) {
+                console.error("join_class_by_code lỗi:", e);
+                window.showToast("Lỗi: " + (e.message || e), "error");
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        window.classLoadList = async function() {
+            const blockEl = document.getElementById('class-select-block');
+            const classEl = document.getElementById('class-select-class');
+            const block = blockEl.value;
+            classEl.innerHTML = '<option value="">Chọn lớp</option>';
+            if (!block) return;
+            try {
+                const { data, error } = await supabase.rpc("list_classes_in_block", { p_block: block });
+                if (error) throw error;
+                (data || []).forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.class_id;
+                    opt.textContent = c.name;
+                    classEl.appendChild(opt);
+                });
+            } catch (e) {
+                console.error("list_classes_in_block lỗi:", e);
+            }
+        };
+
+        window.classSendRequest = async function() {
+            const blockEl = document.getElementById('class-select-block');
+            const classEl = document.getElementById('class-select-class');
+            const btn = document.getElementById('class-btn-request');
+            const classId = classEl.value;
+            if (!blockEl.value) return window.showToast("Vui lòng chọn khối!", "warning");
+            if (!classId) return window.showToast("Vui lòng chọn lớp!", "warning");
+            btn.disabled = true;
+            try {
+                const { data, error } = await supabase.rpc("request_join_class", { p_class_id: classId });
+                if (error) throw error;
+                if (!data || data.ok !== true) {
+                    const msgs = { already: "Bạn đã ở trong lớp này rồi!", self: "Không thể yêu cầu vào lớp của chính mình!", not_found: "Không tìm thấy lớp!" };
+                    return window.showToast(msgs[data?.error] || "Không gửi được yêu cầu!", "error");
+                }
+                blockEl.value = ""; classEl.innerHTML = '<option value="">Chọn lớp</option>';
+                window.showToast("Đã gửi yêu cầu tham gia. Chờ giáo viên duyệt!", "success");
+                classLoadClasses();
+            } catch (e) {
+                console.error("request_join_class lỗi:", e);
+                window.showToast("Lỗi: " + (e.message || e), "error");
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        // Nạp danh sách khối khi mở tab Lớp học (nếu cần)
+        async function classPopulateBlocks() {
+            const blockEl = document.getElementById('class-select-block');
+            if (!blockEl) return;
+            try {
+                const { data, error } = await supabase.rpc("list_blocks");
+                if (error) throw error;
+                blockEl.innerHTML = '<option value="">Chọn khối</option>';
+                (data || []).forEach(b => {
+                    const opt = document.createElement('option');
+                    opt.value = b.block;
+                    opt.textContent = "Khối " + b.block;
+                    blockEl.appendChild(opt);
+                });
+            } catch (e) {
+                console.error("list_blocks lỗi:", e);
+            }
+        }
+
+        // Khi mở settings modal, nạp sẵn danh sách khối
+        const _origOpenSettings = window.openSettingsModal;
+        window.openSettingsModal = function() {
+            _origOpenSettings();
+            classPopulateBlocks();
+        };
+
+        window.saveSettings = function(e) {
+            e.preventDefault();
+            if (!currentUserId) return window.showToast("Lỗi: Không tìm thấy phiên đăng nhập!", "error");
+
+            const inputBirthVal = document.getElementById('input-birth').value;
+
+            const updatedProfile = {
+                name: document.getElementById('input-name').value,
+                photo: document.getElementById('input-avatar').value,
+                bio: document.getElementById('input-bio').value,
+                phone: document.getElementById('input-phone').value,
+                birthdate: inputBirthVal,
+                gender: document.getElementById('input-gender').value,
+                school: document.getElementById('school-name-display').value,
+                updated_at: new Date().toISOString()
+            };
+
+            const invalid = validateProfileInput(updatedProfile);
+            if (invalid) return window.showToast(invalid, "error");
+
+            supabase.from("users").update(updatedProfile).eq("id", currentUserId)
+                .then(() => {
+                    document.getElementById('profile-birth-display').innerText = formatDate(inputBirthVal);
+                    window.showToast("Đã lưu thông tin hồ sơ thành công!", "success");
+                    closeSettingsModal();
+                })
+                .catch((error) => {
+                    window.showToast("Lỗi lưu dữ liệu: " + error.message, "error");
+                });
+        }
+
+        window.sendForgotPasswordLink = async function() {
+            try {
+                const { data } = await supabase.auth.getUser();
+                const email = data?.user?.email;
+                if (!email) return window.showToast("Không tìm thấy email tài khoản!", "error");
+                const redirectTo = window.location.origin + "/pages/auth/reset-password.html";
+                const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+                if (error) throw error;
+                window.showToast("Liên kết đặt lại mật khẩu đã được gửi đến " + email + "!", "success", "fa-envelope");
+
+                // Đếm ngược 10s trước khi cho bấm lại
+                const btn = document.querySelector('button[onclick="sendForgotPasswordLink()"]');
+                if (btn) {
+                    btn.disabled = true;
+                    let countdown = 10;
+                    const originalText = btn.textContent;
+                    btn.textContent = `Gửi lại (${countdown}s)`;
+                    const interval = setInterval(() => {
+                        countdown--;
+                        if (countdown > 0) {
+                            btn.textContent = `Gửi lại (${countdown}s)`;
+                        } else {
+                            clearInterval(interval);
+                            btn.disabled = false;
+                            btn.textContent = originalText;
+                        }
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error("Gửi liên kết đặt lại mật khẩu lỗi:", error);
+                window.showToast("Gửi liên kết đặt lại mật khẩu thất bại: " + error.message, "error");
+            }
+        };
+
+        window.savePassword = function(e) {
+            e.preventDefault();
+            if (!currentUserId) return window.showToast("Lỗi: Không tìm thấy phiên đăng nhập!", "error");
+
+            const oldPassword = document.getElementById('input-old-password').value;
+            const textNewPassword = document.getElementById('input-new-password').value;
+            const confirmPassword = document.getElementById('input-confirm-password').value;
+
+            if (!oldPassword) return window.showToast("Vui lòng nhập mật khẩu cũ để xác minh!", "warning");
+            if (textNewPassword !== confirmPassword) return window.showToast("Mật khẩu mới không trùng khớp!", "error");
+            if (textNewPassword.length < 6) return window.showToast("Mật khẩu mới phải từ 6 ký tự trở lên!", "warning");
+
+            const email = supabase.auth.getUser().then(({ data }) => data.user?.email).catch(() => null);
+            email.then((userEmail) => {
+                if (!userEmail) return window.showToast("Không tìm thấy email tài khoản!", "error");
+                supabase.auth.signInWithPassword({ email: userEmail, password: oldPassword })
+                    .then(({ error }) => {
+                        if (error) return window.showToast("Mật khẩu cũ không chính xác!", "error");
+                        supabase.auth.updateUser({ password: textNewPassword })
+                            .then(() => {
+                                window.showToast("Đổi mật khẩu tài khoản thành công!", "success");
+                                document.getElementById('input-old-password').value = "";
+                                document.getElementById('input-new-password').value = "";
+                                document.getElementById('input-confirm-password').value = "";
+                            })
+                            .catch(err => window.showToast("Lỗi đổi mật khẩu: " + err.message, "error"));
+                    });
+            });
+        }
+
+        // ===== DELETE ACCOUNT =====
+        const deleteConfirmInput = document.getElementById('input-delete-confirm');
+        const deleteBtn = document.getElementById('btn-delete-account');
+        if (deleteConfirmInput && deleteBtn) {
+            deleteConfirmInput.addEventListener('input', function() {
+                const ok = this.value.trim().toLowerCase() === 'xoa tai khoan';
+                deleteBtn.style.opacity = ok ? '1' : '0.5';
+                deleteBtn.style.pointerEvents = ok ? 'auto' : 'none';
+            });
+        }
+
+        window.deleteOwnAccount = async function() {
+            const password = document.getElementById('input-delete-password').value;
+            const confirmText = document.getElementById('input-delete-confirm').value.trim().toLowerCase();
+
+            if (!password) return window.showToast("Vui lòng nhập mật khẩu để xác nhận!", "warning");
+            if (confirmText !== 'xoa tai khoan') return window.showToast("Vui lòng gõ 'xoa tai khoan' để xác nhận!", "warning");
+
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang xử lý...';
+
+            try {
+                const { data: userData } = await supabase.auth.getUser();
+                const userEmail = userData?.user?.email;
+                if (!userEmail) throw new Error("Không tìm thấy tài khoản!");
+
+                const { error: authError } = await supabase.auth.signInWithPassword({ email: userEmail, password: password });
+                if (authError) throw new Error("Mật khẩu không chính xác!");
+
+                const { error: deleteProfileError } = await supabase.from("users").delete().eq("id", currentUserId);
+                if (deleteProfileError) console.warn("Xóa profile:", deleteProfileError.message);
+
+                const { error: authDeleteError } = await supabase.rpc('delete_own_account');
+                if (authDeleteError) {
+                    console.warn("RPC delete_own_account:", authDeleteError.message);
+                    await supabase.auth.signOut();
+                } else {
+                    await supabase.auth.signOut();
+                }
+
+                window.showToast("Tài khoản đã được xóa. Bạn sẽ thoát trong giây lát...", "success");
+                setTimeout(() => { window.location.href = "../auth/login.html"; }, 2500);
+            } catch (err) {
+                window.showToast(err.message || "Không thể xóa tài khoản!", "error");
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = '<i class="fas fa-trash-can mr-1"></i> Xóa tài khoản';
+            }
+        }
+    </script>
+
+</div>
+</body>
+</html>

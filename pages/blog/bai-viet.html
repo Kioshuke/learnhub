@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Bài viết trên Blog LearnHub.">
+  <title>Bài viết - LearnHub</title>
+  <link rel="icon" href="../../assets/images/favicon.png" sizes="any">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="../../styles/global.css">
+  <style>
+    /* ====== Token riêng trang bài viết: nền trong suốt, đổi màu theo sáng/tối ====== */
+    :root {
+      --bv-accent: #0284c7;
+      --bv-on-accent: #ffffff;
+      --bv-text: #0f172a;
+      --bv-muted: #475569;
+      --bv-border: rgba(15, 23, 42, 0.12);
+      --bv-soft: rgba(2, 132, 199, 0.10);
+      --bv-hover: rgba(15, 23, 42, 0.04);
+      --bv-body: #1e293b;
+    }
+    body.dark-mode {
+      --bv-accent: #38bdf8;
+      --bv-on-accent: #0f172a;
+      --bv-text: #f1f5f9;
+      --bv-muted: #94a3b8;
+      --bv-border: rgba(148, 163, 184, 0.22);
+      --bv-soft: rgba(56, 189, 248, 0.12);
+      --bv-hover: rgba(148, 163, 184, 0.10);
+      --bv-body: #cbd5e1;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      /* Xoá SẠCH nền (cả lưới chấm của giaodien.css) để chỉ thấy nền của web chính */
+      background: transparent !important;
+      background-image: none !important;
+      background-size: auto !important;
+      color: var(--bv-text);
+      line-height: 1.6;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    /* Padding đặt ở body (không đặt ở html) để đo chiều cao nội dung cho chuẩn */
+    body { padding: 1rem; }
+    /* Chỉ khi mở ĐỘC LẬP ở chế độ tối mới cần nền; trong iframe để trong suốt. */
+    html.bv-standalone body.dark-mode { background: linear-gradient(180deg, #0b1220, #1a2332) !important; }
+
+    /* ===== Khung full ngang ===== */
+    .bv-wrap { width: 100%; max-width: 1400px; margin: 0 auto; }
+
+    .bv-topbar { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .bv-back {
+      display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;
+      color: var(--bv-muted); font-weight: 600; font-size: 0.9rem;
+      border: 1px solid var(--bv-border); border-radius: 999px; padding: 0.5rem 1rem; transition: all 0.25s;
+    }
+    .bv-back:hover { color: var(--bv-accent); border-color: var(--bv-accent); background-color: var(--bv-hover); }
+
+    /* ===== Bố cục 3 : 1 ===== */
+    .bv-layout { display: grid; grid-template-columns: 3fr 1fr; gap: 32px; align-items: start; }
+    .bv-main { min-width: 0; }
+    .bv-rail { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 18px; }
+    .bv-panel { border: 1px solid var(--bv-border); border-radius: 14px; padding: 16px 18px; }
+    .bv-panel-title {
+      font-size: 0.78rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+      color: var(--bv-muted); margin-bottom: 12px;
+    }
+
+    /* ===== Bài viết (cột trái) ===== */
+    .bv-cover { width: 100%; height: 380px; border-radius: 14px; background-size: cover; background-position: center; margin-bottom: 1.5rem; }
+    .bv-cat {
+      --cat-color: var(--bv-accent); --cat-soft: var(--bv-soft);
+      display: inline-block; font-size: 0.75rem; padding: 0.3rem 0.7rem; border-radius: 5px;
+      background-color: var(--cat-soft); color: var(--cat-color);
+      text-transform: uppercase; font-weight: 700; letter-spacing: .04em; margin-bottom: 0.85rem;
+    }
+    /* Tin tức dùng màu vàng; Học tập và các danh mục khác giữ màu xanh hiện tại. */
+    .bv-cat.cat-tin-tuc { --cat-color: #a16207; --cat-soft: rgba(234, 179, 8, .16); }
+    body.dark-mode .bv-cat.cat-tin-tuc { --cat-color: #facc15; --cat-soft: rgba(250, 204, 21, .16); }
+    .bv-title { font-size: 2.1rem; line-height: 1.28; color: var(--bv-text); margin-bottom: 1rem; }
+    .bv-meta {
+      display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; color: var(--bv-muted);
+      font-size: 0.88rem; margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--bv-border);
+    }
+    .bv-dot { opacity: .5; }
+
+    /* ===== Nội dung ===== */
+    .bv-content { color: var(--bv-body); font-size: 1.05rem; line-height: 1.85; }
+    .bv-content p { margin: 0 0 1.1rem; }
+    .bv-content h1, .bv-content h2 { margin: 1.7rem 0 0.7rem; color: var(--bv-text); font-size: 1.55rem; line-height: 1.35; }
+    .bv-content h3 { margin: 1.4rem 0 0.6rem; color: var(--bv-text); font-size: 1.25rem; }
+    .bv-content ul, .bv-content ol { margin: 0 0 1.1rem; padding-left: 1.5rem; }
+    .bv-content li { margin: 0.3rem 0; }
+    .bv-content a { color: var(--bv-accent); }
+    .bv-content img { max-width: 100%; border-radius: 10px; margin: 0.8rem 0; }
+    .bv-content blockquote {
+      margin: 1.1rem 0; padding: 0.8rem 1.2rem; border-left: 4px solid var(--bv-accent);
+      background: var(--bv-soft); border-radius: 0 10px 10px 0; color: var(--bv-text);
+    }
+    .bv-content code { background: var(--bv-hover); padding: 0.12rem 0.4rem; border-radius: 4px; font-size: .92em; }
+    .bv-content hr { border: 0; border-top: 1px solid var(--bv-border); margin: 1.5rem 0; }
+
+    /* ===== Cột phụ ===== */
+    .bv-author-box { display: flex; align-items: center; gap: 0.75rem; }
+    .bv-avatar {
+      width: 48px; height: 48px; border-radius: 50%; flex: none; position: relative; overflow: hidden;
+      display: grid; place-items: center; background: linear-gradient(135deg, #0284c7, #818cf8);
+      color: #fff; font-weight: 800; text-transform: uppercase; font-size: 19px;
+    }
+    .bv-av-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    /* Có ảnh tác giả -> nền TRẮNG (ảnh PNG trong suốt không còn lộ màu gradient phía sau). */
+    .bv-avatar:has(.bv-av-img) { background: #fff; }
+    .bv-avatar:has(.bv-av-img)::after {
+      content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+      box-shadow: inset 0 0 0 1px rgba(120, 120, 120, 0.35);
+    }
+    .bv-author-info { min-width: 0; }
+    .bv-author-name { font-weight: 700; color: var(--bv-text); }
+    .bv-author-role { font-size: 0.8rem; color: var(--bv-muted); }
+
+    .bv-tags { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+    .bv-tagpill {
+      font-size: 0.75rem; font-weight: 700; color: var(--bv-accent);
+      background: var(--bv-soft); border-radius: 999px; padding: 0.3rem 0.75rem;
+    }
+
+    .bv-rel { display: flex; gap: 12px; align-items: flex-start; text-decoration: none; color: inherit; padding: 10px 0; border-bottom: 1px solid var(--bv-border); }
+    .bv-rel:last-child { border-bottom: 0; padding-bottom: 0; }
+    .bv-rel:first-of-type { padding-top: 0; }
+    .bv-rel:hover .bv-rel-title { color: var(--bv-accent); }
+    .bv-rel-thumb { width: 66px; height: 50px; border-radius: 8px; background-size: cover; background-position: center; flex: none; }
+    .bv-rel-body { min-width: 0; }
+    .bv-rel-title {
+      font-size: 0.9rem; font-weight: 600; line-height: 1.4; color: var(--bv-text);
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color .2s;
+    }
+    .bv-rel-date { font-size: 0.72rem; color: var(--bv-muted); margin-top: 3px; }
+    .bv-rel-empty { font-size: 0.85rem; color: var(--bv-muted); }
+
+    .bv-foot { display: flex; gap: 1rem; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--bv-border); }
+    .bv-uid { font-size: 0.78rem; color: var(--bv-muted); }
+    .bv-uid code { background: var(--bv-hover); padding: 0.12rem 0.45rem; border-radius: 4px; }
+
+    .bv-status { text-align: center; color: var(--bv-muted); padding: 3rem 1rem; font-size: 1rem; }
+    .bv-status i { display: block; font-size: 2rem; margin-bottom: 0.75rem; color: var(--bv-accent); }
+    .bv-status a { color: var(--bv-accent); }
+
+    @media (max-width: 900px) {
+      .bv-layout { grid-template-columns: 1fr; gap: 24px; }
+      .bv-rail { position: static; }
+      .bv-title { font-size: 1.6rem; }
+      .bv-cover { height: 240px; }
+    }
+    body.cc-reduced *, body.cc-reduced *::before, body.cc-reduced *::after { animation-duration: .01s !important; transition-duration: .08s !important; }
+  </style>
+  <script src="../../version/version-check.js" defer></script>
+</head>
+<body>
+
+  <div class="bv-wrap">
+    <div class="bv-topbar">
+      <a class="bv-back" href="blog.html"><i class="fa-solid fa-arrow-left"></i> Về trang Blog</a>
+    </div>
+    <div id="bvRoot">
+      <p class="bv-status"><i class="fa-solid fa-circle-notch fa-spin"></i>Đang tải bài viết...</p>
+    </div>
+  </div>
+
+<script type="module">
+import { supabase, logAppError, escapeHtml, escapeUrl } from "../../scripts/core/supabase-config.js";
+
+/* ====== SANITIZE HTML (chống XSS khi render nội dung bài viết) ====== */
+const ALLOWED_TAGS = new Set(["P","BR","H1","H2","H3","H4","STRONG","B","EM","I","U","S","STRIKE","UL","OL","LI","BLOCKQUOTE","A","IMG","HR","FIGURE","FIGCAPTION","SPAN","DIV","PRE","CODE","TABLE","THEAD","TBODY","TR","TD","TH"]);
+const VOID_TAGS = new Set(["BR","HR","IMG"]);
+const ALLOWED_ATTR = { A: ["href","title"], IMG: ["src","alt","title"], TD: ["colspan","rowspan"], TH: ["colspan","rowspan"] };
+
+function isSafeUrl(u, allowMailto) {
+  const s = String(u || "").trim();
+  if (!s) return false;
+  if (/^(https?:)?\/\//i.test(s)) return true;
+  if (/^(mailto:|tel:)/i.test(s) && allowMailto) return true;
+  return false;
+}
+
+const MAIN_SITE_ORIGIN = "https://learnhubpf.pages.dev";
+const LEGACY_TAB_LINKS = {
+  "/pages/blog/forum.html": "forum",
+  "/pages/features/hubfile.html": "tai-lieu",
+  "/pages/features/phong-hoc.html": "phong-hoc",
+  "/pages/flashcard/hub.html": "flash"
+};
+
+/* Link nội bộ của web chính -> { tab } hoặc { page }. */
+function mainLinkTarget(href) {
+  let u;
+  try { u = new URL(String(href || ""), location.href); } catch (e) { return null; }
+  if (u.origin !== location.origin && u.origin !== MAIN_SITE_ORIGIN) return null;
+  const tab = u.searchParams.get("open");
+  if (tab) return { tab };
+  if (LEGACY_TAB_LINKS[u.pathname]) return { tab: LEGACY_TAB_LINKS[u.pathname] };
+  if (u.pathname === "/profile.html") return { page: "profile" };
+  return null;
+}
+
+function sanitizeHtml(html) {
+  const doc = new DOMParser().parseFromString(String(html || ""), "text/html");
+  const walk = (node) => {
+    const children = Array.from(node.childNodes);
+    for (const child of children) {
+      if (child.nodeType === 1) {
+        const tag = child.tagName.toUpperCase();
+        if (tag === "SCRIPT" || tag === "STYLE" || tag === "IFRAME" || tag === "OBJECT" || tag === "EMBED" || tag === "LINK" || tag === "META") { child.remove(); continue; }
+        if (!ALLOWED_TAGS.has(tag)) {
+          const frag = doc.createDocumentFragment();
+          while (child.firstChild) frag.appendChild(child.firstChild);
+          child.replaceWith(frag);
+          continue;
+        }
+        const allowed = ALLOWED_ATTR[tag] || [];
+        for (const attr of Array.from(child.attributes)) {
+          const name = attr.name.toLowerCase();
+          if (name === "style") {
+            const m = String(attr.value).match(/text-align\s*:\s*(left|center|right|justify)/i);
+            if (m) child.setAttribute("style", "text-align:" + m[1].toLowerCase());
+            else child.removeAttribute("style");
+            continue;
+          }
+          if (allowed.indexOf(name) === -1) { child.removeAttribute(attr.name); continue; }
+          if (name === "href" && !isSafeUrl(attr.value, true)) child.removeAttribute("href");
+          if (name === "src" && !isSafeUrl(attr.value, false)) child.removeAttribute("src");
+        }
+        if (tag === "A" && child.getAttribute("href")) {
+          child.setAttribute("target", mainLinkTarget(child.getAttribute("href")) ? "_top" : "_blank");
+          child.setAttribute("rel", "noopener noreferrer");
+        }
+        if (!VOID_TAGS.has(tag)) walk(child);
+      } else if (child.nodeType === 8) {
+        child.remove();
+      }
+    }
+  };
+  walk(doc.body);
+  return doc.body.innerHTML;
+}
+
+/* ====== Tiện ích ====== */
+function fmtDate(v) {
+  if (!v) return "—";
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+function readMinutes(html) {
+  const text = String(html || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  const words = text ? text.split(" ").length : 0;
+  return Math.max(1, Math.round(words / 200));
+}
+function fmtViews(n) { return Number(n || 0).toLocaleString("vi-VN"); }
+function initials(name) { return (String(name || "L").trim()[0] || "L").toUpperCase(); }
+function categoryClass(cat) {
+  const key = String(cat || "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  if (key === "tin tuc") return " cat-tin-tuc";
+  if (key === "hoc tap") return " cat-hoc-tap";
+  return "";
+}
+
+const GRADS = [
+  "linear-gradient(135deg,#0284c7,#38bdf8)",
+  "linear-gradient(135deg,#4f46e5,#818cf8)",
+  "linear-gradient(135deg,#10b981,#34d399)",
+  "linear-gradient(135deg,#f59e0b,#fbbf24)",
+  "linear-gradient(135deg,#db2777,#f472b6)",
+  "linear-gradient(135deg,#7c3aed,#a78bfa)"
+];
+function gradFor(p) {
+  const s = String((p && (p.id || p.title)) || "");
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return GRADS[h % GRADS.length];
+}
+function coverStyle(p) {
+  const cover = escapeUrl(p.cover_url);
+  return cover
+    ? "background-image:url('" + escapeHtml(cover) + "')," + gradFor(p)
+    : "background-image:" + gradFor(p);
+}
+function articleUrl(id) { return "bai-viet.html?id=" + encodeURIComponent(String(id)); }
+
+const root = document.getElementById("bvRoot");
+
+/* Link nội bộ trong bài -> nhờ trang chính chuyển tab, không mở tab mới. */
+root.addEventListener("click", function (e) {
+  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+  if (!a || !root.contains(a)) return;
+  const dest = mainLinkTarget(a.getAttribute("href"));
+  if (!dest) return;
+  const p = window.parent;
+  if (!p || p === window) return; // mở trực tiếp: để link _top tự điều hướng
+  try {
+    p.postMessage({ type: "OPEN_MAIN_LINK", tab: dest.tab || "", page: dest.page || "" }, location.origin);
+    e.preventDefault();
+  } catch (err) {}
+});
+
+function notFound() {
+  root.innerHTML =
+    '<p class="bv-status"><i class="fa-regular fa-newspaper"></i>' +
+    'Không tìm thấy bài viết này.<br><a href="blog.html">← Về trang Blog</a></p>';
+  document.title = "Không tìm thấy bài viết - LearnHub";
+}
+
+function render(p, photo) {
+  const name = p.author || "Ban Quản Trị LearnHub";
+  const tags = Array.isArray(p.tags) ? p.tags.filter(Boolean) : [];
+  const shortId = String(p.id || "").slice(0, 8);
+
+  const tagsPanel = tags.length
+    ? '<div class="bv-panel"><div class="bv-panel-title">Thẻ</div><div class="bv-tags">' +
+        tags.map(t => '<span class="bv-tagpill">#' + escapeHtml(t) + '</span>').join("") +
+      '</div></div>'
+    : '';
+
+  root.innerHTML =
+    '<div class="bv-layout">' +
+      /* ===== Cột trái: bài viết ===== */
+      '<article class="bv-main">' +
+        '<div class="bv-cover" style="' + coverStyle(p) + '"></div>' +
+        '<span class="bv-cat' + categoryClass(p.category) + '">' + escapeHtml(p.category || "Tin tức") + '</span>' +
+        '<h1 class="bv-title">' + escapeHtml(p.title || "(không tiêu đề)") + '</h1>' +
+        '<div class="bv-meta">' +
+          '<span>' + escapeHtml(fmtDate(p.created_at)) + '</span>' +
+          '<span class="bv-dot">•</span><span>' + readMinutes(p.content) + ' phút đọc</span>' +
+          '<span class="bv-dot">•</span><span id="bvViews">' + escapeHtml(fmtViews(p.views)) + ' lượt xem</span>' +
+        '</div>' +
+        '<div class="bv-content">' + sanitizeHtml(p.content || "") + '</div>' +
+        '<div class="bv-foot"><span class="bv-uid">Mã bài viết: <code>' + escapeHtml(shortId) + '</code></span></div>' +
+      '</article>' +
+      /* ===== Cột phải: tác giả + thẻ + bài khác ===== */
+      '<aside class="bv-rail">' +
+        '<div class="bv-panel">' +
+          '<div class="bv-panel-title">Tác giả</div>' +
+          '<div class="bv-author-box">' +
+            '<span class="bv-avatar" aria-hidden="true">' + escapeHtml(initials(name)) +
+              (photo ? '<img class="bv-av-img" src="' + escapeHtml(photo) + '" alt="" loading="lazy" onerror="this.remove()">' : '') +
+            '</span>' +
+            '<div class="bv-author-info"><div class="bv-author-name">' + escapeHtml(name) + '</div>' +
+            '<div class="bv-author-role">Đăng ngày ' + escapeHtml(fmtDate(p.created_at)) + '</div></div>' +
+          '</div>' +
+        '</div>' +
+        tagsPanel +
+        '<div class="bv-panel"><div class="bv-panel-title">Bài viết khác</div>' +
+          '<div id="bvRelated"><span class="bv-rel-empty">Đang tải...</span></div>' +
+        '</div>' +
+      '</aside>' +
+    '</div>';
+
+  document.title = String(p.title || "Bài viết") + " - LearnHub Blog";
+  try { window.scrollTo({ top: 0, behavior: "auto" }); } catch (e) {}
+}
+
+function relHtml(p) {
+  return '<a class="bv-rel" href="' + escapeHtml(articleUrl(p.id)) + '">' +
+      '<span class="bv-rel-thumb" style="' + coverStyle(p) + '"></span>' +
+      '<span class="bv-rel-body">' +
+        '<span class="bv-rel-title">' + escapeHtml(p.title || "(không tiêu đề)") + '</span>' +
+        '<span class="bv-rel-date">' + escapeHtml(fmtDate(p.created_at)) + '</span>' +
+      '</span>' +
+    '</a>';
+}
+
+async function loadRelated(current) {
+  const box = document.getElementById("bvRelated");
+  if (!box) return;
+  try {
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("id,title,cover_url,category,created_at")
+      .eq("published", true)
+      .neq("id", current.id)
+      .order("pinned", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(12);
+    if (error) throw error;
+    const list = data || [];
+    const same = list.filter(p => p.category === current.category);
+    const others = list.filter(p => p.category !== current.category);
+    const pick = same.concat(others).slice(0, 5);
+    box.innerHTML = pick.length
+      ? pick.map(relHtml).join("")
+      : '<span class="bv-rel-empty">Chưa có bài viết khác.</span>';
+  } catch (e) {
+    box.innerHTML = '<span class="bv-rel-empty">Không tải được bài viết khác.</span>';
+  }
+}
+
+/* Ảnh đại diện tác giả: lấy "sống" từ public.users qua RPC (đồng bộ avatar user trong DB).
+   - RPC blog_authors(): dùng được cho cả khách (anon) — cần chạy supabase/blog.sql.
+   - Nếu RPC chưa có: dự phòng đọc trực tiếp public.users (chỉ khi đang đăng nhập). */
+async function fetchAuthorPhoto(authorId) {
+  if (!authorId) return "";
+  try {
+    const { data, error } = await supabase.rpc("blog_authors");
+    if (error) throw error;
+    const row = (data || []).find(a => a && String(a.id) === String(authorId));
+    return row && row.photo ? (escapeUrl(row.photo) || "") : "";
+  } catch (e) {
+    console.warn("[bai-viet] RPC blog_authors lỗi, thử đọc trực tiếp public.users:", (e && e.message) || e);
+  }
+  try {
+    const { data } = await supabase.from("users").select("id,photo").eq("id", authorId).maybeSingle();
+    return data && data.photo ? (escapeUrl(data.photo) || "") : "";
+  } catch (e2) {}
+  return "";
+}
+
+/* Báo 1 lượt xem cho bài vừa mở.
+   - Nếu đang nằm trong iframe của trang chính (index.html): nhờ trang cha gom lại và
+     gửi KÈM nhịp heartbeat "online" (5 giây/lần) -> không tạo thêm request riêng.
+   - Nếu mở trực tiếp (dán link, không có trang cha LearnHub): tự gọi RPC. */
+function notifyView(postId) {
+  if (!postId) return;
+  try {
+    const p = window.parent;
+    if (p && p !== window) {
+      const path = p.location.pathname || "";
+      if (path === "/" || path === "" || /(^|\/)index\.html$/.test(path)) {
+        p.postMessage({ type: "BLOG_VIEW", id: postId }, "*");
+        return;
+      }
+    }
+  } catch (e) { /* khác origin -> tự gọi RPC */ }
+  supabase.rpc("blog_increment_views", { p_id: postId }).then(function () {}, function () {});
+}
+
+async function load() {
+  const id = new URLSearchParams(location.search).get("id");
+  if (!id) { notFound(); return; }
+  try {
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("id,title,excerpt,content,cover_url,category,tags,author,author_id,views,published,created_at,updated_at")
+      .eq("id", id)
+      .eq("published", true)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) { notFound(); return; }
+    const authorPhotoUrl = await fetchAuthorPhoto(data.author_id);
+    render(data, authorPhotoUrl);
+    // +1 lượt xem: hiện số mới ngay; việc ghi DB nhờ trang cha gộp vào nhịp heartbeat.
+    notifyView(data.id);
+    const viewsEl = document.getElementById("bvViews");
+    if (viewsEl) viewsEl.textContent = fmtViews((Number(data.views) || 0) + 1) + " lượt xem";
+    loadRelated(data);
+  } catch (err) {
+    root.innerHTML = '<p class="bv-status"><i class="fa-solid fa-triangle-exclamation"></i>Không tải được bài viết.<br><a href="blog.html">← Về trang Blog</a></p>';
+    document.title = "Lỗi tải bài viết - LearnHub";
+    console.error("[bai-viet] tải bài viết lỗi:", err);
+    logAppError({ source: "bai-viet", category: "feature", level: "error", code: "BLOG_POST_LOAD_FAIL", message: String((err && err.message) || err), url: location.href });
+  }
+}
+
+/* ====== Đồng bộ sáng/tối + giảm chuyển động từ trang cha (iframe) ====== */
+function applyDark(on) { document.body.classList.toggle("dark-mode", !!on); }
+try { if (window.self === window.top) document.documentElement.classList.add("bv-standalone"); } catch (e) {}
+applyDark(localStorage.getItem("darkMode") === "on");
+window.addEventListener("message", function (event) {
+  if (!event.data) return;
+  if (event.data.type === "DARK_MODE") applyDark(event.data.value);
+  if (event.data.type === "REDUCED_MOTION") document.body.classList.toggle("cc-reduced", !!event.data.value);
+  if (event.data.type === "LEARNHUB_USER") window.learnHubUser = event.data.user;
+});
+window.addEventListener("storage", function (e) { if (e.key === "darkMode") applyDark(e.newValue === "on"); });
+if (localStorage.getItem("cc_reduce") === "on") document.body.classList.add("cc-reduced");
+
+/* ====== Báo chiều cao nội dung cho trang chính (iframe tự giãn, cuộn bằng trang chính) ====== */
+let __frameHeightTimer = null;
+let __lastFrameHeight = -1;
+
+function measureContentHeight() {
+  const b = document.body;
+  if (!b) return 0;
+  const rect = b.getBoundingClientRect();
+  const cs = getComputedStyle(b);
+  const extra = (parseFloat(cs.marginTop) || 0) + (parseFloat(cs.marginBottom) || 0);
+  return Math.ceil(rect.height + extra);
+}
+
+function reportFrameHeight() {
+  const px = measureContentHeight();
+  if (px < 1 || Math.abs(px - __lastFrameHeight) < 2) return;
+  __lastFrameHeight = px;
+  try { parent.postMessage({ type: "IFRAME_HEIGHT", height: px }, "*"); } catch (e) {}
+}
+
+function queueFrameHeight() {
+  if (__frameHeightTimer) return;
+  __frameHeightTimer = setTimeout(function () { __frameHeightTimer = null; reportFrameHeight(); }, 120);
+}
+
+let __inIframe = false;
+try { __inIframe = window.self !== window.top; } catch (e) { __inIframe = true; }
+
+if (__inIframe) {
+  window.addEventListener("load", function () {
+    reportFrameHeight();
+    try { parent.postMessage({ type: "IFRAME_SCROLL_TOP" }, "*"); } catch (e) {}
+  });
+  window.addEventListener("resize", queueFrameHeight);
+  window.addEventListener("message", function (ev) {
+    if (ev.data && ev.data.type === "REQUEST_HEIGHT") reportFrameHeight();
+  });
+  if ("ResizeObserver" in window && document.body) {
+    const ro = new ResizeObserver(queueFrameHeight);
+    ro.observe(document.body);
+  }
+  document.addEventListener("load", function (e) {
+    if (e.target && e.target.tagName === "IMG") queueFrameHeight();
+  }, true);
+  reportFrameHeight();
+  setTimeout(reportFrameHeight, 80);
+  setTimeout(reportFrameHeight, 400);
+  setTimeout(reportFrameHeight, 1200);
+}
+
+load();
+</script>
+</body>
+</html>

@@ -2,26 +2,43 @@
 # Cú pháp: <nguồn> <đích> <mã>
 # Bổ sung dòng mới mỗi khi dời trang/file để bookmark & link cũ không bị chết
 
-/filetest.html      /cauhoi/filetest.html    301
+/filetest.html      /pages/cauhoi/filetest.html    301
 
-# Dot doi 8 trang vao element/
-/chinh-sach-bao-mat.html   /element/chinh-sach-bao-mat.html   301
-/dieu-khoan.html           /element/dieu-khoan.html           301
-/faq.html                  /element/faq.html                  301
-/lich-hoc.html             /element/lich-hoc.html             301
-/forum.html                /element/forum.html                301
-/gop-y.html                /element/gop-y.html                301
-/phong-hoc.html            /element/phong-hoc.html            301
-/leaderboard.html          /element/leaderboard.html          301
+# Dot doi 8 trang vao element/ (nay da chuyen sang pages/)
+/chinh-sach-bao-mat.html   /pages/legal_info/chinh-sach-bao-mat.html   301
+/dieu-khoan.html           /pages/legal_info/dieu-khoan.html           301
+/faq.html                  /pages/legal_info/faq.html                  301
+/lich-hoc.html             /pages/features/lich-hoc.html              301
+/forum.html                /pages/blog/forum.html                      301
+/gop-y.html                /pages/legal_info/gop-y.html                301
+/phong-hoc.html            /pages/features/phong-hoc.html              301
+/leaderboard.html          /pages/features/leaderboard.html            301
 
-# style.css nam chung da nhap vao element/giaodien.css
-/style.css    /element/giaodien.css  301
+# style.css nam chung da nhap vao element/giaodien.css (nay la styles/global.css)
+/style.css    /styles/global.css  301
 # Dot doi thu vien tai lieu vao element/hubfile.html
-/tai-lieu/hub.html   /element/hubfile.html   301
-/admin-dashboard.html   /administrator.html  301
-/teacher-dashboard.html   /teacher/  301
-/teacher.html            /teacher/  301
+/tai-lieu/hub.html   /pages/features/hubfile.html   301
+/admin-dashboard.html   /pages/admin/administrator.html  301
+/teacher-dashboard.html   /pages/teacher/  301
+/teacher.html            /pages/teacher/  301
 
 # Blog & bai-viet: trang goc khong ton tai (chi co ban duoi element/) nen URL cu / bookmark go tay bi 404
-/blog.html        /element/blog.html      301
-/bai-viet.html    /element/bai-viet.html  301
+/blog.html        /pages/blog/blog.html      301
+/bai-viet.html    /pages/blog/bai-viet.html  301
+
+# Duong dan cu duoi /element/ (ban tai cau truc truoc) -> vi tri moi duoi /pages/
+/element/chinh-sach-bao-mat.html   /pages/legal_info/chinh-sach-bao-mat.html   301
+/element/dieu-khoan.html           /pages/legal_info/dieu-khoan.html           301
+/element/faq.html                  /pages/legal_info/faq.html                  301
+/element/lich-hoc.html             /pages/features/lich-hoc.html               301
+/element/forum.html                /pages/blog/forum.html                      301
+/element/gop-y.html                /pages/legal_info/gop-y.html                301
+/element/phong-hoc.html            /pages/features/phong-hoc.html              301
+/element/leaderboard.html          /pages/features/leaderboard.html            301
+/element/hubfile.html              /pages/features/hubfile.html                301
+/element/blog.html                 /pages/blog/blog.html                       301
+/element/bai-viet.html             /pages/blog/bai-viet.html                   301
+/element/giaodien.css              /styles/global.css                          301
+/element/AI.html                   /pages/features/AI.html                     301
+/flashcard/hub.html                /pages/flashcard/hub.html                   301
+/flashcard/flash.html              /pages/flashcard/flash.html                 301

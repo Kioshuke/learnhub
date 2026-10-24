@@ -24,7 +24,7 @@ Sau khi deploy, bạn sẽ nhận được URL dạng:
 `https://hubie-proxy.YOUR_SUBDOMAIN.workers.dev`
 
 ## Bước 5: Cập nhật URL vào AI.html
-Mở file `AI.html`, tìm dòng:
+Mở file `pages/features/AI.html`, tìm dòng:
 ```javascript
 const WORKER_URL = "https://hubie-proxy.YOUR_SUBDOMAIN.workers.dev";
 ```

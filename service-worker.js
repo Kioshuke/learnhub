@@ -5,22 +5,22 @@
    - Bỏ qua mọi request cross-origin (Supabase, CDN, YouTube...)
    ============================================================ */
 
-const CACHE_VERSION = "learnhub-v18";
+const CACHE_VERSION = "learnhub-v19";
 
 const CORE_ASSETS = [
   "/",
   "/index.html",
-  "/login.html",
-  "/element/giaodien.css",
-  "/script.js",
-  "/toast.js",
-  "/supabase-config.js",
+  "/pages/auth/login.html",
+  "/styles/global.css",
+  "/scripts/core/script.js",
+  "/scripts/core/toast.js",
+  "/scripts/core/supabase-config.js",
   "/manifest.json",
   "/service-worker.js",
   "/version/version-check.js",
-  "/pictures/favicon.png",
-  "/pictures/icons/icon-192.png",
-  "/pictures/icons/icon-512.png"
+  "/assets/images/favicon.png",
+  "/assets/images/icons/icon-192.png",
+  "/assets/images/icons/icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {

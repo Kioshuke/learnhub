@@ -1,0 +1,614 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Flashcard App</title>
+<link rel="stylesheet" href="../../styles/global.css">
+<link rel="stylesheet" href="../../styles/flash.css?v=6">
+<script src="../../version/version-check.js" defer></script>
+<script src="../../scripts/core/toast.js"></script>
+</head>
+
+<body>
+<div id="loadPopup" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,0.55);backdrop-filter:blur(20px);transition:opacity .4s ease;">
+  <div style="text-align:center;">
+    <div style="font-size:44px;margin-bottom:12px;animation:lbounce .8s ease-in-out infinite alternate;">⚡</div>
+    <p style="color:#f1f5f9;font-size:17px;font-weight:700;margin:0 0 4px;">Đang tải bộ từ vựng</p>
+    <p style="color:#94a3b8;font-size:13px;margin:0 0 14px;"> Chuẩn bị flashcard cho bạn...</p>
+    <div style="display:flex;gap:6px;justify-content:center;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#3b82f6;animation:dp 1.2s ease-in-out infinite;"></span>
+      <span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;animation:dp 1.2s ease-in-out .15s infinite;"></span>
+      <span style="width:8px;height:8px;border-radius:50%;background:#ec4899;animation:dp 1.2s ease-in-out .3s infinite;"></span>
+    </div>
+  </div>
+</div>
+<!-- TOPBAR -->
+<header id="appTopbar" class="app-topbar">
+  <div class="topbar-title">LearnHub<span class="tt-sub"> Flashcard</span></div>
+  <div id="menu">
+    <button data-mode="flashcard" class="active-nav" onclick="switchMode('flashcard')">Flashcard</button>
+    <button data-mode="match" onclick="switchMode('match')">Ghép đôi</button>
+    <button data-mode="blast" onclick="switchMode('blast')">Quiz nhanh</button>
+    <button data-mode="fillblank" onclick="switchMode('fillblank')">Điền từ</button>
+    <button data-mode="defender" onclick="switchMode('defender')">Phòng thủ</button>
+    <button data-mode="wordsearch" onclick="switchMode('wordsearch')">Giải ô chữ</button>
+  </div>
+</header>
+<button id="settingsBtn" onclick="openSettings()" title="Cài đặt"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></button>
+<!-- NÚT VỀ HUB -->
+<button id="backToHubBtn" type="button" onclick="goBackToHub()" title="Về Hub">
+  <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true"><path d="M12 2 2 10h3v10h5v-6h4v6h5V10h3z"/></svg>
+  <span class="back-label">Về Hub</span>
+</button>
+<!-- KHUNG GHI CHÚ -->
+<div id="fcNote" class="fc-note">
+  <div class="fc-note-title">📌 Ghi chú</div>
+  <div class="fc-note-line">← Chưa thuộc</div>
+  <div class="fc-note-line">␣ Space lật thẻ</div>
+  <div class="fc-note-line">Enter để đọc</div>
+  <div class="fc-note-line">Đã thuộc →</div>
+</div>
+<div id="intro-screen">
+    <h1>LearnHub Flashcard</h1>
+    <button onclick="enterApp()">Tham gia</button>
+</div>
+<!-- PROGRESS -->
+<div id="topicBanner">Chủ đề đang học: <span id="topicName">Đang tải...</span></div>
+<div id="progressContainer">
+  <div id="progressText">0 / 0</div>
+  <div id="progressOuter">
+    <div id="progressInner"></div>
+  </div>
+</div>
+
+<!-- FLASHCARD -->
+<div id="flashcard" class="mode active">
+  <div class="flash-wrapper">
+    <button class="nav-arrow nav-arrow-left" onclick="markCardAsUnknown()">← Chưa thuộc <span class="nav-badge" id="fcUnknownCount">0</span></button>
+
+    <div class="flashcard" onclick="flipCard()">
+      <div class="flash-inner">
+        <div class="flash-front">
+           <span id="front">Loading...</span>
+           <div class="speaker-icon" onclick="event.stopPropagation(); speak(document.getElementById('front').innerText)">🔊</div>
+           <div class="dict-icon" onclick="event.stopPropagation(); openDictionary(document.getElementById('front').innerText)" title="Tra Cambridge">📖</div>
+        </div>
+        
+        <div class="flash-back" id="back">...</div>
+      </div>
+    </div>
+
+    <button id="fcRightBtn" class="nav-arrow nav-arrow-right" onclick="fcRightAction()">Đã thuộc → <span class="nav-badge" id="fcKnownCount">0</span></button>
+  </div>
+  <div id="fcReviewIndicator" class="fc-review-indicator" style="display:none;">🔄 Đang ôn tập từ chưa thuộc</div>
+</div>
+<!-- MATCH -->
+<div id="match" class="mode">
+    <div id="match-start-screen" class="game-start-screen">
+        <div class="game-start-card">
+            <h2>Ghép Thẻ</h2>
+            <p>Ghép đúng từ và nghĩa để mở khóa từng mẻ câu hỏi. Tốc độ nhanh, phản xạ tốt là thắng lớn.</p>
+            <button onclick="startMatchGame()">Bắt đầu trận ghép</button>
+        </div>
+    </div>
+
+    <div id="match-content" class="game-shell" style="display: none;">
+        <div id="match-bg" class="match-bg"></div>
+        <div id="matchGrid" class="match-grid"></div>
+    </div>
+</div>
+
+<!-- BLAST -->
+<div id="blast" class="mode">
+  <div id="blast-start-screen" class="game-start-screen">
+    <div class="game-start-card">
+      <h2>Quiz nhanh</h2>
+      <p>Chọn đáp án đúng liên tục để giữ chuỗi streak. Càng đúng liên tiếp càng bùng nổ điểm số.</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#f8fafc;border-radius:14px;margin-bottom:16px;border:1px solid #e2e8f0;">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#1e293b;">💀 Hardcore</div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px;">Sai = mất streak + làm lại từ đầu</div>
+        </div>
+        <label class="toggle-switch" style="margin:0;">
+          <input type="checkbox" id="hardcore-toggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <button onclick="startBlastGame()">Bắt đầu Quiz</button>
+    </div>
+  </div>
+  <div id="blast-content" style="display: none; width: 100%;">
+    <div class="blast-box">
+      <div class="question" id="question">Question</div>
+      <div class="options" id="options"></div>
+      <div id="score">Score: 0</div>
+    </div>
+  </div>
+</div>
+
+<!-- FILL IN THE BLANK -->
+<div id="fillblank" class="mode">
+  <div id="fillblank-start-screen" class="game-start-screen">
+    <div class="game-start-card">
+      <h2>Điền từ</h2>
+      <p>Nhìn nghĩa tiếng Việt và nhập từ tiếng Anh tương ứng. Luyện tập khả năng nhớ và phản xạ từ vựng.</p>
+      <button onclick="startFillBlankGame()">Bắt đầu điền từ</button>
+    </div>
+  </div>
+  <div id="fillblank-content" class="game-shell" style="display: none;">
+    <div class="blast-box" style="align-items: center; text-align: center; gap: 12px;">
+      <div style="display: flex; justify-content: flex-end; align-items: center; width: 100%; padding: 0 10px;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="font-size: 13px; font-weight: 600; color: #475569;">Gợi ý:</span>
+          <button id="hintToggle" onclick="toggleHint()" style="padding: 8px 14px; font-size: 13px; background: linear-gradient(135deg, #2563eb, #1d4ed8);">Bật</button>
+        </div>
+      </div>
+      <div class="question" id="fillQuestion" style="margin: 8px 0;">Question</div>
+      <div id="fillSlotsContainer" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 2px; padding: 12px 0; min-height: 52px;"></div>
+      <div id="hintDisplay" style="font-size: 16px; font-weight: 700; color: #6366f1; min-height: 22px;"></div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 6px;">* Nhập đúng chính tả tiếng Anh (không phân biệt hoa thường)</div>
+      <button onclick="checkFillAnswer()" style="margin-top: 8px; padding: 12px 28px; font-size: 16px;">Kiểm tra</button>
+      <div id="fillFeedback" style="margin-top: 10px; font-size: 15px; font-weight: 700; min-height: 22px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TRO4 -->
+<div id="defender" class="mode">
+    <div id="defender-start-screen" class="game-start-screen">
+        <div class="game-start-card">
+            <h2>Chiến Thần Vũ Trụ</h2>
+            <p>Bắn đúng đáp án để hạ quái vật và giữ căn cứ. Mất 3 tim là thua, giữ bình tĩnh để sống sót.</p>
+            <button onclick="startDefenderGame()">Bắt đầu phòng thủ</button>
+        </div>
+    </div>
+    <div id="battle-container" style="display: none;">
+        <div class="starfield-layer">
+            <span class="star s1"></span><span class="star s2"></span><span class="star s3"></span>
+            <span class="star s4"></span><span class="star s5"></span><span class="star s6"></span>
+            <span class="star s7"></span><span class="star s8"></span><span class="star s9"></span>
+            <span class="star s10"></span><span class="star s11"></span><span class="star s12"></span>
+        </div>
+        <div class="defender-nebula n1"></div>
+        <div class="defender-nebula n2"></div>
+        <div class="defender-nebula n3"></div>
+        <div class="planet p1">🪐</div>
+        <div class="planet p2">🌕</div>
+        <div class="planet p3">🌌</div>
+
+        <div class="defender-header">
+            <div class="def-progress-container">
+                <div id="def-progress-inner"></div>
+                <span id="def-progress-text">Sóng dữ: 0/0</span>
+            </div>
+            <div id="hp-text-top">❤️❤️❤️</div>
+        </div>
+
+        <div id="enemy-area"></div>
+        
+        <div id="player-zone">
+            <div id="cannon">🚀</div>
+        </div>
+
+        <div id="ammo-shelf"></div>
+
+        <div id="pause-overlay" class="game-overlay" style="display:none;">
+            <div class="pause-box">
+                <h2>TẠM DỪNG</h2>
+                <button onclick="resumeGame()">Tiếp tục chiến!</button>
+            </div>
+        </div>
+
+        <div id="game-over-popup" class="game-over-overlay" style="display:none;">
+            <div class="game-over-box">
+                <div class="broken-ship">💥🚀🔥</div>
+                <h2>GAME OVER</h2>
+                <p>Căn cứ đã thất thủ! Thử lại nha mă!</p>
+                <button onclick="restartDefenderGame()">Học lại phục thù!</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- WORD SEARCH - GIẢI Ô CHỮ -->
+<div id="wordsearch" class="mode">
+    <div id="wordsearch-start-screen" class="game-start-screen">
+        <div class="game-start-card">
+            <h2>Giải Ô Chữ</h2>
+            <p>Kéo chuột từ chữ cái đầu đến chữ cái cuối để tìm từ tiếng Anh ẩn trong ma trận. Đúng → ô xanh + hiện nghĩa, sai → đỏ. Chia theo đợt như Ghép đôi.</p>
+            <div class="ws-levels">
+                <button data-ws-level="3" class="ws-level-btn active" onclick="pickWordSearchLevel(3)">Nhỏ · 3 từ</button>
+                <button data-ws-level="6" class="ws-level-btn" onclick="pickWordSearchLevel(6)">Vừa · 6 từ</button>
+                <button data-ws-level="9" class="ws-level-btn" onclick="pickWordSearchLevel(9)">Nhiều · 9 từ</button>
+            </div>
+            <div id="wsLevelHint" class="ws-level-hint"></div>
+            <button class="ws-start-btn" onclick="startWordSearchGame()">Bắt đầu giải ô chữ</button>
+        </div>
+    </div>
+
+    <div id="wordsearch-content" class="game-shell" style="display: none;">
+        <div class="ws-layout">
+            <div class="ws-panel">
+                <div id="wsGrid" class="ws-grid"></div>
+                <div id="wsBatchBanner" class="ws-batch-banner" style="display:none;"></div>
+            </div>
+            <div class="ws-side">
+                <div class="ws-side-title">🗂️ Đợt <span id="wsBatchCount">1</span></div>
+                <div id="wsWordList" class="ws-word-list"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DICTIONARY POPUP -->
+<div id="dictPopup" class="popup" onclick="closeDictPopup(event)">
+  <div class="popup-box dict-popup-box" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <h2 style="margin:0;font-size:22px;">
+        <span id="dictWordDisplay" style="color:#1d4ed8;"></span>
+      </h2>
+      <button onclick="closeDictPopup()" style="width:36px;height:36px;border:none;background:#ef4444;color:#fff;border-radius:8px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div id="dictContent" style="max-height:50vh;overflow-y:auto;text-align:left;padding:12px;background:#f8fafc;border-radius:12px;font-size:15px;line-height:1.6;color:#334155;min-height:80px;">
+      <div style="text-align:center;padding:30px 0;color:#94a3b8;">🔍 Đang tra từ...</div>
+    </div>
+    <a id="dictDirectLink" href="#" target="_blank" style="display:block;margin-top:10px;padding:12px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-radius:12px;text-align:center;font-weight:700;text-decoration:none;font-size:15px;">📖 Xem đầy đủ trên Cambridge Dictionary →</a>
+  </div>
+</div>
+
+<!-- POPUP -->
+<div id="popup" class="popup">
+  <div class="popup-box">
+   <div class="celebrate-icon">🎉</div>
+   <h2>Hoàn thành!</h2>
+   <p>Bạn đã bùng nổ, chinh phục tất cả từ của chủ đề này! 🎯</p>
+   <button onclick="restartGame()">Học lại nha!</button>
+</div>
+  <div class="confetti-container" id="confettiContainer"></div>
+</div>
+<!-- SCRIPT -->
+<script>
+function formatTopicNameFromDataFile(dataFile) {
+    const clean = (dataFile || "data.js")
+        .split("/")
+        .pop()
+        .replace(".js", "")
+        .replace(/[_-]+/g, " ")
+        .trim();
+
+    if (!clean || clean.toLowerCase() === "data") return "Bộ từ vựng mặc định";
+    return clean.replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function resolveTopicName(dataFile) {
+    // Ưu tiên tên được khai báo trong file data (global).
+    const globalTopicName = window.TOPIC_NAME || window.topicName || window.topic_title;
+    if (typeof globalTopicName === "string" && globalTopicName.trim()) {
+        return globalTopicName.trim();
+    }
+    // Fallback theo tên file data.
+    return formatTopicNameFromDataFile(dataFile);
+}
+
+function setTopicNameLabel(topicName) {
+    const topicEl = document.getElementById("topicName");
+    if (topicEl) topicEl.textContent = topicName || "Bộ từ vựng mặc định";
+}
+
+function enterApp() {
+    const intro = document.getElementById("intro-screen");
+    if (!intro || intro.style.display === "none") return;
+
+    intro.style.opacity = "0";
+    intro.style.pointerEvents = "none";
+
+    setTimeout(() => {
+        intro.style.display = "none";
+    }, 500);
+}
+
+// Auto-skip intro screen if opened from hub (has data param)
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("data") || params.get("set")) {
+        const intro = document.getElementById("intro-screen");
+        if (intro) {
+            intro.style.display = "none";
+        }
+    }
+})();
+
+function hideLoadPopup() {
+    const p = document.getElementById("loadPopup");
+    if (!p) return;
+    p.style.opacity = "0";
+    setTimeout(() => p.remove(), 400);
+}
+
+function loadDataScript() {
+    const params = new URLSearchParams(window.location.search);
+    const dataFile = params.get("data") || "data.js"; 
+    // Hiển thị tạm theo tên file trước khi data script load xong.
+    setTopicNameLabel(formatTopicNameFromDataFile(dataFile));
+
+    const script = document.createElement("script");
+    script.src = dataFile;
+
+    script.onload = () => {
+        // Sau khi data script load, ưu tiên tên khai báo trong chính file data.
+        setTopicNameLabel(resolveTopicName(dataFile));
+
+        const gameScript = document.createElement("script");
+        gameScript.src = "../../scripts/features/game.js?v=11";
+
+        gameScript.onload = () => {
+            if (typeof setTotal === 'function') {
+                setTotal();
+            }
+            hideLoadPopup();
+        };
+
+        gameScript.onerror = () => {
+            hideLoadPopup();
+            lhToast("Không tải được game.js", 'error');
+        };
+
+        document.body.appendChild(gameScript);
+    };
+
+    script.onerror = () => {
+        hideLoadPopup();
+        lhToast("Không tải được dữ liệu: " + dataFile, 'error');
+    };
+
+    document.body.appendChild(script);
+}
+
+// Nếu mở theo ?set=<id> (bộ từ lưu trên DB), chờ module supabase sẵn sàng rồi lấy dữ liệu.
+// Ngược lại thì load file JS tĩnh như cũ.
+function startLoad() {
+    const params = new URLSearchParams(window.location.search);
+    const setId = params.get("set");
+    if (setId) {
+        setTopicNameLabel(formatTopicNameFromDataFile("set_" + setId));
+        if (window.__fcLoadSet) { window.__fcLoadSet(setId); return; }
+        // [FIX BUG #16] Giới hạn số lần chờ để tránh setInterval chạy vô hạn nếu
+        // __fcLoadSet không bao giờ xuất hiện (script lỗi/không tải được).
+        let tries = 0;
+        const MAX_TRIES = 150; // ~15s
+        const wait = setInterval(() => {
+            tries++;
+            if (window.__fcLoadSet) {
+                clearInterval(wait);
+                window.__fcLoadSet(setId);
+            } else if (tries >= MAX_TRIES) {
+                clearInterval(wait);
+                hideLoadPopup();
+                if (typeof lhToast === 'function') lhToast("Không tải được bộ flashcard. Vui lòng thử lại.", 'error');
+            }
+        }, 100);
+        return;
+    }
+    loadDataScript();
+}
+
+startLoad();
+
+// Settings management
+const settingsModal = document.createElement("div");
+settingsModal.id = "settingsModal";
+settingsModal.className = "settings-modal";
+settingsModal.innerHTML = `
+  <div class="settings-box">
+    <div class="settings-header">
+      <h3>Cài đặt</h3>
+      <button id="settingsClose" class="settings-close" type="button">✕</button>
+    </div>
+    <div class="settings-content">
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Nhạc nền</div>
+          <div class="setting-desc">Điều chỉnh âm lượng nhạc nền</div>
+        </div>
+        <input type="range" id="bgmVolume" min="0" max="1" step="0.1" value="1" style="width: 120px; accent-color: #2563eb;">
+      </div>
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Hiệu ứng âm thanh</div>
+          <div class="setting-desc">Điều chỉnh âm lượng hiệu ứng</div>
+        </div>
+        <input type="range" id="sfxVolume" min="0" max="1" step="0.1" value="0.5" style="width: 120px; accent-color: #2563eb;">
+      </div>
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Giọng đọc</div>
+          <div class="setting-desc">Điều chỉnh âm lượng giọng đọc từ</div>
+        </div>
+        <input type="range" id="speechVolume" min="0" max="1" step="0.1" value="1" style="width: 120px; accent-color: #2563eb;">
+      </div>
+    </div>
+  </div>
+`;
+document.body.appendChild(settingsModal);
+
+// Load settings from localStorage
+function loadSettings() {
+  const saved = localStorage.getItem("learnhubSettings");
+  if (saved) {
+    try {
+      const settings = JSON.parse(saved);
+      document.getElementById("bgmVolume").value = settings.bgmVolume ?? 1;
+      document.getElementById("sfxVolume").value = settings.sfxVolume ?? 0.5;
+      document.getElementById("speechVolume").value = settings.speechVolume ?? 1;
+    } catch (e) {
+      // [FIX BUG #14] Bỏ qua settings hỏng
+    }
+  }
+}
+
+// Save settings to localStorage
+function saveSettings() {
+  const settings = {
+    bgmEnabled: parseFloat(document.getElementById("bgmVolume").value) > 0,
+    bgmVolume: parseFloat(document.getElementById("bgmVolume").value),
+    sfxEnabled: parseFloat(document.getElementById("sfxVolume").value) > 0,
+    sfxVolume: parseFloat(document.getElementById("sfxVolume").value),
+    speechEnabled: parseFloat(document.getElementById("speechVolume").value) > 0,
+    speechVolume: parseFloat(document.getElementById("speechVolume").value)
+  };
+  localStorage.setItem("learnhubSettings", JSON.stringify(settings));
+}
+
+// Open settings modal
+function openSettings() {
+  settingsModal.classList.add("show");
+}
+
+// Settings modal controls
+document.getElementById("settingsClose").addEventListener("click", () => {
+  settingsModal.classList.remove("show");
+});
+
+settingsModal.addEventListener("click", (e) => {
+  if (e.target === settingsModal) {
+    settingsModal.classList.remove("show");
+  }
+});
+
+// Save settings when sliders change
+document.getElementById("bgmVolume").addEventListener("input", () => {
+  saveSettings();
+  if (typeof reloadGameSettings === 'function') reloadGameSettings();
+  if (typeof applyBGMSetting === 'function') applyBGMSetting();
+  // Demo BGM
+  if (typeof bgmDemo !== 'undefined') bgmDemo();
+});
+document.getElementById("sfxVolume").addEventListener("input", () => {
+  saveSettings();
+  if (typeof reloadGameSettings === 'function') reloadGameSettings();
+  // Demo SFX
+  if (typeof soundclick !== 'undefined' && typeof playSound === 'function' && settings.sfxVolume > 0) {
+    playSound(soundclick);
+  }
+});
+document.getElementById("speechVolume").addEventListener("input", () => {
+  saveSettings();
+  if (typeof reloadGameSettings === 'function') reloadGameSettings();
+  // Demo Speech
+  if (typeof speak === 'function' && settings.speechVolume > 0) {
+    speak('Hello');
+  }
+});
+
+// Load settings on page load
+loadSettings();
+
+function openDictionary(word) {
+  const cleanWord = word.trim().split(/\s+/)[0].toLowerCase();
+  if (!cleanWord) return;
+  const url = `https://dictionary.cambridge.org/vi/dictionary/english/${encodeURIComponent(cleanWord)}`;
+  document.getElementById('dictWordDisplay').textContent = cleanWord;
+  document.getElementById('dictDirectLink').href = url;
+  document.getElementById('dictContent').innerHTML = '<div style="text-align:center;padding:30px 0;color:#94a3b8;">🔍 Đang tra từ...</div>';
+  document.getElementById('dictPopup').classList.add('show');
+  fetchDictInfo(cleanWord);
+}
+
+function closeDictPopup(e) {
+  if (e && e.target !== document.getElementById('dictPopup')) return;
+  document.getElementById('dictPopup').classList.remove('show');
+}
+
+async function fetchDictInfo(word) {
+  const el = document.getElementById('dictContent');
+  try {
+    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+    if (!res.ok) throw new Error('Not found');
+    const data = await res.json();
+    const entry = data[0];
+    let html = '';
+    // [FIX BUG #34] Escape dữ liệu trả về từ API từ điển trước khi gán innerHTML
+    const esc = (s)=>(s||"").replace(/[<>&"']/g,c=>({"<": "&lt;",">": "&gt;","&": "&amp;","\"": "&quot;","'": "&#039;"})[c]);
+    if (entry.phonetic) {
+      html += `<div style="margin-bottom:12px;"><span style="font-weight:700;color:#475569;font-size:13px;">🔤 Phiên âm:</span> <span style="color:#6366f1;font-size:16px;">/${esc(entry.phonetic)}/</span></div>`;
+    }
+    entry.meanings.slice(0, 3).forEach(m => {
+      html += `<div style="margin-bottom:14px;"><span style="display:inline-block;background:#eef2ff;color:#4f46e5;padding:2px 10px;border-radius:6px;font-size:12px;font-weight:700;text-transform:uppercase;">${esc(m.partOfSpeech||"")}</span>`;
+      m.definitions.slice(0, 2).forEach(d => {
+        html += `<div style="margin-top:8px;padding-left:10px;border-left:3px solid #6366f1;">
+          <div><span style="font-weight:700;color:#475569;font-size:13px;">📖 Định nghĩa:</span> <span style="color:#1e293b;">${esc(d.definition||"")}</span></div>`;
+        if (d.example) html += `<div style="color:#64748b;font-size:13px;margin-top:4px;"><span style="font-weight:700;color:#475569;">✏️ Ví dụ:</span> <span style="font-style:italic;">${esc(d.example||"")}</span></div>`;
+        html += `</div>`;
+      });
+      html += `</div>`;
+    });
+    el.innerHTML = html;
+  } catch {
+    const esc2 = (s)=>(s||"").replace(/[<>&"']/g,c=>({"<": "&lt;",">": "&gt;","&": "&amp;","\"": "&quot;","'": "&#039;"})[c]);
+    el.innerHTML = `<div style="text-align:center;padding:20px 0;">
+      <div style="font-size:40px;margin-bottom:10px;">🤷</div>
+      <div style="font-weight:700;color:#64748b;">Không tìm thấy từ "${esc2(word)}"</div>
+      <div style="font-size:13px;color:#94a3b8;margin-top:4px;">Bấm nút bên dưới để tra trên Cambridge</div>
+    </div>`;
+  }
+}
+</script>
+<script>
+window.learnHubUser = null;
+window.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'LEARNHUB_USER') {
+    window.learnHubUser = event.data.user;
+  }
+  if (event.data && event.data.type === 'DARK_MODE') {
+    if (event.data.value) document.body.classList.add('dark-mode');
+    else document.body.classList.remove('dark-mode');
+  }
+});
+if (localStorage.getItem("darkMode") === "on") {
+  document.body.classList.add("dark-mode");
+}
+</script>
+
+<script type="module">
+  import { supabase } from "../../scripts/core/supabase-config.js";
+
+  // Load bộ từ từ Supabase theo ?set=<id>, gán dữ liệu cho engine cũ rồi nạp game.js.
+  // Ai cũng đọc được (RPC cấp quyền anon, authenticated); sửa/thêm chỉ Giáo viên qua RPC.
+  window.__fcLoadSet = async function(setId) {
+    try {
+      const { data, error } = await supabase.rpc("get_flashcard_set", { p_set_id: setId });
+      if (error) throw error;
+      if (!data || !data.length) throw new Error("Bộ từ không tồn tại");
+      const s = data[0];
+      window.TOPIC_NAME = s.name || "Bộ từ vựng";
+      const raw = Array.isArray(s.cards) ? s.cards : [];
+      window.cards = raw.map((c, i) => ({
+        id: i + 1,
+        front: c.front,
+        back: c.back,
+        ...(c.example ? { example: c.example } : {}),
+        ...(c.description ? { description: c.description } : {}),
+        ...(c.level ? { level: c.level } : {})
+      }));
+      setTopicNameLabel(window.TOPIC_NAME);
+
+      const gameScript = document.createElement("script");
+      gameScript.src = "../../scripts/features/game.js?v=11";
+      gameScript.onload = () => {
+        if (typeof setTotal === 'function') setTotal();
+        hideLoadPopup();
+      };
+      gameScript.onerror = () => {
+        hideLoadPopup();
+        lhToast("Không tải được game.js", 'error');
+      };
+      setTimeout(() => document.body.appendChild(gameScript), 0);
+    } catch (e) {
+      console.error("get_flashcard_set lỗi:", e);
+      hideLoadPopup();
+      lhToast("Không tải được bộ từ: " + (e.message || e), 'error');
+    }
+  };
+</script>
+</body>
+</html>

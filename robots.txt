@@ -1,15 +1,13 @@
 User-agent: *
 Allow: /
-Disallow: /administrator.html
+Disallow: /pages/admin/
 Disallow: /maintenance.html
-Disallow: /admin
-Disallow: /teacher/
+Disallow: /pages/teacher/
 Disallow: /worker/
 Disallow: /supabase/
 Disallow: /version/
-Disallow: /footer.html
-Disallow: /header.html
+Disallow: /components/
 Disallow: /404.html
-Disallow: /element/leaderboard.html
+Disallow: /pages/features/leaderboard.html
 
 Sitemap: https://learnhubpf.pages.dev/sitemap.xml

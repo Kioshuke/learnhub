@@ -29,7 +29,7 @@ window.LH_VERSION = "1.26.10.1"; // ← release.bat tự thay giá trị này, K
   var RESHOW_IDLE_MS = 60 * 1000;        // không bấm gì → 1 phút sau nhắc lại
   var SNOOZE_MS = 15 * 60 * 1000;        // bấm "Để sau" → 15 phút sau mới nhắc lại
   var DISMISS_KEY = "lh_version_dismissed"; // lưu timestamp lần bấm "Để sau"
-  var SOUND_REL = "../sound/version notification.mp3"; // so với thư mục version/ → phát khi toast hiện
+  var SOUND_REL = "../assets/sounds/version notification.mp3"; // so với thư mục version/ → phát khi toast hiện
 
   var bannerEl = null;
   var shownVersion = null;

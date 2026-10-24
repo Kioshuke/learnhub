@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Hệ thống đang bảo trì — LearnHub</title>
-<link rel="icon" href="pictures/favicon.png" sizes="any">
+<link rel="icon" href="assets/images/favicon.png" sizes="any">
 
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="element/giaodien.css">
+<link rel="stylesheet" href="styles/global.css">
 <style>
   @keyframes maintenanceSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
   @keyframes maintenanceSpinReverse{0%{transform:rotate(360deg)}100%{transform:rotate(0deg)}}
@@ -159,7 +159,7 @@
   </div>
 
   <script type="module">
-  import { subscribeMaintenance, logAppError } from "./supabase-config.js";
+  import { subscribeMaintenance, logAppError } from "./scripts/core/supabase-config.js";
   window.logAppError = logAppError;
 
   try{
@@ -172,7 +172,7 @@
       if(statusEl) statusEl.textContent = message ? message : 'Đang cập nhật...';
       if(!enabled){
         console.log("[MAINTENANCE PAGE] Maintenance disabled, redirecting to login.html");
-        try { window.location.replace('login.html'); } catch(e){ window.location.href = 'login.html'; }
+        try { window.location.replace('/pages/auth/login.html'); } catch(e){ window.location.href = '/pages/auth/login.html'; }
       } else {
         console.log("[MAINTENANCE PAGE] Maintenance still enabled, staying on maintenance page");
       }

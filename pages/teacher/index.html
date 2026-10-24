@@ -1,0 +1,2257 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearnHub - Giáo viên</title>
+  <link rel="icon" href="../../assets/images/favicon.png" sizes="any">
+  <link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/favicon.png">
+  <link rel="apple-touch-icon" href="../../assets/images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../styles/global.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #f8fafc;
+      color: #111827;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+
+    /* ===== CONTENT WRAPPER ===== */
+    .teacher-app .tc-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 36px 64px;
+      width: 100%;
+    }
+
+    /* ===== HOME VIEW: 12-COL GRID ===== */
+    .teacher-app #tcHomeView {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ===== WELCOME BANNER (full width) ===== */
+    .teacher-app #tcHomeView .tc-hero {
+      grid-column: 1 / -1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 28px 32px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #2563eb 0%, #3b82f6 45%, #4f46e5 100%);
+      color: #fff;
+      overflow: hidden;
+      isolation: isolate;
+      box-shadow: 0 12px 30px rgba(37,99,235,0.16);
+    }
+    .teacher-app #tcHomeView .tc-hero::before {
+      content: '';
+      position: absolute;
+      right: -40px;
+      bottom: -60px;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.10);
+      box-shadow: 0 0 0 60px rgba(255,255,255,0.05);
+      z-index: -1;
+    }
+    .teacher-app #tcHomeView .tc-hero::after {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: -50px;
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+      z-index: -1;
+    }
+    .teacher-app #tcHomeView .tc-hero .tc-hero-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.18);
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .teacher-app #tcHomeView .tc-hero h2 {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+      color: #fff;
+    }
+    .teacher-app #tcHomeView .tc-hero p {
+      margin-top: 6px;
+      font-size: 13.5px;
+      color: #dbeafe;
+      line-height: 1.6;
+      max-width: 460px;
+    }
+
+    /* ===== STATS ROW (3 horizontal cards, full width) ===== */
+    .teacher-app #tcHomeView .tc-stats {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .teacher-app #tcHomeView .tc-stat {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: #fff;
+      border: 1px solid #f3f4f6;
+      border-radius: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .teacher-app #tcHomeView .tc-stat:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      transform: translateY(-1px);
+    }
+    .teacher-app #tcHomeView .tc-stat .tc-stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 17px;
+      padding: 12px;
+      flex-shrink: 0;
+    }
+    .teacher-app #tcHomeView .tc-stat .tc-stat-icon.icon-blue { background: #dbeafe !important; color: #2563eb !important; }
+    .teacher-app #tcHomeView .tc-stat .tc-stat-icon.icon-green { background: #d1fae5 !important; color: #059669 !important; }
+    .teacher-app #tcHomeView .tc-stat .tc-stat-icon.icon-amber { background: #fef3c7 !important; color: #d97706 !important; }
+    .teacher-app #tcHomeView .tc-stat .tc-stat-num {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+      color: #111827;
+      letter-spacing: -0.5px;
+    }
+    .teacher-app #tcHomeView .tc-stat .tc-stat-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    /* ===== FEATURE / TOOL CARDS ===== */
+    .teacher-app #tcHomeView .tc-feature-grid {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .teacher-app #tcHomeView .tc-feature {
+      padding: 24px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: box-shadow 0.2s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .teacher-app #tcHomeView .tc-feature[data-ready="1"] {
+      cursor: pointer;
+    }
+    .teacher-app #tcHomeView .tc-feature[data-ready="1"]:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      transform: translateY(-3px);
+    }
+    .teacher-app #tcHomeView .tc-feature[data-ready="0"] {
+      opacity: 0.75;
+      cursor: default;
+    }
+    .teacher-app #tcHomeView .tc-feature.tint-blue { background: #eff6ff; border-color: #dbeafe; }
+    .teacher-app #tcHomeView .tc-feature.tint-blue:hover { background: #dbeafe; border-color: #bfdbfe; }
+    .teacher-app #tcHomeView .tc-feature.tint-green { background: #ecfdf5; border-color: #d1fae5; }
+    .teacher-app #tcHomeView .tc-feature.tint-green:hover { background: #d1fae5; border-color: #a7f3d0; }
+    .teacher-app #tcHomeView .tc-feature.tint-amber { background: #fffbeb; border-color: #fef3c7; }
+    .teacher-app #tcHomeView .tc-feature.tint-amber:hover { background: #fef3c7; border-color: #fde68a; }
+    .teacher-app #tcHomeView .tc-feature.tint-violet { background: #f5f3ff; border-color: #ede9fe; }
+    .teacher-app #tcHomeView .tc-feature.tint-violet:hover { background: #ede9fe; border-color: #ddd6fe; }
+    .teacher-app #tcHomeView .tc-feature.tint-cyan { background: #ecfeff; border-color: #cffafe; }
+    .teacher-app #tcHomeView .tc-feature.tint-cyan:hover { background: #cffafe; border-color: #a5f3fc; }
+    .teacher-app #tcHomeView .tc-feature.tint-slate { background: #f8fafc; border-color: #e2e8f0; }
+    .teacher-app #tcHomeView .tc-feature.tint-slate:hover { background: #f1f5f9; border-color: #cbd5e1; }
+    .soon-badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: #fef3c7;
+      color: #b45309;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+      z-index: 1;
+    }
+    .teacher-app #tcHomeView .tc-feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      margin-bottom: 14px;
+      background: #f1f5f9;
+      color: #64748b;
+    }
+    .tc-feature.tint-blue .tc-feature-icon { background: #fff !important; color: #2563eb !important; }
+    .tc-feature.tint-green .tc-feature-icon { background: #fff !important; color: #059669 !important; }
+    .tc-feature.tint-amber .tc-feature-icon { background: #fff !important; color: #d97706 !important; }
+    .tc-feature.tint-violet .tc-feature-icon { background: #fff !important; color: #7c3aed !important; }
+    .tc-feature.tint-cyan .tc-feature-icon { background: #fff !important; color: #0891b2 !important; }
+    .tc-feature.tint-slate .tc-feature-icon { background: #fff !important; color: #64748b !important; }
+    .teacher-app #tcHomeView .tc-feature-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 6px;
+    }
+    .teacher-app #tcHomeView .tc-feature-desc {
+      font-size: 13px;
+      color: #4b5563;
+      line-height: 1.6;
+      flex: 1;
+    }
+    .teacher-app #tcHomeView .tc-feature-cta {
+      margin-top: 18px;
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      background: #2563eb;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.15s;
+    }
+    .teacher-app #tcHomeView .tc-feature[data-ready="1"]:hover .tc-feature-cta {
+      background: #1d4ed8;
+    }
+    .teacher-app #tcHomeView .tc-feature[data-ready="0"] .tc-feature-cta {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+
+    /* Feature icon colors */
+    .icon-blue { background: #eff6ff !important; color: #2563eb !important; }
+    .icon-green { background: #ecfdf5 !important; color: #10b981 !important; }
+    .icon-amber { background: #fffbeb !important; color: #f59e0b !important; }
+    .icon-violet { background: #f5f3ff !important; color: #8b5cf6 !important; }
+    .icon-cyan { background: #ecfeff !important; color: #0891b2 !important; }
+    .icon-rose { background: #fff1f2 !important; color: #e11d48 !important; }
+
+    /* ===== TOOL SECTION (single grid, no duplication) ===== */
+    .tc-home-section {
+      grid-column: 1 / -1;
+    }
+    .tc-home-section .section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin: 6px 0 16px;
+    }
+    .tc-home-section .section-head h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111827;
+    }
+    .tc-home-section .section-head .muted {
+      font-size: 13px;
+      color: #6b7280;
+      font-weight: 500;
+    }
+    .btn-cta-secondary {
+      background: #f1f5f9;
+      color: #374151;
+    }
+    .btn-cta-secondary:hover { background: #e5e7eb; }
+    .btn-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-cta:hover { background: #1d4ed8; }
+
+    /* ===== GENERIC CARD ===== */
+    .tc-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .tc-section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .tc-section-head h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #111827;
+    }
+    .tc-section-head .muted {
+      color: #4b5563;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    /* ===== VIEW HEADERS ===== */
+    .tc-view-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .tc-view-head h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #111827;
+      letter-spacing: -0.3px;
+    }
+    .tc-view-head .muted {
+      color: #6b7280;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .tc-view-head .back,
+    .tc-detail-head .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 9px 16px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      color: #475569;
+      font-family: inherit;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .tc-view-head .back:hover,
+    .tc-detail-head .back:hover {
+      background: #f1f5f9;
+      border-color: #d1d5db;
+    }
+
+    /* ===== CREATE FORM ===== */
+    .tc-create {
+      background: linear-gradient(135deg, #f0f7ff, #eff6ff);
+      border: 1px solid #dbeafe;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .tc-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 12px;
+    }
+    .tc-form input {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      background: #fff;
+      color: #111827;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .tc-form input::placeholder { color: #9ca3af; }
+    .tc-form input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+    .tc-form select {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      background: #fff;
+      color: #111827;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .tc-form select:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+    .tc-form button,
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-weight: 600;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s;
+      box-shadow: 0 1px 3px rgba(37,99,235,0.2);
+      white-space: nowrap;
+    }
+    .tc-form button:hover,
+    .btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+    }
+    .tc-form button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .hint {
+      font-size: 12.5px;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+
+    /* ===== CLASS GRID ===== */
+    .tc-class-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+    .tc-class-grid > .empty { grid-column: 1 / -1; }
+    .tc-class {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 20px;
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .tc-class::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #3b82f6, #6366f1);
+    }
+    .tc-class:hover {
+      box-shadow: 0 8px 24px rgba(37,99,235,0.1);
+      transform: translateY(-2px);
+    }
+    .tc-class .tc-class-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .tc-class .tc-class-ico {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      background: #eff6ff;
+      color: #2563eb;
+      flex-shrink: 0;
+    }
+    .tc-class .name {
+      font-weight: 700;
+      font-size: 15px;
+      line-height: 1.3;
+      color: #111827;
+    }
+    .tc-class .meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .tc-class .code {
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      background: #eff6ff;
+      color: #1e40af;
+      border-radius: 8px;
+      padding: 3px 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      font-size: 12.5px;
+    }
+    .tc-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 4px 10px;
+    }
+    .tc-chip.pending { background: #fef3c7; color: #b45309; }
+    .tc-chip.members { background: #e0f2fe; color: #0369a1; }
+    .tc-chip.green { background: #d1fae5; color: #047857; }
+
+    /* ===== MEMBER LIST (Detail View) ===== */
+    .tc-mem {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      margin-bottom: 10px;
+      background: #fff;
+      transition: box-shadow 0.15s;
+    }
+    .tc-mem:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .tc-mem .ava {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      color: #1e40af;
+      flex-shrink: 0;
+      font-size: 15px;
+    }
+    .tc-mem .ava img { width: 100%; height: 100%; object-fit: cover; }
+    .tc-mem .info { min-width: 0; flex: 1; }
+    .tc-mem .info .nm { font-weight: 600; font-size: 14px; color: #111827; }
+    .tc-mem .info .em { color: #6b7280; font-size: 12px; word-break: break-all; margin-top: 2px; }
+    .tc-mem .acts {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .btn-sm {
+      border: none;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-weight: 600;
+      font-size: 12.5px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-approve { background: #d1fae5; color: #047857; }
+    .btn-approve:hover { background: #a7f3d0; }
+    .btn-remove { background: #fee2e2; color: #dc2626; }
+    .btn-remove:hover { background: #fecaca; }
+
+    /* ===== EMPTY STATE ===== */
+    .empty {
+      text-align: center;
+      color: #9ca3af;
+      padding: 44px 20px;
+      font-size: 14px;
+    }
+    .empty .big { margin-bottom: 10px; line-height: 1; font-size: 38px; color: #c6d0de; }
+
+    /* ===== FLASHCARD VIEW ===== */
+    .tc-form textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .tc-form textarea:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+
+    /* ===== QUẢN LÝ PHÒNG HỌC / THỜI KHÓA BIỂU ===== */
+    .schedule-week-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 14px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;flex-wrap:wrap}
+    .schedule-week-label{text-align:center;font-weight:800;color:#0f172a;font-size:14px}
+    .schedule-week-label small{display:block;margin-top:2px;color:#64748b;font-size:11px;font-weight:600}
+    .schedule-week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;max-width:100%;overflow:hidden;padding-bottom:6px}
+    .schedule-day-column{min-height:280px;padding:10px;border:1px solid #e2e8f0;border-radius:14px;background:#f8fafc}
+    .schedule-day-column.is-today{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.1)}
+    .schedule-day-column.is-sunday{background:#fff8e5;border-color:#f5c451}
+    .schedule-day-head{display:flex;align-items:center;justify-content:space-between;gap:6px;padding-bottom:9px;margin-bottom:9px;border-bottom:1px solid #e2e8f0}
+    .schedule-day-name{font-size:12px;font-weight:800;color:#0f172a}
+    .schedule-day-date{font-size:11px;color:#64748b;font-weight:600}
+    .schedule-day-add{border:0;background:transparent;color:#2563eb;font-size:18px;font-weight:800;cursor:pointer;line-height:1;padding:0 3px}
+    .schedule-day-empty{padding:18px 4px;text-align:center;color:#94a3b8;font-size:12px}
+    .schedule-event-row{position:relative;display:block;padding:9px;margin-bottom:8px;border:1px solid #e2e8f0;border-left:3px solid #2563eb;border-radius:10px;background:#fff;cursor:pointer}
+    .schedule-event-row.type-thi{border-left-color:#dc2626}
+    .schedule-event-row .se-delete{position:absolute;top:7px;right:7px;width:22px;height:22px;padding:0;border:0;border-radius:6px;background:#fee2e2;color:#dc2626;cursor:pointer;font-weight:800;z-index:2}
+    .admin-schedule-tag{display:inline-block;font-size:10px;font-weight:800;border-radius:999px;padding:3px 7px;background:#dbeafe;color:#2563eb}.admin-schedule-tag.thi{background:#fee2e2;color:#dc2626}
+    .admin-schedule-top{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-right:24px}
+    .admin-schedule-session{flex-shrink:0;display:inline-block;font-size:10px;font-weight:800;border-radius:999px;padding:3px 7px}.admin-schedule-session.morning{background:#fff3c4;color:#b45309}.admin-schedule-session.noon{background:#fee2e2;color:#dc2626}.admin-schedule-session.afternoon{background:#dbeafe;color:#2563eb}.admin-schedule-session.evening{background:#ede9fe;color:#6d28d9}
+    .admin-schedule-subj{margin-left:auto;flex-shrink:0;font-size:10px;font-weight:700;color:#fff;border-radius:999px;padding:3px 7px}
+    .admin-schedule-title{margin:6px 0 3px;font-size:12px;font-weight:800;color:#0f172a}.admin-schedule-time{font-size:11px;color:#64748b}.admin-schedule-note{margin-top:4px;font-size:11px;color:#475569}
+    .schedule-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.56);backdrop-filter:blur(4px)}.schedule-modal.show{display:flex}
+    .schedule-modal-card{width:min(100%,520px);max-height:calc(100vh - 36px);overflow:auto;background:#fff;border-radius:20px;box-shadow:0 24px 70px rgba(15,23,42,.3)}
+    .schedule-modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;color:#fff;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:20px 20px 0 0}.schedule-modal-head h3{margin:0;font-size:18px}.schedule-modal-close{width:32px;height:32px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:22px;cursor:pointer}
+    .schedule-modal-body{padding:18px 20px}.schedule-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.schedule-modal-field label{display:block;margin:0 0 6px;font-size:12px;font-weight:800;color:#475569}.schedule-modal-field.full{grid-column:1/-1}
+    .schedule-modal-field input[type="date"],.schedule-modal-field input[type="time"],.schedule-modal-field input[type="text"],.schedule-modal-field select{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;font-size:13.5px;outline:none;background:#f8fafc;font-family:inherit;transition:border-color .15s}
+    .schedule-modal-field input:focus,.schedule-modal-field select:focus{border-color:#2563eb;background:#fff}
+    .schedule-modal-actions{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid #e2e8f0}
+    @media(max-width:700px){.schedule-week-grid{grid-template-columns:repeat(7,minmax(150px,1fr));overflow-x:auto}.schedule-week-nav .btn-sm{padding:8px 10px;font-size:12px}.schedule-modal-grid{grid-template-columns:1fr}}
+
+    /* ===== NOTICE ICON PICKER ===== */
+    .notice-icon-pick{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+    .notice-icon-opt{display:inline-flex;flex-direction:column;align-items:center;gap:4px;min-width:62px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;cursor:pointer;transition:all .15s;color:#64748b;font-family:inherit;line-height:1}
+    .notice-icon-opt i{font-size:18px;color:#94a3b8}
+    .notice-icon-opt span{font-size:10.5px;font-weight:600;color:#94a3b8}
+    .notice-icon-opt:hover{border-color:#cbd5e1;background:#f8fafc}
+    .notice-icon-opt.active{border-color:#d97706;background:#fffbeb;color:#d97706}
+    .notice-icon-opt.active i,.notice-icon-opt.active span{color:#d97706}
+    .notice-icon-prev{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:#475569;margin-top:10px}
+    .notice-icon-prev .icp-box{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:15px;color:#d97706;background:#fffbeb;border:1px solid #fde68a}
+
+    /* ===== LOGIN / DENIED / LOADING ===== */
+    .tc-login {
+      max-width: 440px;
+      margin: 80px auto;
+      padding: 40px 32px;
+      text-align: center;
+      border-radius: 20px;
+    }
+    .tc-login .icon {
+      font-size: 48px;
+      color: #3b82f6;
+      margin-bottom: 16px;
+    }
+    .tc-login h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #111827;
+    }
+    .tc-login p {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    a.btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #2563eb;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.15s;
+    }
+    a.btn:hover { background: #1d4ed8; }
+
+    /* ===== DETAIL VIEW HEAD ===== */
+    .tc-detail-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+    .tc-detail-head h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .teacher-app .tc-wrap { padding: 28px 24px; }
+    }
+    @media (max-width: 860px) {
+      .teacher-app #tcHomeView .tc-feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 720px) {
+      .teacher-app .tc-wrap { padding: 22px 16px 52px; }
+      .teacher-app #tcHomeView { grid-template-columns: 1fr; }
+      .teacher-app #tcHomeView .tc-hero {
+        grid-column: auto;
+        padding: 26px 24px;
+      }
+      .teacher-app #tcHomeView .tc-hero h2 { font-size: 24px; }
+      .teacher-app #tcHomeView .tc-stats {
+        grid-column: auto;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      .teacher-app #tcHomeView .tc-stats .tc-stat {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px;
+      }
+      .teacher-app #tcHomeView .tc-stats .tc-stat-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+        padding: 9px;
+      }
+      .teacher-app #tcHomeView .tc-stats .tc-stat-num { font-size: 20px; }
+      .teacher-app #tcHomeView .tc-stats .tc-stat-label { font-size: 12px; }
+      .teacher-app #tcHomeView .tc-feature-grid {
+        grid-template-columns: 1fr;
+      }
+      .tc-form { grid-template-columns: 1fr; }
+      .tc-class-grid { grid-template-columns: 1fr; }
+      .tc-view-head { flex-direction: column; align-items: flex-start; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+      }
+    }
+
+    /* ===== TC QUIZ VIEW ===== */
+    .tc-quiz-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .tc-quiz-head h2 {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 18px;
+      margin: 0;
+    }
+    .tc-quiz-head .muted { margin-left: auto; }
+    .tc-quiz-stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: stretch;
+    }
+    .tc-quiz-stat {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      min-width: 96px;
+      padding: 10px 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, .05);
+    }
+    .tc-quiz-stat-num {
+      font-size: 21px;
+      font-weight: 800;
+      line-height: 1;
+      color: #1a73e8;
+    }
+    .tc-quiz-stat.ok .tc-quiz-stat-num { color: #16a34a; }
+    .tc-quiz-stat.warn .tc-quiz-stat-num { color: #d97706; }
+    .tc-quiz-stat-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+    .tc-quiz-list {
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      background: #fff;
+      overflow: auto;
+    }
+    .tc-quiz-table { width: 100%; border-collapse: collapse; min-width: 720px; }
+    .tc-quiz-table th {
+      font-size: 11px; font-weight: 700; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: .04em;
+      text-align: left; padding: 10px 14px; white-space: nowrap;
+      background: #f8fafc; border-bottom: 1px solid #e5e7eb;
+    }
+    .tc-quiz-table td { padding: 11px 14px; font-size: 13px; vertical-align: middle; border-top: 1px solid #f1f5f9; }
+    .tc-quiz-table tbody tr:hover { background: #f8fafc; }
+    .tc-quiz-table .tc-t { font-weight: 700; color: #111827; }
+    .tc-quiz-table .tc-sub { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+    .tc-quiz-table .tc-qz-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .tc-quiz-table .tc-qz-badge {
+      font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+      color: #b45309; background: #fffbeb; border: 1px solid #fde68a; white-space: nowrap;
+    }
+    .tc-quiz-table .tc-qz-badge.danger { color: #b91c1c; background: #fef2f2; border-color: #fecaca; }
+    .tc-quiz-table .tc-qz-badge.info { color: #1d4ed8; background: #eff6ff; border-color: #bfdbfe; }
+    .tc-quiz-table .tc-qz-created { font-size: 12px; color: #64748b; white-space: nowrap; }
+    .tc-quiz-table .tc-qz-nowrap { white-space: nowrap; }
+    .tc-qz-menu-wrap { position: relative; display: inline-block; }
+    .tc-qz-menu-btn {
+      width: 30px; height: 30px;
+      display: inline-grid; place-items: center;
+      border: 1px solid #e5e7eb; border-radius: 8px;
+      background: #fff; color: #64748b; cursor: pointer;
+      transition: all .15s;
+    }
+    .tc-qz-menu-btn:hover { background: #f1f5f9; color: #111827; }
+    .tc-qz-menu {
+      min-width: 210px; padding: 6px;
+      background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, .14);
+      z-index: 300;
+    }
+    .tc-qz-menu-item {
+      display: flex; align-items: center; gap: 9px;
+      width: 100%; padding: 8px 10px;
+      border: none; border-radius: 8px; background: transparent;
+      font: 600 12.5px/1.2 inherit; color: #334155; cursor: pointer; text-align: left;
+    }
+    .tc-qz-menu-item:hover { background: #f1f5f9; }
+    .tc-qz-menu-item.danger { color: #dc2626; }
+    .tc-qz-menu-item.danger:hover { background: #fef2f2; }
+    .tc-qz-switch {
+      position: relative;
+      width: 44px; height: 24px;
+      border-radius: 999px;
+      border: none; padding: 0;
+      cursor: pointer;
+      vertical-align: middle;
+      background: #d97706;
+      transition: background .2s;
+      flex-shrink: 0;
+    }
+    .tc-qz-switch:hover { filter: brightness(1.06); }
+    .tc-qz-switch.on { background: #10b981; }
+    .tc-qz-switch-knob {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,.25);
+      transition: left .2s;
+    }
+    .tc-qz-switch.on .tc-qz-switch-knob { left: 23px; }
+
+    /* ===== STUDENT PROFILE MODAL ===== */
+    .tc-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      animation: tcModalFadeIn 0.2s ease;
+    }
+    .tc-modal-overlay.show {
+      display: flex;
+    }
+    .tc-modal {
+      background: #fff;
+      border-radius: 20px;
+      width: min(480px, 100%);
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.18);
+      animation: tcModalScaleIn 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .tc-modal-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 22px 24px 16px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .tc-modal-ava {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .tc-modal-name {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: #111827;
+    }
+    .tc-modal-email {
+      margin: 2px 0 0;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .tc-modal-close {
+      margin-left: auto;
+      width: 34px;
+      height: 34px;
+      border: none;
+      border-radius: 10px;
+      background: #f1f5f9;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 16px;
+      display: grid;
+      place-items: center;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .tc-modal-close:hover {
+      background: #e2e8f0;
+      color: #111827;
+    }
+    .tc-modal-body {
+      padding: 18px 24px 24px;
+    }
+    .tc-modal-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+    .tc-modal-class-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: #f9fafb;
+      border: 1px solid #f1f5f9;
+      margin-bottom: 8px;
+    }
+    .tc-modal-class-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #eff6ff;
+      color: #2563eb;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .tc-modal-class-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+    }
+    .tc-modal-class-block {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .tc-modal-class-status {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    .tc-modal-class-status.approved {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .tc-modal-class-status.pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .tc-modal-empty {
+      text-align: center;
+      padding: 20px;
+      color: #9ca3af;
+      font-size: 13px;
+    }
+    .tc-mem .nm {
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .tc-mem .nm:hover {
+      color: #2563eb;
+    }
+    @keyframes tcModalFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes tcModalScaleIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div id="tcApp" class="teacher-app" style="display:none">
+    <!-- Sidebar + Topbar được chèn tự động bởi shell.js -->
+
+    <!-- ===== MAIN AREA ===== -->
+    <div class="teacher-canvas">
+      <div class="tc-wrap">
+        <!-- ===== HOME VIEW ===== -->
+        <div id="tcHomeView">
+          <!-- Welcome Banner: 8 cols -->
+          <div class="tc-hero">
+            <div class="tc-hero-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
+            <div>
+              <h2 id="tcWelcomeName">Xin chào!</h2>
+              <p id="tcWelcomeSub">Chào mừng bạn quay lại khu vực Giáo viên.</p>
+            </div>
+          </div>
+
+          <!-- Stats Column: 4 cols, stacked -->
+          <div class="tc-stats">
+            <div class="tc-stat">
+              <div class="tc-stat-icon icon-blue"><i class="fa-solid fa-chalkboard-user"></i></div>
+              <div><div class="tc-stat-num" id="tcStatClasses">0</div><div class="tc-stat-label">Lớp đang quản lý</div></div>
+            </div>
+            <div class="tc-stat">
+              <div class="tc-stat-icon icon-green"><i class="fa-solid fa-users"></i></div>
+              <div><div class="tc-stat-num" id="tcStatMembers">0</div><div class="tc-stat-label">Học sinh trong lớp</div></div>
+            </div>
+            <div class="tc-stat">
+              <div class="tc-stat-icon icon-amber"><i class="fa-solid fa-clock"></i></div>
+              <div><div class="tc-stat-num" id="tcStatPending">0</div><div class="tc-stat-label">Yêu cầu chờ duyệt</div></div>
+            </div>
+          </div>
+
+          <!-- Feature Cards: single unified grid, no duplication -->
+          <section class="tc-home-section" aria-labelledby="tcToolsTitle">
+            <div class="section-head">
+              <h2 id="tcToolsTitle">Công cụ dạy học</h2>
+              <span class="muted">Mọi thứ bạn cần để quản lý lớp và nội dung</span>
+            </div>
+            <div class="tc-feature-grid">
+              <div class="tc-feature tint-blue" onclick="tcOpenManage()" data-ready="1">
+                <div class="tc-feature-icon icon-blue"><i class="fa-solid fa-chalkboard-user"></i></div>
+                <div class="tc-feature-title">Quản lý lớp học</div>
+                <div class="tc-feature-desc">Tạo lớp, chia sẻ mã mời, duyệt thành viên.</div>
+                <div class="tc-feature-cta">Mở <i class="fa-solid fa-arrow-right"></i></div>
+              </div>
+              <div class="tc-feature tint-cyan" onclick="tcOpenRoomVideos()" data-ready="1">
+                <div class="tc-feature-icon icon-cyan"><i class="fa-solid fa-door-open"></i></div>
+                <div class="tc-feature-title">Quản lý Phòng học</div>
+                <div class="tc-feature-desc">Thêm video bài giảng theo nhóm chủ đề cho từng Phòng Học.</div>
+                <div class="tc-feature-cta">Mở <i class="fa-solid fa-arrow-right"></i></div>
+              </div>
+              <div class="tc-feature tint-violet" onclick="tcOpenSchedule()" data-ready="1">
+                <div class="tc-feature-icon icon-violet"><i class="fa-solid fa-calendar-days"></i></div>
+                <div class="tc-feature-title">Lịch học &amp; thi</div>
+                <div class="tc-feature-desc">Thời khóa biểu lịch học & lịch thi hiển thị đầu trang Phòng Học.</div>
+                <div class="tc-feature-cta">Mở <i class="fa-solid fa-arrow-right"></i></div>
+              </div>
+              <div class="tc-feature tint-amber" onclick="tcOpenNotices()" data-ready="1">
+                <div class="tc-feature-icon icon-amber"><i class="fa-solid fa-bell"></i></div>
+                <div class="tc-feature-title">Thông báo môn học</div>
+                <div class="tc-feature-desc">Thông báo theo từng môn hiển thị đầu tab trong Phòng Học.</div>
+                <div class="tc-feature-cta">Mở <i class="fa-solid fa-arrow-right"></i></div>
+              </div>
+              <div class="tc-feature tint-green" onclick="tcOpenFc()" data-ready="1">
+                <div class="tc-feature-icon icon-green"><i class="fa-solid fa-layer-group"></i></div>
+                <div class="tc-feature-title">Soạn Flashcard</div>
+                <div class="tc-feature-desc">Tạo bộ từ học tập trực quan cho từng chủ đề.</div>
+                <div class="tc-feature-cta">Mở <i class="fa-solid fa-arrow-right"></i></div>
+              </div>
+              <div class="tc-feature tint-amber" onclick="tcOpenQuizzes()" data-ready="1">
+                <div class="tc-feature-icon icon-amber"><i class="fa-solid fa-file-pen"></i></div>
+                <div class="tc-feature-title">Soạn bài kiểm tra</div>
+                <div class="tc-feature-desc">Chuẩn bị đề mới, câu hỏi và thời gian làm bài.</div>
+                <div class="tc-feature-cta">Mở <i class="fa-solid fa-arrow-right"></i></div>
+              </div>
+              <div class="tc-feature tint-violet" data-ready="0">
+                <span class="soon-badge">Sắp ra mắt</span>
+                <div class="tc-feature-icon icon-violet"><i class="fa-solid fa-paper-plane"></i></div>
+                <div class="tc-feature-title">Giao bài cho lớp</div>
+                <div class="tc-feature-desc">Gán đề kiểm tra cho từng lớp, đặt hạn nộp.</div>
+                <div class="tc-feature-cta"><i class="fa-solid fa-hourglass-half"></i> Chưa mở</div>
+              </div>
+              <div class="tc-feature tint-slate" data-ready="0">
+                <span class="soon-badge">Sắp ra mắt</span>
+                <div class="tc-feature-icon"><i class="fa-solid fa-chart-line"></i></div>
+                <div class="tc-feature-title">Báo cáo kết quả</div>
+                <div class="tc-feature-desc">Xem điểm, câu sai nhiều, học sinh cần quan tâm.</div>
+                <div class="tc-feature-cta"><i class="fa-solid fa-hourglass-half"></i> Chưa mở</div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ===== MANAGE VIEW ===== -->
+        <div id="tcManageView" style="display:none">
+          <div class="tc-view-head">
+            <button class="back" type="button" onclick="tcBackHome()"><i class="fa-solid fa-arrow-left"></i> Trang chủ</button>
+            <h2><i class="fa-solid fa-chalkboard-user" style="color:#2563eb"></i> Quản lý lớp học</h2>
+            <span class="muted" id="tcClassCount"></span>
+          </div>
+
+          <div class="tc-card">
+            <div class="tc-create">
+              <div class="tc-section-head" style="margin-bottom:14px">
+                <h2 style="font-size:15px"><i class="fa-solid fa-circle-plus" style="color:#2563eb"></i> Tạo lớp học mới</h2>
+                <span class="muted">Thêm lớp, sau đó chia sẻ mã mời để học sinh tham gia</span>
+              </div>
+              <div class="tc-form">
+                <input id="tcInputName" type="text" placeholder="Tên lớp, vd: Tin học 11A1">
+                <input id="tcInputBlock" type="text" placeholder="Khối, vd: 11">
+                <button id="tcBtnCreate" type="button" onclick="tcCreateClass()"><i class="fa-solid fa-plus"></i> Tạo lớp</button>
+              </div>
+              <div class="hint" style="margin-top:12px">Khối là dòng miễn phí (10, 11, 12...). Học sinh chọn khối rồi chọn lớp để gửi yêu cầu.</div>
+            </div>
+
+            <div id="tcClassList" class="tc-class-grid">
+<div class="empty"><div class="big"><i class="fa-solid fa-chalkboard-user"></i></div>Đang tải danh sách lớp...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== DETAIL VIEW ===== -->
+        <div id="tcDetailView" style="display:none">
+          <div class="tc-card">
+            <div class="tc-section-head tc-detail-head">
+              <button class="back" type="button" onclick="tcBackToList()"><i class="fa-solid fa-arrow-left"></i> Danh sách</button>
+              <h2 id="tcDetailName">Lớp</h2>
+              <span id="tcDetailBlock" class="tc-chip members"></span>
+              <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+                <span id="tcDetailCode"></span>
+                <button class="btn-sm btn-remove" type="button" id="tcBtnDeleteClass" onclick="tcDeleteClass()" style="display:none"><i class="fa-solid fa-trash-can"></i> Xoá lớp</button>
+              </div>
+            </div>
+            <div class="hint" style="margin-bottom:16px">Chia sẻ mã mời để học sinh tự vào lớp ngay. Yêu cầu tham gia cần bạn duyệt.</div>
+            <div id="tcMemberList"></div>
+          </div>
+        </div>
+
+        <!-- ===== SCHEDULE / QUẢN LÝ PHÒNG HỌC VIEW ===== -->
+        <div id="tcScheduleView" style="display:none">
+          <div class="tc-view-head">
+            <button class="back" type="button" onclick="tcBackHome()"><i class="fa-solid fa-arrow-left"></i> Trang chủ</button>
+            <h2><i class="fa-solid fa-calendar-days" style="color:#7c3aed"></i> Lịch học &amp; thi</h2>
+            <span class="muted">Thời khóa biểu hiển thị đầu trang Phòng Học</span>
+          </div>
+
+          <div class="tc-card" style="padding:18px">
+            <div class="schedule-week-nav">
+              <button class="btn-sm" type="button" id="schedulePrevWeekBtn">← Tuần trước</button>
+              <div class="schedule-week-label" id="scheduleWeekLabel">Đang tải tuần...</div>
+              <div style="display:flex;gap:8px"><button class="btn-sm" type="button" id="scheduleTodayBtn">Tuần này</button><button class="btn-sm" type="button" id="scheduleNextWeekBtn">Tuần sau →</button></div>
+            </div>
+            <div id="scheduleEventsList">
+              <div class="empty"><div class="big"><i class="fa-solid fa-calendar-days"></i></div>Đang tải lịch học & lịch thi...</div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+              <button class="btn-sm" type="button" style="background:#ecfeff;color:#0891b2" id="addScheduleEventBtn"><i class="fa-solid fa-plus"></i> Thêm lịch đầu tuần</button>
+              <button class="btn-sm" type="button" style="background:#10b981;color:#fff" id="saveScheduleBtn"><i class="fa-solid fa-floppy-disk"></i> Lưu &amp; áp dụng</button>
+              <button class="btn-sm" type="button" style="background:#f1f5f9;color:#334155" id="refreshScheduleBtn"><i class="fa-solid fa-rotate-right"></i> Làm mới</button>
+            </div>
+            <p style="margin-top:12px;font-size:12.5px;color:#64748b" id="scheduleMeta"></p>
+          </div>
+        </div>
+
+      <!-- ===== NOTICE / THÔNG BÁO MÔN HỌC VIEW ===== -->
+        <div id="tcNoticeView" style="display:none">
+          <div class="tc-view-head">
+            <button class="back" type="button" onclick="tcBackHome()"><i class="fa-solid fa-arrow-left"></i> Trang chủ</button>
+            <h2><i class="fa-solid fa-bell" style="color:#d97706"></i> Thông báo môn học</h2>
+            <span class="muted">Hiển thị đầu tab mỗi môn trong Phòng Học</span>
+          </div>
+
+          <div class="tc-card" style="padding:18px">
+            <div class="tc-section-head" style="margin-bottom:14px">
+              <h2 style="font-size:15px"><i class="fa-solid fa-bullhorn" style="color:#d97706"></i> Chỉnh thông báo từng môn</h2>
+              <span class="muted">Chữ "Thông báo môn X:" hiển thị tự động. Nhập nội dung phía sau. Bấm Lưu để áp dụng ngay.</span>
+            </div>
+            <div id="subjectNoticeList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px">
+              <div class="empty"><div class="big"><i class="fa-solid fa-circle-notch fa-spin"></i></div>Đang tải thông báo...</div>
+            </div>
+            <p style="margin-top:16px;font-size:12.5px;color:#64748b" id="subjectNoticeMeta"></p>
+          </div>
+        </div>
+
+        <!-- ===== BÀI KIỂM TRA ===== -->
+        <div id="tcQuizView" style="display:none">
+          <div class="tc-view-head">
+            <button class="back" type="button" onclick="tcBackHome()"><i class="fa-solid fa-arrow-left"></i> Trang chủ</button>
+            <h2><i class="fa-solid fa-file-circle-check" style="color:#d97706"></i> Bài kiểm tra</h2>
+            <span class="muted">Quản lý các đề kiểm tra đưa lên Phòng Học</span>
+          </div>
+
+          <div class="tc-quiz-head">
+            <div class="tc-quiz-stats" id="tcQuizCount">
+              <div class="tc-quiz-stat">
+                <span class="tc-quiz-stat-num" id="tcStatTotal">0</span>
+                <span class="tc-quiz-stat-label">Tổng đề</span>
+              </div>
+              <div class="tc-quiz-stat ok">
+                <span class="tc-quiz-stat-num" id="tcStatDone">0</span>
+                <span class="tc-quiz-stat-label">Hoàn thành</span>
+              </div>
+              <div class="tc-quiz-stat warn">
+                <span class="tc-quiz-stat-num" id="tcStatQuizPending">0</span>
+                <span class="tc-quiz-stat-label">Chưa hoàn thành</span>
+              </div>
+            </div>
+            <a class="btn btn-primary" style="margin-left:auto" href="./newtest/index.html"><i class="fa-solid fa-plus"></i> Tạo đề mới</a>
+          </div>
+
+          <div id="tcQuizList" class="tc-quiz-list">
+            <div class="empty"><div class="big"><i class="fa-solid fa-file-circle-check"></i></div>
+              Chưa có bài kiểm tra nào.<br>
+              <span style="font-size:12.5px">Bấm <b>Tạo đề mới</b> để soạn đề đầu tiên (trắc nghiệm / đúng-sai / tự luận / nghe).</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /tc-wrap -->
+    </div><!-- /teacher-canvas -->
+  </div><!-- /tcApp -->
+
+  <!-- ===== STUDENT PROFILE MODAL ===== -->
+  <div id="tcStudentModal" class="tc-modal-overlay" aria-hidden="true">
+    <div class="tc-modal" role="dialog" aria-modal="true" aria-labelledby="tcModalName">
+      <div class="tc-modal-head">
+        <div class="tc-modal-ava" id="tcModalAva">?</div>
+        <div style="min-width:0">
+          <p class="tc-modal-name" id="tcModalName">Học sinh</p>
+          <p class="tc-modal-email" id="tcModalEmail"></p>
+        </div>
+        <button class="tc-modal-close" type="button" aria-label="Đóng" onclick="tcCloseStudentModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="tc-modal-body">
+        <div class="tc-modal-label">Các lớp đang tham gia</div>
+        <div id="tcModalClasses">
+          <div class="tc-modal-empty"><i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCHEDULE MODAL ===== -->
+  <div class="schedule-modal" id="scheduleEventModal" role="dialog" aria-modal="true" aria-labelledby="scheduleModalTitle">
+    <div class="schedule-modal-card">
+      <div class="schedule-modal-head"><h3 id="scheduleModalTitle"><i class="fa-solid fa-calendar-days"></i> Thêm lịch học / lịch thi</h3><button class="schedule-modal-close" type="button" onclick="closeScheduleModal()" aria-label="Đóng">×</button></div>
+      <div class="schedule-modal-body"><div class="schedule-modal-grid">
+        <div class="schedule-modal-field"><label for="scheduleModalDate">Ngày</label><input id="scheduleModalDate" type="date"></div>
+        <div class="schedule-modal-field"><label for="scheduleModalSubject">Môn học</label><select id="scheduleModalSubject"></select></div>
+        <div class="schedule-modal-field"><label for="scheduleModalType">Loại lịch</label><select id="scheduleModalType"><option value="hoc">Lịch học</option><option value="thi">Lịch thi</option></select></div>
+        <div class="schedule-modal-field"><label for="scheduleModalSession">Buổi học</label><select id="scheduleModalSession"><option value="morning">Sáng</option><option value="noon">Trưa</option><option value="afternoon">Chiều</option><option value="evening">Tối</option></select></div>
+        <div class="schedule-modal-field"><label for="scheduleModalStart">Bắt đầu</label><input id="scheduleModalStart" type="time" value="08:00"></div>
+        <div class="schedule-modal-field"><label for="scheduleModalEnd">Kết thúc</label><input id="scheduleModalEnd" type="time" value="10:00"></div>
+        <div class="schedule-modal-field full"><label for="scheduleModalTitleInput">Nội dung</label><input id="scheduleModalTitleInput" type="text" placeholder="VD: Ôn tập chương 1"></div>
+        <div class="schedule-modal-field full"><label for="scheduleModalNote">Ghi chú (tùy chọn)</label><input id="scheduleModalNote" type="text" placeholder="VD: Phòng A1 / Mang máy tính"></div>
+      </div></div>
+      <div class="schedule-modal-actions"><button class="btn-sm" type="button" style="background:#f1f5f9;color:#334155" onclick="closeScheduleModal()">Hủy</button><button class="btn-sm" type="button" style="background:#2563eb;color:#fff" id="saveScheduleModalBtn"><i class="fa-solid fa-check"></i> Thêm vào lịch</button></div>
+    </div>
+  </div>
+
+  <!-- ===== DENIED / LOADING ===== -->
+  <div id="tcDenied" style="display:none">
+    <div class="tc-card tc-login">
+      <div class="icon"><i class="fa-solid fa-user-lock"></i></div>
+      <h2>Không có quyền truy cập</h2>
+      <p>Tài khoản của bạn không phải là Giáo viên hoặc Admin. Khu vực này chỉ dành cho giảng viên.</p>
+      <a class="btn" href="../../index.html"><i class="fa-solid fa-arrow-left"></i> Về trang chính</a>
+    </div>
+  </div>
+
+  <div id="tcLoading" style="display:none">
+    <div class="tc-card tc-login">
+      <div class="icon"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+      <h2>Đang kiểm tra quyền...</h2>
+      <p>Vui lòng chờ trong giây lát.</p>
+    </div>
+  </div>
+
+  <script src="shell.js"></script>
+  <script src="../../scripts/features/subjects-data.js"></script>
+  <script src="../../scripts/features/phonghoc-data.js"></script>
+  <script src="../../scripts/core/toast.js"></script>
+  <script type="module">
+    import { supabase, getUserRow, escapeHtml } from "../../scripts/core/supabase-config.js";
+
+    const tcApp = document.getElementById("tcApp");
+    const tcDenied = document.getElementById("tcDenied");
+    const tcLoading = document.getElementById("tcLoading");
+    const tcUserBadge = document.getElementById("tcUserBadge");
+    let accessChecked = false;
+    let tcCurrentClassId = null;
+    let tcClassesCache = null;
+    let tcMembersCache = {};
+    let tcEmail = "";
+
+    function show(which) {
+      tcApp.style.display = which === "app" ? "" : "none";
+      tcDenied.style.display = which === "denied" ? "" : "none";
+      tcLoading.style.display = which === "loading" ? "" : "none";
+    }
+
+    function setMainView(view) {
+      const home = document.getElementById("tcHomeView");
+      const manage = document.getElementById("tcManageView");
+      const detail = document.getElementById("tcDetailView");
+      const sched = document.getElementById("tcScheduleView");
+      const notice = document.getElementById("tcNoticeView");
+      const quiz = document.getElementById("tcQuizView");
+      if (home) home.style.display = (view === "home" || view === "" || !view) ? "" : "none";
+      if (manage) manage.style.display = view === "manage" ? "" : "none";
+      if (detail) detail.style.display = view === "detail" ? "" : "none";
+      if (sched) sched.style.display = view === "schedule" ? "" : "none";
+      if (notice) notice.style.display = view === "notice" ? "" : "none";
+      if (quiz) quiz.style.display = view === "quiz" ? "" : "none";
+    }
+
+    window.onTeacherNav = function(key) {
+      if (key === "home") { setMainView("home"); tcLoadClasses(); }
+      else if (key === "manage") { setMainView("manage"); tcLoadClasses(); }
+      else if (key === "fc") window.location.href = "./newflashcard.html";
+      else if (key === "video") window.location.href = "./cardphonghoc.html";
+      else if (key === "docs") window.location.href = "./taileu.html";
+      else if (key === "notice") tcOpenNotices();
+      else if (key === "quiz") tcOpenQuizzes();
+    };
+
+    window.tcOpenManage = function() {
+      setMainView("manage");
+      tcLoadClasses();
+    };
+
+    window.tcOpenRoomVideos = function() {
+      window.location.href = "./cardphonghoc.html";
+    };
+
+    window.tcOpenSchedule = function() {
+      setMainView("schedule");
+      if (window.TeacherShell && window.TeacherShell.setActive) window.TeacherShell.setActive("schedule");
+      if (typeof tcLoadSchedule === "function") tcLoadSchedule();
+    };
+
+    window.tcBackHome = function() {
+      setMainView("home");
+      if (window.TeacherShell && window.TeacherShell.setActive) window.TeacherShell.setActive("home");
+      tcLoadClasses();
+    };
+
+    function toast(msg, type) {
+      if (window.lhToast) lhToast(msg, { type: type || "info" });
+    }
+
+    function normRole(role) {
+      return String(role || "").trim().toLowerCase();
+    }
+    function isTeacherRole(role) {
+      const r = normRole(role);
+      return r === "giáo viên" || r === "giao vien";
+    }
+    function isAdminRole(role) {
+      return normRole(role) === "admin";
+    }
+
+    async function guard() {
+      if (accessChecked) return;
+      show("loading");
+      let session = null, row = null;
+      try {
+        const r = await supabase.auth.getSession();
+        session = r.data?.session || null;
+        if (session && session.user) row = await getUserRow(session.user.id);
+      } catch (e) {
+        console.error("guard lỗi:", e);
+        show("denied"); accessChecked = true; return;
+      }
+      if (!session || !session.user) { show("denied"); accessChecked = true; return; }
+      const role = row?.role || "";
+      const isAdmin = isAdminRole(role);
+      const isTeacher = isTeacherRole(role) || isAdmin;
+      if (!isTeacher) { show("denied"); accessChecked = true; return; }
+      tcEmail = (row && (row.email || session.user.email)) || "";
+
+      const displayName = (row && (row.name || row.email)) || "Giáo viên";
+      document.getElementById("tcWelcomeName").textContent = "Xin chào, " + displayName + "!";
+      document.getElementById("tcWelcomeSub").textContent =
+        "Chào mừng bạn quay lại. Hãy quản lý lớp học, duyệt yêu cầu và theo dõi học sinh của mình.";
+
+      const avatar = row && (row.photo || row.avatar_url || row.picture);
+      const initials = displayName.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
+      let avatarHtml;
+      if (avatar && !/^https?:\/\//i.test(avatar) && !/^data:image/i.test(avatar)) {
+        avatarHtml = `<div class="tc-topbar-avatar">${initials}</div>`;
+      } else if (avatar) {
+        avatarHtml = `<img class="tc-topbar-avatar-img" src="${escapeHtml(avatar)}" alt="${escapeHtml(displayName)}">`;
+      } else {
+        avatarHtml = `<div class="tc-topbar-avatar">${initials}</div>`;
+      }
+
+      const label = isAdmin
+        ? `<span class="tc-badge"><i class="fa-solid fa-shield-halved"></i> ${escapeHtml(row.email || "")} · Admin</span>`
+        : `<span class="tc-topbar-name">${escapeHtml(row.name || row.email || "")}</span>`;
+
+      tcUserBadge.innerHTML = `<div class="tc-topbar-user">${label}${avatarHtml}</div>`;
+      show("app");
+      accessChecked = true;
+      const view = new URLSearchParams(window.location.search).get("view");
+      if (view === "manage") {
+        if (window.TeacherShell && window.TeacherShell.setActive) TeacherShell.setActive("manage");
+        setMainView("manage");
+      } else if (view === "schedule") {
+        tcOpenSchedule();
+      } else if (view === "notice") {
+        tcOpenNotices();
+      } else if (view === "quiz") {
+        tcOpenQuizzes();
+      }
+      tcLoadClasses();
+    }
+
+    function tcRenderClasses(rows) {
+      const listEl = document.getElementById("tcClassList");
+      const countEl = document.getElementById("tcClassCount");
+      const list = rows || [];
+      countEl.textContent = list.length ? `(${list.length} lớp)` : "";
+
+      let totalMembers = 0, totalPending = 0;
+      list.forEach(c => {
+        totalMembers += Number(c.member_count || 0);
+        totalPending += Number(c.pending_count || 0);
+      });
+      document.getElementById("tcStatClasses").textContent = list.length;
+      document.getElementById("tcStatMembers").textContent = totalMembers;
+      document.getElementById("tcStatPending").textContent = totalPending;
+
+      if (!list.length) {
+        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-chalkboard-user"></i></div>Bạn chưa có lớp nào.<br><span style="font-size:12.5px">Tạo lớp đầu tiên ở phía trên để bắt đầu.</span></div>';
+        return;
+      }
+      listEl.innerHTML = list.map(c => `
+        <div class="tc-class" data-id="${escapeHtml(c.class_id)}">
+          <div class="tc-class-head">
+            <div class="tc-class-ico"><i class="fa-solid fa-chalkboard"></i></div>
+            <div class="name">${escapeHtml(c.name)}</div>
+          </div>
+          <div class="meta" style="margin-bottom:10px">
+            <span style="color:#6b7280;font-size:12.5px;font-weight:500">Khối ${escapeHtml(c.block) || "—"}</span>
+            <span class="code">${escapeHtml(c.invite_code)}</span>
+          </div>
+          <div class="meta">
+            <span class="tc-chip members"><i class="fa-solid fa-users"></i> ${c.member_count}</span>
+            ${c.pending_count > 0 ? `<span class="tc-chip pending"><i class="fa-solid fa-clock"></i> ${c.pending_count} chờ duyệt</span>` : `<span class="tc-chip green"><i class="fa-solid fa-circle-check"></i> Đã duyệt hết</span>`}
+          </div>
+        </div>
+      `).join("");
+      listEl.querySelectorAll(".tc-class").forEach(el => {
+        el.addEventListener("click", () => tcOpenDetail(el.dataset.id));
+      });
+    }
+
+    async function tcLoadClasses(force) {
+      if (tcClassesCache === null || force) {
+        const listEl = document.getElementById("tcClassList");
+        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-chalkboard-user"></i></div>Đang tải danh sách lớp...</div>';
+        try {
+          const { data, error } = await supabase.rpc("teacher_classes");
+          if (error) throw error;
+          tcClassesCache = data || [];
+        } catch (e) {
+          console.error("teacher_classes lỗi:", e);
+          listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-chalkboard-user"></i></div>Không tải được danh sách lớp. Kiểm tra lại SQL đã chạy chưa.</div>';
+          return;
+        }
+      }
+      tcRenderClasses(tcClassesCache);
+    }
+
+    window.tcCreateClass = async function() {
+      const nameEl = document.getElementById("tcInputName");
+      const blockEl = document.getElementById("tcInputBlock");
+      const btn = document.getElementById("tcBtnCreate");
+      const name = nameEl.value.trim();
+      const block = blockEl.value.trim();
+      if (!name) return toast("Vui lòng nhập tên lớp", "error");
+      btn.disabled = true;
+      try {
+        const { data, error } = await supabase.rpc("create_class", { p_name: name, p_block: block });
+        if (error) throw error;
+        if (!data || data.ok !== true) {
+          const msgs = { forbidden: "Bạn không có quyền tạo lớp", empty_name: "Tên lớp trống" };
+          return toast(msgs[data?.error] || "Không tạo được lớp", "error");
+        }
+        nameEl.value = ""; blockEl.value = "";
+        toast(`Đã tạo lớp. Mã mời: ${data.invite_code}`, "success");
+        if (!tcClassesCache) tcClassesCache = [];
+        tcClassesCache.unshift({
+          class_id: data.id, name, block, invite_code: data.invite_code,
+          member_count: 0, pending_count: 0
+        });
+        tcRenderClasses(tcClassesCache);
+        setMainView("manage");
+      } catch (e) {
+        console.error("create_class lỗi:", e);
+        toast("Lỗi tạo lớp: " + (e.message || e), "error");
+      } finally {
+        btn.disabled = false;
+      }
+    };
+
+    function tcRenderDetailHead(classId) {
+      const cls = (tcClassesCache || []).find(c => c.class_id === classId);
+      if (!cls) return;
+      document.getElementById("tcDetailName").textContent = cls.name;
+      document.getElementById("tcDetailBlock").textContent = "Khối " + (cls.block || "—");
+      document.getElementById("tcDetailCode").innerHTML =
+        `<span class="hint">Mã mời: <span style="font-family:ui-monospace,monospace;background:#eff6ff;color:#1e40af;border-radius:8px;padding:3px 10px;font-weight:700;letter-spacing:0.5px;font-size:12.5px">${escapeHtml(cls.invite_code)}</span></span>`;
+    }
+
+    function tcRenderMembers(classId) {
+      const listEl = document.getElementById("tcMemberList");
+      const members = tcMembersCache[classId] || [];
+      if (!members.length) {
+        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-chalkboard-user"></i></div>Chưa có thành viên hoặc yêu cầu.</div>';
+        return;
+      }
+      const byStatus = (s) => members.filter(m => (m.status || "") === s);
+      let html = "";
+      const pending = byStatus("pending");
+      const approved = byStatus("approved");
+
+      const studentRow = (m, actionsHtml) => `
+        <div class="tc-mem">
+          <div class="ava">${escapeHtml((m.name || "?").charAt(0).toUpperCase())}</div>
+          <div class="info"><div class="nm" data-user="${escapeHtml(m.user_id || "")}" title="Xem hồ sơ học sinh">${escapeHtml(m.name || "Chưa có tên")}</div><div class="em">${escapeHtml(m.email || "")}</div></div>
+          <div class="acts">${actionsHtml}</div>
+        </div>`;
+
+      if (pending.length) {
+        html += `<div class="hint" style="margin:8px 0 12px;font-weight:700;color:#b45309">YÊU CẦU CHỜ DUYỆT (${pending.length})</div>`;
+        pending.forEach(m => {
+          html += studentRow(m, `
+            <button class="btn-sm btn-approve" data-id="${escapeHtml(m.member_id)}" data-act="approve"><i class="fa-solid fa-check"></i> Duyệt</button>
+            <button class="btn-sm btn-remove" data-id="${escapeHtml(m.member_id)}" data-act="remove"><i class="fa-solid fa-xmark"></i> Từ chối</button>`);
+        });
+      }
+
+      if (approved.length) {
+        html += `<div class="hint" style="margin:18px 0 12px;font-weight:700;color:#0369a1">THÀNH VIÊN (${approved.length})</div>`;
+        approved.forEach(m => {
+          html += studentRow(m, `
+            <button class="btn-sm btn-remove" data-id="${escapeHtml(m.member_id)}" data-act="remove"><i class="fa-solid fa-user-minus"></i> Gỡ</button>`);
+        });
+      }
+
+      listEl.innerHTML = html;
+      listEl.querySelectorAll("[data-act]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          window.tcSetMember(btn.dataset.id, btn.dataset.act, classId);
+        });
+      });
+      listEl.querySelectorAll(".nm[data-user]").forEach(el => {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (el.dataset.user) tcShowStudentProfile(el.dataset.user);
+        });
+      });
+    }
+
+    function tcCloseStudentModal() {
+      const overlay = document.getElementById("tcStudentModal");
+      if (overlay) {
+        overlay.classList.remove("show");
+        overlay.setAttribute("aria-hidden", "true");
+      }
+      document.removeEventListener("keydown", tcModalEscHandler);
+    }
+    window.tcCloseStudentModal = tcCloseStudentModal;
+
+    function tcModalEscHandler(e) {
+      if (e.key === "Escape") tcCloseStudentModal();
+    }
+
+    function tcModalOverlayHandler(e) {
+      if (e.target === document.getElementById("tcStudentModal")) tcCloseStudentModal();
+    }
+
+    function fmtDate(v) {
+      if (!v) return "";
+      try {
+        return new Date(v).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+      } catch (e) { return String(v); }
+    }
+
+    window.tcShowStudentProfile = async function(userId) {
+      const overlay = document.getElementById("tcStudentModal");
+      if (!overlay || !userId) return;
+      overlay.classList.add("show");
+      overlay.setAttribute("aria-hidden", "false");
+      document.addEventListener("keydown", tcModalEscHandler);
+
+      document.getElementById("tcModalAva").textContent = "?";
+      document.getElementById("tcModalName").textContent = "Học sinh";
+      document.getElementById("tcModalEmail").textContent = "";
+      document.getElementById("tcModalClasses").innerHTML =
+        '<div class="tc-modal-empty"><i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải...</div>';
+
+      if (tcCurrentClassId) {
+        const mem = (tcMembersCache[tcCurrentClassId] || []).find(x => x.user_id === userId);
+        if (mem) {
+          document.getElementById("tcModalAva").textContent = (mem.name || "?").charAt(0).toUpperCase();
+          document.getElementById("tcModalName").textContent = mem.name || "Học sinh";
+          document.getElementById("tcModalEmail").textContent = mem.email || "";
+        }
+      }
+
+      try {
+        const { data, error } = await supabase.rpc("user_classes", { p_user_id: userId });
+        const classes = error ? [] : (data || []);
+        const wrap = document.getElementById("tcModalClasses");
+        if (!classes.length) {
+          wrap.innerHTML = '<div class="tc-modal-empty">Không có lớp nào được hiển thị.</div>';
+          return;
+        }
+        wrap.innerHTML = classes.map(c => `
+          <div class="tc-modal-class-row">
+            <div class="tc-modal-class-icon"><i class="fa-solid fa-chalkboard"></i></div>
+            <div style="min-width:0">
+              <div class="tc-modal-class-name">${escapeHtml(c.class_name || "Lớp")}</div>
+              <div class="tc-modal-class-block">${escapeHtml(c.block || "—")} · Tham gia ${fmtDate(c.joined_at)}</div>
+            </div>
+            <span class="tc-modal-class-status ${c.status === "approved" ? "approved" : "pending"}">${c.status === "approved" ? "Đã duyệt" : "Chờ duyệt"}</span>
+          </div>
+        `).join("");
+      } catch (e) {
+        console.error("user_classes lỗi:", e);
+        document.getElementById("tcModalClasses").innerHTML = '<div class="tc-modal-empty">Không tải được danh sách lớp.</div>';
+      }
+    };
+
+    async function tcEnsureMembers(classId) {
+      if (tcMembersCache[classId] !== undefined) return;
+      const { data, error } = await supabase.rpc("class_members_of", { p_class_id: classId });
+      if (error) { console.error("class_members_of lỗi:", error); return; }
+      tcMembersCache[classId] = data || [];
+    }
+
+    window.tcOpenDetail = async function(classId) {
+      tcCurrentClassId = classId;
+      setMainView("detail");
+      document.getElementById("tcDetailName").textContent = "";
+      document.getElementById("tcDetailBlock").textContent = "";
+      document.getElementById("tcDetailCode").innerHTML = "";
+      document.getElementById("tcBtnDeleteClass").style.display = "";
+      document.getElementById("tcMemberList").innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-chalkboard-user"></i></div>Đang tải...</div>';
+      tcRenderDetailHead(classId);
+      try { await tcEnsureMembers(classId); } catch (e) { console.error("class_members_of lỗi:", e); }
+      tcRenderMembers(classId);
+    };
+
+    window.tcSetMember = async function(memberId, action, classId) {
+      const { data, error } = await supabase.rpc("set_class_member", { p_member_id: memberId, p_action: action });
+      if (error) { console.error("set_class_member lỗi:", error); return toast("Lỗi thao tác", "error"); }
+      if (data && data.ok !== true) return toast("Không thực hiện được", "error");
+      toast(action === "approve" ? "Đã duyệt học sinh vào lớp" : "Đã xử lý", action === "approve" ? "success" : "info");
+
+      const members = tcMembersCache[classId] || [];
+      if (action === "approve") {
+        const m = members.find(x => x.member_id === memberId);
+        if (m) m.status = "approved";
+      } else {
+        tcMembersCache[classId] = members.filter(x => x.member_id !== memberId);
+      }
+
+      const cls = (tcClassesCache || []).find(c => c.class_id === classId);
+      if (cls) {
+        const alist = tcMembersCache[classId] || [];
+        cls.member_count = alist.filter(x => x.status === "approved").length;
+        cls.pending_count = alist.filter(x => x.status === "pending").length;
+        tcRenderClasses(tcClassesCache);
+      }
+      tcRenderMembers(classId);
+    };
+
+    window.tcBackToList = function() {
+      setMainView("manage");
+      tcCurrentClassId = null;
+      tcLoadClasses();
+    };
+
+    window.tcDeleteClass = async function() {
+      if (!tcCurrentClassId) return;
+      if (window.lhConfirm) {
+        const ok = await lhConfirm("Chắc chắn xoá lớp này? Toàn bộ thành viên trong lớp cũng sẽ bị gỡ. Hành động này không thể hoàn tác!");
+        if (!ok) return;
+      } else {
+        if (!confirm("Chắc chắn xoá lớp này? Toàn bộ thành viên trong lớp cũng sẽ bị gỡ. Hành động này không thể hoàn tác!")) return;
+      }
+      const id = tcCurrentClassId;
+      const { data, error } = await supabase.rpc("delete_class", { p_class_id: id });
+      if (error) { console.error("delete_class lỗi:", error); return toast("Lỗi xoá lớp", "error"); }
+      if (data && data.ok !== true) return toast("Không xoá được lớp", "error");
+      toast("Đã xoá lớp", "success");
+      if (tcClassesCache) tcClassesCache = tcClassesCache.filter(c => c.class_id !== id);
+      delete tcMembersCache[id];
+      setMainView("manage");
+      tcCurrentClassId = null;
+      tcRenderClasses(tcClassesCache || []);
+    };
+
+    window.tcOpenFc = function() {
+      window.location.href = "./newflashcard.html";
+    };
+
+    // ================= LỊCH HỌC & LỊCH THI (THỜI KHÓA BIỂU) =================
+    const SCHEDULE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({ value: s.id, label: s.name }));
+    const SCHEDULE_COLORS = (window.LH_SUBJECTS || []).reduce((m, s) => { m[s.id] = [s.short, s.color]; return m; }, {});
+    let scheduleEvents = [];
+    let scheduleWeekStart = getMonday(new Date());
+    let scheduleEditingEventId = null;
+
+    function pad2(n) { return String(n).padStart(2, "0"); }
+    function toIsoDate(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+    function addDays(d, days) { const next = new Date(d); next.setDate(next.getDate() + days); return next; }
+    function getMonday(d) { const date = new Date(d.getFullYear(), d.getMonth(), d.getDate()); date.setDate(date.getDate() - ((date.getDay() + 6) % 7)); return date; }
+    function scheduleEventId() { return crypto.randomUUID ? crypto.randomUUID() : "e" + Date.now() + Math.random().toString(16).slice(2); }
+    function scFormatDate(iso) {
+      try { return new Date(iso).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }); }
+      catch (e) { return String(iso || ""); }
+    }
+    function scheduleSubjectOptions(sel) {
+      return SCHEDULE_SUBJECTS.map(s => `<option value="${s.value}"${s.value === sel ? " selected" : ""}>${s.label}</option>`).join("");
+    }
+
+    function scheduleEditorCard(e) {
+      const id = e.id || scheduleEventId();
+      const session = e.session || guessScheduleSession(e.time);
+      const sessionInfo = { morning: ['<i class="fa-solid fa-sun"></i>', "Sáng"], noon: ['<i class="fa-solid fa-temperature-high"></i>', "Trưa"], afternoon: ['<i class="fa-solid fa-cloud-sun"></i>', "Chiều"], evening: ['<i class="fa-solid fa-moon"></i>', "Tối"] }[session] || ['<i class="fa-solid fa-clock"></i>', "Buổi học"];
+      const time = [e.time, e.endTime].filter(Boolean).join(" – ") || "Chưa chọn giờ";
+      const subjInfo = SCHEDULE_COLORS[e.subject] || [String(e.subject || "Môn"), "#2563eb"];
+      return `<div class="schedule-event-row ${e.type === "thi" ? "type-thi" : ""}" style="border-left-color:${subjInfo[1]}" data-id="${escapeHtml(id)}" data-date="${escapeHtml(e.date)}">
+        <button class="se-delete" type="button" title="Xóa lịch" onclick="removeScheduleEvent('${escapeHtml(id)}')">×</button>
+        <div onclick="editScheduleEvent('${escapeHtml(id)}')"><div class="admin-schedule-top"><span class="admin-schedule-tag ${e.type === "thi" ? "thi" : ""}">${e.type === "thi" ? "Thi" : "Học"}</span><span class="admin-schedule-session ${session}">${sessionInfo[0]} ${sessionInfo[1]}</span><span class="admin-schedule-subj" style="background:${subjInfo[1]}">${escapeHtml(subjInfo[0])}</span></div><div class="admin-schedule-title">${escapeHtml(e.title || "")}</div><div class="admin-schedule-time"><i class="fa-solid fa-clock"></i> ${escapeHtml(time)}</div>${e.note ? `<div class="admin-schedule-note">${escapeHtml(e.note)}</div>` : ""}</div>
+      </div>`;
+    }
+
+    function renderScheduleEvents() {
+      const listEl = document.getElementById("scheduleEventsList");
+      if (!listEl) return;
+      const weekdays = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+      const today = toIsoDate(new Date());
+      const weekDates = Array.from({ length: 7 }, (_, i) => toIsoDate(addDays(scheduleWeekStart, i)));
+      const label = document.getElementById("scheduleWeekLabel");
+      if (label) label.innerHTML = `Tuần đang chỉnh<small>${weekDates[0].split("-").reverse().join("/")} – ${weekDates[6].split("-").reverse().join("/")}</small>`;
+      listEl.innerHTML = '<div class="schedule-week-grid">' + weekDates.map((date, i) => {
+        const dayEvents = scheduleEvents.filter(e => e && e.date === date);
+        const classes = "schedule-day-column" + (date === today ? " is-today" : "") + (i === 6 ? " is-sunday" : "");
+        return `<div class="${classes}"><div class="schedule-day-head"><div><div class="schedule-day-name">${weekdays[i]}</div><div class="schedule-day-date">${date.split("-").reverse().slice(0, 2).join("/")}</div></div><button class="schedule-day-add" type="button" title="Thêm lịch ngày này" onclick="addScheduleEvent('${date}')">+</button></div>${dayEvents.length ? dayEvents.map(scheduleEditorCard).join("") : '<div class="schedule-day-empty">Chưa có lịch</div>'}</div>`;
+      }).join("") + "</div>";
+    }
+
+    window.removeScheduleEvent = (id) => { scheduleEvents = scheduleEvents.filter(e => e.id !== id); renderScheduleEvents(); };
+    function guessScheduleSession(time) {
+      const hour = Number(String(time || "08:00").split(":")[0]);
+      if (hour < 11) return "morning";
+      if (hour < 14) return "noon";
+      if (hour < 18) return "afternoon";
+      return "evening";
+    }
+    function openScheduleModal(date, eventId) {
+      const event = eventId ? scheduleEvents.find(e => e.id === eventId) : null;
+      scheduleEditingEventId = event ? event.id : null;
+      document.getElementById("scheduleModalTitle").innerHTML = event ? '<i class="fa-solid fa-pen"></i> Chỉnh sửa lịch' : '<i class="fa-solid fa-calendar-days"></i> Thêm lịch học / lịch thi';
+      document.getElementById("scheduleModalDate").value = event ? event.date : (date || toIsoDate(scheduleWeekStart));
+      document.getElementById("scheduleModalSubject").innerHTML = scheduleSubjectOptions(event ? event.subject : "ly");
+      document.getElementById("scheduleModalType").value = event ? event.type : "hoc";
+      document.getElementById("scheduleModalSession").value = event ? (event.session || guessScheduleSession(event.time)) : "morning";
+      document.getElementById("scheduleModalStart").value = event ? (event.time || "") : "08:00";
+      document.getElementById("scheduleModalEnd").value = event ? (event.endTime || "") : "10:00";
+      document.getElementById("scheduleModalTitleInput").value = event ? event.title : "";
+      document.getElementById("scheduleModalNote").value = event ? (event.note || "") : "";
+      document.getElementById("scheduleEventModal").classList.add("show");
+      document.getElementById("scheduleModalTitleInput").focus();
+    }
+    function closeScheduleModal() { document.getElementById("scheduleEventModal").classList.remove("show"); }
+    window.addScheduleEvent = openScheduleModal;
+    window.editScheduleEvent = (id) => { const event = scheduleEvents.find(e => e.id === id); if (event) openScheduleModal(event.date, id); };
+    window.closeScheduleModal = closeScheduleModal;
+
+    document.getElementById("saveScheduleModalBtn").addEventListener("click", () => {
+      const date = document.getElementById("scheduleModalDate").value;
+      const title = document.getElementById("scheduleModalTitleInput").value.trim();
+      if (!date || !title) { toast("Vui lòng chọn ngày và nhập nội dung lịch.", "warning"); return; }
+      const time = document.getElementById("scheduleModalStart").value;
+      const nextEvent = { id: scheduleEditingEventId || scheduleEventId(), date, subject: document.getElementById("scheduleModalSubject").value, type: document.getElementById("scheduleModalType").value, session: document.getElementById("scheduleModalSession").value || guessScheduleSession(time), time, endTime: document.getElementById("scheduleModalEnd").value, title, note: document.getElementById("scheduleModalNote").value.trim() };
+      if (scheduleEditingEventId) scheduleEvents = scheduleEvents.map(e => e.id === scheduleEditingEventId ? nextEvent : e); else scheduleEvents.push(nextEvent);
+      closeScheduleModal();
+      scheduleWeekStart = getMonday(new Date(date + "T00:00:00"));
+      renderScheduleEvents();
+    });
+
+    document.getElementById("addScheduleEventBtn").addEventListener("click", () => window.addScheduleEvent(toIsoDate(scheduleWeekStart)));
+    document.getElementById("schedulePrevWeekBtn").addEventListener("click", () => { scheduleWeekStart = addDays(scheduleWeekStart, -7); renderScheduleEvents(); });
+    document.getElementById("scheduleNextWeekBtn").addEventListener("click", () => { scheduleWeekStart = addDays(scheduleWeekStart, 7); renderScheduleEvents(); });
+    document.getElementById("scheduleTodayBtn").addEventListener("click", () => { scheduleWeekStart = getMonday(new Date()); renderScheduleEvents(); });
+
+    async function tcLoadSchedule() {
+      const listEl = document.getElementById("scheduleEventsList");
+      if (listEl) listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-spinner fa-spin"></i></div>Đang tải lịch học & lịch thi...</div>';
+      try {
+        const { data: d } = await supabase.from("schedule_settings").select("*").eq("id", true).maybeSingle();
+        // [FIX BUG #37] Spread trước rồi mới gán id để id tạo mới không bị ghi đè bởi e.id rỗng
+        scheduleEvents = (d && Array.isArray(d.events)) ? d.events.map(e => ({ ...e, id: e.id || scheduleEventId() })) : [];
+        renderScheduleEvents();
+        const meta = document.getElementById("scheduleMeta");
+        if (meta) meta.textContent = d && d.updated_at ? `Cập nhật: ${scFormatDate(d.updated_at)}${d.updated_by ? ` · bởi ${d.updated_by}` : ""}` : "Chưa có bản lưu. Lưu lần đầu để áp dụng.";
+      } catch (e) {
+        console.error(e);
+        toast("Không tải được lịch học & lịch thi.", "error");
+      }
+    }
+
+    document.getElementById("saveScheduleBtn").addEventListener("click", async () => {
+      const dropped = scheduleEvents.filter(Boolean).filter(e => !e.date || !String(e.title || "").trim()).length;
+      const events = scheduleEvents.filter(e => e && e.date && String(e.title || "").trim());
+      if (dropped > 0) toast(`Có ${dropped} lịch thiếu ngày/tiêu đề sẽ bị bỏ qua khi lưu.`, "warning");
+      try {
+        const now = new Date().toISOString();
+        const { error } = await supabase.from("schedule_settings").upsert({
+          id: true,
+          active: true,
+          events,
+          updated_at: now,
+          updated_by: tcEmail
+        }, { onConflict: "id" });
+        if (error) throw error;
+        scheduleEvents = events;
+        renderScheduleEvents();
+        const meta = document.getElementById("scheduleMeta");
+        if (meta) meta.textContent = `Cập nhật: ${scFormatDate(now)} · bởi ${tcEmail}`;
+        toast("Đã lưu lịch học & lịch thi.", "success");
+      } catch (e) {
+        console.error(e);
+        toast("Lưu lịch thất bại. Kiểm tra lại bảng schedule_settings đã tạo chưa.", "error");
+      }
+    });
+
+    document.getElementById("refreshScheduleBtn").addEventListener("click", tcLoadSchedule);
+
+    /* ===== THÔNG BÁO MÔN HỌC ===== */
+const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
+      id: s.id,
+      name: s.name,
+      icon: s.icon,
+      color: s.color
+    }));
+    const NOTICE_ICON_CHOICES = [
+      { v: "fa-bell", n: "Chuông" },
+      { v: "fa-fire", n: "Lửa" },
+      { v: "fa-bullhorn", n: "Loaphone" },
+      { v: "fa-triangle-exclamation", n: "Cảnh báo" },
+      { v: "fa-info-circle", n: "Thông tin" },
+      { v: "fa-calendar-check", n: "Lịch" },
+      { v: "fa-star", n: "Sao" },
+      { v: "fa-circle-exclamation", n: "Chú ý" }
+    ];
+    let tcWatchedNoticesMap = null;
+
+    window.tcOpenNotices = function() {
+      setMainView("notice");
+      if (window.TeacherShell && window.TeacherShell.setActive) window.TeacherShell.setActive("notice");
+      tcLoadNotices();
+    };
+
+    window.tcOpenQuizzes = function() {
+      setMainView("quiz");
+      if (window.TeacherShell && window.TeacherShell.setActive) window.TeacherShell.setActive("quiz");
+      tcLoadQuizzes();
+    };
+
+    /* Liệt kê các đề lưu trong DB (teacher_list_test_sets) — thay nguồn mẫu tĩnh */
+    async function tcLoadQuizzes() {
+      const listEl = document.getElementById("tcQuizList");
+      if (!listEl) return;
+      try {
+        const { data, error } = await supabase.rpc("teacher_list_test_sets");
+        if (error) throw error;
+        const rows = Array.isArray(data) ? data : [];
+        const done = rows.filter(r => r.is_complete).length;
+        const pending = rows.length - done;
+        tcRenderQuizStats(rows.length, done, pending);
+        if (!rows.length) {
+          listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-file-circle-check"></i></div>' +
+            'Chưa có bài kiểm tra nào trong Phòng Học.<br>' +
+            '<span style="font-size:12.5px">Bấm <b>Tạo đề mới</b> để soạn đề đầu tiên (trắc nghiệm / đúng-sai / tự luận / nghe).</span></div>';
+          return;
+        }
+        listEl.innerHTML = '<table class="tc-quiz-table"><thead><tr>' +
+          '<th style="width:42%">Tên đề</th><th class="tc-qz-nowrap">Môn</th><th class="tc-qz-nowrap" style="width:58px">Số câu</th><th class="tc-qz-nowrap" style="width:112px">Thời gian</th><th class="tc-qz-nowrap" style="width:52px">Điểm</th><th style="width:96px">Trạng thái</th><th class="tc-qz-nowrap" style="width:116px">Tạo lúc</th><th style="width:42px"></th>' +
+          '</tr></thead><tbody>' + rows.map(function (r) {
+          const de = "t:" + r.set_id;
+          const badges =
+            (r.show_score === 'none' ? '<span class="tc-qz-badge danger"><i class="fa-solid fa-lock"></i> Ẩn điểm</span>' : '') +
+            (r.show_answers === 'none' ? '<span class="tc-qz-badge danger"><i class="fa-solid fa-eye-slash"></i> Chặn xem đáp án</span>' : (r.show_answers === 'perfect' ? '<span class="tc-qz-badge info"><i class="fa-solid fa-eye"></i> Xem đáp án khi điểm tối đa</span>' : '')) +
+            (r.subtest_enabled ? '<span class="tc-qz-badge info"><i class="fa-solid fa-dice"></i> Đề con ' + (r.subtest_count || 0) + '/' + (r.question_count || 0) + '</span>' : '');
+          return '<tr>' +
+            '<td><div class="tc-t">' + escapeHtml(r.name) + '</div>' +
+              (r.description ? '<div class="tc-sub">' + escapeHtml(r.description) + '</div>' : '') +
+              (badges ? '<div class="tc-qz-badges">' + badges + '</div>' : '') + '</td>' +
+            '<td class="tc-qz-nowrap">' + escapeHtml(r.subject) + '</td>' +
+            '<td class="tc-qz-nowrap">' + (r.subtest_enabled && r.subtest_count ? (r.subtest_count + '/' + (r.question_count || 0)) : (r.question_count || 0)) + '</td>' +
+            '<td class="tc-qz-nowrap">' + (r.minutes > 0 ? '<i class="fa-solid fa-stopwatch"></i> ' + r.minutes + ' phút' : "Không giới hạn") + '</td>' +
+            '<td class="tc-qz-nowrap">' + (r.score || 10) + '</td>' +
+            '<td>' +
+              '<button type="button" role="switch" aria-checked="' + (r.is_complete ? 'true' : 'false') + '" class="tc-qz-switch' + (r.is_complete ? ' on' : '') + '" data-action="toggle" data-id="' + r.set_id + '" data-complete="' + (r.is_complete ? 1 : 0) + '" title="Đổi trạng thái hoàn thành / chưa hoàn thành"><span class="tc-qz-switch-knob"></span></button>' +
+            '</td>' +
+            '<td class="tc-qz-created">' + scFormatDate(r.created_at) + '</td>' +
+            '<td><div class="tc-qz-menu-wrap">' +
+              '<button type="button" class="tc-qz-menu-btn" data-action="menu" data-de="' + de + '" data-id="' + r.set_id + '" title="Thao tác" aria-label="Thao tác"><i class="fa-solid fa-ellipsis-vertical"></i></button>' +
+            '</div></td>' +
+          '</tr>';
+        }).join('') + '</tbody></table>';
+        if (!listEl.__tcBound) {
+          listEl.__tcBound = true;
+          listEl.addEventListener("click", tcQuizListClick);
+        }
+      } catch (e) {
+        console.error("tcLoadQuizzes lỗi:", e);
+        tcRenderQuizStats(0, 0, 0);
+        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-triangle-exclamation"></i></div>' +
+          'Không tải được danh sách bài kiểm tra.<br>' +
+          '<span style="font-size:12.5px">' + escapeHtml(String((e && e.message) || e)) + '</span></div>';
+      }
+    }
+
+    function tcRenderQuizStats(total, done, pending) {
+      const t = document.getElementById("tcStatTotal");
+      const d = document.getElementById("tcStatDone");
+      // [FIX BUG #32] Dùng id riêng cho thống kê quiz để tránh trùng với tcStatPending của lớp
+      const p = document.getElementById("tcStatQuizPending");
+      if (t) t.textContent = total;
+      if (d) d.textContent = done;
+      if (p) p.textContent = pending;
+    }
+
+    function tcQuizListClick(e) {
+      const el = e.target && e.target.closest ? e.target.closest("[data-action]") : null;
+      if (!el) return;
+      const id = el.getAttribute("data-id");
+      const action = el.getAttribute("data-action");
+      if (action === "menu") {
+        tcQuizToggleMenu(el);
+      } else if (action === "toggle") {
+        tcQuizSetComplete(id, el.getAttribute("data-complete") !== "1");
+      }
+    }
+
+    let tcQuizMenuEl = null;
+    function tcQuizEnsureMenu() {
+      if (tcQuizMenuEl) return tcQuizMenuEl;
+      tcQuizMenuEl = document.createElement("div");
+      tcQuizMenuEl.className = "tc-qz-menu";
+      tcQuizMenuEl.style.position = "fixed";
+      tcQuizMenuEl.hidden = true;
+      tcQuizMenuEl.innerHTML =
+        '<button type="button" class="tc-qz-menu-item" data-action="edit"><i class="fa-solid fa-pen"></i> Sửa đề</button>' +
+        '<button type="button" class="tc-qz-menu-item" data-action="copy"><i class="fa-solid fa-copy"></i> Sao chép liên kết đề</button>' +
+        '<button type="button" class="tc-qz-menu-item danger" data-action="delete"><i class="fa-solid fa-trash"></i> Xoá đề</button>';
+      tcQuizMenuEl.addEventListener("click", function (e) {
+        const el = e.target && e.target.closest ? e.target.closest(".tc-qz-menu-item") : null;
+        if (!el) return;
+        const btn = tcQuizMenuEl.__btn;
+        tcQuizCloseMenus();
+        if (!btn) return;
+        const act = el.getAttribute("data-action");
+        if (act === "edit") {
+          tcQuizEdit(btn.getAttribute("data-id"));
+        } else if (act === "copy") {
+          tcQuizCopyLink(btn.getAttribute("data-de"));
+        } else if (act === "delete") {
+          tcQuizDeleteWithConfirm(btn.getAttribute("data-id"));
+        }
+      });
+      document.body.appendChild(tcQuizMenuEl);
+      return tcQuizMenuEl;
+    }
+
+    async function tcQuizDeleteWithConfirm(id) {
+      const ok = window.lhConfirm
+        ? await lhConfirm("Xoá bài kiểm tra này? Card trong Phòng Học sẽ bị gỡ bỏ vĩnh viễn.")
+        : confirm("Xoá bài kiểm tra này? Card trong Phòng Học sẽ bị gỡ bỏ vĩnh viễn.");
+      if (!ok) return;
+      tcQuizDelete(id);
+    }
+
+    /* Sửa đề: mở trình soạn, nạp sẵn content của đề vào màn 2 (JSON + Xem trước) */
+    function tcQuizEdit(id) {
+      window.location.href = "./newtest/index.html?edit=t:" + id;
+    }
+
+    function tcQuizToggleMenu(btn) {
+      const menu = tcQuizEnsureMenu();
+      if (!menu.hidden && menu.__btn === btn) { menu.hidden = true; return; }
+      menu.__btn = btn;
+      menu.style.minWidth = "";
+      const r = btn.getBoundingClientRect();
+      let left = r.right - 210;
+      if (left < 8) left = 8;
+      let top = r.bottom + 4;
+      menu.style.left = left + "px";
+      menu.style.top = top + "px";
+      menu.hidden = false;
+      const rect = menu.getBoundingClientRect();
+      if (rect.bottom > window.innerHeight - 8) {
+        top = Math.max(8, Math.round(r.top - rect.height - 4));
+        menu.style.top = top + "px";
+      }
+      const rect2 = menu.getBoundingClientRect();
+      if (rect2.right > window.innerWidth - 8) {
+        menu.style.left = Math.max(8, Math.round(window.innerWidth - rect2.width - 8)) + "px";
+      }
+      menu.__btn = btn;
+    }
+
+    function tcQuizCloseMenus() {
+      if (tcQuizMenuEl) tcQuizMenuEl.hidden = true;
+    }
+
+    document.addEventListener("click", function (e) {
+      if (!e.target || !e.target.closest || !e.target.closest("#tcQuizList .tc-qz-menu-wrap")) {
+        tcQuizCloseMenus();
+      }
+    });
+
+    function tcQuizCopyLink(de) {
+      // Link mở từ web chính giống cơ chế copy link card trong Phòng Học:
+      // ?open=phong-hoc&de=t:<uuid> → mở thẳng bài test trong Phòng Học.
+      const link = location.origin + "/?open=phong-hoc&de=" + de;
+      const done = function () { toast("Đã sao chép liên kết bài test", "success"); };
+      const fail = function () { toast("Không sao chép được liên kết", "error"); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(done, fail);
+      } else {
+        try {
+          const ta = document.createElement("textarea");
+          ta.value = link;
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          done();
+        } catch (e) {
+          fail();
+        }
+      }
+    }
+
+    async function tcQuizSetComplete(id, complete) {
+      try {
+        const { error } = await supabase.rpc("teacher_set_test_complete", { p_id: id, p_is_complete: complete });
+        if (error) throw error;
+        toast(complete ? "Đã đánh dấu hoàn thành — hiện card cho học sinh" : "Chuyển sang chưa hoàn thành — học sinh không thể Làm bài", "success");
+        tcLoadQuizzes();
+      } catch (e) {
+        console.error("tcQuizSetComplete lỗi:", e);
+        toast("Không đổi được trạng thái: " + ((e && e.message) || e), "error");
+      }
+    }
+
+    async function tcQuizDelete(id) {
+      try {
+        const { error } = await supabase.rpc("teacher_delete_test_set", { p_id: id });
+        if (error) throw error;
+        toast("Đã xoá bài kiểm tra", "success");
+        tcLoadQuizzes();
+      } catch (e) {
+        console.error("tcQuizDelete lỗi:", e);
+        toast("Không xoá được bài kiểm tra: " + ((e && e.message) || e), "error");
+      }
+    }
+
+    async function tcLoadNotices() {
+      const listEl = document.getElementById("subjectNoticeList");
+      const metaEl = document.getElementById("subjectNoticeMeta");
+      if (listEl) listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-circle-notch fa-spin"></i></div>Đang tải thông báo...</div>';
+      try {
+        const { data, error } = await supabase.rpc("load_subject_notices");
+        if (error) throw error;
+        const row = (data && data[0]) || null;
+        tcWatchedNoticesMap = (row && row.notices) || {};
+        renderSubjectNoticeCards();
+        if (metaEl) metaEl.textContent = row && row.updated_at
+          ? `Cập nhật: ${scFormatDate(row.updated_at)}${row.updated_by ? ` · bởi ${row.updated_by}` : ""}`
+          : "Chưa có bản lưu từ web giáo viên. Các môn đang dùng nội dung mặc định.";
+      } catch (e) {
+        console.error("load_subject_notices lỗi:", e);
+        if (listEl) listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-triangle-exclamation"></i></div>Không tải được thông báo. Kiểm tra đã chạy SQL subject-notices.sql chưa.</div>';
+      }
+    }
+
+    function renderSubjectNoticeCards() {
+      const listEl = document.getElementById("subjectNoticeList");
+      if (!listEl) return;
+      const iconDisplayName = v => {
+        const rec = NOTICE_ICON_CHOICES.find(x => x.v === v);
+        return rec ? rec.n : v;
+      };
+      listEl.innerHTML = NOTICE_SUBJECTS.map(s => {
+        const rec = tcWatchedNoticesMap && tcWatchedNoticesMap[s.id];
+        const hasRec = !!(rec && typeof rec === "object");
+        const htmlVal = hasRec ? (rec.html || "") : "";
+        const enabled = hasRec ? (rec.enabled !== false) : true;
+        const icon = hasRec ? (rec.icon || "fa-bell") : "fa-bell";
+        const statusLabel = hasRec ? "Đã đặt trong database" : "Chưa có — không hiển thị ở Phòng Học";
+        const iconOptions = NOTICE_ICON_CHOICES.map(ic =>
+          `<button type="button" data-icon-opt="${ic.v}" class="notice-icon-opt${ic.v === icon ? " active" : ""}" title="${ic.n}"><i class="fa-solid ${ic.v}"></i><span>${ic.n}</span></button>`
+        ).join("");
+
+        return `
+          <div data-subject="${s.id}" style="border:1px solid #e5e7eb;border-radius:16px;padding:16px;background:#fff">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+              <div style="width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:15px;color:#fff;background:${s.color};flex-shrink:0"><i class="fa-solid ${s.icon}"></i></div>
+              <div style="min-width:0">
+                <div style="font-weight:700;font-size:15px;color:#111827">${escapeHtml(s.name)}</div>
+                <div style="font-size:11.5px;color:#94a3b8">${statusLabel}</div>
+              </div>
+              <label style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#475569;white-space:nowrap;cursor:pointer">
+                <input type="checkbox" data-enabled="1"${enabled ? " checked" : ""}> Hiện
+              </label>
+            </div>
+            <label style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">Nội dung (hỗ trợ HTML)</label>
+            <textarea data-html="1" rows="3" placeholder="Nhập nội dung thông báo (bỏ trống nếu không muốn hiện)" style="width:100%;padding:12px 14px;border:1px solid #d1d5db;border-radius:12px;font-family:inherit;font-size:13px;resize:vertical;outline:none;transition:border-color .15s,box-shadow .15s">${escapeHtml(htmlVal)}</textarea>
+            <div style="margin-top:10px">
+              <label style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">Icon</label>
+              <div class="notice-icon-pick" data-icon-pick="1">${iconOptions}</div>
+              <div class="notice-icon-prev"><span class="icp-box"><i class="fa-solid ${icon}"></i></span><span data-icon-label="1">${iconDisplayName(icon)}</span></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="btn-sm" data-save style="background:#d97706;color:#fff"><i class="fa-solid fa-floppy-disk"></i> Lưu</button>
+              <button class="btn-sm" data-remove style="background:#f1f5f9;color:#334155"><i class="fa-solid fa-rotate-left"></i> Trở về mặc định</button>
+            </div>
+          </div>`;
+      }).join("");
+
+      listEl.querySelectorAll("[data-save]").forEach(btn => {
+        btn.addEventListener("click", () => tcSaveNotice(btn.closest("[data-subject]").dataset.subject));
+      });
+      listEl.querySelectorAll("[data-remove]").forEach(btn => {
+        btn.addEventListener("click", () => tcRemoveNotice(btn.closest("[data-subject]").dataset.subject));
+      });
+      listEl.querySelectorAll("[data-icon-pick]").forEach(pick => {
+        pick.addEventListener("click", e => {
+          const btn = e.target.closest("[data-icon-opt]");
+          if (!btn) return;
+          const card = btn.closest("[data-subject]");
+          pick.querySelectorAll("[data-icon-opt]").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const labelEl = card.querySelector("[data-icon-label]");
+          const boxEl = card.querySelector(".icp-box i");
+          const nameSpan = btn.querySelector("span");
+          if (labelEl && nameSpan) labelEl.textContent = nameSpan.textContent;
+          if (boxEl) boxEl.className = "fa-solid " + btn.dataset.iconOpt;
+        });
+      });
+    }
+
+    window.tcSaveNotice = async function(subjectId) {
+      const card = document.querySelector(`#subjectNoticeList [data-subject="${subjectId}"]`);
+      const subj = NOTICE_SUBJECTS.find(s => s.id === subjectId);
+      if (!card || !subj) return;
+      const html = (card.querySelector("[data-html]").value || "").trim();
+      const activeIcon = card.querySelector("[data-icon-opt].active");
+      const icon = activeIcon ? activeIcon.dataset.iconOpt : "fa-bell";
+      const enabled = card.querySelector("[data-enabled]").checked;
+      const btn = card.querySelector("[data-save]");
+      btn.disabled = true;
+      try {
+        const { data, error } = await supabase.rpc("teacher_save_subject_notice", {
+          p_subject: subjectId, p_icon: icon, p_html: html, p_enabled: enabled
+        });
+        if (error) throw error;
+        if (!data || data.ok !== true) { toast(data?.error === "forbidden" ? "Bạn không có quyền chỉnh thông báo." : "Không lưu được thông báo.", "error"); return; }
+        toast(`Đã lưu thông báo môn ${subj.name}.`, "success");
+        await tcLoadNotices();
+      } catch (e) {
+        console.error("teacher_save_subject_notice lỗi:", e);
+        toast("Lỗi lưu thông báo: " + (e.message || e), "error");
+      } finally {
+        btn.disabled = false;
+      }
+    };
+
+    window.tcRemoveNotice = async function(subjectId) {
+      const subj = NOTICE_SUBJECTS.find(s => s.id === subjectId);
+      if (!subj) return;
+      const btn = document.querySelector(`#subjectNoticeList [data-subject="${subjectId}"] [data-remove]`);
+      if (btn) btn.disabled = true;
+      try {
+        const { data, error } = await supabase.rpc("teacher_remove_subject_notice", { p_subject: subjectId });
+        if (error) throw error;
+        if (!data || data.ok !== true) { toast(data?.error === "forbidden" ? "Bạn không có quyền chỉnh thông báo." : "Không xoá được thông báo.", "error"); return; }
+        toast(`Đã xoá thông báo môn ${subj.name} — dùng lại mặc định.`, "success");
+        await tcLoadNotices();
+      } catch (e) {
+        console.error("teacher_remove_subject_notice lỗi:", e);
+        toast("Lỗi xoá thông báo: " + (e.message || e), "error");
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    };
+
+    const tcStudentModal = document.getElementById("tcStudentModal");
+    if (tcStudentModal) tcStudentModal.addEventListener("click", tcModalOverlayHandler);
+
+    guard();
+  </script>
+</body>
+</html>

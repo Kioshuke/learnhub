@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<link rel="icon" href="../../assets/images/favicon.png" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="../../assets/images/favicon.png">
+<meta name="theme-color" content="#1a73e8">
+<title>Phòng Học - LearnHub Platform</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="../../styles/global.css">
+<style>
+:root{
+  --bg:transparent;--text:#111827;--text-sub:#6b7280;--border:#e5e7eb;
+  --card-bg:#ffffff;--card-border:#e2e5ec;
+  --notice-bg:#f0f4ff;--notice-border:#d0daf0;
+  --quiz-bg:#ffffff;--quiz-border:#e5e7eb;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;min-height:100vh;font-family:'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;}
+html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;}
+body{padding:4px 6px 12px;}
+iframe{width:100%;border:none !important;outline:none !important;display:block;}
+
+/* Chỉ áp cho iframe làm bài nhúng trong card (không phải khung full màn hình #quizFrame) */
+.quiz-box iframe {
+  width: 100%;
+  height: 60vh;
+  min-height: 350px;
+  max-height: 700px;
+  border: none !important;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+/* #quizFrame chạy full màn hình (quiz-box bao ngoài đã set height:100vh) nên không giới hạn chiều cao */
+#quizFrame {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  border: none !important;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== SUBJECT TABS ===== */
+.subject-tabs{display:flex;gap:4px;overflow-x:auto;padding:0 0 8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}
+.subject-tabs::-webkit-scrollbar{display:none;}
+.subject-title{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:var(--text);margin:12px 2px 8px;}
+.subject-title i{color:var(--text-sub);font-size:13px;}
+
+/* ===== SUBJECT BLOCK (khối liền mạch: tiêu đề + tabs + nội dung) ===== */
+.subject-block{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:14px 14px 18px;overflow:hidden;}
+.subject-block .subject-title{margin:0 2px 12px;padding-bottom:12px;border-bottom:1px solid var(--card-border);}
+.subject-block .subject-title i{font-size:14px;}
+.subject-block .subject-tabs{padding-bottom:12px;}
+
+/* ===== PANELS ===== */
+.subject-panel{display:none;}
+.subject-panel.active{display:block;}
+.subject-tab{flex:1 1 0;min-width:0;padding:8px 4px;border-radius:10px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--card-bg);color:var(--text-sub);cursor:pointer;transition:all 0.2s;scroll-snap-align:start;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.subject-tab:hover{border-color:var(--tab);color:var(--tab);}
+.subject-tab.active{color:#fff;border-color:transparent;background:var(--tab);}
+.subject-tab[data-subject].active{box-shadow:0 4px 12px color-mix(in srgb,var(--tab) 35%,transparent);}
+
+/* ===== NOTICE ===== */
+.subject-notice{background:var(--notice-bg);border:1px solid var(--notice-border);border-left:4px solid var(--tab,var(--blue,#2563eb));border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:14px;color:var(--text-sub);display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.subject-notice i{font-size:15px;flex-shrink:0;color:var(--tab,var(--blue,#2563eb));}
+.subject-notice strong{color:var(--text);}
+
+/* ===== LỊCH HỌC & LỊCH THI (iframe) ===== */
+.schedule-embed{margin-bottom:8px;}
+.schedule-embed iframe{width:100%;height:330px;display:block;transition:height 0.3s ease;}
+@media(max-width:640px){.schedule-embed iframe{height:300px;}}
+
+/* ===== GRID ===== */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;width:100%;}
+
+/* ===== CARD ===== */
+.card{
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:16px;
+  padding:0;
+  display:flex;flex-direction:column;
+  transition:transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  position:relative;overflow:hidden;
+  animation:cardFadeIn 0.28s ease both;
+  animation-delay:calc(var(--card-index, 0) * 0.06s);
+}
+@keyframes cardFadeIn{
+  from{opacity:0;transform:translateY(8px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.card-color-bar{
+  height:4px;width:100%;
+  background:linear-gradient(90deg,var(--card-color),color-mix(in srgb,var(--card-color) 50%,white));
+}
+.card-body{padding:14px 14px 16px;display:flex;flex-direction:column;gap:8px;flex:1 1 0;}
+.card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px color-mix(in srgb,var(--card-color,#2563eb) 12%,transparent);
+  border-color:color-mix(in srgb,var(--card-color,#2563eb) 35%,var(--card-border));
+}
+.card.active-card{
+  border-color:color-mix(in srgb,var(--card-color,#2563eb) 45%,var(--card-border));
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--card-color,#2563eb) 18%,transparent),0 8px 28px color-mix(in srgb,var(--card-color,#2563eb) 14%,transparent);
+}
+
+.card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.card-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;background:var(--card-color,#2563eb);flex-shrink:0;}
+.card h3{margin:0;font-size:16px;font-weight:700;color:var(--text);line-height:1.4;flex:1 1 0;}
+.card-desc{font-size:14px;color:var(--text-sub);line-height:1.5;margin:0;min-height:42px;}
+.card{padding-bottom:0 !important;}
+.card::before,.card::after{content:none;}
+.card p{color:var(--text-sub);margin:0;font-size:14px;line-height:1.5;}
+
+/* ===== STATUS ===== */
+.status{flex-shrink:0;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;white-space:nowrap;padding:4px 10px;border-radius:20px;position:static;pointer-events:auto;}
+.status.done{background:rgba(16,185,129,0.1);color:#10b981;}
+.status.done::before{content:"";width:7px;height:7px;border-radius:50%;background:#10b981;flex-shrink:0;box-shadow:none;animation:none;}
+.status.done::after{content:"Hoàn thành";}
+.status.pending{background:rgba(245,158,11,0.1);color:#d97706;}
+.status.pending::before{content:"";width:7px;height:7px;border-radius:50%;background:#d97706;flex-shrink:0;box-shadow:none;animation:none;}
+.status.pending::after{content:"Chưa hoàn thành";}
+
+/* ===== BUTTON ===== */
+.card .btn-row{margin-top:auto;padding-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.card .btn-copy-icon{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;font-size:13px;color:var(--text-sub);background:var(--notice-bg);border:1px solid var(--card-border);cursor:pointer;text-decoration:none;transition:all 0.2s;flex-shrink:0;}
+.card .btn-copy-icon:hover{color:var(--text);border-color:var(--card-color,#2563eb);}
+.card .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;color:#fff;background:var(--card-color,#2563eb);transition:all 0.2s;cursor:pointer;border:none;position:static;margin:0;}
+.card .btn:hover{filter:brightness(1.1);box-shadow:0 4px 14px color-mix(in srgb,var(--card-color,#2563eb) 35%,transparent);}
+.card .btn.disabled{opacity:0.5;pointer-events:none;}
+
+/* ===== DARK MODE ===== */
+
+/* Tab môn: (dark mode) giữ đúng màu từng môn — ko bị rule cam #ff6b35 trong giaodien.css đè */
+body.dark-mode .subject-tab:hover{border-color:var(--tab);color:var(--tab);}
+body.dark-mode .subject-tab.active{color:#fff;border-color:transparent;}
+body.dark-mode .subject-tab.active:hover{color:#fff;border-color:var(--tab);}
+
+
+
+
+
+.tab-short{display:none;}
+@media (max-width:768px){
+  .tab-full{display:none;}
+  .tab-short{display:inline;}
+  .subject-tab i{display:none;}
+  body{padding:2px 4px 10px;}
+  .subject-tabs{gap:6px;padding-bottom:6px;}
+  .subject-tab{padding:8px 4px;font-size:11px;border-radius:9px;}
+  .subject-block{padding:10px 10px 14px;border-radius:12px;}
+  .grid{grid-template-columns:1fr;gap:8px;}
+  .card{border-radius:12px;box-shadow:none;animation:cardFadeInMobile 0.16s ease both;animation-delay:calc(var(--card-index, 0) * 0.04s);}
+  .card:hover{transform:none;box-shadow:none;}
+  .card-body{padding:10px 10px 12px;gap:6px;}
+  .card h3{font-size:14px;}
+  .card-desc{font-size:12px;line-height:1.4;min-height:34px;}
+  .card .btn{padding:8px 14px;font-size:13px;}
+  .quiz-box{margin-top:12px;border-radius:6px;}
+  .quiz-header{padding:6px 6px 8px;}
+}
+@keyframes cardFadeInMobile{
+  from{opacity:0;transform:translateY(4px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .card,.card:hover,.subject-tab{transition:none !important;animation:none !important;}
+}
+
+/* ===== QUIZ ===== */
+.quiz-box{margin-top:16px;background:var(--quiz-bg);border:1px solid var(--quiz-border);border-radius:10px;overflow:hidden;}
+.quiz-header{padding:8px 8px;display:flex;justify-content:flex-start;border-bottom:1px solid var(--quiz-border);}
+.quiz-btn{padding:6px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:13px;}
+.close-btn{background:#ef4444;color:#fff;}
+/* Nút "Mở thư mục Drive" (chỉ hiện khi đang xem thư mục Drive) */
+.quiz-btn.open-drive-btn{background:#1a73e8;color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+.quiz-btn.open-drive-btn:hover{filter:brightness(1.08);}
+
+/* ===== YOUTUBE VIDEO PLAYER (MOS-STYLE) ===== */
+.video-box{width:100%;margin:16px auto 0;}
+.video-box .video-topbar{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.video-frame{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #111827;
+  box-shadow: 0 12px 28px rgba(17, 24, 39, 0.14);
+}
+.video-frame iframe{
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+/* Chống xung đột với luật chung `#quiz iframe{height:70vh}` trong giaodien.css:
+   nó ép iframe video (đang nằm trong #quiz) cao hơn khung 16:9 -> player bị
+   render méo tỉ lệ, cắt mất đáy và sinh viền đen. Buộc iframe của player video
+   lấp đúng 100% khung (tự sinh video 16:9 chuẩn như YouTube, không viền đen). */
+#quiz .video-frame iframe{
+  width: 100%;
+  height: 100% !important;
+  min-height: 0;
+}
+#quiz .video-frame video{
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+/* Zoom lấp đầy khung cho video YouTube: video gốc quay không đúng 16:9 nên
+   YouTube tự chèn viền đen trong iframe. Cách đúng để crop viền đen là GIỮ
+   NGUYÊN kích thước iframe = 100% (để YouTube tự layout video đúng chuẩn bên
+   trong), rồi dùng transform:scale() để phóng to phần đã render ra và cắt bớt
+   qua overflow:hidden của .video-frame. Nếu đổi width/height% thay vì scale,
+   YouTube sẽ tự re-layout lại theo khung mới nên không có tác dụng crop gì cả. */
+.video-frame.yt-zoom iframe{
+  transform: scale(1);
+  transform-origin: center center;
+}
+
+/* ===== GRAMMAR PLAYER (video 16:9 + mục lục bên cạnh) ===== */
+.grammar-player-content{display:flex;align-items:flex-start;gap:14px;width:100%;}
+.grammar-player-content .video-frame{flex:1 1 68%;min-width:0;margin:0;align-self:flex-start;}
+.grammar-sidebar{flex:0 0 260px;align-self:stretch;display:flex;flex-direction:column;min-height:0;background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;overflow:hidden;}
+.grammar-sidebar-header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;font-size:12.5px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--text-sub);background:var(--notice-bg);border-bottom:1px solid var(--card-border);}
+.watched-counter{font-size:11px;font-weight:700;letter-spacing:0;text-transform:none;color:var(--text-sub);white-space:nowrap;}
+.watched-counter b{color:#16a34a;font-weight:800;}
+.grammar-sidebar-list{list-style:none;margin:0;padding:6px;overflow-y:auto;flex:1 1 auto;min-height:0;}
+.grammar-sidebar-item{display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:4px;border-radius:10px;font-size:13px;font-weight:600;line-height:1.3;color:var(--text-sub);cursor:pointer;transition:background .18s,color .18s;}
+.grammar-sidebar-item i{flex-shrink:0;font-size:11px;}
+.grammar-sidebar-item:hover{background:var(--notice-bg);color:var(--text);}
+.grammar-sidebar-item.active{background:var(--tab,#0891b2);color:#fff;}
+.grammar-sidebar-item .watched-tick{display:none;margin-left:auto;color:#16a34a;font-size:14px;}
+.grammar-sidebar-item.watched .watched-tick{display:inline-block;}
+.grammar-sidebar-item.active .watched-tick{color:#fff;}
+.grammar-sidebar-item.math-pending{opacity:0.55;cursor:default;pointer-events:none;}
+.grammar-sidebar-item.math-pending:hover{background:transparent;color:var(--text-sub);}
+.grammar-sidebar-item.math-pending .math-pending-tag{margin-left:auto;flex-shrink:0;}
+.math-pending-tag{font-size:10px;font-weight:700;line-height:1;padding:3px 7px;border-radius:20px;background:rgba(245,158,11,0.12);color:#d97706;white-space:nowrap;}
+@media (max-width:768px){
+  .grammar-player-content{flex-direction:column;}
+  .grammar-sidebar{flex:0 0 auto;align-self:stretch;border-radius:12px;}
+}
+/* Video file: <video> HTML5, khung tự co đúng tỉ lệ file (JS đổi style.aspectRatio
+   khi đọc metadata) nên video to, đầy khung, không viền đen/cắt/zoom.
+   object-fit:contain chỉ là lớp an toàn nếu file chưa kịp load metadata. */
+.video-frame.drive-mode{aspect-ratio:16/9;}
+.video-frame.drive-mode iframe{width:100%;height:100%;border:0;}
+.video-frame.drive-mode video{width:100%;height:100%;display:block;border:0;background:#000;object-fit:contain;}
+/* Drive thư mục (lưới tài liệu) + tài liệu PDF: dùng CHUNG khung 16/9 với player
+   video để chuyển qua lại không bị giật kích thước. Trước đây 2 mode này đặt
+   height:75vh (cao theo màn hình) còn video đặt aspect-ratio:16/9 (cao theo bề
+   rộng); phòng học nhúng full-width nên trên màn rộng khung Drive luôn thấp
+   hơn khung video. */
+.video-frame.drive-folder-mode{aspect-ratio:16/9;}
+.video-frame.drive-folder-mode iframe{width:100%;height:100%;border:0;}
+.video-frame.pdf-mode{aspect-ratio:16/9;}
+.video-frame.pdf-mode iframe{width:100%;height:100%;border:0;background:#fff;}
+/* Fallback khi video Drive không stream trực tiếp được (file quá lớn/bị chặn):
+   nhúng iframe preview của Drive trong khung 16:9 như player YouTube, KHÔNG
+   phóng to (không cảm giác video bị zoom). */
+.video-frame.drive-preview-mode{aspect-ratio:16/9;}
+.video-frame.drive-preview-mode iframe{
+  width:100%;
+  height:100%;
+  border:0;
+  background:#000;
+}
+/* Mobile: khung 16/9 chỉ cao ~215px nên lưới thư mục Drive quá chật — nâng tối
+   thiểu 320px. Chỉ áp cho thư mục, video vẫn giữ 16/9 thuần. */
+@media (max-width:768px){
+  .video-frame.drive-folder-mode{min-height:320px;}
+}
+/* Vimeo: khung 16:9 như player YouTube (không track "đã xem") */
+.video-frame.vimeo-mode{aspect-ratio:16/9;}
+.video-frame.vimeo-mode iframe{width:100%;height:100%;border:0;background:#000;}
+/* TikTok: khung 16:9 như player YouTube (không track "đã xem") */
+.video-frame.tiktok-mode{aspect-ratio:16/9;}
+.video-frame.tiktok-mode iframe{width:100%;height:100%;border:0;background:#000;}
+
+/* ===== NHÓM CHỦ ĐỀ trong mục lục "Video GV" (dropdown) ===== */
+.gv-group{border:1px solid var(--card-border);border-radius:12px;margin-bottom:6px;overflow:hidden;background:var(--card-bg);}
+.gv-group-head{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12.5px;font-weight:800;color:#0f172a;cursor:pointer;user-select:none;background:var(--notice-bg);border-bottom:1px solid var(--card-border);}
+.gv-group-head:hover{filter:brightness(.97);}
+.gv-group-head:last-child{border-bottom:0;}
+.gv-group-caret{font-size:10px;color:#94a3b8;transition:transform .15s;}
+.gv-group-head.open .gv-group-caret{transform:rotate(90deg);color:#0d9488;}
+.gv-group-folder{color:#0d9488;font-size:12px;}
+.gv-group-title{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.gv-group-count{flex-shrink:0;font-size:10px;font-weight:700;color:#0d9488;background:rgba(13,148,136,.12);border-radius:999px;padding:3px 9px;}
+.gv-group-body{list-style:none;margin:0;padding:4px;}
+.gv-group-body .grammar-sidebar-item{margin:0 0 2px;padding:9px 12px;}
+.gv-empty{background:#f8fafc;border:1px dashed #dbe3f0;border-radius:14px;padding:34px 16px;text-align:center;color:#94a3b8;font-size:13px;line-height:1.7;}
+.gv-empty i{display:block;font-size:26px;margin-bottom:10px;color:#c7d2e8;}
+/* Khung player "Video GV" lúc CHƯA CHỌN video: hiện thông báo, không autoplay */
+.gv-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#94a3b8;font-weight:600;font-size:14px;text-align:center;padding:20px;background:#0f172a;border-radius:14px;}
+.gv-placeholder i{font-size:38px;color:#0d9488;}
+/* Foot của card giáo viên: nút Xem video trái - thống kê video/chủ đề phải */
+.gv-card-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}
+.gv-card-stats{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#64748b;white-space:nowrap}
+.gv-card-stats i{font-size:11px;color:#0891b2}
+</style>
+<script src="../../version/version-check.js" defer></script>
+<script src="../../scripts/core/toast.js"></script>
+</head>
+<body>
+
+<div class="schedule-embed">
+  <iframe id="scheduleFrame" src="lich-hoc.html" title="Lịch học và lịch thi"></iframe>
+</div>
+
+<div class="subject-block">
+  <div class="subject-title"><i class="fas fa-book-open"></i> Danh sách môn học</div>
+  <!-- Tabs + panels + cards được render từ phonghoc-data.js (code bên dưới) -->
+  <div class="subject-tabs" id="subjectTabs"></div>
+  <div id="subjectPanels"></div>
+</div>
+
+<div id="quiz"></div>
+
+<script>
+/* ============================================================
+   PHÒNG HỌC - LOGIC
+   ------------------------------------------------------------
+   Dữ liệu (môn học / card / khóa video) nằm ở phonghoc-data.js.
+   File này chứa: render tabs/cards từ data + trình phát video
+   (YouTube API, Google Drive, PDF) + nhúng bài test (loadQuiz).
+   ============================================================ */
+
+function applyCardDominoEffect() {
+  document.querySelectorAll('.grid').forEach(function(grid) {
+    var cards = grid.querySelectorAll('.card');
+    if (cards.length <= 1) {
+      cards.forEach(function(card) {
+        card.style.removeProperty('--card-index');
+      });
+      return;
+    }
+    cards.forEach(function(card, index) {
+      card.style.setProperty('--card-index', index);
+    });
+  });
+}
+
+function switchSubject(id) {
+  var sf = document.getElementById("scheduleFrame");
+  if (sf && sf.contentWindow) {
+    sf.contentWindow.postMessage({ type: "SCHEDULE_COLLAPSE" }, "*");
+    sf.style.height = "52px";
+  }
+  var quizEl = document.getElementById("quiz");
+  if (quizEl && quizEl.innerHTML.trim() !== "") {
+    closeQuiz();
+  }
+  document.querySelectorAll('.subject-tab').forEach(t => t.classList.remove('active'));
+  // [FIX BUG #19] Guard null: tránh crash khi không tìm thấy tab/panel tương ứng
+  var tabEl = document.querySelector('.subject-tab[data-subject="' + id + '"]');
+  if (tabEl) tabEl.classList.add('active');
+  document.querySelectorAll('.subject-panel').forEach(p => p.classList.remove('active'));
+  var panelEl = document.getElementById(id);
+  if (panelEl) panelEl.classList.add('active');
+  applyCardDominoEffect();
+}
+
+window.learnHubUser = null;
+
+window.addEventListener('DOMContentLoaded', applyCardDominoEffect);
+window.addEventListener('load', applyCardDominoEffect);
+window.addEventListener('message', function(event) {
+  if (!event.data) return;
+  if (event.data.type === 'SCHEDULE_HEIGHT') {
+    var sf = document.getElementById("scheduleFrame");
+    if (sf && event.data.height) sf.style.height = event.data.height;
+  }
+  if (event.data.type === 'LEARNHUB_USER') {
+    window.learnHubUser = event.data.user;
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'LEARNHUB_REQUEST_WATCHED', uid: event.data.user && event.data.user.uid }, '*');
+    }
+  }
+  if (event.data.type === 'LEARNHUB_WATCHED_LIST') {
+    applyWatchedList(event.data.videoIds);
+  }
+  if (event.data.type === 'LEARNHUB_TEST_RESULT') {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage(event.data, '*');
+    }
+  }
+  if (event.data.type === 'LEARNHUB_TEST_RESULT_ACK') {
+    var qf = document.getElementById("quizFrame");
+    if (qf && qf.contentWindow) {
+      qf.contentWindow.postMessage(event.data, '*');
+    }
+  }
+  if (event.data.type === 'DARK_MODE') {
+    document.body.classList.toggle('dark-mode', !!event.data.value);
+    var sf = document.getElementById("scheduleFrame");
+    if (sf && sf.contentWindow) {
+      sf.contentWindow.postMessage({ type: 'DARK_MODE', value: !!event.data.value }, '*');
+    }
+  }
+  if (event.data.type === 'OPEN_QUIZ') {
+    var found = openQuizByDe(event.data.de);
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'OPEN_QUIZ_ACK', ok: !!found, de: String(event.data.de || "") }, '*');
+    }
+  }
+});
+
+function lockPageScroll() {
+  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
+}
+
+function unlockPageScroll() {
+  document.body.style.overflow = '';
+  document.documentElement.style.overflow = '';
+}
+
+function openQuizByDe(de) {
+  var target = String(de || "").trim();
+  if (!target) return false;
+  var dbHit = (window.__testCardMap || {})[target];
+  if (!dbHit || !dbHit.subjectId) return false;
+  if (dbHit.done === false) {
+    if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'OPEN_QUIZ_BLOCKED', reason: 'not_completed', de: target }, '*');
+    }
+    return true;
+  }
+  if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
+  var quizEl = document.getElementById("quiz");
+  if (quizEl) quizEl.innerHTML = "";
+  loadQuiz({ closest: function () { return null; } }, dbHit.url);
+  return true;
+}
+
+function copyQuizLink(btn, link) {
+  var flashBtn = function() {
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i>';
+    setTimeout(function() { btn.innerHTML = orig; }, 1800);
+  };
+  var done = function() {
+    flashBtn();
+    if (window.lhToast) lhToast("Đã copy link bài test", { type: "success", title: "Đã copy", durationMs: 1600 });
+  };
+  var fallback = function() {
+    var ta = document.createElement("textarea");
+    ta.value = link;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); done(); } catch (e) {}
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(link).then(done, fallback);
+  } else {
+    fallback();
+  }
+}
+
+function loadQuiz(btn, link) {
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
+  var card = btn && btn.closest ? btn.closest(".card") : null;
+  if (card) card.classList.add("active-card");
+
+  lockPageScroll();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "LOCK_PAGE_SCROLL" }, "*");
+  }
+
+  document.getElementById("quiz").innerHTML =
+    '<div class="quiz-box" style="position:relative; width:100%; height:100vh; max-height:100vh; overflow:hidden; margin:0; padding:0; border-left:0; border-right:0; border-radius:0;">' +
+      '<iframe id="quizFrame" src="' + link + '" style="width:100%; height:100%; border:0; outline:0; margin:0; padding:0; overscroll-behavior:contain;"></iframe>' +
+      '<div class="quiz-header" style="position:absolute; top:8px; left:8px; right:auto; z-index:9999; pointer-events:auto; padding:0;">' +
+        '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng bài</button>' +
+      '</div>' +
+    '</div>';
+
+  setTimeout(function() {
+    var q = document.getElementById("quiz");
+    if (q) q.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 50);
+
+  var iframe = document.getElementById("quizFrame");
+  window.__quizLoadOk = false;
+
+  iframe.onload = function() {
+    window.__quizLoadOk = true;
+    if (window.learnHubUser) {
+      iframe.contentWindow.postMessage({ type: "LEARNHUB_USER", user: window.learnHubUser }, "*");
+    }
+    clearTimeout(window.__quizLoadTimer);
+    document.getElementById("quiz").scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  // 🕐 Watchdog: nếu iframe bài test không tải được trong 20s thì ghi log lỗi
+  clearTimeout(window.__quizLoadTimer);
+  window.__quizLoadTimer = setTimeout(function() {
+    var fr = document.getElementById("quizFrame");
+    if (fr && !window.__quizLoadOk) {
+      if (window.logAppError) {
+        window.logAppError({
+          source: "quiz",
+          category: "feature",
+          level: "error",
+          code: "QUIZ_FRAME_LOAD_TIMEOUT",
+          message: "Iframe bài test không tải được trong 20s (trang test không hiển thị).",
+          detail: { link: String(link || "").slice(0, 200) }
+        });
+      }
+    }
+  }, 20000);
+}
+
+function closeQuiz() {
+  stopWatchTimer();
+  if (ytPlayer && typeof ytPlayer.destroy === "function") {
+    try { ytPlayer.destroy(); } catch (e) {}
+  }
+  ytPlayer = null;
+  currentVideoId = null;
+  document.getElementById("quiz").innerHTML = "";
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
+  unlockPageScroll();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "UNLOCK_PAGE_SCROLL" }, "*");
+    window.parent.postMessage({ type: "CLOSE_QUIZ_SCROLL_TOP" }, "*");
+  }
+}
+
+/* ===== ESCAPE HELPER ===== */
+function escHtml(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+function escJs(s) {
+  return String(s == null ? "" : s).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+/* Sanitize HTML thông báo môn: giữ thẻ định dạng an toàn + style/class/href,
+   gỡ mọi thuộc tính on* và link javascript: (chống stored XSS). */
+function sanitizeNoticeHtml(html) {
+  var ALLOW = ["B","STRONG","I","EM","U","S","STRIKE","DEL","INS","BR","P","DIV","SPAN","UL","OL","LI","A","SMALL","MARK",
+    "H1","H2","H3","H4","H5","H6","BLOCKQUOTE","CODE","PRE","SUB","SUP","HR",
+    "TABLE","THEAD","TBODY","TFOOT","TR","TH","TD","CAPTION"];
+  var DROP = ["SCRIPT","STYLE","IFRAME","OBJECT","EMBED","LINK","META","BASE","FORM","INPUT","TEXTAREA","SELECT","BUTTON","SVG","MATH","AUDIO","VIDEO","SOURCE"];
+  var SAFE = ["style","class","title","target","rel","href","color","size","align","colspan","rowspan"];
+  function unsafeUrl(v) {
+    var s = String(v || "").replace(/[\u0000-\u0020]/g, "").toLowerCase();
+    return s.indexOf("javascript:") === 0 || s.indexOf("vbscript:") === 0 ||
+      (s.indexOf("data:") === 0 && s.indexOf("data:image/") !== 0);
+  }
+  var tpl = document.createElement("template");
+  tpl.innerHTML = String(html == null ? "" : html);
+  (function walk(node) {
+    Array.prototype.slice.call(node.childNodes).forEach(function (child) {
+      if (child.nodeType === 1) {
+        var tag = child.tagName;
+        if (DROP.indexOf(tag) !== -1) { child.remove(); return; }
+        if (ALLOW.indexOf(tag) === -1) {
+          node.replaceChild(document.createTextNode(child.textContent || ""), child); return;
+        }
+        Array.prototype.slice.call(child.attributes).forEach(function (a) {
+          var n = a.name.toLowerCase();
+          if (SAFE.indexOf(n) === -1 || n.indexOf("on") === 0) { child.removeAttribute(a.name); return; }
+          if ((n === "href" || n === "src") && unsafeUrl(a.value)) { child.removeAttribute(a.name); }
+        });
+        if (tag === "A") child.setAttribute("rel", "noopener noreferrer");
+        walk(child);
+      } else if (child.nodeType === 8) { child.remove(); }
+    });
+  })(tpl.content);
+  return tpl.innerHTML;
+}
+
+/* ============================================================
+   RENDER TABS + PANELS + CARDS từ window.PHONGHOC_SUBJECTS
+   ============================================================ */
+function renderCard(c) {
+  var iconStyle = c.iconBg ? ' style="background:' + escHtml(c.iconBg) + '"' : "";
+  var statusCls = c.status === "pending" ? "pending" : "done";
+
+  var btn;
+  if (c.disabled) {
+    btn = '<a class="btn disabled" href="#">Sắp ra mắt</a>';
+  } else if (c.action && c.action.type === "video") {
+    btn = '<a class="btn" href="#" onclick="openCourse(this,\'' + escJs(c.action.course) +
+      '\'); return false;">' + escHtml(c.btnLabel || "Xem video") + '</a>';
+  } else if (c.action && c.action.url) {
+    btn = '<a class="btn" href="#" onclick="loadQuiz(this,\'' + escJs(c.action.url) +
+      '\'); return false;">' + escHtml(c.btnLabel || "Làm bài") + '</a>';
+  } else {
+    btn = '<a class="btn disabled" href="#">Sắp ra mắt</a>';
+  }
+
+  return (
+    '<div class="card">' +
+      '<div class="card-color-bar"></div>' +
+      '<div class="card-body">' +
+        '<div class="card-top">' +
+          '<div class="card-icon"' + iconStyle + '><i class="fas ' + escHtml(c.icon || "fa-book") + '"></i></div>' +
+          '<h3>' + escHtml(c.title) + '</h3>' +
+          '<span class="status ' + statusCls + '"></span>' +
+        '</div>' +
+        '<p class="card-desc">' + escHtml(c.description) + '</p>' +
+        '<div class="btn-row">' + btn + '</div>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+function buildNoticeHtml(s) {
+  if (s && s.notice && s.notice.html && String(s.notice.html).trim() !== "") {
+    return '<div class="subject-notice"><i class="fas ' + escHtml(s.notice.icon || "fa-bell") + '"></i> ' +
+      '<strong>Thông báo môn ' + escHtml(s.name) + ':</strong> ' +
+      sanitizeNoticeHtml(s.notice.html) + '</div>';
+  }
+  return "";
+}
+
+/* Cập nhật CHỈ khung thông báo của từng panel — giữ nguyên các card video đã đổ từ DB. */
+function refreshNoticeBoxes() {
+  var subjects = window.PHONGHOC_SUBJECTS || [];
+  subjects.forEach(function (s) {
+    var panel = document.getElementById(s.id);
+    if (!panel) return;
+    var old = panel.querySelector(".subject-notice");
+    if (old) old.remove();
+    var html = buildNoticeHtml(s);
+    if (html) panel.insertAdjacentHTML("afterbegin", html);
+  });
+}
+
+function renderPhongHoc() {
+  var subjects = window.PHONGHOC_SUBJECTS || [];
+  var tabsHtml = "";
+  var panelsHtml = "";
+
+  subjects.forEach(function (s) {
+    tabsHtml +=
+      '<button class="subject-tab" data-subject="' + escHtml(s.id) +
+      '" style="--tab:' + escHtml(s.tabColor || s.cardColor || "#2563eb") +
+      '" onclick="switchSubject(\'' + escJs(s.id) + '\')">' +
+        '<i class="fas ' + escHtml(s.icon) + '"></i> ' +
+        '<span class="tab-full">' + escHtml(s.name) + '</span>' +
+        '<span class="tab-short">' + escHtml(s.short || s.name) + '</span>' +
+      '</button>';
+
+    var noticeHtml = buildNoticeHtml(s);
+    var cardsHtml = (s.cards || []).map(renderCard).join("");
+
+    panelsHtml +=
+      '<div id="' + escHtml(s.id) + '" class="subject-panel" style="--tab:' + escHtml(s.tabColor) +
+      ';--card-color:' + escHtml(s.cardColor || s.tabColor) + ';">' +
+        noticeHtml +
+        '<div class="grid">' + cardsHtml + '</div>' +
+      '</div>';
+  });
+
+  var tabsWrap = document.getElementById("subjectTabs");
+  var panelsWrap = document.getElementById("subjectPanels");
+  if (tabsWrap) tabsWrap.innerHTML = tabsHtml;
+  if (panelsWrap) panelsWrap.innerHTML = panelsHtml;
+
+  if (typeof applyCardDominoEffect === "function") applyCardDominoEffect();
+}
+
+/* ============================================================
+   TRÌNH PHÁT VIDEO (mục lục sidebar + YouTube IFrame API)
+   ============================================================ */
+
+/* --- YouTube IFrame Player API: theo dõi tiến độ xem để tick "đã xem" ---
+   Chỉ video YouTube được track (xem >= 75% mới tính, lưu ID xuống DB).
+   Google Drive / PDF chỉ mở xem trực tiếp, không track. */
+var ytPlayer = null;
+var currentVideoId = null;
+var watchProgressTimer = null;
+var watchedVideoIds = new Set();
+
+var __ytFallbackCb = null;
+function ensureYouTubeAPI(callback) {
+  __ytFallbackCb = callback;
+  if (window.YT && window.YT.Player) { __ytFallbackCb = null; callback(); return; }
+  if (!window.__ytApiLoading) {
+    window.__ytApiLoading = true;
+    var tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(tag);
+  }
+  var prevReady = window.onYouTubeIframeAPIReady;
+  window.onYouTubeIframeAPIReady = function() {
+    if (typeof prevReady === "function") prevReady();
+    if (window.__ytFallbackTimer) { clearTimeout(window.__ytFallbackTimer); window.__ytFallbackTimer = null; }
+    __ytFallbackCb = null;
+    callback();
+  };
+  if (!window.__ytFallbackTimer) {
+    window.__ytFallbackTimer = setTimeout(function() {
+      window.__ytFallbackTimer = null;
+      if (window.YT && window.YT.Player) return;
+      var cb = __ytFallbackCb;
+      __ytFallbackCb = null;
+      if (typeof cb === "function") cb();
+    }, 5000);
+  }
+}
+
+function createYTPlayer(elementId, videoId) {
+  stopWatchTimer();
+  if (ytPlayer && typeof ytPlayer.destroy === "function") {
+    try { ytPlayer.destroy(); } catch (e) {}
+  }
+  ytPlayer = null;
+  currentVideoId = videoId;
+  var host = document.getElementById(elementId);
+  if (!host) return;
+  var frame = host.closest(".video-frame");
+  if (frame) frame.classList.add("yt-zoom");
+  if (!window.YT || !window.YT.Player) {
+    host.innerHTML = getYoutubeIframeHtml(getYoutubeEmbedUrl("https://www.youtube.com/watch?v=" + videoId));
+    return;
+  }
+  try {
+    ytPlayer = new YT.Player(elementId, {
+      videoId: videoId,
+      playerVars: { rel: 0 },
+      events: { onStateChange: onYTStateChange }
+    });
+  } catch (e) {
+    ytPlayer = null;
+    host.innerHTML = getYoutubeIframeHtml(getYoutubeEmbedUrl("https://www.youtube.com/watch?v=" + videoId));
+  }
+}
+
+function onYTStateChange(e) {
+  if (e.data === YT.PlayerState.PLAYING) {
+    startWatchTimer();
+  } else {
+    stopWatchTimer();
+  }
+}
+
+function startWatchTimer() {
+  stopWatchTimer();
+  watchProgressTimer = setInterval(checkWatchProgress, 1000);
+}
+
+function stopWatchTimer() {
+  if (watchProgressTimer) { clearInterval(watchProgressTimer); watchProgressTimer = null; }
+}
+
+function checkWatchProgress() {
+  if (!ytPlayer || !currentVideoId || watchedVideoIds.has(currentVideoId)) return;
+  var duration = ytPlayer.getDuration ? ytPlayer.getDuration() : 0;
+  var time = ytPlayer.getCurrentTime ? ytPlayer.getCurrentTime() : 0;
+  if (duration > 0 && time / duration >= 0.75) {
+    markVideoWatched(currentVideoId);
+  }
+}
+
+function markVideoWatched(videoId) {
+  watchedVideoIds.add(videoId);
+  var item = document.querySelector('.grammar-sidebar-item[data-video="' + videoId + '"]');
+  if (item) item.classList.add("watched");
+  updateWatchedCounter();
+  if (window.learnHubUser && window.learnHubUser.uid && window.parent && window.parent !== window) {
+    window.parent.postMessage({
+      type: "LEARNHUB_VIDEO_WATCHED",
+      uid: window.learnHubUser.uid,
+      videoId: videoId
+    }, "*");
+  }
+}
+
+function applyWatchedList(videoIds) {
+  watchedVideoIds = new Set(Array.isArray(videoIds) ? videoIds : []);
+  document.querySelectorAll(".grammar-sidebar-item[data-video]").forEach(function(li) {
+    var vid = li.getAttribute("data-video");
+    li.classList.toggle("watched", !!vid && watchedVideoIds.has(vid));
+  });
+  updateWatchedCounter();
+}
+
+function updateWatchedCounter() {
+  var sidebar = document.querySelector(".grammar-sidebar");
+  var counter = sidebar ? sidebar.querySelector(".watched-counter") : null;
+  if (!counter) return;
+  var total = 0;
+  var watched = 0;
+  sidebar.querySelectorAll(".grammar-sidebar-item[data-video]").forEach(function(li) {
+    total++;
+    var vid = li.getAttribute("data-video");
+    if (vid && watchedVideoIds.has(vid)) watched++;
+  });
+  counter.innerHTML = total ? 'Đã xem <b>' + watched + '</b>/' + total : "";
+}
+
+function initSidebarTicks() {
+  document.querySelectorAll(".grammar-sidebar-item[data-video]").forEach(function(li) {
+    if (!li.querySelector(".watched-tick")) {
+      var tick = document.createElement("i");
+      tick.className = "fas fa-check-circle watched-tick";
+      li.appendChild(tick);
+    }
+    var vid = li.getAttribute("data-video");
+    if (vid && watchedVideoIds.has(vid)) li.classList.add("watched");
+  });
+  updateWatchedCounter();
+}
+
+function switchSidebarVideo(item) {
+  var raw = item.getAttribute("data-video");
+  if (!raw) return;
+  var videoId = extractVideoId(raw);
+  setDriveFolderLink(null);
+  document.querySelectorAll(".grammar-sidebar-item").forEach(function(el) {
+    el.classList.remove("active");
+  });
+  item.classList.add("active");
+
+  /* Đang ở chế độ PDF/Drive -> dựng lại khung player */
+  var frame = document.querySelector(".video-frame");
+  if (frame && (frame.classList.contains("pdf-mode") || frame.classList.contains("drive-mode") || frame.classList.contains("drive-folder-mode") || frame.classList.contains("drive-preview-mode") || frame.classList.contains("vimeo-mode") || frame.classList.contains("tiktok-mode"))) {
+    if (ytPlayer && typeof ytPlayer.destroy === "function") {
+      try { ytPlayer.destroy(); } catch (e) {}
+    }
+    ytPlayer = null;
+    frame.classList.remove("pdf-mode", "drive-mode", "drive-folder-mode", "drive-preview-mode", "vimeo-mode", "tiktok-mode");
+    frame.style.aspectRatio = "";
+    frame.innerHTML = '<div id="ytPlayerHost"></div>';
+    currentVideoId = videoId;
+    ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHost", videoId); });
+    return;
+  }
+
+  currentVideoId = videoId;
+  if (ytPlayer && typeof ytPlayer.loadVideoById === "function") {
+    ytPlayer.loadVideoById(videoId);
+  } else {
+    /* FIX: fallback iframe tĩnh (YouTube API không tải được) trước đây
+       chỉ đổi highlight mà không đổi video -> dựng lại player thủ công.
+       Nhánh này cũng xử lý lúc vừa thoát khỏi chế độ Drive/PDF. */
+    stopWatchTimer();
+    if (ytPlayer && typeof ytPlayer.destroy === "function") {
+      try { ytPlayer.destroy(); } catch (e) {}
+    }
+    ytPlayer = null;
+    if (frame) {
+      frame.style.aspectRatio = "";
+      // [FIX BUG #32] id riêng cho nhánh fallback (tránh trùng id ytPlayerHost trong source)
+      frame.innerHTML = '<div id="ytPlayerHostFb"></div>';
+      ensureYouTubeAPI(function() { createYTPlayer("ytPlayerHostFb", videoId); });
+    }
+  }
+}
+
+function switchSidebarPdf(item) {
+  var pdf = item.getAttribute("data-pdf");
+  if (!pdf) return;
+  document.querySelectorAll(".grammar-sidebar-item").forEach(function(el) {
+    el.classList.remove("active");
+  });
+  item.classList.add("active");
+  showPdfPlayer(pdf);
+}
+
+/* ===== GOOGLE DRIVE (video/tài liệu trong mục lục) ===== */
+
+/* Chấp nhận: link file /file/d/<ID>/view... , link ?id=<ID>,
+   link thư mục /drive/folders/<ID>, Google Docs/Sheets/Slides (/<loai>/d/<ID>),
+   hoặc ID trần */
+function getDriveFileId(url) {
+  if (!url) return "";
+  var s = String(url).trim();
+  var m = s.match(/\/(?:file|document|spreadsheets|presentation)\/d\/([\w-]+)/);
+  if (m && m[1]) return m[1];
+  m = s.match(/\/folders\/([\w-]+)/);
+  if (m && m[1]) return m[1];
+  m = s.match(/[?&]id=([\w-]+)/);
+  if (m && m[1]) return m[1];
+  if (/^[\w-]{20,}$/.test(s)) return s;
+  return "";
+}
+
+function getDriveEmbedUrl(url) {
+  var id = getDriveFileId(url);
+  if (!id) return url ? String(url).trim() : "";
+  var s = String(url);
+  /* Google Docs/Sheets/Slides -> nhúng preview chính chủ (docs.google.com) */
+  var dm = s.match(/docs\.google\.com\/(document|spreadsheets|presentation)\/d\/([a-zA-Z0-9_-]+)/);
+  if (dm && dm[1] && dm[2]) {
+    return "https://docs.google.com/" + dm[1] + "/d/" + dm[2] + "/preview?usp=embed_googleplus";
+  }
+  /* Link thư mục -> dạng xem lưới để duyệt tài liệu trong iframe */
+  if (/\/folders\//.test(s)) {
+    return "https://drive.google.com/embeddedfolderview?id=" + id + "#grid";
+  }
+  return "https://drive.google.com/file/d/" + id + "/preview";
+}
+
+function getDriveStreamUrls(id) {
+  if (!id) return [];
+  /* drive.usercontent.google.com bỏ qua được màn cảnh báo "không quét được virus"
+     của Google với các file lớn (video buổi học thường khá nặng) tốt hơn hẳn
+     link uc?export=download cũ. Thử lần lượt nhiều biến thể link (thêm authuser
+     + uuid để làm mới token) vì Google hay từ chối link cũ/đã dùng, giảm tối đa
+     việc phải rơi xuống iframe preview. */
+  var rnd = Math.random().toString(36).slice(2);
+  return [
+    "https://drive.usercontent.google.com/download?id=" + id + "&export=download&confirm=t&authuser=0&uuid=" + rnd,
+    "https://drive.google.com/uc?export=download&id=" + id + "&confirm=t&authuser=0&uuid=" + rnd,
+    "https://drive.usercontent.google.com/download?id=" + id + "&export=download&confirm=t"
+  ];
+}
+
+/* Nút "Mở thư mục Drive" ở thanh trên player: chỉ hiện khi đang xem thư mục
+   Drive (drive-folder-mode) để mở song song 1 tab khác. url = null -> ẩn nút. */
+function setDriveFolderLink(url) {
+  // [FIX BUG #32] Dùng class để tìm nút trong panel đang hiển thị (id từng bị trùng)
+  var btn = document.querySelector(".open-drive-btn") || document.getElementById("driveFolderOpenBtn");
+  if (!btn) return;
+  if (url) {
+    btn.href = String(url);
+    btn.style.display = "";
+  } else {
+    btn.removeAttribute("href");
+    btn.style.display = "none";
+  }
+}
+
+function showDrivePlayer(driveUrl) {
+  stopWatchTimer();
+  if (ytPlayer && typeof ytPlayer.destroy === "function") {
+    try { ytPlayer.destroy(); } catch (e) {}
+  }
+  ytPlayer = null;
+  currentVideoId = null;
+  setDriveFolderLink(null);
+  var frame = document.querySelector(".video-frame");
+  if (!frame) return;
+  frame.style.aspectRatio = "";
+  var isFolder = /\/folders\//.test(String(driveUrl || ""));
+  var isGoogleDoc = /docs\.google\.com\/(document|spreadsheets|presentation)\/d\//.test(String(driveUrl || ""));
+  frame.classList.remove("pdf-mode", "drive-mode", "drive-folder-mode", "drive-preview-mode", "vimeo-mode", "tiktok-mode", "yt-zoom");
+
+  /* Link thư mục / Google Docs, Sheets, Slides -> dạng xem lưới / preview để
+     duyệt tài liệu trong khung 16:9 (không phải file video nên skip stream) */
+  if (isFolder || isGoogleDoc) {
+    frame.classList.add("drive-folder-mode");
+    frame.innerHTML =
+      '<iframe src="' + escHtml(getDriveEmbedUrl(driveUrl)) +
+      '" title="Google Drive" allow="autoplay; encrypted-media" allowfullscreen="true"></iframe>';
+    setDriveFolderLink(isFolder ? driveUrl : null);
+    return;
+  }
+
+  /* Video file -> phát thẳng bằng <video> HTML5. Khung tự co đúng TỈ LỆ THẬT của
+     file sau khi đọc metadata: video hiện to, đầy khung, không viền đen, không bị
+     cắt/zoom. File chuẩn 16:9 thì khung y hệt player YouTube; file tỉ lệ khác thì
+     hiện tự nhiên như VLC (không bóp méo). */
+  frame.classList.add("drive-mode");
+  var video = document.createElement("video");
+  video.className = "drive-video";
+  video.controls = true;
+  video.playsInline = true;
+  video.preload = "metadata";
+  video.setAttribute("title", "Google Drive");
+  video.onloadedmetadata = function() {
+    if (video.videoWidth && video.videoHeight && frame) {
+      frame.style.aspectRatio = video.videoWidth / video.videoHeight;
+    }
+  };
+
+  var streamUrls = getDriveStreamUrls(getDriveFileId(driveUrl));
+  var attempt = 0;
+  video.onerror = function() {
+    attempt++;
+    if (attempt < streamUrls.length) {
+      /* Thử link stream tiếp theo trước khi bỏ cuộc + rơi fallback */
+      video.src = streamUrls[attempt];
+      video.load();
+      return;
+    }
+    /* Fallback: vẫn hiển thị KHUNG 16:9 như YouTube (không phải dạng cao),
+       iframe preview của Drive được phóng to (scale) để thanh header + viền đen
+       thừa trôi ra ngoài, phần video lấp đầy khung cho giống player YouTube. */
+    frame.style.aspectRatio = "";
+    frame.classList.remove("drive-mode");
+    frame.classList.add("drive-preview-mode");
+    frame.innerHTML =
+      '<iframe src="' + escHtml(getDriveEmbedUrl(driveUrl)) +
+      '" title="Google Drive" allow="autoplay; encrypted-media" allowfullscreen="true"></iframe>';
+  };
+  video.src = streamUrls[0];
+  frame.innerHTML = "";
+  frame.appendChild(video);
+}
+
+function switchSidebarDrive(item) {
+  var drive = item.getAttribute("data-drive");
+  if (!drive) return;
+  document.querySelectorAll(".grammar-sidebar-item").forEach(function(el) {
+    el.classList.remove("active");
+  });
+  item.classList.add("active");
+  showDrivePlayer(drive);
+}
+
+function getPdfEmbedUrl(url) {
+  if (!url) return "";
+  var m = String(url).match(/\/file\/d\/([^/?#]+)/);
+  if (m && m[1]) return "https://drive.google.com/file/d/" + m[1] + "/preview";
+  return url;
+}
+
+function showPdfPlayer(pdfUrl) {
+  stopWatchTimer();
+  if (ytPlayer && typeof ytPlayer.destroy === "function") {
+    try { ytPlayer.destroy(); } catch (e) {}
+  }
+  ytPlayer = null;
+  currentVideoId = null;
+  setDriveFolderLink(null);
+var frame = document.querySelector(".video-frame");
+  if (!frame) return;
+  frame.style.aspectRatio = "";
+  frame.classList.add("pdf-mode");
+  frame.classList.remove("drive-mode", "drive-folder-mode", "drive-preview-mode", "vimeo-mode", "tiktok-mode", "yt-zoom");
+  frame.innerHTML = '<iframe src="' + escHtml(getPdfEmbedUrl(pdfUrl)) + '" title="Tài liệu PDF"></iframe>';
+}
+
+/* Chấp nhận cả ID YouTube lẫn link đầy đủ (watch/youtu.be/shorts/embed) */
+function extractVideoId(v) {
+  var s = String(v == null ? "" : v).trim();
+  if (/^[\w-]{11}$/.test(s)) return s;
+  var embed = getYoutubeEmbedUrl(s);
+  var m = embed && embed.match(/\/embed\/([\w-]+)$/);
+  return m ? m[1] : s;
+}
+
+function getYoutubeEmbedUrl(url) {
+  try {
+    const parsed = new URL(url);
+    let videoId = "";
+
+    if (parsed.hostname.includes("youtu.be")) {
+      videoId = parsed.pathname.slice(1);
+    } else if (parsed.hostname.includes("youtube.com")) {
+      if (parsed.pathname.startsWith("/shorts/")) {
+        videoId = parsed.pathname.split("/")[2] || "";
+      } else if (parsed.pathname.startsWith("/embed/")) {
+        videoId = parsed.pathname.split("/")[2] || "";
+      } else {
+        videoId = parsed.searchParams.get("v") || "";
+      }
+    }
+
+    if (!videoId) {
+      return "";
+    }
+
+    return `https://www.youtube.com/embed/${videoId}`;
+  } catch {
+    return "";
+  }
+}
+
+function getYoutubeIframeHtml(embedUrl) {
+  return `
+    <iframe
+      src="${embedUrl}"
+      title="Video"
+      frameborder="0"
+      allowfullscreen="true"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share">
+    </iframe>
+  `;
+}
+
+/* ============================================================
+   MỞ KHÓA VIDEO (đọc nội dung từ window.VIDEO_COURSES)
+   ============================================================ */
+function openCourse(el, courseId) {
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
+  var card = el ? el.closest(".card") : null;
+  if (card) card.classList.add("active-card");
+
+  var courses = window.VIDEO_COURSES || [];
+  var course = null;
+  for (var i = 0; i < courses.length; i++) {
+    if (courses[i].id === courseId) { course = courses[i]; break; }
+  }
+  if (!course) {
+    if (window.lhToast) lhToast("Không tìm thấy khóa học video: " + courseId, 'error');
+    return;
+  }
+
+  var mathCls = course.math ? " math-sidebar-item" : "";
+  var itemsHtml = "";
+  var firstItem = null;
+
+  (course.items || []).forEach(function(it, idx) {
+    var activeCls = idx === 0 ? " active" : "";
+    if (it.pending) {
+      itemsHtml +=
+        '<li class="grammar-sidebar-item' + mathCls + ' math-pending"><i class="fas fa-hourglass-half"></i> ' +
+        escHtml(it.label) + '<span class="math-pending-tag">Chưa có video</span></li>';
+      return;
+    }
+    if (it.video) {
+      itemsHtml +=
+        '<li class="grammar-sidebar-item' + mathCls + activeCls + '" data-video="' + escHtml(it.video) +
+        '" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> ' + escHtml(it.label) + '</li>';
+    } else if (it.pdf) {
+      itemsHtml +=
+        '<li class="grammar-sidebar-item' + mathCls + activeCls + '" data-pdf="' + escHtml(it.pdf) +
+        '" onclick="switchSidebarPdf(this)"><i class="fas fa-file-pdf"></i> ' + escHtml(it.label) + '</li>';
+    } else if (it.drive) {
+      itemsHtml +=
+        '<li class="grammar-sidebar-item' + mathCls + activeCls + '" data-drive="' + escHtml(it.drive) +
+        '" onclick="switchSidebarDrive(this)"><i class="fas ' +
+        (/folders\//.test(String(it.drive || "")) ? "fa-folder-open" : "fa-file-video") +
+        '"></i> ' + escHtml(it.label) + '</li>';
+    } else {
+      return;
+    }
+    if (idx === 0) firstItem = it;
+  });
+
+  document.getElementById("quiz").innerHTML =
+    '<div class="video-box">' +
+      '<div class="video-topbar">' +
+        '<a id="grammarDriveFolderOpenBtn" class="quiz-btn open-drive-btn" target="_blank" rel="noopener" style="display:none">' +
+          '<i class="fas fa-folder-open"></i> Mở thư mục Drive' +
+        '</a>' +
+        '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng video</button>' +
+      '</div>' +
+      '<div class="grammar-player-content">' +
+        '<div class="video-frame">' +
+          '<div id="quizYtPlayerHost"></div>' + // [FIX BUG #32] id riêng cho player trong quiz
+        '</div>' +
+        '<div class="grammar-sidebar">' +
+          '<div class="grammar-sidebar-header">Mục lục<span class="watched-counter"></span></div>' +
+          '<ul class="grammar-sidebar-list">' + itemsHtml + '</ul>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  initSidebarTicks();
+
+  if (firstItem && firstItem.pdf) {
+    showPdfPlayer(firstItem.pdf);
+  } else if (firstItem && firstItem.drive) {
+    showDrivePlayer(firstItem.drive);
+  } else if (firstItem && firstItem.video) {
+    var firstVideoId = extractVideoId(firstItem.video);
+    ensureYouTubeAPI(function() { createYTPlayer("quizYtPlayerHost", firstVideoId); });
+  }
+
+  setTimeout(function() {
+    var q = document.getElementById("quiz");
+    if (q) q.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 50);
+}
+
+/* ============================================================
+   VIDEO GIÁO VIÊN (tab "Video GV" — dữ liệu từ Supabase, do GV đăng)
+   ============================================================ */
+
+/* Phân loại link chấp nhận: YouTube / Vimeo / TikTok / Google Drive */
+function detectPlayerType(url) {
+  var s = String(url || "").trim();
+  if (!s) return "other";
+  if (/drive\.google\.com|docs\.google\.com/.test(s)) return "drive";
+  if (/youtube\.com|youtu\.be|^[\w-]{11}$/.test(s)) return "youtube";
+  if (/vimeo\.com/.test(s)) return "vimeo";
+  if (/tiktok\.com/.test(s)) return "tiktok";
+  return "other";
+}
+
+/* Loại 1 dòng card: "document" (tài liệu Drive) hay "video" */
+function gvKind(c) {
+  return (String((c && c.video_type) || "").trim() || "video") === "document" ? "document" : "video";
+}
+
+/* Đếm tách video / tài liệu trong 1 nhóm */
+function gvCountText(items) {
+  var v = 0, d = 0;
+  (items || []).forEach(function(c) { if (gvKind(c) === "document") d++; else v++; });
+  var parts = [];
+  if (v) parts.push(v + " video");
+  if (d) parts.push(d + " tài liệu");
+  return parts.join(" · ") || "0 video";
+}
+
+function getVimeoEmbedUrl(url) {
+  var s = String(url || "").trim();
+  var m = s.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  var id = m && m[1];
+  if (!id) return s;
+  return "https://player.vimeo.com/video/" + id + "?dnt=1&title=0&byline=0&portrait=0";
+}
+
+function showVimeoPlayer(vimeoUrl) {
+  stopWatchTimer();
+  if (ytPlayer && typeof ytPlayer.destroy === "function") {
+    try { ytPlayer.destroy(); } catch (e) {}
+  }
+  ytPlayer = null;
+  currentVideoId = null;
+  setDriveFolderLink(null);
+  var frame = document.querySelector(".video-frame");
+  if (!frame) return;
+  frame.style.aspectRatio = "";
+  frame.classList.add("vimeo-mode");
+  frame.classList.remove("pdf-mode", "drive-mode", "drive-folder-mode", "drive-preview-mode", "tiktok-mode", "yt-zoom");
+  frame.innerHTML =
+    '<iframe src="' + escHtml(getVimeoEmbedUrl(vimeoUrl)) +
+    '" title="Vimeo" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen="true"></iframe>';
+}
+
+function getTikTokEmbedUrl(url) {
+  var s = String(url || "").trim();
+  var m = s.match(/\/video\/(\d+)/);
+  var id = m && m[1];
+  if (!id) return s;
+  return "https://www.tiktok.com/player/v1/" + id + "?autoplay=0&music_info=0&description_show=0&rel=0";
+}
+
+/* TikTok: nhúng player chính thức bằng iframe. Video TikTok dọc nên khung giữ
+   tỉ lệ 16:9 như YouTube nhưng player tự đặt video giữa khung (không track "đã xem"). */
+function showTikTokPlayer(tiktokUrl) {
+  stopWatchTimer();
+  if (ytPlayer && typeof ytPlayer.destroy === "function") {
+    try { ytPlayer.destroy(); } catch (e) {}
+  }
+  ytPlayer = null;
+  currentVideoId = null;
+  setDriveFolderLink(null);
+  var frame = document.querySelector(".video-frame");
+  if (!frame) return;
+  frame.style.aspectRatio = "";
+  frame.classList.add("tiktok-mode");
+  frame.classList.remove("pdf-mode", "drive-mode", "drive-folder-mode", "drive-preview-mode", "vimeo-mode", "yt-zoom");
+  frame.innerHTML =
+    '<iframe src="' + escHtml(getTikTokEmbedUrl(tiktokUrl)) +
+    '" title="TikTok" allow="autoplay; fullscreen; picture-in-picture; encrypted-media; web-share" allowfullscreen="true"></iframe>';
+}
+
+/* Điều hướng item "Video GV": YouTube giữ nguyên cơ chế track "đã xem",
+   còn Vimeo/TikTok/Drive mở trực tiếp (không track — giống Drive/PDF hiện tại). */
+function switchSidebarGv(item) {
+  var type = item.getAttribute("data-gv");
+  if (type === "youtube") {
+    switchSidebarVideo(item);
+    return;
+  }
+  var url = item.getAttribute("data-gv-url");
+  if (!url) return;
+  document.querySelectorAll(".grammar-sidebar-item").forEach(function(el) {
+    el.classList.remove("active");
+  });
+  item.classList.add("active");
+  if (type === "vimeo") showVimeoPlayer(url);
+  else if (type === "tiktok") showTikTokPlayer(url);
+  else if (type === "drive") showDrivePlayer(url);
+}
+
+function gvPlaceholderHtml() {
+  return '<div class="gv-placeholder"><i class="fa-solid fa-circle-play"></i><span>Chưa chọn video — mở một chủ đề trong mục lục bên cạnh để xem video</span></div>';
+}
+
+/* Đổ card video giáo viên vào GRID MÔN HỌC sẵn có (không tạo tab riêng).
+   Mỗi card = 1 (subject, card_title) do giáo viên đặt tên (vd: "Tổng ôn tiếng anh"). */
+function seedGvVideoTab(data, order) {
+  if (!data) return;
+  var staticOrder = (window.PHONGHOC_SUBJECTS || []).map(function(s) { return s.name; });
+  var indexOf = function(n) { return staticOrder.indexOf(n); };
+  var names = (order && order.length ? order : Object.keys(data))
+    .filter(function(n) { return data[n] && data[n].length; })
+    .sort(function(a, b) {
+      var ia = indexOf(a), ib = indexOf(b);
+      if (ia === -1 && ib === -1) return a.localeCompare(b, "vi");
+      if (ia === -1) return 1;
+      if (ib === -1) return -1;
+      return ia - ib;
+    });
+
+  names.forEach(function(n) {
+    var s = null;
+    (window.PHONGHOC_SUBJECTS || []).forEach(function(x) { if (x.name === n) s = x; });
+    var panel = s ? document.getElementById(s.id) : null;
+    var grid = panel ? panel.querySelector(".grid") : null;
+    if (!grid) return;
+
+    var icon = (s && s.icon) || "fa-chalkboard-teacher";
+    var color = (s && s.cardColor) || (s && s.tabColor) || "#0d9488";
+
+    var byCard = {};
+    var cardOrder = [];
+    (data[n] || []).forEach(function(c) {
+      var ct = String(c.card_title || "").trim() || "Video";
+      if (!byCard[ct]) { byCard[ct] = []; cardOrder.push(ct); }
+      byCard[ct].push(c);
+    });
+    cardOrder.sort(function(a, b) { return a.localeCompare(b, "vi"); });
+
+    cardOrder.forEach(function(ct) {
+      var key = n + "§" + ct;
+      // [FIX BUG #17] Không nhét card_title vào CSS selector (tiêu đề chứa "/\ hoặc "
+      // làm querySelector throw -> dừng render thẻ Video GV). So khớp qua dataset thay thế.
+      var existed = false;
+      for (var ci = 0; ci < grid.children.length; ci++) {
+        if (grid.children[ci].dataset && grid.children[ci].dataset.gvCard === key) { existed = true; break; }
+      }
+      if (existed) return;
+      var cards = byCard[ct];
+      var groupNames = [];
+      cards.forEach(function(c) {
+        var g = String(c.group_name || "").trim() || "Chung";
+        if (groupNames.indexOf(g) === -1) groupNames.push(g);
+      });
+      var cardDesc = "";
+      for (var di = 0; di < cards.length; di++) {
+        if (String(cards[di].card_description || "").trim()) { cardDesc = cards[di].card_description; break; }
+      }
+      if (!cardDesc) cardDesc = "Khóa video tổng hợp của giáo viên — bấm Xem video để bắt đầu.";
+      grid.insertAdjacentHTML("beforeend",
+        '<div class="card" data-gv-card="' + escHtml(key) + '">' +
+          '<div class="card-color-bar"></div>' +
+          '<div class="card-body">' +
+            '<div class="card-top">' +
+              '<div class="card-icon" style="background:' + escHtml(color) + '"><i class="fas ' + escHtml(icon) + '"></i></div>' +
+              '<h3>' + escHtml(ct) + '</h3>' +
+'<span class="status done"></span>' +
+            '</div>' +
+            '<p class="card-desc">' + escHtml(cardDesc) + '</p>' +
+            '<div class="gv-card-foot">' +
+              '<a class="btn" href="#" onclick="openGvSubject(this,\'' + escJs(n) + '\',\'' + escJs(ct) + '\'); return false;">Xem video</a>' +
+              '<span class="gv-card-stats"><i class="fa-solid fa-video"></i> ' + gvCountText(cards) + '<i class="fa-solid fa-folder" style="margin-left:8px"></i> ' + groupNames.length + ' chủ đề</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>');
+    });
+  });
+
+  if (typeof applyCardDominoEffect === "function") applyCardDominoEffect();
+}
+
+/* Đổ card BÀI TEST từ database (test_sets) vào GRID MÔN HỌC — mỗi bài = 1 card.
+   Dùng `.status.done` / `.status.up` có sẵn trong CSS. */
+function mergeDbTestCards(list) {
+  if (!list || !list.length) return;
+  window.__testCardMap = window.__testCardMap || {};
+  var subjects = window.PHONGHOC_SUBJECTS || [];
+  list.forEach(function (t) {
+    var s = null;
+    subjects.forEach(function (x) { if (x.name === String(t.subject || "").trim()) s = x; });
+    if (!s) return;
+    var grid = document.getElementById(s.id) ? document.getElementById(s.id).querySelector(".grid") : null;
+    if (!grid) return;
+    var key = String(t.set_id || t.id || "");
+    if (!key || grid.querySelector('.card[data-test-card="' + key + '"]')) return;
+    var color = s.cardColor || s.tabColor || "#0d9488";
+    var icon = s.icon || "fa-book";
+    var de = "t:" + key;
+    var url = "../cauhoi/" + ((s.id === "anh") ? "questionenglish.html" : "filetest.html") + "?de=" + de;
+    var copyLink = location.origin + "/?open=phong-hoc&de=" + de;
+    window.__testCardMap[de] = { url: url, subjectId: s.id, done: !!t.is_complete };
+    var stats = [];
+    if (t.minutes > 0) stats.push(t.minutes + " phút");
+    grid.insertAdjacentHTML("beforeend",
+      '<div class="card" data-test-card="' + escHtml(key) + '">' +
+        '<div class="card-color-bar"></div>' +
+        '<div class="card-body">' +
+          '<div class="card-top">' +
+            '<div class="card-icon" style="background:' + escHtml(color) + '"><i class="fas ' + escHtml(icon) + '"></i></div>' +
+            '<h3>' + escHtml(t.name || "Bài kiểm tra") + '</h3>' +
+            '<span class="status ' + (t.is_complete ? 'done' : 'pending') + '"></span>' +
+          '</div>' +
+          '<p class="card-desc">' + escHtml(t.description || "Bài kiểm tra từ giáo viên — bấm Làm bài để bắt đầu.") + '</p>' +
+          '<div class="btn-row">' +
+            (t.is_complete
+              ? '<a class="btn" href="#" onclick="loadQuiz(this,\'' + escJs(url) + '\'); return false;">Làm bài</a>' +
+                '<a class="btn-copy-icon" href="#" title="Copy link bài test" onclick="copyQuizLink(this,\'' + escJs(copyLink) + '\'); return false;"><i class="fas fa-link"></i></a>'
+              : '<a class="btn disabled" href="#">Sắp ra mắt</a>') +
+          '</div>' +
+          (stats.length
+            ? '<div style="margin-top:8px;font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:6px"><i class="fa-regular fa-clock"></i> ' + escHtml(stats.join(" · ")) + '</div>'
+            : '') +
+        '</div>' +
+      '</div>');
+  });
+  if (typeof applyCardDominoEffect === "function") applyCardDominoEffect();
+}
+
+function openGvSubject(el, subjectName, cardTitle) {
+  document.querySelectorAll(".card").forEach(function(c) { c.classList.remove("active-card"); });
+  var card = el && el.closest ? el.closest(".card") : null;
+  if (card) card.classList.add("active-card");
+
+  var data = window.__gvData || {};
+  var all = data[subjectName] || [];
+  var cards = all.filter(function(c) { return String(c.card_title || "").trim() === cardTitle; });
+  if (!cards.length) {
+    if (window.lhToast) lhToast("Chưa có video trong card này", "error");
+    return;
+  }
+
+  var groups = [];
+  var byGroup = {};
+  cards.forEach(function(c) {
+    var g = String(c.group_name || "").trim() || "Chung";
+    if (!byGroup[g]) { byGroup[g] = []; groups.push(g); }
+    byGroup[g].push(c);
+  });
+
+  // Toàn bộ dropdown CHỦ ĐỀ đóng sẵn (accordion); khung video hiện thông báo.
+  var groupsHtml = groups.map(function(g) {
+    var items = byGroup[g];
+    var itemsHtml = items.map(function(c) {
+      var url = String(c.video_url || "").trim();
+      var type = detectPlayerType(url);
+      var title = c.title || "Video";
+      if (type === "youtube") {
+        return '<li class="grammar-sidebar-item" data-gv="youtube" data-video="' + escHtml(extractVideoId(url)) + '" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fas fa-play-circle"></i> ' + escHtml(title) + '</li>';
+      }
+      if (type === "vimeo") {
+        return '<li class="grammar-sidebar-item" data-gv="vimeo" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fa-brands fa-vimeo"></i> ' + escHtml(title) + '</li>';
+      }
+      if (type === "tiktok") {
+        return '<li class="grammar-sidebar-item" data-gv="tiktok" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fa-brands fa-tiktok"></i> ' + escHtml(title) + '</li>';
+      }
+      if (type === "drive") {
+        var isFolder = /folders\//.test(url);
+        var gvIcon = isFolder ? "fa-folder" : (gvKind(c) === "document" ? "fa-file-lines" : "fa-file-video");
+        return '<li class="grammar-sidebar-item" data-gv="drive" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fas ' + gvIcon + '"></i> ' + escHtml(title) + '</li>';
+      }
+      return '<li class="grammar-sidebar-item math-pending"><i class="fas fa-circle-question"></i> ' + escHtml(title) + '<span class="math-pending-tag">Không hỗ trợ</span></li>';
+    }).join("");
+    return (
+      '<div class="gv-group">' +
+        '<div class="gv-group-head">' +
+          '<i class="fa-solid fa-chevron-right gv-group-caret"></i>' +
+          '<i class="fa-solid fa-folder gv-group-folder"></i>' +
+          '<span class="gv-group-title">' + escHtml(g) + '</span>' +
+          '<span class="gv-group-count">' + gvCountText(items) + '</span>' +
+        '</div>' +
+        '<ul class="gv-group-body" style="display:none">' + itemsHtml + '</ul>' +
+      '</div>'
+    );
+  }).join("");
+
+  var listId = "gvSidebarList";
+  document.getElementById("quiz").innerHTML =
+    '<div class="video-box">' +
+      '<div class="video-topbar">' +
+        '<a id="gvDriveFolderOpenBtn" class="quiz-btn open-drive-btn" target="_blank" rel="noopener" style="display:none">' +
+          '<i class="fas fa-folder-open"></i> Mở thư mục Drive' +
+        '</a>' +
+        '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng video</button>' +
+      '</div>' +
+      '<div class="grammar-player-content">' +
+        '<div class="video-frame">' + gvPlaceholderHtml() + '</div>' +
+        '<div class="grammar-sidebar">' +
+          '<div class="grammar-sidebar-header">' + escHtml(cardTitle) + '<span class="watched-counter"></span></div>' +
+          '<ul class="grammar-sidebar-list" id="' + listId + '">' + groupsHtml + '</ul>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  var listEl = document.getElementById(listId);
+  if (listEl) {
+    listEl.querySelectorAll(".gv-group-head").forEach(function(hd) {
+      hd.addEventListener("click", function() {
+        var group = hd.parentNode;
+        var body = group.querySelector(".gv-group-body");
+        if (!body) return;
+        var open = body.style.display !== "none";
+        listEl.querySelectorAll(".gv-group-head").forEach(function(other) {
+          var ob = other.parentNode.querySelector(".gv-group-body");
+          if (ob) ob.style.display = "none";
+          other.classList.remove("open");
+        });
+        if (!open) {
+          body.style.display = "";
+          hd.classList.add("open");
+        }
+      });
+    });
+  }
+
+  initSidebarTicks();
+
+  setTimeout(function() {
+    var q = document.getElementById("quiz");
+    if (q) q.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 50);
+}
+
+/* ===== KHỞI TẠO RENDER ===== */
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", function() {
+    renderPhongHoc();
+  });
+} else {
+  renderPhongHoc();
+}
+
+</script>
+
+<!-- Dữ liệu môn học + màu toàn cục (1 nguồn duy nhất) -->
+<script src="../../scripts/features/subjects-data.js"></script>
+<!-- Dữ liệu phòng học: sửa file này khi thêm/sửa môn học, card, khóa video -->
+<script src="../../scripts/features/phonghoc-data.js"></script>
+
+<script>
+setTimeout(function() {
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "PHONGHOC_READY" }, "*");
+  }
+}, 100);
+</script>
+
+<script type="module">
+import { supabase, logAppError } from "../../scripts/core/supabase-config.js";
+window.logAppError = logAppError;
+
+/* ===== Thông báo môn học từ database (subject_notices) =====
+   Nạp notice do giáo viên đặt rồi render lên từng môn.
+   KHÔNG có dữ liệu DB / tải lỗi → môn không hiện thông báo (để trống). */
+function applySubjectNotices(map) {
+  window.__subjectNoticeMap = map || {};
+  var subjects = window.PHONGHOC_SUBJECTS || [];
+  subjects.forEach(function (s) {
+    var n = (map && map[s.id]) || null;
+    if (!n || typeof n !== "object" || n.enabled === false || !n.html) {
+      s.notice = null;
+      return;
+    }
+    s.notice = { icon: n.icon || "fa-bell", html: n.html };
+  });
+  if (typeof refreshNoticeBoxes === "function") refreshNoticeBoxes();
+}
+
+(async function loadSubjectNotices() {
+  try {
+    const { data, error } = await supabase.rpc("load_subject_notices");
+    if (error) throw error;
+    applySubjectNotices((data && data[0] && data[0].notices) || null);
+  } catch (err) {
+    /* Không tải được database → để trống, không hiện thông báo nào. */
+    console.error("[phong-hoc] tải thông báo môn lỗi:", err);
+    applySubjectNotices(null);
+  }
+})();
+
+/* Cập nhật realtime: giáo viên sửa thông báo → phòng học đổi ngay nếu đang mở. */
+// [FIX BUG #25] Giữ tham chiếu kênh và gỡ khi rời trang để tránh rò kênh realtime
+// (trước đây mỗi lần vào lại tạo thêm kênh mới nhưng không bao giờ removeChannel).
+var subjectNoticesChannel = null;
+if (typeof supabase.channel === "function") {
+  subjectNoticesChannel = supabase
+    .channel("phong-hoc-notices")
+    .on("postgres_changes", { event: "*", schema: "public", table: "subject_notices" }, function () {
+      supabase.rpc("load_subject_notices").then(function ({ data, error }) {
+        if (!error) applySubjectNotices((data && data[0] && data[0].notices) || null);
+      });
+    })
+    .subscribe();
+  var _removeSubjectNoticesChannel = function () {
+    if (subjectNoticesChannel) {
+      try { supabase.removeChannel(subjectNoticesChannel); } catch (e) {}
+      subjectNoticesChannel = null;
+    }
+  };
+  window.addEventListener("pagehide", _removeSubjectNoticesChannel);
+  window.addEventListener("beforeunload", _removeSubjectNoticesChannel);
+}
+
+(async function initVideoGv() {
+  try {
+    const { data: subjects, error } = await supabase.rpc("list_video_subjects");
+    if (error) throw error;
+    const names = (subjects || []).map(function(r) { return r.subject; }).filter(Boolean);
+    const map = {};
+    async function loadOne(name) {
+      const { data: cards, error: e2 } = await supabase.rpc("list_video_cards_by_subject", { p_subject: name });
+      if (e2) throw e2;
+      map[name] = (cards || []).filter(function(c) { return c && c.video_url; });
+    }
+    await Promise.all(names.map(loadOne));
+    window.__gvData = map;
+    if (typeof window.seedGvVideoTab === "function") window.seedGvVideoTab(map, names);
+  } catch (err) {
+    console.error("[phong-hoc] tải video giáo viên lỗi:", err);
+    if (typeof logAppError === "function") {
+      logAppError({ source: "phong-hoc-gv", category: "feature", level: "error", code: "GV_LOAD_FAIL", message: String((err && (err.message || err.error_description)) || err), url: location.href });
+    }
+    if (typeof window.seedGvVideoTab === "function") window.seedGvVideoTab(null, []);
+  }
+})();
+
+(async function initTestCards() {
+  try {
+    const { data, error } = await supabase.rpc("list_published_test_sets");
+    if (error) throw error;
+    mergeDbTestCards(data && data.length ? data : []);
+  } catch (err) {
+    console.error("[phong-hoc] tải bài test lỗi:", err);
+    if (typeof logAppError === "function") {
+      logAppError({ source: "phong-hoc-tests", category: "feature", level: "error", code: "TEST_LOAD_FAIL", message: String((err && (err.message || err.error_description)) || err), url: location.href });
+    }
+  }
+})();
+</script>
+</body>
+</html>

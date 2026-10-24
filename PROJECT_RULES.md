@@ -5,7 +5,7 @@
 - **Frontend**: Plain HTML5, CSS3, ES6+ Modular JS. FontAwesome v6.
 - **Backend/DB**: Supabase (PostgreSQL + RLS + PL/pgSQL RPCs). Authentication via Google OAuth/Email.
 - **Worker**: Cloudflare Worker proxy (`/worker/worker.js`) for OpenRouter/Gemini APIs.
-- **Subject Colors**: Centralized in `element/subjects-data.js` (7 rainbow colors + default).
+- **Subject Colors**: Centralized in `scripts/features/subjects-data.js` (7 rainbow colors + default).
 
 ## 2. STRICT CODING CONSTRAINTS
 - **No Heavy Libraries**: Do NOT import npm packages via CDN unless explicitly asked.
@@ -24,4 +24,4 @@
 ## 4. RESPONSE FORMAT FOR AI
 - Keep response concise and direct.
 - First show the **Bug Analysis Table**.
-- Then provide code snippets ONLY for edited functions/lines, explicitly tagged with exact relative file paths (e.g. `<!-- element/blog-manage.js -->`).
+- Then provide code snippets ONLY for edited functions/lines, explicitly tagged with exact relative file paths (e.g. `<!-- scripts/admin/blog-manage.js -->`).
