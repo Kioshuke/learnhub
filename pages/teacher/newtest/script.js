@@ -49,10 +49,6 @@ function letter(i) { return LETTERS[i] || String(i + 1); }
 
 var $ = function (id) { return document.getElementById(id); };
 
-function showToast(message, type) {
-  if (typeof window.lhToast === "function") window.lhToast(message, { type: type || "info" });
-}
-
 function setCopyLinkStatus(message, isError) {
   var status = $("copy-link-status");
   if (!status) return;
@@ -1327,6 +1323,7 @@ async function publishTest() {
             '<h3>QR Test</h3>' +
             '<canvas id="qr-canvas" aria-label="Mã QR đề thi" style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);display:none"></canvas>' +
             '<button type="button" class="btn btn-primary" id="download-qr-btn" style="display:none;margin:8px auto">Tải ảnh QR</button>' +
+            '<p id="qr-status" class="qr-status" role="status"></p>' +
           '</section>' +
           '<section class="publish-details">' +
           '<div class="publish-success-check" aria-hidden="true"><i class="fa-solid fa-check"></i></div>' +
@@ -1347,8 +1344,8 @@ async function publishTest() {
             (payload.p_subtest_enabled ? payload.p_subtest_count + "/" + countQ(testData) + " câu" : "Tắt") + "</b>" +
             (testMeta.timeEnabled && testMeta.startAt && testMeta.endAt ? " · mở đề: <b>" + fmtDateTime(testMeta.startAt) + " → " + fmtDateTime(testMeta.endAt) + "</b>" : "") +
           "</p>" +
-          setupCardHtml +
           '</section>' +
+          '<aside class="publish-settings-aside">' + setupCardHtml + '</aside>' +
           '<div class="publish-result-actions"><button type="button" class="btn btn-primary" id="btnPublishAgain">＋ Xuất bản đề mới</button></div>' +
         '</div>';
       var linkInput = $("publishedTestLink");
@@ -1422,7 +1419,6 @@ $("p4").addEventListener("click", function (e) {
     downloadLink.href = canvas.toDataURL("image/png");
     downloadLink.download = "LearnHub_QR.png";
     downloadLink.click();
-    showToast("Đã tải ảnh QR xuống.", "success");
   }
 });
 
@@ -1482,10 +1478,10 @@ function generateCustomQRCode(linkDeThi) {
 
     canvas.style.display = "block";
     downloadButton.style.display = "block";
-    showToast("Mã QR đã sẵn sàng.", "success");
   } catch (error) {
     console.error("[QR] Không thể tạo ảnh QR:", error);
-    showToast("Không tạo được ảnh QR.", "error");
+    var qrStatus = $("qr-status");
+    if (qrStatus) qrStatus.textContent = "Không tạo được ảnh QR.";
   } finally {
     qrHost.remove();
   }
