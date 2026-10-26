@@ -9,6 +9,8 @@
 <title>Phòng Học - LearnHub Platform</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <link rel="stylesheet" href="../../styles/global.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="../../scripts/features/test-qr.js?v=1"></script>
 <style>
 :root{
   --bg:transparent;--text:#111827;--text-sub:#6b7280;--border:#e5e7eb;
@@ -132,9 +134,21 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
 .card .btn-row{margin-top:auto;padding-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
 .card .btn-copy-icon{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;font-size:13px;color:var(--text-sub);background:var(--notice-bg);border:1px solid var(--card-border);cursor:pointer;text-decoration:none;transition:all 0.2s;flex-shrink:0;}
 .card .btn-copy-icon:hover{color:var(--text);border-color:var(--card-color,#2563eb);}
+.card .card-share-actions{display:flex;align-items:center;gap:6px;margin-left:auto;}
+.card .btn-qr-icon{color:#2563eb;}
 .card .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;color:#fff;background:var(--card-color,#2563eb);transition:all 0.2s;cursor:pointer;border:none;position:static;margin:0;}
 .card .btn:hover{filter:brightness(1.1);box-shadow:0 4px 14px color-mix(in srgb,var(--card-color,#2563eb) 35%,transparent);}
 .card .btn.disabled{opacity:0.5;pointer-events:none;}
+
+.ph-qr-modal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,42,.58);}
+.ph-qr-modal.is-open{display:flex;}
+.ph-qr-dialog{width:min(420px,100%);max-height:calc(100vh - 36px);overflow:auto;padding:20px;border:1px solid #dbeafe;border-radius:18px;background:#fff;box-shadow:0 24px 70px rgba(15,23,42,.28);text-align:center;}
+.ph-qr-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;text-align:left;}
+.ph-qr-dialog-head h2{margin:0;font-size:18px;color:#0f172a;overflow-wrap:anywhere;}
+.ph-qr-close{flex:0 0 36px;width:36px;height:36px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;color:#475569;cursor:pointer;font-size:16px;}
+.ph-qr-dialog canvas{display:block;width:min(100%,296px);height:auto;margin:0 auto 14px;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,.1);}
+.ph-qr-dialog .ph-qr-download{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border:0;border-radius:10px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer;}
+.ph-qr-error{min-height:18px;margin:8px 0 0;color:#b91c1c;font-size:12px;}
 
 /* ===== DARK MODE ===== */
 
@@ -327,6 +341,18 @@ body.dark-mode .subject-tab.active:hover{color:#fff;border-color:var(--tab);}
 
 <div id="quiz"></div>
 
+<div class="ph-qr-modal" id="phQrModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="phQrTitle">
+  <div class="ph-qr-dialog">
+    <div class="ph-qr-dialog-head">
+      <h2 id="phQrTitle">QR Test</h2>
+      <button type="button" class="ph-qr-close" id="phQrClose" aria-label="Đóng mã QR"><i class="fas fa-xmark"></i></button>
+    </div>
+    <canvas id="phQrCanvas" aria-label="Mã QR bài kiểm tra"></canvas>
+    <button type="button" class="ph-qr-download" id="phQrDownload"><i class="fas fa-download"></i> Tải ảnh QR</button>
+    <p class="ph-qr-error" id="phQrError" role="status"></p>
+  </div>
+</div>
+
 <script>
 /* ============================================================
    PHÒNG HỌC - LOGIC
@@ -470,6 +496,61 @@ function copyQuizLink(btn, link) {
     fallback();
   }
 }
+
+function showTestQRCode(btn) {
+  var testName = btn && btn.getAttribute("data-qr-name");
+  var link = btn && btn.getAttribute("data-qr-link");
+  var modal = document.getElementById("phQrModal");
+  var title = document.getElementById("phQrTitle");
+  var canvas = document.getElementById("phQrCanvas");
+  var error = document.getElementById("phQrError");
+  if (!modal || !canvas || !window.LearnHubTestQR) return;
+
+  title.textContent = "QR Test: " + String(testName || "Bài kiểm tra");
+  error.textContent = "";
+  canvas.style.display = "none";
+  modal.dataset.testName = String(testName || "Bai_kiem_tra");
+  modal.dataset.testLink = String(link || "");
+  modal.classList.add("is-open");
+  modal.setAttribute("aria-hidden", "false");
+
+  try {
+    window.LearnHubTestQR.render(canvas, link);
+    canvas.style.display = "block";
+  } catch (err) {
+    console.error("[phong-hoc] Không thể tạo QR bài test:", err);
+    error.textContent = "Không tạo được mã QR. Vui lòng thử lại.";
+  }
+}
+
+function closeTestQRCode() {
+  var modal = document.getElementById("phQrModal");
+  if (!modal) return;
+  modal.classList.remove("is-open");
+  modal.setAttribute("aria-hidden", "true");
+}
+
+function downloadTestQRCode() {
+  var modal = document.getElementById("phQrModal");
+  var canvas = document.getElementById("phQrCanvas");
+  if (!modal || !canvas || !canvas.width) return;
+  var name = String(modal.dataset.testName || "Bai_kiem_tra")
+    .replace(/[\\/:*?"<>|\u0000-\u001f]/g, "_")
+    .trim() || "Bai_kiem_tra";
+  var anchor = document.createElement("a");
+  anchor.href = canvas.toDataURL("image/png");
+  anchor.download = name + ".png";
+  anchor.click();
+}
+
+document.getElementById("phQrClose").addEventListener("click", closeTestQRCode);
+document.getElementById("phQrDownload").addEventListener("click", downloadTestQRCode);
+document.getElementById("phQrModal").addEventListener("click", function (event) {
+  if (event.target === this) closeTestQRCode();
+});
+document.addEventListener("keydown", function (event) {
+  if (event.key === "Escape") closeTestQRCode();
+});
 
 function loadQuiz(btn, link) {
   document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
@@ -1432,9 +1513,12 @@ function mergeDbTestCards(list) {
           '<p class="card-desc">' + escHtml(t.description || "Bài kiểm tra từ giáo viên — bấm Làm bài để bắt đầu.") + '</p>' +
           '<div class="btn-row">' +
             (canOpen
-              ? '<a class="btn" href="#" onclick="loadQuiz(this,\'' + escJs(url) + '\'); return false;">Làm bài</a>' +
-                '<a class="btn-copy-icon" href="#" title="Copy link bài test" onclick="copyQuizLink(this,\'' + escJs(copyLink) + '\'); return false;"><i class="fas fa-link"></i></a>'
+              ? '<a class="btn" href="#" onclick="loadQuiz(this,\'' + escJs(url) + '\'); return false;">Làm bài</a>'
               : '<a class="btn disabled" href="#" style="pointer-events:auto" onclick="blockQuizByDe(\'' + escJs(de) + '\'); return false;">' + (done ? 'Chưa mở' : 'Sắp ra mắt') + '</a>') +
+            '<span class="card-share-actions">' +
+              '<a class="btn-copy-icon" href="#" title="Copy link bài test" aria-label="Copy link bài test" onclick="copyQuizLink(this,\'' + escJs(copyLink) + '\'); return false;"><i class="fas fa-link"></i></a>' +
+              '<a class="btn-copy-icon btn-qr-icon" href="#" data-qr-name="' + escHtml(t.name || "Bài kiểm tra") + '" data-qr-link="' + escHtml(copyLink) + '" title="Hiện mã QR bài test" aria-label="Hiện mã QR bài test" onclick="showTestQRCode(this); return false;"><i class="fas fa-qrcode"></i></a>' +
+            '</span>' +
           '</div>' +
           (stats.length
             ? '<div style="margin-top:8px;font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:6px"><i class="fa-regular fa-clock"></i> ' + escHtml(stats.join(" · ")) + '</div>'

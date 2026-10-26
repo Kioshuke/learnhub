@@ -1429,64 +1429,18 @@ $("p4").addEventListener("click", function (e) {
 function generateCustomQRCode(linkDeThi) {
   var canvas = $("qr-canvas");
   var downloadButton = $("download-qr-btn");
-  if (!canvas || !downloadButton || typeof QRCode !== "function") return;
+  var qrStatus = $("qr-status");
+  if (!canvas || !downloadButton || !window.LearnHubTestQR) return;
 
   canvas.style.display = "none";
   downloadButton.style.display = "none";
-
-  const qrSize = 256;
-  const padding = 20;
-  const frameRadius = 22;
-  const frameSize = qrSize + padding * 2;
-  const offsetX = (frameSize - qrSize) / 2;
-  const offsetY = (frameSize - qrSize) / 2;
-  canvas.width = frameSize;
-  canvas.height = frameSize;
-
-  var qrHost = document.createElement("div");
-  qrHost.setAttribute("aria-hidden", "true");
-  qrHost.style.cssText = "position:fixed;left:-10000px;top:0;width:" + qrSize + "px;height:" + qrSize + "px;overflow:hidden";
-  document.body.appendChild(qrHost);
-
   try {
-    new QRCode(qrHost, {
-      text: linkDeThi,
-      width: qrSize,
-      height: qrSize,
-      correctLevel: QRCode.CorrectLevel.M
-    });
-    var qrCanvas = qrHost.querySelector("canvas");
-    if (!qrCanvas) throw new Error("Không tạo được mã QR.");
-
-    var ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("Trình duyệt không hỗ trợ canvas.");
-    ctx.fillStyle = "#ffffff";
-    ctx.strokeStyle = "#2563eb";
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(frameRadius, 2);
-    ctx.lineTo(frameSize - frameRadius, 2);
-    ctx.quadraticCurveTo(frameSize - 2, 2, frameSize - 2, frameRadius);
-    ctx.lineTo(frameSize - 2, frameSize - frameRadius);
-    ctx.quadraticCurveTo(frameSize - 2, frameSize - 2, frameSize - frameRadius, frameSize - 2);
-    ctx.lineTo(frameRadius, frameSize - 2);
-    ctx.quadraticCurveTo(2, frameSize - 2, 2, frameSize - frameRadius);
-    ctx.lineTo(2, frameRadius);
-    ctx.quadraticCurveTo(2, 2, frameRadius, 2);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(qrCanvas, offsetX, offsetY, qrSize, qrSize);
-
+    window.LearnHubTestQR.render(canvas, linkDeThi);
     canvas.style.display = "block";
     downloadButton.style.display = "block";
   } catch (error) {
     console.error("[QR] Không thể tạo ảnh QR:", error);
-    var qrStatus = $("qr-status");
     if (qrStatus) qrStatus.textContent = "Không tạo được ảnh QR.";
-  } finally {
-    qrHost.remove();
   }
 }
 
