@@ -308,6 +308,7 @@
     "}",
     ".teacher-app .tc-topbar .tc-brand { display: none; }",
     ".teacher-app .tc-topbar .tc-spacer { margin-left: auto; }",
+    ".tc-mobile-rail-toggle { display: none; }",
     ".tc-topbar-user {",
     "  display: flex;",
     "  align-items: center;",
@@ -407,6 +408,16 @@
     "  #tcApp.teacher-app { display: block !important; }",
     "  .teacher-rail { display: none !important; }",
     "  .teacher-app .tc-topbar { padding: 0 18px; min-height: 60px; }",
+    "  .tc-mobile-rail-toggle { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; border: 1px solid #e5e7eb; border-radius: 10px; background: #fff; color: #334155; cursor: pointer; }",
+    "  #tcApp.teacher-app.mobile-rail-open .teacher-rail { display: flex !important; position: fixed; inset: 0 auto 0 0; width: 256px; height: 100dvh; padding: 24px 16px; align-items: stretch; overflow-y: auto; box-shadow: 8px 0 28px rgba(15,23,42,.18); }",
+    "  #tcApp.teacher-app.mobile-rail-open .teacher-identity { padding: 0 8px 24px; justify-content: flex-start; gap: 12px; }",
+    "  #tcApp.teacher-app.mobile-rail-open .teacher-identity img, #tcApp.teacher-app.mobile-rail-open .teacher-identity-text, #tcApp.teacher-app.mobile-rail-open .teacher-nav button span, #tcApp.teacher-app.mobile-rail-open .rail-foot-item span { opacity: 1; max-width: none; }",
+    "  #tcApp.teacher-app.mobile-rail-open .sidebar-search { opacity: 1; max-height: none; margin: 8px 0 20px; }",
+    "  #tcApp.teacher-app.mobile-rail-open .teacher-nav-label, #tcApp.teacher-app.mobile-rail-open .teacher-nav-divider { opacity: 1; max-height: none; }",
+    "  #tcApp.teacher-app.mobile-rail-open .teacher-nav { align-items: stretch; }",
+    "  #tcApp.teacher-app.mobile-rail-open .teacher-nav button { width: 100%; height: auto; min-height: 44px; padding: 10px 12px; justify-content: flex-start; gap: 12px; }",
+    "  #tcApp.teacher-app.mobile-rail-open .teacher-rail-foot { justify-content: flex-start; }",
+    "  #tcApp.teacher-app.mobile-rail-open .rail-foot-item { width: 100%; height: auto; min-height: 44px; padding: 10px 12px; justify-content: flex-start; gap: 12px; }",
     "}"
   ].join("\n");
 
@@ -456,6 +467,7 @@
 
   function topbarHtml() {
     return [
+      '<button type="button" class="tc-mobile-rail-toggle" aria-label="Mở thanh điều hướng" aria-expanded="false" title="Mở thanh điều hướng"><i class="fa-solid fa-bars"></i></button>',
       '<div class="tc-brand">',
       '  <img class="tc-logo" src="' + PICTURES + 'logoweb.webp" alt="LearnHub">',
       '  <div class="tc-title"><h1>Khu vực Giáo viên</h1><div class="tc-sub">LearnHub · Quản lý lớp học &amp; nội dung giảng dạy</div></div>',
@@ -524,6 +536,16 @@
       top.className = "tc-topbar";
       top.innerHTML = topbarHtml();
       canvas.insertBefore(top, canvas.firstChild);
+      var mobileToggle = top.querySelector(".tc-mobile-rail-toggle");
+      if (mobileToggle) {
+        mobileToggle.addEventListener("click", function () {
+          var isOpen = app.classList.toggle("mobile-rail-open");
+          mobileToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+          mobileToggle.setAttribute("aria-label", isOpen ? "Đóng thanh điều hướng" : "Mở thanh điều hướng");
+          mobileToggle.title = isOpen ? "Đóng thanh điều hướng" : "Mở thanh điều hướng";
+          mobileToggle.innerHTML = '<i class="fa-solid ' + (isOpen ? "fa-xmark" : "fa-bars") + '"></i>';
+        });
+      }
     }
 
     rail.addEventListener("click", function (e) {
@@ -532,6 +554,14 @@
       var key = btn.getAttribute("data-nav");
       if (btn.hasAttribute("title")) return;
       setActive(key);
+      app.classList.remove("mobile-rail-open");
+      var mobileToggle = app.querySelector(".tc-mobile-rail-toggle");
+      if (mobileToggle) {
+        mobileToggle.setAttribute("aria-expanded", "false");
+        mobileToggle.setAttribute("aria-label", "Mở thanh điều hướng");
+        mobileToggle.title = "Mở thanh điều hướng";
+        mobileToggle.innerHTML = '<i class="fa-solid fa-bars"></i>';
+      }
       navigate(key);
     });
 
