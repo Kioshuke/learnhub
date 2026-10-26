@@ -1311,31 +1311,28 @@ async function publishTest() {
     var realId = "t:" + res.data.id;
     var link = location.origin + "/?open=phong-hoc&de=" + realId;
     if (left) {
-      left.innerHTML =
-        '<div class="publish-success">' +
+      var resultArea = $("revArea");
+      if (resultArea) resultArea.innerHTML =
+        '<div class="publish-result">' +
+          '<section class="publish-qr-panel" aria-label="Mã QR đề thi">' +
+            '<h3>QR Test</h3>' +
+            '<canvas id="qr-canvas" aria-label="Mã QR đề thi" style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);display:none"></canvas>' +
+            '<button type="button" class="btn btn-primary" id="download-qr-btn" style="display:none;margin:8px auto">Tải ảnh QR</button>' +
+          '</section>' +
+          '<section class="publish-details">' +
           '<div class="pub-ico"><i class="fa-solid fa-champagne-glasses"></i></div>' +
           "<h3>" + (isEdit ? "Cập nhật thành công" : "Tạo đề thành công") + "</h3>" +
           "<p>Đề <b>" + escapeC(testMeta.name) + "</b>" +
             (subject ? " · môn <b>" + escapeC(subject) + "</b>" : "") +
             (isEdit ? " đã lưu lại bản cập nhật, card trong <b>Phòng Học</b> dùng nội dung mới ngay.</p>" : " đã đưa lên DB, hiện card <b>Làm bài</b> đúng môn trong <b>Phòng Học</b>.</p>") +
-          '<div style="display:flex;gap:8px;align-items:stretch;max-width:720px;margin:14px auto 10px">' +
+          '<div class="publish-link-row">' +
             '<input id="publishedTestLink" type="text" readonly aria-label="Link đề thi" style="flex:1;min-width:0;padding:10px 12px;border:1px solid #b9e6d2;border-radius:9px;background:#fff;color:#047857;font-size:13px">' +
             '<button type="button" class="btn btn-primary" id="btnCopyTestLink">Copy</button>' +
           '</div>' +
-          '<canvas id="qr-canvas" aria-label="Mã QR đề thi" style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);display:none"></canvas>' +
-          '<button type="button" class="btn btn-primary" id="download-qr-btn" style="display:none;margin:8px auto">Tải ảnh QR</button>' +
           '<p class="pub-id">' + realId + "</p>" +
-          '<p class="muted">Điểm tối đa <b>' + payload.p_score + "</b> · trộn câu: <b>" +
-            (payload.p_shuffle_q ? "Bật" : "Tắt") + "</b> · trộn đáp án: <b>" +
-            (payload.p_shuffle_a ? "Bật" : "Tắt") + "</b>" +
-            " · điểm: <b>" + (payload.p_show_score === "none" ? "Ẩn" : "Hiện") + "</b>" +
-            " · đáp án: <b>" + (payload.p_show_answers === "none" ? "Không" : payload.p_show_answers === "perfect" ? "Khi tối đa" : "Luôn") + "</b>" +
-            " · đề con: <b>" + (payload.p_subtest_enabled ? payload.p_subtest_count + "/" + countQ(testData) + " câu" : "Tắt") + "</b>" +
-            (testMeta.timeEnabled && testMeta.startAt && testMeta.endAt ? " · mở đề: <b>" + fmtDateTime(testMeta.startAt) + " → " + fmtDateTime(testMeta.endAt) + "</b>" : "") +
-            "." +
-          "</p>" +
-          '<button type="button" class="btn btn-primary" id="btnPublishAgain">＋ Xuất bản đề mới</button>' +
-        "</div>";
+          '</section>' +
+          '<div class="publish-result-actions"><button type="button" class="btn btn-primary" id="btnPublishAgain">＋ Xuất bản đề mới</button></div>' +
+        '</div>';
       var linkInput = $("publishedTestLink");
       if (linkInput) linkInput.value = link;
       generateCustomQRCode(link);
@@ -1407,6 +1404,7 @@ $("p4").addEventListener("click", function (e) {
     downloadLink.href = canvas.toDataURL("image/png");
     downloadLink.download = "LearnHub_QR.png";
     downloadLink.click();
+    showToast("Đã tải ảnh QR xuống.", "success");
   }
 });
 
@@ -1466,6 +1464,7 @@ function generateCustomQRCode(linkDeThi) {
 
     canvas.style.display = "block";
     downloadButton.style.display = "block";
+    showToast("Mã QR đã sẵn sàng.", "success");
   } catch (error) {
     console.error("[QR] Không thể tạo ảnh QR:", error);
     showToast("Không tạo được ảnh QR.", "error");
