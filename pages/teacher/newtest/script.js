@@ -1339,8 +1339,8 @@ async function publishTest() {
           '<p class="muted publish-settings-summary">Điểm tối đa <b>' + payload.p_score + "</b> - Trộn câu: <b>" +
             (payload.p_shuffle_q ? "Bật" : "Tắt") + "</b> - Trộn đáp án: <b>" +
             (payload.p_shuffle_a ? "Bật" : "Tắt") + "</b> - Điểm: <b>" +
-            (payload.p_show_score === "none" ? "Ẩn" : "Hiện") + "</b> - đáp án: <b>" +
-            (payload.p_show_answers === "none" ? "Không" : payload.p_show_answers === "perfect" ? "Khi tối đa" : "Luôn") + "</b> - Đề con: <b>" +
+            (payload.p_show_score === "none" ? "Ẩn" : "Hiện") + "</b> - Hiện đáp án: <b>" +
+            (payload.p_show_answers === "none" ? "Không" : payload.p_show_answers === "perfect" ? "Khi điểm tối đa" : "Luôn") + "</b> - Đề con: <b>" +
             (payload.p_subtest_enabled ? payload.p_subtest_count + "/" + countQ(testData) + " câu" : "Tắt") + "</b>" +
             (testMeta.timeEnabled && testMeta.startAt && testMeta.endAt ? " - Mở đề: <b>" + fmtDateTime(testMeta.startAt) + " → " + fmtDateTime(testMeta.endAt) + "</b>" : "") +
           "</p>" +
@@ -1417,7 +1417,10 @@ $("p4").addEventListener("click", function (e) {
     if (!canvas || !canvas.width || !canvas.height) return;
     var downloadLink = document.createElement("a");
     downloadLink.href = canvas.toDataURL("image/png");
-    downloadLink.download = "LearnHub_QR.png";
+    var qrFileName = String(testMeta.name || "Bai_kiem_tra")
+      .replace(/[\\/:*?"<>|\u0000-\u001f]/g, "_")
+      .trim();
+    downloadLink.download = (qrFileName || "Bai_kiem_tra") + ".png";
     downloadLink.click();
   }
 });
