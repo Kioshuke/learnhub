@@ -52,7 +52,7 @@
     { key: "quiz",    icon: "fa-file-circle-check",    label: "Bài kiểm tra",          group: "main" },
     { key: "schedule", icon: "fa-calendar-days",       label: "Lịch học & thi",        group: "sec" },
     { key: "notice",   icon: "fa-bell",                label: "Thông báo môn học",     group: "sec" },
-    { key: "report",  icon: "fa-chart-line",           label: "Báo cáo",    soon: true, group: "sec" }
+    { key: "report",  icon: "fa-chart-line",           label: "Báo cáo",             group: "sec" }
   ];
 
   /* ===== CSS CỦA SIDEBAR + TOPBAR ===== */
@@ -460,7 +460,7 @@
       navItemsHtml("sec"),
       "</nav>",
       '<div class="teacher-rail-foot">',
-      '  <div class="rail-foot-item"><i class="fa-solid fa-gear"></i><span>Cài đặt không gian làm việc<em>Giáo viên LearnHub</em></span></div>',
+      '  <div class="rail-foot-item"><i class="fa-solid fa-gear"></i><span>Cài đặt<em>Giáo viên LearnHub</em></span></div>',
       "</div>"
     ].join("");
   }

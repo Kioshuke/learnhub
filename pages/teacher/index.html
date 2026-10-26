@@ -812,6 +812,42 @@
       background: #fff;
       overflow: auto;
     }
+    .tc-report-toolbar { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:14px; }
+    .tc-report-toolbar h3,.tc-report-history-head h3 { margin:0; font-size:16px; color:#0f172a; }
+    .tc-report-toolbar .muted,.tc-report-history-head .muted { margin:4px 0 0; font-size:12px; }
+    #tcReportSearch { width:min(340px,100%); padding:10px 12px; border:1px solid #dbe2ea; border-radius:10px; outline:none; font:inherit; font-size:13px; }
+    #tcReportSearch:focus { border-color:#93c5fd; box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+    .tc-report-students,.tc-report-attempts { display:grid; gap:9px; }
+    .tc-report-student { display:grid; grid-template-columns:42px minmax(0,1fr) auto; align-items:center; gap:12px; width:100%; padding:12px; border:1px solid #e5e7eb; border-radius:12px; background:#fff; text-align:left; cursor:pointer; transition:border-color .15s,background .15s; }
+    .tc-report-student:hover { border-color:#93c5fd; background:#f8fbff; }
+    .tc-report-avatar { width:40px;height:40px;border-radius:50%;display:grid;place-items:center;overflow:hidden;background:#eff6ff;color:#2563eb;font-weight:800; }
+    .tc-report-avatar img { width:100%;height:100%;object-fit:cover; }
+    .tc-report-student-name { display:block;font-size:13px;font-weight:750;color:#0f172a;overflow-wrap:anywhere; }
+    .tc-report-student-email { display:block;margin-top:4px;font-size:11.5px;color:#64748b;overflow-wrap:anywhere; }
+    .tc-report-student-summary { text-align:right;font-size:11.5px;line-height:1.6;color:#64748b;white-space:nowrap; }
+    .tc-report-pagination { display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px;color:#64748b;font-size:12px; }
+    .tc-report-pagination[hidden] { display:none; }
+    .tc-report-history-head { display:flex;align-items:center;gap:14px;margin-bottom:14px; }
+    .tc-report-history-head>div { min-width:0; }
+    .tc-report-attempt { display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;padding:13px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;text-align:left;font:inherit;cursor:pointer;transition:border-color .15s,background .15s; }
+    .tc-report-attempt:hover { border-color:#93c5fd;background:#f8fbff; }
+    .tc-report-attempt-title { font-size:13px;font-weight:750;color:#0f172a; }
+    .tc-report-attempt-sub { margin-top:3px;font-size:11.5px;color:#64748b; }
+    .tc-report-attempt-score { min-width:88px;text-align:right;font-size:14px;font-weight:800;color:#047857; }
+    .tc-report-attempt-score.is-hidden { color:#64748b;font-size:12px; }
+    .tc-report-attempt-open { display:block;margin-top:4px;font-size:10.5px;font-weight:700;color:#2563eb; }
+    .tc-report-attempt-tags { display:flex;flex-wrap:wrap;gap:6px;margin-top:7px; }
+    .tc-report-tag { padding:3px 8px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:10.5px;font-weight:700; }
+    .tc-report-tag.auto { background:#fff7ed;color:#c2410c; }
+    @media(max-width:640px) {
+      .tc-report-toolbar { align-items:stretch;flex-direction:column; }
+      #tcReportSearch { width:100%; }
+      .tc-report-student { grid-template-columns:36px minmax(0,1fr);gap:9px;padding:10px; }
+      .tc-report-avatar { width:36px;height:36px; }
+      .tc-report-student-summary { grid-column:2;text-align:left;white-space:normal; }
+      .tc-report-history-head { align-items:flex-start;flex-direction:column; }
+      .tc-report-attempt { grid-template-columns:minmax(0,1fr) auto;padding:10px; }
+    }
     .tc-quiz-table { width: 100%; border-collapse: collapse; min-width: 720px; }
     .tc-quiz-table th {
       font-size: 11px; font-weight: 700; color: #94a3b8;
@@ -1119,12 +1155,11 @@
                 <div class="tc-feature-desc">Gán đề kiểm tra cho từng lớp, đặt hạn nộp.</div>
                 <div class="tc-feature-cta"><i class="fa-solid fa-hourglass-half"></i> Chưa mở</div>
               </div>
-              <div class="tc-feature tint-slate" data-ready="0">
-                <span class="soon-badge">Sắp ra mắt</span>
+              <div class="tc-feature tint-slate" onclick="tcOpenReport()" data-ready="1">
                 <div class="tc-feature-icon"><i class="fa-solid fa-chart-line"></i></div>
                 <div class="tc-feature-title">Báo cáo kết quả</div>
-                <div class="tc-feature-desc">Xem điểm, câu sai nhiều, học sinh cần quan tâm.</div>
-                <div class="tc-feature-cta"><i class="fa-solid fa-hourglass-half"></i> Chưa mở</div>
+                <div class="tc-feature-desc">Xem tài khoản và lịch sử làm bài.</div>
+                <div class="tc-feature-cta">Mở <i class="fa-solid fa-arrow-right"></i></div>
               </div>
             </div>
           </section>
@@ -1255,6 +1290,39 @@
           </div>
         </div>
 
+        <!-- ===== BÁO CÁO KẾT QUẢ ===== -->
+        <div id="tcReportView" style="display:none">
+          <div class="tc-view-head">
+            <button class="back" type="button" onclick="tcBackHome()"><i class="fa-solid fa-arrow-left"></i> Trang chủ</button>
+            <h2><i class="fa-solid fa-chart-line" style="color:#7c3aed"></i> Báo cáo kết quả</h2>
+            <span class="muted">Danh sách tài khoản và lịch sử làm bài</span>
+          </div>
+          <section id="tcReportStudentsPanel" class="tc-card" style="padding:18px">
+            <div class="tc-report-toolbar">
+              <div><h3>Tài khoản</h3><p id="tcReportStudentCount" class="muted">Đang tải danh sách...</p></div>
+              <input id="tcReportSearch" type="search" placeholder="Tìm tên hoặc email..." aria-label="Tìm tài khoản">
+            </div>
+            <div id="tcReportStudents" class="tc-report-students"><div class="empty"><div class="big"><i class="fa-solid fa-circle-notch fa-spin"></i></div>Đang tải báo cáo...</div></div>
+            <div id="tcReportStudentPagination" class="tc-report-pagination" hidden>
+              <button type="button" id="tcReportStudentPrev" class="btn-sm">← Trước</button>
+              <span id="tcReportStudentPageLabel"></span>
+              <button type="button" id="tcReportStudentNext" class="btn-sm">Sau →</button>
+            </div>
+          </section>
+          <section id="tcReportHistoryPanel" class="tc-card" style="display:none;padding:18px">
+            <div class="tc-report-history-head">
+              <button type="button" id="tcReportBackStudents" class="btn-sm"><i class="fa-solid fa-arrow-left"></i> Danh sách tài khoản</button>
+              <div><h3 id="tcReportHistoryName">Lịch sử làm bài</h3><p id="tcReportHistoryMeta" class="muted"></p></div>
+            </div>
+            <div id="tcReportAttempts" class="tc-report-attempts"></div>
+            <div id="tcReportAttemptPagination" class="tc-report-pagination" hidden>
+              <button type="button" id="tcReportAttemptPrev" class="btn-sm">← Trước</button>
+              <span id="tcReportAttemptPageLabel"></span>
+              <button type="button" id="tcReportAttemptNext" class="btn-sm">Sau →</button>
+            </div>
+          </section>
+        </div>
+
       </div><!-- /tc-wrap -->
     </div><!-- /teacher-canvas -->
   </div><!-- /tcApp -->
@@ -1331,6 +1399,11 @@
     let tcClassesCache = null;
     let tcMembersCache = {};
     let tcEmail = "";
+    let tcReportStudentsCache = null;
+    let tcReportCurrentStudent = null;
+    let tcReportStudentPage = 0;
+    let tcReportAttemptPage = 0;
+    const TC_REPORT_PAGE_SIZE = 20;
 
     function show(which) {
       tcApp.style.display = which === "app" ? "" : "none";
@@ -1345,12 +1418,14 @@
       const sched = document.getElementById("tcScheduleView");
       const notice = document.getElementById("tcNoticeView");
       const quiz = document.getElementById("tcQuizView");
+      const report = document.getElementById("tcReportView");
       if (home) home.style.display = (view === "home" || view === "" || !view) ? "" : "none";
       if (manage) manage.style.display = view === "manage" ? "" : "none";
       if (detail) detail.style.display = view === "detail" ? "" : "none";
       if (sched) sched.style.display = view === "schedule" ? "" : "none";
       if (notice) notice.style.display = view === "notice" ? "" : "none";
       if (quiz) quiz.style.display = view === "quiz" ? "" : "none";
+      if (report) report.style.display = view === "report" ? "" : "none";
     }
 
     window.onTeacherNav = function(key) {
@@ -1361,6 +1436,7 @@
       else if (key === "docs") window.location.href = "./taileu.html";
       else if (key === "notice") tcOpenNotices();
       else if (key === "quiz") tcOpenQuizzes();
+      else if (key === "report") tcOpenReport();
     };
 
     window.tcOpenManage = function() {
@@ -1914,6 +1990,178 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       if (window.TeacherShell && window.TeacherShell.setActive) window.TeacherShell.setActive("quiz");
       tcLoadQuizzes();
     };
+
+    window.tcOpenReport = function() {
+      setMainView("report");
+      if (window.TeacherShell && window.TeacherShell.setActive) window.TeacherShell.setActive("report");
+      const studentPanel = document.getElementById("tcReportStudentsPanel");
+      const historyPanel = document.getElementById("tcReportHistoryPanel");
+      if (studentPanel) studentPanel.style.display = "";
+      if (historyPanel) historyPanel.style.display = "none";
+      if (tcReportStudentsCache === null) tcLoadReportStudents();
+      else tcRenderReportStudents();
+    };
+
+    async function tcLoadReportStudents() {
+      const list = document.getElementById("tcReportStudents");
+      const count = document.getElementById("tcReportStudentCount");
+      if (list) list.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-circle-notch fa-spin"></i></div>Đang tải danh sách...</div>';
+      if (count) count.textContent = "Đang tải danh sách tài khoản...";
+      try {
+        const { data, error } = await supabase.rpc("teacher_report_students");
+        if (error) throw error;
+        tcReportStudentsCache = Array.isArray(data) ? data : [];
+        tcReportStudentPage = 0;
+        tcRenderReportStudents();
+        tcBindReportEvents();
+      } catch (err) {
+        console.error("tcLoadReportStudents lỗi:", err);
+        if (count) count.textContent = "Không tải được báo cáo. Hãy kiểm tra RPC teacher_report_students đã được cài đặt.";
+        if (list) list.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-triangle-exclamation"></i></div>Không tải được danh sách tài khoản.<br><span style="font-size:12px">' + escapeHtml(String((err && err.message) || err)) + '</span></div>';
+      }
+    }
+
+    function tcRenderReportStudents() {
+      const list = document.getElementById("tcReportStudents");
+      const count = document.getElementById("tcReportStudentCount");
+      const search = String((document.getElementById("tcReportSearch") || {}).value || "").trim().toLocaleLowerCase("vi");
+      const rows = (tcReportStudentsCache || []).filter(function (student) {
+        return !search || String(student.user_name || "").toLocaleLowerCase("vi").includes(search) || String(student.user_email || "").toLocaleLowerCase("vi").includes(search);
+      });
+      const pages = Math.max(1, Math.ceil(rows.length / TC_REPORT_PAGE_SIZE));
+      tcReportStudentPage = Math.min(tcReportStudentPage, pages - 1);
+      const start = tcReportStudentPage * TC_REPORT_PAGE_SIZE;
+      const pageRows = rows.slice(start, start + TC_REPORT_PAGE_SIZE);
+      if (count) count.textContent = rows.length + (search ? " tài khoản phù hợp" : " tài khoản");
+      if (list) list.innerHTML = pageRows.length ? pageRows.map(function (student) {
+        const name = String(student.user_name || "Người dùng");
+        const initial = name.trim().charAt(0).toLocaleUpperCase("vi") || "N";
+        const latest = student.latest_attempt_at ? tcReportFormatDate(student.latest_attempt_at) : "Chưa có lượt làm";
+        const attemptCount = Number(student.attempt_count || 0);
+        const summary = attemptCount ? attemptCount + ' lượt làm · TB ' + Number(student.average_score || 0).toFixed(2) : 'Chưa có lượt làm';
+        const photo = /^https?:\/\//i.test(String(student.user_photo || "")) ? String(student.user_photo) : "";
+        const avatar = photo
+          ? '<img src="' + escapeHtml(photo) + '" alt="" loading="lazy" referrerpolicy="no-referrer">'
+          : escapeHtml(initial);
+        return '<button type="button" class="tc-report-student" data-report-user="' + escapeHtml(student.user_id) + '">' +
+          '<span class="tc-report-avatar">' + avatar + '</span>' +
+          '<span><span class="tc-report-student-name">' + escapeHtml(name) + '</span><span class="tc-report-student-email">' + escapeHtml(student.user_email || "") + '</span></span>' +
+          '<span class="tc-report-student-summary">' + escapeHtml(summary) + '<br>' + escapeHtml(latest) + '</span>' +
+        '</button>';
+      }).join("") : '<div class="empty"><div class="big"><i class="fa-solid fa-users"></i></div>' + (search ? "Không tìm thấy tài khoản phù hợp." : "Chưa có tài khoản nào.") + '</div>';
+      const pagination = document.getElementById("tcReportStudentPagination");
+      const prev = document.getElementById("tcReportStudentPrev");
+      const next = document.getElementById("tcReportStudentNext");
+      const label = document.getElementById("tcReportStudentPageLabel");
+      if (pagination) pagination.hidden = pages <= 1;
+      if (prev) prev.disabled = tcReportStudentPage <= 0;
+      if (next) next.disabled = tcReportStudentPage >= pages - 1;
+      if (label) label.textContent = "Trang " + (tcReportStudentPage + 1) + " / " + pages;
+    }
+
+    function tcReportFormatDate(value) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? "" : new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short" }).format(date);
+    }
+
+    function tcReportFormatDuration(value) {
+      const seconds = Math.max(0, Math.floor(Number(value || 0) / 1000));
+      return Math.floor(seconds / 60) + " phút " + (seconds % 60) + " giây";
+    }
+
+    async function tcOpenReportStudent(studentId) {
+      const student = (tcReportStudentsCache || []).find(function (item) { return String(item.user_id) === String(studentId); });
+      if (!student) return;
+      tcReportCurrentStudent = student;
+      tcReportAttemptPage = 0;
+      document.getElementById("tcReportStudentsPanel").style.display = "none";
+      document.getElementById("tcReportHistoryPanel").style.display = "";
+      document.getElementById("tcReportHistoryName").textContent = student.user_name || "Người dùng";
+      document.getElementById("tcReportHistoryMeta").textContent = (student.user_email || "") + " · " + Number(student.attempt_count || 0) + " lượt làm";
+      await tcLoadReportAttempts();
+    }
+
+    async function tcLoadReportAttempts() {
+      const list = document.getElementById("tcReportAttempts");
+      if (!tcReportCurrentStudent || !list) return;
+      list.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-circle-notch fa-spin"></i></div>Đang tải lịch sử làm bài...</div>';
+      const offset = tcReportAttemptPage * TC_REPORT_PAGE_SIZE;
+      try {
+        const { data, error } = await supabase.rpc("teacher_report_student_attempts", {
+          p_user_id: tcReportCurrentStudent.user_id,
+          p_limit: TC_REPORT_PAGE_SIZE,
+          p_offset: offset
+        });
+        if (error) throw error;
+        const attempts = Array.isArray(data) ? data : [];
+        list.innerHTML = attempts.length ? attempts.map(function (attempt) {
+          const scoreHidden = String(attempt.show_score || "always").toLowerCase() === "none";
+          const score = scoreHidden ? "Ẩn điểm" : Number(attempt.score || 0).toFixed(2) + " / 10";
+          const questions = attempt.total_questions == null ? "" : Number(attempt.correct_count || 0) + "/" + Number(attempt.total_questions) + " câu đúng";
+          const duration = attempt.duration_ms == null ? "" : tcReportFormatDuration(attempt.duration_ms);
+          return '<button type="button" class="tc-report-attempt" data-report-attempt="' + escapeHtml(attempt.id) + '" data-report-user="' + escapeHtml(tcReportCurrentStudent.user_id) + '">' +
+            '<div><div class="tc-report-attempt-title">' + escapeHtml(attempt.test_name || "Bài kiểm tra") + '</div>' +
+              '<div class="tc-report-attempt-sub">' + escapeHtml(attempt.subject || "") + (attempt.subject ? ' · ' : '') + escapeHtml(tcReportFormatDate(attempt.created_at)) + '</div>' +
+              '<div class="tc-report-attempt-tags">' +
+                (questions ? '<span class="tc-report-tag">' + escapeHtml(questions) + '</span>' : '') +
+                (duration ? '<span class="tc-report-tag">' + escapeHtml(duration) + '</span>' : '') +
+                (attempt.auto_submitted ? '<span class="tc-report-tag auto">Tự nộp khi hết giờ</span>' : '') +
+              '</div></div>' +
+            '<div class="tc-report-attempt-score' + (scoreHidden ? ' is-hidden' : '') + '">' + escapeHtml(score) + '<span class="tc-report-attempt-open">Xem chi tiết →</span></div>' +
+          '</button>';
+        }).join("") : '<div class="empty"><div class="big"><i class="fa-solid fa-file-circle-check"></i></div>Tài khoản này chưa có lượt làm bài.</div>';
+        const totalPages = Math.max(1, Math.ceil(Number(tcReportCurrentStudent.attempt_count || 0) / TC_REPORT_PAGE_SIZE));
+        const pagination = document.getElementById("tcReportAttemptPagination");
+        const prev = document.getElementById("tcReportAttemptPrev");
+        const next = document.getElementById("tcReportAttemptNext");
+        const label = document.getElementById("tcReportAttemptPageLabel");
+        if (pagination) pagination.hidden = totalPages <= 1;
+        if (prev) prev.disabled = tcReportAttemptPage <= 0;
+        if (next) next.disabled = tcReportAttemptPage >= totalPages - 1;
+        if (label) label.textContent = "Trang " + (tcReportAttemptPage + 1) + " / " + totalPages;
+      } catch (err) {
+        console.error("tcLoadReportAttempts lỗi:", err);
+        list.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-triangle-exclamation"></i></div>Không tải được lịch sử làm bài.<br><span style="font-size:12px">' + escapeHtml(String((err && err.message) || err)) + '</span></div>';
+      }
+    }
+
+    function tcBindReportEvents() {
+      const students = document.getElementById("tcReportStudents");
+      if (!students || students.__tcReportBound) return;
+      students.__tcReportBound = true;
+      students.addEventListener("click", function (event) {
+        const row = event.target.closest("[data-report-user]");
+        if (row) tcOpenReportStudent(row.getAttribute("data-report-user"));
+      });
+      document.getElementById("tcReportSearch").addEventListener("input", function () {
+        tcReportStudentPage = 0;
+        tcRenderReportStudents();
+      });
+      document.getElementById("tcReportStudentPrev").addEventListener("click", function () {
+        if (tcReportStudentPage > 0) { tcReportStudentPage--; tcRenderReportStudents(); }
+      });
+      document.getElementById("tcReportStudentNext").addEventListener("click", function () {
+        tcReportStudentPage++; tcRenderReportStudents();
+      });
+      document.getElementById("tcReportBackStudents").addEventListener("click", function () {
+        document.getElementById("tcReportHistoryPanel").style.display = "none";
+        document.getElementById("tcReportStudentsPanel").style.display = "";
+      });
+      document.getElementById("tcReportAttempts").addEventListener("click", function (event) {
+        const attempt = event.target.closest("[data-report-attempt]");
+        if (!attempt) return;
+        const url = new URL("../user/review-attempt.html", window.location.href);
+        url.searchParams.set("attempt", attempt.getAttribute("data-report-attempt"));
+        url.searchParams.set("student", attempt.getAttribute("data-report-user"));
+        window.location.href = url.href;
+      });
+      document.getElementById("tcReportAttemptPrev").addEventListener("click", function () {
+        if (tcReportAttemptPage > 0) { tcReportAttemptPage--; tcLoadReportAttempts(); }
+      });
+      document.getElementById("tcReportAttemptNext").addEventListener("click", function () {
+        tcReportAttemptPage++; tcLoadReportAttempts();
+      });
+    }
 
     /* Liệt kê các đề lưu trong DB (teacher_list_test_sets) — thay nguồn mẫu tĩnh */
     async function tcLoadQuizzes() {
