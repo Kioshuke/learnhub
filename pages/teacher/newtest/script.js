@@ -942,7 +942,7 @@ function render() {
   });
 
   var rcEl = $("renderCount");
-  if (rcEl) rcEl.textContent = testData.length + " phần · " + qCount + " câu";
+  if (rcEl) rcEl.textContent = testData.length + " phần - " + qCount + " câu";
 }
 
 function norm(v) {
@@ -1205,7 +1205,7 @@ function renderReview() {
     left += "</ol></div>";
   });
   var scoreBase = subtestOn ? subtestN : qn;
-  left += '<div class="rev-total">Tổng <b>' + qn + "</b> câu - " + nSec + " phần - Thang điểm:" + testMeta.score +
+  left += '<div class="rev-total">Tổng: <b>' + qn + "</b> câu - " + nSec + " phần - Thang điểm: " + testMeta.score +
     (subtestOn ? ' · <b style="color:#7c3aed">đề con ' + subtestN + " câu</b>" : "") +
     " (mỗi câu " + (scoreBase > 0 ? (testMeta.score / scoreBase).toFixed(2) : "0.00") + " điểm)</div>";
 
