@@ -1410,7 +1410,7 @@ $("p4").addEventListener("click", function (e) {
   }
 });
 
-/* Ghép QR lên ảnh khung để tải thành một ảnh PNG duy nhất. */
+/* Tạo QR trên canvas với khung đơn giản bằng code để tải thành PNG. */
 function generateCustomQRCode(linkDeThi) {
   var canvas = $("qr-canvas");
   var downloadButton = $("download-qr-btn");
@@ -1419,60 +1419,59 @@ function generateCustomQRCode(linkDeThi) {
   canvas.style.display = "none";
   downloadButton.style.display = "none";
 
-  var template = new Image();
-  template.onload = function () {
-    canvas.width = template.naturalWidth || template.width;
-    canvas.height = template.naturalHeight || template.height;
+  const qrSize = 256;
+  const padding = 20;
+  const frameRadius = 22;
+  const frameSize = qrSize + padding * 2;
+  const offsetX = (frameSize - qrSize) / 2;
+  const offsetY = (frameSize - qrSize) / 2;
+  canvas.width = frameSize;
+  canvas.height = frameSize;
+
+  var qrHost = document.createElement("div");
+  qrHost.setAttribute("aria-hidden", "true");
+  qrHost.style.cssText = "position:fixed;left:-10000px;top:0;width:" + qrSize + "px;height:" + qrSize + "px;overflow:hidden";
+  document.body.appendChild(qrHost);
+
+  try {
+    new QRCode(qrHost, {
+      text: linkDeThi,
+      width: qrSize,
+      height: qrSize,
+      correctLevel: QRCode.CorrectLevel.M
+    });
+    var qrCanvas = qrHost.querySelector("canvas");
+    if (!qrCanvas) throw new Error("Không tạo được mã QR.");
+
     var ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
+    if (!ctx) throw new Error("Trình duyệt không hỗ trợ canvas.");
+    ctx.fillStyle = "#ffffff";
+    ctx.strokeStyle = "#2563eb";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(frameRadius, 2);
+    ctx.lineTo(frameSize - frameRadius, 2);
+    ctx.quadraticCurveTo(frameSize - 2, 2, frameSize - 2, frameRadius);
+    ctx.lineTo(frameSize - 2, frameSize - frameRadius);
+    ctx.quadraticCurveTo(frameSize - 2, frameSize - 2, frameSize - frameRadius, frameSize - 2);
+    ctx.lineTo(frameRadius, frameSize - 2);
+    ctx.quadraticCurveTo(2, frameSize - 2, 2, frameSize - frameRadius);
+    ctx.lineTo(2, frameRadius);
+    ctx.quadraticCurveTo(2, 2, frameRadius, 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(qrCanvas, offsetX, offsetY, qrSize, qrSize);
 
-    const qrSize = canvas.width * 0.40;
-    const offsetX = (canvas.width - qrSize) / 2;
-    const offsetY = (canvas.height - qrSize) / 2;
-    var qrHost = document.createElement("div");
-    qrHost.setAttribute("aria-hidden", "true");
-    qrHost.style.cssText = "position:fixed;left:-10000px;top:0;width:" + Math.round(qrSize) + "px;height:" + Math.round(qrSize) + "px;overflow:hidden";
-    document.body.appendChild(qrHost);
-
-    try {
-      new QRCode(qrHost, {
-        text: linkDeThi,
-        width: Math.round(qrSize),
-        height: Math.round(qrSize),
-        correctLevel: QRCode.CorrectLevel.M
-      });
-      var qrCanvas = qrHost.querySelector("canvas");
-      if (!qrCanvas) throw new Error("Không tạo được mã QR.");
-      ctx.save();
-      ctx.beginPath();
-      const radius = 24;
-      ctx.moveTo(offsetX + radius, offsetY);
-      ctx.lineTo(offsetX + qrSize - radius, offsetY);
-      ctx.quadraticCurveTo(offsetX + qrSize, offsetY, offsetX + qrSize, offsetY + radius);
-      ctx.lineTo(offsetX + qrSize, offsetY + qrSize - radius);
-      ctx.quadraticCurveTo(offsetX + qrSize, offsetY + qrSize, offsetX + qrSize - radius, offsetY + qrSize);
-      ctx.lineTo(offsetX + radius, offsetY + qrSize);
-      ctx.quadraticCurveTo(offsetX, offsetY + qrSize, offsetX, offsetY + qrSize - radius);
-      ctx.lineTo(offsetX, offsetY + radius);
-      ctx.quadraticCurveTo(offsetX, offsetY, offsetX + radius, offsetY);
-      ctx.closePath();
-      ctx.clip();
-      ctx.drawImage(qrCanvas, offsetX, offsetY, qrSize, qrSize);
-      ctx.restore();
-      canvas.style.display = "block";
-      downloadButton.style.display = "block";
-    } catch (error) {
-      console.error("[QR] Không thể tạo ảnh QR:", error);
-      showToast("Không tạo được ảnh QR.", "error");
-    } finally {
-      qrHost.remove();
-    }
-  };
-  template.onerror = function () {
-    showToast("Không tải được ảnh khung QR.", "error");
-  };
-  template.src = new URL("../../../assets/images/qr-template.png", document.baseURI).href;
+    canvas.style.display = "block";
+    downloadButton.style.display = "block";
+  } catch (error) {
+    console.error("[QR] Không thể tạo ảnh QR:", error);
+    showToast("Không tạo được ảnh QR.", "error");
+  } finally {
+    qrHost.remove();
+  }
 }
 
 /* Cập nhật nhãn nút "Tiếp tục" theo tên đề đã đặt */
