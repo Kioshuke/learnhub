@@ -1227,10 +1227,10 @@ function renderReview() {
       "</span></div>" +
       '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-bullseye" style="color:#e11d48"></i> Điểm tối đa</span><span class="rev-v"><b>' + testMeta.score + "</b> điểm</span></div>" +
       '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-shuffle" style="color:#0284c7"></i> Xáo trộn</span><span class="rev-v">Câu: <b>' +
-        (testMeta.shuffleQ ? "Bật" : "Tắt") + "</b> · Đáp án: <b>" + (testMeta.shuffleA ? "Bật" : "Tắt") +
+        (testMeta.shuffleQ ? "Bật" : "Tắt") + "</b> - Đáp án: <b>" + (testMeta.shuffleA ? "Bật" : "Tắt") +
       "</b></span></div>" +
       '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-dice" style="color:#7c3aed"></i> Đề con</span><span class="rev-v">' +
-        (subtestOn ? "<b>" + subtestN + "</b> câu · bốc ngẫu nhiên mỗi lần mở" : "Tắt") +
+        (subtestOn ? "<b>" + subtestN + "</b> câu - bốc ngẫu nhiên mỗi lần mở" : "Tắt") +
       "</span></div>" +
       '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-chart-column" style="color:#16a34a"></i> Xem điểm</span><span class="rev-v"><b>' +
         (testMeta.showScore === "none" ? "Bị Ẩn" : "Có") +
@@ -1238,7 +1238,7 @@ function renderReview() {
       '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-eye" style="color:#db2777"></i> Xem đáp án</span><span class="rev-v"><b>' +
         (testMeta.showAnswers === "none" ? "Không cho phép" : testMeta.showAnswers === "perfect" ? "Chỉ khi tối đa" : "Luôn hiện") +
       "</b></span></div>" +
-      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-folder-open" style="color:#065f46"></i> Thống kê</span><span class="rev-v">' + qn + " câu · " + nSec + " phần</span></div>" +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-folder-open" style="color:#065f46"></i> Thống kê</span><span class="rev-v">' + qn + " câu - " + nSec + " phần</span></div>" +
     "</div>" +
     '<div class="note" id="revNote" hidden></div>' +
     '<div class="rev-actions">' +
