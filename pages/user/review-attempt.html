@@ -1,83 +1,114 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Xem lại bài làm - LearnHub</title>
-  <link rel="icon" href="../../assets/images/favicon.png">
-  <link rel="stylesheet" href="../../styles/global.css">
-  <link rel="stylesheet" href="../../styles/quiz-review.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-  <style>
-    :root{--bg:#f6f8ff;--text:#111827;--card:#fff;--card-gradient:linear-gradient(135deg,#fff,#f3f6ff);--primary:#1a73e8;--primary-light:#eff6ff;--danger:#ef4444;--success:#10b981;--info:#3173de;--anshover:#d0d7df;--answrong:#fdacac;--success-light:#b6fdcf;--danger-light:#f7b7b7;--tf-bg:#f8fafc;--tf-hover:#eef2ff;--tf-border:#e2e8f0;--true-asw:#15803d;--false-asw:#b91c1c;--bg-main:#f6f8ff;--text-main:#111827;--text-sub:#6b7280;--card-bg:linear-gradient(135deg,#fff,#f3f6ff);--card-border:rgba(226,232,240,.7);--card-shadow:0 8px 24px rgba(2,12,27,.07)}
-    html,body{min-height:100%;overflow-anchor:none}body{margin:0;padding:20px;font-family:Inter,'Segoe UI',Arial,sans-serif;color:var(--text-main);background-color:var(--bg-main);background-image:radial-gradient(#d6dcff 1.2px,transparent 1.2px);background-size:28px 28px;overflow-x:hidden}
-    #review-root{max-width:1200px;margin:0 auto}.review-state{padding:28px;border-radius:16px;background:#fff;box-shadow:var(--card-shadow);text-align:center;font-weight:700;color:var(--text-sub)}
-    @media(max-width:600px){body{padding:12px}}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>tailwind.config = { corePlugins: { preflight: false } };</script>
+    <script src="https://cdn.tailwindcss.com"></script>
+<title>Xem lại bài làm - LearnHub</title>
+    <link rel="icon" href="../../assets/images/favicon.png">
+    <link rel="stylesheet" href="../../styles/global.css">
+    <link rel="stylesheet" href="../../styles/quiz-review.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+      html, body { min-height: 100%; overflow-anchor: none; }
+      html, body { scrollbar-width: none; -ms-overflow-style: none; }
+      html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
+      body { margin: 0; padding: 20px; font-family: Inter, system-ui, sans-serif; color: var(--text); background: var(--bg); background-image: radial-gradient(#d6dcff 1.2px, transparent 1.2px); background-size: 28px 28px; overflow-x: clip; }
+      .review-page-container { max-width: 1600px; margin: 0 auto; padding: 0 20px; }
+      #review-root { width: 100%; max-width: 100%; }
+      .review-question-column { display: flex; flex-direction: column; gap: 25px; }
+      .review-summary-card { position: sticky; top: 20px; z-index: 20; }
+      #review-root .lh-card { width: 100%; box-sizing: border-box; background: var(--card); border: 1px solid var(--tf-border); border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,.05); }
+      .sidebar { position: sticky; top: 20px; align-self: flex-start; height: fit-content; }
+      #attempt-back { padding: 0; }
+      .lh-stat { border: 1px solid var(--tf-border); border-radius: 12px; }
+      .attempt-score { display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 12px; font: 800 20px/1 Inter, Arial, sans-serif; font-variant-numeric: tabular-nums; }
+      .review-content { display: flex; flex-direction: column; gap: 25px; }
+      .review-state { padding: 24px; border-radius: 14px; background: var(--card); color: var(--text-sub); text-align: center; font-weight: 700; }
+      .at-notice { padding: 12px 14px; border-radius: 10px; background: #fff7ed; color: #9a3412; font-size: .85rem; font-weight: 600; }
+      @media (max-width: 1024px) { body { padding: 10px 5px; } .review-page-container { padding: 0; } .sidebar { position: fixed; top: 50%; } }
+    </style>
 </head>
 <body>
-  <main id="review-root"><div class="review-state"><i class="fas fa-circle-notch fa-spin"></i> Đang tải bài làm...</div></main>
-  <script type="module">
-    import { supabase, escapeHtml } from "../../scripts/core/supabase-config.js";
-    import { renderAttemptDetail } from "../../scripts/features/attempt-review-renderer.js";
+<div class="review-page-container">
+  <main id="review-root">
+    <div class="review-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải bài làm...</div>
+  </main>
+</div>
+<script type="module">
+  import { supabase, escapeHtml } from "../../scripts/core/supabase-config.js";
+  import { loadTestAttempt } from "../../scripts/features/learnhub-stats.js";
+  import { renderAttemptDetail } from "../../scripts/features/attempt-review-renderer.js";
 
-    function scrollToQuestion(index) {
-      const card = document.getElementById(`card-${index}`);
-      if (!card) return;
-      window.scrollTo({ top: card.getBoundingClientRect().top + window.scrollY - 90, behavior: "smooth" });
-      if (window.innerWidth <= 1024) toggleSidebar();
-    }
-    function toggleSidebar() {
-      const sidebar = document.getElementById("sidebarNav");
-      const overlay = document.getElementById("sidebarOverlay");
-      if (!sidebar || !overlay) return;
-      const visible = sidebar.style.display === "block";
-      sidebar.style.display = visible ? "" : "block";
-      overlay.style.display = visible ? "none" : "flex";
-    }
-    window.scrollToQuestion = scrollToQuestion;
-    window.toggleSidebar = toggleSidebar;
+  const root = document.getElementById("review-root");
+  const params = new URLSearchParams(location.search);
+  const attemptId = params.get("attempt");
+  const studentId = params.get("student");
 
-    const root = document.getElementById("review-root");
-    const params = new URLSearchParams(location.search);
-    const attemptId = params.get("attempt");
-    const studentId = params.get("student");
-    const back = () => {
-      if (history.length > 1) history.back();
-      else location.href = "../teacher/index.html";
-    };
-    function showError(message) {
-      document.title = "Không tìm thấy bài làm - LearnHub";
-      root.innerHTML = `<div class="review-state">${escapeHtml(message)}<div style="margin-top:16px"><button id="review-back" type="button" class="btn">Quay lại</button></div></div>`;
-      document.getElementById("review-back").addEventListener("click", back);
-    }
-    document.addEventListener("click", (event) => {
-      if (event.target.closest("#attempt-back")) back();
-    });
+  try {
+    if (localStorage.getItem("darkMode") === "on") document.body.classList.add("dark-mode");
+  } catch (_) {}
 
-    if (!attemptId || !studentId) {
-      showError("Thiếu thông tin bài làm hoặc học sinh.");
-    } else {
-      try {
+  function backToReport() {
+    if (history.length > 1) history.back();
+    else location.href = "../teacher/index.html";
+  }
+  function scrollToQuestion(index) {
+    const card = document.getElementById(`card-${index}`);
+    if (!card) return;
+    window.scrollTo({ top: card.getBoundingClientRect().top + window.scrollY - 90, behavior: "smooth" });
+    if (window.innerWidth <= 1024) toggleSidebar();
+  }
+  function toggleSidebar() {
+    const sidebar = document.getElementById("sidebarNav");
+    const overlay = document.getElementById("sidebarOverlay");
+    if (!sidebar || !overlay) return;
+    const visible = sidebar.style.display === "block";
+    sidebar.style.display = visible ? "" : "block";
+    overlay.style.display = visible ? "none" : "flex";
+  }
+  function showError(message) {
+    document.title = "Không tìm thấy bài làm - LearnHub";
+    root.innerHTML = `<div class="review-state">${escapeHtml(message)}<div style="margin-top:16px"><button id="review-back" class="btn" type="button">Quay lại</button></div></div>`;
+    document.getElementById("review-back").addEventListener("click", backToReport);
+  }
+
+  window.scrollToQuestion = scrollToQuestion;
+  window.toggleSidebar = toggleSidebar;
+  root.addEventListener("click", (event) => {
+    if (event.target.closest("#attempt-back")) backToReport();
+  });
+
+  if (!attemptId) {
+    showError("Thiếu thông tin bài làm.");
+  } else {
+    try {
+      let attempt;
+      let studentName = "";
+      if (studentId) {
         const { data, error } = await supabase.rpc("teacher_report_attempt_detail", {
           p_attempt_id: attemptId,
           p_user_id: studentId
         });
         if (error) throw error;
-        if (!data || !data.attempt) {
-          showError("Không tìm thấy bài làm này.");
-        } else {
-          const attempt = data.attempt;
-          const testName = (attempt.paper && attempt.paper.meta && attempt.paper.meta.name) || attempt.test_name || "Bài kiểm tra";
-          document.title = testName + " - Xem lại bài";
-          root.innerHTML = renderAttemptDetail(attempt, data.student_name || "Học sinh");
-        }
-      } catch (error) {
-        console.error("Tải chi tiết bài làm báo cáo lỗi:", error);
-        showError("Không tải được chi tiết bài làm. Hãy quay lại và thử lại.");
+        attempt = data && data.attempt;
+        studentName = data && data.student_name || "Học sinh";
+      } else {
+        attempt = await loadTestAttempt(attemptId);
       }
+      if (!attempt) {
+        showError("Không tìm thấy bài làm này.");
+      } else {
+        const testName = (attempt.paper && attempt.paper.meta && attempt.paper.meta.name) || attempt.test_name || "Bài kiểm tra";
+        document.title = testName + " - Xem lại bài";
+        root.innerHTML = renderAttemptDetail(attempt, studentName);
+      }
+    } catch (error) {
+      console.error("Tải chi tiết bài làm báo cáo lỗi:", error);
+      showError("Không tải được chi tiết bài làm. Hãy quay lại và thử lại.");
     }
-  </script>
+  }
+</script>
 </body>
 </html>

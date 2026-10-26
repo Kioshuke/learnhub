@@ -12,35 +12,73 @@
    profile.html khai báo ở :root (light) và nhận dark mode từ global.css.
    ============================================================================ */
 
+/* Shared rendering tokens and markup used by quiz-render.js. Page-specific
+   themes can still override these variables from their own root selector. */
+:root {
+  --bg: #f6f8ff;
+  --text: #111827;
+  --text-sub: #6b7280;
+  --card: #ffffff;
+  --card-gradient: linear-gradient(135deg, #ffffff, #f3f6ff);
+  --primary: #1a73e8;
+  --primary-light: #eff6ff;
+  --danger: #ef4444;
+  --success: #10b981;
+  --info: #3173de;
+  --anshover: #d0d7df;
+  --answrong: #fdacac;
+  --success-light: #b6fdcf;
+  --danger-light: #f7b7b7;
+  --tf-bg: #f8fafc;
+  --tf-hover: #eef2ff;
+  --tf-border: #e2e8f0;
+  --true-asw: #15803d;
+  --false-asw: #b91d1d;
+}
+
 /* ============================ CARD CÂU HỎI ============================ */
 .question-card {
   background: var(--card-gradient);
   border-radius: 20px;
-  padding: 25px;
-  margin-bottom: 25px;
+  padding: 15px;
+  margin-bottom: 20px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
   border: 2px solid rgba(0, 0, 0, 0.05);
   color: var(--text);
 }
-.q-header { display: block; gap: 12px; margin-bottom: 20px; font-weight: 600; font-size: 1.05rem; align-items: flex-start; line-height: 1.6; }
+.q-header { display: block; gap: 12px; margin-bottom: 12px; font-weight: 600; font-size: 0.95rem; align-items: flex-start; line-height: 1.6; }
 .q-badge {
   display: inline-block;
-  background: var(--primary-light);
-  color: var(--primary);
-  padding: 2px 10px;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  margin-right: 8px;
+  background: var(--primary);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-right: 5px;
   vertical-align: middle;
 }
+.q-image { text-align: center; margin: 10px 0; }
+.q-image img { max-width: 100%; max-height: 250px; border-radius: 10px; }
+.question-prompt { margin-bottom: 12px; font-size: 0.95rem; line-height: 1.6; font-weight: 600; color: var(--text); }
+.quiz-section-title { margin: 25px 0 15px; padding: 12px 15px; background: #eff6ff; color: #1a73e8; border-radius: 8px; border-left: 5px solid #1a73e8; }
+.quiz-section-title-text { font-weight: 700; text-transform: uppercase; font-size: 0.95rem; }
+.quiz-section-description { margin-top: 4px; font-size: 0.78rem; color: var(--text-sub, #6b7280); font-weight: 400; font-style: italic; line-height: 1.4; }
+.section-passage { background: var(--card); padding: 15px; border-radius: 10px; margin-bottom: 15px; line-height: 1.7; border-left: 4px solid var(--primary); font-size: 0.95rem; }
+.quiz-end-marker { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 38px 0 8px; padding: 0 8px; user-select: none; }
+.quiz-end-marker span { flex: 1; height: 1px; background: linear-gradient(to right, transparent, var(--primary), var(--primary)); }
+.quiz-end-marker span:last-child { background: linear-gradient(to left, transparent, var(--primary), var(--primary)); }
+.quiz-end-marker b { font-weight: 800; font-size: 1rem; letter-spacing: 4px; color: var(--primary); white-space: nowrap; }
 
 /* ============================ Ô ĐÁP ÁN ============================ */
 .answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .ans-label {
   border: 2px solid #e2e8f0; padding: 14px; border-radius: 12px;
-  cursor: pointer; display: flex; align-items: center; transition: all 0.2s;
+  cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;
   position: relative; overflow: hidden; align-items: center;
 }
+.ans-label input[type="radio"] { flex: 0 0 auto; }
+.ans-prefix { margin-right: 4px; font-weight: 700; }
 .ans-img { display: block; max-width: 100%; max-height: 150px; margin: 0 auto; border-radius: 9px; object-fit: contain; background: #fff; }
 .ans-label:hover:not(.disabled) { background: var(--anshover); border-color: #cbd5e1; }
 .ans-label.selected { border-color: var(--primary); background: var(--primary-light); }
@@ -60,12 +98,6 @@
 .cloze-answer-tip { font-weight: 700; }
 
 /* ============================ ĐÚNG / SAI ============================ */
-.tf-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-top: 15px;
-}
 .tf-wrapper {
   background: var(--card);
   border: 1px solid var(--tf-border);
@@ -75,18 +107,38 @@
 .tf-row {
   display: flex;
   align-items: center;
-  padding: 12px;
+  padding: 10px;
   border-bottom: 1px solid var(--tf-border);
-  gap: 15px;
+  gap: 10px;
   transition: background 0.2s;
   background: var(--tf-bg);
 }
 .tf-row:hover { background: var(--tf-hover); }
-.tf-question-text { flex: 1; font-size: 0.95rem; line-height: 1.5; }
-.tf-options { display: flex; gap: 10px; }
+.tf-question-text { flex: 1; font-size: 0.9rem; line-height: 1.5; }
+.tf-options { display: flex; gap: 5px; flex-shrink: 0; }
+.tf-options label { cursor: pointer; display: flex; align-items: center; gap: 3px; background: transparent; padding: 4px 10px; border-radius: 6px; border: 1.2px solid var(--tf-border); font-size: 0.85rem; }
 .tf-options input { accent-color: var(--primary); }
 .tf-options label { transition: all 0.2s; }
+.tf-options label.selected { background: var(--primary-light); border-color: var(--primary); }
 .tf-options input:checked + b { color: var(--primary); }
+.tf-review-correct { background: var(--success-light) !important; }
+.tf-review-wrong { background: var(--danger-light) !important; }
+.tf-answer-tip { font-weight: 700; }
+.answer-key { margin-top: 10px; }
+.review-input-correct { border-color: var(--success) !important; }
+.review-input-wrong { border-color: var(--danger) !important; }
+.cloze-input { min-width: 80px; box-sizing: border-box; padding: 6px 8px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; text-align: center; }
+.cloze-text { background: var(--card); padding: 14px; border-radius: 10px; border: 1px solid var(--tf-border); line-height: 2.1; font-size: 1rem; color: var(--text); }
+.cloze-review-correct { border-color: var(--success) !important; background: var(--success-light) !important; }
+.cloze-review-wrong { border-color: var(--danger) !important; background: var(--danger-light) !important; }
+.cloze-answer-tip { margin-left: 6px; font-size: 0.8rem; }
+.listening-player { background: var(--card); padding: 14px 16px; border-radius: 12px; margin-bottom: 16px; border: 1px solid var(--tf-border); }
+.listening-player-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-weight: 700; font-size: 0.92rem; color: var(--text); }
+.listening-badge { background: var(--primary); color: #fff; border-radius: 8px; padding: 4px 10px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.listening-track + .listening-track { margin-top: 10px; }
+.listening-track-title { font-size: 0.8rem; font-weight: 600; margin-bottom: 4px; color: var(--text-sub, #6b7280); }
+.listening-player audio { width: 100%; height: 50px; }
+.sub-q-text { font-weight: 600; font-size: 0.92rem; margin-bottom: 10px; }
 
 /* ============================ ĐỌC HIỂU (PASSAGE) ============================ */
 .passage-layout { display: flex; gap: 20px; align-items: flex-start; }
@@ -190,9 +242,11 @@
 .quiz-section { flex: 2; min-width: 0; }
 
 .sidebar {
-  width: 280px;
+  width: 300px;
   min-width: 300px;
-  max-width: 400px;
+  max-width: 300px;
+  flex: 0 0 300px;
+  box-sizing: content-box;
   background: var(--card);
   padding: 20px;
   border-radius: 20px;
@@ -204,9 +258,10 @@
 .sidebar-header { font-weight: 800; margin-bottom: 15px; display: flex; justify-content: space-between; }
 .nav-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 6px;
 }
+.nav-section-label { grid-column: 1 / -1; font-weight: 700; margin: 10px 0 5px; font-size: 0.7rem; color: #64748b; text-transform: uppercase; }
 .nav-item {
   aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
   border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.8rem;
@@ -214,8 +269,8 @@
 }
 .nav-item.done { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
 .nav-item:hover { border-color: var(--primary); }
-.nav-item.nav-correct { background: #ecfdf5 !important; border-color: var(--success) !important; color: var(--success) !important; }
-.nav-item.nav-wrong { background: #fef2f2 !important; border-color: var(--danger) !important; color: var(--danger) !important; }
+.nav-item.nav-correct { background: var(--success) !important; border-color: var(--success) !important; color: #fff !important; }
+.nav-item.nav-wrong { background: var(--danger) !important; border-color: var(--danger) !important; color: #fff !important; }
 
 .mobile-nav-btn { display: none; position: fixed; bottom: 20px; right: 20px; }
 
@@ -241,9 +296,13 @@
     max-height: 75vh;
     overflow-y: auto;
     width: 92%;
+    min-width: 0;
     max-width: 420px;
+    flex: initial;
+    box-sizing: border-box;
     padding: 15px;
     border-radius: 16px;
   }
+  .nav-grid { grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); }
   .main-layout { display: block; }
 }
