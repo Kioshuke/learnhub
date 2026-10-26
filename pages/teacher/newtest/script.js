@@ -1427,9 +1427,9 @@ function generateCustomQRCode(linkDeThi) {
     if (!ctx) return;
     ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
 
-    const qrSize = canvas.width * 0.45;
+    const qrSize = canvas.width * 0.40;
     const offsetX = (canvas.width - qrSize) / 2;
-    const offsetY = (canvas.height - qrSize) / 2 + (canvas.height * 0.05);
+    const offsetY = (canvas.height - qrSize) / 2;
     var qrHost = document.createElement("div");
     qrHost.setAttribute("aria-hidden", "true");
     qrHost.style.cssText = "position:fixed;left:-10000px;top:0;width:" + Math.round(qrSize) + "px;height:" + Math.round(qrSize) + "px;overflow:hidden";
@@ -1444,7 +1444,22 @@ function generateCustomQRCode(linkDeThi) {
       });
       var qrCanvas = qrHost.querySelector("canvas");
       if (!qrCanvas) throw new Error("Không tạo được mã QR.");
+      ctx.save();
+      ctx.beginPath();
+      const radius = 24;
+      ctx.moveTo(offsetX + radius, offsetY);
+      ctx.lineTo(offsetX + qrSize - radius, offsetY);
+      ctx.quadraticCurveTo(offsetX + qrSize, offsetY, offsetX + qrSize, offsetY + radius);
+      ctx.lineTo(offsetX + qrSize, offsetY + qrSize - radius);
+      ctx.quadraticCurveTo(offsetX + qrSize, offsetY + qrSize, offsetX + qrSize - radius, offsetY + qrSize);
+      ctx.lineTo(offsetX + radius, offsetY + qrSize);
+      ctx.quadraticCurveTo(offsetX, offsetY + qrSize, offsetX, offsetY + qrSize - radius);
+      ctx.lineTo(offsetX, offsetY + radius);
+      ctx.quadraticCurveTo(offsetX, offsetY, offsetX + radius, offsetY);
+      ctx.closePath();
+      ctx.clip();
       ctx.drawImage(qrCanvas, offsetX, offsetY, qrSize, qrSize);
+      ctx.restore();
       canvas.style.display = "block";
       downloadButton.style.display = "block";
     } catch (error) {
