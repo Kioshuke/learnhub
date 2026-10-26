@@ -78,11 +78,13 @@ export async function onRequestGet(context) {
   const metaTags = {
     "og:title": { attribute: "property", value: title },
     "og:description": { attribute: "property", value: description },
+    "og:image": { attribute: "property", value: `${requestUrl.origin}/assets/images/df252f57-2143-45f1-9d3c-250c76491de6.jfif` },
     "og:url": { attribute: "property", value: requestUrl.href },
     "og:type": { attribute: "property", value: "website" },
     description: { attribute: "name", value: description },
     "twitter:title": { attribute: "name", value: title },
-    "twitter:description": { attribute: "name", value: description }
+    "twitter:description": { attribute: "name", value: description },
+    "twitter:image": { attribute: "name", value: `${requestUrl.origin}/assets/images/df252f57-2143-45f1-9d3c-250c76491de6.jfif` }
   };
   const tags = {
     title,
@@ -113,11 +115,13 @@ export async function onRequestGet(context) {
     } })
     .on('meta[property="og:title"]', updateMeta("og:title"))
     .on('meta[property="og:description"]', updateMeta("og:description"))
+    .on('meta[property="og:image"]', updateMeta("og:image"))
     .on('meta[property="og:url"]', updateMeta("og:url"))
     .on('meta[property="og:type"]', updateMeta("og:type"))
     .on('meta[name="description"]', updateMeta("description"))
     .on('meta[name="twitter:title"]', updateMeta("twitter:title"))
     .on('meta[name="twitter:description"]', updateMeta("twitter:description"))
+    .on('meta[name="twitter:image"]', updateMeta("twitter:image"))
     .on("head", { element(element) {
       // Static placeholders are filled in a second pass through setInnerContent/setAttribute.
       element.append(placeholders, { html: true });
