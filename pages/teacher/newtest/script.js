@@ -1322,7 +1322,8 @@ async function publishTest() {
             '<input id="publishedTestLink" type="text" readonly aria-label="Link đề thi" style="flex:1;min-width:0;padding:10px 12px;border:1px solid #b9e6d2;border-radius:9px;background:#fff;color:#047857;font-size:13px">' +
             '<button type="button" class="btn btn-primary" id="btnCopyTestLink">Copy</button>' +
           '</div>' +
-          '<div id="qrcode-container" aria-label="Mã QR đề thi" style="display:flex;justify-content:center;margin:12px auto"></div>' +
+          '<canvas id="qr-canvas" aria-label="Mã QR đề thi" style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);display:none"></canvas>' +
+          '<button type="button" class="btn btn-primary" id="download-qr-btn" style="display:none;margin:8px auto">Tải ảnh QR</button>' +
           '<p class="pub-id">' + realId + "</p>" +
           '<p class="muted">Điểm tối đa <b>' + payload.p_score + "</b> · trộn câu: <b>" +
             (payload.p_shuffle_q ? "Bật" : "Tắt") + "</b> · trộn đáp án: <b>" +
@@ -1337,13 +1338,7 @@ async function publishTest() {
         "</div>";
       var linkInput = $("publishedTestLink");
       if (linkInput) linkInput.value = link;
-      var qrContainer = $("qrcode-container");
-      if (qrContainer) {
-        qrContainer.innerHTML = "";
-        if (typeof QRCode === "function") {
-          new QRCode(qrContainer, { text: link, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
-        }
-      }
+      generateCustomQRCode(link);
     }
     if (isNewTest) {
       try {
@@ -1382,7 +1377,7 @@ async function publishTest() {
 
 /* Delegation cho màn 4 (nút dựng lại mỗi lần render nên không bind trực tiếp) */
 $("p4").addEventListener("click", function (e) {
-  var el = e.target && e.target.closest ? e.target.closest("#btnPublish, #btnRevBack, #btnPublishAgain, #btnCopyTestLink") : null;
+  var el = e.target && e.target.closest ? e.target.closest("#btnPublish, #btnRevBack, #btnPublishAgain, #btnCopyTestLink, #download-qr-btn") : null;
   if (!el) return;
   if (el.id === "btnPublish") publishTest();
   else if (el.id === "btnRevBack") showStage(2);
@@ -1405,8 +1400,65 @@ $("p4").addEventListener("click", function (e) {
         showToast("Không sao chép được link.", "error");
       }
     });
+  } else if (el.id === "download-qr-btn") {
+    var canvas = $("qr-canvas");
+    if (!canvas || !canvas.width || !canvas.height) return;
+    var downloadLink = document.createElement("a");
+    downloadLink.href = canvas.toDataURL("image/png");
+    downloadLink.download = "LearnHub_QR.png";
+    downloadLink.click();
   }
 });
+
+/* Ghép QR lên ảnh khung để tải thành một ảnh PNG duy nhất. */
+function generateCustomQRCode(linkDeThi) {
+  var canvas = $("qr-canvas");
+  var downloadButton = $("download-qr-btn");
+  if (!canvas || !downloadButton || typeof QRCode !== "function") return;
+
+  canvas.style.display = "none";
+  downloadButton.style.display = "none";
+
+  var template = new Image();
+  template.onload = function () {
+    canvas.width = template.naturalWidth || template.width;
+    canvas.height = template.naturalHeight || template.height;
+    var ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
+
+    const qrSize = canvas.width * 0.45;
+    const offsetX = (canvas.width - qrSize) / 2;
+    const offsetY = (canvas.height - qrSize) / 2 + (canvas.height * 0.05);
+    var qrHost = document.createElement("div");
+    qrHost.setAttribute("aria-hidden", "true");
+    qrHost.style.cssText = "position:fixed;left:-10000px;top:0;width:" + Math.round(qrSize) + "px;height:" + Math.round(qrSize) + "px;overflow:hidden";
+    document.body.appendChild(qrHost);
+
+    try {
+      new QRCode(qrHost, {
+        text: linkDeThi,
+        width: Math.round(qrSize),
+        height: Math.round(qrSize),
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      var qrCanvas = qrHost.querySelector("canvas");
+      if (!qrCanvas) throw new Error("Không tạo được mã QR.");
+      ctx.drawImage(qrCanvas, offsetX, offsetY, qrSize, qrSize);
+      canvas.style.display = "block";
+      downloadButton.style.display = "block";
+    } catch (error) {
+      console.error("[QR] Không thể tạo ảnh QR:", error);
+      showToast("Không tạo được ảnh QR.", "error");
+    } finally {
+      qrHost.remove();
+    }
+  };
+  template.onerror = function () {
+    showToast("Không tải được ảnh khung QR.", "error");
+  };
+  template.src = new URL("../../../assets/images/qr-template.png", document.baseURI).href;
+}
 
 /* Cập nhật nhãn nút "Tiếp tục" theo tên đề đã đặt */
 function updateSetupBtn() {
