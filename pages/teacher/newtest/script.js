@@ -1329,20 +1329,20 @@ async function publishTest() {
           '<div class="publish-success-check" aria-hidden="true"><i class="fa-solid fa-check"></i></div>' +
           "<h3>" + (isEdit ? "Cập nhật thành công" : "Tạo đề thành công") + "</h3>" +
           "<p>Đề <b>" + escapeC(testMeta.name) + "</b>" +
-            (subject ? " · môn <b>" + escapeC(subject) + "</b>" : "") +
+            (subject ? " - Môn <b>" + escapeC(subject) + "</b>" : "") +
             (isEdit ? " đã lưu lại bản cập nhật, card trong <b>Phòng Học</b> dùng nội dung mới ngay.</p>" : " đã đưa lên DB, hiện card <b>Làm bài</b> đúng môn trong <b>Phòng Học</b>.</p>") +
           '<div class="publish-link-row">' +
             '<input id="publishedTestLink" type="text" readonly aria-label="Link đề thi" style="flex:1;min-width:0;padding:10px 12px;border:1px solid #b9e6d2;border-radius:9px;background:#fff;color:#047857;font-size:13px">' +
             '<div class="publish-copy-wrap"><button type="button" class="btn btn-primary" id="btnCopyTestLink">Copy</button><span id="copy-link-status" class="copy-link-status" aria-live="polite"></span></div>' +
           '</div>' +
           '<p class="pub-id">' + realId + "</p>" +
-          '<p class="muted publish-settings-summary">Điểm tối đa <b>' + payload.p_score + "</b> · trộn câu: <b>" +
-            (payload.p_shuffle_q ? "Bật" : "Tắt") + "</b> · trộn đáp án: <b>" +
-            (payload.p_shuffle_a ? "Bật" : "Tắt") + "</b> · điểm: <b>" +
-            (payload.p_show_score === "none" ? "Ẩn" : "Hiện") + "</b> · đáp án: <b>" +
-            (payload.p_show_answers === "none" ? "Không" : payload.p_show_answers === "perfect" ? "Khi tối đa" : "Luôn") + "</b> · đề con: <b>" +
+          '<p class="muted publish-settings-summary">Điểm tối đa <b>' + payload.p_score + "</b> - Trộn câu: <b>" +
+            (payload.p_shuffle_q ? "Bật" : "Tắt") + "</b> - Trộn đáp án: <b>" +
+            (payload.p_shuffle_a ? "Bật" : "Tắt") + "</b> - Điểm: <b>" +
+            (payload.p_show_score === "none" ? "Ẩn" : "Hiện") + "</b> - đáp án: <b>" +
+            (payload.p_show_answers === "none" ? "Không" : payload.p_show_answers === "perfect" ? "Khi tối đa" : "Luôn") + "</b> - Đề con: <b>" +
             (payload.p_subtest_enabled ? payload.p_subtest_count + "/" + countQ(testData) + " câu" : "Tắt") + "</b>" +
-            (testMeta.timeEnabled && testMeta.startAt && testMeta.endAt ? " · mở đề: <b>" + fmtDateTime(testMeta.startAt) + " → " + fmtDateTime(testMeta.endAt) + "</b>" : "") +
+            (testMeta.timeEnabled && testMeta.startAt && testMeta.endAt ? " - Mở đề: <b>" + fmtDateTime(testMeta.startAt) + " → " + fmtDateTime(testMeta.endAt) + "</b>" : "") +
           "</p>" +
           '</section>' +
           '<aside class="publish-settings-aside">' + setupCardHtml + '</aside>' +
