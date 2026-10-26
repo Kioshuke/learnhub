@@ -53,6 +53,13 @@ function showToast(message, type) {
   if (typeof window.lhToast === "function") window.lhToast(message, { type: type || "info" });
 }
 
+function setCopyLinkStatus(message, isError) {
+  var status = $("copy-link-status");
+  if (!status) return;
+  status.textContent = message || "";
+  status.classList.toggle("is-error", !!isError);
+}
+
 function setNote(html, isError) {
   var n = $("p2") && !$("p2").hidden ? $("outNote") : $("inputNote");
   n.innerHTML = html;
@@ -1312,6 +1319,8 @@ async function publishTest() {
     var link = location.origin + "/?open=phong-hoc&de=" + realId;
     if (left) {
       var resultArea = $("revArea");
+      var setupCard = resultArea && resultArea.querySelector(".rev-meta");
+      var setupCardHtml = setupCard ? setupCard.outerHTML : "";
       if (resultArea) resultArea.innerHTML =
         '<div class="publish-result">' +
           '<section class="publish-qr-panel" aria-label="Mã QR đề thi">' +
@@ -1320,16 +1329,25 @@ async function publishTest() {
             '<button type="button" class="btn btn-primary" id="download-qr-btn" style="display:none;margin:8px auto">Tải ảnh QR</button>' +
           '</section>' +
           '<section class="publish-details">' +
-          '<div class="pub-ico"><i class="fa-solid fa-champagne-glasses"></i></div>' +
+          '<div class="publish-success-check" aria-hidden="true"><i class="fa-solid fa-check"></i></div>' +
           "<h3>" + (isEdit ? "Cập nhật thành công" : "Tạo đề thành công") + "</h3>" +
           "<p>Đề <b>" + escapeC(testMeta.name) + "</b>" +
             (subject ? " · môn <b>" + escapeC(subject) + "</b>" : "") +
             (isEdit ? " đã lưu lại bản cập nhật, card trong <b>Phòng Học</b> dùng nội dung mới ngay.</p>" : " đã đưa lên DB, hiện card <b>Làm bài</b> đúng môn trong <b>Phòng Học</b>.</p>") +
           '<div class="publish-link-row">' +
             '<input id="publishedTestLink" type="text" readonly aria-label="Link đề thi" style="flex:1;min-width:0;padding:10px 12px;border:1px solid #b9e6d2;border-radius:9px;background:#fff;color:#047857;font-size:13px">' +
-            '<button type="button" class="btn btn-primary" id="btnCopyTestLink">Copy</button>' +
+            '<div class="publish-copy-wrap"><button type="button" class="btn btn-primary" id="btnCopyTestLink">Copy</button><span id="copy-link-status" class="copy-link-status" aria-live="polite"></span></div>' +
           '</div>' +
           '<p class="pub-id">' + realId + "</p>" +
+          '<p class="muted publish-settings-summary">Điểm tối đa <b>' + payload.p_score + "</b> · trộn câu: <b>" +
+            (payload.p_shuffle_q ? "Bật" : "Tắt") + "</b> · trộn đáp án: <b>" +
+            (payload.p_shuffle_a ? "Bật" : "Tắt") + "</b> · điểm: <b>" +
+            (payload.p_show_score === "none" ? "Ẩn" : "Hiện") + "</b> · đáp án: <b>" +
+            (payload.p_show_answers === "none" ? "Không" : payload.p_show_answers === "perfect" ? "Khi tối đa" : "Luôn") + "</b> · đề con: <b>" +
+            (payload.p_subtest_enabled ? payload.p_subtest_count + "/" + countQ(testData) + " câu" : "Tắt") + "</b>" +
+            (testMeta.timeEnabled && testMeta.startAt && testMeta.endAt ? " · mở đề: <b>" + fmtDateTime(testMeta.startAt) + " → " + fmtDateTime(testMeta.endAt) + "</b>" : "") +
+          "</p>" +
+          setupCardHtml +
           '</section>' +
           '<div class="publish-result-actions"><button type="button" class="btn btn-primary" id="btnPublishAgain">＋ Xuất bản đề mới</button></div>' +
         '</div>';
@@ -1340,7 +1358,7 @@ async function publishTest() {
     if (isNewTest) {
       try {
         await navigator.clipboard.writeText(link);
-        showToast("Sao chép link thành công!", "success");
+        setCopyLinkStatus("Sao chép link thành công!");
       } catch (_copyError) {}
     }
     if (rn) rn.hidden = true;
@@ -1386,15 +1404,15 @@ $("p4").addEventListener("click", function (e) {
       ? navigator.clipboard.writeText(input.value)
       : Promise.reject(new Error("Clipboard API không khả dụng."));
     copyPromise.then(function () {
-      showToast("Sao chép link thành công!", "success");
+      setCopyLinkStatus("Sao chép link thành công!");
     }).catch(function () {
       input.focus();
       input.select();
       try {
-        if (document.execCommand("copy")) showToast("Sao chép link thành công!", "success");
-        else showToast("Không sao chép được link.", "error");
+        if (document.execCommand("copy")) setCopyLinkStatus("Sao chép link thành công!");
+        else setCopyLinkStatus("Không sao chép được link.", true);
       } catch (_copyError) {
-        showToast("Không sao chép được link.", "error");
+        setCopyLinkStatus("Không sao chép được link.", true);
       }
     });
   } else if (el.id === "download-qr-btn") {
