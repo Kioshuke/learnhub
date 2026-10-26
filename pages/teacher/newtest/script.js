@@ -49,6 +49,10 @@ function letter(i) { return LETTERS[i] || String(i + 1); }
 
 var $ = function (id) { return document.getElementById(id); };
 
+function showToast(message, type) {
+  if (typeof window.lhToast === "function") window.lhToast(message, { type: type || "info" });
+}
+
 function setNote(html, isError) {
   var n = $("p2") && !$("p2").hidden ? $("outNote") : $("inputNote");
   n.innerHTML = html;
@@ -1263,6 +1267,8 @@ async function publishTest() {
   var b = $("btnPublish");
   if (!b || b.disabled || !testData || !testData.length) return;
   if (!testMeta.name) { renderReview(); return; }
+  var isEdit = Boolean(currentEditId);
+  var isNewTest = !isEdit;
   var subject = testMeta.subject || "";
   b.disabled = true;
   b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xuất bản…';
@@ -1303,14 +1309,20 @@ async function publishTest() {
       throw { message: msg };
     }
     var realId = "t:" + res.data.id;
+    var link = location.origin + "/?open=phong-hoc&de=" + realId;
     if (left) {
       left.innerHTML =
         '<div class="publish-success">' +
           '<div class="pub-ico"><i class="fa-solid fa-champagne-glasses"></i></div>' +
-          "<h3>" + (currentEditId ? "Đã cập nhật" : "Đã xuất bản") + "</h3>" +
+          "<h3>" + (isEdit ? "Cập nhật thành công" : "Tạo đề thành công") + "</h3>" +
           "<p>Đề <b>" + escapeC(testMeta.name) + "</b>" +
             (subject ? " · môn <b>" + escapeC(subject) + "</b>" : "") +
-            (currentEditId ? " đã lưu lại bản cập nhật, card trong <b>Phòng Học</b> dùng nội dung mới ngay.</p>" : " đã đưa lên DB, hiện card <b>Làm bài</b> đúng môn trong <b>Phòng Học</b>.</p>") +
+            (isEdit ? " đã lưu lại bản cập nhật, card trong <b>Phòng Học</b> dùng nội dung mới ngay.</p>" : " đã đưa lên DB, hiện card <b>Làm bài</b> đúng môn trong <b>Phòng Học</b>.</p>") +
+          '<div style="display:flex;gap:8px;align-items:stretch;max-width:720px;margin:14px auto 10px">' +
+            '<input id="publishedTestLink" type="text" readonly aria-label="Link đề thi" style="flex:1;min-width:0;padding:10px 12px;border:1px solid #b9e6d2;border-radius:9px;background:#fff;color:#047857;font-size:13px">' +
+            '<button type="button" class="btn btn-primary" id="btnCopyTestLink">Copy</button>' +
+          '</div>' +
+          '<div id="qrcode-container" aria-label="Mã QR đề thi" style="display:flex;justify-content:center;margin:12px auto"></div>' +
           '<p class="pub-id">' + realId + "</p>" +
           '<p class="muted">Điểm tối đa <b>' + payload.p_score + "</b> · trộn câu: <b>" +
             (payload.p_shuffle_q ? "Bật" : "Tắt") + "</b> · trộn đáp án: <b>" +
@@ -1323,6 +1335,21 @@ async function publishTest() {
           "</p>" +
           '<button type="button" class="btn btn-primary" id="btnPublishAgain">＋ Xuất bản đề mới</button>' +
         "</div>";
+      var linkInput = $("publishedTestLink");
+      if (linkInput) linkInput.value = link;
+      var qrContainer = $("qrcode-container");
+      if (qrContainer) {
+        qrContainer.innerHTML = "";
+        if (typeof QRCode === "function") {
+          new QRCode(qrContainer, { text: link, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
+        }
+      }
+    }
+    if (isNewTest) {
+      try {
+        await navigator.clipboard.writeText(link);
+        showToast("Sao chép link thành công!", "success");
+      } catch (_copyError) {}
     }
     if (rn) rn.hidden = true;
     b.disabled = false;
@@ -1355,11 +1382,30 @@ async function publishTest() {
 
 /* Delegation cho màn 4 (nút dựng lại mỗi lần render nên không bind trực tiếp) */
 $("p4").addEventListener("click", function (e) {
-  var el = e.target && e.target.closest ? e.target.closest("#btnPublish, #btnRevBack, #btnPublishAgain") : null;
+  var el = e.target && e.target.closest ? e.target.closest("#btnPublish, #btnRevBack, #btnPublishAgain, #btnCopyTestLink") : null;
   if (!el) return;
   if (el.id === "btnPublish") publishTest();
   else if (el.id === "btnRevBack") showStage(2);
   else if (el.id === "btnPublishAgain") { maxStage = 1; showStage(1); }
+  else if (el.id === "btnCopyTestLink") {
+    var input = $("publishedTestLink");
+    if (!input) return;
+    var copyPromise = navigator.clipboard && navigator.clipboard.writeText
+      ? navigator.clipboard.writeText(input.value)
+      : Promise.reject(new Error("Clipboard API không khả dụng."));
+    copyPromise.then(function () {
+      showToast("Sao chép link thành công!", "success");
+    }).catch(function () {
+      input.focus();
+      input.select();
+      try {
+        if (document.execCommand("copy")) showToast("Sao chép link thành công!", "success");
+        else showToast("Không sao chép được link.", "error");
+      } catch (_copyError) {
+        showToast("Không sao chép được link.", "error");
+      }
+    });
+  }
 });
 
 /* Cập nhật nhãn nút "Tiếp tục" theo tên đề đã đặt */
