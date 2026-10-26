@@ -1236,7 +1236,7 @@ function renderReview() {
         (testMeta.showScore === "none" ? "Bị Ẩn" : "Có") +
       "</b></span></div>" +
       '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-eye" style="color:#db2777"></i> Xem đáp án</span><span class="rev-v"><b>' +
-        (testMeta.showAnswers === "none" ? "Không cho phép" : testMeta.showAnswers === "perfect" ? "Chỉ khi tối đa" : "Luôn hiện") +
+        (testMeta.showAnswers === "none" ? "Không cho phép" : testMeta.showAnswers === "perfect" ? "Điểm tối đa" : "Luôn hiện") +
       "</b></span></div>" +
       '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-folder-open" style="color:#065f46"></i> Thống kê</span><span class="rev-v">' + qn + " câu - " + nSec + " phần</span></div>" +
     "</div>" +
