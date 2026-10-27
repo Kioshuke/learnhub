@@ -1492,7 +1492,7 @@ function mergeDbTestCards(list) {
     var icon = s.icon || "fa-book";
     var de = "t:" + key;
     var url = "../cauhoi/" + ((s.id === "anh") ? "questionenglish.html" : "filetest.html") + "?de=" + de;
-    var copyLink = location.origin + "/?open=phong-hoc&de=" + de;
+    var copyLink = location.origin + "/?open=phong-hoc&de=" + de.split("-")[0];
     var done = !!t.is_complete;
     var startAt = t.start_at || null;
     var endAt = t.end_at || null;
