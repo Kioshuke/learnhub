@@ -407,6 +407,19 @@ box-shadow: 0 4px 12px color-mix(in srgb, var(--btn-color) 40%, transparent);
     margin-right: 20px;
     gap: 10px;
     flex: 0 0 auto;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.menu-brand:hover {
+    transform: translateY(-1px);
+    opacity: 0.88;
+}
+
+.menu-brand:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 3px;
 }
 
 .menu-brand img {

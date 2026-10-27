@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Flashcard App</title>
 <link rel="stylesheet" href="../../styles/global.css">
-<link rel="stylesheet" href="../../styles/flash.css?v=9">
+<link rel="stylesheet" href="../../styles/flash.css?v=10">
 <script src="../../version/version-check.js" defer></script>
 <script src="../../scripts/core/toast.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
@@ -312,7 +312,7 @@ function enterApp() {
 // Auto-skip intro screen if opened from hub (has data param)
 (function() {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("data") || params.get("set")) {
+    if (params.get("data") || getSetIdFromUrl()) {
         const intro = document.getElementById("intro-screen");
         if (intro) {
             intro.style.display = "none";
@@ -365,20 +365,75 @@ function loadDataScript() {
     };
 
     script.onerror = () => {
-        hideLoadPopup();
-        lhToast("Không tải được dữ liệu: " + dataFile, 'error');
+        showSetError("Không tải được dữ liệu bộ thẻ (" + dataFile + "). Hãy thử lại hoặc về Hub.");
     };
 
     document.body.appendChild(script);
 }
 
+// ===== DEEP LINK: mở thẳng 1 bộ thẻ bằng id trên URL =====
+// Chấp nhận ?set=<uuid> (link chuẩn khi chia sẻ) và các cách viết tương đương ?id=, ?setId=, ?flashcardId=
+var currentSetId = "";
+
+function getSetIdFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get("set") || params.get("id") || params.get("setId") || params.get("flashcardId") || "";
+    return String(raw).trim();
+}
+
+function isValidSetId(id) {
+    // UUID của Supabase hoặc id dạng số (phòng khi DB đổi kiểu khoá).
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) || /^\d+$/.test(id);
+}
+
+// Màn hình lỗi thân thiện khi link chia sẻ bị sai/hết hiệu lực (bộ thẻ bị xoá).
+function showSetError(message) {
+    hideLoadPopup();
+    const old = document.getElementById("setErrorScreen");
+    if (old) old.remove();
+
+    const box = document.createElement("div");
+    box.id = "setErrorScreen";
+    box.className = "set-error";
+    box.innerHTML = `
+      <div class="set-error-box" role="alertdialog" aria-modal="true" aria-labelledby="setErrorTitle">
+        <div class="set-error-icon">🔗</div>
+        <h2 id="setErrorTitle">Không mở được bộ thẻ</h2>
+        <p id="setErrorMsg"></p>
+        <div class="set-error-actions">
+          <button type="button" id="setErrorRetry">Thử lại</button>
+          <button type="button" id="setErrorHub">Về Hub</button>
+        </div>
+      </div>`;
+    box.querySelector("#setErrorMsg").textContent =
+        message || "Liên kết chia sẻ có thể đã hết hiệu lực hoặc bộ thẻ đã bị xoá.";
+    document.body.appendChild(box);
+
+    box.querySelector("#setErrorRetry").addEventListener("click", () => window.location.reload());
+    box.querySelector("#setErrorHub").addEventListener("click", () => {
+        window.location.href = "hub.html";
+    });
+}
+window.__fcShowSetError = showSetError;
+
 // Nếu mở theo ?set=<id> (bộ từ lưu trên DB), chờ module supabase sẵn sàng rồi lấy dữ liệu.
 // Ngược lại thì load file JS tĩnh như cũ.
 function startLoad() {
-    const params = new URLSearchParams(window.location.search);
-    const setId = params.get("set");
+    const setId = getSetIdFromUrl();
     if (setId) {
-        setTopicNameLabel(formatTopicNameFromDataFile("set_" + setId));
+        if (!isValidSetId(setId)) {
+            showSetError("Mã bộ thẻ trong liên kết không hợp lệ. Hãy kiểm tra lại link được chia sẻ.");
+            return;
+        }
+        currentSetId = setId;
+        // Chuẩn hoá URL về ?set=<id> để người dùng copy từ thanh địa chỉ vẫn đúng.
+        try {
+            const canonical = new URL(window.location.href);
+            canonical.search = "?set=" + encodeURIComponent(setId);
+            canonical.hash = "";
+            window.history.replaceState(null, "", canonical.href);
+        } catch (e) {}
+        setTopicNameLabel("Đang tải bộ thẻ...");
         if (window.__fcLoadSet) { window.__fcLoadSet(setId); return; }
         // [FIX BUG #16] Giới hạn số lần chờ để tránh setInterval chạy vô hạn nếu
         // __fcLoadSet không bao giờ xuất hiện (script lỗi/không tải được).
@@ -391,10 +446,15 @@ function startLoad() {
                 window.__fcLoadSet(setId);
             } else if (tries >= MAX_TRIES) {
                 clearInterval(wait);
-                hideLoadPopup();
-                if (typeof lhToast === 'function') lhToast("Không tải được bộ flashcard. Vui lòng thử lại.", 'error');
+                showSetError("Không kết nối được dữ liệu bộ thẻ. Kiểm tra mạng rồi thử lại.");
             }
         }, 100);
+        return;
+    }
+
+    // Không có id bộ thẻ và cũng không có file dữ liệu -> về Hub thay vì màn hình lỗi.
+    if (!new URLSearchParams(window.location.search).get("data")) {
+        window.location.replace("hub.html");
         return;
     }
     loadDataScript();
@@ -533,11 +593,23 @@ shareModal.innerHTML = `
 document.body.appendChild(shareModal);
 
 function getShareUrl() {
+  const origin = window.location.origin;
+  const canUseSite = origin && origin !== "null";
   try {
     const u = new URL(window.location.href);
     u.hash = "";
+    // Bộ thẻ trên DB -> chia sẻ link mở qua web chính (giống link bài test):
+    //   /?open=flash&set=<id>
+    if (currentSetId) {
+      if (canUseSite) return origin + "/?open=flash&set=" + encodeURIComponent(currentSetId);
+      u.search = "?set=" + encodeURIComponent(currentSetId);
+    }
     return u.href;
   } catch (e) {
+    if (currentSetId) {
+      if (canUseSite) return origin + "/?open=flash&set=" + encodeURIComponent(currentSetId);
+      return window.location.pathname + "?set=" + encodeURIComponent(currentSetId);
+    }
     return window.location.href.split("#")[0];
   }
 }
@@ -742,7 +814,7 @@ if (localStorage.getItem("darkMode") === "on") {
     try {
       const { data, error } = await supabase.rpc("get_flashcard_set", { p_set_id: setId });
       if (error) throw error;
-      if (!data || !data.length) throw new Error("Bộ từ không tồn tại");
+      if (!data || !data.length) throw new Error("Bộ thẻ này không tồn tại hoặc đã bị xoá.");
       const s = data[0];
       window.TOPIC_NAME = s.name || "Bộ từ vựng";
       // Cập nhật title của trình duyệt
@@ -775,8 +847,13 @@ if (localStorage.getItem("darkMode") === "on") {
       setTimeout(() => document.body.appendChild(gameScript), 0);
     } catch (e) {
       console.error("get_flashcard_set lỗi:", e);
-      hideLoadPopup();
-      lhToast("Không tải được bộ từ: " + (e.message || e), 'error');
+      const msg = (e && e.message) ? e.message : String(e);
+      if (typeof window.__fcShowSetError === "function") {
+        window.__fcShowSetError(msg);
+      } else {
+        hideLoadPopup();
+        lhToast("Không tải được bộ từ: " + msg, 'error');
+      }
     }
   };
 </script>

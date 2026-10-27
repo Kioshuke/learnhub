@@ -739,6 +739,15 @@ document.addEventListener('DOMContentLoaded', function(){
       var tab = reverseNavMap[href];
       if(tab){
         e.preventDefault();
+        // Nếu đang xem 1 bộ thẻ qua deep link, bấm "FlashCard" trên menu = quay về Hub.
+        if(tab === 'flash'){
+          var fr = document.getElementById('flashHubFrame');
+          var src = fr ? (fr.getAttribute('src') || '') : '';
+          if(fr && /(^|\/)flash\.html(\?|$)/.test(src)){
+            fr.src = 'pages/flashcard/hub.html';
+            try { history.replaceState(null, '', window.location.pathname); } catch(err) {}
+          }
+        }
         show(tab);
       }
     });
@@ -775,7 +784,10 @@ document.addEventListener('DOMContentLoaded', function(){
     var validTabs = ["phong-hoc", "flash", "forum", "blog", "tai-lieu", "leaderboard"];
     if(validTabs.indexOf(open) === -1) return;
     var openQuizDe = params.get("de");
-    history.replaceState(null, "", window.location.pathname);
+    var openFlashSet = params.get("set") || params.get("id") || "";
+    var isFlashDeepLink = (open === "flash" && isValidFlashSetId(openFlashSet));
+    // Link chia sẻ bộ thẻ: giữ ?open=flash&set=... trên thanh địa chỉ để F5 vẫn mở đúng bộ.
+    if(!isFlashDeepLink) history.replaceState(null, "", window.location.pathname);
     var tries = 0;
     var iv = setInterval(function(){
       tries++;
@@ -796,6 +808,9 @@ document.addEventListener('DOMContentLoaded', function(){
           if(typeof openLeaderboardModal === "function") openLeaderboardModal();
           return;
         }
+        if(isFlashDeepLink && typeof openFlashDeepLink === "function"){
+          openFlashDeepLink(openFlashSet);
+        }
         if(typeof show === "function") show(open);
         if(open === "phong-hoc" && openQuizDe){
           requestOpenQuiz(openQuizDe);
@@ -804,6 +819,38 @@ document.addEventListener('DOMContentLoaded', function(){
     }, 250);
   } catch(e){}
 });
+
+/* Kiểm tra id bộ thẻ chia sẻ (UUID Supabase hoặc id số) trước khi mở iframe. */
+function isValidFlashSetId(id){
+  id = String(id || "").trim();
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) || /^\d+$/.test(id);
+}
+
+/* Mở 1 bộ flashcard qua deep link (?open=flash&set=<id>) bên trong web chính. */
+function openFlashDeepLink(setId){
+  var frame = document.getElementById("flashHubFrame");
+  if(!frame || !isValidFlashSetId(setId)) return;
+  frame.src = "pages/flashcard/flash.html?set=" + encodeURIComponent(String(setId).trim());
+  // Iframe vừa đổi src -> gửi lại thông tin user sau khi trang mới load xong.
+  frame.addEventListener("load", function(){
+    try { sendUserToFrame(frame); } catch(e) {}
+  }, { once: true });
+}
+
+/* Logo trên header -> luôn đưa về tab Home của web chính. */
+function lhGoHome(e){
+  if(e && e.preventDefault) e.preventDefault();
+  var menu = document.getElementById("lhMenu");
+  if(menu) menu.classList.remove("nav-open");
+  if(typeof show === "function"){
+    show("home");
+  } else {
+    window.location.href = "/index.html";
+    return;
+  }
+  try { history.replaceState(null, "", window.location.pathname); } catch(err) {}
+  try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch(err2) { window.scrollTo(0, 0); }
+}
 
 /* === Màn che loading khi mở bài test qua deep link (?open=phong-hoc&de=...) === */
 var _dlOverlay = null;

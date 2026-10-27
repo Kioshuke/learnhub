@@ -1265,6 +1265,83 @@ button:hover {
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* ===== MÀN HÌNH LỖI KHI LINK BỘ THẺ SAI / HẾT HIỆU LỰC ===== */
+.set-error {
+    position: fixed;
+    inset: 0;
+    z-index: 4000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(160deg, #0f172a, #1e293b);
+}
+
+.set-error-box {
+    width: min(420px, 100%);
+    padding: 28px 22px 22px;
+    border-radius: 22px;
+    background: #ffffff;
+    text-align: center;
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
+    animation: popupIn 0.25s ease;
+}
+
+.set-error-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.set-error-box h2 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #1d4ed8;
+}
+
+.set-error-box p {
+    margin: 0 0 18px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.55;
+    color: #64748b;
+    word-break: break-word;
+}
+
+.set-error-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.set-error-actions button {
+    flex: 1 1 0;
+    padding: 11px 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+#setErrorRetry {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #ffffff;
+    box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+}
+
+#setErrorHub {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+}
+
+.set-error-actions button:hover {
+    transform: translateY(-2px);
+}
+
 /* ===== SHARE MODAL (copy link + mã QR) ===== */
 .share-modal {
     position: fixed;
@@ -1397,6 +1474,15 @@ button:hover {
 }
 
 @media (max-width: 768px) {
+    .set-error-box {
+        padding: 24px 18px 18px;
+        border-radius: 18px;
+    }
+
+    .set-error-box h2 {
+        font-size: 18px;
+    }
+
     .share-box {
         padding: 18px 16px 16px;
         border-radius: 18px;
