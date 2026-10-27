@@ -1312,9 +1312,7 @@ async function publishTest() {
       throw { message: msg };
     }
     var realId = "t:" + res.data.id;
-    // Lật ngắn UUID chỉ dùng 8 ký tự đầu (trước dấu -) để link gọn hơn
-    var shortId = realId.split(":")[1].split("-")[0];
-    var link = location.origin + "/?open=phong-hoc&de=" + shortId;
+    var link = location.origin + "/?open=phong-hoc&de=" + realId;
     if (left) {
       var resultArea = $("revArea");
       var setupCard = resultArea && resultArea.querySelector(".rev-meta");

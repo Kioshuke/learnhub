@@ -2318,10 +2318,9 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
     });
 
     function tcQuizCopyLink(de) {
-      // Lật ngắn UUID: ?open=phong-hoc&de=t:4dc12f10 (8 ký tự đầu)
+      // Link mở từ web chính giống cơ chế copy link card trong Phòng Học:
       // ?open=phong-hoc&de=t:<uuid> → mở thẳng bài test trong Phòng Học.
-      var deShort = de.split(":")[1] ? de.split(":")[1].split("-")[0] : de;
-      const link = location.origin + "/?open=phong-hoc&de=" + deShort;
+      const link = location.origin + "/?open=phong-hoc&de=" + de;
       const done = function () { toast("Đã sao chép liên kết bài test", "success"); };
       const fail = function () { toast("Không sao chép được liên kết", "error"); };
       if (navigator.clipboard && navigator.clipboard.writeText) {
