@@ -342,6 +342,7 @@ grant execute on function public.list_published_test_sets() to anon, authenticat
 
 -- Lấy nội dung 1 đề cho engine. p_de dạng "t:<uuid>" (prefix t: — đề đọc 100% từ DB).
 -- Mọi bài đều đọc được — không còn filter ẩn/hiện. anon + authenticated đều đọc được.
+-- Hỗ trợ format UUID ngắn (8 ký tự đầu) và UUID đầy đủ.
 drop function if exists public.get_test_content(text);
 create or replace function public.get_test_content(p_de text)
 returns jsonb
@@ -352,18 +353,32 @@ declare
   v_key text := btrim(coalesce(p_de, ''));
   v_id  uuid;
   v_row public.test_sets%rowtype;
+  v_prefix text;
 begin
   if v_key like 't:%' then
     v_key := substr(v_key, 3);
   end if;
+
+  -- Thử cast là UUID đầy đủ trước
   begin
     v_id := v_key::uuid;
   exception when others then
-    return jsonb_build_object('ok', false, 'error', 'not_found');
+    -- Nếu không phải UUID valid → dùng prefix matching (8 ký tự đầu)
+    v_prefix := left(v_key, 8);
+    v_id := null;
   end;
-  select * into v_row
-    from public.test_sets
-   where id = v_id;
+
+  -- Nếu có UUID đầy đủ thì dùng exact match, ngược lại dùng prefix matching
+  if v_id is not null then
+    select * into v_row
+      from public.test_sets
+     where id = v_id;
+  else
+    select * into v_row
+      from public.test_sets
+     where left(id::text, 8) = v_prefix;
+  end if;
+
   if not found then
     return jsonb_build_object('ok', false, 'error', 'not_found');
   end if;
