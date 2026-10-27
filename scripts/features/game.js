@@ -545,6 +545,7 @@ function markCardAsKnown() {
     if (cardEl) {
         cardEl.classList.add("slide-out-left");
         setTimeout(() => {
+            document.querySelector(".flash-inner").classList.remove("flipped");
             cardEl.classList.remove("slide-out-left");
             cardEl.classList.add("slide-in-right");
             setTimeout(() => cardEl.classList.add("slide-active"), 50);
@@ -572,6 +573,7 @@ function markCardAsUnknown() {
     if (cardEl) {
         cardEl.classList.add("slide-out-right");
         setTimeout(() => {
+            document.querySelector(".flash-inner").classList.remove("flipped");
             cardEl.classList.remove("slide-out-right");
             cardEl.classList.add("slide-in-left");
             setTimeout(() => cardEl.classList.add("slide-active"), 50);
@@ -610,6 +612,10 @@ function advanceFlashcard() {
 }
 
 function goBackToHub() {
+    // Tiêu đề chuẩn hóa luôn kèm "Platform"
+    const title = "FlashCard - LearnHub Platform";
+    document.title = title;
+    window.parent.postMessage({ type: 'flashcard-title', title: title }, '*');
     window.location.href = 'hub.html';
 }
 

@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Flashcard App</title>
 <link rel="stylesheet" href="../../styles/global.css">
-<link rel="stylesheet" href="../../styles/flash.css?v=6">
+<link rel="stylesheet" href="../../styles/flash.css?v=9">
 <script src="../../version/version-check.js" defer></script>
 <script src="../../scripts/core/toast.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
 </head>
 
 <body>
@@ -34,8 +35,9 @@
     <button data-mode="defender" onclick="switchMode('defender')">Phòng thủ</button>
     <button data-mode="wordsearch" onclick="switchMode('wordsearch')">Giải ô chữ</button>
   </div>
+  <button id="shareBtn" onclick="openShare()" title="Chia sẻ bộ thẻ" aria-label="Chia sẻ bộ thẻ"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg></button>
+  <button id="settingsBtn" onclick="openSettings()" title="Cài đặt" aria-label="Cài đặt"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></button>
 </header>
-<button id="settingsBtn" onclick="openSettings()" title="Cài đặt"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></button>
 <!-- NÚT VỀ HUB -->
 <button id="backToHubBtn" type="button" onclick="goBackToHub()" title="Về Hub">
   <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true"><path d="M12 2 2 10h3v10h5v-6h4v6h5V10h3z"/></svg>
@@ -327,7 +329,13 @@ function hideLoadPopup() {
 
 function loadDataScript() {
     const params = new URLSearchParams(window.location.search);
-    const dataFile = params.get("data") || "data.js"; 
+    const dataFile = params.get("data") || "data.js";
+    // [SECURITY] Chỉ nhận đường dẫn tới file .js trên cùng domain; chặn URL ngoài (https://..., //...) và ../
+    if (!/^[\w\-./]+\.js(\?[\w=&.\-]*)?$/.test(dataFile) || dataFile.includes("..") || dataFile.includes("//")) {
+        hideLoadPopup();
+        lhToast("Đường dẫn dữ liệu không hợp lệ", 'error');
+        return;
+    } 
     // Hiển thị tạm theo tên file trước khi data script load xong.
     setTopicNameLabel(formatTopicNameFromDataFile(dataFile));
 
@@ -487,7 +495,7 @@ document.getElementById("sfxVolume").addEventListener("input", () => {
   saveSettings();
   if (typeof reloadGameSettings === 'function') reloadGameSettings();
   // Demo SFX
-  if (typeof soundclick !== 'undefined' && typeof playSound === 'function' && settings.sfxVolume > 0) {
+  if (typeof soundclick !== 'undefined' && typeof playSound === 'function' && parseFloat(document.getElementById("sfxVolume").value) > 0) {
     playSound(soundclick);
   }
 });
@@ -495,13 +503,169 @@ document.getElementById("speechVolume").addEventListener("input", () => {
   saveSettings();
   if (typeof reloadGameSettings === 'function') reloadGameSettings();
   // Demo Speech
-  if (typeof speak === 'function' && settings.speechVolume > 0) {
+  if (typeof speak === 'function' && parseFloat(document.getElementById("speechVolume").value) > 0) {
     speak('Hello');
   }
 });
 
 // Load settings on page load
 loadSettings();
+
+// ===== SHARE: sao chép liên kết + mã QR =====
+const shareModal = document.createElement("div");
+shareModal.id = "shareModal";
+shareModal.className = "share-modal";
+shareModal.innerHTML = `
+  <div class="share-box" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+    <div class="share-header">
+      <h3 id="shareTitle">Chia sẻ bộ thẻ</h3>
+      <button id="shareClose" class="settings-close" type="button" aria-label="Đóng">✕</button>
+    </div>
+    <p class="share-sub" id="shareSub">Gửi liên kết này để bạn bè mở đúng bộ flashcard.</p>
+    <div class="share-link-row">
+      <input id="shareLinkInput" type="text" readonly value="" aria-label="Liên kết bộ thẻ">
+      <button id="shareCopyBtn" class="share-copy-btn" type="button">Sao chép</button>
+    </div>
+    <div id="shareQrBox" class="share-qr"></div>
+    <p class="share-qr-hint">Quét mã QR để mở bộ thẻ trên điện thoại</p>
+  </div>
+`;
+document.body.appendChild(shareModal);
+
+function getShareUrl() {
+  try {
+    const u = new URL(window.location.href);
+    u.hash = "";
+    return u.href;
+  } catch (e) {
+    return window.location.href.split("#")[0];
+  }
+}
+
+function openShare() {
+  const url = getShareUrl();
+  const input = document.getElementById("shareLinkInput");
+  if (input) input.value = url;
+
+  const sub = document.getElementById("shareSub");
+  const topicEl = document.getElementById("topicName");
+  const topic = topicEl ? topicEl.textContent.trim() : "";
+  if (sub) {
+    sub.textContent = (topic && topic !== "Đang tải...")
+      ? "Bộ thẻ: " + topic
+      : "Gửi liên kết này để bạn bè mở đúng bộ flashcard.";
+  }
+
+  shareModal.classList.add("show");
+  renderShareQr(url);
+}
+
+function closeShare() {
+  shareModal.classList.remove("show");
+}
+
+function renderShareQr(url) {
+  const box = document.getElementById("shareQrBox");
+  if (!box) return;
+  box.innerHTML = "";
+
+  const draw = () => {
+    if (typeof window.QRCode !== "function") return false;
+    try {
+      new window.QRCode(box, {
+        text: url,
+        width: 200,
+        height: 200,
+        colorDark: "#0f172a",
+        colorLight: "#ffffff",
+        correctLevel: window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.M : 2
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  if (draw()) return;
+
+  // Script QR (defer) có thể chưa sẵn sàng -> chờ tối đa ~3s rồi chuyển sang ảnh QR dự phòng
+  let tries = 0;
+  const timer = setInterval(() => {
+    tries++;
+    if (draw()) {
+      clearInterval(timer);
+      return;
+    }
+    if (tries >= 20) {
+      clearInterval(timer);
+      showQrFallback(box, url);
+    }
+  }, 150);
+}
+
+function showQrFallback(box, url) {
+  box.innerHTML = "";
+  const img = document.createElement("img");
+  img.alt = "Mã QR liên kết bộ thẻ";
+  img.loading = "lazy";
+  img.src = "https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=0&data=" + encodeURIComponent(url);
+  box.appendChild(img);
+}
+
+async function copyShareLink() {
+  const input = document.getElementById("shareLinkInput");
+  const url = input ? input.value : getShareUrl();
+  let ok = false;
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(url);
+      ok = true;
+    }
+  } catch (e) {
+    ok = false;
+  }
+
+  if (!ok && input) {
+    try {
+      input.removeAttribute("readonly");
+      input.select();
+      input.setSelectionRange(0, url.length);
+      ok = document.execCommand("copy");
+      input.setAttribute("readonly", "readonly");
+      if (window.getSelection) window.getSelection().removeAllRanges();
+    } catch (e) {
+      ok = false;
+    }
+  }
+
+  const btn = document.getElementById("shareCopyBtn");
+  if (ok && btn) {
+    btn.textContent = "Đã copy ✓";
+    btn.classList.add("is-copied");
+    setTimeout(() => {
+      btn.textContent = "Sao chép";
+      btn.classList.remove("is-copied");
+    }, 1800);
+  }
+
+  if (typeof lhToast === "function") {
+    lhToast(ok ? "Đã sao chép liên kết bộ thẻ." : "Không sao chép được, bạn hãy copy thủ công nhé.", {
+      type: ok ? "success" : "error",
+      title: ok ? "Đã copy" : "Không copy được",
+      sound: false
+    });
+  }
+}
+
+document.getElementById("shareClose").addEventListener("click", closeShare);
+document.getElementById("shareCopyBtn").addEventListener("click", copyShareLink);
+shareModal.addEventListener("click", (e) => {
+  if (e.target === shareModal) closeShare();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && shareModal.classList.contains("show")) closeShare();
+});
 
 function openDictionary(word) {
   const cleanWord = word.trim().split(/\s+/)[0].toLowerCase();
@@ -530,7 +694,7 @@ async function fetchDictInfo(word) {
     // [FIX BUG #34] Escape dữ liệu trả về từ API từ điển trước khi gán innerHTML
     const esc = (s)=>(s||"").replace(/[<>&"']/g,c=>({"<": "&lt;",">": "&gt;","&": "&amp;","\"": "&quot;","'": "&#039;"})[c]);
     if (entry.phonetic) {
-      html += `<div style="margin-bottom:12px;"><span style="font-weight:700;color:#475569;font-size:13px;">🔤 Phiên âm:</span> <span style="color:#6366f1;font-size:16px;">/${esc(entry.phonetic)}/</span></div>`;
+      html += `<div style="margin-bottom:12px;"><span style="font-weight:700;color:#475569;font-size:13px;">🔤 Phiên âm:</span> <span style="color:#6366f1;font-size:16px;">/${esc(String(entry.phonetic).replace(/^\/+|\/+$/g, ""))}/</span></div>`;
     }
     entry.meanings.slice(0, 3).forEach(m => {
       html += `<div style="margin-bottom:14px;"><span style="display:inline-block;background:#eef2ff;color:#4f46e5;padding:2px 10px;border-radius:6px;font-size:12px;font-weight:700;text-transform:uppercase;">${esc(m.partOfSpeech||"")}</span>`;
@@ -581,8 +745,14 @@ if (localStorage.getItem("darkMode") === "on") {
       if (!data || !data.length) throw new Error("Bộ từ không tồn tại");
       const s = data[0];
       window.TOPIC_NAME = s.name || "Bộ từ vựng";
-      const raw = Array.isArray(s.cards) ? s.cards : [];
-      window.cards = raw.map((c, i) => ({
+      // Cập nhật title của trình duyệt
+      const formattedTitle = `${window.TOPIC_NAME} - LearnHub Flashcard`;
+      document.title = formattedTitle;
+      // Gửi tin nhắn lên parent kèm title ĐÃ CHUẨN HÓA
+      try { window.parent.postMessage({ type: 'flashcard-title', title: formattedTitle }, '*'); } catch (e) {}
+      setTopicNameLabel(window.TOPIC_NAME);
+      const rawCards = Array.isArray(s.cards) ? s.cards : [];
+      window.cards = rawCards.map((c, i) => ({
         id: i + 1,
         front: c.front,
         back: c.back,

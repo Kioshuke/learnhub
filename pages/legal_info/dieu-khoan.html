@@ -19,7 +19,8 @@
     html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
     html,body{-ms-overflow-style:none;scrollbar-width:none}
 
-    body{background:#f4f6fa;min-height:100vh;padding-top:100px;color:#1e293b;font-family:system-ui, -apple-system, sans-serif}
+    body{padding-top:84px}
+    body{background:#f4f6fa;min-height:100vh;color:#1e293b;font-family:system-ui, -apple-system, sans-serif}
 
     /* ===== NAV HEADER GRADIENT CHUẨN ĐẸP ===== */
     .doc-nav{background:linear-gradient(135deg, #1a73e8, #0d47a1);padding:14px 40px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(13,71,161,0.15);position:fixed;top:0;left:0;right:0;width:100%;z-index:1000;border-bottom:1px solid rgba(255,255,255,0.1)}
@@ -33,16 +34,17 @@
     .doc-nav-btn:hover{background:#ffffff;color:#1a73e8;transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,255,255,0.2);border-color:#ffffff}
 
     @media(max-width:768px){
-      body{padding-top:150px}
+      body{padding-top:140px}
       .doc-nav{padding:14px 20px;flex-direction:column;gap:12px;text-align:center}
       .doc-nav-brand{gap:10px}
       .doc-nav-text{align-items:center}
       .doc-nav-title{font-size:17px}
       .doc-nav-actions{width:100%;justify-content:center}
+      .toc-sidebar{top:170px}
     }
 
     /* ===== HERO ===== */
-    .doc-hero{text-align:center;padding:40px 24px 20px;width:100%;grid-column:1/-1;grid-row:1}
+    .doc-hero{text-align:center;padding:24px 24px 16px;width:100%;grid-column:1/-1;grid-row:1}
     .doc-hero-icon{width:54px;height:54px;margin:0 auto 16px;background:linear-gradient(135deg,#e0f2fe,#bae6fd);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#0284c7;box-shadow:0 4px 12px rgba(2,132,199,0.1)}
     .doc-hero h1{font-size:clamp(26px,4.5vw,36px);font-weight:800;color:#0f172a;letter-spacing:-0.5px;margin-bottom:10px}
     .doc-hero p{font-size:15px;color:#475569;max-width:800px;margin:0 auto 14px;line-height:1.6;word-wrap:break-word;overflow-wrap:break-word}
@@ -53,11 +55,11 @@
     .read-progress{position:fixed;top:0;left:0;height:4px;width:0;background:#fff;box-shadow:0 0 6px rgba(15,23,42,.4);z-index:3000;border-radius:0 2px 2px 0;pointer-events:none}
 
     /* ===== LAYOUT GRID ===== */
-    .doc-container{max-width:1200px;margin:0 auto;padding:20px 24px 60px;display:grid;grid-template-columns:280px 1fr;column-gap:40px;row-gap:0}
+    .doc-container{max-width:1200px;margin:0 auto;padding:12px 24px 60px;display:grid;grid-template-columns:280px 1fr;column-gap:40px;row-gap:0}
     .doc-content{grid-column:2;grid-row:2;min-width:0}
 
     /* ===== STICKY SIDEBAR TOC (CARD) ===== */
-    .toc-sidebar{position:sticky;top:100px;grid-column:1;grid-row:2;width:auto;height:fit-content;background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:20px 16px;box-shadow:0 6px 20px rgba(15,23,42,0.07);z-index:100;align-self:start}
+    .toc-sidebar{position:sticky;top:96px;grid-column:1;grid-row:2;width:auto;height:fit-content;background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:20px 16px;box-shadow:0 6px 20px rgba(15,23,42,0.07);z-index:100;align-self:start}
     .toc-title{font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:800;color:#475569;margin-bottom:12px;text-align:center}
     .toc-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:4px}
     .toc-link{display:block;padding:8px 12px;font-size:14px;color:#475569;text-decoration:none;font-weight:600;transition:all 0.2s ease;border-left:3px solid transparent;border-radius:8px}
@@ -77,7 +79,7 @@
 
     /* ===== CONTENT CARD ===== */
     .doc-content{min-width:0}
-    .doc-section{background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:30px;margin-bottom:24px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01);scroll-margin-top:120px;transition:transform 0.2s, box-shadow 0.2s}
+    .doc-section{background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:30px;margin-bottom:24px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01);scroll-margin-top:100px;transition:transform 0.2s, box-shadow 0.2s}
     .doc-section:hover{transform:translateY(-2px);box-shadow:0 10px 15px -3px rgba(0,0,0,0.04), 0 4px 6px -2px rgba(0,0,0,0.02)}
     
     .doc-section-head{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #f1f5f9}
@@ -196,6 +198,9 @@
     display: block;
   }
 
+
+    /* Neo cuộn khi bấm mục lục (mobile: header xếp dọc cao hơn) */
+    @media(max-width:768px){.doc-section{scroll-margin-top:150px}}
   </style>
 <script src="../../version/version-check.js" defer></script>
 </head>
@@ -569,5 +574,23 @@ fetch('../../components/footer.html').then(r=>r.text()).then(html=>{
 })();
 </script>
 
+<script>
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'legal-title', title: document.title }, '*');
+    }
+  } catch(e){}
+</script>
+<script>
+  function sendLegalTitle() {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'legal-title', title: document.title }, '*');
+      }
+    } catch(e){}
+  }
+  sendLegalTitle();
+  window.addEventListener('load', sendLegalTitle);
+</script>
 </body>
 </html>

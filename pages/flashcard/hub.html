@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LearnHub Flashcard</title>
+  <title>FlashCard - LearnHub Platform</title>
   <link rel="icon" href="../../assets/images/favicon.png" sizes="any">
 
   <link rel="stylesheet" href="../../styles/global.css">
@@ -681,6 +681,16 @@
       text-decoration: none; transition: all 0.2s ease;
     }
     .hub-empty .hub-empty-contact:hover { background: rgba(37,99,235,0.14); transform: translateY(-1px); }
+    .section-empty {
+      margin: 22px 0 0;
+      padding: 18px;
+      border: 1px dashed var(--section-border);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.6);
+      color: var(--text-sub);
+      font-size: 14px;
+      text-align: center;
+    }
     @media (max-width: 860px) {
       .topic-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -720,60 +730,13 @@
     }
     /* ===== DARK MODE ===== */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   </style>
 <script src="../../version/version-check.js" defer></script>
 <script src="../../scripts/core/toast.js"></script>
+<script>
+  // Đảm bảo title đúng khi page load (tránh conflict JS)
+  document.title = "FlashCard - LearnHub Platform";
+</script>
 </head>
 <body class="app-ready">
   <div class="wrap">
@@ -937,6 +900,8 @@
     const loadingText = document.getElementById("loadingText");
     const sectionSlides = {};
     let isLoadingLesson = false;
+    // Bấm Back thì trình duyệt khôi phục nguyên trạng trang (bfcache) -> phải reset cờ, nếu không các nút "Vào học" bị khóa
+    window.addEventListener("pageshow", () => { isLoadingLesson = false; });
     let currentHubFilter = "all";
     let dbSectionAdded = false;
 
@@ -947,7 +912,14 @@
       const msg = (e && (e.message || e.error_description)) || String(e || "Lỗi không xác định");
       const el = document.createElement("div");
       el.style.cssText = "margin:14px auto;max-width:760px;padding:14px 16px;border:1px solid rgba(239,68,68,.35);border-radius:14px;background:rgba(254,242,242,.85);color:#b91c1c;font-size:13px;line-height:1.6;";
-      el.innerHTML = `<b>Không tải được bộ từ từ dữ liệu</b><br><code style="font-size:12px;color:#9a3412">${new Date().toISOString()}${status}${code} — ${msg}</code>`;
+      const title = document.createElement("b");
+      title.textContent = "Không tải được bộ từ từ dữ liệu";
+      const detail = document.createElement("code");
+      detail.style.cssText = "font-size:12px;color:#9a3412";
+      detail.textContent = `${new Date().toISOString()}${status}${code} — ${msg}`;
+      el.appendChild(title);
+      el.appendChild(document.createElement("br"));
+      el.appendChild(detail);
       (document.querySelector(".wrap") || document.body).appendChild(el);
     };
 
@@ -1005,6 +977,7 @@
             items: groups[cat],
             groupComplete: groupComplete[cat] === true
           });
+          addFilterItem("teacher_" + gi, cat);
         }
         gi++;
       });
@@ -1059,6 +1032,18 @@
         window.open(topic.href, "_blank");
         return;
       }
+
+      // Cập nhật title của iframe
+      const deckName = topic.name || "FlashCard";
+      document.title = `${deckName} - LearnHub Flashcard`;
+      
+      // Gửi tin nhắn lên parent kèm title ĐÃ CHUẨN HÓA (chứa Platform)
+      try { 
+        window.parent.postMessage({ 
+          type: 'flashcard-title', 
+          title: `${deckName} - LearnHub Platform` 
+        }, '*'); 
+      } catch (e) {}
 
       window.location.href = topic.href;
     }
@@ -1139,6 +1124,15 @@
             header.appendChild(actions);
           }
           block.appendChild(header);
+
+          if (!section.items.length) {
+            const empty = document.createElement("p");
+            empty.className = "section-empty";
+            empty.textContent = "Chưa có bộ từ nào trong nhóm này.";
+            block.appendChild(empty);
+            hubSections.appendChild(block);
+            return;
+          }
 
           const slider = document.createElement("div");
           if (shouldSlide) {
@@ -1282,16 +1276,28 @@
       filterRoot.classList.toggle("open");
     });
 
-    filterMenu.querySelectorAll(".filter-item").forEach((item) => {
-      item.addEventListener("click", () => {
-        const value = item.dataset.value;
-        filterLabel.textContent = item.textContent;
-        filterMenu.querySelectorAll(".filter-item").forEach((btn) => btn.classList.remove("active"));
-        item.classList.add("active");
-        filterRoot.classList.remove("open");
-        renderHub(value);
-      });
+    // Dùng event delegation để các mục lọc thêm động (nhóm do giáo viên tạo) cũng bấm được
+    filterMenu.addEventListener("click", (e) => {
+      const item = e.target.closest(".filter-item");
+      if (!item) return;
+      filterLabel.textContent = item.textContent;
+      filterMenu.querySelectorAll(".filter-item").forEach((btn) => btn.classList.remove("active"));
+      item.classList.add("active");
+      filterRoot.classList.remove("open");
+      renderHub(item.dataset.value);
     });
+
+    function addFilterItem(value, label) {
+      if (filterMenu.querySelector(`.filter-item[data-value="${value}"]`)) return;
+      const li = document.createElement("li");
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "filter-item";
+      btn.dataset.value = value;
+      btn.textContent = label;
+      li.appendChild(btn);
+      filterMenu.appendChild(li);
+    }
 
     document.addEventListener("click", (e) => {
       if (!filterRoot.contains(e.target)) {
@@ -1299,8 +1305,17 @@
       }
     });
 
+    // Chỉ dựng lại khi số thẻ/hàng thật sự đổi (tránh dựng lại + chạy lại animation mỗi lần thanh địa chỉ mobile co giãn)
+    let lastVisibleCount = getVisibleCardCount();
+    let resizeTimer = null;
     window.addEventListener("resize", () => {
-      renderHub(document.querySelector(".filter-item.active")?.dataset.value || "all");
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const n = getVisibleCardCount();
+        if (n === lastVisibleCount) return;
+        lastVisibleCount = n;
+        renderHub(currentHubFilter);
+      }, 150);
     });
 
     // Hiện skeleton 1 nhịp vẽ trước, sau đó mới dựng lưới thẻ thật (phần nặng: nhiều thẻ + blur + gradient)

@@ -44,9 +44,11 @@
 
   /* FAQ Page Specific Styles */
   body {
+    padding-top: 84px;
+  }
+  body {
     background: #f4f6fa;
     min-height: 100vh;
-    padding-top: 100px; /* Thêm phần đệm để không bị header fixed che khuất nội dung */
     color: #1e293b;
     font-family: system-ui, -apple-system, sans-serif;
   }
@@ -122,7 +124,7 @@
 
   @media(max-width:768px){
     body {
-      padding-top: 150px;
+      padding-top: 140px;
     }
     .doc-nav {
       padding: 14px 20px;
@@ -152,7 +154,7 @@
   .faq-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px 24px 60px;
+    padding: 12px 24px 60px;
     display: grid;
     grid-template-columns: 280px 1fr;
     column-gap: 40px;
@@ -162,7 +164,7 @@
   .faq-category{grid-column:2;grid-row:auto;min-width:0}
 
   /* ===== STICKY SIDEBAR TOC (CARD) ===== */
-  .toc-sidebar{position:sticky;top:100px;grid-column:1;grid-row:2/span 60;width:auto;height:fit-content;background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:20px 16px;box-shadow:0 6px 20px rgba(15,23,42,0.07);z-index:100;align-self:start}
+  .toc-sidebar{position:sticky;top:96px;grid-column:1;grid-row:2/span 60;width:auto;height:fit-content;background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:20px 16px;box-shadow:0 6px 20px rgba(15,23,42,0.07);z-index:100;align-self:start}
   .toc-title{font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:800;color:#475569;margin-bottom:12px;text-align:center}
   .toc-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:4px}
   .toc-link{display:block;padding:8px 12px;font-size:14px;color:#475569;text-decoration:none;font-weight:600;transition:all 0.2s ease;border-left:3px solid transparent;border-radius:8px}
@@ -182,6 +184,7 @@
   .toc-list li:nth-child(13) .toc-link.active{color:#0369a1;border-left-color:#0369a1;background:linear-gradient(90deg,rgba(3,105,161,0.08) 0%,rgba(3,105,161,0) 100%)}
 
   /* Hamburger Menu - Mobile */
+  .toc-sidebar{top:96px}
   .toc-hamburger{display:none;position:fixed;top:18px;left:16px;z-index:1001;width:42px;height:42px;border-radius:12px;background:#fff;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.08);cursor:pointer;align-items:center;justify-content:center;font-size:18px;color:#334155}
   .toc-hamburger:active{transform:scale(0.95)}
   .toc-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:999;opacity:0;transition:opacity 0.3s}
@@ -202,7 +205,7 @@
 
   .faq-header {
     text-align: center;
-    padding: 40px 24px 20px;
+    padding: 24px 24px 16px;
     width: 100%;
   }
 
@@ -260,7 +263,7 @@
     padding: 30px;
     margin-bottom: 24px;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01);
-    scroll-margin-top: 80px;
+    scroll-margin-top: 100px;
   }
 
   .faq-category-title {
@@ -331,7 +334,7 @@
   }
 
   .faq-item.active .faq-answer {
-    max-height: 500px;
+    max-height: 800px;
     padding: 20px;
   }
 
@@ -616,6 +619,9 @@
       font-size: 28px;
     }
   }
+
+  /* Neo cuộn khi bấm mục lục (mobile: header xếp dọc cao hơn) */
+  @media(max-width:768px){.faq-category{scroll-margin-top:150px}}
 </style>
 <script src="../../version/version-check.js" defer></script>
 </head>
@@ -650,7 +656,7 @@
     <div class="faq-header-icon"><i class="fa-solid fa-circle-question"></i></div>
     <h1>Trung Tâm Trợ Giúp - Các Câu Hỏi Thường Gặp</h1>
     <p>Tìm câu trả lời về tính năng, công nghệ và cách vận hành hệ thống LearnHub Platform</p>
-    <div class="badge"><i class="fa-regular fa-calendar-check"></i> Cập nhật lần cuối: 06/08/2026</div>
+    <div class="badge"><i class="fa-regular fa-calendar-check"></i> Cập nhật lần cuối: 27/10/2026</div>
     <div class="faq-search">
       <i class="fa-solid fa-magnifying-glass faq-search-icon"></i>
       <input type="text" id="faqSearchInput" placeholder="Tìm kiếm câu hỏi, hướng dẫn..." oninput="filterFAQ()">
@@ -835,7 +841,7 @@
 
     <div class="faq-item">
       <div class="faq-question">
-        Tại sau nền tảng lại sử dụng giải pháp nhúng Iframe?
+        Tại sao nền tảng lại sử dụng giải pháp nhúng Iframe?
         <i class="fa-solid fa-chevron-down"></i>
       </div>
       <div class="faq-answer">
@@ -1011,7 +1017,7 @@
         <i class="fa-solid fa-chevron-down"></i>
       </div>
       <div class="faq-answer">
-        Whititelist là danh sách email được phép đăng ký và đăng nhập vào LearnHub. Chỉ những email có trong whitelist mới có thể truy cập hệ thống. Đây là cơ chế bảo mật để kiểm soát người dùng và ngăn chặn truy cập trái phép.
+        Whitelist là danh sách email được phép đăng ký và đăng nhập vào LearnHub. Chỉ những email có trong whitelist mới có thể truy cập hệ thống. Đây là cơ chế bảo mật để kiểm soát người dùng và ngăn chặn truy cập trái phép.
       </div>
     </div>
 
@@ -1099,7 +1105,7 @@
         <i class="fa-solid fa-chevron-down"></i>
       </div>
       <div class="faq-answer">
-        Flashcard cung cấp <strong>4 chế độ học tập</strong>: <strong>Ghép Thẻ</strong> (lật và ghép cặp từ vựng với nghĩa), <strong>Quiz nhanh - Blast</strong> (trắc nghiệm tốc độ cao), <strong>Điền từ</strong> (hoàn thành câu với từ còn thiếu) và <strong>Chiến Thần Vũ Trụ</strong> (chế độ game hành động). Mỗi chế độ mang lại cách tiếp cận từ vựng khác nhau để việc ghi nhớ trở nên sinh động và hiệu quả hơn.
+        Flashcard cung cấp <strong>6 chế độ học tập</strong>: <strong>Flashcard</strong> (lật thẻ, phân loại từ đã thuộc / chưa thuộc), <strong>Ghép đôi</strong> (ghép từ với nghĩa), <strong>Quiz nhanh</strong> (trắc nghiệm tốc độ cao, có chế độ Hardcore), <strong>Điền từ</strong> (nhìn nghĩa tiếng Việt và nhập từ tiếng Anh), <strong>Phòng thủ</strong> (game Chiến Thần Vũ Trụ: bắn đúng đáp án để hạ quái vật) và <strong>Giải ô chữ</strong> (tìm từ tiếng Anh ẩn trong ma trận chữ cái). Mỗi chế độ mang lại cách tiếp cận từ vựng khác nhau để việc ghi nhớ trở nên sinh động và hiệu quả hơn.
       </div>
     </div>
 
@@ -1453,6 +1459,24 @@ fetch('../../components/footer.html').then(r => r.text()).then(html => {
   window.addEventListener('resize',onScroll,{passive:true});
   upd();
 })();
+</script>
+<script>
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'legal-title', title: document.title }, '*');
+    }
+  } catch(e){}
+</script>
+<script>
+  function sendLegalTitle() {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'legal-title', title: document.title }, '*');
+      }
+    } catch(e){}
+  }
+  sendLegalTitle();
+  window.addEventListener('load', sendLegalTitle);
 </script>
 </body>
 </html>

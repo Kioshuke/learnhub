@@ -882,6 +882,11 @@ async function loadQuestions() {
         examMeta.subject = rpcData.subject || "";
         examMeta.name = rpcData.name || "";
         examMeta.description = rpcData.description || "";
+        if (examMeta.name) {
+            const testTitle = examMeta.name + " - LearnHub Test";
+            document.title = testTitle;
+            try { window.parent.postMessage({ type: 'test-title', title: testTitle }, '*'); } catch (e) {}
+        }
 
         // Đọc cấu hình từ các CỘT trong test_sets
         const rawScore = Number(rpcData.score);

@@ -664,10 +664,10 @@ function updatePageTitle(tabId){
   if(tabId === 'home'){
     // Trang chủ: về title gốc "LearnHub Platform"
     document.title = "LearnHub Platform";
-  } else {
-    const titleName = pageTitleMap.get(tabId) || "Trang Học Tập";
-    document.title = `${titleName} - LearnHub Platform`;
+    return;
   }
+  const titleName = pageTitleMap.get(tabId) || "Trang Học Tập";
+  document.title = `${titleName} - LearnHub Platform`;
 }
 
 // Gọi hàm này khi khởi động ban đầu

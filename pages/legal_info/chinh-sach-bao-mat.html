@@ -13,9 +13,15 @@
   <link rel="stylesheet" href="../../styles/global.css">
 
   <style>
+  html,body{max-width:100%}
+  html{overflow-x:hidden;overflow-x:clip} /* chỉ đặt trên html để position:sticky của mục lục không bị phá */
+  *{box-sizing:border-box}
+  .doc-footer-wrap{width:100%;overflow-x:hidden}
+  footer,.site-footer,#lh-footer-placeholder{max-width:100%;overflow-x:hidden}
     /* ===== CHÍNH SÁCH BẢO MẬT - OVERIDE TỐI ƯU ===== */
     /* Các style dưới đây ghi đè/supplement cho giaodien.css cho trang này */
     
+    body{padding-top:84px}
     /* --- Navigation Header --- */
     .doc-nav{
       background:linear-gradient(135deg, #1a73e8, #0d47a1);
@@ -42,16 +48,17 @@
     .doc-nav-btn:hover{background:#ffffff;color:#1a73e8;transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,255,255,0.2);border-color:#ffffff}
 
     @media(max-width:768px){
-      body{padding-top:150px}
+      body{padding-top:140px}
       .doc-nav{padding:14px 20px;flex-direction:column;gap:12px;text-align:center}
       .doc-nav-brand{gap:10px}
       .doc-nav-text{align-items:center}
       .doc-nav-title{font-size:17px}
       .doc-nav-actions{width:100%;justify-content:center}
+      .toc-sidebar{top:170px}
     }
 
     /* --- Hero --- */
-    .doc-hero{text-align:center;padding:40px 24px 20px;width:100%;grid-column:1/-1;grid-row:1}
+    .doc-hero{text-align:center;padding:24px 24px 16px;width:100%;grid-column:1/-1;grid-row:1}
     .doc-hero-icon{width:54px;height:54px;margin:0 auto 16px;background:linear-gradient(135deg,#e0f2fe,#bae6fd);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#0284c7;box-shadow:0 4px 12px rgba(2,132,199,0.1)}
     .doc-hero h1{font-size:clamp(26px,4.5vw,36px);font-weight:800;color:#0f172a;letter-spacing:-0.5px;margin-bottom:10px}
     .doc-hero p{font-size:15px;color:#475569;max-width:800px;margin:0 auto 14px;line-height:1.6;word-wrap:break-word;overflow-wrap:break-word}
@@ -62,11 +69,11 @@
     .read-progress{position:fixed;top:0;left:0;height:4px;width:0;background:#fff;box-shadow:0 0 6px rgba(15,23,42,.4);z-index:3000;border-radius:0 2px 2px 0;pointer-events:none}
 
     /* --- Layout Grid --- */
-    .doc-container{max-width:1200px;margin:0 auto;padding:20px 24px 60px;display:grid;grid-template-columns:280px 1fr;column-gap:40px;row-gap:0}
+    .doc-container{max-width:1200px;margin:0 auto;padding:12px 24px 60px;display:grid;grid-template-columns:280px 1fr;column-gap:40px;row-gap:0}
     .doc-content{grid-column:2;grid-row:2;min-width:0}
 
     /* --- Sticky Sidebar TOC --- */
-    .toc-sidebar{position:sticky;top:100px;grid-column:1;grid-row:2;width:auto;height:fit-content;background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:20px 16px;box-shadow:0 6px 20px rgba(15,23,42,0.07);z-index:100;align-self:start}
+    .toc-sidebar{position:sticky;top:96px;grid-column:1;grid-row:2;width:auto;height:fit-content;background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:20px 16px;box-shadow:0 6px 20px rgba(15,23,42,0.07);z-index:100;align-self:start}
     .toc-title{font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:800;color:#475569;margin-bottom:12px;text-align:center}
     .toc-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:4px}
     .toc-link{display:block;padding:8px 12px;font-size:14px;color:#475569;text-decoration:none;font-weight:600;transition:all 0.2s ease;border-left:3px solid transparent;border-radius:8px}
@@ -87,7 +94,7 @@
 
     /* --- Content Card --- */
     .doc-content{min-width:0}
-    .doc-section{background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:30px;margin-bottom:24px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01);scroll-margin-top:120px;transition:transform 0.2s, box-shadow 0.2s}
+    .doc-section{background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:30px;margin-bottom:24px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01);scroll-margin-top:100px;transition:transform 0.2s, box-shadow 0.2s}
     .doc-section:hover{transform:translateY(-2px);box-shadow:0 10px 15px -3px rgba(0,0,0,0.04), 0 4px 6px -2px rgba(0,0,0,0.02)}
     
     .doc-section-head{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #f1f5f9}
@@ -204,6 +211,9 @@
       border: none;
       display: block;
     }
+
+    /* Neo cuộn khi bấm mục lục (mobile: header xếp dọc cao hơn) */
+    @media(max-width:768px){.doc-section{scroll-margin-top:150px}}
     </style>
 </head>
 
@@ -237,7 +247,7 @@
     <div class="doc-hero-icon"><i class="fa-solid fa-user-shield"></i></div>
     <h1>Chính Sách Bảo Mật</h1>
     <p>Cách thức LearnHub thu thập, sử dụng và bảo vệ thông tin cá nhân của bạn khi sử dụng nền tảng</p>
-    <div class="badge"><i class="fa-regular fa-calendar-alt"></i> Cập nhật lần cuối: 14/07/2026</div>
+    <div class="badge"><i class="fa-regular fa-calendar-alt"></i> Cập nhật lần cuối: 27/10/2026</div>
   </div>
   
   <!-- CONTENT -->
@@ -271,7 +281,7 @@
         <li><strong>Cung cấp dịch vụ:</strong> Hiển thị nội dung học tập, chấm điểm, lưu tiến độ học tập.</li>
         <li><strong>Cải thiện trải nghiệm:</strong> Thống kê hoạt động, tối ưu giao diện, phát hiện và khắc phục lỗi.</li>
         <li><strong>Giao tiếp:</strong> Gửi thông báo về hoạt động hệ thống, thay đổi chính sách hoặc sự kiện quan trọng.</li>
-        <li><strong>Bảo mật:</strong> Phát hiện hành vi bất thường, ngăn chặn lạm abuse, bảo vệ quyền lợi người dùng.</li>
+        <li><strong>Bảo mật:</strong> Phát hiện hành vi bất thường, ngăn chặn lạm dụng, bảo vệ quyền lợi người dùng.</li>
       </ul>
     </div>
 
@@ -279,7 +289,7 @@
       <div class="doc-section-head"><span class="doc-section-num">4</span><h2>Lưu trữ & Bảo mật dữ liệu</h2></div>
       <ul>
         <li>Dữ liệu được lưu trữ trên <strong>Supabase</strong> — nền tảng cơ sở dữ liệu đám mây mã nguồn mở, tuân thủ tiêu chuẩn bảo mật quốc tế.</li>
-        <li>Thông tin cá nhân chỉ được giữ trong thời gian tài khoản còn hoạt động. Khi tài khoản bị xóa, dữ liệu liên quan sẽ bị loại bỏ trong thời gian hợp lý.</li>
+        <li>Thông tin cá nhân chỉ được giữ trong thời gian tài khoản còn hoạt động. Khi tài khoản bị xóa, toàn bộ dữ liệu liên quan sẽ bị xóa vĩnh viễn trong vòng 7 ngày.</li>
         <li>Chúng tôi áp dụng: kiểm soát quyền truy cập cấp Admin, mã hóa truyền dữ liệu (HTTPS), và quy tắc bảo mật Row Level Security (RLS) trên từng dữ liệu.</li>
         <li>Tuy nhiên, không có phương thức truyền tải nào an toàn tuyệt đối. Bạn không nên chia sẻ thông tin đăng nhập với bất kỳ ai.</li>
       </ul>
@@ -313,7 +323,7 @@
       <ul>
         <li><strong>Quyền truy cập:</strong> Yêu cầu xem thông tin cá nhân mà Chúng tôi đang lưu trữ.</li>
         <li><strong>Quyền chỉnh sửa:</strong> Cập nhật tên hiển thị hoặc thông tin bất kỳ lúc nào trên Nền tảng.</li>
-        <li><strong>Quyền xóa:</strong> Yêu cầu xóa toàn bộ dữ liệu và tài khoản — liên hệ Admin để thực hiện.</li>
+        <li><strong>Quyền xóa:</strong> Tự xóa tài khoản và toàn bộ dữ liệu tại <strong>Hồ Sơ → Thiết lập tài khoản → tab Nguy hiểm</strong>, hoặc liên hệ Admin để được hỗ trợ.</li>
         <li><strong>Quyền rút lại đồng ý:</strong> Ngưng sử dụng Nền tảng bất kỳ lúc nào. Trạng thái online sẽ tự động gỡ khi đăng xuất.</li>
       </ul>
     </div>
@@ -329,7 +339,7 @@
       </ul>
       <div class="warn-box">
         <i class="fa-solid fa-triangle-exclamation"></i>
-        <span>Nếu bạn là phụ huynh và có thắc mắc về việc thucollect thông tin của con em mình, vui lòng liên hệ ngay với chúng tôi.</span>
+        <span>Nếu bạn là phụ huynh và có thắc mắc về việc thu thập thông tin của con em mình, vui lòng liên hệ ngay với chúng tôi.</span>
       </div>
     </div>
 
@@ -392,6 +402,145 @@
   <div id="lh-footer-placeholder"></div>
 </div>
 
+<script>
+  fetch('../../components/footer.html')
+    .then(r => r.text())
+    .then(html => {
+      const ph = document.getElementById('lh-footer-placeholder');
+      if (ph) ph.outerHTML = html;
+    })
+    .catch(()=>{});
+</script>
+
+<!-- Feedback Popup -->
+<div id="lh-feedback-overlay" class="lh-popup-overlay" onclick="closeFeedbackModalByOverlay(event)">
+  <div class="lh-popup-content">
+    <button class="lh-popup-close" onclick="closeFeedbackModal()" title="Đóng">&times;</button>
+    <iframe src="gop-y.html" class="lh-popup-iframe"></iframe>
+  </div>
+</div>
+
+<script src="../../scripts/core/script.js" defer></script>
+<script>
+  // Feedback Modal Functions
+  function openFeedbackModal() {
+    const overlay = document.getElementById('lh-feedback-overlay');
+    if (overlay) {
+      overlay.classList.add('active');
+      // Lưu vị trí cuộn trước khi khóa (.no-scroll dùng position:fixed
+      // nên nếu không lưu thì trang sẽ bị nhảy về đầu trang)
+      const lockY = window.scrollY || document.documentElement.scrollTop || 0;
+      document.body.dataset.scrollLockY = String(lockY);
+      document.body.style.top = (-lockY) + 'px';
+      document.body.classList.add('no-scroll');
+    }
+  }
+
+  function closeFeedbackModal() {
+    const overlay = document.getElementById('lh-feedback-overlay');
+    if (overlay) {
+      overlay.classList.remove('active');
+      // Khôi phục đúng vị trí cuộn trước khi khóa
+      const lockY = parseInt(document.body.dataset.scrollLockY || '0', 10);
+      document.body.classList.remove('no-scroll');
+      document.body.style.top = '';
+      delete document.body.dataset.scrollLockY;
+      window.scrollTo(0, lockY);
+    }
+  }
+
+  function closeFeedbackModalByOverlay(event) {
+    if (event.target.id === 'lh-feedback-overlay') {
+      closeFeedbackModal();
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeFeedbackModal();
+  });
+
+  // Gán hàm vào window để footer có thể gọi
+  window.openFeedbackModal = openFeedbackModal;
+  window.closeFeedbackModal = closeFeedbackModal;
+  window.closeFeedbackModalByOverlay = closeFeedbackModalByOverlay;
+</script>
+
+<!-- Scroll Spy -->
+<script>
+(function(){
+  const links = document.querySelectorAll('.toc-link');
+  const sections = document.querySelectorAll('.doc-section');
+  function activateMenu(){
+    let current = '';
+    sections.forEach(s => {
+      const rect = s.getBoundingClientRect();
+      if (rect.top <= 160) current = s.getAttribute('id');
+    });
+    if (window.scrollY < 100) current = sections[0].getAttribute('id');
+    links.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+    });
+  }
+  window.addEventListener('scroll', activateMenu, {passive: true});
+  window.addEventListener('resize', activateMenu, {passive: true});
+  activateMenu();
+})();
+</script>
+
+<!-- Hamburger Toggle (Mobile) -->
+<script>
+(function(){
+  const hamburger = document.getElementById('tocHamburger');
+  const sidebar = document.querySelector('.toc-sidebar');
+  const overlay = document.getElementById('tocOverlay');
+  if(!hamburger||!sidebar||!overlay) return;
+
+  function openMenu(){ sidebar.classList.add('open'); overlay.classList.add('show'); hamburger.style.display='none'; }
+  function closeMenu(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); hamburger.style.display=''; }
+
+  hamburger.addEventListener('click', function(){
+    sidebar.classList.contains('open') ? closeMenu() : openMenu();
+  });
+  overlay.addEventListener('click', closeMenu);
+
+  sidebar.querySelectorAll('.toc-link').forEach(function(link){
+    link.addEventListener('click', function(){ closeMenu(); });
+  });
+})();
+</script>
+
+<!-- Reading Progress -->
+<script>
+(function(){
+  var bar=document.getElementById('readProgress');
+  if(!bar)return;
+  var tick=false;
+  function upd(){
+    tick=false;
+    var h=document.documentElement;
+    var max=h.scrollHeight-h.clientHeight;
+    var y=h.scrollTop||document.body.scrollTop||0;
+    bar.style.width=(max>0?(y/max)*100:0)+'%';
+  }
+  function onScroll(){if(!tick){tick=true;requestAnimationFrame(upd);}}
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',onScroll,{passive:true});
+  upd();
+})();
+</script>
+
 <script src="../../version/version-check.js" defer></script>
+<script>
+  function sendLegalTitle() {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'legal-title', title: document.title }, '*');
+      }
+    } catch(e){}
+  }
+  sendLegalTitle();
+  window.addEventListener('load', sendLegalTitle);
+</script>
 </body>
 </html>

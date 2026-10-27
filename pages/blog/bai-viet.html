@@ -311,7 +311,8 @@ function notFound() {
   root.innerHTML =
     '<p class="bv-status"><i class="fa-regular fa-newspaper"></i>' +
     'Không tìm thấy bài viết này.<br><a href="blog.html">← Về trang Blog</a></p>';
-  document.title = "Không tìm thấy bài viết - LearnHub";
+  document.title = "Không tìm thấy bài viết - LearnHub Blog";
+  try { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'blog-title', title: document.title }, '*'); } catch (e) {}
 }
 
 function render(p, photo) {
@@ -360,6 +361,7 @@ function render(p, photo) {
     '</div>';
 
   document.title = String(p.title || "Bài viết") + " - LearnHub Blog";
+  try { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'blog-title', title: document.title }, '*'); } catch (e) {}
   try { window.scrollTo({ top: 0, behavior: "auto" }); } catch (e) {}
 }
 
@@ -458,7 +460,8 @@ async function load() {
     loadRelated(data);
   } catch (err) {
     root.innerHTML = '<p class="bv-status"><i class="fa-solid fa-triangle-exclamation"></i>Không tải được bài viết.<br><a href="blog.html">← Về trang Blog</a></p>';
-    document.title = "Lỗi tải bài viết - LearnHub";
+    document.title = "Lỗi tải bài viết - LearnHub Blog";
+    try { if (window.parent && window.parent !== window) window.parent.postMessage({ type: 'blog-title', title: document.title }, '*'); } catch (e) {}
     console.error("[bai-viet] tải bài viết lỗi:", err);
     logAppError({ source: "bai-viet", category: "feature", level: "error", code: "BLOG_POST_LOAD_FAIL", message: String((err && err.message) || err), url: location.href });
   }

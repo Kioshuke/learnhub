@@ -1988,5 +1988,20 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
+<script>
+  // Nhận tin nhắn từ iframe để cập nhật title trang chính
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'legal-title') {
+      document.title = event.data.title || "LearnHub Platform";
+      return;
+    }
+    if (event.data && (event.data.type === 'flashcard-title' || event.data.type === 'test-title' || event.data.type === 'blog-title')) {
+      let title = event.data.title || "LearnHub Platform";
+      document.title = title;
+    } else if (event.data && event.data.type === 'phonghoc-title') {
+      document.title = event.data.title || "Phòng Học - LearnHub Platform";
+    }
+  });
+</script>
 </body>
 </html>

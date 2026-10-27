@@ -619,6 +619,7 @@ function closeQuiz() {
   if (window.parent && window.parent !== window) {
     window.parent.postMessage({ type: "UNLOCK_PAGE_SCROLL" }, "*");
     window.parent.postMessage({ type: "CLOSE_QUIZ_SCROLL_TOP" }, "*");
+    try { window.parent.postMessage({ type: "phonghoc-title", title: "Phòng Học - LearnHub Platform" }, "*"); } catch (e) {}
   }
 }
 
@@ -1748,6 +1749,16 @@ if (typeof supabase.channel === "function") {
     }
   }
 })();
+
+// Forward title updates từ iframe bài test/flashcard lên trang chính
+window.addEventListener('message', function(event) {
+  if (!event.data) return;
+  if (event.data.type === 'test-title' || event.data.type === 'flashcard-title') {
+    if (window.parent && window.parent !== window) {
+      try { window.parent.postMessage(event.data, '*'); } catch (e) {}
+    }
+  }
+});
 </script>
 </body>
 </html>

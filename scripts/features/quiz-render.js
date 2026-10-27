@@ -84,7 +84,7 @@ export function answerInnerHtml(answer, index) {
   const url = answerImageUrl(answer);
   return url
     ? `<img class="ans-img" src="${esc(url)}" alt="Đáp án ${String.fromCharCode(65 + index)}" loading="lazy" onerror="this.style.display='none'">`
-    : `<span>${esc(answerText(answer))}</span>`;
+    : `<span>${sanitizeHtml(answerText(answer))}</span>`;
 }
 
 function sectionTitleHtml(section) {
