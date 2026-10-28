@@ -630,7 +630,8 @@ function parseLines(lines) {
             if (tfm) vv = 0;                        // (S)/(sai) cuối câu = Sai
           }
         }
-        if (vv < 0) vv = 0;                         // không đánh dấu → mặc định Sai
+        /* không đánh dấu → để null (chưa chọn), KHÔNG mặc định Sai; có cảnh báo + chặn xuất bản */
+        if (vv < 0) vv = null;
         var cleanTxt = txt.replace(/\(?\s*(Đ|S|đúng|sai)\s*\)?\s*$/i, "").trim();
         if (cleanTxt) cur.subQuestions.push({ text: cleanTxt, correct: vv });
       }
@@ -684,6 +685,14 @@ function parseLines(lines) {
   var multipleNoAns = questions.filter(function (q) { return q.type === "multiple" && q.correctIndex === null; }).length;
   if (multipleNoAns) {
     warnings.push(multipleNoAns + " câu chưa gán đáp án đúng → bấm vào đáp án trong phần xem trước để gán.");
+  }
+
+  var tfUnset = 0;
+  questions.forEach(function (q) {
+    if (q.type === "true_false") (q.subQuestions || []).forEach(function (sq) { if (sq.correct !== 0 && sq.correct !== 1) tfUnset++; });
+  });
+  if (tfUnset) {
+    warnings.push(tfUnset + " mệnh đề Đúng/Sai chưa đánh dấu (Đ)/(S) → bấm Đ hoặc S trong phần xem trước để gán.");
   }
 
   return {
@@ -854,10 +863,11 @@ function render() {
           var row = document.createElement("div");
           row.className = "tf-row";
           var val = userAnswers["tf_" + idx + "_" + si];
-          var kv = sq.correct ? 1 : 0;     // 1 = Đúng, 0 = Sai (giống filetest)
+          var kv = (sq.correct === 0 || sq.correct === 1) ? sq.correct : -1;   // 1 = Đúng, 0 = Sai, -1 = chưa chọn
           if (graded) row.classList.add(val === kv ? "good" : "bad");
           row.innerHTML = '<span class="tf-lett">' + String.fromCharCode(97 + si) + "</span>" +
             '<span class="txt">' + sq.text +
+              (!graded && kv < 0 ? '<span class="ans ans-bad">(chưa chọn Đ/S)</span>' : "") +
               (graded ? '<span class="ans ' + (val === kv ? "ans-good" : "ans-bad") + '">(Đáp án: ' + (kv ? "Đúng" : "Sai") + ")</span>" : "") +
             "</span>" +
             '<div class="tf-opts">' +
@@ -875,6 +885,8 @@ function render() {
                 l.classList.remove("on");
               });
               this.parentElement.classList.add("cor");
+              var un = r2.querySelector(".ans-bad");
+              if (un && /chưa chọn/.test(un.textContent)) un.remove();
               syncJson();                                      // tự cập nhật JSON bên trái
             });
           });
@@ -1122,12 +1134,13 @@ function applyMeta(goNext) {
     if (!s || !Array.isArray(s.questions)) return;
     if (testMeta.minutes > 0) s.timeLimit = testMeta.minutes;
     else if (s.timeLimit === 0) delete s.timeLimit;
-    if (testMeta.shuffleQ && !s.__shfQ) {
+    /* Đang sửa đề đã xuất bản (currentEditId) → KHÔNG xáo lại, giữ nguyên thứ tự đã lưu */
+    if (!currentEditId && testMeta.shuffleQ && !s.__shfQ) {
       shuffleArr(s.questions);
       Object.defineProperty(s, "__shfQ", { value: true, enumerable: false });
     }
     s.questions.forEach(function (q) {
-      if (testMeta.shuffleA && q.type === "multiple" && Array.isArray(q.answers) && q.answers.length > 1 && !q.__shfA) {
+      if (!currentEditId && testMeta.shuffleA && q.type === "multiple" && Array.isArray(q.answers) && q.answers.length > 1 && !q.__shfA) {
         var map = q.answers.map(function (_, i) { return i; });
         shuffleArr(map);
         var nc = q.correct;
@@ -1169,6 +1182,12 @@ function renderReview() {
   var subtestRaw = parseInt(testMeta.subtestCount, 10) || 0;
   var subtestInvalid = subtestOn && (subtestRaw < 1 || subtestRaw > qn);
   var subtestN = subtestOn ? Math.min(Math.max(subtestRaw, 0), qn) : 0;
+  var tfUnset = 0;
+  testData.forEach(function (s) {
+    (s && s.questions || []).forEach(function (it) {
+      if (it.type === "true_false") (it.subQuestions || []).forEach(function (sq) { if (sq.correct !== 0 && sq.correct !== 1) tfUnset++; });
+    });
+  });
 
   /* ---- Cột trái: rà soát đề ---- */
   var left = "";
@@ -1192,7 +1211,7 @@ function renderReview() {
       if (item.image || revMarker) left += ' <span class="muted"><i class="fa-regular fa-image"></i> có ảnh</span>';
       if (item.type === "true_false") {
         var subs = (item.subQuestions || []).map(function (sq, k) {
-          return String.fromCharCode(97 + k) + "=" + (sq.correct ? "Đúng" : "Sai");
+          return String.fromCharCode(97 + k) + "=" + (sq.correct === 1 ? "Đúng" : sq.correct === 0 ? "Sai" : "chưa chọn");
         });
         left += ' <span class="muted">(' + (subs.length ? subs.join(" · ") : "chưa có mệnh đề") + ")</span>";
       } else if (item.type === "short_answer") {
@@ -1254,12 +1273,13 @@ function renderReview() {
   if (!testMeta.name) warns.push("Chưa đặt <b>tên đề</b> — mở <b>bước 3 Thiết lập đề</b> để điền trước khi xuất bản.");
   if (!testMeta.subject) warns.push("Chưa chọn <b>môn học</b> — đề sẽ xuất hiện ở Phòng Học theo môn.");
   if (subtestInvalid) warns.push("Số câu <b>đề con</b> không hợp lệ — mở <b>Thiết lập đề</b> và nhập lại trong khoảng 1–" + qn + ".");
+  if (tfUnset) warns.push("Còn <b>" + tfUnset + "</b> mệnh đề Đúng/Sai chưa chọn đáp án — quay lại bước 2 bấm <b>Đ</b> hoặc <b>S</b> cho từng mệnh đề.");
   var ne = $("revNote");
   if (ne) {
     ne.innerHTML = warns.join("<br>");
     ne.hidden = warns.length === 0;
   }
-  if (pub) pub.disabled = !testMeta.name || subtestInvalid;
+  if (pub) pub.disabled = !testMeta.name || subtestInvalid || tfUnset > 0;
 }
 
 /* Xuất bản đề — GHI DATABASE THẬT qua RPC teacher_upsert_test_set.
@@ -1363,8 +1383,11 @@ async function publishTest() {
     b.innerHTML = currentEditId ? '<i class="fa-solid fa-floppy-disk"></i> Đã lưu ✓' : '<i class="fa-solid fa-rocket"></i> Đã xuất bản ✓';
     b.style.opacity = ".55";
     if (typeof mod.logAppError === "function") {
-      mod.logAppError({ source: "newtest", category: "feature", level: "info", code: currentEditId ? "TEST_UPDATED" : "TEST_PUBLISHED", message: (currentEditId ? "Cập nhật đề: " : "Xuất bản đề: ") + realId });
+      mod.logAppError({ source: "newtest", category: "feature", level: "info", code: isEdit ? "TEST_UPDATED" : "TEST_PUBLISHED", message: (isEdit ? "Cập nhật đề: " : "Xuất bản đề: ") + realId });
     }
+    /* Đã có id thật → các lần bấm tiếp theo là CẬP NHẬT đúng đề này, không tạo bản trùng */
+    currentEditId = res.data.id;
+    currentEditComplete = true;
   } catch (e) {
     var errMsg = (e && e.message) || "Lỗi không xác định.";
     console.error("[PUBLISH] " + errMsg);
@@ -1377,7 +1400,7 @@ async function publishTest() {
           '<div style="font-size:36px"><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444"></i></div>' +
           "<h3 style=\"color:#b91c1c;margin:6px 0 4px;font-size:17px\">Xuất bản thất bại</h3>" +
           "<p style=\"margin:4px 0;font-size:13.5px;color:#7f1d1d\">" + escapeC(errMsg) + "</p>" +
-          '<button type="button" class="btn btn-primary" id="btnPublishAgain">Thử lại</button>' +
+          '<button type="button" class="btn btn-primary" id="btnPublishRetry">Thử lại</button>' +
         "</div>";
     }
     if (rn) rn.hidden = true;
@@ -1387,13 +1410,41 @@ async function publishTest() {
   }
 }
 
+/* Xuất bản đề mới: xoá sạch đề cũ + thiết lập + id đang sửa để không ghi đè/trùng đề vừa xuất bản */
+function resetForNewTest() {
+  testData = [];
+  userAnswers = {};
+  graded = false;
+  jsonAreaDirty = false;
+  currentEditId = null;
+  currentEditComplete = true;
+  testMeta = {
+    subject: "", name: "", desc: "", minutes: 0, score: 10,
+    shuffleQ: true, shuffleA: true, showScore: "always", showAnswers: "always",
+    subtestEnabled: false, subtestCount: null,
+    timeEnabled: false, startAt: null, endAt: null
+  };
+  $("inputText").value = "";
+  $("jsonArea").value = "";
+  $("inputNote").innerHTML = "";
+  $("inputNote").className = "note";
+  $("outNote").innerHTML = "";
+  $("resultBox").hidden = true;
+  setFileLabel(null);
+  updateSetupBtn();
+  render();
+  maxStage = 1;
+  showStage(1);
+}
+
 /* Delegation cho màn 4 (nút dựng lại mỗi lần render nên không bind trực tiếp) */
 $("p4").addEventListener("click", function (e) {
-  var el = e.target && e.target.closest ? e.target.closest("#btnPublish, #btnRevBack, #btnPublishAgain, #btnCopyTestLink, #download-qr-btn") : null;
+  var el = e.target && e.target.closest ? e.target.closest("#btnPublish, #btnRevBack, #btnPublishAgain, #btnPublishRetry, #btnCopyTestLink, #download-qr-btn") : null;
   if (!el) return;
   if (el.id === "btnPublish") publishTest();
   else if (el.id === "btnRevBack") showStage(2);
-  else if (el.id === "btnPublishAgain") { maxStage = 1; showStage(1); }
+  else if (el.id === "btnPublishRetry") renderReview();
+  else if (el.id === "btnPublishAgain") { resetForNewTest(); }
   else if (el.id === "btnCopyTestLink") {
     var input = $("publishedTestLink");
     if (!input) return;
