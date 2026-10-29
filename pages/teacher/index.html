@@ -2248,6 +2248,7 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       tcQuizMenuEl.style.position = "fixed";
       tcQuizMenuEl.hidden = true;
       tcQuizMenuEl.innerHTML =
+        '<button type="button" class="tc-qz-menu-item" data-action="detail"><i class="fa-solid fa-eye"></i> Xem chi tiết bài</button>' +
         '<button type="button" class="tc-qz-menu-item" data-action="edit"><i class="fa-solid fa-pen"></i> Sửa đề</button>' +
         '<button type="button" class="tc-qz-menu-item" data-action="copy"><i class="fa-solid fa-copy"></i> Sao chép liên kết đề</button>' +
         '<button type="button" class="tc-qz-menu-item danger" data-action="delete"><i class="fa-solid fa-trash"></i> Xoá đề</button>';
@@ -2260,6 +2261,8 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
         const act = el.getAttribute("data-action");
         if (act === "edit") {
           tcQuizEdit(btn.getAttribute("data-id"));
+        } else if (act === "detail") {
+          tcQuizViewDetail(btn.getAttribute("data-de"));
         } else if (act === "copy") {
           tcQuizCopyLink(btn.getAttribute("data-de"));
         } else if (act === "delete") {
@@ -2281,6 +2284,13 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
     /* Sửa đề: mở trình soạn, nạp sẵn content của đề vào màn 2 (JSON + Xem trước) */
     function tcQuizEdit(id) {
       window.location.href = "./newtest/index.html?edit=t:" + id;
+    }
+
+    /* Xem chi tiết bài: mở giao diện xem lại bài làm (review-attempt) của đề kiểm tra */
+    function tcQuizViewDetail(de) {
+      if (!de) return;
+      var id = String(de || "").replace(/^t:/, "");
+      window.location.href = "../user/review-attempt.html?attempt=" + encodeURIComponent(id);
     }
 
     function tcQuizToggleMenu(btn) {
@@ -2316,6 +2326,9 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
         tcQuizCloseMenus();
       }
     });
+    /* Fix UI: khi cuộn list bài kiểm tra thì đóng menu "…" đang mở (tránh menu fixed đứng im) */
+    var tcQuizListScrollEl = document.getElementById("tcQuizList");
+    if (tcQuizListScrollEl) tcQuizListScrollEl.addEventListener("scroll", function () { tcQuizCloseMenus(); });
 
     function tcQuizCopyLink(de) {
       // Link mở từ web chính giống cơ chế copy link card trong Phòng Học:

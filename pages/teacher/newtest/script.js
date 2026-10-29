@@ -1133,7 +1133,7 @@ function applyMeta(goNext) {
   testData.forEach(function (s) {
     if (!s || !Array.isArray(s.questions)) return;
     if (testMeta.minutes > 0) s.timeLimit = testMeta.minutes;
-    else if (s.timeLimit === 0) delete s.timeLimit;
+    else delete s.timeLimit;
     /* Đang sửa đề đã xuất bản (currentEditId) → KHÔNG xáo lại, giữ nguyên thứ tự đã lưu */
     if (!currentEditId && testMeta.shuffleQ && !s.__shfQ) {
       shuffleArr(s.questions);

@@ -57,7 +57,14 @@
   function scrollToQuestion(index) {
     const card = document.getElementById(`card-${index}`);
     if (!card) return;
-    window.scrollTo({ top: card.getBoundingClientRect().top + window.scrollY - 90, behavior: "smooth" });
+    const cardTop = card.getBoundingClientRect().top + window.scrollY;
+    const col = card.closest ? card.closest(".quiz-section") : null;
+    const sticky = col ? col.querySelector(".review-summary-card") : null;
+    const stickyTop = sticky ? (parseFloat(window.getComputedStyle(sticky).top) || 20) : 0;
+    const stickyH = sticky ? (sticky.offsetHeight || 0) : 0;
+    /* Chừa hết khung sticky thông tin phía trên để câu được nhìn thấy đúng (giống hành vi màn làm bài) */
+    const clearance = sticky ? (stickyTop + stickyH + 8) : 98;
+    window.scrollTo({ top: Math.max(0, cardTop - clearance), behavior: "smooth" });
     if (window.innerWidth <= 1024) toggleSidebar();
   }
   function toggleSidebar() {
