@@ -2286,11 +2286,16 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       window.location.href = "./newtest/index.html?edit=t:" + id;
     }
 
-    /* Xem chi tiết bài: mở giao diện xem lại bài làm (review-attempt) của đề kiểm tra */
+    /* Xem chi tiết bài: t:<uuid> của bài test → mở giao diện xem bài (quiz); UUID → mở review lần nộp */
     function tcQuizViewDetail(de) {
       if (!de) return;
-      var id = String(de || "").replace(/^t:/, "");
-      window.location.href = "../user/review-attempt.html?attempt=" + encodeURIComponent(id);
+      if (String(de).indexOf("t:") === 0) {
+        /* "t:<uuid>" của bài test → mở giao diện xem bài (deep link → quiz engine) */
+        window.location.href = location.origin + "/?open=phong-hoc&de=" + de;
+      } else {
+        /* UUID thường → coi là lần nộp (attempt) → mở trang review */
+        window.location.href = "../user/review-attempt.html?attempt=" + encodeURIComponent(de);
+      }
     }
 
     function tcQuizToggleMenu(btn) {
