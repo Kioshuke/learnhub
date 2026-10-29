@@ -24,6 +24,57 @@ function miniStat(label, value, color, background) {
   return `<div class="lh-stat p-2.5" style="background:${background};border-color:transparent"><div class="text-[10px] font-bold uppercase tracking-wider" style="color:${color}">${esc(label)}</div><div class="text-sm font-extrabold mt-0.5" style="color:${color}">${esc(value)}</div></div>`;
 }
 
+function countTestQuestions(sections) {
+  const list = Array.isArray(sections) ? sections : [];
+  return list.reduce((total, section) => total + (Array.isArray(section && section.questions) ? section.questions.length : 0), 0);
+}
+
+// [Xem chi tiết bài] — Dựng giao diện xem chi tiết 1 bài kiểm tra (không có kết quả nộp).
+// Dùng cho giáo viên/Admin mở đề theo UUID (?de=t:<uuid>) để xem trước nội dung đề.
+export function renderTestDetail(test = {}, options = {}) {
+  const subject = String((test && test.subject) || "");
+  const name = String((test && test.name) || "Bài kiểm tra");
+  const description = String((test && test.description) || "");
+  const maxScore = Number((test && test.score) > 0 ? test.score : 10) || 10;
+  const minutes = Math.max(0, Number((test && test.minutes) || 0) || 0);
+  const sections = Array.isArray(test && test.content) ? test.content : [];
+  const showAnswers = String((test && test.show_answers) || "always");
+  const canReveal = showAnswers !== "none";
+  const rendered = renderQuizHtml(sections, { mode: "preview", canReveal });
+  const questionCount = countTestQuestions(sections);
+  const duration = minutes > 0 ? `${minutes} phút` : "Không giới hạn";
+
+  return `<div class="review-content">
+    <div class="main-layout">
+      <div class="quiz-section review-question-column">
+        <div class="lh-card review-summary-card p-4 sm:p-5 space-y-3">
+      <div class="flex items-center gap-3">
+        <button id="attempt-back" type="button" class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors" style="padding:0" title="Quay lại"><i class="fas fa-arrow-left"></i></button>
+        <div style="flex:1;min-width:0">
+          <h3 class="text-base sm:text-lg font-extrabold truncate" style="color:var(--text)">${esc(name)}</h3>
+          <p class="text-xs font-semibold truncate" style="color:var(--text-sub)">${subject ? `${esc(subject)} · ` : ""}${questionCount} câu · ${duration}</p>
+        </div>
+      </div>
+      ${description ? `<p class="text-sm leading-relaxed" style="color:var(--text-sub)">${esc(description)}</p>` : ""}
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        ${miniStat("Số câu", String(questionCount), "#2563eb", "rgba(37,99,235,.08)")}
+        ${miniStat("Thời gian", duration, "#8b5cf6", "rgba(139,92,246,.08)")}
+        ${miniStat("Điểm tối đa", String(maxScore), "#f59e0b", "rgba(245,158,11,.1)")}
+        ${miniStat("Đáp án", canReveal ? "Hiện" : "Ẩn", "#10b981", "rgba(16,185,129,.08)")}
+      </div>
+        </div>
+        <div class="quiz-locked" id="quiz-container">${rendered.html}</div>
+      </div>
+      <aside class="sidebar" id="sidebarNav">
+        <div class="sidebar-header"><span>MỤC LỤC</span></div>
+        <div class="nav-grid" id="navGrid">${rendered.navHtml}</div>
+      </aside>
+    </div>
+  </div>
+  <button class="mobile-nav-btn" onclick="toggleSidebar()"><i class="fa-solid fa-list"></i></button>
+  <div id="sidebarOverlay" onclick="toggleSidebar()" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:2050"></div>`;
+}
+
 export function renderAttemptDetail(attempt, studentName = "") {
   const paper = (attempt && attempt.paper) || {};
   const meta = paper.meta || {};

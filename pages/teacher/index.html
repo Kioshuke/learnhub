@@ -2286,11 +2286,10 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       window.location.href = "./newtest/index.html?edit=t:" + id;
     }
 
-    /* Xem chi tiết bài: mở giao diện xem lại bài làm (review-attempt) của đề kiểm tra */
+    /* Xem chi tiết bài: mở giao diện xem chi tiết đề kiểm tra (?de=t:<uuid> → review-attempt) */
     function tcQuizViewDetail(de) {
       if (!de) return;
-      var id = String(de || "").replace(/^t:/, "");
-      window.location.href = "../user/review-attempt.html?attempt=" + encodeURIComponent(id);
+      window.location.href = "../user/review-attempt.html?de=" + encodeURIComponent(de);
     }
 
     function tcQuizToggleMenu(btn) {

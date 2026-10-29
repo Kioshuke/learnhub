@@ -37,14 +37,15 @@
   </main>
 </div>
 <script type="module">
-  import { supabase, escapeHtml } from "../../scripts/core/supabase-config.js";
+  import { supabase, escapeHtml, getUserRow, canManageContent } from "../../scripts/core/supabase-config.js";
   import { loadTestAttempt } from "../../scripts/features/learnhub-stats.js";
-  import { renderAttemptDetail } from "../../scripts/features/attempt-review-renderer.js";
+  import { renderAttemptDetail, renderTestDetail } from "../../scripts/features/attempt-review-renderer.js";
 
   const root = document.getElementById("review-root");
   const params = new URLSearchParams(location.search);
   const attemptId = params.get("attempt");
   const studentId = params.get("student");
+  const testDe = params.get("de");
 
   try {
     if (localStorage.getItem("darkMode") === "on") document.body.classList.add("dark-mode");
@@ -81,35 +82,77 @@
     document.getElementById("review-back").addEventListener("click", backToReport);
   }
 
+  async function isTeacherAccount() {
+    try {
+      const sessionRes = await supabase.auth.getSession();
+      const session = sessionRes?.data?.session;
+      if (!session || !session.user) return false;
+      const userRow = await getUserRow(session.user.id);
+      return canManageContent(userRow?.role);
+    } catch (e) {
+      console.error("Kiểm tra quyền giáo viên lỗi:", e);
+      return false;
+    }
+  }
+
   window.scrollToQuestion = scrollToQuestion;
   window.toggleSidebar = toggleSidebar;
   root.addEventListener("click", (event) => {
     if (event.target.closest("#attempt-back")) backToReport();
   });
 
-  if (!attemptId) {
+  if (!attemptId && !testDe) {
     showError("Thiếu thông tin bài làm.");
   } else {
     try {
-      let attempt;
-      let studentName = "";
-      if (studentId) {
-        const { data, error } = await supabase.rpc("teacher_report_attempt_detail", {
-          p_attempt_id: attemptId,
-          p_user_id: studentId
-        });
-        if (error) throw error;
-        attempt = data && data.attempt;
-        studentName = data && data.student_name || "Học sinh";
-      } else {
-        attempt = await loadTestAttempt(attemptId);
-      }
-      if (!attempt) {
-        showError("Không tìm thấy bài làm này.");
-      } else {
-        const testName = (attempt.paper && attempt.paper.meta && attempt.paper.meta.name) || attempt.test_name || "Bài kiểm tra";
-        document.title = testName + " - Xem lại bài";
-        root.innerHTML = renderAttemptDetail(attempt, studentName);
+      // [Xem chi tiết bài] — Mở theo UUID đề: ?de=t:<uuid> (giống cơ chế mở đề trong Phòng Học)
+      if (testDe) {
+        const rawDe = String(testDe || "").trim();
+        const de = /^t:/i.test(rawDe) ? rawDe : "t:" + rawDe;
+        if (!/^t:[0-9a-f-]{8,}$/i.test(de)) {
+          showError("Mã bài kiểm tra không hợp lệ.");
+        } else if (!(await isTeacherAccount())) {
+          showError("Bạn không có quyền xem chi tiết bài.");
+        } else {
+          const { data, error } = await supabase.rpc("get_test_content", { p_de: de });
+          if (error) throw error;
+          if (!data || data.ok !== true) {
+            showError("Không tìm thấy bài kiểm tra này.");
+          } else {
+            const test = {
+              subject: data.subject || "",
+              name: data.name || "Bài kiểm tra",
+              description: data.description || "",
+              content: data.content || [],
+              minutes: data.minutes,
+              score: data.score,
+              show_answers: data.show_answers
+            };
+            document.title = (test.name || "Bài kiểm tra") + " - Xem chi tiết bài";
+            root.innerHTML = renderTestDetail(test);
+          }
+        }
+      } else if (attemptId) {
+        let attempt;
+        let studentName = "";
+        if (studentId) {
+          const { data, error } = await supabase.rpc("teacher_report_attempt_detail", {
+            p_attempt_id: attemptId,
+            p_user_id: studentId
+          });
+          if (error) throw error;
+          attempt = data && data.attempt;
+          studentName = data && data.student_name || "Học sinh";
+        } else {
+          attempt = await loadTestAttempt(attemptId);
+        }
+        if (!attempt) {
+          showError("Không tìm thấy bài làm này.");
+        } else {
+          const testName = (attempt.paper && attempt.paper.meta && attempt.paper.meta.name) || attempt.test_name || "Bài kiểm tra";
+          document.title = testName + " - Xem lại bài";
+          root.innerHTML = renderAttemptDetail(attempt, studentName);
+        }
       }
     } catch (error) {
       console.error("Tải chi tiết bài làm báo cáo lỗi:", error);

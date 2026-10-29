@@ -111,6 +111,8 @@ function sectionAudioHtml(section) {
 
 function optionsHtml({ answers, chosen, correct, mode, canReveal, questionIndex, subIndex, prefix = "" }) {
   const list = Array.isArray(answers) ? answers : [];
+  const evaluate = mode === "review" && canReveal;
+  const showAnswer = canReveal && (mode === "review" || mode === "preview");
   let isCorrect = false;
   const html = `<div class="answers-grid">${list.map((answer, answerIndex) => {
     const selected = mode === "review" && chosen != null && Number(chosen) === answerIndex;
@@ -118,15 +120,15 @@ function optionsHtml({ answers, chosen, correct, mode, canReveal, questionIndex,
     if (selected && correctAnswer) isCorrect = true;
     let classes = "ans-label";
     if (selected) classes += " selected";
-    if (mode === "review" && canReveal && correctAnswer) classes += " true-answer-highlight";
+    if (showAnswer && correctAnswer) classes += " true-answer-highlight";
     if (mode === "review" && canReveal && selected && !correctAnswer) classes += " review-wrong";
     const name = subIndex == null ? `question-${questionIndex}` : `q-${questionIndex}-${subIndex}`;
     const onclick = mode === "take"
       ? ` onclick="selectAnswer(this, ${questionIndex}${subIndex == null ? "" : `, ${subIndex}`})"`
       : "";
-    return `<label class="${classes}" id="label-${questionIndex}${subIndex == null ? "" : `-${subIndex}`}-${answerIndex}"${onclick}><input type="radio" name="${name}" value="${answerIndex}"${selected ? " checked" : ""}${mode === "review" ? " disabled" : ""}>${prefix ? `<span class="ans-prefix">${esc(prefix(answerIndex))}</span>` : ""}${answerInnerHtml(answer, answerIndex)}</label>`;
+    return `<label class="${classes}" id="label-${questionIndex}${subIndex == null ? "" : `-${subIndex}`}-${answerIndex}"${onclick}><input type="radio" name="${name}" value="${answerIndex}"${selected ? " checked" : ""}${(mode === "review" || mode === "preview") ? " disabled" : ""}>${prefix ? `<span class="ans-prefix">${esc(prefix(answerIndex))}</span>` : ""}${answerInnerHtml(answer, answerIndex)}</label>`;
   }).join("")}</div>`;
-  return { html, result: mode === "review" && canReveal ? isCorrect : null };
+  return { html, result: evaluate ? isCorrect : null };
 }
 
 function renderQuestion(question, questionIndex, { mode, canReveal }) {
@@ -154,22 +156,24 @@ function renderQuestion(question, questionIndex, { mode, canReveal }) {
       const expected = Number(sub.correct);
       const correctRow = hasAnswer && value === expected;
       if (!correctRow) allCorrect = false;
+      const canShowAnswer = canReveal && (mode === "review" || mode === "preview");
       const rowClass = mode === "review" && canReveal ? (correctRow ? " tf-review-correct" : " tf-review-wrong") : "";
-      const answerTip = mode === "review" && canReveal ? `<span class="tf-answer-tip ${correctRow ? "true-text" : "false-text"}"> (Đáp án: ${expected === 1 ? "Đúng" : "Sai"})</span>` : "";
+      const answerTip = canShowAnswer ? `<span class="tf-answer-tip ${correctRow ? "true-text" : "false-text"}"> (Đáp án: ${expected === 1 ? "Đúng" : "Sai"})</span>` : "";
       const trueClass = mode === "review" && value === 1 ? " selected" : "";
       const falseClass = mode === "review" && value === 0 ? " selected" : "";
-      return `<div class="tf-row${rowClass}"><div class="tf-question-text"><strong>${String.fromCharCode(97 + subIndex)}.</strong> <span>${esc(sub.text || "")}</span>${answerTip}</div><div class="tf-options"><label class="${trueClass.trim()}"><input type="radio" name="tf-${questionIndex}-${subIndex}" value="1"${value === 1 ? " checked" : ""}${mode === "review" ? " disabled" : ""}${mode === "take" ? ` onclick="checkTFDone(${questionIndex}, this)"` : ""}> <b>Đ</b></label><label class="${falseClass.trim()}"><input type="radio" name="tf-${questionIndex}-${subIndex}" value="0"${value === 0 ? " checked" : ""}${mode === "review" ? " disabled" : ""}${mode === "take" ? ` onclick="checkTFDone(${questionIndex}, this)"` : ""}> <b>S</b></label></div></div>`;
+      return `<div class="tf-row${rowClass}"><div class="tf-question-text"><strong>${String.fromCharCode(97 + subIndex)}.</strong> <span>${esc(sub.text || "")}</span>${answerTip}</div><div class="tf-options"><label class="${trueClass.trim()}"><input type="radio" name="tf-${questionIndex}-${subIndex}" value="1"${value === 1 ? " checked" : ""}${(mode === "review" || mode === "preview") ? " disabled" : ""}${mode === "take" ? ` onclick="checkTFDone(${questionIndex}, this)"` : ""}> <b>Đ</b></label><label class="${falseClass.trim()}"><input type="radio" name="tf-${questionIndex}-${subIndex}" value="0"${value === 0 ? " checked" : ""}${(mode === "review" || mode === "preview") ? " disabled" : ""}${mode === "take" ? ` onclick="checkTFDone(${questionIndex}, this)"` : ""}> <b>S</b></label></div></div>`;
     }).join("")}</div>`;
     result = mode === "review" && canReveal ? allCorrect : null;
   } else if (type === "short_answer") {
     const chosen = mode === "review" ? String(question.chosen == null ? "" : question.chosen) : "";
     const expected = String(question.correctAnswer == null ? "" : question.correctAnswer);
     const isCorrect = chosen.trim().toLowerCase() === expected.trim().toLowerCase();
-    const stateClass = mode === "review" && canReveal ? (isCorrect ? " review-input-correct" : " review-input-wrong") : "";
+    const canShowAnswer = canReveal && (mode === "review" || mode === "preview");
+    const stateClass = mode === "review" && canShowAnswer ? (isCorrect ? " review-input-correct" : " review-input-wrong") : "";
     if (questionText) content += `<div class="question-prompt">${esc(questionText)}</div>`;
     content += `<textarea class="short-input writing-input${stateClass}" ${mode === "take" ? "placeholder=\"Nhập câu trả lời của bạn...\"" : "disabled"} ${mode === "take" ? `oninput="markDone(${questionIndex})" onblur="shortToast(${questionIndex})"` : ""} data-qidx="${questionIndex}" rows="${Math.max(1, Number(question.rows) || 3)}">${esc(chosen)}</textarea>`;
-    if (mode === "review" && canReveal) content += `<div class="true-text answer-key">✓ Đáp án chuẩn: ${esc(expected)}</div>`;
-    result = mode === "review" && canReveal ? isCorrect : null;
+    if (canShowAnswer) content += `<div class="true-text answer-key">✓ Đáp án chuẩn: ${esc(expected)}</div>`;
+    result = mode === "review" && canShowAnswer ? isCorrect : null;
   } else if (type === "passage") {
     const subs = Array.isArray(question.subQuestions) ? question.subQuestions : [];
     const chosen = Array.isArray(question.chosen) ? question.chosen : [];
@@ -197,7 +201,8 @@ function renderQuestion(question, questionIndex, { mode, canReveal }) {
       const width = Math.max(8, Math.ceil((expected || value || "        ").length));
       const classes = mode === "review" && canReveal ? (correctBlank ? " cloze-review-correct" : " cloze-review-wrong") : "";
       const input = `<input class="cloze-input short-input${classes}" type="text" size="${width}" data-qidx="${questionIndex}" data-blank="${index}" value="${esc(value)}"${mode === "take" ? ` oninput="markDone(${questionIndex})"` : " disabled"}>`;
-      const tip = mode === "review" && canReveal && !correctBlank ? `<span class="cloze-answer-tip true-text">(${esc(expected)})</span>` : "";
+      const canShowAnswer = canReveal && (mode === "review" || mode === "preview");
+      const tip = canShowAnswer && !correctBlank ? `<span class="cloze-answer-tip true-text">(${esc(expected)})</span>` : "";
       return input + tip;
     });
     content += `<div class="cloze-text">${text}</div>`;
@@ -211,7 +216,7 @@ function renderQuestion(question, questionIndex, { mode, canReveal }) {
 }
 
 export function renderQuizHtml(sections, { mode = "take", canReveal = false, startIndex = 0 } = {}) {
-  const renderMode = mode === "review" ? "review" : "take";
+  const renderMode = mode === "review" ? "review" : (mode === "preview" ? "preview" : "take");
   const list = Array.isArray(sections) ? sections : [];
   let questionIndex = Math.max(0, Number(startIndex) || 0);
   const results = [];
