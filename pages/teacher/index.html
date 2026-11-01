@@ -2344,9 +2344,14 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
         tcQuizCloseMenus();
       }
     });
-    /* Fix UI: khi cuộn list bài kiểm tra thì đóng menu "…" đang mở (tránh menu fixed đứng im) */
-    var tcQuizListScrollEl = document.getElementById("tcQuizList");
-    if (tcQuizListScrollEl) tcQuizListScrollEl.addEventListener("scroll", function () { tcQuizCloseMenus(); });
+    /* Fix UI: đóng menu "…" khi cuộn — bảng có thể cuộn nội bộ (`overflow:auto`) hoặc
+       cả trang cuộn (trường hợp phổ biến), nên phải nghe ở window với capture:true
+       (sự kiện scroll không bubble lên). Tránh menu position:fixed đứng im sai chỗ. */
+    function tcQuizCloseMenuOnViewportChange() {
+      if (tcQuizMenuEl && !tcQuizMenuEl.hidden) tcQuizMenuEl.hidden = true;
+    }
+    window.addEventListener("scroll", tcQuizCloseMenuOnViewportChange, { passive: true, capture: true });
+    window.addEventListener("resize", tcQuizCloseMenuOnViewportChange);
 
     function tcQuizCopyLink(de) {
       // Link mở từ web chính giống cơ chế copy link card trong Phòng Học:
