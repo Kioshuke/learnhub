@@ -31,13 +31,13 @@ function countTestQuestions(sections) {
 
 // [Xem chi tiết bài] — Dựng giao diện xem chi tiết 1 bài kiểm tra (không có kết quả nộp).
 // Dùng cho giáo viên/Admin mở đề theo UUID (?de=t:<uuid>) để xem trước nội dung đề.
-export function renderTestDetail(test = {}, options = {}) {
+export function renderTestDetail(test = {}) {
   const subject = String((test && test.subject) || "");
   const name = String((test && test.name) || "Bài kiểm tra");
   const description = String((test && test.description) || "");
   const maxScore = Number((test && test.score) > 0 ? test.score : 10) || 10;
   const minutes = Math.max(0, Number((test && test.minutes) || 0) || 0);
-  const sections = Array.isArray(test && test.content) ? test.content : [];
+  const sections = (Array.isArray(test && test.content) ? test.content : []).filter(Boolean);
   const showAnswers = String((test && test.show_answers) || "always");
   const canReveal = showAnswers !== "none";
   const rendered = renderQuizHtml(sections, { mode: "preview", canReveal });
@@ -62,6 +62,7 @@ export function renderTestDetail(test = {}, options = {}) {
         ${miniStat("Điểm tối đa", String(maxScore), "#f59e0b", "rgba(245,158,11,.1)")}
         ${miniStat("Đáp án", canReveal ? "Hiện" : "Ẩn", "#10b981", "rgba(16,185,129,.08)")}
       </div>
+      ${canReveal ? "" : `<div class="at-notice"><i class="fas fa-lock"></i> Đề này đang ẩn đáp án chi tiết.</div>`}
         </div>
         <div class="quiz-locked" id="quiz-container">${rendered.html}</div>
       </div>

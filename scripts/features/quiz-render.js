@@ -158,10 +158,11 @@ function renderQuestion(question, questionIndex, { mode, canReveal }) {
       if (!correctRow) allCorrect = false;
       const canShowAnswer = canReveal && (mode === "review" || mode === "preview");
       const rowClass = mode === "review" && canReveal ? (correctRow ? " tf-review-correct" : " tf-review-wrong") : "";
-      const answerTip = canShowAnswer ? `<span class="tf-answer-tip ${correctRow ? "true-text" : "false-text"}"> (Đáp án: ${expected === 1 ? "Đúng" : "Sai"})</span>` : "";
-      const trueClass = mode === "review" && value === 1 ? " selected" : "";
-      const falseClass = mode === "review" && value === 0 ? " selected" : "";
-      return `<div class="tf-row${rowClass}"><div class="tf-question-text"><strong>${String.fromCharCode(97 + subIndex)}.</strong> <span>${esc(sub.text || "")}</span>${answerTip}</div><div class="tf-options"><label class="${trueClass.trim()}"><input type="radio" name="tf-${questionIndex}-${subIndex}" value="1"${value === 1 ? " checked" : ""}${(mode === "review" || mode === "preview") ? " disabled" : ""}${mode === "take" ? ` onclick="checkTFDone(${questionIndex}, this)"` : ""}> <b>Đ</b></label><label class="${falseClass.trim()}"><input type="radio" name="tf-${questionIndex}-${subIndex}" value="0"${value === 0 ? " checked" : ""}${(mode === "review" || mode === "preview") ? " disabled" : ""}${mode === "take" ? ` onclick="checkTFDone(${questionIndex}, this)"` : ""}> <b>S</b></label></div></div>`;
+      const tipTone = (mode === "preview" ? expected === 1 : correctRow) ? "true-text" : "false-text";
+      const answerTip = canShowAnswer ? `<span class="tf-answer-tip ${tipTone}"> (Đáp án: ${expected === 1 ? "Đúng" : "Sai"})</span>` : "";
+      const trueClass = mode === "review" && value === 1 ? " selected" : (mode === "preview" && expected === 1 ? " selected" : "");
+      const falseClass = mode === "review" && value === 0 ? " selected" : (mode === "preview" && expected === 0 ? " selected" : "");
+      return `<div class="tf-row${rowClass}"><div class="tf-question-text"><strong>${String.fromCharCode(97 + subIndex)}.</strong> <span>${esc(sub.text || "")}</span>${answerTip}</div><div class="tf-options"><label class="${trueClass.trim()}"><input type="radio" name="tf-${questionIndex}-${subIndex}" value="1"${(value === 1 || (mode === "preview" && expected === 1)) ? " checked" : ""}${(mode === "review" || mode === "preview") ? " disabled" : ""}${mode === "take" ? ` onclick="checkTFDone(${questionIndex}, this)"` : ""}> <b>Đ</b></label><label class="${falseClass.trim()}"><input type="radio" name="tf-${questionIndex}-${subIndex}" value="0"${(value === 0 || (mode === "preview" && expected === 0)) ? " checked" : ""}${(mode === "review" || mode === "preview") ? " disabled" : ""}${mode === "take" ? ` onclick="checkTFDone(${questionIndex}, this)"` : ""}> <b>S</b></label></div></div>`;
     }).join("")}</div>`;
     result = mode === "review" && canReveal ? allCorrect : null;
   } else if (type === "short_answer") {
