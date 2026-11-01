@@ -17,13 +17,21 @@
       body { margin: 0; padding: 20px; font-family: Inter, system-ui, sans-serif; color: var(--text); background: var(--bg); background-image: radial-gradient(#d6dcff 1.2px, transparent 1.2px); background-size: 28px 28px; overflow-x: clip; }
       .review-page-container { max-width: 1600px; margin: 0 auto; padding: 0 20px; }
       #review-root { width: 100%; max-width: 100%; }
-      .review-question-column { display: flex; flex-direction: column; gap: 25px; }
+      .review-question-column { display: flex; flex-direction: column; gap: 20px; }
+      /* Thanh tiêu đề phần đầu tiên: bỏ margin-top mặc định (25px) để không cộng dồn
+         với gap của cột — tránh khoảng trống ~50px giữa khung thông tin và nội dung. */
+      .review-question-column > .quiz-locked > .quiz-section-title:first-child { margin-top: 0; }
       .review-summary-card { position: sticky; top: 20px; z-index: 20; }
       #review-root .lh-card { width: 100%; box-sizing: border-box; background: var(--card); border: 1px solid var(--tf-border); border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,.05); }
       .sidebar { position: sticky; top: 20px; align-self: flex-start; height: fit-content; }
       #attempt-back { padding: 0; }
       .lh-stat { border: 1px solid var(--tf-border); border-radius: 12px; }
       .attempt-score { display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 12px; font: 800 20px/1 Inter, Arial, sans-serif; font-variant-numeric: tabular-nums; }
+      /* Mô tả đề nằm cùng hàng với tiêu đề (dùng chung cho xem chi tiết đề + xem lại bài làm). */
+      .review-title-row { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+      .review-title-row h3 { flex: 0 1 auto; min-width: 0; }
+      .review-desc { flex: 1 1 0; min-width: 40px; font-size: .75rem; font-weight: 600; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      @media (max-width: 640px) { .review-desc { display: none; } }
       .review-content { display: flex; flex-direction: column; gap: 25px; }
       .review-state { padding: 24px; border-radius: 14px; background: var(--card); color: var(--text-sub); text-align: center; font-weight: 700; }
       .at-notice { padding: 12px 14px; border-radius: 10px; background: #fff7ed; color: #9a3412; font-size: .85rem; font-weight: 600; }

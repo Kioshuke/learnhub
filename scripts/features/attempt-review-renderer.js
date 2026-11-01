@@ -51,11 +51,13 @@ export function renderTestDetail(test = {}) {
       <div class="flex items-center gap-3">
         <button id="attempt-back" type="button" class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors" style="padding:0" title="Quay lại"><i class="fas fa-arrow-left"></i></button>
         <div style="flex:1;min-width:0">
-          <h3 class="text-base sm:text-lg font-extrabold truncate" style="color:var(--text)">${esc(name)}</h3>
+          <div class="review-title-row">
+            <h3 class="text-base sm:text-lg font-extrabold truncate" style="color:var(--text)">${esc(name)}</h3>
+            ${description ? `<span class="review-desc" title="${esc(description)}">${esc(description)}</span>` : ""}
+          </div>
           <p class="text-xs font-semibold truncate" style="color:var(--text-sub)">${subject ? `${esc(subject)} · ` : ""}${questionCount} câu · ${duration}</p>
         </div>
       </div>
-      ${description ? `<p class="text-sm leading-relaxed" style="color:var(--text-sub)">${esc(description)}</p>` : ""}
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
         ${miniStat("Số câu", String(questionCount), "#2563eb", "rgba(37,99,235,.08)")}
         ${miniStat("Thời gian", duration, "#8b5cf6", "rgba(139,92,246,.08)")}
@@ -92,6 +94,7 @@ export function renderAttemptDetail(attempt, studentName = "") {
   const autoSubmitted = result.autoSubmitted != null ? result.autoSubmitted : attempt.auto_submitted;
   const title = meta.name || attempt.test_name || "Bài kiểm tra";
   const subject = meta.subject || attempt.subject || "";
+  const description = String(meta.description || attempt.description || "").trim();
   const maxScore = meta.maxScore != null ? meta.maxScore : (attempt.max_score ?? 10);
   const rendered = renderQuizHtml(sections, { mode: "review", canReveal });
   const scoreStyle = score >= 8
@@ -111,7 +114,10 @@ export function renderAttemptDetail(attempt, studentName = "") {
       <div class="flex items-center gap-3">
         <button id="attempt-back" type="button" class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors" style="padding:0" title="Quay lại"><i class="fas fa-arrow-left"></i></button>
         <div style="flex:1;min-width:0">
-          <h3 class="text-base sm:text-lg font-extrabold truncate" style="color:var(--text)">${esc(title)}</h3>
+          <div class="review-title-row">
+            <h3 class="text-base sm:text-lg font-extrabold truncate" style="color:var(--text)">${esc(title)}</h3>
+            ${description ? `<span class="review-desc" title="${esc(description)}">${esc(description)}</span>` : ""}
+          </div>
           <p class="text-xs font-semibold truncate" style="color:var(--text-sub)">${esc(studentName)} · ${subject ? `${esc(subject)} · ` : ""}${formatDateTime(attempt.created_at)}</p>
         </div>
         ${scoreHidden ? "" : `<div class="attempt-score" style="background:${scoreStyle.bg};color:${scoreStyle.fg};min-width:56px;font-size:20px">${displayedScore}</div>`}
