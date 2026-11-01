@@ -54,14 +54,18 @@
   const attemptId = params.get("attempt");
   const studentId = params.get("student");
   const testDe = params.get("de");
+  // [Nút Quay lại] Nơi mở trang này (do trang Giáo viên truyền vào) — dùng khi tab
+  // không có lịch sử để history.back(), tránh rơi về màn Tổng quan.
+  const returnFrom = params.get("from");
 
   try {
     if (localStorage.getItem("darkMode") === "on") document.body.classList.add("dark-mode");
   } catch (_) {}
 
   function backToReport() {
-    if (history.length > 1) history.back();
-    else location.href = "../teacher/index.html";
+    if (history.length > 1) { history.back(); return; }
+    const backView = (returnFrom === "quiz" || returnFrom === "report") ? returnFrom : "";
+    location.href = backView ? `../teacher/index.html?view=${backView}` : "../teacher/index.html";
   }
   function scrollToQuestion(index) {
     const card = document.getElementById(`card-${index}`);

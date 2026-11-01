@@ -1527,6 +1527,8 @@
         tcOpenNotices();
       } else if (view === "quiz") {
         tcOpenQuizzes();
+      } else if (view === "report") {
+        tcOpenReport();
       }
       tcLoadClasses();
     }
@@ -2150,9 +2152,11 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       document.getElementById("tcReportAttempts").addEventListener("click", function (event) {
         const attempt = event.target.closest("[data-report-attempt]");
         if (!attempt) return;
+        tcMarkReturnView("report");
         const url = new URL("../user/review-attempt.html", window.location.href);
         url.searchParams.set("attempt", attempt.getAttribute("data-report-attempt"));
         url.searchParams.set("student", attempt.getAttribute("data-report-user"));
+        url.searchParams.set("from", "report");
         window.location.href = url.href;
       });
       document.getElementById("tcReportAttemptPrev").addEventListener("click", function () {
@@ -2283,13 +2287,28 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
 
     /* Sửa đề: mở trình soạn, nạp sẵn content của đề vào màn 2 (JSON + Xem trước) */
     function tcQuizEdit(id) {
+      tcMarkReturnView("quiz");
       window.location.href = "./newtest/index.html?edit=t:" + id;
+    }
+
+    /* Ghi nhớ màn đang xem vào URL (?view=...) trước khi mở trang khác.
+       Nhờ vậy khi quay lại (nút Back / tải lại trang), trang Giáo viên mở đúng
+       màn đang xem thay vì luôn rơi về màn Tổng quan. */
+    function tcMarkReturnView(view) {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set("view", view);
+        window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+      } catch (e) {
+        // Trình duyệt chặn replaceState (vd: chạy file://) — bỏ qua, không ảnh hưởng luồng chính.
+      }
     }
 
     /* Xem chi tiết bài: mở giao diện xem chi tiết đề kiểm tra (?de=t:<uuid> → review-attempt) */
     function tcQuizViewDetail(de) {
       if (!de) return;
-      window.location.href = "../user/review-attempt.html?de=" + encodeURIComponent(de);
+      tcMarkReturnView("quiz");
+      window.location.href = "../user/review-attempt.html?de=" + encodeURIComponent(de) + "&from=quiz";
     }
 
     function tcQuizToggleMenu(btn) {
