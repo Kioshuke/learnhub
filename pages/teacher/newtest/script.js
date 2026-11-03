@@ -106,6 +106,7 @@ function showStage(n) {
   var setupBtn = $("btnSetup");
   if (setupBtn) setupBtn.hidden = n !== 2;   // "Tiếp tục" chỉ hiện ở màn 2
   document.body.classList.toggle("stage2", n === 2);
+  document.body.classList.toggle("stage3", n === 3);
   updateSteps(n);
   if (n !== 1) {
     /* Cuộn về đầu trang để header dính trên, khung màn 2/3/4 không bị che */
@@ -1251,7 +1252,7 @@ function renderReview() {
         (testMeta.shuffleQ ? "Bật" : "Tắt") + "</b> - Đáp án: <b>" + (testMeta.shuffleA ? "Bật" : "Tắt") +
       "</b></span></div>" +
       '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-dice" style="color:#7c3aed"></i> Đề con</span><span class="rev-v">' +
-        (subtestOn ? "<b>" + subtestN + "</b> câu - bốc ngẫu nhiên mỗi lần mở" : "Tắt") +
+        (subtestOn ? "<b>" + subtestN + "</b> câu - ngẫu nhiên" : "Tắt") +
       "</span></div>" +
       '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-chart-column" style="color:#16a34a"></i> Xem điểm</span><span class="rev-v"><b>' +
         (testMeta.showScore === "none" ? "Bị Ẩn" : "Có") +
