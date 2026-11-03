@@ -1385,8 +1385,13 @@ async function publishTest() {
           "</p>" +
           '</section>' +
           '<aside class="publish-settings-aside">' + setupCardHtml + '</aside>' +
-          '<div class="publish-result-actions"><button type="button" class="btn btn-primary" id="btnPublishAgain">＋ Xuất bản đề mới</button></div>' +
         '</div>';
+      /* Nút "Xuất bản đề mới" đưa lên hàng tiêu đề (ghim cùng 2 nút còn lại) */
+      var headActions = $("revHeadActions");
+      if (headActions && !$("btnPublishAgain")) {
+        headActions.insertAdjacentHTML("beforeend",
+          '<button type="button" class="btn btn-primary" id="btnPublishAgain">＋ Xuất bản đề mới</button>');
+      }
       var linkInput = $("publishedTestLink");
       if (linkInput) linkInput.value = link;
       generateCustomQRCode(link);
