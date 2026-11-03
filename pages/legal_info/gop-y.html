@@ -319,17 +319,59 @@
     const successBox = document.getElementById('success-box');
     const errorBox = document.getElementById('error-box');
     const submitBtn = document.getElementById('btn-text');
+    const emailInput = document.getElementById('user_email');
+    const messageInput = document.getElementById('message');
+    let sending = false;
+
+    // Hiện lỗi + đưa con trỏ tới ô cần sửa (form có novalidate nên phải tự kiểm tra)
+    function showError(html, focusEl) {
+      errorBox.style.display = 'block';
+      errorBox.innerHTML = html;
+      if (focusEl && typeof focusEl.focus === 'function') {
+        try { focusEl.focus({ preventScroll: true }); } catch (_e) { try { focusEl.focus(); } catch (_e2) {} }
+        try { focusEl.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (_e3) {}
+      }
+    }
+
+    // Gõ lại vào ô đang lỗi thì ẩn thông báo đi
+    [emailInput, messageInput].forEach(function (el) {
+      if (el) el.addEventListener('input', function () { errorBox.style.display = 'none'; });
+    });
 
     form.addEventListener('submit', function(event) {
       event.preventDefault();
+      if (sending) return;
 
-      // Kiểm tra xem đã chọn danh mục chưa (Vì dùng select giả nên check thủ công)
+      const emailValue = String(emailInput ? emailInput.value : '').trim();
+      const messageValue = String(messageInput ? messageInput.value : '').trim();
+
+      // 1) Bắt buộc chọn danh mục (select giả nên check thủ công)
       if (!realSelect.value) {
-        errorBox.style.display = 'block';
-        errorBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#d97706"></i> Vui lòng chọn một danh mục đóng góp phản hồi!';
+        showError('<i class="fa-solid fa-triangle-exclamation" style="color:#d97706"></i> Vui lòng chọn một danh mục đóng góp phản hồi!', trigger);
         return;
       }
 
+      // 2) Bắt buộc email hợp lệ
+      if (!emailValue) {
+        showError('<i class="fa-solid fa-triangle-exclamation" style="color:#d97706"></i> Vui lòng nhập email liên hệ!', emailInput);
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+        showError('<i class="fa-solid fa-triangle-exclamation" style="color:#d97706"></i> Email liên hệ không hợp lệ. Vui lòng kiểm tra lại!', emailInput);
+        return;
+      }
+
+      // 3) Bắt buộc có nội dung chi tiết (không tính khoảng trắng)
+      if (!messageValue) {
+        showError('<i class="fa-solid fa-triangle-exclamation" style="color:#d97706"></i> Vui lòng nhập nội dung chi tiết trước khi gửi!', messageInput);
+        return;
+      }
+
+      // Chuẩn hoá lại giá trị trước khi gửi (bỏ khoảng trắng thừa)
+      if (emailInput) emailInput.value = emailValue;
+      if (messageInput) messageInput.value = messageValue;
+
+      sending = true;
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
       errorBox.style.display = 'none';
@@ -343,6 +385,7 @@
 
       Promise.all([sendToAdmin, sendToUser])
         .then(() => {
+          sending = false;
           formWrapper.style.display = 'none';
           successBox.style.display = 'block';
           form.reset();
@@ -350,8 +393,12 @@
           trigger.textContent = '-- Chọn danh mục --';
           trigger.classList.remove('has-value');
           trigger.removeAttribute('data-category');
+          customOptions.forEach(opt => opt.classList.remove('selected'));
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi ý kiến';
         })
         .catch((err) => {
+          sending = false;
           submitBtn.disabled = false;
           submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Thử lại';
           errorBox.style.display = 'block';
