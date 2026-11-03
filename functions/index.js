@@ -6,6 +6,10 @@ const TEST_DE_UUID = /^t:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]
 const FLASH_SET_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const SHARE_IMAGE = "/assets/images/df252f57-2143-45f1-9d3c-250c76491de6.jfif";
+// Ảnh bìa riêng khi chia sẻ bộ flashcard (1024×572, JPG để FB/Zalo đọc được).
+const FLASHCARD_SHARE_IMAGE = "/assets/images/flashcard-share.jpg";
+const SHARE_IMAGE_WIDTH = "1024";
+const SHARE_IMAGE_HEIGHT = "572";
 const DESCRIPTION_MAX = 160;
 
 function trimDescription(value, maxLength = DESCRIPTION_MAX) {
@@ -89,6 +93,7 @@ export async function onRequestGet(context) {
   const set = requestUrl.searchParams.get("set") || "";
 
   let copy;
+  let imagePath = SHARE_IMAGE;
   if (open === "phong-hoc" && TEST_DE_UUID.test(de)) {
     const meta = await fetchMeta("get_test_meta", { p_de: de });
     if (!meta) return context.next();
@@ -97,17 +102,20 @@ export async function onRequestGet(context) {
     const meta = await fetchMeta("get_flashcard_meta", { p_set: set });
     if (!meta) return context.next();
     copy = buildFlashcardCopy(meta);
+    imagePath = FLASHCARD_SHARE_IMAGE;
   } else {
     return context.next();
   }
 
   const { title, description } = copy;
-  const image = `${requestUrl.origin}${SHARE_IMAGE}`;
+  const image = `${requestUrl.origin}${imagePath}`;
 
   const metaTags = {
     "og:title": { attribute: "property", value: title },
     "og:description": { attribute: "property", value: description },
     "og:image": { attribute: "property", value: image },
+    "og:image:width": { attribute: "property", value: SHARE_IMAGE_WIDTH },
+    "og:image:height": { attribute: "property", value: SHARE_IMAGE_HEIGHT },
     "og:url": { attribute: "property", value: requestUrl.href },
     "og:type": { attribute: "property", value: "website" },
     description: { attribute: "name", value: description },
