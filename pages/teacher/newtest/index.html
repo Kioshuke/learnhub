@@ -181,6 +181,20 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
           </div>
         </div>
 
+        <!-- Giới hạn số lần làm + mật khẩu bài làm -->
+        <div class="set-grid-2">
+          <div class="set-cell">
+            <label for="setMaxAttempts"><i class="fa-solid fa-repeat" style="color:#2563eb"></i> Số lần làm <span style="font-weight:500;color:var(--muted)">(0 = không giới hạn)</span>
+              <input type="number" id="setMaxAttempts" min="0" step="1" value="0" placeholder="0">
+            </label>
+          </div>
+          <div class="set-cell">
+            <label for="setPassword"><i class="fa-solid fa-lock" style="color:#f59e0b"></i> Mật khẩu bài làm <span style="font-weight:500;color:var(--muted)">(trống = không đặt)</span>
+              <input type="text" id="setPassword" autocomplete="off" placeholder="VD: hoa10a1">
+            </label>
+          </div>
+        </div>
+
       </div>
       <div class="note error" id="setupError" hidden style="margin-top:10px"></div>
       <div class="modal-actions" style="margin-top:12px">

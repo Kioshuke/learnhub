@@ -810,7 +810,7 @@ const DEFAULT_EXAM_TIME_LIMIT_MINUTES = 15;
 // ── ĐỀ ĐỌC 100% TỪ DATABASE: de=t:<uuid> → lấy bản ghi test_sets qua RPC get_test_content,
 // áp dụng trực tiếp các cột: score (điểm tối đa), shuffle_q (trộn câu hỏi),
 // shuffle_a (trộn đáp án), minutes (thời gian). Không còn đọc file JSON tĩnh.
-let examConfig = { maxScore: 10, shuffleQ: true, shuffleA: true, showScore: 'always', showAnswers: 'always', reviewLocked: true, subtestEnabled: false, subtestCount: null };
+let examConfig = { maxScore: 10, shuffleQ: true, shuffleA: true, showScore: 'always', showAnswers: 'always', reviewLocked: true, subtestEnabled: false, subtestCount: null, maxAttempts: 0, hasPassword: false };
 
 // [Lịch sử làm bài] Thông tin đề (môn/tên) chép lại vào mỗi lần nộp, đọc từ get_test_content
 let examMeta = { subject: "", name: "" };
@@ -905,6 +905,11 @@ async function loadQuestions() {
         examConfig.subtestEnabled = rawSubtestEnabled && Number.isFinite(rawSubtestCount) && rawSubtestCount > 0;
         examConfig.subtestCount = examConfig.subtestEnabled ? Math.floor(rawSubtestCount) : null;
 
+        // [Số lần làm + mật khẩu] Chỉ nhận cờ từ server; mật khẩu thật không về client.
+        const rawMaxAttempts = parseInt(rpcData.max_attempts, 10);
+        examConfig.maxAttempts = Number.isFinite(rawMaxAttempts) && rawMaxAttempts > 0 ? rawMaxAttempts : 0;
+        examConfig.hasPassword = rpcData.has_password === true || rpcData.has_password === 'true';
+
         totalQuestions = 0;
 
         // Đề con: chọn N card ngẫu nhiên trước, sau đó mới xáo câu/đáp án.
@@ -961,6 +966,20 @@ async function loadQuestions() {
                 questions: sectionQuestions
             };
         });
+
+        // [Cổng mở đề] Số lượt làm còn lại + mật khẩu (kiểm tra ở server).
+        // Chỉ tải/hiện khi đề thực sự bật 1 trong 2; nếu không, giữ nguyên luồng cũ.
+        if (examConfig.maxAttempts > 0 || examConfig.hasPassword) {
+            const gate = await import('../../scripts/features/test-gate.js');
+            const canStart = await gate.openTestGate({
+                supabase,
+                testDe: TEST_DE,
+                maxAttempts: examConfig.maxAttempts,
+                hasPassword: examConfig.hasPassword,
+                testName: examMeta.name
+            });
+            if (!canStart) return; // bị chặn / hết lượt / huỷ → không dựng đề, không chạy đồng hồ
+        }
 
         renderQuiz();
         startExamTimer();

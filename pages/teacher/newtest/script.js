@@ -39,6 +39,8 @@ var testMeta = {
   showAnswers: "always", // 'always' luôn cho xem đáp án | 'perfect' chỉ khi đạt tối đa | 'none' không cho xem
   subtestEnabled: false, // tạo đề con: mỗi lần mở đề bốc ngẫu nhiên N câu
   subtestCount: null,     // số câu của đề con (null khi tắt)
+  maxAttempts: 0,         // số lần làm tối đa của mỗi HS (0 = không giới hạn)
+  password: "",           // mật khẩu mở đề ("" = không đặt)
   timeEnabled: false,     // bật giới hạn thời gian mở đề
   startAt: null,          // ISO thời gian bắt đầu mở đề (null khi tắt)
   endAt: null             // ISO thời gian kết thúc mở đề (null khi tắt)
@@ -1257,6 +1259,12 @@ function renderReview() {
       '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-eye" style="color:#db2777"></i> Xem đáp án</span><span class="rev-v"><b>' +
         (testMeta.showAnswers === "none" ? "Không cho phép" : testMeta.showAnswers === "perfect" ? "Điểm tối đa" : "Luôn hiện") +
       "</b></span></div>" +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-repeat" style="color:#2563eb"></i> Số lần làm</span><span class="rev-v">' +
+        (Number(testMeta.maxAttempts) > 0 ? "<b>" + Number(testMeta.maxAttempts) + "</b> lượt / học sinh" : "Không giới hạn") +
+      "</span></div>" +
+      '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-lock" style="color:#f59e0b"></i> Mật khẩu</span><span class="rev-v"><b>' +
+        (String(testMeta.password || "").trim() ? "Đã đặt" : "Không đặt") +
+      "</b></span></div>" +
       '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-folder-open" style="color:#065f46"></i> Thống kê</span><span class="rev-v">' + qn + " câu - " + nSec + " phần</span></div>" +
     "</div>" +
     '<div class="note" id="revNote" hidden></div>' +
@@ -1310,6 +1318,8 @@ async function publishTest() {
     p_show_answers: testMeta.showAnswers || "always",
     p_subtest_enabled: !!testMeta.subtestEnabled,
     p_subtest_count: testMeta.subtestEnabled ? (parseInt(testMeta.subtestCount, 10) || null) : null,
+    p_max_attempts: Math.max(0, parseInt(testMeta.maxAttempts, 10) || 0),
+    p_password: (testMeta.password || "").trim(),
     p_start_at: testMeta.timeEnabled ? (testMeta.startAt || null) : null,
     p_end_at: testMeta.timeEnabled ? (testMeta.endAt || null) : null
   };
@@ -1362,6 +1372,8 @@ async function publishTest() {
             (payload.p_show_score === "none" ? "Ẩn" : "Hiện") + "</b> - Hiện đáp án: <b>" +
             (payload.p_show_answers === "none" ? "Không" : payload.p_show_answers === "perfect" ? "Khi điểm tối đa" : "Luôn") + "</b> - Đề con: <b>" +
             (payload.p_subtest_enabled ? payload.p_subtest_count + "/" + countQ(testData) + " câu" : "Tắt") + "</b>" +
+            " - Số lần làm: <b>" + (payload.p_max_attempts > 0 ? payload.p_max_attempts + " lượt" : "Không giới hạn") + "</b>" +
+            " - Mật khẩu: <b>" + (payload.p_password ? "Đã đặt" : "Không") + "</b>" +
             (testMeta.timeEnabled && testMeta.startAt && testMeta.endAt ? " - Mở đề: <b>" + fmtDateTime(testMeta.startAt) + " → " + fmtDateTime(testMeta.endAt) + "</b>" : "") +
           "</p>" +
           '</section>' +
@@ -1422,6 +1434,7 @@ function resetForNewTest() {
     subject: "", name: "", desc: "", minutes: 0, score: 10,
     shuffleQ: true, shuffleA: true, showScore: "always", showAnswers: "always",
     subtestEnabled: false, subtestCount: null,
+    maxAttempts: 0, password: "",
     timeEnabled: false, startAt: null, endAt: null
   };
   $("inputText").value = "";
@@ -1569,6 +1582,8 @@ function syncSetupForm() {
   $("setSubtestEnabled").checked = !!testMeta.subtestEnabled;
   $("setSubtestCount").value = testMeta.subtestCount == null ? "" : String(testMeta.subtestCount);
   syncSubtestUI();
+  $("setMaxAttempts").value = String(Math.max(0, parseInt(testMeta.maxAttempts, 10) || 0));
+  $("setPassword").value = testMeta.password || "";
   $("setTimeEnabled").checked = !!testMeta.timeEnabled;
   $("setStartAt").value = testMeta.startAt ? toLocalInput(new Date(testMeta.startAt)) : "";
   $("setEndAt").value = testMeta.endAt ? toLocalInput(new Date(testMeta.endAt)) : "";
@@ -1680,6 +1695,9 @@ $("btnSetupApply").addEventListener("click", function () {
   testMeta.showAnswers = (document.querySelector('input[name="setShowAnswers"]:checked') || {}).value || "always";
   testMeta.subtestEnabled = subtestEnabled;
   testMeta.subtestCount = subtestEnabled ? subtestCount : null;
+  var maxAttemptsEl = $("setMaxAttempts"), passwordEl = $("setPassword");
+  testMeta.maxAttempts = maxAttemptsEl ? Math.max(0, parseInt(maxAttemptsEl.value, 10) || 0) : 0;
+  testMeta.password = passwordEl ? passwordEl.value.trim() : "";
   testMeta.timeEnabled = timeEnabled;
   testMeta.startAt = timeEnabled ? startAtIso : null;
   testMeta.endAt = timeEnabled ? endAtIso : null;
@@ -1984,6 +2002,8 @@ showStage(1);
         testMeta.subtestEnabled = d.subtest_enabled === true || d.subtest_enabled === 1;
         var editSubtestCount = parseInt(d.subtest_count, 10);
         testMeta.subtestCount = testMeta.subtestEnabled && editSubtestCount > 0 ? editSubtestCount : null;
+        testMeta.maxAttempts = Math.max(0, parseInt(d.max_attempts, 10) || 0);
+        testMeta.password = typeof d.password === "string" ? d.password : "";
         testMeta.startAt = (row && row.start_at) ? row.start_at : null;
         testMeta.endAt = (row && row.end_at) ? row.end_at : null;
         testMeta.timeEnabled = !!(testMeta.startAt || testMeta.endAt);
