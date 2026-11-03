@@ -19,6 +19,8 @@
  *    ngay, KHÔNG gọi RPC, KHÔNG hiện gì (giữ nguyên hành vi cũ).
  *  - Số lượt đếm ở SERVER (RPC test_attempt_status dùng auth.uid()), mỗi lần
  *    nộp bài = 1 lượt. Client không tự quyết định số lượt.
+ *  - Khi hiện thông báo, LƯỢT ĐANG MỞ được tính luôn: max = 10 và chưa nộp lần
+ *    nào → hiện "còn lại 9" (vì lần này là lượt 1/10). Chỉ chặn khi đã nộp đủ.
  *  - Mật khẩu so sánh ở SERVER (RPC verify_test_password); cột password không
  *    bao giờ được gửi xuống trình duyệt của học sinh.
  */
@@ -130,7 +132,11 @@ export async function openTestGate(options = {}) {
     } else {
       const used = Number(status.attempts_used) || 0;
       const max = Number(status.max_attempts) || 0;
-      const remaining = status.remaining == null ? null : Math.max(0, Number(status.remaining) || 0);
+      // Lượt ĐANG mở được tính luôn vào số còn lại: max = 10, chưa nộp lần nào
+      // → lần này là lượt 1/10 → hiện "còn lại 9". Chỉ chặn khi đã dùng hết.
+      const left = Math.max(0, max - used);        // số lượt còn tính cả lượt này
+      const after = Math.max(0, left - 1);         // còn lại SAU lượt này
+      const currentNo = Math.min(max, used + 1);   // lượt đang làm là lượt thứ mấy
       const authenticated = status.authenticated === true;
       const needPass = status.has_password === true;
 
@@ -141,17 +147,23 @@ export async function openTestGate(options = {}) {
             '<div class="lh-gate-line warn"><i class="fa-solid fa-user-lock"></i><span>' +
             "Bài làm này giới hạn <b>" + max + " lượt làm</b> nên bạn cần <b>đăng nhập</b> để làm bài." +
             "</span></div>";
-        } else if ((remaining || 0) <= 0) {
+        } else if (left <= 0) {
           canStart = false;
           bodyHtml +=
             '<div class="lh-gate-line warn"><i class="fa-solid fa-ban"></i><span>' +
             "Bạn đã dùng hết <b>" + max + " lượt làm</b> của bài này (đã nộp " + used + " lần)." +
             "</span></div>";
+        } else if (after === 0) {
+          bodyHtml +=
+            '<div class="lh-gate-line"><i class="fa-solid fa-repeat"></i><span>' +
+            "Bài làm này có <b>" + max + " lượt làm</b>. Đây là <b>lượt " + currentNo + "/" + max +
+            "</b> — lượt làm cuối cùng của bạn." +
+            "</span></div>";
         } else {
           bodyHtml +=
             '<div class="lh-gate-line"><i class="fa-solid fa-repeat"></i><span>' +
             "Bài làm này có <b>" + max + " lượt làm</b>. Số lượt làm còn lại của bạn là <b>" +
-            remaining + "</b>." +
+            after + "</b> (lượt này là " + currentNo + "/" + max + ")." +
             "</span></div>";
         }
       }
