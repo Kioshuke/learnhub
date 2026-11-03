@@ -169,7 +169,7 @@
   </div>
 
 <script type="module">
-import { supabase, logAppError, escapeHtml, escapeUrl } from "../../scripts/core/supabase-config.js";
+import { supabase, logAppError, escapeHtml, escapeUrl, imageUrl } from "../../scripts/core/supabase-config.js";
 
 /* ====== SANITIZE HTML (chống XSS khi render nội dung bài viết) ====== */
 const ALLOWED_TAGS = new Set(["P","BR","H1","H2","H3","H4","STRONG","B","EM","I","U","S","STRIKE","UL","OL","LI","BLOCKQUOTE","A","IMG","HR","FIGURE","FIGCAPTION","SPAN","DIV","PRE","CODE","TABLE","THEAD","TBODY","TR","TD","TH"]);
@@ -283,7 +283,7 @@ function gradFor(p) {
   return GRADS[h % GRADS.length];
 }
 function coverStyle(p) {
-  const cover = escapeUrl(p.cover_url);
+  const cover = imageUrl(p.cover_url);
   return cover
     ? "background-image:url('" + escapeHtml(cover) + "')," + gradFor(p)
     : "background-image:" + gradFor(p);
@@ -409,13 +409,13 @@ async function fetchAuthorPhoto(authorId) {
     const { data, error } = await supabase.rpc("blog_authors");
     if (error) throw error;
     const row = (data || []).find(a => a && String(a.id) === String(authorId));
-    return row && row.photo ? (escapeUrl(row.photo) || "") : "";
+    return row && row.photo ? (imageUrl(row.photo) || "") : "";
   } catch (e) {
     console.warn("[bai-viet] RPC blog_authors lỗi, thử đọc trực tiếp public.users:", (e && e.message) || e);
   }
   try {
     const { data } = await supabase.from("users").select("id,photo").eq("id", authorId).maybeSingle();
-    return data && data.photo ? (escapeUrl(data.photo) || "") : "";
+    return data && data.photo ? (imageUrl(data.photo) || "") : "";
   } catch (e2) {}
   return "";
 }

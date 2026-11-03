@@ -178,7 +178,7 @@
   </main>
 
 <script type="module">
-import { supabase, logAppError, escapeHtml, escapeUrl } from "../../scripts/core/supabase-config.js";
+import { supabase, logAppError, escapeHtml, escapeUrl, imageUrl } from "../../scripts/core/supabase-config.js";
 
 /* ====== Tiện ích ====== */
 function initials(name) { return (String(name || "L").trim()[0] || "L").toUpperCase(); }
@@ -205,7 +205,7 @@ function gradFor(p) {
   return GRADS[h % GRADS.length];
 }
 function avatarHtml(name, photo) {
-  const url = escapeUrl(photo);
+  const url = imageUrl(photo);
   const img = url
     ? '<img class="blg-av-img" src="' + escapeHtml(url) + '" alt="" loading="lazy" onerror="this.remove()">'
     : "";
@@ -264,7 +264,7 @@ function filtered() {
 }
 
 function cardHtml(p, i) {
-  const cover = escapeUrl(p.cover_url);
+  const cover = imageUrl(p.cover_url);
   const grad = gradFor(p);
   const bg = cover
     ? "background-image:url('" + escapeHtml(cover) + "')," + grad

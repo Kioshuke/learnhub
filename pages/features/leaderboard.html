@@ -256,7 +256,7 @@
     </div>
 
     <script type="module">
-        import { supabase, createLearnHubClient, logAppError } from "../../scripts/core/supabase-config.js";
+        import { supabase, createLearnHubClient, logAppError, imageUrl } from "../../scripts/core/supabase-config.js";
         window.logAppError = logAppError;
         import { getWeekKey, getWeekStartMs, formatTimer } from "../../scripts/features/week-math.js";
 
@@ -288,14 +288,16 @@
 
         function ringAva(photo, name, size, ringCls) {
             const fs = Math.round(size * .38);
-            const inner = photo
-                ? `<img src="${esc(photo)}" style="width:${size}px;height:${size}px" alt="">`
+            const src = imageUrl(photo);
+            const inner = src
+                ? `<img src="${esc(src)}" style="width:${size}px;height:${size}px" alt="">`
                 : `<div class="ava-initial" style="width:${size}px;height:${size}px;font-size:${fs}px;display:flex;align-items:center;justify-content:center">${esc(name.charAt(0))}</div>`;
             return `<div class="ava-ring ${ringCls}"><div class="ava-inner">${inner}</div></div>`;
         }
 
         function rowAva(photo, name) {
-            if (photo) return `<img class="row-ava" src="${esc(photo)}" alt="">`;
+            const src = imageUrl(photo);
+            if (src) return `<img class="row-ava" src="${esc(src)}" alt="">`;
             return `<div class="row-ava-fb">${esc(name.charAt(0))}</div>`;
         }
 

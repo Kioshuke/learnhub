@@ -75,7 +75,7 @@
   <script src="../../scripts/features/subjects-data.js"></script>
 
   <script type="module">
-    import { supabase, getUserRow, escapeHtml, logAppError } from "../../scripts/core/supabase-config.js";
+    import { supabase, getUserRow, escapeHtml, imageUrl, logAppError } from "../../scripts/core/supabase-config.js";
     import { mountTaiLieuManage } from "../../scripts/admin/taileu-manage.js?v=6";
 
     // Liên kết menu shell (thêm key "docs").
@@ -133,12 +133,11 @@
       const displayName = (row && (row.name || row.email)) || "Giáo viên";
       const badge = document.getElementById("tcUserBadge");
       const avatar = row && (row.photo || row.avatar_url || row.picture);
+      const avatarSrc = imageUrl(avatar) || (/^data:image\//i.test(String(avatar || "")) ? String(avatar) : "");
       const initials = displayName.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
       let avatarHtml;
-      if (avatar && !/^https?:\/\//i.test(avatar) && !/^data:image/i.test(avatar)) {
-        avatarHtml = `<div class="tc-topbar-avatar">${initials}</div>`;
-      } else if (avatar) {
-        avatarHtml = `<img class="tc-topbar-avatar-img" src="${escapeHtml(avatar)}" alt="${escapeHtml(displayName)}">`;
+      if (avatarSrc) {
+        avatarHtml = `<img class="tc-topbar-avatar-img" src="${escapeHtml(avatarSrc)}" alt="${escapeHtml(displayName)}">`;
       } else {
         avatarHtml = `<div class="tc-topbar-avatar">${initials}</div>`;
       }

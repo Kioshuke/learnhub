@@ -635,6 +635,9 @@
                 <div>
                     <label class="lh-label">Đổi Avatar (URL Hình riêng)</label>
                     <input type="url" id="input-avatar" placeholder="https://example.com/photo.png" class="lh-input">
+                    <p class="text-[11px] mt-1 leading-snug" style="color:var(--text-sub)">
+                        Dán link ảnh trực tiếp, hoặc link chia sẻ Google Drive (nhớ để quyền <b>“Bất kỳ ai có liên kết”</b>).
+                    </p>
                 </div>
 
                 <div>
@@ -788,7 +791,7 @@
     </script>
 
     <script type="module">
-import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, finalizeOnlineSessionKeepalive, logAppError } from "../../scripts/core/supabase-config.js";
+import { supabase, onAuthChange, escapeHtml, escapeUrl, imageUrl, beginOnlineSession, finalizeOnlineSessionKeepalive, logAppError } from "../../scripts/core/supabase-config.js";
         window.logAppError = logAppError;
         import { getWeekKey, getWeekStartMs, formatTimer } from "../../scripts/features/week-math.js";
         import { loadTestAttempts } from "../../scripts/features/learnhub-stats.js";
@@ -865,7 +868,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 html += `
                     <div class="flex flex-col items-center text-center p-0.5 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer group" data-uid="${escapeHtml(u.id)}">
                         <div class="relative">
-                            <img src="${escapeUrl(u.photo) || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
+                            <img src="${imageUrl(u.photo) || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm group-hover:scale-105 transition-transform">
                             <span class="absolute bottom-0 right-0 w-2 h-2 ${statusColor} border border-white rounded-full ${statusPulse}"></span>
                         </div>
                         <span class="text-xs font-medium mt-1 text-gray-700 truncate w-full px-0.5">${escapeHtml(u.name) || 'User'}</span>
@@ -974,7 +977,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 html += `
                     <button type="button" data-uid="${escapeHtml(u.id)}" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white hover:shadow-sm transition-all text-left" style="border:none;background:transparent">
                         <div class="relative flex-shrink-0">
-                            <img src="${escapeUrl(u.photo) || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm object-cover">
+                            <img src="${imageUrl(u.photo) || 'https://lh3.googleusercontent.com/a/default-user=s40'}" class="w-10 h-10 rounded-full border border-white shadow-sm object-cover">
                             <span class="absolute bottom-0 right-0 w-2.5 h-2.5 ${statusColor} border-2 border-white rounded-full ${statusPulse}"></span>
                         </div>
                         <span class="text-sm font-semibold truncate" style="color:var(--text-main)">${escapeHtml(u.name) || 'User'}</span>
@@ -1413,7 +1416,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 if (data) {
                     document.getElementById('profile-name-display').innerText = data.name || "Người dùng";
                     document.getElementById('profile-email-display').innerText = data.email || "N/A";
-                    document.getElementById('profile-avatar-display').src = data.photo || "https://lh3.googleusercontent.com/a/default-user=s120-c";
+                    document.getElementById('profile-avatar-display').src = imageUrl(data.photo) || "https://lh3.googleusercontent.com/a/default-user=s120-c";
                     document.getElementById('profile-bio-display').innerText = data.bio ? `"${data.bio}"` : `"Chưa có tiểu sử"`;
                     document.getElementById('profile-phone-display').innerText = data.phone || "Chưa cập nhật";
                     document.getElementById('profile-birth-display').innerText = formatDate(data.birthdate);
@@ -1498,7 +1501,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
                 if (data) {
                     document.getElementById('profile-name-display').innerText = data.name || "Chưa cập nhật";
                     document.getElementById('profile-email-display').innerText = data.email || "";
-                    document.getElementById('profile-avatar-display').src = data.photo || "https://lh3.googleusercontent.com/a/default-user=s120-c";
+                    document.getElementById('profile-avatar-display').src = imageUrl(data.photo) || "https://lh3.googleusercontent.com/a/default-user=s120-c";
 
                     document.getElementById('profile-bio-display').innerText = data.bio ? `"${data.bio}"` : `"Chưa có tiểu sử"`;
                     document.getElementById('profile-phone-display').innerText = data.phone || "Chưa cập nhật";
@@ -1925,6 +1928,9 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, beginOnlineSession, fina
 
             const invalid = validateProfileInput(updatedProfile);
             if (invalid) return window.showToast(invalid, "error");
+
+            // Link Drive dạng chia sẻ không dùng làm <img src> được → lưu link render trực tiếp
+            updatedProfile.photo = imageUrl(updatedProfile.photo);
 
             supabase.from("users").update(updatedProfile).eq("id", currentUserId)
                 .then(() => {

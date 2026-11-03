@@ -1,5 +1,5 @@
 ﻿
-import { createLearnHubClient, logAppError, escapeHtml } from "../core/supabase-config.js";
+import { createLearnHubClient, logAppError, escapeHtml, imageUrl } from "../core/supabase-config.js";
 import { getWeekKey } from "../features/week-math.js";
 window.logAppError = logAppError;
 
@@ -256,7 +256,7 @@ function renderDirectory() {
   const start = (currentPage - 1) * PAGE_SIZE, paged = filtered.slice(start, start + PAGE_SIZE);
   if (!paged.length) { directoryTableBody.innerHTML = `<tr><td colspan="5"><div class="empty">${total ? "Trang này không có user." : "Chưa có người dùng nào khớp bộ lọc."}</div></td></tr>`; renderPagination(total, totalPages); return; }
   directoryTableBody.innerHTML = paged.map(i => {
-    const su = escapeHtml(i.uid), se = escapeHtml(i.email||""), sn = escapeHtml(i.name||i.email||"Chưa đặt tên"), sp = escapeHtml(i.photo||"https://i.imgur.com/6VBx3io.png");
+    const su = escapeHtml(i.uid), se = escapeHtml(i.email||""), sn = escapeHtml(i.name||i.email||"Chưa đặt tên"), sp = escapeHtml(imageUrl(i.photo)||"https://i.imgur.com/6VBx3io.png");
     const chips = [`<span class="dot-indicator ${i.whitelisted?'dot-green':'dot-red'}"></span>`, i.disabled?`<span class="chip red">Đã khóa</span>`:``, i.online?`<span class="chip green">Online</span>`:``].filter(Boolean).join("");
     const cr = i.role || "Thành viên";
     return `<tr>
@@ -298,7 +298,7 @@ function renderRenameList() {
   });
   if (!users.length) { renameListBody.innerHTML = `<div class="empty">Không tìm thấy user nào${kw ? " khớp bộ lọc" : ""}.</div>`; return; }
   renameListBody.innerHTML = users.map(i => {
-    const su = escapeHtml(i.uid), se = escapeHtml(i.email||""), sn = escapeHtml(i.name||i.email||""), sp = escapeHtml(i.photo||"https://i.imgur.com/6VBx3io.png");
+    const su = escapeHtml(i.uid), se = escapeHtml(i.email||""), sn = escapeHtml(i.name||i.email||""), sp = escapeHtml(imageUrl(i.photo)||"https://i.imgur.com/6VBx3io.png");
     return `<div class="rename-row">
       <img src="${sp}" alt="">
       <div class="rename-info"><div class="rename-name">${sn}</div><div class="rename-email">${se||"Chưa có email"}</div></div>

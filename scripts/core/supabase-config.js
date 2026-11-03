@@ -90,6 +90,16 @@ export function escapeUrl(u) {
   return "";
 }
 
+// URL ảnh: giống escapeUrl nhưng tự đổi link chia sẻ Google Drive sang link
+// render ảnh trực tiếp. Link /file/d/<id>/view?usp=sharing là trang HTML nên
+// <img src="..."> không hiển thị được (vỡ ảnh) — dùng .../thumbnail?id=<id>.
+export function imageUrl(u) {
+  const s = escapeUrl(u);
+  if (!s) return "";
+  const m = s.match(/^https?:\/\/(?:drive|docs)\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:[^#]*&(?:amp;)?)?id=)([^/?#&]+)/i);
+  return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1000` : s;
+}
+
 // ---------- MAINTENANCE ----------
 
 export async function getMaintenance() {
