@@ -1303,7 +1303,7 @@ function renderReview() {
    cauhoi/filetest.html đọc nội dung + cấu hình (minutes/score/shuffle_*) từ DB. */
 async function publishTest() {
   var b = $("btnPublish");
-  if (!b || b.disabled || !testData || !testData.length) return;
+  if (!b || b.disabled || b.dataset.done === "1" || !testData || !testData.length) return;
   if (!testMeta.name) { renderReview(); return; }
   var isEdit = Boolean(currentEditId);
   var isNewTest = !isEdit;
@@ -1403,7 +1403,11 @@ async function publishTest() {
       } catch (_copyError) {}
     }
     if (rn) rn.hidden = true;
-    b.disabled = false;
+    /* Đã xuất bản/lưu xong → khoá nút luôn để không bắn thêm request lên DB.
+       Muốn sửa tiếp thì bấm "← Sửa lại đề" (renderReview sẽ tạo lại nút mới). */
+    b.disabled = true;
+    b.dataset.done = "1";
+    b.title = "Đề đã xuất bản — bấm “← Sửa lại đề” nếu muốn chỉnh sửa rồi cập nhật lại.";
     b.innerHTML = currentEditId ? '<i class="fa-solid fa-floppy-disk"></i> Đã lưu ✓' : '<i class="fa-solid fa-rocket"></i> Đã xuất bản ✓';
     b.style.opacity = ".55";
     if (typeof mod.logAppError === "function") {
