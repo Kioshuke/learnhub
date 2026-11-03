@@ -1,8 +1,14 @@
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "../scripts/core/supabase-public-config.js";
 
+// Link chia sẻ bài test: /?open=phong-hoc&de=t:<uuid>
 const TEST_DE_UUID = /^t:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+// Link chia sẻ bộ flashcard: /?open=flash&set=<uuid>
+const FLASH_SET_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-function trimDescription(value, maxLength = 160) {
+const SHARE_IMAGE = "/assets/images/df252f57-2143-45f1-9d3c-250c76491de6.jfif";
+const DESCRIPTION_MAX = 160;
+
+function trimDescription(value, maxLength = DESCRIPTION_MAX) {
   const chars = Array.from(String(value || "").trim());
   if (maxLength <= 0) return "";
   if (chars.length <= maxLength) return chars.join("");
@@ -13,37 +19,19 @@ function stripTags(v) {
   return String(v || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
-export async function onRequestGet(context) {
-  const requestUrl = new URL(context.request.url);
-  const de = requestUrl.searchParams.get("de") || "";
-  if (requestUrl.searchParams.get("open") !== "phong-hoc" || !TEST_DE_UUID.test(de)) {
-    return context.next();
-  }
+/* "N câu · 45 phút · <mô tả>" — giữ mô tả trong giới hạn 160 ký tự. */
+function composeDescription(statsText, rawDescription, fallback) {
+  const text = stripTags(rawDescription);
+  if (!text) return statsText || fallback;
+  if (!statsText) return trimDescription(text);
+  const separator = " · ";
+  const budget = Math.max(0, DESCRIPTION_MAX - Array.from(statsText).length - Array.from(separator).length);
+  const trimmed = trimDescription(text, budget);
+  return trimmed ? `${statsText}${separator}${trimmed}` : statsText;
+}
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 1500);
-  let meta;
-  try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_test_meta`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: SUPABASE_PUBLISHABLE_KEY,
-        Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`
-      },
-      body: JSON.stringify({ p_de: de }),
-      signal: controller.signal
-    });
-    if (!response.ok) return context.next();
-    meta = await response.json();
-    if (!meta || meta.ok !== true) return context.next();
-  } catch (_error) {
-    return context.next();
-  } finally {
-    clearTimeout(timeoutId);
-  }
-
-  const title = `${String(meta.name || "Bài kiểm tra")} - LearnHub Test`;
+function buildTestCopy(meta) {
+  const title = `${String(meta.name || "Bài kiểm tra").trim()} - LearnHub Test`;
   const subject = stripTags(meta.subject);
   const questionCount = Number(meta.question_count) || 0;
   const minutes = Number(meta.minutes) || 0;
@@ -51,40 +39,81 @@ export async function onRequestGet(context) {
     questionCount > 0 ? `${questionCount} câu` : "",
     minutes > 0 ? `${minutes} phút` : ""
   ].filter(Boolean);
-  const testDescription = stripTags(meta.description);
   const statsText = stats.join(" · ");
-  let description;
-  if (testDescription) {
-    if (!statsText) {
-      description = trimDescription(testDescription);
-    } else {
-      const separator = " · ";
-      const descriptionBudget = Math.max(
-        0,
-        160 - Array.from(statsText).length - Array.from(separator).length
-      );
-      const trimmedTestDescription = trimDescription(testDescription, descriptionBudget);
-      description = trimmedTestDescription
-        ? `${statsText}${separator}${trimmedTestDescription}`
-        : statsText;
-    }
-  } else {
-    const fallbackParts = [...stats, subject ? `Môn ${subject}` : ""];
-    description = fallbackParts.some(Boolean)
-      ? fallbackParts.filter(Boolean).join(" · ")
-      : "Bài kiểm tra - LearnHub";
+  const fallback = [...stats, subject ? `Môn ${subject}` : ""].filter(Boolean).join(" · ") || "Bài kiểm tra - LearnHub";
+  return { title, description: composeDescription(statsText, meta.description, fallback) };
+}
+
+/* Tiêu đề + số từ + mô tả của bộ thẻ, giống cách link bài test hiển thị. */
+function buildFlashcardCopy(meta) {
+  const title = `${String(meta.name || "Bộ thẻ").trim()} - LearnHub Flashcard`;
+  const cardCount = Number(meta.card_count) || 0;
+  const category = stripTags(meta.category);
+  const stats = [
+    cardCount > 0 ? `${cardCount} từ` : "",
+    category ? `Chủ đề ${category}` : ""
+  ].filter(Boolean);
+  const statsText = stats.join(" · ");
+  return { title, description: composeDescription(statsText, meta.description, statsText || "Bộ thẻ - LearnHub") };
+}
+
+/* Gọi RPC Supabase (anon key) để lấy meta công khai; lỗi/timeout -> null. */
+async function fetchMeta(rpcName, body) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 1500);
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${rpcName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_PUBLISHABLE_KEY,
+        Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal
+    });
+    if (!response.ok) return null;
+    const meta = await response.json();
+    return meta && meta.ok === true ? meta : null;
+  } catch (_error) {
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
   }
+}
+
+export async function onRequestGet(context) {
+  const requestUrl = new URL(context.request.url);
+  const open = requestUrl.searchParams.get("open") || "";
+  const de = requestUrl.searchParams.get("de") || "";
+  const set = requestUrl.searchParams.get("set") || "";
+
+  let copy;
+  if (open === "phong-hoc" && TEST_DE_UUID.test(de)) {
+    const meta = await fetchMeta("get_test_meta", { p_de: de });
+    if (!meta) return context.next();
+    copy = buildTestCopy(meta);
+  } else if (open === "flash" && FLASH_SET_UUID.test(set)) {
+    const meta = await fetchMeta("get_flashcard_meta", { p_set: set });
+    if (!meta) return context.next();
+    copy = buildFlashcardCopy(meta);
+  } else {
+    return context.next();
+  }
+
+  const { title, description } = copy;
+  const image = `${requestUrl.origin}${SHARE_IMAGE}`;
 
   const metaTags = {
     "og:title": { attribute: "property", value: title },
     "og:description": { attribute: "property", value: description },
-    "og:image": { attribute: "property", value: `${requestUrl.origin}/assets/images/df252f57-2143-45f1-9d3c-250c76491de6.jfif` },
+    "og:image": { attribute: "property", value: image },
     "og:url": { attribute: "property", value: requestUrl.href },
     "og:type": { attribute: "property", value: "website" },
     description: { attribute: "name", value: description },
     "twitter:title": { attribute: "name", value: title },
     "twitter:description": { attribute: "name", value: description },
-    "twitter:image": { attribute: "name", value: `${requestUrl.origin}/assets/images/df252f57-2143-45f1-9d3c-250c76491de6.jfif` }
+    "twitter:image": { attribute: "name", value: image }
   };
   const tags = {
     title,
