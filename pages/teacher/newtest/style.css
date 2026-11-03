@@ -298,6 +298,11 @@ body.stage3 #p3 .panel-head{margin-bottom:10px}
 .rev-meta-hd{font-size:13px;font-weight:800;color:var(--text);padding:11px 15px 8px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#f8fafc,#f1f5f9)}
 .rev-actions{display:flex;gap:9px}
 .rev-actions .btn{flex:1;justify-content:center}
+
+/* Nút hành động nằm CÙNG HÀNG với tiêu đề + mô tả ở bước 4 */
+#p4 .panel-head{align-items:center}
+.rev-head-actions{display:flex;gap:9px;margin-left:auto;flex-wrap:wrap}
+.rev-head-actions .btn{flex:0 0 auto;white-space:nowrap}
 .rev-meta{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;box-shadow:var(--shadow-md)}
 .rev-meta-row{display:grid;grid-template-columns:132px 1fr;gap:10px;align-items:baseline;padding:10px 15px;border-bottom:1px solid #f1f5f9;font-size:13.5px}
 .rev-meta-row:last-child{border-bottom:none}
@@ -367,6 +372,8 @@ body.stage3 #p3 .panel-head{margin-bottom:10px}
   .col textarea{flex:none;min-height:220px;resize:vertical}
   .render-area{max-height:60vh}
   .rev-split{grid-template-columns:1fr}
+  .rev-head-actions{margin-left:0;width:100%}
+  .rev-head-actions .btn{flex:1 1 auto;justify-content:center}
   .rev-right{position:static}
   .publish-result{grid-template-columns:1fr}
   .publish-result-actions{grid-column:auto}

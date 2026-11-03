@@ -1175,6 +1175,8 @@ function textOf(x) {
 
 function renderReview() {
   var area = $("revArea");
+  var headActions = $("revHeadActions");
+  if (headActions) headActions.innerHTML = "";
   if (!testData || !testData.length) {
     area.innerHTML = '<div class="placeholder">Chưa có đề để rà soát.</div>';
     return;
@@ -1268,11 +1270,14 @@ function renderReview() {
       "</b></span></div>" +
       '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-folder-open" style="color:#065f46"></i> Thống kê</span><span class="rev-v">' + qn + " câu - " + nSec + " phần</span></div>" +
     "</div>" +
-    '<div class="note" id="revNote" hidden></div>' +
-    '<div class="rev-actions">' +
+    '<div class="note" id="revNote" hidden></div>';
+
+  /* Nút "Sửa lại đề" + "Xuất bản/Cập nhật đề" đặt trên hàng tiêu đề (bước 4) */
+  if (headActions) {
+    headActions.innerHTML =
       '<button type="button" class="btn btn-ghost" id="btnRevBack">← Sửa lại đề</button>' +
-      '<button type="button" class="btn btn-success" id="btnPublish">' + (currentEditId ? '<i class="fa-solid fa-floppy-disk"></i> Cập nhật đề' : '<i class="fa-solid fa-rocket"></i> Xuất bản đề') + '</button>' +
-    "</div>";
+      '<button type="button" class="btn btn-success" id="btnPublish">' + (currentEditId ? '<i class="fa-solid fa-floppy-disk"></i> Cập nhật đề' : '<i class="fa-solid fa-rocket"></i> Xuất bản đề') + "</button>";
+  }
 
   area.innerHTML = '<div class="rev-split"><div class="rev-left" id="revLeft">' + left + "</div>" +
     '<div class="rev-right">' + right + "</div></div>";
