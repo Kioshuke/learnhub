@@ -107,6 +107,7 @@ function showStage(n) {
   if (setupBtn) setupBtn.hidden = n !== 2;   // "Tiếp tục" chỉ hiện ở màn 2
   document.body.classList.toggle("stage2", n === 2);
   document.body.classList.toggle("stage3", n === 3);
+  document.body.classList.toggle("stage4", n === 4);
   updateSteps(n);
   if (n !== 1) {
     /* Cuộn về đầu trang để header dính trên, khung màn 2/3/4 không bị che */
