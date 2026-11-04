@@ -1076,9 +1076,10 @@
       <span class="auth-field-error" id="registerPasswordError"></span>
       <span class="auth-caps-hint" id="capsHintReg">Caps Lock đang bật — mật khẩu sẽ viết HOA</span>
 
-      <div class="auth-input-group">
+      <div class="auth-input-group has-eye">
         <input type="password" id="registerConfirmPassword" required autocomplete="new-password" placeholder=" " aria-describedby="registerConfirmPasswordHint">
         <label>Nhập lại mật khẩu <span class="req-star">*</span></label>
+        <button type="button" class="auth-eye-btn" onclick="togglePassword('registerConfirmPassword', this)" tabindex="-1" aria-label="Hiện/ẩn mật khẩu"><i class="fa-solid fa-eye"></i></button>
         <span class="lhreg-ok" aria-hidden="true"></span>
       </div>
       <div class="lhreg-hint" id="registerConfirmPasswordHint"><div><span></span></div></div>
