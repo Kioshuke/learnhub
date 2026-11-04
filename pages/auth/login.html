@@ -2575,7 +2575,7 @@ if ("serviceWorker" in navigator) {
   var RULES = [
     { id: "loginEmail", short: "Email", check: function (v) {
         if (!v.trim()) return "Vui lòng nhập email";
-        if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(v.trim())) return "Email không hợp lệ";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())) return "Email không hợp lệ";
         return "";
       } },
     { id: "loginPassword", short: "Mật khẩu", check: function (v) {
@@ -2734,6 +2734,7 @@ if ("serviceWorker" in navigator) {
     }
     new MutationObserver(sync).observe(legacy, { childList: true, characterData: true, subtree: true });
   });
+
 
   state(false);
 })();
