@@ -2350,7 +2350,8 @@ if ("serviceWorker" in navigator) {
   var terms = document.getElementById("registerTerms");
   var termsWrap = terms ? terms.closest(".auth-terms") : null;
   var rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var tried = false;
+  var tried = false;   /* đã bấm Đăng ký lần nào chưa */
+  var listed = [];     /* các ô đang/đã từng nằm trong hộp tổng hợp */
 
   var RULES = [
     { id: "registerName", short: "Tên hiển thị", check: function (v) {
@@ -2386,6 +2387,7 @@ if ("serviceWorker" in navigator) {
       group: input.closest(".auth-input-group"),
       hint: document.getElementById(r.id + "Hint"),
       msg: "",
+      touched: false,
       check: function () { return r.check(input.value); }
     });
   });
@@ -2396,13 +2398,15 @@ if ("serviceWorker" in navigator) {
       input: terms,
       group: termsWrap,
       msg: "",
+      touched: false,
       check: function () {
         return terms.checked ? "" : "Bạn cần đồng ý với Điều khoản sử dụng và Chính sách bảo mật";
       }
     });
   }
 
-  function state() {
+  /* withSummary: chỉ cập nhật hộp tổng hợp khi đã bấm Đăng ký (hoặc sau đó sửa tiếp). */
+  function state(withSummary) {
     var bad = [];
     entries.forEach(function (e, i) {
       var m = e.check();
@@ -2412,24 +2416,35 @@ if ("serviceWorker" in navigator) {
 
     entries.forEach(function (e, i) {
       var wrong = bad.indexOf(i) >= 0;
-      e.input.setAttribute("aria-invalid", wrong ? "true" : "false");
-      e.group.classList.toggle("is-bad", wrong);
+      /* Chưa rời ô và chưa bấm Đăng ký thì chưa báo đỏ, chỉ hiện tick khi đã đúng. */
+      var show = wrong && (tried || e.touched);
+      e.input.setAttribute("aria-invalid", show ? "true" : "false");
+      e.group.classList.toggle("is-bad", show);
       if (e.terms) return;
 
       e.group.classList.toggle("is-good", !wrong && e.input.value.length > 0);
       if (e.hint) {
-        e.hint.classList.toggle("is-on", wrong);
+        e.hint.classList.toggle("is-on", show);
         var slot = e.hint.querySelector("span");
-        if (wrong && slot) slot.textContent = e.msg;
+        if (show && slot) slot.textContent = e.msg;
       }
       /* Không hiện 2 thông báo cho cùng một ô (legacy span nhường cho hint mới). */
-      if (wrong) {
+      if (show) {
         var legacy = document.getElementById(e.input.id + "Error");
         if (legacy) { legacy.textContent = ""; legacy.style.display = "none"; }
         e.input.style.borderColor = "";
       }
     });
 
+    if (withSummary && tried) renderSummary(bad);
+    return bad;
+  }
+
+  /* Hộp tổng hợp: giữ các ô từng lỗi (gạch ngang khi đã sửa), thêm lại nếu lỗi tiếp. */
+  function renderSummary(bad) {
+    bad.forEach(function (i) { if (listed.indexOf(i) < 0) listed.push(i); });
+    listed.sort(function (a, b) { return a - b; });
+    buildList(listed);
     if (ul) {
       Array.prototype.forEach.call(ul.children, function (li) {
         li.classList.toggle("is-fixed", bad.indexOf(+li.dataset.i) < 0);
@@ -2437,7 +2452,6 @@ if ("serviceWorker" in navigator) {
     }
     if (ct) ct.textContent = bad.length + " trường cần chú ý";
     root.classList.toggle("is-err", bad.length > 0);
-    return bad;
   }
 
   function buildList(bad) {
@@ -2492,12 +2506,12 @@ if ("serviceWorker" in navigator) {
     if (ev && ev.preventDefault) ev.preventDefault();
     if (go && go.disabled) return;
     tried = true;
-    var bad = state();
+    listed = [];
+    var bad = state(true);
     if (!bad.length) {
       if (typeof window.emailRegister === "function") window.emailRegister();
       return;
     }
-    buildList(bad);
     bad.forEach(function (i) { shake(entries[i].group); });
     var first = entries[bad[0]];
     setTimeout(function () {
@@ -2509,12 +2523,16 @@ if ("serviceWorker" in navigator) {
 
   entries.forEach(function (e) {
     if (e.terms) {
-      e.input.addEventListener("change", function () { if (tried) state(); });
+      e.input.addEventListener("change", function () { e.touched = true; state(tried); });
     } else {
-      e.input.addEventListener("input", function () { if (tried) state(); });
-      e.input.addEventListener("blur", function () { if (tried) state(); });
+      /* Tick xanh hiện ngay khi giá trị đã đúng; đỏ/hint hiện sau khi rời ô. */
+      e.input.addEventListener("input", function () { state(tried); });
+      e.input.addEventListener("blur", function () { e.touched = true; state(tried); });
     }
   });
+
+  /* Phản ánh giá trị có sẵn (autofill) mà không báo đỏ. */
+  state(false);
 })();
 </script>
 </body>
