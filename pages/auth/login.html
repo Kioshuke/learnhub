@@ -151,6 +151,9 @@
     z-index:2;
   }
   .auth-eye-btn:hover{color:#2563eb}
+  /* Ẩn nút hiện/ẩn mật khẩu mặc định của Edge để không bị 2 nút chồng nhau */
+  #loginBox .auth-input-group input[type="password"]::-ms-reveal,
+  #loginBox .auth-input-group input[type="password"]::-ms-clear{display:none;width:0;height:0}
   #loginBox .auth-input-group input[type="password"]{padding-right:52px}
   .auth-field-error{display:none;font-size:12px;color:#ef4444;margin:-6px 0 10px 4px;font-weight:600}
   .auth-caps-hint{display:none;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:#d97706;margin:-6px 0 10px 4px}
@@ -1073,10 +1076,9 @@
       <span class="auth-field-error" id="registerPasswordError"></span>
       <span class="auth-caps-hint" id="capsHintReg">Caps Lock đang bật — mật khẩu sẽ viết HOA</span>
 
-      <div class="auth-input-group has-eye">
+      <div class="auth-input-group">
         <input type="password" id="registerConfirmPassword" required autocomplete="new-password" placeholder=" " aria-describedby="registerConfirmPasswordHint">
         <label>Nhập lại mật khẩu <span class="req-star">*</span></label>
-        <button type="button" class="auth-eye-btn" onclick="togglePassword('registerConfirmPassword', this)" tabindex="-1" aria-label="Hiện/ẩn mật khẩu"><i class="fa-solid fa-eye"></i></button>
         <span class="lhreg-ok" aria-hidden="true"></span>
       </div>
       <div class="lhreg-hint" id="registerConfirmPasswordHint"><div><span></span></div></div>
