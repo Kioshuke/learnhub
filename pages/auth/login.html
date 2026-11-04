@@ -831,8 +831,8 @@
 </style>
 <!-- Lucian UX/UI Prompt #244 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#244 -->
 <style>
-  /* ===== FORM ĐĂNG KÝ: TỔNG HỢP LỖI + RUNG + CUỘN TỚI Ô SAI =====
-     Toàn bộ style nằm trong .lhreg / .lhreg-scroll để không đụng CSS global. */
+  /* ===== FORM ĐĂNG NHẬP + ĐĂNG KÝ: TỔNG HỢP LỖI + RUNG + CUỘN TỚI Ô SAI =====
+     Toàn bộ style nằm trong .lhreg / .lhreg-scroll / .lhlog-scroll để không đụng CSS global. */
   #loginBox .lhreg{
     /* map từ --ux-* của prompt sang bảng màu sẵn có của LearnHub */
     --lh-danger:#ef4444;          /* --ux-danger */
@@ -853,6 +853,15 @@
   }
   @media (max-width:900px){
     #loginBox .auth-right-form.lhreg-scroll{overflow:visible}
+  }
+
+  /* Cột đăng nhập cũng thành vùng cuộn khi cửa sổ thấp; mobile giữ nguyên
+     cơ chế cuộn của .auth-shell nên không đụng tới. */
+  @media (min-width:901px){
+    #loginBox .auth-left.lhlog-scroll{
+      overflow-y:auto;overscroll-behavior:contain;
+      justify-content:flex-start;justify-content:safe center;
+    }
   }
 
   /* --- Bảng tổng hợp lỗi (unfold) --- */
@@ -917,7 +926,7 @@
 <div class="auth-shell" id="authShell">
 
   <!-- FORM BÊN TRÁI: ĐĂNG NHẬP (CỐ ĐỊNH) -->
-  <div class="auth-left" id="loginFormContainer">
+  <div class="auth-left lhlog-scroll" id="loginFormContainer">
     <!-- Mobile Slideshow -->
     <div class="auth-mobile-showcase">
       <div class="auth-mobile-slide active">
@@ -956,18 +965,32 @@
     <div class="auth-title auth-anim-item">Chào mừng trở lại!</div>
 
     <div id="authLoginPanel" class="auth-panel auth-anim-item">
-      <form onsubmit="event.preventDefault();emailLogin()">
-      <div class="auth-input-group">
-        <input type="email" id="loginEmail" required autocomplete="email">
-        <label>Email <span class="req-star">*</span></label>
+      <!-- Lucian UX/UI Prompt #244 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#244 -->
+      <form class="lhreg" id="loginForm" novalidate onsubmit="event.preventDefault();lhlogSubmit(event)">
+      <div class="lhreg-sm" role="alert" aria-live="assertive">
+        <div>
+          <div class="lhreg-sb">
+            <b><i aria-hidden="true">!</i><span class="lhreg-ct"></span></b>
+            <ul></ul>
+          </div>
+        </div>
       </div>
-      <span class="auth-field-error" id="loginEmailError"></span>
 
       <div class="auth-input-group">
-        <input type="password" id="loginPassword" required autocomplete="current-password">
+        <input type="email" id="loginEmail" required autocomplete="email" placeholder=" " aria-describedby="loginEmailHint">
+        <label>Email <span class="req-star">*</span></label>
+        <span class="lhreg-ok" aria-hidden="true"></span>
+      </div>
+      <div class="lhreg-hint" id="loginEmailHint"><div><span></span></div></div>
+      <span class="auth-field-error" id="loginEmailError"></span>
+
+      <div class="auth-input-group has-eye">
+        <input type="password" id="loginPassword" required autocomplete="current-password" placeholder=" " aria-describedby="loginPasswordHint">
         <label>Mật khẩu <span class="req-star">*</span></label>
         <button type="button" class="auth-eye-btn" onclick="togglePassword('loginPassword', this)" tabindex="-1" aria-label="Hiện/ẩn mật khẩu"><i class="fa-solid fa-eye"></i></button>
+        <span class="lhreg-ok" aria-hidden="true"></span>
       </div>
+      <div class="lhreg-hint" id="loginPasswordHint"><div><span></span></div></div>
       <span class="auth-field-error" id="loginPasswordError"></span>
       <span class="auth-caps-hint" id="capsHintLogin">Caps Lock đang bật — mật khẩu sẽ viết HOA</span>
 
@@ -2532,6 +2555,186 @@ if ("serviceWorker" in navigator) {
   });
 
   /* Phản ánh giá trị có sẵn (autofill) mà không báo đỏ. */
+  state(false);
+})();
+
+/* Lucian UX/UI Prompt #244 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#244 */
+/* Form đăng nhập: tổng hợp lỗi 2 trường, cùng cơ chế live tick/đỏ như đăng ký. */
+(function () {
+  var root = document.getElementById("loginForm");
+  if (!root) return;
+
+  var sc = document.getElementById("loginFormContainer");
+  var ul = root.querySelector(".lhreg-sb ul");
+  var ct = root.querySelector(".lhreg-ct");
+  var go = document.getElementById("loginSubmitBtn");
+  var rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var tried = false;
+  var listed = [];
+
+  var RULES = [
+    { id: "loginEmail", short: "Email", check: function (v) {
+        if (!v.trim()) return "Vui lòng nhập email";
+        if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(v.trim())) return "Email không hợp lệ";
+        return "";
+      } },
+    { id: "loginPassword", short: "Mật khẩu", check: function (v) {
+        if (!v) return "Vui lòng nhập mật khẩu";
+        return "";
+      } }
+  ];
+
+  var entries = [];
+  RULES.forEach(function (r) {
+    var input = document.getElementById(r.id);
+    if (!input) return;
+    entries.push({
+      short: r.short,
+      input: input,
+      group: input.closest(".auth-input-group"),
+      hint: document.getElementById(r.id + "Hint"),
+      msg: "",
+      touched: false,
+      check: function () { return r.check(input.value); }
+    });
+  });
+
+  function state(withSummary) {
+    var bad = [];
+    entries.forEach(function (e, i) {
+      var m = e.check();
+      e.msg = m;
+      if (m) bad.push(i);
+    });
+
+    entries.forEach(function (e, i) {
+      var wrong = bad.indexOf(i) >= 0;
+      var show = wrong && (tried || e.touched);
+      e.input.setAttribute("aria-invalid", show ? "true" : "false");
+      e.group.classList.toggle("is-bad", show);
+      if (e.terms) return;
+
+      e.group.classList.toggle("is-good", !wrong && e.input.value.length > 0);
+      if (e.hint) {
+        e.hint.classList.toggle("is-on", show);
+        var slot = e.hint.querySelector("span");
+        if (show && slot) slot.textContent = e.msg;
+      }
+      if (show) {
+        var legacy = document.getElementById(e.input.id + "Error");
+        if (legacy) { legacy.textContent = ""; legacy.style.display = "none"; }
+        e.input.style.borderColor = "";
+      }
+    });
+
+    if (withSummary && tried) renderSummary(bad);
+    return bad;
+  }
+
+  function renderSummary(bad) {
+    bad.forEach(function (i) { if (listed.indexOf(i) < 0) listed.push(i); });
+    listed.sort(function (a, b) { return a - b; });
+    buildList(listed);
+    if (ul) {
+      Array.prototype.forEach.call(ul.children, function (li) {
+        li.classList.toggle("is-fixed", bad.indexOf(+li.dataset.i) < 0);
+      });
+    }
+    if (ct) ct.textContent = bad.length + " trường cần chú ý";
+    root.classList.toggle("is-err", bad.length > 0);
+  }
+
+  function buildList(bad) {
+    if (!ul) return;
+    ul.innerHTML = "";
+    bad.forEach(function (i) {
+      var e = entries[i];
+      var li = document.createElement("li");
+      li.dataset.i = i;
+      var a = document.createElement("a");
+      a.href = "#";
+      a.textContent = e.short;
+      a.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        goTo(e.group, function () {
+          try { e.input.focus({ preventScroll: true }); } catch (_) { e.input.focus(); }
+        });
+      });
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+  }
+
+  function goTo(el, done) {
+    if (!el) { if (done) done(); return; }
+    var box = (sc && sc.scrollHeight - sc.clientHeight > 4) ? sc : null;
+    var isWin = !box;
+    var y0 = isWin ? (window.pageYOffset || document.documentElement.scrollTop) : box.scrollTop;
+    var base = isWin ? 0 : box.getBoundingClientRect().top;
+    var y = Math.max(0, y0 + (el.getBoundingClientRect().top - base) - 70);
+    var ms = rm ? 0 : 520;
+    var t0 = performance.now();
+    (function frame(now) {
+      var k = ms ? Math.min(1, (now - t0) / ms) : 1;
+      var e = 1 - Math.pow(1 - k, 3);
+      var v = y0 + (y - y0) * e;
+      if (isWin) window.scrollTo(0, v); else box.scrollTop = v;
+      if (k < 1) requestAnimationFrame(frame);
+      else if (done) done();
+    })(t0);
+  }
+
+  function shake(el) {
+    if (!el) return;
+    el.classList.remove("is-shake");
+    void el.offsetWidth;
+    el.classList.add("is-shake");
+  }
+
+  window.lhlogSubmit = function (ev) {
+    if (ev && ev.preventDefault) ev.preventDefault();
+    if (go && go.disabled) return;
+    tried = true;
+    listed = [];
+    var bad = state(true);
+    if (!bad.length) {
+      if (typeof window.emailLogin === "function") window.emailLogin();
+      return;
+    }
+    bad.forEach(function (i) { shake(entries[i].group); });
+    var first = entries[bad[0]];
+    setTimeout(function () {
+      goTo(first.group, function () {
+        try { first.input.focus({ preventScroll: true }); } catch (_) { first.input.focus(); }
+      });
+    }, rm ? 0 : 200);
+  };
+
+  entries.forEach(function (e) {
+    e.input.addEventListener("input", function () { state(tried); });
+    e.input.addEventListener("blur", function () { e.touched = true; state(tried); });
+  });
+
+  /* Đồng bộ lỗi từ server (emailLogin) vào hint để không chồng 2 thông báo. */
+  entries.forEach(function (e) {
+    var legacy = document.getElementById(e.input.id + "Error");
+    if (!legacy) return;
+    function sync() {
+      var msg = (legacy.textContent || "").trim();
+      if (!msg) return;
+      legacy.style.display = "none";
+      e.group.classList.add("is-bad");
+      e.group.classList.remove("is-good");
+      e.input.setAttribute("aria-invalid", "true");
+      if (e.hint) {
+        e.hint.classList.add("is-on");
+        var slot = e.hint.querySelector("span");
+        if (slot) slot.textContent = msg;
+      }
+    }
+    new MutationObserver(sync).observe(legacy, { childList: true, characterData: true, subtree: true });
+  });
+
   state(false);
 })();
 </script>
