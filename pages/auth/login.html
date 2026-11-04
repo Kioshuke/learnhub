@@ -826,6 +826,81 @@
     .auth-below-ripple{display:none}
   }
 </style>
+<!-- Lucian UX/UI Prompt #244 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#244 -->
+<style>
+  /* ===== FORM ĐĂNG KÝ: TỔNG HỢP LỖI + RUNG + CUỘN TỚI Ô SAI =====
+     Toàn bộ style nằm trong .lhreg / .lhreg-scroll để không đụng CSS global. */
+  #loginBox .lhreg{
+    /* map từ --ux-* của prompt sang bảng màu sẵn có của LearnHub */
+    --lh-danger:#ef4444;          /* --ux-danger */
+    --lh-danger-deep:#be123c;     /* --ux-danger (chữ) */
+    --lh-danger-ring:color-mix(in srgb,#ef4444 30%,transparent);   /* --ux-line-2 */
+    --lh-danger-bg:color-mix(in srgb,#ef4444 10%,transparent);     /* --ux-accent-soft */
+    --lh-mint:#10b981;            /* --ux-mint */
+    --lh-line:#e2e8f0;            /* --ux-line */
+    --lh-ease:cubic-bezier(.3,1,.4,1);
+    --lh-spring:cubic-bezier(.3,1.7,.5,1);
+  }
+
+  /* Cột đăng ký thành vùng cuộn để "trượt" tới ô sai; vẫn căn giữa khi đủ chỗ.
+     "safe center" = căn giữa nếu vừa, tự về đầu nếu tràn (tránh cắt mất nội dung). */
+  #loginBox .auth-right-form.lhreg-scroll{
+    overflow-y:auto;overscroll-behavior:contain;
+    justify-content:flex-start;justify-content:safe center;
+  }
+  @media (max-width:900px){
+    #loginBox .auth-right-form.lhreg-scroll{overflow:visible}
+  }
+
+  /* --- Bảng tổng hợp lỗi (unfold) --- */
+  #loginBox .lhreg .lhreg-sm{display:grid;grid-template-rows:0fr;margin:0;transition:grid-template-rows .4s var(--lh-ease),margin .4s}
+  #loginBox .lhreg .lhreg-sm>div{min-height:0;overflow:hidden}
+  #loginBox .lhreg.is-err .lhreg-sm{grid-template-rows:1fr;margin:14px 0 14px}
+  #loginBox .lhreg .lhreg-sb{padding:11px 13px;border-radius:13px;background:var(--lh-danger-bg);box-shadow:inset 0 0 0 1px var(--lh-danger-ring)}
+  #loginBox .lhreg .lhreg-sb b{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:var(--lh-danger-deep)}
+  #loginBox .lhreg .lhreg-sb b i{flex:none;width:16px;height:16px;border-radius:50%;background:var(--lh-danger);color:#fff;font-style:normal;font-size:10px;font-weight:900;display:grid;place-items:center}
+  #loginBox .lhreg .lhreg-sb ul{margin:6px 0 0;padding:0 0 0 22px;font-size:11px;font-weight:700}
+  #loginBox .lhreg .lhreg-sb li{margin-top:2px;transition:opacity .25s}
+  #loginBox .lhreg .lhreg-sb li.is-fixed{opacity:.4;text-decoration:line-through}
+  #loginBox .lhreg .lhreg-sb a{color:var(--lh-danger-deep);text-underline-offset:2px;cursor:pointer}
+
+  /* --- Nhãn nổi khi ô đã có nội dung (kể cả giá trị chưa hợp lệ, lúc đã blur) --- */
+  #loginBox .lhreg .auth-input-group input:not(:placeholder-shown) + label{
+    top:-8px;font-size:12px;color:#2563eb;background:#fff;padding:0 4px;border-radius:4px;
+  }
+  #loginBox .lhreg .auth-input-group.is-bad input:not(:placeholder-shown) + label{color:var(--lh-danger-deep)}
+
+  /* --- Trạng thái ô nhập --- */
+  #loginBox .lhreg .auth-input-group.is-bad input,
+  #loginBox .lhreg .auth-input-group.is-bad input:focus{border-color:var(--lh-danger)!important;box-shadow:0 0 0 4px rgba(239,68,68,.12)!important}
+  #loginBox .lhreg .auth-input-group.is-good input{border-color:color-mix(in srgb,#10b981 60%,transparent)}
+  #loginBox .lhreg .auth-input-group.is-shake{animation:lhreg-sh .4s}
+  @keyframes lhreg-sh{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+
+  /* --- Dấu check khi đã sửa đúng --- */
+  #loginBox .lhreg .lhreg-ok{position:absolute;right:12px;top:50%;width:20px;height:20px;border-radius:50%;background:var(--lh-mint);transform:translateY(-50%) scale(0);transition:transform .35s var(--lh-spring);pointer-events:none;z-index:2}
+  #loginBox .lhreg .lhreg-ok::after{content:"";position:absolute;left:7px;top:4px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  #loginBox .lhreg .auth-input-group.is-good .lhreg-ok{transform:translateY(-50%) scale(1)}
+  #loginBox .lhreg .auth-input-group.has-eye .lhreg-ok{right:46px}
+
+  /* --- Gợi ý lỗi của từng ô (unfold) --- */
+  #loginBox .lhreg .lhreg-hint{display:grid;grid-template-rows:0fr;margin:0 0 0 4px;transition:grid-template-rows .3s var(--lh-ease)}
+  #loginBox .lhreg .lhreg-hint>div{min-height:0;overflow:hidden;font-size:10.5px;font-weight:700;color:var(--lh-danger-deep)}
+  #loginBox .lhreg .lhreg-hint>div>span{display:block;padding:5px 0 22px}
+  #loginBox .lhreg .lhreg-hint.is-on{grid-template-rows:1fr}
+
+  /* --- Ô điều khoản --- */
+  #loginBox .lhreg .auth-terms.is-bad input{outline:2px solid var(--lh-danger);outline-offset:2px;border-radius:4px}
+  #loginBox .lhreg .auth-terms.is-shake{animation:lhreg-sh .4s}
+
+  @media (prefers-reduced-motion: reduce){
+    #loginBox .lhreg .lhreg-sm,
+    #loginBox .lhreg .lhreg-hint,
+    #loginBox .lhreg .lhreg-ok{transition:none}
+    #loginBox .lhreg .auth-input-group.is-shake,
+    #loginBox .lhreg .auth-terms.is-shake{animation:none}
+  }
+</style>
 <script src="../../version/version-check.js" defer></script>
 <script src="../../scripts/core/toast.js"></script>
 </head>
@@ -910,7 +985,7 @@
   </div>
 
   <!-- FORM BÊN PHẢI: ĐĂNG KÝ (CỐ ĐỊNH) -->
-  <div class="auth-right-form form-disabled" id="registerFormContainer">
+  <div class="auth-right-form form-disabled lhreg-scroll" id="registerFormContainer">
     <!-- Mobile Slideshow -->
     <div class="auth-mobile-showcase">
       <div class="auth-mobile-slide active">
@@ -949,20 +1024,34 @@
     <div class="auth-title auth-anim-item">Tạo tài khoản mới</div>
 
 <div id="authRegisterPanel" class="auth-panel auth-anim-item">
-      <form onsubmit="event.preventDefault();emailRegister()">
-      <div class="auth-input-group">
-        <input type="text" id="registerName" required autocomplete="name">
-        <label>Tên hiển thị <span class="req-star">*</span></label>
+      <!-- Lucian UX/UI Prompt #244 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#244 -->
+      <form class="lhreg" id="registerForm" novalidate onsubmit="event.preventDefault();lhregSubmit(event)">
+      <div class="lhreg-sm" role="alert" aria-live="assertive">
+        <div>
+          <div class="lhreg-sb">
+            <b><i aria-hidden="true">!</i><span class="lhreg-ct"></span></b>
+            <ul></ul>
+          </div>
+        </div>
       </div>
+
+      <div class="auth-input-group">
+        <input type="text" id="registerName" required autocomplete="name" placeholder=" " aria-describedby="registerNameHint">
+        <label>Tên hiển thị <span class="req-star">*</span></label>
+        <span class="lhreg-ok" aria-hidden="true"></span>
+      </div>
+      <div class="lhreg-hint" id="registerNameHint"><div><span></span></div></div>
       <span class="auth-field-error" id="registerNameError"></span>
 
       <div class="auth-email-row">
         <div class="auth-input-group">
-          <input type="email" id="registerEmail" required autocomplete="email">
+          <input type="email" id="registerEmail" required autocomplete="email" placeholder=" " aria-describedby="registerEmailHint">
           <label>Email <span class="req-star">*</span></label>
+          <span class="lhreg-ok" aria-hidden="true"></span>
         </div>
         <button type="button" class="auth-otp-btn" id="sendOtpBtn" onclick="sendOTP()">Nhận mã</button>
       </div>
+      <div class="lhreg-hint" id="registerEmailHint"><div><span></span></div></div>
       <span class="auth-field-error" id="registerEmailError"></span>
 
       <div id="otpSection" style="display:none">
@@ -974,19 +1063,23 @@
         <span class="auth-field-error" id="otpCodeError"></span>
       </div>
 
-      <div class="auth-input-group">
-        <input type="password" id="registerPassword" required autocomplete="new-password">
+      <div class="auth-input-group has-eye">
+        <input type="password" id="registerPassword" required autocomplete="new-password" placeholder=" " aria-describedby="registerPasswordHint">
         <label>Mật khẩu <span class="req-star">*</span></label>
         <button type="button" class="auth-eye-btn" onclick="togglePassword('registerPassword', this)" tabindex="-1" aria-label="Hiện/ẩn mật khẩu"><i class="fa-solid fa-eye"></i></button>
+        <span class="lhreg-ok" aria-hidden="true"></span>
       </div>
+      <div class="lhreg-hint" id="registerPasswordHint"><div><span></span></div></div>
       <span class="auth-field-error" id="registerPasswordError"></span>
       <span class="auth-caps-hint" id="capsHintReg">Caps Lock đang bật — mật khẩu sẽ viết HOA</span>
 
-      <div class="auth-input-group">
-        <input type="password" id="registerConfirmPassword" required autocomplete="new-password">
+      <div class="auth-input-group has-eye">
+        <input type="password" id="registerConfirmPassword" required autocomplete="new-password" placeholder=" " aria-describedby="registerConfirmPasswordHint">
         <label>Nhập lại mật khẩu <span class="req-star">*</span></label>
         <button type="button" class="auth-eye-btn" onclick="togglePassword('registerConfirmPassword', this)" tabindex="-1" aria-label="Hiện/ẩn mật khẩu"><i class="fa-solid fa-eye"></i></button>
+        <span class="lhreg-ok" aria-hidden="true"></span>
       </div>
+      <div class="lhreg-hint" id="registerConfirmPasswordHint"><div><span></span></div></div>
       <span class="auth-field-error" id="registerConfirmPasswordError"></span>
       <span class="auth-caps-hint" id="capsHintRegCfm">Caps Lock đang bật — mật khẩu sẽ viết HOA</span>
 
@@ -2238,6 +2331,188 @@ if ("serviceWorker" in navigator) {
       .catch(function () {});
   });
 }
+</script>
+<script>
+/* Lucian UX/UI Prompt #244 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#244 */
+/* Form đăng ký: tổng hợp lỗi + rung + cuộn tới ô sai, giữ nguyên toàn bộ field
+   và emailRegister() cũ (chỉ chặn submit khi còn lỗi phía client). */
+(function () {
+  var root = document.getElementById("registerForm");
+  if (!root) return;
+
+  var sc = document.getElementById("registerFormContainer");
+  var ul = root.querySelector(".lhreg-sb ul");
+  var ct = root.querySelector(".lhreg-ct");
+  var go = document.getElementById("registerSubmitBtn");
+  var terms = document.getElementById("registerTerms");
+  var termsWrap = terms ? terms.closest(".auth-terms") : null;
+  var rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var tried = false;
+
+  var RULES = [
+    { id: "registerName", short: "Tên hiển thị", check: function (v) {
+        if (!v.trim()) return "Vui lòng nhập tên hiển thị";
+        if (v.trim().length < 2) return "Tên phải có ít nhất 2 ký tự";
+        return "";
+      } },
+    { id: "registerEmail", short: "Email", check: function (v) {
+        if (!v.trim()) return "Vui lòng nhập email";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())) return "Email không hợp lệ";
+        return "";
+      } },
+    { id: "registerPassword", short: "Mật khẩu", check: function (v) {
+        if (!v) return "Vui lòng nhập mật khẩu";
+        if (v.length < 6) return "Mật khẩu phải có ít nhất 6 ký tự";
+        return "";
+      } },
+    { id: "registerConfirmPassword", short: "Nhập lại mật khẩu", check: function (v) {
+        if (!v) return "Vui lòng nhập lại mật khẩu";
+        var pw = document.getElementById("registerPassword");
+        if (pw && v !== pw.value) return "Mật khẩu nhập lại không khớp";
+        return "";
+      } }
+  ];
+
+  var entries = [];
+  RULES.forEach(function (r) {
+    var input = document.getElementById(r.id);
+    if (!input) return;
+    entries.push({
+      short: r.short,
+      input: input,
+      group: input.closest(".auth-input-group"),
+      hint: document.getElementById(r.id + "Hint"),
+      msg: "",
+      check: function () { return r.check(input.value); }
+    });
+  });
+  if (terms && termsWrap) {
+    entries.push({
+      terms: true,
+      short: "Điều khoản",
+      input: terms,
+      group: termsWrap,
+      msg: "",
+      check: function () {
+        return terms.checked ? "" : "Bạn cần đồng ý với Điều khoản sử dụng và Chính sách bảo mật";
+      }
+    });
+  }
+
+  function state() {
+    var bad = [];
+    entries.forEach(function (e, i) {
+      var m = e.check();
+      e.msg = m;
+      if (m) bad.push(i);
+    });
+
+    entries.forEach(function (e, i) {
+      var wrong = bad.indexOf(i) >= 0;
+      e.input.setAttribute("aria-invalid", wrong ? "true" : "false");
+      e.group.classList.toggle("is-bad", wrong);
+      if (e.terms) return;
+
+      e.group.classList.toggle("is-good", !wrong && e.input.value.length > 0);
+      if (e.hint) {
+        e.hint.classList.toggle("is-on", wrong);
+        var slot = e.hint.querySelector("span");
+        if (wrong && slot) slot.textContent = e.msg;
+      }
+      /* Không hiện 2 thông báo cho cùng một ô (legacy span nhường cho hint mới). */
+      if (wrong) {
+        var legacy = document.getElementById(e.input.id + "Error");
+        if (legacy) { legacy.textContent = ""; legacy.style.display = "none"; }
+        e.input.style.borderColor = "";
+      }
+    });
+
+    if (ul) {
+      Array.prototype.forEach.call(ul.children, function (li) {
+        li.classList.toggle("is-fixed", bad.indexOf(+li.dataset.i) < 0);
+      });
+    }
+    if (ct) ct.textContent = bad.length + " trường cần chú ý";
+    root.classList.toggle("is-err", bad.length > 0);
+    return bad;
+  }
+
+  function buildList(bad) {
+    if (!ul) return;
+    ul.innerHTML = "";
+    bad.forEach(function (i) {
+      var e = entries[i];
+      var li = document.createElement("li");
+      li.dataset.i = i;
+      var a = document.createElement("a");
+      a.href = "#";
+      a.textContent = e.short;
+      a.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        goTo(e.group, function () {
+          try { e.input.focus({ preventScroll: true }); } catch (_) { e.input.focus(); }
+        });
+      });
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+  }
+
+  /* Cuộn mượt (ease-out cubic, 520ms như bản gốc); giảm chuyển động -> nhảy ngay. */
+  function goTo(el, done) {
+    if (!el) { if (done) done(); return; }
+    var box = (sc && sc.scrollHeight - sc.clientHeight > 4) ? sc : null;
+    var isWin = !box;
+    var y0 = isWin ? (window.pageYOffset || document.documentElement.scrollTop) : box.scrollTop;
+    var base = isWin ? 0 : box.getBoundingClientRect().top;
+    var y = Math.max(0, y0 + (el.getBoundingClientRect().top - base) - 70);
+    var ms = rm ? 0 : 520;
+    var t0 = performance.now();
+    (function frame(now) {
+      var k = ms ? Math.min(1, (now - t0) / ms) : 1;
+      var e = 1 - Math.pow(1 - k, 3);
+      var v = y0 + (y - y0) * e;
+      if (isWin) window.scrollTo(0, v); else box.scrollTop = v;
+      if (k < 1) requestAnimationFrame(frame);
+      else if (done) done();
+    })(t0);
+  }
+
+  function shake(el) {
+    if (!el) return;
+    el.classList.remove("is-shake");
+    void el.offsetWidth;
+    el.classList.add("is-shake");
+  }
+
+  window.lhregSubmit = function (ev) {
+    if (ev && ev.preventDefault) ev.preventDefault();
+    if (go && go.disabled) return;
+    tried = true;
+    var bad = state();
+    if (!bad.length) {
+      if (typeof window.emailRegister === "function") window.emailRegister();
+      return;
+    }
+    buildList(bad);
+    bad.forEach(function (i) { shake(entries[i].group); });
+    var first = entries[bad[0]];
+    setTimeout(function () {
+      goTo(first.group, function () {
+        try { first.input.focus({ preventScroll: true }); } catch (_) { first.input.focus(); }
+      });
+    }, rm ? 0 : 200);
+  };
+
+  entries.forEach(function (e) {
+    if (e.terms) {
+      e.input.addEventListener("change", function () { if (tried) state(); });
+    } else {
+      e.input.addEventListener("input", function () { if (tried) state(); });
+      e.input.addEventListener("blur", function () { if (tried) state(); });
+    }
+  });
+})();
 </script>
 </body>
 </html>
