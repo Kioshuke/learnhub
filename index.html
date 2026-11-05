@@ -3,6 +3,7 @@
 <html lang="vi">
 
 <head>
+<script>document.documentElement.classList.add('js');</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 <meta name="google-site-verification" content="88nc9yWnXtHsNJUDG1QdqBInqSmI4AmYW0Gz5-GOkiI" />
@@ -90,13 +91,80 @@ window.addEventListener("beforeinstallprompt", function (e) {
 <!-- loginBox đã được tách sang login.html -->
 
 
-<div id="lh-header-placeholder" data-active="home"></div>
+<div class="menu" id="lhMenu">
+<div class="menu-brand" id="lhLogo" role="button" tabindex="0" title="Về trang chủ LearnHub" aria-label="Về trang chủ LearnHub" onclick="if(typeof lhGoHome==='function'){lhGoHome(event);}else{location.href='/index.html';}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+  <img src="assets/images/logoweb.webp" width="60" height="60" alt="Logo LearnHub">
+</div>
+<div class="menu-buttons" id="menuButtons">
+  <a href="/index.html" class="nav-link" style="--accent:#2563eb">Home</a>
+  <a href="pages/flashcard/hub.html" class="nav-link" style="--accent:#16a34a">FlashCard</a>
+  <a href="pages/blog/forum.html" class="nav-link" style="--accent:#7c3aed">Forum</a>
+  <a href="pages/blog/blog.html" class="nav-link" style="--accent:#db2777">Blog</a>
+  <a href="pages/features/hubfile.html" class="nav-link" style="--accent:#0891b2">Tài liệu</a>
+  <a href="pages/features/phong-hoc.html" class="nav-link" style="--accent:#ff6b35">Phòng học</a>
+</div>
+<div class="header-user">
+  <span class="header-location"><i class="fa-solid fa-location-dot"></i> Tân Hồng - Đồng Tháp</span>
+  <span class="header-time" id="currentTime"></span>
+  <div class="notif-bell-wrap" id="notifBellWrap">
+    <button class="notif-bell" id="notifBell" title="Hộp Thư">
+      <i class="fa-solid fa-bell"></i>
+      <span class="notif-badge" id="notifBadge" style="display:none"></span>
+    </button>
+    <div class="notif-dropdown" id="notifDropdown">
+      <div class="notif-dd-head">
+        <span>Hộp Thư</span>
+        <button class="notif-dd-clear" id="notifClearBtn" onclick="clearNotifBadge()" title="Đánh dấu đã đọc"><i class="fa-solid fa-check-double"></i></button>
+      </div>
+      <div class="notif-dd-list" id="notifList"></div>
+    </div>
+  </div>
+  <div class="user-right">
+    <div class="user-text">
+      <span id="welcomeText"></span>
+      <span id="userName"></span>
+    </div>
+    <div class="avatar-box" onclick="toggleUserPopup()">
+      <img id="userAvatar" alt="Ảnh đại diện người dùng">
+      <span id="onlineDot" class="online-pulse"></span>
+    </div>
+  </div>
+</div>
+</div>
+<div class="ticker-container">
+<div class="ticker-text">
+Chào mừng bạn đã đến với LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.
+</div>
+</div>
+<div class="notif-detail-overlay" id="notifDetailOverlay">
+  <div class="notif-detail-box">
+    <button class="notif-detail-x" onclick="closeNotifDetail()">&times;</button>
+    <div class="notif-detail-inner">
+      <div class="notif-detail-header"><h3 id="notifDetailTitle"></h3></div>
+      <div class="notif-detail-meta">
+        <div class="notif-detail-sender">
+          <img class="notif-detail-sender-avatar" id="notifDetailIcon" src="assets/images/newlogo.png" alt="Admin">
+          <span class="notif-detail-sender-name">Ban Quản Trị LearnHub</span>
+        </div>
+        <span class="notif-detail-date" id="notifDetailDate"></span>
+      </div>
+      <div class="notif-detail-body"><p id="notifDetailMsg"></p></div>
+    </div>
+  </div>
+</div>
 <script>
-fetch('components/header.html').then(r=>r.text()).then(html=>{
-  document.getElementById('lh-header-placeholder').innerHTML = html;
+document.addEventListener('click',function(e){
+  var m=document.getElementById('lhMenu');
+  if(m&&m.classList.contains('nav-open')&&!m.contains(e.target)){
+    m.classList.remove('nav-open');
+  }
+});
+</script>
+
+<script>
   // Nếu trang đang ở guest mode (chưa đăng nhập) -> áp lại UI "Chưa đăng nhập"
   if(window.__lhGuest && typeof window.enterGuestMode === 'function') window.enterGuestMode();
-  const active = document.getElementById('lh-header-placeholder').dataset.active;
+  const active = 'home';
   const map = {'home':'/index.html','flash':'pages/flashcard/hub.html','forum':'pages/blog/forum.html','blog':'pages/blog/blog.html','tai-lieu':'pages/features/hubfile.html','phong-hoc':'pages/features/phong-hoc.html'};
   const reverseMap = {'/index.html':'home','pages/flashcard/hub.html':'flash','pages/blog/forum.html':'forum','pages/blog/blog.html':'blog','pages/features/hubfile.html':'tai-lieu','pages/features/phong-hoc.html':'phong-hoc'};
   document.querySelectorAll('.nav-link').forEach(a => {
@@ -367,8 +435,6 @@ fetch('components/header.html').then(r=>r.text()).then(html=>{
       }
     };
   })();
-
-});
 </script>
 <div id="mainContent" class="content show">
 
@@ -1574,11 +1640,68 @@ window.addEventListener("message", async (event) => {
   } catch(e) {}
 })();
 </script>
-<script>
-fetch('components/footer.html').then(r => r.text()).then(html => {
-  document.getElementById('lh-footer-placeholder').innerHTML = html;
-});
-</script>
+<footer class="lh-footer">
+  <div class="lh-footer-main">
+
+    <div class="lh-footer-brand">
+      <div class="lh-footer-brand-logo">
+        <img src="/assets/images/favicon.png" alt="LearnHub Logo">
+        <h3>LearnHub Platform</h3>
+      </div>
+      <p>Nền tảng học tập trực tuyến đột phá, đồng hành cùng học sinh và sinh viên trên con đường chinh phục tri thức.</p>
+    </div>
+
+    <div class="lh-footer-col">
+      <h4>Kết nối</h4>
+      <div class="lh-social-icons">
+        <a href="https://www.facebook.com/learnhubpf" class="fb" target="_blank" rel="noopener" title="Facebook Fanpage"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="https://zalo.me/0335925257" class="zl" target="_blank" rel="noopener" title="Zalo hỗ trợ"><span class="zl-z">Z</span></a>
+        <a href="https://www.youtube.com" class="yt" target="_blank" rel="noopener" title="Kênh Youtube"><i class="fa-brands fa-youtube"></i></a>
+        <a href="https://www.tiktok.com" class="tk" target="_blank" rel="noopener" title="Kênh TikTok"><i class="fa-brands fa-tiktok"></i></a>
+        <a href="/pages/blog/forum.html" class="cm" target="_blank" rel="noopener" title="Cộng đồng học tập"><i class="fa-solid fa-users"></i></a>
+      </div>
+    </div>
+
+    <div class="lh-footer-col">
+      <h4>Hỗ trợ</h4>
+      <ul class="lh-footer-links">
+        <li><a href="/pages/legal_info/faq.html">Trung tâm trợ giúp</a></li>
+        <li><a href="javascript:void(0);" onclick="openFeedbackModal()">Góp ý ý kiến</a></li>
+      </ul>
+    </div>
+
+    <div class="lh-footer-col">
+      <h4>Liên hệ</h4>
+      <ul class="lh-footer-links lh-contact-info">
+        <li><strong>Email:</strong> learnhubplatform@gmail.com</li>
+        <li><strong>Hotline:</strong> 0335 925 257 (8h00 - 21h00)</li>
+        <li><strong>Địa chỉ:</strong> Xã Tân Hồng, Đồng Tháp, Việt Nam</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="lh-footer-bottom">
+    <span>© 2026 LearnHub Platform. Tất cả quyền được bảo lưu.</span>
+    <div class="lh-footer-bottom-links">
+      <a href="/pages/legal_info/dieu-khoan.html">Điều khoản sử dụng</a>
+      <a href="/pages/legal_info/chinh-sach-bao-mat.html">Chính sách bảo mật</a>
+      <button type="button" class="lh-version-btn" title="Xem thông tin phiên bản" onclick="document.getElementById('lh-version-popup').classList.add('lh-version-show')">Phiên bản v1.26.8.2</button>
+    </div>
+  </div>
+</footer>
+
+<!-- POPUP THÔNG TIN PHIÊN BẢN -->
+<div class="lh-version-popup" id="lh-version-popup" role="dialog" aria-modal="true" aria-label="Thông tin phiên bản" onclick="if(event.target===this)this.classList.remove('lh-version-show')">
+  <div class="lh-version-card">
+    <button type="button" class="lh-version-close" aria-label="Đóng" onclick="document.getElementById('lh-version-popup').classList.remove('lh-version-show')">&times;</button>
+    <img class="lh-version-logo" src="/assets/images/favicon.png" alt="LearnHub">
+    <p class="lh-version-name">LearnHub Platform</p>
+    <div class="lh-version-badge"><i class="fa-solid fa-code-branch"></i> v1.26.8.2</div>
+    <div class="lh-version-date"><i class="fa-regular fa-calendar-check"></i> Cập nhật ngày 21/08/2026</div>
+    <p class="lh-version-note">Bạn đang sử dụng phiên bản mới nhất của LearnHub Platform.</p>
+  </div>
+</div>
 <div id="lh-feedback-overlay" class="lh-popup-overlay" onclick="closeFeedbackModalByOverlay(event)">
   <div class="lh-popup-content">
     <button class="lh-popup-close" onclick="closeFeedbackModal()" title="Đóng">&times;</button>

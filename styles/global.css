@@ -3384,7 +3384,7 @@ body.dark-mode .quiz-btn {
   .featured-header h2 {
     font-size: 18px;
   }
-  .reveal-item {
+  .js .reveal-item {
     transform: translateY(14px);
     transition-duration: 0.4s;
   }
@@ -3398,10 +3398,21 @@ body.dark-mode .quiz-btn {
 }
 
 /* ==================== HIỆU ỨNG HIỂN THỊ (REVEAL ON SCROLL) ==================== */
+/* Mac dinh hien noi dung (khi tat JS / prerender). Chi an khi JS san sang de animation. */
 .reveal-item {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.js .reveal-item {
   opacity: 0;
   transform: translateY(22px);
-  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.js .reveal-item.in-view {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .reveal-item.in-view {
