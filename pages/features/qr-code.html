@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tạo mã QR - LearnHub</title>
+  <link rel="icon" href="../../assets/images/favicon.png" sizes="any">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --lh-primary: #1A73E8;
+      --lh-primary-soft: rgba(26,115,232,0.08);
+      --lh-text: #212529;
+      --lh-text-sub: #6c757d;
+      --lh-bg-soft: #F8F9FA;
+      --lh-bg-softer: #F1F3F5;
+      --lh-border: #E9ECEF;
+      --lh-red: #dc3545;
+      --lh-red-soft: rgba(220,53,69,0.10);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin:0; padding:0; height:100%; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#fff; color:var(--lh-text); }
+    body { overflow:hidden; }
+
+    .qr-modal {
+      display:flex; flex-direction:column; height:100%; width:100%; background:#fff; border-radius:20px; overflow:hidden;
+    }
+
+    /* Header */
+    .qr-header {
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+      padding:20px 24px 12px; border-bottom:1px solid var(--lh-border);
+    }
+    .qr-header-left { display:flex; align-items:flex-start; gap:12px; min-width:0; }
+    .qr-header-icon {
+      width:40px; height:40px; border-radius:12px; background:var(--lh-primary-soft); color:var(--lh-primary);
+      display:flex; align-items:center; justify-content:center; font-size:18px; flex:none;
+    }
+    .qr-header-text h1 { margin:0; font-size:1.15rem; font-weight:700; color:var(--lh-text); }
+    .qr-header-text p { margin:4px 0 0; font-size:.85rem; color:var(--lh-text-sub); }
+    .qr-close {
+      width:34px; height:34px; border:none; border-radius:10px; background:var(--lh-bg-soft); color:var(--lh-text-sub);
+      cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; transition:all .2s; flex:none;
+    }
+    .qr-close:hover { background:var(--lh-bg-softer); color:var(--lh-text); }
+
+    /* Body */
+    .qr-body { display:flex; gap:20px; padding:20px 24px; flex:1; min-height:0; }
+    .qr-col-left { flex:1; min-width:0; display:flex; flex-direction:column; gap:14px; overflow-y:auto; }
+    .qr-col-right { flex:0 0 230px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; }
+
+    .qr-field { display:flex; flex-direction:column; gap:6px; }
+    .qr-label { font-size:.85rem; font-weight:600; color:var(--lh-text); }
+
+    .qr-input-wrap { position:relative; display:flex; align-items:center; }
+    .qr-input-icon { position:absolute; left:12px; color:var(--lh-text-sub); font-size:14px; pointer-events:none; }
+    .qr-input {
+      width:100%; padding:10px 12px 10px 36px; border:1.5px solid var(--lh-border); border-radius:12px;
+      background:#fff; color:var(--lh-text); font-family:inherit; font-size:.9rem; outline:none; transition:border-color .2s, box-shadow .2s;
+    }
+    .qr-input:focus { border-color:var(--lh-primary); box-shadow:0 0 0 3px var(--lh-primary-soft); }
+
+    .qr-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .qr-row-label { font-size:.85rem; font-weight:600; color:var(--lh-text); min-width:110px; }
+
+    .size-btns { display:flex; gap:6px; }
+    .size-btn {
+      padding:6px 14px; border-radius:10px; border:1.5px solid var(--lh-border); background:var(--lh-bg-soft);
+      color:var(--lh-text); font-size:.85rem; font-weight:600; cursor:pointer; transition:all .2s;
+    }
+    .size-btn:hover { border-color:var(--lh-primary); color:var(--lh-primary); }
+    .size-btn.active { background:var(--lh-primary); color:#fff; border-color:var(--lh-primary); }
+    .size-custom { width:70px; padding:6px 8px; border:1.5px solid var(--lh-border); border-radius:10px; background:#fff; color:var(--lh-text); font-size:.85rem; outline:none; }
+    .size-custom:focus { border-color:var(--lh-primary); }
+
+    .color-pickers { display:flex; gap:12px; align-items:center; }
+    .color-picker-wrap { display:flex; align-items:center; gap:8px; }
+    .color-picker-label { font-size:.8rem; color:var(--lh-text-sub); }
+    .color-swatch {
+      width:34px; height:34px; border-radius:50%; border:2px solid var(--lh-border); cursor:pointer; padding:0; overflow:hidden; background:#fff;
+    }
+    .color-swatch input { width:100%; height:100%; border:none; cursor:pointer; opacity:0; }
+
+    .filename-wrap { position:relative; display:flex; align-items:center; }
+    .filename-wrap .qr-input { padding-right:60px; }
+    .filename-badge {
+      position:absolute; right:8px; top:50%; transform:translateY(-50%);
+      background:var(--lh-bg-soft); color:var(--lh-text-sub); font-size:.75rem; font-weight:600;
+      padding:3px 8px; border-radius:6px; pointer-events:none; border:1px solid var(--lh-border);
+    }
+
+    .qr-btns { display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+    .qr-btn {
+      padding:9px 16px; border-radius:12px; border:1.5px solid var(--lh-border); background:#fff; color:var(--lh-text);
+      font-size:.85rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all .2s;
+    }
+    .qr-btn:hover { transform:translateY(-1px); }
+    .qr-btn.primary { background:var(--lh-primary); color:#fff; border-color:var(--lh-primary); }
+    .qr-btn.primary:hover { background:#1557b0; border-color:#1557b0; }
+    .qr-btn.outline { border-color:var(--lh-primary); color:var(--lh-primary); background:#fff; }
+    .qr-btn.outline:hover { background:var(--lh-primary-soft); }
+    .qr-btn.soft-red { background:var(--lh-red-soft); color:var(--lh-red); border-color:transparent; }
+    .qr-btn.soft-red:hover { background:rgba(220,53,69,0.18); }
+    .qr-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+    /* Preview */
+    .qr-preview-frame {
+      width:100%; aspect-ratio:1/1; max-width:220px; border:2px dashed rgba(26,115,232,0.35);
+      border-radius:16px; background:var(--lh-bg-soft); display:flex; align-items:center; justify-content:center;
+      overflow:hidden; position:relative;
+    }
+    .qr-preview-frame canvas { max-width:100%; height:auto; border-radius:12px; }
+    .qr-preview-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--lh-primary); text-align:center; padding:12px; }
+    .qr-preview-empty .book-icon { font-size:36px; opacity:.9; }
+    .qr-preview-empty .empty-text { font-size:.75rem; font-weight:700; letter-spacing:.5px; color:var(--lh-primary); opacity:.7; }
+    .qr-status { font-size:.8rem; color:var(--lh-text-sub); text-align:center; min-height:16px; margin:0; }
+
+    /* History */
+    .qr-history { padding:0 24px 20px; }
+    .qr-history-card { background:var(--lh-bg-soft); border-radius:14px; padding:12px 14px; }
+    .qr-history-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+    .qr-history-title { display:flex; align-items:center; gap:6px; font-size:.85rem; font-weight:600; color:var(--lh-text-sub); }
+    .qr-history-list { display:flex; flex-direction:column; gap:6px; max-height:90px; overflow-y:auto; }
+    .qr-hist-item { display:flex; align-items:center; gap:8px; padding:7px 10px; border-radius:10px; background:#fff; border:1px solid var(--lh-border); cursor:pointer; transition:background .2s; }
+    .qr-hist-item:hover { background:var(--lh-primary-soft); }
+    .qr-hist-text { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:.8rem; color:var(--lh-text); }
+    .qr-hist-time { font-size:.7rem; color:var(--lh-text-sub); flex:none; }
+    .qr-hist-del { background:none; border:none; color:var(--lh-red); cursor:pointer; padding:2px 4px; border-radius:6px; }
+    .qr-hist-del:hover { background:var(--lh-red-soft); }
+    .qr-history-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:16px; color:var(--lh-text-sub); opacity:.6; }
+    .qr-history-empty i { font-size:20px; }
+    .qr-history-empty span { font-size:.8rem; }
+    .qr-clear-hist { background:none; border:none; color:var(--lh-red); font-size:.78rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px; opacity:.8; }
+    .qr-clear-hist:hover { opacity:1; }
+
+    @media (max-width:640px) {
+      .qr-body { flex-direction:column; }
+      .qr-col-right { flex:none; width:100%; }
+      .qr-preview-frame { max-width:180px; margin:0 auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="qr-modal">
+    <!-- Header -->
+    <div class="qr-header">
+      <div class="qr-header-left">
+        <div class="qr-header-icon"><i class="fa-solid fa-qrcode"></i></div>
+        <div class="qr-header-text">
+          <h1>Tạo mã QR</h1>
+          <p>Tạo mã QR cho link/text bất kỳ. Tải PNG hoặc sao chép.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Body 2 columns -->
+    <div class="qr-body">
+      <div class="qr-col-left">
+        <!-- Nội dung / Link -->
+        <div class="qr-field">
+          <label class="qr-label" for="qrText">Nội dung / Link</label>
+          <div class="qr-input-wrap">
+            <i class="fa-solid fa-link qr-input-icon"></i>
+            <input type="text" id="qrText" class="qr-input" placeholder="https://example.com hoặc text bất kỳ">
+          </div>
+        </div>
+
+        <!-- Kích thước -->
+        <div class="qr-field">
+          <div class="qr-row">
+            <span class="qr-row-label">Kích thước (px)</span>
+            <div class="size-btns">
+              <button class="size-btn" data-size="128">128</button>
+              <button class="size-btn active" data-size="256">256</button>
+              <button class="size-btn" data-size="512">512</button>
+            </div>
+            <input type="number" id="qrSize" class="size-custom" min="64" max="1024" value="256">
+          </div>
+        </div>
+
+        <!-- Màu QR & Màu nền -->
+        <div class="qr-field">
+          <div class="qr-row">
+            <span class="qr-row-label">Màu QR</span>
+            <div class="color-pickers">
+              <div class="color-picker-wrap">
+                <span class="color-picker-label">QR</span>
+                <div class="color-swatch" style="background:#000000"><input type="color" id="qrFg" value="#000000"></div>
+              </div>
+              <div class="color-picker-wrap">
+                <span class="color-picker-label">Nền</span>
+                <div class="color-swatch" style="background:#ffffff"><input type="color" id="qrBg" value="#ffffff"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tên file -->
+        <div class="qr-field">
+          <label class="qr-label" for="qrFileName">Tên file khi tải về</label>
+          <div class="filename-wrap">
+            <input type="text" id="qrFileName" class="qr-input" placeholder="qrcode" value="qrcode" style="padding-left:12px;">
+            <span class="filename-badge">.png</span>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="qr-btns">
+          <button id="btnGen" class="qr-btn primary"><i class="fa-solid fa-qrcode"></i> Tạo mã</button>
+          <button id="btnDl" class="qr-btn outline" disabled><i class="fa-solid fa-download"></i> Tải PNG</button>
+          <button id="btnCopy" class="qr-btn outline" disabled><i class="fa-solid fa-copy"></i> Sao chép</button>
+          <button id="btnClear" class="qr-btn soft-red"><i class="fa-solid fa-trash"></i> Xoá</button>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="qr-col-right">
+        <div class="qr-preview-frame" id="qrPreview">
+          <div class="qr-preview-empty">
+            <i class="fa-solid fa-book-open book-icon"></i>
+            <span class="empty-text">CHƯA CÓ MÃ QR</span>
+          </div>
+        </div>
+        <p class="qr-status" id="qrStatus"></p>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="qr-history">
+      <div class="qr-history-card">
+        <div class="qr-history-head">
+          <div class="qr-history-title"><i class="fa-regular fa-clock"></i> Lịch sử</div>
+          <button id="btnClearHist" class="qr-clear-hist"><i class="fa-solid fa-trash"></i> Xoá lịch sử</button>
+        </div>
+        <div class="qr-history-list" id="qrHistory">
+          <div class="qr-history-empty">
+            <i class="fa-regular fa-clock"></i>
+            <span>Chưa có lịch sử</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const textEl = document.getElementById('qrText');
+      const sizeEl = document.getElementById('qrSize');
+      const fgEl = document.getElementById('qrFg');
+      const bgEl = document.getElementById('qrBg');
+      const fileNameEl = document.getElementById('qrFileName');
+      const preview = document.getElementById('qrPreview');
+      const status = document.getElementById('qrStatus');
+      const btnGen = document.getElementById('btnGen');
+      const btnDl = document.getElementById('btnDl');
+      const btnCopy = document.getElementById('btnCopy');
+      const btnClear = document.getElementById('btnClear');
+      const histEl = document.getElementById('qrHistory');
+      const btnClearHist = document.getElementById('btnClearHist');
+
+      const HIST_KEY = 'lh_qr_history';
+      let lastCanvas = null;
+      let lastText = '';
+
+      function report(message, type){
+        if (window.parent !== window) {
+          window.parent.postMessage({ type:'LEARNHUB_QR_TOAST', message:message, toastType:type || 'info' }, window.location.origin);
+        } else {
+          status.textContent = message;
+        }
+      }
+
+      // color swatch sync
+      fgEl.addEventListener('input', function(){ fgEl.parentElement.style.background = fgEl.value; });
+      bgEl.addEventListener('input', function(){ bgEl.parentElement.style.background = bgEl.value; });
+
+      // size quick buttons
+      document.querySelectorAll('.size-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          document.querySelectorAll('.size-btn').forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+          const s = btn.getAttribute('data-size');
+          sizeEl.value = s;
+        });
+      });
+      sizeEl.addEventListener('input', function(){
+        document.querySelectorAll('.size-btn').forEach(function(b){
+          b.classList.toggle('active', b.getAttribute('data-size') === sizeEl.value);
+        });
+      });
+
+      function loadHist(){ try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); } catch(e){ return []; } }
+      function saveHist(list){ try { localStorage.setItem(HIST_KEY, JSON.stringify(list.slice(0,30))); } catch(e){} }
+
+      function renderHist(){
+        const list = loadHist();
+        if (!list.length) {
+          histEl.innerHTML = '<div class="qr-history-empty"><i class="fa-regular fa-clock"></i><span>Chưa có lịch sử</span></div>';
+          return;
+        }
+        histEl.innerHTML = list.map(function(h, idx){
+          return '<div class="qr-hist-item" data-idx="'+idx+'">'
+            + '<i class="fa-solid fa-qrcode" style="color:#1A73E8"></i>'
+            + '<span class="qr-hist-text" title="'+escapeHtml(h.text)+'">'+escapeHtml(h.text)+'</span>'
+            + '<span class="qr-hist-time">'+new Date(h.ts).toLocaleString('vi-VN')+'</span>'
+            + '<button class="qr-hist-del" data-del="'+idx+'" title="Xoá"><i class="fa-solid fa-xmark"></i></button>'
+            + '</div>';
+        }).join('');
+      }
+
+      function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+      function generate(){
+        const text = (textEl.value || '').trim();
+        if (!text) { report('Vui lòng nhập nội dung/link.', 'warning'); return; }
+        const size = Math.max(64, Math.min(1024, parseInt(sizeEl.value,10) || 256));
+        preview.innerHTML = '';
+        const host = document.createElement('div');
+        host.style.cssText = 'position:fixed;left:-9999px;top:0;width:'+size+'px;height:'+size+'px;overflow:hidden';
+        document.body.appendChild(host);
+        try {
+          new window.QRCode(host, {
+            text: text,
+            width: size,
+            height: size,
+            colorDark: fgEl.value,
+            colorLight: bgEl.value,
+            correctLevel: window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.M : 2
+          });
+          const qrCanvas = host.querySelector('canvas');
+          if (!qrCanvas) { report('Không tạo được mã QR.', 'error'); return; }
+          const pad = 10;
+          const frame = size + pad*2;
+          const radius = 14;
+          const c = document.createElement('canvas');
+          c.width = frame; c.height = frame;
+          const ctx = c.getContext('2d');
+          ctx.beginPath();
+          ctx.moveTo(radius,0); ctx.lineTo(frame-radius,0);
+          ctx.quadraticCurveTo(frame,0,frame,radius);
+          ctx.lineTo(frame,frame-radius); ctx.quadraticCurveTo(frame,frame,frame-radius,frame);
+          ctx.lineTo(radius,frame); ctx.quadraticCurveTo(0,frame,0,frame-radius);
+          ctx.lineTo(0,radius); ctx.quadraticCurveTo(0,0,radius,0);
+          ctx.closePath();
+          ctx.fillStyle = bgEl.value; ctx.fill();
+          ctx.save(); ctx.clip();
+          ctx.drawImage(qrCanvas, pad, pad, size, size);
+          ctx.restore();
+          preview.appendChild(c);
+          lastCanvas = c;
+          lastText = text;
+          btnDl.disabled = false;
+          btnCopy.disabled = false;
+          report('Đã tạo mã QR.', 'success');
+          const list = loadHist();
+          if (list.length === 0 || list[0].text !== text) {
+            list.unshift({ text: text, ts: Date.now() });
+            saveHist(list);
+            renderHist();
+          }
+        } catch(e) {
+          report('Không tạo được mã QR: ' + (e && e.message ? e.message : e), 'error');
+        } finally {
+          host.remove();
+        }
+      }
+
+      btnGen.addEventListener('click', generate);
+      textEl.addEventListener('keydown', function(e){ if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) generate(); });
+
+      btnDl.addEventListener('click', function(){
+        if (!lastCanvas) return;
+        const name = (fileNameEl.value || 'qrcode').trim() || 'qrcode';
+        const url = lastCanvas.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name.replace(/[^a-zA-Z0-9_\-]/g,'_') + '.png';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        report('Đã tải mã QR xuống thiết bị.', 'success');
+      });
+
+      btnCopy.addEventListener('click', function(){
+        if (!lastText) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(lastText).then(function(){ report('Đã sao chép nội dung.', 'success'); }).catch(function(){ fallbackCopy(); });
+        } else { fallbackCopy(); }
+        function fallbackCopy(){ try { const ta=document.createElement('textarea'); ta.value=lastText; document.body.appendChild(ta); ta.select(); const copied=document.execCommand('copy'); ta.remove(); report(copied ? 'Đã sao chép nội dung.' : 'Không sao chép được.', copied ? 'success' : 'error'); } catch(e){ report('Không sao chép được.', 'error'); } }
+      });
+
+      btnClear.addEventListener('click', function(){
+        textEl.value=''; preview.innerHTML='<div class="qr-preview-empty"><i class="fa-solid fa-book-open book-icon"></i><span class="empty-text">CHƯA CÓ MÃ QR</span></div>';
+        lastCanvas=null; lastText=''; btnDl.disabled=true; btnCopy.disabled=true; status.textContent='';
+        report('Đã xoá nội dung và mã QR.', 'info');
+      });
+
+      histEl.addEventListener('click', function(e){
+        const del = e.target.closest('.qr-hist-del');
+        if (del) {
+          const idx = parseInt(del.getAttribute('data-del'),10);
+          const list = loadHist();
+          list.splice(idx,1);
+          saveHist(list);
+          renderHist();
+          report('Đã xoá mục khỏi lịch sử mã QR.', 'success');
+          return;
+        }
+        const item = e.target.closest('.qr-hist-item');
+        if (item) {
+          const idx = parseInt(item.getAttribute('data-idx'),10);
+          const list = loadHist();
+          if (list[idx]) { textEl.value = list[idx].text; generate(); }
+        }
+      });
+
+      btnClearHist.addEventListener('click', function(){ localStorage.removeItem(HIST_KEY); renderHist(); report('Đã xoá lịch sử mã QR.', 'success'); });
+
+      renderHist();
+    })();
+  </script>
+</body>
+</html>

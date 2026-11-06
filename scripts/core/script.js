@@ -1345,6 +1345,49 @@ document.addEventListener("DOMContentLoaded", () => {
       closeFeedbackModal();
     }
   }
+  // ===== Popup tao ma QR =====
+  const qrOverlay = document.getElementById('lh-qr-overlay');
+  const qrFrame = document.getElementById('lhQrFrame');
+  window.addEventListener('message', function(event){
+    if (!qrFrame || event.origin !== window.location.origin || event.source !== qrFrame.contentWindow) return;
+    const data = event.data;
+    if (!data || data.type !== 'LEARNHUB_QR_TOAST' || typeof data.message !== 'string') return;
+    const type = ['success', 'warning', 'error', 'info'].includes(data.toastType) ? data.toastType : 'info';
+    if (typeof window.lhToast === 'function') {
+      window.lhToast(data.message.slice(0, 240), {
+        type: type,
+        title: 'Tạo mã QR',
+        icon: 'fa-qrcode',
+        sound: 'realtime',
+        durationMs: 3000
+      });
+    }
+  });
+  function openQrModal() {
+    if (!qrOverlay) return;
+    qrOverlay.style.display = 'flex';
+    qrOverlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.body.classList.add('lh-page-locked');
+  }
+  function closeQrModal() {
+    if (!qrOverlay) return;
+    qrOverlay.style.display = 'none';
+    qrOverlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    document.body.classList.remove('lh-page-locked');
+    const iframe = qrOverlay.querySelector('iframe');
+    if (iframe) iframe.src = iframe.src;
+  }
+  function closeQrModalByOverlay(event) {
+    if (event.target === qrOverlay) closeQrModal();
+  }
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && qrOverlay && qrOverlay.style.display === 'flex') closeQrModal(); });
+  window.openQrModal = openQrModal;
+  window.closeQrModal = closeQrModal;
+  window.closeQrModalByOverlay = closeQrModalByOverlay;
 function updateTime(){
 const now = new Date();
 const time = now.toLocaleTimeString("vi-VN");
@@ -1796,8 +1839,7 @@ if (chatBtnEl) {
   const STORE_KEYS = {
     glass: "cc_glass",
     reduce: "cc_reduce",
-    volume: "cc_volume",
-    focus: "cc_focus_min"
+    volume: "cc_volume"
   };
 
   const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1834,7 +1876,7 @@ if (chatBtnEl) {
     home: "#2563eb",
     profile: "#16a34a",
     appearance: "#7c3aed",
-    focus: "#d97706",
+    qr: "#2563eb",
     music: "#db2777",
     install: "#0ea5e9",
     admin: "#dc2626",
@@ -1904,6 +1946,11 @@ if (chatBtnEl) {
     }
     if (name === "install") {
       doInstallApp();
+      return;
+    }
+    if (name === "qr") {
+      if (popup) popup.style.display = "none";
+      if (typeof window.openQrModal === "function") window.openQrModal();
       return;
     }
     const target = paneEls[name];
@@ -1981,332 +2028,7 @@ if (chatBtnEl) {
 
   window.addEventListener("resize", function () {
     placePill();
-    clampFocusPos();
   });
-
-  const focus = {
-    total: 25 * 60,
-    remaining: 0,
-    endTs: 0,
-    paused: false,
-    running: false,
-    timer: null,
-    selected: 25
-  };
-
-  function fmtTime(sec) {
-    sec = Math.max(0, Math.floor(sec));
-    const m = String(Math.floor(sec / 60)).padStart(2, "0");
-    const s = String(sec % 60).padStart(2, "0");
-    return m + ":" + s;
-  }
-
-  function renderFocus() {
-    const time = document.getElementById("ccFocusTime");
-    const bar = document.getElementById("ccFocusBar");
-    const mode = document.getElementById("ccFocusMode");
-    const pct = focus.total > 0 ? Math.round((focus.remaining / focus.total) * 100) : 0;
-    if (time) time.textContent = fmtTime(focus.remaining);
-    if (bar) bar.style.width = pct + "%";
-    if (mode) {
-      if (focus.remaining <= 0 && focus.running === false && focus.total > 0) {
-        mode.textContent = "Hoàn tất 🎉";
-      } else {
-        mode.textContent = focus.paused ? "Tạm dừng" : "Đang bật";
-      }
-    }
-  }
-
-  function startFocusTimer() {
-    focus.endTs = Date.now() + focus.remaining * 1000;
-    focus.timer = setInterval(function () {
-      focus.remaining = Math.max(0, Math.round((focus.endTs - Date.now()) / 1000));
-      renderFocus();
-      if (focus.remaining <= 0) finishFocus();
-    }, 250);
-  }
-
-  function playTone() {
-    if (typeof window.playSound === "function") {
-      try { window.playSound("thongbaoSound"); return; } catch (e) {}
-    }
-    try {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      const ctx = new Ctx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.frequency.value = 880;
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1);
-      osc.start();
-      osc.stop(ctx.currentTime + 1);
-    } catch (e) {}
-  }
-
-  function notifyDone() {
-    if (!("Notification" in window)) return;
-    if (Notification.permission === "granted") {
-      try { new Notification("LearnHub Focus", { body: "Đã hoàn thành phiên Focus! 🎉" }); } catch (e) {}
-    }
-  }
-
-  function enterFullscreen() {
-    const el = document.documentElement;
-    if (document.fullscreenElement) return;
-    const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
-    if (req) {
-      try {
-        const p = req.call(el);
-        if (p && typeof p.catch === "function") p.catch(function () {});
-      } catch (e) {}
-    }
-  }
-
-  function exitFullscreen() {
-    if (!document.fullscreenElement) return;
-    const ex = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
-    if (ex) {
-      try { ex.call(document); } catch (e) {}
-    }
-  }
-
-  function startFocus() {
-    if (focus.running) return;
-    if (!Number.isFinite(focus.selected) || focus.selected <= 0) focus.selected = 25;
-    focus.total = focus.selected * 60;
-    focus.remaining = focus.total;
-    focus.running = true;
-    focus.paused = false;
-    enterFullscreen();
-    showFocusWidget();
-    if (popup) popup.style.display = "none";
-    renderFocus();
-    startFocusTimer();
-    try {
-      lhToast("Focus Mode đã bật! Tập trung hết mình trong " + focus.selected + " phút nhé 💪", { type: "success", title: "Focus Mode", durationMs: 4500 });
-    } catch (e) {}
-    if ("Notification" in window && Notification.permission === "default") {
-      try { Notification.requestPermission(); } catch (e) {}
-    }
-  }
-
-  function pauseFocus() {
-    if (!focus.running || focus.paused) return;
-    clearInterval(focus.timer);
-    focus.timer = null;
-    focus.remaining = Math.max(0, Math.round((focus.endTs - Date.now()) / 1000));
-    focus.paused = true;
-    renderFocus();
-  }
-
-  function resumeFocus() {
-    if (!focus.running || !focus.paused) return;
-    focus.paused = false;
-    startFocusTimer();
-    renderFocus();
-  }
-
-  function finishFocus() {
-    if (focus.timer) { clearInterval(focus.timer); focus.timer = null; }
-    focus.running = false;
-    focus.remaining = 0;
-    renderFocus();
-    playTone();
-    notifyDone();
-    hideFocusWidget();
-    const pill = document.getElementById("ccFocusPill");
-    if (pill) pill.style.display = "none";
-    exitFullscreen();
-    const done = document.getElementById("ccDoneOverlay");
-    if (done) done.classList.add("cc-open");
-  }
-
-  function stopFocus() {
-    if (focus.timer) { clearInterval(focus.timer); focus.timer = null; }
-    focus.running = false;
-    focus.paused = false;
-    hideFocusWidget();
-    const pill = document.getElementById("ccFocusPill");
-    if (pill) pill.style.display = "none";
-    exitFullscreen();
-  }
-
-  function hideFocusWidget(showPill) {
-    const w = document.getElementById("ccFocusWidget");
-    if (w) w.classList.remove("cc-open");
-    if (showPill) {
-      const pill = document.getElementById("ccFocusPill");
-      if (pill) pill.style.display = "flex";
-    }
-  }
-
-  function showFocusWidget() {
-    const pill = document.getElementById("ccFocusPill");
-    if (pill) pill.style.display = "none";
-    const w = document.getElementById("ccFocusWidget");
-    if (w) {
-      applyFocusPos();
-      w.classList.add("cc-open");
-    }
-  }
-
-  const FOCUS_POS_KEY = "ccFocusPos";
-
-  function clampFocusPos() {
-    const w = document.getElementById("ccFocusWidget");
-    if (!w) return;
-    if (!(w.style.left || w.style.top)) return;
-    const r = w.getBoundingClientRect();
-    const maxL = Math.max(8, window.innerWidth - r.width - 8);
-    const maxT = Math.max(8, window.innerHeight - r.height - 8);
-    let x = parseInt(w.style.left, 10);
-    let y = parseInt(w.style.top, 10);
-    if (!isFinite(x)) x = Math.min(20, maxL);
-    if (!isFinite(y)) y = 96;
-    x = Math.max(8, Math.min(x, maxL));
-    y = Math.max(8, Math.min(y, maxT));
-    w.style.left = x + "px";
-    w.style.top = y + "px";
-    w.style.right = "auto";
-    w.style.bottom = "auto";
-  }
-
-  function saveFocusPos() {
-    try {
-      const w = document.getElementById("ccFocusWidget");
-      if (!w) return;
-      localStorage.setItem(FOCUS_POS_KEY, JSON.stringify({ x: w.style.left, y: w.style.top }));
-    } catch (e) {}
-  }
-
-  function applyFocusPos() {
-    const w = document.getElementById("ccFocusWidget");
-    if (!w) return;
-    try {
-      const saved = JSON.parse(localStorage.getItem(FOCUS_POS_KEY) || "null");
-      if (saved && isFinite(Number(saved.x)) && isFinite(Number(saved.y))) {
-        w.style.left = saved.x + "px";
-        w.style.top = saved.y + "px";
-        w.style.right = "auto";
-        w.style.bottom = "auto";
-      } else {
-        w.style.left = "";
-        w.style.top = "";
-        w.style.right = "";
-        w.style.bottom = "";
-      }
-      clampFocusPos();
-    } catch (e) {}
-  }
-
-  function enableFocusDrag() {
-    const w = document.getElementById("ccFocusWidget");
-    if (!w) return;
-    let dragging = false;
-    let sx = 0, sy = 0, ox = 0, oy = 0;
-    w.addEventListener("pointerdown", function (e) {
-      if (e.button !== 0) return;
-      if (!e.target.closest(".cc-fw-head")) return;
-      if (e.target.closest("button")) return;
-      const r = w.getBoundingClientRect();
-      ox = r.left; oy = r.top;
-      sx = e.clientX; sy = e.clientY;
-      dragging = true;
-      w.classList.add("cc-dragging");
-      try { w.setPointerCapture(e.pointerId); } catch (err) {}
-      e.preventDefault();
-    });
-    w.addEventListener("pointermove", function (e) {
-      if (!dragging) return;
-      const x = ox + (e.clientX - sx);
-      const y = oy + (e.clientY - sy);
-      w.style.left = x + "px";
-      w.style.top = y + "px";
-      w.style.right = "auto";
-      w.style.bottom = "auto";
-    });
-    function endDrag() {
-      if (!dragging) return;
-      dragging = false;
-      w.classList.remove("cc-dragging");
-      clampFocusPos();
-      saveFocusPos();
-    }
-    w.addEventListener("pointerup", endDrag);
-    w.addEventListener("pointercancel", endDrag);
-  }
-
-  function initFocus() {
-    const presets = document.querySelectorAll(".cc-chip[data-min]");
-    const customInput = document.getElementById("ccFocusCustom");
-    const setBtn = document.getElementById("ccFocusSet");
-    const startBtn = document.getElementById("ccFocusStart");
-    const saved = Number(localStorage.getItem(STORE_KEYS.focus)) || 25;
-    focus.selected = saved;
-
-    function applySelect(min) {
-      focus.selected = min;
-      localStorage.setItem(STORE_KEYS.focus, String(min));
-      presets.forEach(function (c) {
-        c.classList.toggle("cc-active", Number(c.getAttribute("data-min")) === min);
-      });
-    }
-
-    presets.forEach(function (c) {
-      c.addEventListener("click", function () { applySelect(Number(c.getAttribute("data-min"))); });
-    });
-
-    if (setBtn && customInput) {
-      setBtn.addEventListener("click", function () {
-        const v = parseInt(customInput.value, 10);
-        if (!Number.isFinite(v) || v <= 0 || v > 180) { customInput.value = ""; return; }
-        customInput.value = "";
-        applySelect(v);
-      });
-    }
-
-    if (startBtn) {
-      startBtn.addEventListener("click", function () {
-        if (customInput && customInput.value) {
-          const v = parseInt(customInput.value, 10);
-          if (Number.isFinite(v) && v > 0 && v <= 180) applySelect(v);
-        }
-        startFocus();
-      });
-    }
-
-    applySelect(focus.selected);
-
-    const pauseBtn = document.getElementById("ccFocusPause");
-    const exitBtn = document.getElementById("ccFocusExit");
-    if (pauseBtn) {
-      pauseBtn.addEventListener("click", function () {
-        if (focus.paused) {
-          pauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng';
-          resumeFocus();
-        } else if (focus.running) {
-          pauseBtn.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục';
-          pauseFocus();
-        }
-      });
-    }
-    if (exitBtn) exitBtn.addEventListener("click", stopFocus);
-
-    const hideBtn = document.getElementById("ccFocusHide");
-    const pill = document.getElementById("ccFocusPill");
-    if (hideBtn) hideBtn.addEventListener("click", function () { hideFocusWidget(true); });
-    if (pill) pill.addEventListener("click", showFocusWidget);
-
-    const doneOk = document.getElementById("ccDoneOk");
-    if (doneOk) {
-      doneOk.addEventListener("click", function () {
-        const done = document.getElementById("ccDoneOverlay");
-        if (done) done.classList.remove("cc-open");
-      });
-    }
-  }
 
   const music = {
     index: 0,
@@ -2842,8 +2564,6 @@ if (chatBtnEl) {
 
   applyPrefs();
   bindPrefs();
-  initFocus();
-  enableFocusDrag();
   initMusic();
   initLogout();
   initVersion();

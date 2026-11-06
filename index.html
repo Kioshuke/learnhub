@@ -501,6 +501,12 @@ document.addEventListener('click',function(e){
         <p>Xem hồ sơ chi tiết của bản thân &amp; người khác: thông tin cá nhân, thống kê học tập, trạng thái trực tuyến.</p>
         <span class="feature-link">Xem hồ sơ <i class="fa-solid fa-arrow-right"></i></span>
       </a>
+      <a class="feature-card" href="pages/features/qr-code.html" onclick="event.preventDefault(); openQrModal();" style="--feat-color:#10b981;">
+        <div class="feature-icon"><i class="fa-solid fa-qrcode"></i></div>
+        <h3>Tạo mã QR</h3>
+        <p>Tạo mã QR cho đường link hoặc văn bản, tùy chỉnh màu sắc và kích thước rồi tải ảnh PNG.</p>
+        <span class="feature-link">Tạo mã ngay <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
     </div>
   </section>
 
@@ -1718,7 +1724,7 @@ window.addEventListener("message", async (event) => {
       <button class="cc-nav cc-active" type="button" data-tab="home" data-tooltip="Trang chủ" aria-label="Trang chủ"><span class="cc-ico"><i class="fa-solid fa-house"></i></span></button>
       <button class="cc-nav" type="button" data-tab="profile" data-tooltip="Hồ sơ" aria-label="Hồ sơ"><span class="cc-ico"><i class="fa-solid fa-user"></i></span></button>
       <button class="cc-nav" type="button" data-tab="appearance" data-tooltip="Giao diện" aria-label="Giao diện"><span class="cc-ico"><i class="fa-solid fa-palette"></i></span></button>
-      <button class="cc-nav" type="button" data-tab="focus" data-tooltip="Focus Mode" aria-label="Focus Mode"><span class="cc-ico"><i class="fa-solid fa-hourglass-half"></i></span></button>
+      <button class="cc-nav" type="button" data-tab="qr" data-tooltip="Tạo mã QR" aria-label="Tạo mã QR"><span class="cc-ico"><i class="fa-solid fa-qrcode"></i></span></button>
       <button class="cc-nav" type="button" data-tab="music" data-tooltip="Âm nhạc" aria-label="Âm nhạc"><span class="cc-ico"><i class="fa-solid fa-music"></i></span></button>
       <button class="cc-nav" type="button" data-tab="install" data-tooltip="Cài ứng dụng" aria-label="Cài ứng dụng" id="ccNavInstall" style="display:none;"><span class="cc-ico"><i class="fa-solid fa-download"></i></span></button>
       <button class="cc-nav" type="button" data-tab="admin" data-tooltip="Administrator" aria-label="Administrator" id="ccNavAdmin"><span class="cc-ico"><i class="fa-solid fa-shield-halved"></i></span></button>
@@ -1774,23 +1780,6 @@ window.addEventListener("message", async (event) => {
         </label>
       </div>
 
-      <div class="cc-pane" data-pane="focus">
-        <div class="cc-section-title">Focus Mode</div>
-        <div class="cc-focus-presets">
-          <button class="cc-chip" type="button" data-min="25">25</button>
-          <button class="cc-chip" type="button" data-min="45">45</button>
-          <button class="cc-chip" type="button" data-min="60">60</button>
-          <button class="cc-chip" type="button" data-min="90">90</button>
-          <button class="cc-chip" type="button" data-min="120">120</button>
-        </div>
-        <div class="cc-focus-custom">
-          <input class="cc-focus-input" id="ccFocusCustom" type="number" min="1" max="180" placeholder="Phút tùy chỉnh (1-180)">
-          <button class="cc-btn-ghost" id="ccFocusSet" type="button">Đặt</button>
-        </div>
-        <button class="cc-btn-primary" id="ccFocusStart" type="button"><i class="fa-solid fa-play"></i> Bắt đầu Focus</button>
-        <p class="cc-focus-note">Focus sẽ bật toàn màn hình và ẩn hộp này đi. Hết giờ sẽ rung chuông và gửi thông báo.</p>
-      </div>
-
       <div class="cc-pane" data-pane="music">
         <div class="cc-section-title">Âm nhạc</div>
         <div class="cc-track-list" id="ccTrackList"></div>
@@ -1832,22 +1821,12 @@ window.addEventListener("message", async (event) => {
 
 </div>
 
-<div id="ccFocusWidget" class="cc-focus-widget">
-  <div class="cc-fw-head">
-    <span class="cc-fw-meta">
-      <span class="cc-fw-label"><i class="fa-solid fa-hourglass-half" style="color:#f59e0b"></i> Focus Mode</span>
-      <span class="cc-fw-state" id="ccFocusMode">Đang bật</span>
-    </span>
-    <button class="cc-fw-hide" id="ccFocusHide" type="button" title="Ẩn đồng hồ">✕</button>
-  </div>
-  <div class="cc-fw-time" id="ccFocusTime">25:00</div>
-  <div class="cc-fw-bar"><div class="cc-fw-fill" id="ccFocusBar"></div></div>
-  <div class="cc-fw-actions">
-    <button class="cc-fw-btn" id="ccFocusPause" type="button"><i class="fa-solid fa-pause"></i> Tạm dừng</button>
-    <button class="cc-fw-btn cc-danger" id="ccFocusExit" type="button">Thoát</button>
+<div id="lh-qr-overlay" class="lh-qr-overlay" onclick="closeQrModalByOverlay(event)" aria-hidden="true">
+  <div class="lh-qr-dialog" role="dialog" aria-modal="true" aria-label="Tạo mã QR">
+    <button class="lh-qr-close" type="button" onclick="closeQrModal()" aria-label="Đóng">&times;</button>
+    <iframe id="lhQrFrame" src="/pages/features/qr-code.html" title="Tạo mã QR"></iframe>
   </div>
 </div>
-<button id="ccFocusPill" class="cc-focus-pill" type="button" title="Mở đồng hồ Focus" aria-label="Mở đồng hồ Focus" style="display:none;"><i class="fa-solid fa-hourglass-half" style="color:#f59e0b"></i></button>
 
 <div id="ccLogoutOverlay" class="cc-logout-overlay">
   <div class="cc-logout-card">
@@ -1857,16 +1836,6 @@ window.addEventListener("message", async (event) => {
     <div class="cc-logout-btns">
       <button class="cc-btn-ghost" id="ccLogoutCancel" type="button">Huỷ</button>
       <button class="cc-btn-danger" id="ccLogoutOk" type="button">Đăng xuất</button>
-    </div>
-  </div>
-</div>
-<div id="ccDoneOverlay" class="cc-logout-overlay">
-  <div class="cc-logout-card">
-    <div class="cc-logout-icon" style="background:rgba(16,185,129,0.12);"><i class="fa-solid fa-circle-check" style="color:#10b981;"></i></div>
-    <div class="cc-logout-title">Hết giờ!</div>
-    <p class="cc-logout-msg">Phiên Focus đã hoàn thành. Chúc bạn có giờ học thật hiệu quả nhé!</p>
-    <div class="cc-logout-btns">
-      <button class="cc-btn-primary" id="ccDoneOk" type="button">Tuyệt vời</button>
     </div>
   </div>
 </div>

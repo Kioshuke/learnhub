@@ -360,6 +360,9 @@ document.getElementById("logoutBtn").addEventListener("click", async () => {
   const toggleBtn = document.getElementById("sidebarToggle");
   if (!sidebar || !toggleBtn) return;
   const wrap = document.getElementById("dashboardView");
+  sidebar.querySelectorAll(".sidebar-nav > .sidebar-link").forEach((link, index) => {
+    link.style.setProperty("--nav-index", index);
+  });
   function applyCollapsed(on){
     sidebar.classList.toggle("collapsed", on);
     wrap.classList.toggle("collapsed", on);

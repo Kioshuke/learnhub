@@ -63,7 +63,7 @@
     "  grid-template-columns: 256px minmax(0, 1fr);",
     "  min-height: 100vh;",
     "  background: #f8fafc;",
-    "  transition: grid-template-columns 0.25s ease;",
+    "  transition: grid-template-columns 0.5s cubic-bezier(.2,.8,.2,1);",
     "}",
     "#tcApp.teacher-app[style*=\"display:none\"] { display: none !important; }",
     "",
@@ -80,7 +80,7 @@
     "  scrollbar-width: none;",
     "  -ms-overflow-style: none;",
     "  z-index: 40;",
-    "  transition: padding 0.25s ease;",
+    "  transition: padding 0.5s cubic-bezier(.2,.8,.2,1);",
     "}",
     ".teacher-rail::-webkit-scrollbar { display: none; width: 0; height: 0; }",
     ".teacher-identity {",
@@ -90,7 +90,7 @@
     "  padding: 0 8px 24px;",
     "  border-bottom: 1px solid rgba(255,255,255,.16);",
     "  margin-bottom: 8px;",
-    "  transition: padding 0.25s ease, gap 0.25s ease;",
+    "  transition: padding 0.5s cubic-bezier(.2,.8,.2,1), gap 0.5s cubic-bezier(.2,.8,.2,1);",
     "}",
     ".teacher-identity img {",
     "  width: 40px;",
@@ -192,7 +192,7 @@
     "  font: 500 13.5px/1 'Inter', sans-serif;",
     "  text-align: left;",
     "  cursor: pointer;",
-    "  transition: background 0.15s, color 0.15s, width 0.25s ease, height 0.25s ease, padding 0.25s ease, gap 0.25s ease;",
+    "  transition: background 0.18s ease, color 0.18s ease, width 0.5s cubic-bezier(.2,.8,.2,1), height 0.5s cubic-bezier(.2,.8,.2,1), padding 0.5s cubic-bezier(.2,.8,.2,1), gap 0.5s cubic-bezier(.2,.8,.2,1);",
     "}",
     ".teacher-nav button i {",
     "  width: 18px;",
@@ -244,7 +244,7 @@
     "  color: rgba(255,255,255,.88);",
     "  font-size: 13px;",
     "  font-weight: 600;",
-    "  transition: width 0.25s ease, height 0.25s ease, padding 0.25s ease, gap 0.25s ease;",
+    "  transition: width 0.5s cubic-bezier(.2,.8,.2,1), height 0.5s cubic-bezier(.2,.8,.2,1), padding 0.5s cubic-bezier(.2,.8,.2,1), gap 0.5s cubic-bezier(.2,.8,.2,1);",
     "}",
     ".rail-foot-item i {",
     "  width: 18px;",
@@ -269,11 +269,13 @@
     "  white-space: nowrap;",
     "  opacity: 1;",
     "  max-width: 260px;",
-    "  transition: opacity 0.18s ease, max-width 0.25s ease;",
+    "  transform: translateX(0);",
+    "  transition: opacity 0.2s ease, transform 0.38s cubic-bezier(.2,.8,.2,1), max-width 0.38s cubic-bezier(.2,.8,.2,1);",
     "}",
-    ".teacher-nav-label { overflow: hidden; opacity: 1; max-height: 40px; transition: opacity 0.15s ease, max-height 0.25s ease, padding 0.25s ease; }",
-    ".teacher-nav-divider { overflow: hidden; opacity: 1; max-height: 20px; transition: opacity 0.15s ease, max-height 0.25s ease, margin 0.25s ease; }",
-    ".sidebar-search { overflow: hidden; opacity: 1; max-height: 80px; transition: opacity 0.18s ease, max-height 0.25s ease, margin 0.25s ease; }",
+    ".teacher-rail:not(.collapsed) .teacher-nav button span, #tcApp.teacher-app.mobile-rail-open .teacher-nav button span { transition: opacity 0.28s cubic-bezier(.2,.8,.2,1), transform 0.38s cubic-bezier(.2,.8,.2,1), max-width 0.4s cubic-bezier(.2,.8,.2,1); transition-delay: calc(.07s + var(--nav-index, 0) * 22ms); }",
+    ".teacher-nav-label { overflow: hidden; opacity: 1; max-height: 40px; transition: opacity 0.2s ease, max-height 0.38s cubic-bezier(.2,.8,.2,1), padding 0.38s cubic-bezier(.2,.8,.2,1); }",
+    ".teacher-nav-divider { overflow: hidden; opacity: 1; max-height: 20px; transition: opacity 0.2s ease, max-height 0.38s cubic-bezier(.2,.8,.2,1), margin 0.38s cubic-bezier(.2,.8,.2,1); }",
+    ".sidebar-search { overflow: hidden; opacity: 1; max-height: 80px; transition: opacity 0.2s ease, max-height 0.38s cubic-bezier(.2,.8,.2,1), margin 0.38s cubic-bezier(.2,.8,.2,1); }",
     "",
     /* --- Trạng thái thu gọn (icon-only) --- */
     "#tcApp.teacher-app.rail-collapsed { grid-template-columns: 72px minmax(0, 1fr); }",
@@ -288,6 +290,7 @@
     ".teacher-rail.collapsed .teacher-nav-divider { opacity: 0; max-height: 0; margin-top: 0; margin-bottom: 0; }",
     ".teacher-rail.collapsed .teacher-nav { align-items: center; }",
     ".teacher-rail.collapsed .teacher-nav button { width: 44px; height: 44px; padding: 0; justify-content: center; gap: 0; }",
+    ".teacher-rail.collapsed .teacher-identity-text, .teacher-rail.collapsed .teacher-nav button span, .teacher-rail.collapsed .rail-foot-item span { transform: translateX(-6px); }",
     ".teacher-rail.collapsed .teacher-rail-foot { display: flex; justify-content: center; padding: 14px 0 0; }",
     ".teacher-rail.collapsed .rail-foot-item { width: 44px; height: 44px; padding: 0; justify-content: center; gap: 0; }",
     ".teacher-rail.collapsed .rail-toggle i { transform: rotate(180deg); }",
@@ -411,10 +414,10 @@
     "}",
     "@media (max-width: 720px) {",
     "  #tcApp.teacher-app { display: block !important; }",
-    "  .teacher-rail { display: none !important; }",
+    "  .teacher-rail { display: flex !important; position: fixed; inset: 0 auto 0 0; width: 256px; height: 100dvh; transform: translateX(-100%); visibility: hidden; transition: transform 0.36s cubic-bezier(.2,.8,.2,1), visibility 0s linear 0.36s; }",
     "  .teacher-app .tc-topbar { padding: 0 18px; min-height: 60px; }",
     "  .tc-mobile-rail-toggle { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; border: 1px solid rgba(255,255,255,.34); border-radius: 10px; background: rgba(255,255,255,.18); color: #ffffff; cursor: pointer; }",
-    "  #tcApp.teacher-app.mobile-rail-open .teacher-rail { display: flex !important; position: fixed; inset: 0 auto 0 0; width: 256px; height: 100dvh; padding: 24px 16px; align-items: stretch; overflow-y: auto; box-shadow: 8px 0 28px rgba(15,23,42,.18); }",
+    "  #tcApp.teacher-app.mobile-rail-open .teacher-rail { transform: translateX(0); visibility: visible; transition: transform 0.36s cubic-bezier(.2,.8,.2,1), visibility 0s; padding: 24px 16px; align-items: stretch; overflow-y: auto; box-shadow: 8px 0 28px rgba(15,23,42,.18); }",
     "  #tcApp.teacher-app.mobile-rail-open .teacher-identity { padding: 0 8px 24px; justify-content: flex-start; gap: 12px; }",
     "  #tcApp.teacher-app.mobile-rail-open .teacher-identity img, #tcApp.teacher-app.mobile-rail-open .teacher-identity-text, #tcApp.teacher-app.mobile-rail-open .teacher-nav button span, #tcApp.teacher-app.mobile-rail-open .rail-foot-item span { opacity: 1; max-width: none; }",
     "  #tcApp.teacher-app.mobile-rail-open .sidebar-search { opacity: 1; max-height: none; margin: 8px 0 20px; }",
@@ -423,7 +426,8 @@
     "  #tcApp.teacher-app.mobile-rail-open .teacher-nav button { width: 100%; height: auto; min-height: 44px; padding: 10px 12px; justify-content: flex-start; gap: 12px; }",
     "  #tcApp.teacher-app.mobile-rail-open .teacher-rail-foot { justify-content: flex-start; }",
     "  #tcApp.teacher-app.mobile-rail-open .rail-foot-item { width: 100%; height: auto; min-height: 44px; padding: 10px 12px; justify-content: flex-start; gap: 12px; }",
-    "}"
+    "}",
+    "@media (prefers-reduced-motion: reduce) { #tcApp.teacher-app, #tcApp.teacher-app *, #tcApp.teacher-app *::before, #tcApp.teacher-app *::after { transition-duration: .01ms !important; transition-delay: .01ms !important; scroll-behavior: auto !important; } }"
   ].join("\n");
 
   function noop() {}
@@ -533,6 +537,9 @@
     rail.className = "teacher-rail";
     rail.setAttribute("aria-label", "Điều hướng giáo viên");
     rail.innerHTML = railHtml();
+    Array.prototype.forEach.call(rail.querySelectorAll(".teacher-nav button"), function (btn, index) {
+      btn.style.setProperty("--nav-index", index);
+    });
     app.insertBefore(rail, app.firstChild);
 
     var canvas = app.querySelector(".teacher-canvas");
