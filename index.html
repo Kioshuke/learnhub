@@ -679,6 +679,7 @@ try {
     maintenanceState = { enabled: _m.enabled, message: _m.message, initialized: true };
     handleMaintenanceTransition(maintenanceState.enabled);
     applyMaintenanceUI();
+    if (maintenanceState.enabled) window.location.replace('/maintenance.html');
   }).catch(() => {});
 } catch (e) {
   maintenanceState = { enabled: true, message: "", initialized: true };
@@ -698,7 +699,7 @@ try {
       if(newEnabled){
         // avoid redirecting if already on maintenance page
         if(!location.pathname.endsWith('/maintenance.html') && !location.pathname.endsWith('maintenance.html')){
-          try { window.location.replace('maintenance.html'); } catch(e){ window.location.href = 'maintenance.html'; }
+          try { window.location.replace('/maintenance.html'); } catch(e){ window.location.href = '/maintenance.html'; }
         }
       }
     } catch(e){}
@@ -1326,7 +1327,7 @@ if(user){
 
 } else {
   if (maintenanceState.initialized && maintenanceState.enabled) {
-    window.location.replace('maintenance.html');
+    window.location.replace('/maintenance.html');
   } else {
     enterGuestMode();
   }
