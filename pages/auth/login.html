@@ -913,6 +913,113 @@
     #loginBox .lhreg .auth-terms.is-shake{animation:none}
   }
 </style>
+<!-- Lucian UX/UI Prompt #026 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#026 -->
+<style>
+  /* ===== OTP 6-digit code input (prompt #026) — scoped to #otpSection.u026 ===== */
+  #otpSection.u026{
+    /* map --ux-* tokens sang biến theme sẵn có của LearnHub */
+    --ux-danger:var(--lh-danger, #ef4444);
+    --ux-mint:var(--lh-mint, #10b981);
+    --ux-line:var(--footer-border, #e2e8f0);
+    --ux-line-2:#cbd5e1;
+    --ux-surface:#ffffff;
+    --ux-ink:var(--text-main, #0f172a);
+    --ux-ink-2:var(--text-sub, #64748b);
+    --ux-ink-3:var(--footer-bottom-text, #94a3b8);
+    --ux-accent:var(--blue-accent, #2563eb);
+    --ux-accent-soft:color-mix(in srgb, var(--blue-accent, #2563eb) 12%, transparent);
+    --ux-ease:var(--lh-ease, cubic-bezier(.2,.8,.2,1));
+    --ux-spring:var(--lh-spring, cubic-bezier(.34,1.45,.64,1));
+    position:relative;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:6px 0 2px;
+    color:var(--ux-ink);
+    -webkit-font-smoothing:antialiased;
+    letter-spacing:-.01em;
+  }
+  #otpSection.u026 *,#otpSection.u026 *::before,#otpSection.u026 *::after{box-sizing:border-box}
+  #otpSection.u026 :is(button,input){font:inherit;color:inherit}
+  #otpSection.u026 :focus-visible{outline:2px solid var(--ux-accent);outline-offset:3px}
+  #otpSection.u026 [hidden]{display:none!important}
+
+  #otpSection .u026-ic{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;color:#fff;background:linear-gradient(140deg,#5B8CFF,#8B6CFF);box-shadow:0 14px 26px -14px rgba(91,108,255,.8);transition:background .5s var(--ux-ease)}
+  #otpSection .u026-ic svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  #otpSection.u026.is-ok .u026-ic{background:linear-gradient(140deg,#2FD8A8,#119C72)}
+  #otpSection .u026-t{margin:16px 0 0;font-size:18px;font-weight:760;letter-spacing:-.03em;color:var(--ux-ink)}
+  #otpSection .u026-s{margin:6px 0 20px;font-size:13.5px;color:var(--ux-ink-3)}
+  #otpSection .u026-s b{color:var(--ux-ink-2);font-weight:650}
+  #otpSection .u026-row{position:relative;display:flex;gap:8px;align-items:center}
+  #otpSection .u026-row i.sep{width:10px;align-self:center;height:2px;border-radius:2px;background:var(--ux-line-2)}
+  #otpSection .u026-c{position:relative;width:46px;height:58px;border-radius:14px;background:var(--ux-surface);box-shadow:inset 0 0 0 1.5px var(--ux-line-2);display:grid;place-items:center;overflow:hidden;font-size:26px;font-weight:760;font-variant-numeric:tabular-nums;color:var(--ux-ink);transition:box-shadow .25s var(--ux-ease),background-color .4s var(--ux-ease),color .4s,transform .45s var(--ux-spring)}
+  #otpSection .u026-c span{display:block;animation:u026-in .4s var(--ux-spring)}
+  @keyframes u026-in{from{transform:translateY(70%);opacity:0}}
+  #otpSection .u026-c.cur{box-shadow:inset 0 0 0 2px var(--ux-accent),0 0 0 4px var(--ux-accent-soft)}
+  #otpSection .u026-c.cur::after{content:"";position:absolute;left:50%;top:16px;bottom:16px;width:2px;margin-left:-1px;border-radius:1px;background:var(--ux-accent);animation:u026-blink 1s steps(1) infinite}
+  #otpSection .u026-c.cur.has::after{display:none}
+  @keyframes u026-blink{50%{opacity:0}}
+  #otpSection.u026.is-check .u026-c{animation:u026-wave .5s var(--ux-ease);animation-delay:calc(var(--i) * 60ms)}
+  @keyframes u026-wave{40%{transform:translateY(-8px)}}
+  #otpSection.u026.is-ok .u026-c{background:color-mix(in srgb,var(--ux-mint) 14%,var(--ux-surface));box-shadow:inset 0 0 0 2px var(--ux-mint);color:var(--ux-mint);transition-delay:calc(var(--i) * 50ms)}
+  #otpSection.u026.is-bad .u026-row{animation:u026-shake .45s var(--ux-ease)}
+  #otpSection.u026.is-bad .u026-c{box-shadow:inset 0 0 0 2px var(--ux-danger);color:var(--ux-danger)}
+  @keyframes u026-shake{20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
+  #otpSection .u026-real{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;font-size:16px;cursor:text;caret-color:transparent;color:transparent;background:transparent}
+  #otpSection .u026-msg{height:20px;margin:16px 0 0;font-size:13.5px;font-weight:650;color:var(--ux-ink-3);transition:color .3s var(--ux-ease);user-select:none}
+  #otpSection.u026.is-ok .u026-msg{color:var(--ux-mint)}
+  #otpSection.u026.is-bad .u026-msg{color:var(--ux-danger)}
+  #otpSection .u026-live{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  #otpSection .u026-real:focus-visible{outline:none}
+
+  /* Popup shell: mã OTP hiện trong hộp thoại thay vì nội tuyến */
+  #otpModal{--ux-ease:cubic-bezier(.2,.8,.2,1);position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s var(--ux-ease),visibility .25s var(--ux-ease)}
+  #otpModal.is-open{opacity:1;visibility:visible;pointer-events:auto}
+  #otpModal #otpSection.u026{width:min(400px,100%);padding:30px 22px 22px;background:var(--ux-surface);border-radius:24px;box-shadow:0 28px 70px rgba(15,23,42,.35);transform:translateY(10px) scale(.97);transition:transform .3s var(--ux-spring)}
+  #otpModal.is-open #otpSection.u026{transform:none}
+  #otpClose{position:absolute;top:10px;right:10px;width:34px;height:34px;border:0;border-radius:11px;background:transparent;color:var(--ux-ink-3);font-size:18px;line-height:1;display:grid;place-items:center;cursor:pointer;transition:background .2s var(--ux-ease),color .2s var(--ux-ease)}
+  #otpClose:hover{background:var(--ux-line);color:var(--ux-ink)}
+
+  /* Nút "Nhận mã": sau khi xác minh xong thì xanh lá và khoá lại */
+  #sendOtpBtn.is-verified{background:#dcfce7;border-color:#10b981;color:#047857}
+  #sendOtpBtn.is-verified:disabled{opacity:1;cursor:default}
+
+  /* Dark theme: theo quy ước body.dark-mode của LearnHub */
+  body.dark-mode #otpSection.u026,
+  html[data-theme="dark"] #otpSection.u026{
+    --ux-line-2:var(--line, #334155);
+    --ux-surface:var(--surface, #1e293b);
+    --ux-ink:var(--text-main, #f1f5f9);
+    --ux-ink-2:var(--sub, #cbd5e1);
+    --ux-ink-3:var(--muted, #94a3b8);
+    --ux-accent:#60a5fa;
+    --ux-accent-soft:rgba(96,165,250,.18);
+  }
+
+  /* Reduced motion: tắt animation, hiện tức thời */
+  @media (prefers-reduced-motion:reduce){
+    #otpSection .u026-ic,
+    #otpSection .u026-c,
+    #otpSection .u026-msg,
+    #otpModal,
+    #otpModal #otpSection.u026,
+    #otpClose{transition:none!important}
+    #otpSection .u026-c span,
+    #otpSection.u026.is-check .u026-c,
+    #otpSection.u026.is-bad .u026-row,
+    #otpSection .u026-c.cur::after{animation:none!important}
+  }
+
+  /* Mobile: thu nhỏ ô cho vừa màn hình hẹp */
+  @media (max-width:420px){
+    #otpSection .u026-c{width:40px;height:52px;font-size:22px}
+    #otpSection .u026-row{gap:6px}
+    #otpModal{padding:14px}
+    #otpModal #otpSection.u026{padding:28px 14px 18px}
+  }
+</style>
 <script src="../../version/version-check.js" defer></script>
 <script src="../../scripts/core/toast.js"></script>
 </head>
@@ -1079,15 +1186,6 @@
       </div>
       <div class="lhreg-hint" id="registerEmailHint"><div><span></span></div></div>
       <span class="auth-field-error" id="registerEmailError"></span>
-
-      <div id="otpSection" style="display:none">
-        <div class="auth-otp-row">
-          <input type="text" id="otpCode" maxlength="6" inputmode="numeric" placeholder="Mã 6 chữ số" required>
-          <span class="otp-timer-label">Hiệu lực mã <b id="otpCountdown">15:00</b></span>
-          <button type="button" id="otpResendBtn" onclick="resendOTP()" disabled class="auth-otp-resend">Gửi lại</button>
-        </div>
-        <span class="auth-field-error" id="otpCodeError"></span>
-      </div>
 
       <div class="auth-input-group has-eye">
         <input type="password" id="registerPassword" required autocomplete="new-password" placeholder=" " aria-describedby="registerPasswordHint">
@@ -1462,24 +1560,6 @@ bindCapsLockHint("loginPassword", "capsHintLogin");
 bindCapsLockHint("registerPassword", "capsHintReg");
 bindCapsLockHint("registerConfirmPassword", "capsHintRegCfm");
 
-document.getElementById("otpCode").addEventListener("input", function() {
-  const v = this.value.replace(/\D/g, "");
-  if (this.value !== v) this.value = v;
-  setFieldError("otpCode", "");
-  if (v.length === 6 && !processingLogin) {
-    const name = document.getElementById("registerName").value.trim();
-    const email = document.getElementById("registerEmail").value.trim();
-    const pw = document.getElementById("registerPassword").value;
-    const cf = document.getElementById("registerConfirmPassword").value;
-    if (!name || !email || !pw || !cf) {
-      const missing = !name ? "registerName" : !email ? "registerEmail" : !pw ? "registerPassword" : "registerConfirmPassword";
-      document.getElementById(missing).focus();
-      return;
-    }
-    emailRegister();
-  }
-});
-
 function showLoginSuccess(message, redirectMs = 3000) {
   if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
   let remaining = Math.ceil(redirectMs / 1000);
@@ -1524,6 +1604,9 @@ let otpCountdownInterval = null;
 let otpResendCooldown = null;
 const OTP_EXPIRE_MS = 15 * 60 * 1000;
 let otpServerId = null;
+let otpSent = false;
+let otpVerified = false;
+let otpPrevOverflow = "";
 
 // [FIX BUG #1] LƯU Ý: mã OTP vẫn sinh ở client rồi gửi kèm sang store_otp + EmailJS.
 // Vì EmailJS chạy ở trình duyệt nên mã luôn lộ với client — muốn "sinh OTP phía server"
@@ -1585,21 +1668,196 @@ function startOTPCountdown() {
 }
 
 function startResendCooldown() {
-  const btn = document.getElementById("otpResendBtn");
+  const msg = document.querySelector('#otpSection .u026-msg');
   let sec = 60;
-  btn.disabled = true;
-  btn.textContent = "Gửi lại mã (" + sec + "s)";
+  if (otpResendCooldown) { clearInterval(otpResendCooldown); otpResendCooldown = null; }
+  if (msg) { msg.dataset.ready = "0"; msg.style.cursor = "default"; }
+  const say = (t) => {
+    if (msg) msg.textContent = t;
+    const live = document.querySelector('#otpSection .u026-live');
+    if (live) live.textContent = t;
+  };
+  say("Gửi lại mã sau " + Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0"));
   otpResendCooldown = setInterval(() => {
+    const root = document.getElementById("otpSection");
+    if (root && (root.classList.contains("is-check") || root.classList.contains("is-bad") || root.classList.contains("is-ok"))) return;
     sec--;
     if (sec <= 0) {
-      clearInterval(otpResendCooldown);
-      btn.disabled = false;
-      btn.textContent = "Gửi lại mã";
+      clearInterval(otpResendCooldown); otpResendCooldown = null;
+      if (msg) { msg.dataset.ready = "1"; msg.style.cursor = "pointer"; }
+      say("Bạn có thể gửi lại mã");
       return;
     }
-    btn.textContent = "Gửi lại mã (" + sec + "s)";
+    say("Gửi lại mã sau " + Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0"));
   }, 1000);
 }
+
+/* ===== OTP UI driver cho component prompt #026 ===== */
+function otpUiRoot(){ return document.getElementById("otpSection"); }
+function otpUiInput(){ return document.querySelector("#otpSection .u026-real"); }
+function openOtpModal(){
+  const modal = document.getElementById("otpModal");
+  if (!modal || modal.classList.contains("is-open")) return;
+  otpPrevOverflow = document.body.style.overflow || "";
+  modal.classList.add("is-open");
+  document.body.style.overflow = "hidden";
+  otpUiPaint();
+  setTimeout(() => { const i = otpUiInput(); if (i) i.focus(); }, 40);
+}
+function closeOtpModal(){
+  const modal = document.getElementById("otpModal");
+  if (!modal || !modal.classList.contains("is-open")) return;
+  modal.classList.remove("is-open");
+  document.body.style.overflow = otpPrevOverflow;
+  const root = otpUiRoot();
+  if (root) root.classList.remove("is-check");
+}
+function otpModalError(message){
+  openOtpModal();
+  otpVerified = false;
+  otpUiUnmarkVerified();
+  const root = otpUiRoot();
+  otpUiSay(message);
+  if (root) {
+    root.classList.remove("is-ok", "is-check");
+    root.classList.add("is-bad");
+    setTimeout(() => root.classList.remove("is-bad"), 700);
+  }
+}
+function otpUiSay(t){
+  const m = document.querySelector("#otpSection .u026-msg");
+  const live = document.querySelector("#otpSection .u026-live");
+  if (m) m.textContent = t;
+  if (live) live.textContent = t;
+}
+function otpUiPaint(){
+  const root = otpUiRoot(), input = otpUiInput();
+  if (!root || !input) return;
+  const v = input.value;
+  const cells = root.querySelectorAll(".u026-c");
+  cells.forEach((c, i) => {
+    const ch = v[i] || "";
+    if (ch !== (c.getAttribute("data-ch") || "")) {
+      c.innerHTML = ch ? "<span>" + ch + "</span>" : "";
+      c.setAttribute("data-ch", ch);
+    }
+    c.classList.toggle("has", !!ch);
+    c.classList.toggle("cur", document.activeElement === input && i === Math.min(v.length, 5));
+  });
+}
+function otpUiClearEntry(){
+  const root = otpUiRoot(), input = otpUiInput();
+  if (!root) return;
+  root.classList.remove("is-ok", "is-bad", "is-check");
+  if (input) input.value = "";
+  root.querySelectorAll(".u026-c").forEach(c => {
+    c.innerHTML = "";
+    c.removeAttribute("data-ch");
+    c.classList.remove("has", "cur");
+  });
+  otpUiPaint();
+}
+function otpUiMarkVerified(){
+  const btn = document.getElementById("sendOtpBtn");
+  if (!btn) return;
+  btn.textContent = "Đã xác minh ✓";
+  btn.classList.add("is-verified");
+  btn.disabled = true;
+}
+function otpUiUnmarkVerified(){
+  const btn = document.getElementById("sendOtpBtn");
+  if (!btn) return;
+  btn.classList.remove("is-verified");
+  if (otpSent) { btn.textContent = "Đã gửi mã ✓"; btn.disabled = false; }
+}
+let otpVerifying = false;
+async function otpUiVerify(){
+  const root = otpUiRoot(), input = otpUiInput();
+  if (!root || !input || otpVerifying) return;
+  const code = input.value;
+  if (code.length !== 6) return;
+  otpVerifying = true;
+  const rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  root.classList.add("is-check");
+  otpUiSay("Đang kiểm tra mã...");
+  await new Promise(r => setTimeout(r, rm ? 60 : 640));
+  root.classList.remove("is-check");
+
+  const email = (document.getElementById("registerEmail")?.value || "").trim();
+  let ok = false;
+  if (Date.now() <= otpExpiry) {
+    let serverResult = null;
+    try { serverResult = await verifyOTPOnServer(email, code); } catch(e) {}
+    const unavailable = serverResult === null;
+    ok = serverResult === true || (unavailable && code === otpGenerated);
+    if (serverResult === false) ok = false;
+  }
+
+  if (ok) {
+    otpVerified = true;
+    root.classList.add("is-ok");
+    otpUiSay("Đã xác minh ✓");
+    otpUiMarkVerified();
+    input.blur();
+    await new Promise(r => setTimeout(r, rm ? 700 : 1200));
+    if (root.classList.contains("is-ok")) closeOtpModal();
+  } else {
+    otpVerified = false;
+    otpUiUnmarkVerified();
+    root.classList.add("is-bad");
+    otpUiSay("Mã không đúng. Vui lòng thử lại");
+    await new Promise(r => setTimeout(r, rm ? 600 : 900));
+    root.classList.remove("is-bad");
+    input.value = "";
+    otpUiPaint();
+    input.focus();
+  }
+  otpVerifying = false;
+}
+function otpUiBind(){
+  const root = otpUiRoot(), input = otpUiInput();
+  if (!root || !input) return;
+  if (!input.dataset.bound) {
+    input.dataset.bound = "1";
+    input.addEventListener("input", function(){
+      input.value = input.value.replace(/\D/g, "").slice(0, 6);
+      if (root.classList.contains("is-ok")) root.classList.remove("is-ok");
+      if (otpVerified) { otpVerified = false; otpUiUnmarkVerified(); }
+      setFieldError("otpCode", "");
+      otpUiPaint();
+      if (input.value.length === 6) otpUiVerify();
+    });
+    input.addEventListener("focus", otpUiPaint);
+    input.addEventListener("blur", otpUiPaint);
+  }
+  const msg = root.querySelector(".u026-msg");
+  if (msg && !msg.dataset.bound) {
+    msg.dataset.bound = "1";
+    msg.addEventListener("click", function(){
+      if (msg.dataset.ready === "1" && typeof window.resendOTP === "function") {
+        msg.dataset.ready = "0";
+        msg.style.cursor = "default";
+        window.resendOTP();
+      }
+    });
+  }
+  const modal = document.getElementById("otpModal");
+  if (modal && !modal.dataset.bound) {
+    modal.dataset.bound = "1";
+    modal.addEventListener("click", function(e){ if (e.target === modal) closeOtpModal(); });
+    const closeBtn = modal.querySelector("#otpClose");
+    if (closeBtn) closeBtn.addEventListener("click", closeOtpModal);
+  }
+  if (!window.__otpEscBound) {
+    window.__otpEscBound = true;
+    document.addEventListener("keydown", function(e){
+      const m = document.getElementById("otpModal");
+      if (e.key === "Escape" && m && m.classList.contains("is-open")) closeOtpModal();
+    });
+  }
+  otpUiPaint();
+}
+document.addEventListener("DOMContentLoaded", otpUiBind);
 
 window.sendOTP = async function() {
   const email = document.getElementById("registerEmail").value.trim();
@@ -1607,6 +1865,10 @@ window.sendOTP = async function() {
     showAuthNotice("Vui lòng nhập email trước", "error", "Thiếu email");
     return;
   }
+  // Đã xác minh: nút bị khoá, không làm gì nữa
+  if (otpVerified) return;
+  // Đã gửi mã: bấm lại chỉ mở lại popup, không gửi mã mới
+  if (otpSent) { otpUiBind(); openOtpModal(); return; }
   setFieldError("otpCode", "");
   const btn = document.getElementById("sendOtpBtn");
   btn.disabled = true;
@@ -1625,12 +1887,19 @@ window.sendOTP = async function() {
       time: expireTime,
       email: email
     });
-    document.getElementById("otpSection").style.display = "block";
+    otpVerifying = false;
+    otpUiClearEntry();
+    otpSent = true;
+    otpVerified = false;
+    const sentTo = document.getElementById("otpSentEmail");
+    if (sentTo) sentTo.textContent = email;
     btn.textContent = "Đã gửi mã ✓";
+    btn.disabled = false;
+    btn.classList.remove("is-verified");
     startOTPCountdown();
     startResendCooldown();
-    const otpFocus = document.getElementById("otpCode");
-    if (otpFocus) otpFocus.focus();
+    otpUiBind();
+    openOtpModal();
   } catch(err) {
     console.error("OTP send error:", err);
     showAuthNotice("Gửi mã thất bại. Vui lòng thử lại.", "error", "Lỗi gửi mã");
@@ -1643,8 +1912,6 @@ window.resendOTP = async function() {
   const email = document.getElementById("registerEmail").value.trim();
   if (!email) return;
   setFieldError("otpCode", "");
-  const btn = document.getElementById("otpResendBtn");
-  btn.disabled = true;
 
   otpGenerated = generateOTP();
   otpExpiry = Date.now() + OTP_EXPIRE_MS;
@@ -1659,14 +1926,20 @@ window.resendOTP = async function() {
       time: expireTime,
       email: email
     });
+    otpVerifying = false;
+    otpUiClearEntry();
+    otpSent = true;
+    otpVerified = false;
+    otpUiUnmarkVerified();
+    const sentTo = document.getElementById("otpSentEmail");
+    if (sentTo) sentTo.textContent = email;
+    openOtpModal();
     startOTPCountdown();
     startResendCooldown();
     showAuthNotice("Mã mới đã gửi đến email của bạn", "success", "Gửi lại thành công");
   } catch(err) {
     console.error("OTP resend error:", err);
     showAuthNotice("Gửi lại mã thất bại", "error", "Lỗi");
-    btn.disabled = false;
-    btn.textContent = "Gửi lại mã";
   }
 };
 
@@ -1675,18 +1948,29 @@ function resetOTPState() {
   otpGenerated = "";
   otpExpiry = 0;
   otpServerId = null;
+  otpSent = false;
+  otpVerified = false;
+  otpVerifying = false;
   clearInterval(otpCountdownInterval);
   clearInterval(otpResendCooldown);
+  closeOtpModal();
   const otpSection = document.getElementById("otpSection");
   const sendBtn = document.getElementById("sendOtpBtn");
-  const resendBtn = document.getElementById("otpResendBtn");
-  const countdownEl = document.getElementById("otpCountdown");
-  if (otpSection) otpSection.style.display = "none";
-  if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = "Nhận mã"; }
-  if (resendBtn) { resendBtn.disabled = false; resendBtn.textContent = "Gửi lại mã"; }
-  if (countdownEl) countdownEl.textContent = "15:00";
-  const otpInput = document.getElementById("otpCode");
+  if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = "Nhận mã"; sendBtn.classList.remove("is-verified"); }
+  const otpInput = document.querySelector(".u026-real");
   if (otpInput) otpInput.value = "";
+  if (otpSection) {
+    otpSection.classList.remove("is-ok", "is-bad", "is-check");
+    otpSection.querySelectorAll(".u026-c").forEach(c => {
+      c.innerHTML = "";
+      c.removeAttribute("data-ch");
+      c.classList.remove("has", "cur");
+    });
+    const msg = otpSection.querySelector(".u026-msg");
+    if (msg) { msg.textContent = "Mã có hiệu lực 15:00"; msg.dataset.ready = "0"; msg.style.cursor = "default"; }
+    const live = otpSection.querySelector(".u026-live");
+    if (live) live.textContent = "";
+  }
 }
 function retriggerAnim(container) {
   const items = container.querySelectorAll('.auth-anim-item');
@@ -2024,8 +2308,7 @@ window.emailRegister = async function() {
   const email = document.getElementById("registerEmail").value.trim();
   const password = document.getElementById("registerPassword").value;
   const confirmPassword = document.getElementById("registerConfirmPassword").value;
-  const otpInput = document.getElementById("otpCode");
-  const otpSection = document.getElementById("otpSection");
+  const otpInput = document.querySelector('.u026-real');
 
   let invalid = false, focusId = null;
   if (!name) { setFieldError("registerName", "Vui lòng nhập tên hiển thị"); focusId = "registerName"; invalid = true; }
@@ -2065,19 +2348,22 @@ window.emailRegister = async function() {
     return;
   }
 
-  if (otpSection.style.display === "none" || !otpSection.style.display) {
+  if (!otpSent) {
     showAuthNotice("Vui lòng nhấn 'Nhận mã' để xác minh email trước", "error", "Chưa xác minh email");
     return;
   }
 
-  const code = otpInput.value.trim();
+  const code = otpInput ? otpInput.value.trim() : "";
   if (!code || code.length !== 6) {
-    setFieldError("otpCode", "Vui lòng nhập mã xác nhận 6 chữ số");
-    shakeAuthBox("otpCode"); otpInput.focus();
+    otpModalError("Vui lòng nhập mã xác nhận 6 chữ số");
+    if (otpInput) otpInput.focus();
     return;
   }
   if (Date.now() > otpExpiry) {
-    setFieldError("otpCode", "Mã đã hết hạn. Nhấn 'Gửi lại mã'");
+    otpModalError("Mã đã hết hạn. Nhấn vào dòng thông báo để gửi lại mã");
+    const root = otpUiRoot();
+    const msg = root && root.querySelector(".u026-msg");
+    if (msg) { msg.dataset.ready = "1"; msg.style.cursor = "pointer"; }
     return;
   }
   // [FIX BUG #1][SECURITY] Ưu tiên xác thực OTP ở SERVER. Trước đây code chỉ so khớp
@@ -2088,10 +2374,12 @@ window.emailRegister = async function() {
   const serverResult = await verifyOTPOnServer(email, code);
   const serverUnavailable = serverResult === null;
   if (serverResult === false || (serverUnavailable && code !== otpGenerated)) {
-    setFieldError("otpCode", "Mã xác nhận không đúng hoặc đã hết hạn");
-    shakeAuthBox("otpCode"); otpInput.focus(); otpInput.select();
+    otpVerified = false;
+    otpModalError("Mã xác nhận không đúng hoặc đã hết hạn");
+    if (otpInput) { otpInput.focus(); otpInput.select(); }
     return;
   }
+  otpVerified = true;
 
   const btn = document.getElementById("registerSubmitBtn");
   setBtnLoading(btn, true);
@@ -2739,5 +3027,23 @@ if ("serviceWorker" in navigator) {
   state(false);
 })();
 </script>
+
+<!-- Lucian UX/UI Prompt #026 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#026 -->
+<div id="otpModal" role="dialog" aria-modal="true" aria-labelledby="otpModalTitle">
+  <div id="otpSection" class="ux u026">
+    <button type="button" id="otpClose" aria-label="Đóng">✕</button>
+    <span class="u026-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7.5l8 5.5 8-5.5"/></svg></span>
+    <p class="u026-t" id="otpModalTitle">Nhập mã xác minh</p>
+    <p class="u026-s">Mã 6 chữ số đã gửi đến <b id="otpSentEmail">email của bạn</b></p>
+    <div class="u026-row">
+      <span class="u026-c" style="--i:0"></span><span class="u026-c" style="--i:1"></span><span class="u026-c" style="--i:2"></span>
+      <i class="sep" aria-hidden="true"></i>
+      <span class="u026-c" style="--i:3"></span><span class="u026-c" style="--i:4"></span><span class="u026-c" style="--i:5"></span>
+      <input class="u026-real" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-label="Mã xác minh 6 chữ số">
+    </div>
+    <p class="u026-msg">Mã có hiệu lực 15:00</p>
+    <span class="u026-live" aria-live="polite"></span>
+  </div>
+</div>
 </body>
 </html>

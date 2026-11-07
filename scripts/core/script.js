@@ -1373,13 +1373,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function closeQrModal() {
     if (!qrOverlay) return;
-    qrOverlay.style.display = 'none';
     qrOverlay.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-    document.documentElement.style.overflow = '';
-    document.body.classList.remove('lh-page-locked');
-    const iframe = qrOverlay.querySelector('iframe');
-    if (iframe) iframe.src = iframe.src;
+    // Trigger outgoing animation
+    qrOverlay.classList.add('lh-qr-closing');
+    // Wait for animation to complete before hiding
+    setTimeout(() => {
+      qrOverlay.style.display = 'none';
+      qrOverlay.classList.remove('lh-qr-closing');
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.body.classList.remove('lh-page-locked');
+      const iframe = qrOverlay.querySelector('iframe');
+      if (iframe) iframe.src = iframe.src;
+    }, 240);
   }
   function closeQrModalByOverlay(event) {
     if (event.target === qrOverlay) closeQrModal();

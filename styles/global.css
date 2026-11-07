@@ -3838,6 +3838,8 @@ body.cc-glass-off #userPopup,
 body.cc-glass-off .cc-rail,
 body.cc-glass-off .cc-logout-overlay,
 body.cc-glass-off .lh-popup-overlay,
+body.cc-glass-off .lh-version-popup,
+body.cc-glass-off .lh-qr-overlay,
 body.cc-glass-off #lb-modal,
 body.cc-glass-off #schedule-modal {
   -webkit-backdrop-filter: none;
@@ -3987,6 +3989,20 @@ body.cc-glass-off {
 .cc-nav[data-tab="appearance"].cc-active{color:#7c3aed;background:rgba(124,58,237,.12);}
 .lh-qr-overlay{position:fixed;inset:0;z-index:2147483000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.58);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
 .lh-qr-dialog{position:relative;width:min(900px,100%);height:min(760px,calc(100vh - 40px));overflow:hidden;border-radius:20px;background:#fff;box-shadow:0 24px 80px rgba(15,23,42,.28)}
+@keyframes lhQrDialogIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes lhQrDialogOut{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(10px) scale(.985)}}
+
+/* Animation only when reduced motion is not preferred */
+@media (prefers-reduced-motion: no-preference) {
+  #lh-qr-overlay[aria-hidden="false"] .lh-qr-dialog{animation:lhQrDialogIn .24s cubic-bezier(.22,1,.36,1) both}
+  #lh-qr-overlay[aria-hidden="true"] .lh-qr-dialog{animation:lhQrDialogOut .24s cubic-bezier(.22,1,.36,1) both}
+}
+
+/* When reduced motion is preferred, show/hide instantly */
+@media (prefers-reduced-motion: reduce) {
+  #lh-qr-overlay[aria-hidden="false"] .lh-qr-dialog{animation:none;transition:none}
+  #lh-qr-overlay[aria-hidden="true"] .lh-qr-dialog{display:none;transition:none}
+}
 .lh-qr-dialog iframe{width:100%;height:100%;border:0}
 .lh-qr-close{position:absolute;right:12px;top:12px;z-index:2;width:36px;height:36px;border:0;border-radius:10px;background:#f1f5f9;color:#475569;font-size:24px;line-height:1;cursor:pointer}
 .lh-qr-close:hover{background:#e2e8f0;color:#0f172a}
