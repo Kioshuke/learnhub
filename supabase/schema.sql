@@ -35,8 +35,8 @@ create table if not exists public.users (
   online_start_time bigint,
   online_timer     bigint not null default 0,
   online_week_key  text,
-  created_at       timestamptz,
-  updated_at       timestamptz
+  created_at       timestamptz default now(),
+  updated_at       timestamptz default now()
 );
 
 create unique index if not exists users_email_lower_idx on public.users (lower(email));

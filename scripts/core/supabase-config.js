@@ -312,6 +312,29 @@ export async function finalizeSession(user) {
   const normEmail = normalizeEmail(email);
   if (normEmail) payload.email = normEmail;
 
+  // Ngày tạo tài khoản: nếu public.users chưa có created_at thì lấy mốc tạo
+  // tài khoản bên Supabase Auth (chính là lần đăng nhập đầu tiên — với Google
+  // là lúc tạo tài khoản), fallback về thời điểm hiện tại. Nếu đã có thì giữ
+  // nguyên, không ghi đè mỗi lần đăng nhập.
+  try {
+    const { data: existing, error: readErr } = await supabase
+      .from("users")
+      .select("created_at")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (readErr) throw readErr;
+    if (!existing || !existing.created_at) {
+      const authCreatedAt = user.created_at ? new Date(user.created_at) : null;
+      payload.created_at =
+        authCreatedAt && !Number.isNaN(authCreatedAt.getTime())
+          ? authCreatedAt.toISOString()
+          : nowIso;
+    }
+  } catch (e) {
+    // Không đọc được thì bỏ qua để tránh ghi đè ngày tạo đã có.
+    console.warn("[supabase-helpers] Bỏ qua created_at:", e?.message || e);
+  }
+
   try {
     const { error } = await supabase
       .from("users")
