@@ -957,10 +957,11 @@ function render() {
           var val = userAnswers["tf_" + idx + "_" + si];
           var kv = (sq.correct === 0 || sq.correct === 1) ? sq.correct : -1;   // 1 = Đúng, 0 = Sai, -1 = chưa chọn
           if (graded) row.classList.add(val === kv ? "good" : "bad");
+          var answerClass = graded ? (val === kv ? "ans-good" : "ans-bad") : (kv === 1 ? "ans-good" : "ans-bad");
           row.innerHTML = '<span class="tf-lett">' + String.fromCharCode(97 + si) + "</span>" +
             '<span class="txt">' + sq.text +
               (!graded && kv < 0 ? '<span class="ans ans-bad">(chưa chọn Đ/S)</span>' : "") +
-              (graded ? '<span class="ans ' + (val === kv ? "ans-good" : "ans-bad") + '">(Đáp án: ' + (kv ? "Đúng" : "Sai") + ")</span>" : "") +
+              (kv >= 0 ? '<span class="ans ' + answerClass + '">(Đáp án: ' + (kv === 1 ? "Đúng" : "Sai") + ")</span>" : "") +
             "</span>" +
             '<div class="tf-opts">' +
             '<label' + (kv === 1 ? ' class="cor"' : "") + '><input type="radio" name="tf' + idx + "_" + si + '" value="1"' + (val === 1 ? " checked" : "") + "><b>Đ</b></label>" +
