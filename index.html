@@ -1625,6 +1625,11 @@ window.addEventListener("message", async (event) => {
     return;
   }
 
+  if (event.data && event.data.type === "LEARNHUB_TOAST" && event.data.message) {
+    if (window.lhToast) window.lhToast(String(event.data.message), event.data.options || {});
+    return;
+  }
+
   if (event.data && event.data.type === "LEARNHUB_REQUEST_WATCHED") {
     try {
       const { data } = await supabase

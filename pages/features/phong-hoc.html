@@ -447,6 +447,13 @@ function lockPageScroll() {
   document.documentElement.style.overflow = 'hidden';
 }
 
+function phongToast(message, options) {
+  if (window.lhToast) window.lhToast(message, options || {});
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "LEARNHUB_TOAST", message: message, options: options || {} }, "*");
+  }
+}
+
 function unlockPageScroll() {
   document.body.style.overflow = '';
   document.documentElement.style.overflow = '';
@@ -478,7 +485,7 @@ function copyQuizLink(btn, link) {
   };
   var done = function() {
     flashBtn();
-    if (window.lhToast) lhToast("Đã copy link bài test", { type: "success", title: "Đã copy", durationMs: 1600 });
+    phongToast("Đã copy link bài test", { type: "success", title: "Đã copy", durationMs: 1600 });
   };
   var fallback = function() {
     var ta = document.createElement("textarea");
@@ -910,7 +917,7 @@ function markVideoWatched(videoId) {
     }, "*");
   }
   var nowWatched = watchedVideoIds.has(currentWatchKey);
-  if (window.lhToast) lhToast(nowWatched ? "Đã đánh dấu video đã xem" : "Đã huỷ đánh dấu video", { type: nowWatched ? "success" : "info", durationMs: 1600 });
+  phongToast(nowWatched ? "Đã đánh dấu video đã xem" : "Đã huỷ đánh dấu video", { type: nowWatched ? "success" : "info", durationMs: 1600 });
   updateMarkCompleteButton();
 }
 
