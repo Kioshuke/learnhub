@@ -454,6 +454,34 @@ function isImageUrl(u) {
   return false;
 }
 
+/* Nguồn ảnh dự phòng cho Google Drive: endpoint lh3 thường ổn định hơn thumbnail */
+function driveAltUrl(value) {
+  var url = String(value == null ? "" : value);
+  var m = url.match(/drive\.google\.com\/thumbnail\?[^#]*?\bid=([^&#]+)/i)
+    || url.match(/drive\.google\.com\/file\/d\/([^\/?#&]+)/i);
+  return m ? "https://lh3.googleusercontent.com/d/" + m[1] : "";
+}
+
+/* Hàm toàn cục cho onerror: lần lỗi đầu đổi sang nguồn dự phòng, lần sau hiện khung báo lỗi */
+window.lhImageError = window.lhImageError || function (img) {
+  if (!img) return;
+  var fb = img.getAttribute("data-fb");
+  if (fb && img.src !== fb) { img.removeAttribute("data-fb"); img.src = fb; return; }
+  var box = img.parentElement;
+  var src = img.getAttribute("data-src") || img.src;
+  if (box) {
+    box.className = "q-image q-image-error";
+    box.innerHTML = 'Không tải được ảnh — <a href="' + escAttr(src) + '" target="_blank" rel="noopener noreferrer">mở link</a>';
+  }
+};
+
+/* Thuộc tính <img> cho ảnh câu hỏi: tự thử nguồn dự phòng, hết cách thì báo lỗi rõ ràng */
+function imgErrorAttrs(url) {
+  var alt = driveAltUrl(url);
+  return ' loading="lazy"' + (alt ? ' data-fb="' + escAttr(alt) + '"' : "") +
+    ' data-src="' + escAttr(url) + '" onerror="lhImageError(this)"';
+}
+
 /* Trả về URL nếu đáp án CHỈ là một link ảnh (hoặc có tiền tố Ảnh:/Link ảnh:) */
 function answerImageUrl(ans) {
   var s = String(ans == null ? "" : ans).trim();
@@ -878,7 +906,7 @@ function render() {
       if (qImgUrl && /^https?:\/\//i.test(qImgUrl)) {
         var imgBox = document.createElement("div");
         imgBox.className = "q-image";
-        imgBox.innerHTML = '<img src="' + escAttr(qImgUrl) + '" loading="lazy" onerror="this.parentElement.style.display=\'none\'">';
+        imgBox.innerHTML = '<img src="' + escAttr(qImgUrl) + '" alt=""' + imgErrorAttrs(qImgUrl) + '>';
         card.appendChild(imgBox);
       }
 

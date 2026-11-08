@@ -64,6 +64,35 @@ export function imageFieldUrl(value) {
   return safeUrl(normalizeImageUrl(marker && !marker.text ? marker.url : source));
 }
 
+/* Nguồn ảnh dự phòng cho Google Drive: endpoint lh3 thường ổn định hơn thumbnail */
+export function driveAltUrl(value) {
+  const url = String(value == null ? "" : value);
+  const match = url.match(/drive\.google\.com\/thumbnail\?[^#]*?\bid=([^&#]+)/i)
+    || url.match(/drive\.google\.com\/file\/d\/([^\/?#&]+)/i);
+  return match ? `https://lh3.googleusercontent.com/d/${match[1]}` : "";
+}
+
+/* Thuộc tính <img> cho ảnh câu hỏi: tự thử nguồn dự phòng, hết cách thì báo lỗi rõ ràng */
+export function imageErrorAttrs(url) {
+  const alt = driveAltUrl(url);
+  return ` loading="lazy"${alt ? ` data-fb="${esc(alt)}"` : ""} data-src="${esc(url)}" onerror="lhImageError(this)"`;
+}
+
+/* Hàm toàn cục cho onerror: lần lỗi đầu đổi sang nguồn dự phòng, lần sau hiện khung báo lỗi */
+if (typeof window !== "undefined" && !window.lhImageError) {
+  window.lhImageError = function (img) {
+    if (!img) return;
+    const fb = img.getAttribute("data-fb");
+    if (fb && img.src !== fb) { img.removeAttribute("data-fb"); img.src = fb; return; }
+    const box = img.parentElement;
+    const src = img.getAttribute("data-src") || img.src;
+    if (box) {
+      box.className = "q-image q-image-error";
+      box.innerHTML = 'Không tải được ảnh — <a href="' + esc(src) + '" target="_blank" rel="noopener noreferrer">mở link</a>';
+    }
+  };
+}
+
 function answerText(answer) {
   if (answer == null) return "";
   if (typeof answer === "string") return answer;
@@ -136,7 +165,7 @@ function renderQuestion(question, questionIndex, { mode, canReveal }) {
   const marker = extractImageMarker(question.question);
   const questionText = marker ? marker.text : String(question.question || "");
   const imageUrl = imageFieldUrl(question.image) || (marker ? marker.url : "");
-  const imageHtml = imageUrl ? `<div class="q-image"><img src="${esc(imageUrl)}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></div>` : "";
+  const imageHtml = imageUrl ? `<div class="q-image"><img src="${esc(imageUrl)}" alt=""${imageErrorAttrs(imageUrl)}></div>` : "";
   const heading = question.title || (type === "passage" ? "Đọc đoạn văn và trả lời các câu hỏi bên dưới" : type === "cloze" ? "Điền từ thích hợp vào chỗ trống" : type === "short_answer" ? "Tự luận" : questionText || "");
   let content = "";
   let result = null;
