@@ -1591,6 +1591,12 @@ window.addEventListener("message", (event) => {
 window.addEventListener("message", async (event) => {
   const phocFrame = document.getElementById("phongHocFrame");
   if (!phocFrame || event.source !== phocFrame.contentWindow) return;
+
+  if (event.data && event.data.type === "LEARNHUB_TOAST" && event.data.message) {
+    if (window.lhToast) window.lhToast(String(event.data.message), event.data.options || {});
+    return;
+  }
+
   const u = window.currentLearnHubUser;
   if (!u || !u.uid) return;
 
@@ -1622,11 +1628,6 @@ window.addEventListener("message", async (event) => {
     } catch (e) {
       console.log("Không thể huỷ video đã xem:", e);
     }
-    return;
-  }
-
-  if (event.data && event.data.type === "LEARNHUB_TOAST" && event.data.message) {
-    if (window.lhToast) window.lhToast(String(event.data.message), event.data.options || {});
     return;
   }
 
