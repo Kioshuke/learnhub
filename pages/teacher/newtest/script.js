@@ -502,6 +502,7 @@ function parseLines(lines) {
   var answerMark = null;        // đáp án từ dòng "Đáp án: A"
   var pendingShort = null;      // đáp án dạng chữ từ dòng "Đáp án: html"
   var pendingImage = null;      // link ảnh gặp trước khi câu hỏi được tạo
+  var explanationMode = false;
 
   function closeCur() {
     if (!cur) return;
@@ -548,6 +549,31 @@ function parseLines(lines) {
       questions.push(cur);
     }
     cur = null;
+    explanationMode = false;
+  }
+
+  function appendExplanationLine(text, html) {
+    var detail = String(text || "").match(/^\s*([a-z])\s*[\)\.]\s*\[(đúng|sai)\]\s*(?:[-–—:]\s*)?(.*)$/i);
+    if (detail) {
+      var subIndex = detail[1].toLowerCase().charCodeAt(0) - 97;
+      var isCorrect = /^đúng$/i.test(detail[2]);
+      var label = detail[1].toLowerCase();
+      if (cur.type === "true_false" && cur.subQuestions[subIndex]) {
+        cur.subQuestions[subIndex].correct = isCorrect ? 1 : 0;
+      } else if (cur.type === "multiple" && isCorrect) {
+        cur.correctIndex = subIndex;
+        cur.answerLetter = String.fromCharCode(65 + subIndex);
+      }
+      var tone = isCorrect ? "is-correct" : "is-wrong";
+      var rationale = String(detail[3] || "").trim();
+      var lineHtml = '<div class="answer-rationale"><b class="answer-rationale-status ' + tone + '">' +
+        label + ') [' + (isCorrect ? "ĐÚNG" : "SAI") + ']</b>' +
+        (rationale ? ' - <i>' + escapeC(rationale) + '</i>' : '') + '</div>';
+      cur.explanation = (cur.explanation || "") + lineHtml;
+      return;
+    }
+    var safeHtml = sanitizeC(html || escapeC(text || ""));
+    if (safeHtml) cur.explanation = (cur.explanation ? cur.explanation + "<br>" : "") + safeHtml;
   }
 
   function handleLine(L, lineIdx) {
@@ -586,6 +612,24 @@ function parseLines(lines) {
       pendingImage = loneImg.url;
       line = loneImg.text;
       html = stripImageMarkerHtml(html);
+    }
+
+    /* Phần đáp án kèm giải thích không phải là các phương án/mệnh đề bổ sung. */
+    var explanationHead = line.match(/^\s*(giải\s*thích\s*\/\s*đáp\s*án|đáp\s*án\s*\/\s*giải\s*thích|lời\s*giải|giải\s*thích|explanation)\s*[:：]\s*(.*)$/i);
+    if (explanationHead && cur) {
+      explanationMode = true;
+      cur.explanationTitle = /\/|lời\s*giải/i.test(explanationHead[1]) ? "Giải thích/Đáp án" : "Giải thích";
+      if (explanationHead[2].trim()) appendExplanationLine(explanationHead[2].trim(), explanationHead[2].trim());
+      return;
+    }
+
+    if (explanationMode && cur) {
+      var startsNextQuestion = /^(?:câu\s*\d{1,3}\s*[\.\):]|\d{1,3}\s*[\.\)]\s+)/i.test(line);
+      if (!startsNextQuestion) {
+        appendExplanationLine(line, html);
+        return;
+      }
+      explanationMode = false;
     }
 
     /* Dòng đáp án: Đáp án A | Đáp án đúng: B | Đáp án: html */
@@ -989,8 +1033,9 @@ function render() {
       }
       if (item.explanation) {
         var expBox = document.createElement("div");
-        expBox.className = "q-explanation";
-        expBox.innerHTML = "<b class=\"exp-label\">Giải thích:</b> " + item.explanation;
+        var detailedExplanation = item.explanationTitle === "Giải thích/Đáp án";
+        expBox.className = "q-explanation" + (detailedExplanation ? " q-explanation-detailed" : "");
+        expBox.innerHTML = "<b class=\"exp-label\">" + sanitizeC(item.explanationTitle || "Giải thích") + ":</b> " + item.explanation;
         card.appendChild(expBox);
       }
       sec.appendChild(card);

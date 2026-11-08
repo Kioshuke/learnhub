@@ -149,6 +149,12 @@ label.btn{cursor:pointer}
 .note.error{background:var(--red-soft);border-color:#f6c8c8;color:#b91c1c}
 .q-explanation{margin-top:10px;padding:10px 14px;border-radius:12px;background:var(--amber-soft);border:1px solid #fdeecb;color:var(--text);font-size:13.5px;line-height:1.5}
 .q-explanation .exp-label{color:var(--amber);font-weight:800;margin-right:4px}
+.q-explanation-detailed{margin-top:6px;padding:0 18px;border:0;border-radius:0;background:transparent;font-family:Georgia,"Times New Roman",serif;font-size:14px;line-height:1.55}
+.q-explanation-detailed .exp-label{display:block;margin:0 0 7px;color:#1d4ed8}
+.answer-rationale{margin:3px 0 3px 18px}
+.answer-rationale-status{font-style:normal}
+.answer-rationale-status.is-correct{color:#15803d}
+.answer-rationale-status.is-wrong{color:#dc2626}
 
 .placeholder{color:#9ca3af;text-align:center;padding:46px 10px;font-size:14px}
 .placeholder::before{content:"📋 ";font-size:16px}
