@@ -1285,36 +1285,15 @@ function jsonSample() {
 
 /* ============ THIẾT LẬP ĐỀ (Tiếp tục) ============ */
 
-function shuffleArr(arr) {
-  for (var i = arr.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
-  }
-  return arr;
-}
-
-/* Áp dụng thiết lập: thời gian + xáo trộn câu/đáp án lên testData (mỗi đối tượng 1 lần) */
+/* Áp dụng thiết lập lên testData: chỉ còn thời gian làm bài.
+   Việc xáo trộn câu/đáp án do trang làm bài (filetest.html) tự thực hiện theo cờ shuffle_q/shuffle_a,
+   nên nội dung lưu trong DB luôn giữ đúng thứ tự gốc của đề. */
 function applyMeta(goNext) {
   if (!testData || !testData.length) { setNote("Chưa có đề để áp dụng thiết lập.", true); return; }
   testData.forEach(function (s) {
     if (!s || !Array.isArray(s.questions)) return;
     if (testMeta.minutes > 0) s.timeLimit = testMeta.minutes;
     else delete s.timeLimit;
-    /* Đang sửa đề đã xuất bản (currentEditId) → KHÔNG xáo lại, giữ nguyên thứ tự đã lưu */
-    if (!currentEditId && testMeta.shuffleQ && !s.__shfQ) {
-      shuffleArr(s.questions);
-      Object.defineProperty(s, "__shfQ", { value: true, enumerable: false });
-    }
-    s.questions.forEach(function (q) {
-      if (!currentEditId && testMeta.shuffleA && q.type === "multiple" && Array.isArray(q.answers) && q.answers.length > 1 && !q.__shfA) {
-        var map = q.answers.map(function (_, i) { return i; });
-        shuffleArr(map);
-        var nc = q.correct;
-        q.answers = map.map(function (i) { return q.answers[i]; });
-        q.correct = (typeof nc === "number") ? map.indexOf(nc) : nc;
-        Object.defineProperty(q, "__shfA", { value: true, enumerable: false });
-      }
-    });
   });
   graded = false;
   userAnswers = {};
