@@ -909,6 +909,8 @@ function markVideoWatched(videoId) {
       videoId: videoId
     }, "*");
   }
+  var nowWatched = watchedVideoIds.has(currentWatchKey);
+  if (window.lhToast) lhToast(nowWatched ? "Đã đánh dấu video đã xem" : "Đã huỷ đánh dấu video", { type: nowWatched ? "success" : "info", durationMs: 1600 });
   updateMarkCompleteButton();
 }
 
