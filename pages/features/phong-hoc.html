@@ -992,6 +992,8 @@ function markCurrentVideoWatched() {
       }, "*");
     }
   }
+  var nowWatched = watchedVideoIds.has(currentWatchKey);
+  phongToast(nowWatched ? "Đã đánh dấu video đã xem" : "Đã huỷ đánh dấu video", { type: nowWatched ? "success" : "info", durationMs: 1600 });
   updateMarkCompleteButton();
 }
 
