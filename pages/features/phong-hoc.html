@@ -988,8 +988,32 @@ function applyWatchedList(videoIds) {
   document.querySelectorAll(".grammar-sidebar-item[data-video]").forEach(function(li) {
     var vid = li.getAttribute("data-video");
     li.classList.toggle("watched", !!vid && watchedVideoIds.has(vid));
+    if (li.classList.contains("watched") && !li.querySelector(".watched-tick")) {
+      var tick = document.createElement("i");
+      tick.className = "fas fa-check-circle watched-tick";
+      li.appendChild(tick);
+    }
+    if (!li.classList.contains("watched")) {
+      var t = li.querySelector(".watched-tick");
+      if (t) t.remove();
+    }
+  });
+  document.querySelectorAll(".grammar-sidebar-item[data-watch-key]").forEach(function(li) {
+    var key = li.getAttribute("data-watch-key");
+    if (!key) return;
+    li.classList.toggle("watched", watchedVideoIds.has(key));
+    if (li.classList.contains("watched") && !li.querySelector(".watched-tick")) {
+      var tick2 = document.createElement("i");
+      tick2.className = "fas fa-check-circle watched-tick";
+      li.appendChild(tick2);
+    }
+    if (!li.classList.contains("watched")) {
+      var t2 = li.querySelector(".watched-tick");
+      if (t2) t2.remove();
+    }
   });
   updateWatchedCounter();
+  updateMarkCompleteButton();
 }
 
 function updateWatchedCounter() {
