@@ -856,6 +856,7 @@ function render() {
 
   var gi = 0;          // chỉ số toàn cục cho câu trả lời
   var qCount = 0;
+  var imgCount = 0;    // số câu có ảnh (hiện trên tiêu đề cửa sổ xem trước)
 
   testData.forEach(function (section, si) {
     if (!section || !Array.isArray(section.questions)) return;
@@ -904,6 +905,7 @@ function render() {
 
       var qImgUrl = imageFieldUrl(item.image) || (qMarker ? qMarker.url : "");
       if (qImgUrl && /^https?:\/\//i.test(qImgUrl)) {
+        imgCount++;
         var imgBox = document.createElement("div");
         imgBox.className = "q-image";
         imgBox.innerHTML = '<img src="' + escAttr(qImgUrl) + '" alt=""' + imgErrorAttrs(qImgUrl) + '>';
@@ -1095,11 +1097,34 @@ function render() {
   });
 
   var rcEl = $("renderCount");
-  if (rcEl) rcEl.textContent = testData.length + " phần - " + qCount + " câu";
+  if (rcEl) rcEl.textContent = testData.length + " phần - " + imgCount + " ảnh - " + qCount + " câu";
+  var jumpEl = $("jumpQ");
+  if (jumpEl) { jumpEl.max = qCount || 1; if (Number(jumpEl.value) > qCount) jumpEl.value = qCount || ""; }
 }
 
 function norm(v) {
   return String(v == null ? "" : v).trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/* Cuộn cửa sổ xem trước tới câu N (1..tổng số câu), tô sáng câu đó */
+function jumpToQuestion(n) {
+  var area = $("renderArea");
+  var input = $("jumpQ");
+  if (!area) return;
+  var cards = area.querySelectorAll(".q-card");
+  var total = cards.length;
+  if (!total) return;
+  n = Math.floor(Number(n));
+  if (!isFinite(n) || n < 1) n = 1;
+  if (n > total) n = total;          // không vượt quá tổng số câu
+  if (input) input.value = n;
+  var card = cards[n - 1];
+  var top = card.getBoundingClientRect().top - area.getBoundingClientRect().top + area.scrollTop - 10;
+  area.scrollTo({ top: top < 0 ? 0 : top, behavior: "smooth" });
+  card.classList.remove("q-jump-flash");
+  void card.offsetWidth;             // khởi động lại animation
+  card.classList.add("q-jump-flash");
+  setTimeout(function () { card.classList.remove("q-jump-flash"); }, 1300);
 }
 
 /* ============ ĐỀ MẪU ============ */
@@ -1955,6 +1980,12 @@ $("inputText").addEventListener("input", function () { setFileLabel(null); });
 $("jsonArea").addEventListener("input", function () {
   jsonAreaDirty = true;
   scheduleJsonRender();
+});
+
+/* "Đi đến câu": nhập số câu rồi bấm Đi (hoặc Enter) để cuộn cửa sổ xem trước tới câu đó */
+$("jumpBtn").addEventListener("click", function () { jumpToQuestion($("jumpQ").value); });
+$("jumpQ").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") { e.preventDefault(); jumpToQuestion(this.value); }
 });
 
 /* Tải tệp lên: một nút chung cho .docx / .txt / .json */

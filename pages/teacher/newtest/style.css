@@ -113,6 +113,15 @@ code{background:#eef2ff;border:1px solid #dfe7fb;border-radius:6px;padding:1px 6
 .panel-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .panel-head h2{margin:0;font-size:17px;color:var(--text);display:flex;align-items:center;gap:9px}
 .panel-head h2::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--primary);box-shadow:0 0 0 4px var(--primary-soft)}
+.jump-box{display:flex;align-items:center;gap:6px;margin-left:auto;font-size:12.5px;font-weight:700;color:#64748b}
+.jump-box label{white-space:nowrap}
+.jump-box input{width:60px;padding:5px 8px;border:1.5px solid var(--line);border-radius:9px;font-family:inherit;font-size:12.5px;text-align:center;outline:none;background:#fff;color:var(--text);-moz-appearance:textfield;appearance:textfield}
+.jump-box input::-webkit-outer-spin-button,.jump-box input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.jump-box input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,115,232,.13)}
+.jump-box button{padding:5px 11px;border:0;border-radius:9px;background:var(--primary);color:#fff;font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;transition:filter .15s}
+.jump-box button:hover{filter:brightness(1.07)}
+.q-card.q-jump-flash{animation:q-jump-flash 1.2s ease}
+@keyframes q-jump-flash{0%{box-shadow:0 0 0 4px rgba(124,58,237,.5)}100%{box-shadow:0 0 0 4px rgba(124,58,237,0)}}
 .muted{font-size:12.5px;color:var(--muted)}
 .muted b,.muted code{font-weight:600}
 
