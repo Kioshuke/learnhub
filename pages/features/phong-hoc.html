@@ -448,11 +448,13 @@ function lockPageScroll() {
 }
 
 function phongToast(message, options) {
-  if (window.parent && window.parent !== window) {
-    window.parent.postMessage({ type: "LEARNHUB_TOAST", message: message, options: options || {} }, "*");
-  } else if (window.lhToast) {
-    window.lhToast(message, options || {});
-  }
+  try {
+    if (window.parent && window.parent !== window && typeof window.parent.lhToast === "function") {
+      window.parent.lhToast(message, options || {});
+      return;
+    }
+  } catch (e) {}
+  if (window.lhToast) window.lhToast(message, options || {});
 }
 
 function unlockPageScroll() {
