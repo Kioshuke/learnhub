@@ -1640,11 +1640,6 @@ function mergeDbTestCards(list) {
     // Quyền cao nhất: giáo viên bật "Hoàn thành" VÀ thời điểm hiện tại nằm trong khoảng mở đề.
     var canOpen = done && isTestInTimeWindow(startAt, endAt);
     window.__testCardMap[de] = { url: url, subjectId: s.id, done: done, start_at: startAt, end_at: endAt, canOpen: canOpen };
-    /* Dòng mô tả card: "Số câu - Thời gian: X - Mô tả" (bỏ dòng ⏱ riêng) */
-    var qCount = Number(t.question_count) || 0;
-    var timeTxt = (t.minutes > 0) ? (t.minutes + "p") : "Không";
-    var descTxt = String(t.description || "").trim() || "chưa có mô tả đề";
-    var descLine = qCount + " câu - Thời gian: " + timeTxt + " - " + descTxt;
     grid.insertAdjacentHTML("beforeend",
       '<div class="card" data-test-card="' + escHtml(key) + '">' +
         '<div class="card-color-bar"></div>' +
@@ -1654,7 +1649,7 @@ function mergeDbTestCards(list) {
             '<h3>' + escHtml(t.name || "Bài kiểm tra") + '</h3>' +
             '<span class="status ' + (canOpen ? 'done' : 'pending') + '"></span>' +
           '</div>' +
-          '<p class="card-desc">' + escHtml(descLine) + '</p>' +
+          '<p class="card-desc">' + escHtml(t.description || "Bài kiểm tra từ giáo viên — bấm Làm bài để bắt đầu.") + '</p>' +
           '<div class="btn-row">' +
             (canOpen
               ? '<a class="btn" href="#" onclick="loadQuiz(this,\'' + escJs(url) + '\'); return false;">Làm bài</a>'

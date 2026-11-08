@@ -23,12 +23,11 @@ function stripTags(v) {
   return String(v || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
-/* "N câu · 45 phút · <mô tả>" — giữ mô tả trong giới hạn 160 ký tự. */
-function composeDescription(statsText, rawDescription, fallback) {
+/* "N câu - Thời gian: 45p - <mô tả>" — giữ mô tả trong giới hạn 160 ký tự. */
+function composeDescription(statsText, rawDescription, fallback, separator = " · ", emptyText = "") {
   const text = stripTags(rawDescription);
-  if (!text) return statsText || fallback;
+  if (!text) return statsText ? (emptyText ? `${statsText}${separator}${emptyText}` : statsText) : fallback;
   if (!statsText) return trimDescription(text);
-  const separator = " · ";
   const budget = Math.max(0, DESCRIPTION_MAX - Array.from(statsText).length - Array.from(separator).length);
   const trimmed = trimDescription(text, budget);
   return trimmed ? `${statsText}${separator}${trimmed}` : statsText;
@@ -41,11 +40,11 @@ function buildTestCopy(meta) {
   const minutes = Number(meta.minutes) || 0;
   const stats = [
     questionCount > 0 ? `${questionCount} câu` : "",
-    minutes > 0 ? `${minutes} phút` : ""
+    `Thời gian: ${minutes > 0 ? `${minutes}p` : "Không"}`
   ].filter(Boolean);
-  const statsText = stats.join(" · ");
-  const fallback = [...stats, subject ? `Môn ${subject}` : ""].filter(Boolean).join(" · ") || "Bài kiểm tra - LearnHub";
-  return { title, description: composeDescription(statsText, meta.description, fallback) };
+  const statsText = stats.join(" - ");
+  const fallback = [...stats, subject ? `Môn ${subject}` : ""].filter(Boolean).join(" - ") || "Bài kiểm tra - LearnHub";
+  return { title, description: composeDescription(statsText, meta.description, fallback, " - ", "chưa có mô tả đề") };
 }
 
 /* Tiêu đề + số từ + mô tả của bộ thẻ, giống cách link bài test hiển thị. */
