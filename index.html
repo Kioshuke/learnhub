@@ -1615,6 +1615,16 @@ window.addEventListener("message", async (event) => {
     return;
   }
 
+  if (event.data && event.data.type === "LEARNHUB_VIDEO_UNWATCHED" && event.data.videoId) {
+    const videoId = String(event.data.videoId);
+    try {
+      await supabase.from("watched_videos").delete().eq("user_id", u.uid).eq("video_id", videoId);
+    } catch (e) {
+      console.log("Không thể huỷ video đã xem:", e);
+    }
+    return;
+  }
+
   if (event.data && event.data.type === "LEARNHUB_REQUEST_WATCHED") {
     try {
       const { data } = await supabase

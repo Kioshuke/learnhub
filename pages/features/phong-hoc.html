@@ -615,6 +615,9 @@ function closeQuiz() {
   currentVideoId = null;
   document.getElementById("quiz").innerHTML = "";
   document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
+  currentWatchKey = null;
+  var _mc = document.getElementById("markCompleteBtn");
+  if (_mc) _mc.style.display = "none";
   unlockPageScroll();
   if (window.parent && window.parent !== window) {
     window.parent.postMessage({ type: "UNLOCK_PAGE_SCROLL" }, "*");
@@ -802,6 +805,7 @@ function renderPhongHoc() {
    Google Drive / PDF chỉ mở xem trực tiếp, không track. */
 var ytPlayer = null;
 var currentVideoId = null;
+var currentWatchKey = null;
 var watchProgressTimer = null;
 var watchedVideoIds = new Set();
 
@@ -889,7 +893,14 @@ function checkWatchProgress() {
 function markVideoWatched(videoId) {
   watchedVideoIds.add(videoId);
   var item = document.querySelector('.grammar-sidebar-item[data-video="' + videoId + '"]');
-  if (item) item.classList.add("watched");
+  if (item) {
+    item.classList.add("watched");
+    if (!item.querySelector(".watched-tick")) {
+      var tick = document.createElement("i");
+      tick.className = "fas fa-check-circle watched-tick";
+      item.appendChild(tick);
+    }
+  }
   updateWatchedCounter();
   if (window.learnHubUser && window.learnHubUser.uid && window.parent && window.parent !== window) {
     window.parent.postMessage({
@@ -898,6 +909,78 @@ function markVideoWatched(videoId) {
       videoId: videoId
     }, "*");
   }
+  updateMarkCompleteButton();
+}
+
+function setCurrentWatchKey(key, allowManual) {
+  currentWatchKey = key || null;
+  var btn = document.getElementById("markCompleteBtn");
+  if (!btn) return;
+  if (!currentWatchKey || !allowManual) {
+    btn.style.display = "none";
+    return;
+  }
+  btn.style.display = "";
+  updateMarkCompleteButton();
+}
+
+function updateMarkCompleteButton() {
+  var btn = document.getElementById("markCompleteBtn");
+  if (!btn || !currentWatchKey) return;
+  if (watchedVideoIds.has(currentWatchKey)) {
+    btn.textContent = "Huỷ đánh dấu";
+    btn.disabled = false;
+    btn.style.opacity = "1";
+    btn.style.cursor = "pointer";
+    btn.style.background = "#dc2626";
+  } else {
+    btn.textContent = "Đánh dấu hoàn thành";
+    btn.disabled = false;
+    btn.style.opacity = "1";
+    btn.style.cursor = "pointer";
+    btn.style.background = "#16a34a";
+  }
+}
+
+function markCurrentVideoWatched() {
+  if (!currentWatchKey) return;
+  var item = document.querySelector(".grammar-sidebar-item.active");
+  if (watchedVideoIds.has(currentWatchKey)) {
+    // Huỷ đánh dấu
+    watchedVideoIds.delete(currentWatchKey);
+    if (item) {
+      item.classList.remove("watched");
+      var tick = item.querySelector(".watched-tick");
+      if (tick) tick.remove();
+    }
+    updateWatchedCounter();
+    if (window.learnHubUser && window.learnHubUser.uid && window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: "LEARNHUB_VIDEO_UNWATCHED",
+        uid: window.learnHubUser.uid,
+        videoId: currentWatchKey
+      }, "*");
+    }
+  } else {
+    watchedVideoIds.add(currentWatchKey);
+    if (item) {
+      item.classList.add("watched");
+      if (!item.querySelector(".watched-tick")) {
+        var tick2 = document.createElement("i");
+        tick2.className = "fas fa-check-circle watched-tick";
+        item.appendChild(tick2);
+      }
+    }
+    updateWatchedCounter();
+    if (window.learnHubUser && window.learnHubUser.uid && window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: "LEARNHUB_VIDEO_WATCHED",
+        uid: window.learnHubUser.uid,
+        videoId: currentWatchKey
+      }, "*");
+    }
+  }
+  updateMarkCompleteButton();
 }
 
 function applyWatchedList(videoIds) {
@@ -945,6 +1028,7 @@ function switchSidebarVideo(item) {
     el.classList.remove("active");
   });
   item.classList.add("active");
+  setCurrentWatchKey(item.getAttribute("data-watch-key") || videoId, true);
 
   /* Đang ở chế độ PDF/Drive -> dựng lại khung player */
   var frame = document.querySelector(".video-frame");
@@ -989,6 +1073,7 @@ function switchSidebarPdf(item) {
     el.classList.remove("active");
   });
   item.classList.add("active");
+  setCurrentWatchKey(null, false);
   showPdfPlayer(pdf);
 }
 
@@ -1131,6 +1216,7 @@ function switchSidebarDrive(item) {
     el.classList.remove("active");
   });
   item.classList.add("active");
+  setCurrentWatchKey(item.getAttribute("data-watch-key") || drive, true);
   showDrivePlayer(drive);
 }
 
@@ -1213,6 +1299,11 @@ function openCourse(el, courseId) {
   var card = el ? el.closest(".card") : null;
   if (card) card.classList.add("active-card");
 
+  lockPageScroll();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "LOCK_PAGE_SCROLL" }, "*");
+  }
+
   var courses = window.VIDEO_COURSES || [];
   var course = null;
   for (var i = 0; i < courses.length; i++) {
@@ -1238,15 +1329,15 @@ function openCourse(el, courseId) {
     if (it.video) {
       itemsHtml +=
         '<li class="grammar-sidebar-item' + mathCls + activeCls + '" data-video="' + escHtml(it.video) +
-        '" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> ' + escHtml(it.label) + '</li>';
+        '" data-watch-key="' + escHtml(extractVideoId(it.video)) + '" onclick="switchSidebarVideo(this)"><i class="fas fa-play-circle"></i> ' + escHtml(it.label) + '</li>';
     } else if (it.pdf) {
       itemsHtml +=
         '<li class="grammar-sidebar-item' + mathCls + activeCls + '" data-pdf="' + escHtml(it.pdf) +
-        '" onclick="switchSidebarPdf(this)"><i class="fas fa-file-pdf"></i> ' + escHtml(it.label) + '</li>';
+        '" data-watch-key="" onclick="switchSidebarPdf(this)"><i class="fas fa-file-pdf"></i> ' + escHtml(it.label) + '</li>';
     } else if (it.drive) {
       itemsHtml +=
         '<li class="grammar-sidebar-item' + mathCls + activeCls + '" data-drive="' + escHtml(it.drive) +
-        '" onclick="switchSidebarDrive(this)"><i class="fas ' +
+        '" data-watch-key="' + escHtml(it.drive) + '" onclick="switchSidebarDrive(this)"><i class="fas ' +
         (/folders\//.test(String(it.drive || "")) ? "fa-folder-open" : "fa-file-video") +
         '"></i> ' + escHtml(it.label) + '</li>';
     } else {
@@ -1261,6 +1352,7 @@ function openCourse(el, courseId) {
         '<a id="grammarDriveFolderOpenBtn" class="quiz-btn open-drive-btn" target="_blank" rel="noopener" style="display:none">' +
           '<i class="fas fa-folder-open"></i> Mở thư mục Drive' +
         '</a>' +
+        '<button class="quiz-btn mark-complete-btn" id="markCompleteBtn" style="display:none;background:#16a34a;color:#fff;margin-right:6px;" onclick="markCurrentVideoWatched();">Đánh dấu hoàn thành</button>' +
         '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng video</button>' +
       '</div>' +
       '<div class="grammar-player-content">' +
@@ -1277,12 +1369,17 @@ function openCourse(el, courseId) {
   initSidebarTicks();
 
   if (firstItem && firstItem.pdf) {
+    setCurrentWatchKey(null, false);
     showPdfPlayer(firstItem.pdf);
   } else if (firstItem && firstItem.drive) {
+    setCurrentWatchKey(firstItem.drive, true);
     showDrivePlayer(firstItem.drive);
   } else if (firstItem && firstItem.video) {
     var firstVideoId = extractVideoId(firstItem.video);
+    setCurrentWatchKey(firstVideoId, true);
     ensureYouTubeAPI(function() { createYTPlayer("quizYtPlayerHost", firstVideoId); });
+  } else {
+    setCurrentWatchKey(null, false);
   }
 
   setTimeout(function() {
@@ -1389,6 +1486,11 @@ function switchSidebarGv(item) {
     el.classList.remove("active");
   });
   item.classList.add("active");
+  if (type === "vimeo" || type === "tiktok" || type === "drive") {
+    setCurrentWatchKey(item.getAttribute("data-watch-key") || url, true);
+  } else {
+    setCurrentWatchKey(null, false);
+  }
   if (type === "vimeo") showVimeoPlayer(url);
   else if (type === "tiktok") showTikTokPlayer(url);
   else if (type === "drive") showDrivePlayer(url);
@@ -1534,6 +1636,12 @@ function openGvSubject(el, subjectName, cardTitle) {
   document.querySelectorAll(".card").forEach(function(c) { c.classList.remove("active-card"); });
   var card = el && el.closest ? el.closest(".card") : null;
   if (card) card.classList.add("active-card");
+  setCurrentWatchKey(null, false);
+
+  lockPageScroll();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "LOCK_PAGE_SCROLL" }, "*");
+  }
 
   var data = window.__gvData || {};
   var all = data[subjectName] || [];
@@ -1559,18 +1667,18 @@ function openGvSubject(el, subjectName, cardTitle) {
       var type = detectPlayerType(url);
       var title = c.title || "Video";
       if (type === "youtube") {
-        return '<li class="grammar-sidebar-item" data-gv="youtube" data-video="' + escHtml(extractVideoId(url)) + '" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fas fa-play-circle"></i> ' + escHtml(title) + '</li>';
+        return '<li class="grammar-sidebar-item" data-gv="youtube" data-video="' + escHtml(extractVideoId(url)) + '" data-watch-key="' + escHtml(extractVideoId(url)) + '" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fas fa-play-circle"></i> ' + escHtml(title) + '</li>';
       }
       if (type === "vimeo") {
-        return '<li class="grammar-sidebar-item" data-gv="vimeo" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fa-brands fa-vimeo"></i> ' + escHtml(title) + '</li>';
+        return '<li class="grammar-sidebar-item" data-gv="vimeo" data-watch-key="' + escHtml(url) + '" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fa-brands fa-vimeo"></i> ' + escHtml(title) + '</li>';
       }
       if (type === "tiktok") {
-        return '<li class="grammar-sidebar-item" data-gv="tiktok" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fa-brands fa-tiktok"></i> ' + escHtml(title) + '</li>';
+        return '<li class="grammar-sidebar-item" data-gv="tiktok" data-watch-key="' + escHtml(url) + '" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fa-brands fa-tiktok"></i> ' + escHtml(title) + '</li>';
       }
       if (type === "drive") {
         var isFolder = /folders\//.test(url);
         var gvIcon = isFolder ? "fa-folder" : (gvKind(c) === "document" ? "fa-file-lines" : "fa-file-video");
-        return '<li class="grammar-sidebar-item" data-gv="drive" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fas ' + gvIcon + '"></i> ' + escHtml(title) + '</li>';
+        return '<li class="grammar-sidebar-item" data-gv="drive" data-watch-key="' + escHtml(url) + '" data-gv-url="' + escHtml(url) + '" onclick="switchSidebarGv(this)"><i class="fas ' + gvIcon + '"></i> ' + escHtml(title) + '</li>';
       }
       return '<li class="grammar-sidebar-item math-pending"><i class="fas fa-circle-question"></i> ' + escHtml(title) + '<span class="math-pending-tag">Không hỗ trợ</span></li>';
     }).join("");
@@ -1594,6 +1702,7 @@ function openGvSubject(el, subjectName, cardTitle) {
         '<a id="gvDriveFolderOpenBtn" class="quiz-btn open-drive-btn" target="_blank" rel="noopener" style="display:none">' +
           '<i class="fas fa-folder-open"></i> Mở thư mục Drive' +
         '</a>' +
+        '<button class="quiz-btn mark-complete-btn" id="markCompleteBtn" style="display:none;background:#16a34a;color:#fff;margin-right:6px;" onclick="markCurrentVideoWatched();">Đánh dấu hoàn thành</button>' +
         '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng video</button>' +
       '</div>' +
       '<div class="grammar-player-content">' +

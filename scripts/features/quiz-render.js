@@ -212,7 +212,9 @@ function renderQuestion(question, questionIndex, { mode, canReveal }) {
 
   let cardClass = "question-card";
   if (mode === "review" && canReveal && result !== null) cardClass += result ? " review-true" : " review-false";
-  const html = `<div class="${cardClass}" id="card-${questionIndex}"><div class="q-header"><span class="q-badge">Câu ${questionIndex + 1}</span><span>${esc(heading)}</span></div>${imageHtml}${content}</div>`;
+  const canShowExplanation = (mode === "review" || mode === "preview") && !!canReveal && question.explanation;
+  const explanationHtml = canShowExplanation ? `<details class="q-explanation"><summary class="exp-label">Hiện giải thích</summary><div class="exp-body">${sanitizeHtml(question.explanation)}</div></details>` : "";
+  const html = `<div class="${cardClass}" id="card-${questionIndex}"><div class="q-header"><span class="q-badge">Câu ${questionIndex + 1}</span><span>${esc(heading)}</span></div>${imageHtml}${content}${explanationHtml}</div>`;
   return { html, result };
 }
 

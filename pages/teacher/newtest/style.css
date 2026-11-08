@@ -147,6 +147,8 @@ label.btn{cursor:pointer}
 
 .note{font-size:12.5px;color:#6b5a20;background:var(--amber-soft);border:1px solid #fdeecb;border-radius:12px;padding:9px 13px;margin-top:10px;box-shadow:var(--shadow-sm)}
 .note.error{background:var(--red-soft);border-color:#f6c8c8;color:#b91c1c}
+.q-explanation{margin-top:10px;padding:10px 14px;border-radius:12px;background:var(--amber-soft);border:1px solid #fdeecb;color:var(--text);font-size:13.5px;line-height:1.5}
+.q-explanation .exp-label{color:var(--amber);font-weight:800;margin-right:4px}
 
 .placeholder{color:#9ca3af;text-align:center;padding:46px 10px;font-size:14px}
 .placeholder::before{content:"📋 ";font-size:16px}

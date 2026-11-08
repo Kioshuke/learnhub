@@ -592,11 +592,35 @@ function parseLines(lines) {
     var ansM = line.match(/^đáp\s*án[^:]{0,10}:\s*(.+)$/i);
     if (ansM) {
       var v = ansM[1].trim();
+      /* Đáp án kèm trích dẫn trong ngoặc: "Đáp án: B (Trích PDF tr. 13: '...')"
+         → đánh dấu B là đáp án đúng và đưa phần trong ngoặc vào lời giải. */
+      var letterParenM = v.match(/^([A-Za-z])\s*[\(\[](.+)[\)\]]\s*$/);
+      if (letterParenM) {
+        answerMark = letterParenM[1].toUpperCase();
+        if (cur && cur.type === "multiple" && cur.correctIndex === null) cur.answerLetter = answerMark;
+        var parenContent = letterParenM[2].trim();
+        if (cur) {
+          cur.explanation = cur.explanation ? (cur.explanation + " " + parenContent) : parenContent;
+        }
+        return;
+      }
       var letterM = v.match(/^([A-Da-d])$/);
       if (letterM) {
         answerMark = letterM[1].toUpperCase();
         if (cur && cur.type === "multiple" && cur.correctIndex === null) cur.answerLetter = answerMark;
       } else {
+        /* Nếu dòng đáp án có chứa ngoặc trích dẫn → tách phần trong ngoặc làm lời giải */
+        var parenM = v.match(/\(([^)]+)\)/);
+        if (parenM && cur) {
+          var stripped = v.replace(/\s*\([^)]*\)\s*$/, "").trim();
+          var lm2 = stripped.match(/^([A-Da-d])$/);
+          if (lm2) {
+            answerMark = lm2[1].toUpperCase();
+            if (cur.type === "multiple" && cur.correctIndex === null) cur.answerLetter = answerMark;
+            cur.explanation = cur.explanation ? (cur.explanation + " " + parenM[1].trim()) : parenM[1].trim();
+            return;
+          }
+        }
         if (cur && cur.type === "multiple" && !cur.answers.length) {
           cur.type = "short_answer";
           cur.correctAnswer = v;
@@ -607,21 +631,41 @@ function parseLines(lines) {
       return;
     }
 
+    /* Dòng lời giải chi tiết: Lời giải: ... | [Lời giải:] ... | Giải thích: ... | Explanation: ... */
+    var expM = line.match(/^\[?\s*(?:lời\s*giải|giải\s*thích|explanation)\s*\]?\s*[:：]\s*\]?\s*(.+)$/i);
+    if (expM && cur) {
+      var expText = expM[1].trim();
+      var startTextIdx = line.indexOf(expText);
+      if (startTextIdx < 0) startTextIdx = line.length - expText.length;
+      var hi = 0, si = 0;
+      while (hi < html.length && si < startTextIdx) {
+        if (html[hi] === "<") { var e2 = html.indexOf(">", hi); hi = (e2 < 0) ? html.length : e2 + 1; continue; }
+        si++; hi++;
+      }
+      var expHtml = fixInlineHtml(html.slice(hi));
+      cur.explanation = expHtml || expText;
+      return;
+    }
+
     /* Dòng phương án: A. / B) / *C. ... — chấp nhận MỌI chữ cái (không bó hẹp A-D) để
        không vứt bỏ dòng nào. Bóc nhãn hay giữ nguyên cả dòng quyết định ở closeCur()
        theo format của cả câu (xem chú thích ở đó).
        QUY ƯỚC ĐÚNG/SAI (bắt buộc): mệnh đề con dùng NHÃN CHỮ THƯỜNG + dấu ")" (a) b) c) d)).
        Khi gặp dấu ")" → câu đó là Đúng/Sai; đáp án đánh dấu bằng dấu * đầu dòng (*c))
        hoặc hậu tố (Đ)/(S) (hoặc đúng/sai) cuối câu. */
-    var optM = line.match(/^(\*)?\s*([A-Za-z])\s*([\.\)])\s*(.+)$/);
+    var optM = line.match(/^(\*)?\s*([A-Za-z])\s*([\.\)\:])\s*(.+)$/);
     if (optM && cur && (cur.type === "multiple" || cur.type === "true_false")) {
       var sep = optM[3];
-      if (sep === ")" && cur.type === "multiple") {
+      var letterChar = optM[2];
+
+      // Chỉ chuyển sang Đúng/Sai khi nhãn là CHỮ IN THƯỜNG dùng ngoặc đơn (vd: a), b), c), d))
+      // Chữ IN HOA (vd: A), B), C), D)) vẫn giữ nguyên là Trắc nghiệm 4 lựa chọn.
+      if (sep === ")" && /^[a-z]$/.test(letterChar) && cur.type === "multiple") {
         cur.type = "true_false";
         cur.subQuestions = [];
       }
       cur.opts = cur.opts || [];
-      cur.opts.push({ line: line, html: html, lett: optM[2].toUpperCase(), star: Boolean(optM[1]), txt: optM[4].trim() });
+      cur.opts.push({ line: line, html: html, lett: letterChar.toUpperCase(), star: Boolean(optM[1]), txt: optM[4].trim() });
       if (cur.type === "true_false") {
         var txt = optM[4].trim();
         var vv = -1;
@@ -942,6 +986,12 @@ function render() {
           rev.innerHTML = ok ? "✓ Đáp án chuẩn: " + caSafe : "✗ Đáp án chuẩn: <b>" + caSafe + "</b>";
           card.appendChild(rev);
         }
+      }
+      if (item.explanation) {
+        var expBox = document.createElement("div");
+        expBox.className = "q-explanation";
+        expBox.innerHTML = "<b class=\"exp-label\">Giải thích:</b> " + item.explanation;
+        card.appendChild(expBox);
       }
       sec.appendChild(card);
       qCount++;

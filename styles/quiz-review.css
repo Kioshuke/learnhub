@@ -125,6 +125,12 @@
 .tf-review-wrong { background: var(--danger-light) !important; }
 .tf-answer-tip { font-weight: 700; }
 .answer-key { margin-top: 10px; }
+.q-explanation { margin-top: 12px; border-radius: 12px; background: #fff6e5; border: 1px solid #fdeecb; color: var(--text); font-size: 0.9rem; line-height: 1.5; overflow: hidden; }
+.q-explanation > summary { list-style: none; cursor: pointer; padding: 10px 14px; color: #d97706; font-weight: 800; user-select: none; }
+.q-explanation > summary::-webkit-details-marker { display: none; }
+.q-explanation > summary::after { content: " ▾"; }
+.q-explanation[open] > summary::after { content: " ▴"; }
+.q-explanation .exp-body { padding: 0 14px 12px 14px; color: var(--text); }
 .review-input-correct { border-color: var(--success) !important; }
 .review-input-wrong { border-color: var(--danger) !important; }
 .cloze-input { min-width: 80px; box-sizing: border-box; padding: 6px 8px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; text-align: center; }

@@ -285,7 +285,7 @@
                     <span class="vd-detect-val" id="vdClassifyCell">—</span>
                   </div>
                 </div>
-                <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
+                <div id="vdKindRow" style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
                   <label style="font-size:12.5px;font-weight:700;color:#475569;margin:0;white-space:nowrap">Loại:</label>
                   <select id="vdKind" style="width:auto;flex:0 0 150px">
                     <option value="video">Video</option>
@@ -298,6 +298,16 @@
               <div style="font-size:12px;color:var(--sub);line-height:1.6;margin-top:2px">
                 Hỗ trợ link: <b>YouTube</b> (youtube.com / youtu.be / ID 11 ký tự), <b>Vimeo</b> (player.vimeo.com / vimeo.com), <b>TikTok</b> (tiktok.com — link video có /video/&lt;id&gt;), <b>Google Drive</b> (drive.google.com — file video hoặc cả thư mục).
               </div>
+              <div style="margin:10px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <button type="button" class="btn-sm" style="background:#e0f2fe;color:#0369a1" onclick="vdToggleMulti()"><i class="fa-solid fa-list"></i> <span id="vdMultiToggleLabel">Nhập nhiều video cùng lúc</span></button>
+              </div>
+
+              <div id="vdMultiWrap" style="display:none;margin-bottom:12px">
+                <div id="vdMultiList"></div>
+                <button type="button" class="btn-sm" style="background:#ecfeff;color:#0891b2;margin-top:8px" onclick="vdAddMultiRow()"><i class="fa-solid fa-plus"></i> Thêm dòng</button>
+                <div class="hint" style="margin-top:6px">Mỗi dòng: Tiêu đề + Link. Nhận diện/phân loại chung theo loại đã chọn bên dưới.</div>
+              </div>
+
               <div class="vd-save-row">
                 <button id="vdBtnSave" class="btn-green" type="button" onclick="vdSave()"><i class="fa-solid fa-floppy-disk"></i> Lưu card video</button>
               </div>
@@ -811,6 +821,12 @@
       document.getElementById("vdCardDesc").value = "";
       document.getElementById("vdTitle").value = "";
       document.getElementById("vdUrl").value = "";
+      vdMultiMode = false;
+      const _mw = document.getElementById("vdMultiWrap"); if (_mw) _mw.style.display = "none";
+      const _tf = document.getElementById("vdTitle").closest(".vd-field"); if (_tf) _tf.style.display = "";
+      const _uf = document.getElementById("vdUrl").closest(".vd-field"); if (_uf) _uf.style.display = "";
+      const _kr = document.getElementById("vdKindRow"); if (_kr) _kr.style.display = "";
+      const _ml = document.getElementById("vdMultiList"); if (_ml) _ml.innerHTML = "";
       const mem = vdMemRead();
       const memCb = document.getElementById("vdRemember");
       if (memCb) memCb.checked = !!mem;
@@ -852,6 +868,11 @@
       vdRenderGroupOptions(card.group_name || "");
       document.getElementById("vdTitle").value = card.title || "";
       document.getElementById("vdUrl").value = card.video_url || "";
+      vdMultiMode = false;
+      const _mw2 = document.getElementById("vdMultiWrap"); if (_mw2) _mw2.style.display = "none";
+      const _tf2 = document.getElementById("vdTitle").closest(".vd-field"); if (_tf2) _tf2.style.display = "";
+      const _uf2 = document.getElementById("vdUrl").closest(".vd-field"); if (_uf2) _uf2.style.display = "";
+      const _kr2 = document.getElementById("vdKindRow"); if (_kr2) _kr2.style.display = "";
       document.getElementById("vdNewGroupRow").style.display = "none";
       document.getElementById("vdNewGroupInput").value = "";
       document.getElementById("vdRenameGroupRow").style.display = "none";
@@ -863,6 +884,60 @@
       vdEditorVisible(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+
+    let vdMultiMode = false;
+    window.vdToggleMulti = function() {
+      vdMultiMode = !vdMultiMode;
+      const wrap = document.getElementById("vdMultiWrap");
+      const titleField = document.getElementById("vdTitle").closest(".vd-field");
+      const urlInput = document.getElementById("vdUrl");
+      if (wrap) wrap.style.display = vdMultiMode ? "" : "none";
+      if (titleField) titleField.style.display = vdMultiMode ? "none" : "";
+      if (urlInput) urlInput.style.display = vdMultiMode ? "none" : "";
+      const kindRow = document.getElementById("vdKindRow");
+      if (kindRow) kindRow.style.display = vdMultiMode ? "none" : "";
+      if (vdMultiMode) {
+        const kindEl = document.getElementById("vdKind");
+        if (kindEl) kindEl.value = "video";
+        vdPreviewMulti();
+      }
+      const label = document.getElementById("vdMultiToggleLabel");
+      if (label) label.textContent = vdMultiMode ? "Nhập một video" : "Nhập nhiều video cùng lúc";
+      if (vdMultiMode) {
+        const list = document.getElementById("vdMultiList");
+        if (list && !list.children.length) vdAddMultiRow();
+      }
+    };
+    window.vdAddMultiRow = function(title, url) {
+      const list = document.getElementById("vdMultiList");
+      if (!list) return;
+      const row = document.createElement("div");
+      row.className = "vd-multi-row";
+      row.style.cssText = "display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:center";
+      row.innerHTML =
+        '<input type="text" class="vd-multi-title" placeholder="Tiêu đề video" value="' + escapeHtml(title || "") + '">' +
+        '<input type="text" class="vd-multi-url" placeholder="Link video" value="' + escapeHtml(url || "") + '" oninput="vdPreviewMulti()">' +
+        '<button type="button" class="btn-sm" style="background:#fee2e2;color:#dc2626" onclick="this.parentElement.remove();vdPreviewMulti()"><i class="fa-solid fa-xmark"></i></button>';
+      list.appendChild(row);
+    };
+    function vdCollectMulti() {
+      const out = [];
+      document.querySelectorAll("#vdMultiList .vd-multi-row").forEach(function(row) {
+        const t = (row.querySelector(".vd-multi-title").value || "").trim();
+        const u = (row.querySelector(".vd-multi-url").value || "").trim();
+        if (t || u) out.push({ title: t, url: u });
+      });
+      return out;
+    }
+
+    window.vdPreviewMulti = function() {
+      const urls = [];
+      document.querySelectorAll("#vdMultiList .vd-multi-url").forEach(function(inp) {
+        const u = (inp.value || "").trim();
+        if (u) urls.push(u);
+      });
+      vdPreviewLink(urls.length ? urls[0] : "");
+    };
 
     window.vdSave = async function() {
       const subject = (document.getElementById("vdSubject").value || "").trim();
@@ -883,6 +958,60 @@
       if (!subject) { toast("Vui lòng chọn môn học", "error"); return; }
       if (!cardTitle) { toast("Vui lòng chọn hoặc nhập tên card / khóa", "error"); return; }
       if (!group) { toast("Vui lòng nhập tên chủ đề (trong card)", "error"); return; }
+
+      /* ===== CHẾ ĐỘ NHẬP NHIỀU VIDEO CÙNG LÚC ===== */
+      if (vdMultiMode) {
+        const items = vdCollectMulti();
+        if (!items.length) { toast("Vui lòng nhập ít nhất 1 video", "error"); return; }
+        for (let i = 0; i < items.length; i++) {
+          if (!items[i].title) { toast("Thiếu tiêu đề ở dòng " + (i + 1), "error"); return; }
+          if (!items[i].url) { toast("Thiếu link ở dòng " + (i + 1), "error"); return; }
+          if (!vdTypeOf(items[i].url) || vdTypeOf(items[i].url).key === "other") {
+            toast("Link không hợp lệ ở dòng " + (i + 1), "error"); return;
+          }
+        }
+        const btn = document.getElementById("vdBtnSave");
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang lưu...';
+        try {
+          let saved = 0;
+          for (let i = 0; i < items.length; i++) {
+            const args = {
+              p_id: null,
+              p_subject: subject,
+              p_card_title: cardTitle,
+              p_card_description: cardDesc,
+              p_group_name: group,
+              p_title: items[i].title,
+              p_video_url: items[i].url,
+              p_video_type: kind === "document" ? "document" : "video",
+              p_sort_order: 0,
+              p_is_complete: false
+            };
+            const { data, error } = await supabase.rpc("teacher_upsert_video_card", args);
+            if (error) throw error;
+            if (!(data && data.ok === true)) {
+              toast("Không lưu được video ở dòng " + (i + 1) + (data && data.error ? (": " + data.error) : ""), "error");
+              break;
+            }
+            saved++;
+          }
+          toast("Đã lưu " + saved + "/" + items.length + " video", "success");
+          vdMemWrite();
+          await vdLoadList();
+          const list = document.getElementById("vdMultiList");
+          if (list) list.innerHTML = "";
+          vdAddMultiRow();
+        } catch (err) {
+          console.error("upsert multi video lỗi:", err);
+          toast("Không lưu được: " + ((err && (err.message || err.error_description)) || err), "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Lưu card video';
+        }
+        return;
+      }
+
       if (!title) { toast("Vui lòng nhập tiêu đề video", "error"); return; }
       if (!url) { toast("Vui lòng dán link video", "error"); return; }
       if (!vdTypeOf(url) || vdTypeOf(url).key === "other") { toast("Link video không hợp lệ (chỉ nhận YouTube / Vimeo / TikTok / Google Drive)", "error"); return; }
@@ -936,9 +1065,23 @@
       }
     };
 
+    function vdConfirmDialog(message) {
+      return new Promise(function(resolve) {
+        const overlay = document.createElement("div");
+        overlay.style.cssText = "position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:9999;display:flex;align-items:center;justify-content:center";
+        const box = document.createElement("div");
+        box.style.cssText = "background:#fff;border-radius:14px;padding:20px;max-width:420px;width:90%;box-shadow:0 20px 50px rgba(0,0,0,.25);font-family:inherit";
+        box.innerHTML = '<p style="margin:0 0 16px;font-weight:600;color:#0f172a">' + message + '</p><div style="display:flex;gap:10px;justify-content:flex-end"><button type="button" id="vdDlgCancel" style="background:#f1f5f9;color:#334155;border:0;border-radius:10px;padding:8px 14px;font-weight:700;cursor:pointer">Huỷ</button><button type="button" id="vdDlgOk" style="background:#dc2626;color:#fff;border:0;border-radius:10px;padding:8px 14px;font-weight:700;cursor:pointer">Xoá</button></div>';
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+        overlay.querySelector("#vdDlgCancel").onclick = function() { overlay.remove(); resolve(false); };
+        overlay.querySelector("#vdDlgOk").onclick = function() { overlay.remove(); resolve(true); };
+      });
+    }
+
     window.vdDelete = async function(id) {
       if (!id) return;
-      const ok = confirm("Xoá card video này?");
+      const ok = await vdConfirmDialog("Xoá card video này?");
       if (!ok) return;
       try {
         const { data, error } = await supabase.rpc("teacher_delete_video_card", { p_id: id });
@@ -952,6 +1095,28 @@
     };
 
     // ================= DANH SÁCH =================
+    window.vdDeleteCard = async function(subject, cardTitle) {
+      if (!subject || !cardTitle) return;
+      const targets = (vdListCache || []).filter(c =>
+        String(c.subject || "").trim() === String(subject).trim() &&
+        String(c.card_title || "").trim() === String(cardTitle).trim()
+      );
+      if (!targets.length) return;
+      const ok = await vdConfirmDialog("Xoá toàn bộ card \"" + cardTitle + "\" (" + targets.length + " video/tài liệu) và mọi nội dung bên trong?");
+      if (!ok) return;
+      try {
+        for (const c of targets) {
+          const { data, error } = await supabase.rpc("teacher_delete_video_card", { p_id: c.card_id });
+          if (error) throw error;
+        }
+        toast("Đã xoá cả card", "success");
+        await vdLoadList();
+      } catch (err) {
+        console.error("delete video card group lỗi:", err);
+        toast("Không xoá được card: " + ((err && (err.message || err.error_description)) || err), "error");
+      }
+    };
+
     async function vdLoadList() {
       const listEl = document.getElementById("vdList");
       listEl.innerHTML = '<div class="vc-empty"><i class="fa-solid fa-spinner fa-spin"></i>Đang tải danh sách card video...</div>';
@@ -1030,6 +1195,7 @@
                   <i class="fa-solid fa-chevron-right fc-group-caret"></i>
                   <span class="fc-group-title"><i class="fa-solid fa-video" style="color:#0891b2;margin-right:6px"></i>${escapeHtml(ct)}</span>
                   <span class="fc-group-count">${vdCountText(items)}</span>
+                  <button class="btn-sm btn-remove" type="button" data-vd-del-card-subj="${escapeHtml(subj)}" data-vd-del-card-title="${escapeHtml(ct)}" title="Xoá cả card và mọi video bên trong" style="margin-left:6px;padding:4px 8px;font-size:11px"><i class="fa-solid fa-trash-can" style="font-size:11px"></i></button>
                 </div>
                 <div class="vc-card-body" data-vd-card-body="${escapeHtml(key)}" style="${open ? "" : "display:none"}">
                   <div class="vc-card-desc-line">${escapeHtml((items[0] && items[0].card_description) || "Chưa có mô tả card")}</div>
@@ -1082,6 +1248,12 @@
       });
       listEl.querySelectorAll("[data-vd-del]").forEach(btn => {
         btn.addEventListener("click", () => vdDelete(btn.dataset.vdDel));
+      });
+      listEl.querySelectorAll("[data-vd-del-card-subj]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          vdDeleteCard(btn.dataset.vdDelCardSubj, btn.dataset.vdDelCardTitle);
+        });
       });
     }
 
