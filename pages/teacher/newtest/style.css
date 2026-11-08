@@ -155,6 +155,15 @@ label.btn{cursor:pointer}
 .answer-rationale-status{font-style:normal}
 .answer-rationale-status.is-correct{color:#15803d}
 .answer-rationale-status.is-wrong{color:#dc2626}
+.q-card.q-answer-key{padding:8px 10px 12px;border:0;border-radius:0;background:#fff;box-shadow:none;font-family:Georgia,"Times New Roman",serif}
+.q-answer-key .q-head{gap:4px;margin-bottom:7px;color:#1e3a5f;font-family:Georgia,"Times New Roman",serif;font-weight:700}
+.q-answer-key .q-head .num{padding:0;border:0;border-radius:0;background:transparent;color:inherit;font-size:14px;line-height:inherit}
+.q-answer-key .q-head .num::after{content:":"}
+.q-answer-key .q-q .tag{display:none}
+.q-answer-key .tf-answer-key{margin-left:20px;font-size:14px;line-height:1.55}
+.q-answer-key .answer-key-statement{margin:1px 0}
+.q-answer-key .q-explanation-detailed{padding:0}
+.q-answer-key .q-explanation-detailed .exp-label{margin-left:20px}
 
 .placeholder{color:#9ca3af;text-align:center;padding:46px 10px;font-size:14px}
 .placeholder::before{content:"📋 ";font-size:16px}

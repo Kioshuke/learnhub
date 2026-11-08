@@ -618,7 +618,7 @@ function parseLines(lines) {
     var explanationHead = line.match(/^\s*(giải\s*thích\s*\/\s*đáp\s*án|đáp\s*án\s*\/\s*giải\s*thích|lời\s*giải|giải\s*thích|explanation)\s*[:：]\s*(.*)$/i);
     if (explanationHead && cur) {
       explanationMode = true;
-      cur.explanationTitle = /\/|lời\s*giải/i.test(explanationHead[1]) ? "Giải thích/Đáp án" : "Giải thích";
+      cur.explanationTitle = /\//.test(explanationHead[1]) ? "Đáp án" : "Giải thích";
       if (explanationHead[2].trim()) appendExplanationLine(explanationHead[2].trim(), explanationHead[2].trim());
       return;
     }
@@ -725,7 +725,9 @@ function parseLines(lines) {
         /* không đánh dấu → để null (chưa chọn), KHÔNG mặc định Sai; có cảnh báo + chặn xuất bản */
         if (vv < 0) vv = null;
         var cleanTxt = txt.replace(/\(?\s*(Đ|S|đúng|sai)\s*\)?\s*$/i, "").trim();
-        if (cleanTxt) cur.subQuestions.push({ text: cleanTxt, correct: vv });
+        var subHtml = cleanOptionHtml(line, html, txt);
+        if (cleanTxt !== txt) subHtml = trimHtmlText(subHtml, 0, txt.length - cleanTxt.length);
+        if (cleanTxt) cur.subQuestions.push({ text: cleanTxt, html: subHtml, correct: vv });
       }
       return;
     }
@@ -856,6 +858,9 @@ function render() {
       var idx = gi;
       var card = document.createElement("div");
       card.className = "q-card";
+      if (item.type === "true_false" && (item.explanationTitle === "Đáp án" || item.explanationTitle === "Giải thích/Đáp án")) {
+        card.classList.add("q-answer-key");
+      }
       var type = item.type === "true_false" ? "tf" : (item.type === "short_answer" ? "short" : "multiple");
       var tagTxt = item.type === "true_false" ? "Đúng/Sai" : (item.type === "short_answer" ? "Tự luận" : "Trắc nghiệm");
 
@@ -941,6 +946,14 @@ function render() {
           hint.textContent = "Chưa có đáp án đúng — bấm vào một phương án bên trên để gán.";
           card.appendChild(hint);
         }
+      } else if (type === "tf" && (item.explanationTitle === "Đáp án" || item.explanationTitle === "Giải thích/Đáp án")) {
+        var answerKeyList = document.createElement("div");
+        answerKeyList.className = "tf-answer-key";
+        answerKeyList.innerHTML = (item.subQuestions || []).map(function (sq, subIndex) {
+          return '<div class="answer-key-statement"><span>' + String.fromCharCode(97 + subIndex) + ')</span> ' +
+            sanitizeC(sq.html || sq.text || "") + '</div>';
+        }).join("");
+        card.appendChild(answerKeyList);
       } else if (type === "tf") {
         var tfl = document.createElement("div");
         tfl.className = "tf-list";
@@ -1034,7 +1047,7 @@ function render() {
       }
       if (item.explanation) {
         var expBox = document.createElement("div");
-        var detailedExplanation = item.explanationTitle === "Giải thích/Đáp án";
+        var detailedExplanation = item.explanationTitle === "Đáp án" || item.explanationTitle === "Giải thích/Đáp án";
         expBox.className = "q-explanation" + (detailedExplanation ? " q-explanation-detailed" : "");
         expBox.innerHTML = "<b class=\"exp-label\">" + sanitizeC(item.explanationTitle || "Giải thích") + ":</b> " + item.explanation;
         card.appendChild(expBox);
