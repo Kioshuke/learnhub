@@ -846,6 +846,53 @@ function stripQuestionNo(s) {
   return fixInlineHtml(rest);
 }
 
+/* Bấm trực tiếp vào tiêu đề/mô tả phần trong cửa sổ xem trước để sửa nhanh.
+   Enter = lưu, Esc = huỷ, bấm ra ngoài = lưu. Thay đổi ghi thẳng vào testData
+   rồi đồng bộ JSON bên trái (không render lại để giữ vị trí cuộn). */
+function bindSectionEdit(el, section, field, placeholder) {
+  if (!el) return;
+  var snapshot = "";
+  var label = field === "sectionTitle" ? "tiêu đề" : "mô tả";
+  el.title = "Bấm để sửa " + label + " phần";
+  el.addEventListener("click", function () {
+    if (el.isContentEditable) return;
+    snapshot = el.textContent;
+    el.classList.add("is-editing");
+    el.classList.remove("is-empty");
+    el.setAttribute("contenteditable", "true");
+    el.setAttribute("spellcheck", "false");
+    el.focus();
+    var range = document.createRange();
+    range.selectNodeContents(el);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+  el.addEventListener("keydown", function (e) {
+    if (!el.isContentEditable) return;
+    if (e.key === "Enter") { e.preventDefault(); el.blur(); }
+    else if (e.key === "Escape") { e.preventDefault(); commitSectionEdit(el, section, field, placeholder, snapshot, false); el.blur(); }
+  });
+  el.addEventListener("blur", function () {
+    if (!el.isContentEditable) return;
+    commitSectionEdit(el, section, field, placeholder, snapshot, true);
+  });
+}
+
+function commitSectionEdit(el, section, field, placeholder, snapshot, save) {
+  el.removeAttribute("contenteditable");
+  el.classList.remove("is-editing");
+  var val = (save ? el.textContent : snapshot).replace(/\s+/g, " ").trim();
+  if (field === "sectionTitle") {
+    if (val) section.sectionTitle = val; else delete section.sectionTitle;
+  } else {
+    if (val) section.sectionDesc = val; else delete section.sectionDesc;
+  }
+  el.textContent = val || placeholder;
+  el.classList.toggle("is-empty", !val);
+  syncJson();
+}
+
 function render() {
   var area = $("renderArea");
   area.innerHTML = "";
@@ -867,7 +914,11 @@ function render() {
     head.className = "rd-section-head";
     head.innerHTML =
       "<h3>" + sanitizeC(section.sectionTitle || ("PHẦN " + (si + 1))) + "</h3>" +
-      (section.sectionDesc ? '<div class="desc">' + sanitizeC(section.sectionDesc) + "</div>" : "");
+      '<div class="desc' + (section.sectionDesc ? "" : " is-empty") + '">' +
+        (section.sectionDesc ? sanitizeC(section.sectionDesc) : "Thêm mô tả phần…") + "</div>";
+
+    bindSectionEdit(head.querySelector("h3"), section, "sectionTitle", "PHẦN " + (si + 1));
+    bindSectionEdit(head.querySelector(".desc"), section, "sectionDesc", "Thêm mô tả phần…");
 
     if (section.audio) {
       head.insertAdjacentHTML("beforeend",

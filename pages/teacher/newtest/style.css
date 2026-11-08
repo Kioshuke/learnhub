@@ -270,6 +270,10 @@ body.stage4{overflow:hidden}
 .rd-section-head{padding:9px 14px;background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-bottom:1px solid var(--line);border-left:4px solid var(--primary)}
 .rd-section-head h3{margin:0;font-size:13px;color:var(--text);line-height:1.35}
 .rd-section-head .desc{margin-top:2px;font-size:12px;color:var(--muted);line-height:1.4}
+.rd-section-head h3,.rd-section-head .desc{cursor:text;border-radius:7px;outline:none;transition:box-shadow .15s,background .15s;padding:2px 4px;margin-left:-4px}
+.rd-section-head h3:hover,.rd-section-head .desc:hover{box-shadow:0 0 0 2px rgba(59,130,246,.18)}
+.rd-section-head h3.is-editing,.rd-section-head .desc.is-editing{background:#fff;box-shadow:0 0 0 2px var(--primary);cursor:text}
+.rd-section-head .desc.is-empty{color:var(--muted);font-style:italic;opacity:.7}
 .rd-listen{margin-top:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .rd-listen audio{max-width:100%}
 .rd-passage{background:#fffdf3;border:1px solid #f4e3b4;border-radius:12px;padding:12px 14px;font-size:13.5px;margin-bottom:0;max-height:260px;overflow:auto}
