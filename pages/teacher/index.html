@@ -2191,7 +2191,7 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       const c1 = document.getElementById("tcOverviewTopScore");
       if (c1 && window.Chart) {
         if (window.__tcOverviewChart1) window.__tcOverviewChart1.destroy();
-        window.__tcOverviewChart1 = new Chart(c1, { type: "bar", data: { labels: topByAvg.map(function (x) { return String(x.user_name || x.user_email || x.user_id); }), datasets: [{ label: "Điểm TB", data: topByAvg.map(function (x) { return Number(x.average_score || 0); }), backgroundColor: "#4f46e5" }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: "Top 10 điểm TB" }, legend: { display: true } }, scales: { y: { beginAtZero: true, max: 10 } } } });
+        window.__tcOverviewChart1 = new Chart(c1, { type: "bar", data: { labels: topByAvg.map(function (x) { return String(x.user_name || x.user_email || x.user_id); }), datasets: [{ label: "Điểm TB", data: topByAvg.map(function (x) { return Number(x.average_score || 0); }), backgroundColor: "#4f46e5" }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: "Top 10 điểm TB" }, legend: { display: true }, datalabels: { color: "#ffffff", anchor: "end", align: "top", font: { weight: "bold", size: 11 }, formatter: function (value) { return Number(value).toFixed(2); } } }, scales: { y: { beginAtZero: true, max: 10 } } } });
       }
       const c2 = document.getElementById("tcOverviewScoreDist");
       if (c2 && window.Chart) {
@@ -2460,6 +2460,14 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
           },
           plugins: {
             legend: { display: false },
+            datalabels: {
+              color: function (context) { return (typeof tcTrendScoreColor === "function") ? tcTrendScoreColor(context.parsed && context.parsed.y) : "#334155"; },
+              align: "bottom",
+              anchor: "end",
+              offset: 4,
+              font: { size: 10, weight: "bold" },
+              formatter: function (value) { if (value === 0 || value === null || value === undefined) return null; return value; }
+            },
             tooltip: {
               enabled: false,
               // Tooltip HTML tự vẽ để dùng được icon Font Awesome (canvas không nhúng được FA)
