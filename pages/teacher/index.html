@@ -1394,6 +1394,21 @@
           </section>
         </div>
 
+        <!-- Chart detail modal -->
+        <div id="tcOverviewChartModal" class="tc-modal-overlay" aria-hidden="true" style="display:none" onclick="if(event.target===this)tcCloseOverviewChartModal()">
+          <div class="tc-modal" role="dialog" aria-modal="true" style="max-width:900px;width:95%">
+            <div class="tc-modal-head">
+              <div style="min-width:0">
+                <p class="tc-modal-name" id="tcOverviewChartModalTitle">Biểu đồ</p>
+              </div>
+              <button class="tc-modal-close" type="button" aria-label="Đóng" onclick="tcCloseOverviewChartModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="tc-modal-body">
+              <div style="position:relative;height:420px"><canvas id="tcOverviewChartModalCanvas"></canvas></div>
+            </div>
+          </div>
+        </div>
+
       </div><!-- /tc-wrap -->
     </div><!-- /teacher-canvas -->
   </div><!-- /tcApp -->
@@ -2155,6 +2170,7 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
           attempts = data || [];
         }
       } catch (e) { attempts = []; }
+      window.__tcOverviewAttempts = attempts;
       const perfectCount = attempts.filter(function (a) { return Number(a.score) === 10; }).length;
       const highCount = attempts.filter(function (a) { return Number(a.score) >= 8; }).length;
       const buckets = [0, 0, 0, 0];
@@ -2173,12 +2189,14 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       const c1 = document.getElementById("tcOverviewTopScore");
       if (c1 && window.Chart) {
         if (window.__tcOverviewChart1) window.__tcOverviewChart1.destroy();
-        window.__tcOverviewChart1 = new Chart(c1, { type: "bar", data: { labels: topByAvg.map(function (x) { return String(x.user_name || x.user_email || x.user_id); }), datasets: [{ label: "Điểm TB", data: topByAvg.map(function (x) { return Number(x.average_score || 0); }), backgroundColor: "#4f46e5" }] }, options: { responsive: true, plugins: { title: { display: true, text: "Top 10 điểm TB" }, legend: { display: false } }, scales: { y: { beginAtZero: true, max: 10 } } } });
+        window.__tcOverviewChart1 = new Chart(c1, { type: "bar", data: { labels: topByAvg.map(function (x) { return String(x.user_name || x.user_email || x.user_id); }), datasets: [{ label: "Điểm TB", data: topByAvg.map(function (x) { return Number(x.average_score || 0); }), backgroundColor: "#4f46e5" }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: "Top 10 điểm TB" }, legend: { display: true } }, scales: { y: { beginAtZero: true, max: 10 } } } });
       }
       const c2 = document.getElementById("tcOverviewScoreDist");
       if (c2 && window.Chart) {
         if (window.__tcOverviewChart2) window.__tcOverviewChart2.destroy();
-        window.__tcOverviewChart2 = new Chart(c2, { type: "doughnut", data: { labels: ["0-4", "4-6", "6-8", "8-10"], datasets: [{ data: buckets, backgroundColor: ["#ef4444", "#f59e0b", "#3b82f6", "#10b981"] }] }, options: { responsive: true, plugins: { title: { display: true, text: "Phân bố điểm TB" } } } });
+        const totalBucket = buckets.reduce(function (s, v) { return s + v; }, 0) || 1;
+        const pctLabels = ["0-4", "4-6", "6-8", "8-10"].map(function (l, i) { return l + " (" + (buckets[i] / totalBucket * 100).toFixed(0) + "%)"; });
+        window.__tcOverviewChart2 = new Chart(c2, { type: "doughnut", data: { labels: pctLabels, datasets: [{ data: buckets, backgroundColor: ["#ef4444", "#f59e0b", "#3b82f6", "#10b981"] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: "Phân bố điểm TB" }, legend: { position: "bottom", display: true }, tooltip: { callbacks: { label: function (ctx) { const v = ctx.raw || 0; return ctx.label.split(" (")[0] + ": " + v + " (" + (v / totalBucket * 100).toFixed(1) + "%)"; } } } } } });
       }
       // Phổ điểm theo từng bài (tổng hợp từ nhiều bài, không trung bình)
       const attemptBuckets = [0, 0, 0, 0, 0];
@@ -2193,7 +2211,7 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       const c3 = document.getElementById("tcOverviewScoreDistAttempt");
       if (c3 && window.Chart) {
         if (window.__tcOverviewChart3) window.__tcOverviewChart3.destroy();
-        window.__tcOverviewChart3 = new Chart(c3, { type: "bar", data: { labels: ["0-2", "2-4", "4-6", "6-8", "8-10"], datasets: [{ label: "Số bài", data: attemptBuckets, backgroundColor: "#f59e0b" }] }, options: { responsive: true, plugins: { title: { display: true, text: "Phổ điểm theo bài làm" }, legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+        window.__tcOverviewChart3 = new Chart(c3, { type: "bar", data: { labels: ["0-2", "2-4", "4-6", "6-8", "8-10"], datasets: [{ label: "Số bài", data: attemptBuckets, backgroundColor: "#f59e0b" }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: "Phổ điểm theo bài làm" }, legend: { display: true } }, scales: { y: { beginAtZero: true } } } });
       }
       if (table) table.innerHTML = topByAvg.map(function (s) {
         return '<tr><td>' + escapeHtml(String(s.user_name || s.user_email || s.user_id)) + '</td><td>' + Number(s.attempt_count || 0) + '</td><td>' + Number(s.average_score || 0).toFixed(2) + '</td></tr>';
@@ -2201,6 +2219,67 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       window.__tcOverviewSummary = topByAvg;
     }
 
+    function tcOpenOverviewChartModal(key) {
+      const modal = document.getElementById("tcOverviewChartModal");
+      const canvas = document.getElementById("tcOverviewChartModalCanvas");
+      const title = document.getElementById("tcOverviewChartModalTitle");
+      if (!modal || !canvas) return;
+      if (window.__tcOverviewModalChart) { window.__tcOverviewModalChart.destroy(); window.__tcOverviewModalChart = null; }
+      modal.style.display = "flex";
+      modal.setAttribute("aria-hidden", "false");
+      const cache = tcReportStudentsCache || [];
+      const totalStudents = cache.length;
+      const totalAttempts = cache.reduce(function (s, x) { return s + Number(x.attempt_count || 0); }, 0);
+      const avgAll = totalAttempts ? cache.reduce(function (s, x) { return s + Number(x.average_score || 0) * Number(x.attempt_count || 0); }, 0) / totalAttempts : 0;
+      const studentsWithData = cache.filter(function (x) { return Number(x.attempt_count || 0) > 0; });
+      const topByAvg = studentsWithData.sort(function (a, b) { return Number(b.average_score || 0) - Number(a.average_score || 0); }).slice(0, 10);
+      const buckets = [0, 0, 0, 0];
+      cache.forEach(function (x) {
+        const s = Number(x.average_score || 0);
+        if (s < 4) buckets[0]++; else if (s < 6) buckets[1]++; else if (s < 8) buckets[2]++; else buckets[3]++;
+      });
+      let attempts = [];
+      try {
+        const ids = cache.map(function (x) { return x.user_id; }).filter(Boolean);
+        if (ids.length) {
+          const { data } = supabase.from("test_attempts").select("score").in("user_id", ids).limit(10000);
+          // sync not possible; use cached if available
+        }
+      } catch (e) {}
+      // fetch attempts sync-ish via await not available here; reuse stored
+      if (window.__tcOverviewAttempts) attempts = window.__tcOverviewAttempts;
+      const attemptBuckets = [0, 0, 0, 0, 0];
+      (attempts || []).forEach(function (a) {
+        const s = Number(a.score || 0);
+        if (s < 2) attemptBuckets[0]++; else if (s < 4) attemptBuckets[1]++; else if (s < 6) attemptBuckets[2]++; else if (s < 8) attemptBuckets[3]++; else attemptBuckets[4]++;
+      });
+      const totalBucket = buckets.reduce(function (s, v) { return s + v; }, 0) || 1;
+      const pctLabels = ["0-4", "4-6", "6-8", "8-10"].map(function (l, i) { return l + " (" + (buckets[i] / totalBucket * 100).toFixed(0) + "%)"; });
+
+      let cfg = null;
+      if (key === "topScore") {
+        if (title) title.textContent = "Top 10 điểm TB";
+        cfg = { type: "bar", data: { labels: topByAvg.map(function (x) { return String(x.user_name || x.user_email || x.user_id); }), datasets: [{ label: "Điểm TB", data: topByAvg.map(function (x) { return Number(x.average_score || 0); }), backgroundColor: "#4f46e5" }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true }, title: { display: true, text: "Top 10 điểm TB" } }, scales: { y: { beginAtZero: true, max: 10 } } } };
+      } else if (key === "scoreDist") {
+        if (title) title.textContent = "Phân bố điểm TB";
+        cfg = { type: "doughnut", data: { labels: pctLabels, datasets: [{ data: buckets, backgroundColor: ["#ef4444", "#f59e0b", "#3b82f6", "#10b981"] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: "Phân bố điểm TB" }, legend: { position: "bottom", display: true }, tooltip: { callbacks: { label: function (ctx) { const v = ctx.raw || 0; return ctx.label.split(" (")[0] + ": " + v + " (" + (v / totalBucket * 100).toFixed(1) + "%)"; } } } } } };
+      } else if (key === "scoreDistAttempt") {
+        if (title) title.textContent = "Phổ điểm theo bài làm";
+        cfg = { type: "bar", data: { labels: ["0-2", "2-4", "4-6", "6-8", "8-10"], datasets: [{ label: "Số bài", data: attemptBuckets, backgroundColor: "#f59e0b" }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: "Phổ điểm theo bài làm" }, legend: { display: true } }, scales: { y: { beginAtZero: true } } } };
+      }
+      if (cfg) {
+        window.__tcOverviewModalChart = new Chart(canvas, cfg);
+      }
+    }
+
+    function tcCloseOverviewChartModal() {
+      const modal = document.getElementById("tcOverviewChartModal");
+      if (modal) { modal.style.display = "none"; modal.setAttribute("aria-hidden", "true"); }
+      if (window.__tcOverviewModalChart) { window.__tcOverviewModalChart.destroy(); window.__tcOverviewModalChart = null; }
+    }
+
+    // store attempts for modal reuse
+    // (patch tcRenderReportOverview to store attempts)
     function tcExportOverviewCsv() {
       const summary = window.__tcOverviewSummary || [];
       const rows = [["Tài khoản", "Số bài", "Điểm TB"], ...summary.map(function (s) { return [String(s.user_name || s.user_email || s.user_id), Number(s.attempt_count || 0), Number(s.average_score || 0).toFixed(2)]; })];
@@ -2563,6 +2642,12 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       if (ovRefresh) ovRefresh.addEventListener("click", tcRenderReportOverview);
       const ovCsv = document.getElementById("tcReportOverviewCsv");
       if (ovCsv) ovCsv.addEventListener("click", tcExportOverviewCsv);
+      const c1el = document.getElementById("tcOverviewTopScore");
+      if (c1el) c1el.addEventListener("click", function () { tcOpenOverviewChartModal("topScore"); });
+      const c2el = document.getElementById("tcOverviewScoreDist");
+      if (c2el) c2el.addEventListener("click", function () { tcOpenOverviewChartModal("scoreDist"); });
+      const c3el = document.getElementById("tcOverviewScoreDistAttempt");
+      if (c3el) c3el.addEventListener("click", function () { tcOpenOverviewChartModal("scoreDistAttempt"); });
       document.getElementById("tcReportBackStudents").addEventListener("click", function () {
         document.getElementById("tcReportHistoryPanel").style.display = "none";
         document.getElementById("tcReportStudentsPanel").style.display = "";
