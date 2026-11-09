@@ -501,15 +501,21 @@
             <!-- LEADERBOARD -->
             <section class="lh-card p-4 sm:p-5 space-y-2.5">
                 <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
-                    <span class="lh-tile-icon" style="background:var(--tint-amber);color:#f59e0b"><i class="fas fa-trophy"></i></span> Bảng Xếp Hạng Tháng
+                    <span class="lh-tile-icon" style="background:var(--tint-amber);color:#f59e0b"><i class="fas fa-trophy"></i></span> Bảng Xếp Hạng
                 </h3>
                 <p class="text-xs leading-snug" style="color:var(--text-sub)">Bảng xếp hạng được làm mới vào đầu mỗi tháng (theo giờ Việt Nam). Điểm số xếp theo điểm trung bình.</p>
                 <div class="space-y-2">
-                    <div class="lh-frame-box" style="height:300px">
-                        <iframe src="../features/leaderboard.html?tab=score&compact=1" class="w-full h-full border-0 no-scrollbar" scrolling="no"></iframe>
+                    <div>
+                        <p class="text-xs font-bold mb-1" style="color:var(--text-sub)"><i class="fas fa-star text-amber-500 mr-1"></i>Xếp hạng điểm (điểm trung bình)</p>
+                        <div class="lh-frame-box" style="height:300px">
+                            <iframe src="../features/leaderboard.html?tab=score&compact=1" class="w-full h-full border-0 no-scrollbar" scrolling="no"></iframe>
+                        </div>
                     </div>
-                    <div class="lh-frame-box" style="height:300px">
-                        <iframe src="../features/leaderboard.html?tab=time&compact=1" class="w-full h-full border-0 no-scrollbar" scrolling="no"></iframe>
+                    <div>
+                        <p class="text-xs font-bold mb-1" style="color:var(--text-sub)"><i class="fas fa-clock text-cyan-500 mr-1"></i>Xếp hạng thời gian online (tháng này)</p>
+                        <div class="lh-frame-box" style="height:300px">
+                            <iframe src="../features/leaderboard.html?tab=time&compact=1" class="w-full h-full border-0 no-scrollbar" scrolling="no"></iframe>
+                        </div>
                     </div>
                 </div>
             </section>
