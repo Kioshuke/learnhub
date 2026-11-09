@@ -1,4 +1,6 @@
 const SAFE_TEXT_TAGS = ["b", "i", "u", "em", "strong", "br", "span", "code"];
+/* Text câu hỏi: bỏ in đậm (khung câu hỏi đã đậm sẵn), giữ in nghiêng/gạch chân/... */
+const QUESTION_TEXT_TAGS = SAFE_TEXT_TAGS.filter((tag) => tag !== "b" && tag !== "strong");
 
 export function esc(value) {
   return String(value == null ? "" : value).replace(/[&<>"']/g, (char) => ({
@@ -11,12 +13,12 @@ export function safeUrl(value) {
   return /^https?:\/\//i.test(url) ? url : "";
 }
 
-export function sanitizeHtml(html) {
+export function sanitizeHtml(html, allowedTags = SAFE_TEXT_TAGS) {
   const body = new DOMParser().parseFromString(String(html || ""), "text/html").body;
   (function clean(parent) {
     Array.from(parent.children).forEach((element) => {
       const tag = element.tagName.toLowerCase();
-      if (!SAFE_TEXT_TAGS.includes(tag)) {
+      if (!allowedTags.includes(tag)) {
         clean(element);
         element.replaceWith(...element.childNodes);
       } else {
@@ -26,6 +28,11 @@ export function sanitizeHtml(html) {
     });
   })(body);
   return body.innerHTML;
+}
+
+/* Nội dung câu hỏi: làm sạch HTML nhưng loại luôn thẻ in đậm (<strong>/<b>) */
+export function sanitizeQuestionText(html) {
+  return sanitizeHtml(html, QUESTION_TEXT_TAGS);
 }
 
 export function normalizeImageUrl(value) {
@@ -171,7 +178,7 @@ function renderQuestion(question, questionIndex, { mode, canReveal }) {
   let result = null;
 
   if (type === "multiple") {
-    if (question.title && questionText && questionText !== question.title) content += `<div class="question-prompt">${sanitizeHtml(questionText)}</div>`;
+    if (question.title && questionText && questionText !== question.title) content += `<div class="question-prompt">${sanitizeQuestionText(questionText)}</div>`;
     const options = optionsHtml({ answers: question.answers, chosen: question.chosen, correct: question.correct, mode, canReveal, questionIndex });
     content += options.html;
     result = options.result;
@@ -191,7 +198,7 @@ function renderQuestion(question, questionIndex, { mode, canReveal }) {
       const answerTip = canShowAnswer ? `<span class="tf-answer-tip ${tipTone}"> (Đáp án: ${expected === 1 ? "Đúng" : "Sai"})</span>` : "";
       const trueClass = mode === "review" && value === 1 ? " selected" : (mode === "preview" && expected === 1 ? " selected" : "");
       const falseClass = mode === "review" && value === 0 ? " selected" : (mode === "preview" && expected === 0 ? " selected" : "");
-      return `<div class="tf-row${rowClass}"><div class="tf-question-text"><strong>${String.fromCharCode(97 + subIndex)}.</strong> <span>${sanitizeHtml(sub.text || "")}</span>${answerTip}</div><div class="tf-options"><label class="${trueClass.trim()}"><input type="radio" name="tf-${questionIndex}-${subIndex}" value="1"${(value === 1 || (mode === "preview" && expected === 1)) ? " checked" : ""}${(mode === "review" || mode === "preview") ? " disabled" : ""}${mode === "take" ? ` onclick="checkTFDone(${questionIndex}, this)"` : ""}> <b>Đ</b></label><label class="${falseClass.trim()}"><input type="radio" name="tf-${questionIndex}-${subIndex}" value="0"${(value === 0 || (mode === "preview" && expected === 0)) ? " checked" : ""}${(mode === "review" || mode === "preview") ? " disabled" : ""}${mode === "take" ? ` onclick="checkTFDone(${questionIndex}, this)"` : ""}> <b>S</b></label></div></div>`;
+      return `<div class="tf-row${rowClass}"><div class="tf-question-text"><strong>${String.fromCharCode(97 + subIndex)}.</strong> <span>${sanitizeQuestionText(sub.text || "")}</span>${answerTip}</div><div class="tf-options"><label class="${trueClass.trim()}"><input type="radio" name="tf-${questionIndex}-${subIndex}" value="1"${(value === 1 || (mode === "preview" && expected === 1)) ? " checked" : ""}${(mode === "review" || mode === "preview") ? " disabled" : ""}${mode === "take" ? ` onclick="checkTFDone(${questionIndex}, this)"` : ""}> <b>Đ</b></label><label class="${falseClass.trim()}"><input type="radio" name="tf-${questionIndex}-${subIndex}" value="0"${(value === 0 || (mode === "preview" && expected === 0)) ? " checked" : ""}${(mode === "review" || mode === "preview") ? " disabled" : ""}${mode === "take" ? ` onclick="checkTFDone(${questionIndex}, this)"` : ""}> <b>S</b></label></div></div>`;
     }).join("")}</div>`;
     result = mode === "review" && canReveal ? allCorrect : null;
   } else if (type === "short_answer") {
@@ -200,7 +207,7 @@ function renderQuestion(question, questionIndex, { mode, canReveal }) {
     const isCorrect = chosen.trim().toLowerCase() === expected.trim().toLowerCase();
     const canShowAnswer = canReveal && (mode === "review" || mode === "preview");
     const stateClass = mode === "review" && canShowAnswer ? (isCorrect ? " review-input-correct" : " review-input-wrong") : "";
-    if (questionText) content += `<div class="question-prompt">${sanitizeHtml(questionText)}</div>`;
+    if (questionText) content += `<div class="question-prompt">${sanitizeQuestionText(questionText)}</div>`;
     content += `<textarea class="short-input writing-input${stateClass}" ${mode === "take" ? "placeholder=\"Nhập câu trả lời của bạn...\"" : "disabled"} ${mode === "take" ? `oninput="markDone(${questionIndex})" onblur="shortToast(${questionIndex})"` : ""} data-qidx="${questionIndex}" rows="${Math.max(1, Number(question.rows) || 3)}">${esc(chosen)}</textarea>`;
     if (canShowAnswer) content += `<div class="true-text answer-key">✓ Đáp án chuẩn: ${esc(expected)}</div>`;
     result = mode === "review" && canShowAnswer ? isCorrect : null;
@@ -213,7 +220,7 @@ function renderQuestion(question, questionIndex, { mode, canReveal }) {
       const options = optionsHtml({ answers: sub.answers, chosen: chosen[subIndex], correct: sub.correct, mode, canReveal, questionIndex, subIndex, prefix: (index) => `${String.fromCharCode(65 + index)}.` });
       const selectedCorrect = chosen[subIndex] != null && Number(chosen[subIndex]) === Number(sub.correct);
       if (!selectedCorrect) allCorrect = false;
-      return `<div class="sub-q-block${mode === "review" && canReveal ? (selectedCorrect ? " review-correct" : " review-wrong") : ""}"><div class="sub-q-text"><strong>${String.fromCharCode(97 + subIndex)}.</strong> ${sanitizeHtml(sub.question || "")}</div>${options.html}</div>`;
+      return `<div class="sub-q-block${mode === "review" && canReveal ? (selectedCorrect ? " review-correct" : " review-wrong") : ""}"><div class="sub-q-text"><strong>${String.fromCharCode(97 + subIndex)}.</strong> ${sanitizeQuestionText(sub.question || "")}</div>${options.html}</div>`;
     }).join("");
     content += `<div class="passage-layout">${passage}<div class="passage-right sub-questions">${subHtml}</div></div>`;
     result = mode === "review" && canReveal ? allCorrect : null;
@@ -221,7 +228,7 @@ function renderQuestion(question, questionIndex, { mode, canReveal }) {
     const chosen = Array.isArray(question.chosen) ? question.chosen : [];
     const blanks = Array.isArray(question.blanks) ? question.blanks : [];
     let allCorrect = true;
-    const text = sanitizeHtml(questionText).replace(/\{\{(\d+)\}\}/g, (_match, number) => {
+    const text = sanitizeQuestionText(questionText).replace(/\{\{(\d+)\}\}/g, (_match, number) => {
       const index = Number(number) - 1;
       const value = mode === "review" && chosen[index] != null ? String(chosen[index]) : "";
       const expected = String(blanks[index] == null ? "" : blanks[index]);
@@ -243,7 +250,7 @@ function renderQuestion(question, questionIndex, { mode, canReveal }) {
   if (mode === "review" && canReveal && result !== null) cardClass += result ? " review-true" : " review-false";
   const canShowExplanation = (mode === "review" || mode === "preview") && !!canReveal && question.explanation;
   const explanationHtml = canShowExplanation ? `<details class="q-explanation"><summary class="exp-label">Hiện giải thích</summary><div class="exp-body">${sanitizeHtml(question.explanation)}</div></details>` : "";
-  const html = `<div class="${cardClass}" id="card-${questionIndex}"><div class="q-header"><span class="q-badge">Câu ${questionIndex + 1}</span><span>${sanitizeHtml(heading)}</span></div>${imageHtml}${content}${explanationHtml}</div>`;
+  const html = `<div class="${cardClass}" id="card-${questionIndex}"><div class="q-header"><span class="q-badge">Câu ${questionIndex + 1}</span><span>${sanitizeQuestionText(heading)}</span></div>${imageHtml}${content}${explanationHtml}</div>`;
   return { html, result };
 }
 

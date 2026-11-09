@@ -893,6 +893,12 @@ function commitSectionEdit(el, section, field, placeholder, snapshot, save) {
   syncJson();
 }
 
+/* Bỏ thẻ in đậm (<b>/<strong>) khỏi NỘI DUNG CÂU HỎI — khung câu hỏi đã in đậm
+   sẵn nên thẻ strong là thừa; giữ lại in nghiêng/gạch chân/... */
+function stripBoldTags(html) {
+  return String(html == null ? "" : html).replace(/<\/?(?:b|strong)(?:\s[^>]*)?>/gi, "");
+}
+
 function render() {
   var area = $("renderArea");
   area.innerHTML = "";
@@ -950,7 +956,7 @@ function render() {
       var headQ = document.createElement("div");
       headQ.className = "q-head";
       headQ.innerHTML = '<span class="num">Câu ' + (idx + 1) + "</span>" +
-        '<div class="q-q">' + stripQuestionNo(qText) +
+        '<div class="q-q">' + stripBoldTags(stripQuestionNo(qText)) +
         '<span class="tag tag-' + type + '">' + tagTxt + "</span></div>";
       card.appendChild(headQ);
 
@@ -1032,7 +1038,7 @@ function render() {
         answerKeyList.className = "tf-answer-key";
         answerKeyList.innerHTML = (item.subQuestions || []).map(function (sq, subIndex) {
           return '<div class="answer-key-statement"><span>' + String.fromCharCode(97 + subIndex) + ')</span> ' +
-            sanitizeC(sq.html || sq.text || "") + '</div>';
+            sanitizeC(stripBoldTags(sq.html || sq.text || "")) + '</div>';
         }).join("");
         card.appendChild(answerKeyList);
       } else if (type === "tf") {
@@ -1053,7 +1059,7 @@ function render() {
           if (graded) row.classList.add(val === kv ? "good" : "bad");
           var answerClass = graded ? (val === kv ? "ans-good" : "ans-bad") : (kv === 1 ? "ans-good" : "ans-bad");
           row.innerHTML = '<span class="tf-lett">' + String.fromCharCode(97 + si) + "</span>" +
-            '<span class="txt">' + sq.text +
+            '<span class="txt">' + stripBoldTags(sq.text) +
               (!graded && kv < 0 ? '<span class="ans ans-bad">(chưa chọn Đ/S)</span>' : "") +
               (kv >= 0 ? '<span class="ans ' + answerClass + '">(Đáp án: ' + (kv === 1 ? "Đúng" : "Sai") + ")</span>" : "") +
             "</span>" +
