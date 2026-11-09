@@ -116,6 +116,7 @@ function switchAdminTab(tab) {
   if (tab === "registration") loadRegistrationForm();
   if (tab === "whitelist") loadWhitelistForm();
   if (tab === "rename") renderRenameList();
+  if (tab === "users") loadOverview();
   if (tab === "schedule") loadScheduleForm();
   if (tab === "docs") loadDocsManage();
   if (tab === "blog") loadBlogManage();
@@ -1259,4 +1260,145 @@ function startDashboardRefresh() {
     await refreshCollections();
   }, 30000);
 }
+
+// ================= OVERVIEW REPORTS =================
+const overviewCharts = {};
+function destroyChart(id) { if (overviewCharts[id]) { overviewCharts[id].destroy(); delete overviewCharts[id]; } }
+
+function periodFilter(range, dateStr) {
+  if (!dateStr) return false;
+  const d = new Date(dateStr);
+  const now = new Date();
+  if (range === "week") {
+    const start = new Date(now); start.setDate(now.getDate() - now.getDay()); start.setHours(0,0,0,0);
+    return d >= start;
+  }
+  if (range === "month") {
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  }
+  return true;
+}
+
+let overviewData = { attempts: [], users: [] };
+
+async function loadOverview() {
+  const rangeEl = document.getElementById("overviewRange");
+  if (!rangeEl) return;
+  const range = rangeEl.value;
+  const tbody = document.getElementById("overviewTableBody");
+  if (tbody) tbody.innerHTML = `<tr><td colspan="5"><div class="empty">Đang tải...</div></td></tr>`;
+  try {
+    const { data: attempts } = await supabase
+      .from("test_attempts")
+      .select("user_id,score,subject,created_at")
+      .order("created_at", { ascending: false })
+      .limit(10000);
+    const { data: users } = await supabase
+      .from("users")
+      .select("id,name,email,online_timer,online_week_key,last_active,disabled");
+    overviewData.attempts = attempts || [];
+    overviewData.users = users || [];
+
+    const filteredAttempts = overviewData.attempts.filter(a => periodFilter(range, a.created_at));
+    const userMap = new Map(overviewData.users.map(u => [u.id, u]));
+
+    const activeUsers = new Set(filteredAttempts.map(a => a.user_id));
+    const totalAttempts = filteredAttempts.length;
+    const avgScore = totalAttempts ? (filteredAttempts.reduce((s,a)=>s+Number(a.score||0),0)/totalAttempts) : 0;
+    const periodKey = (function(){ const vn=new Date(Date.now()+7*3600000); return vn.getUTCFullYear()+"-"+String(vn.getUTCMonth()+1).padStart(2,"0"); })();
+    const totalOnlineSec = overviewData.users.reduce((s,u)=> s + ((range==="all"||u.online_week_key===periodKey) ? Number(u.online_timer||0) : 0), 0);
+    const active7 = overviewData.users.filter(u => u.last_active && (Date.now()-u.last_active) < 7*24*3600000 && !u.disabled).length;
+    const subjects = new Set(filteredAttempts.map(a=>a.subject).filter(Boolean));
+
+    const kpi = document.getElementById("overviewKpi");
+    if (kpi) kpi.innerHTML = [
+      ["Tổng user", overviewData.users.filter(u=>!u.disabled).length],
+      ["User active", activeUsers.size],
+      ["Tổng bài làm", totalAttempts],
+      ["Điểm TB", avgScore.toFixed(2)],
+      ["Giờ online (kỳ)", (totalOnlineSec/3600).toFixed(1)],
+      ["Môn học", subjects.size],
+      ["Active 7 ngày", active7]
+    ].map(([label,val]) => `<div class="card" style="padding:10px;text-align:center"><div style="font-size:11px;color:var(--text-2);font-weight:600">${label}</div><div style="font-size:20px;font-weight:800;color:var(--blue)">${val}</div></div>`).join("");
+
+    // Top 10 score
+    const byUser = new Map();
+    filteredAttempts.forEach(a => {
+      if (!byUser.has(a.user_id)) byUser.set(a.user_id, { tests:0, sum:0, best:0 });
+      const o = byUser.get(a.user_id); o.tests++; o.sum += Number(a.score||0); o.best = Math.max(o.best, Number(a.score||0));
+    });
+    const topScore = [...byUser.entries()].map(([uid,o]) => ({ uid, name: userMap.get(uid)?.name || uid, tests: o.tests, avg: o.sum/o.tests, best: o.best })).sort((a,b)=>b.avg-a.avg || b.tests-a.tests).slice(0,10);
+    destroyChart("chartTopScore");
+    overviewCharts.chartTopScore = new Chart(document.getElementById("chartTopScore"), { type:"bar", data:{ labels: topScore.map(x=>x.name), datasets:[{ label:"Điểm TB", data: topScore.map(x=>x.avg), backgroundColor:"#4f46e5" }] }, options:{ responsive:true, plugins:{ legend:{display:false}, title:{display:true,text:"Top 10 điểm TB"} }, scales:{ y:{ beginAtZero:true, max:10 } } } });
+
+    // Top 10 online
+    const topOnline = overviewData.users.filter(u=>!u.disabled).map(u => ({ name: u.name||u.email||u.id, sec: (range==="all"||u.online_week_key===periodKey)?Number(u.online_timer||0):0 })).sort((a,b)=>b.sec-a.sec).slice(0,10);
+    destroyChart("chartTopOnline");
+    overviewCharts.chartTopOnline = new Chart(document.getElementById("chartTopOnline"), { type:"bar", data:{ labels: topOnline.map(x=>x.name), datasets:[{ label:"Giờ online", data: topOnline.map(x=>+(x.sec/3600).toFixed(2)), backgroundColor:"#10b981" }] }, options:{ responsive:true, plugins:{ legend:{display:false}, title:{display:true,text:"Top 10 thời gian online"} }, scales:{ y:{ beginAtZero:true } } } });
+
+    // Attempts per day
+    const byDay = new Map();
+    filteredAttempts.forEach(a => { const day = String(a.created_at||"").slice(0,10); if(!day) return; byDay.set(day, (byDay.get(day)||0)+1); });
+    const days = [...byDay.keys()].sort();
+    destroyChart("chartAttemptsDay");
+    overviewCharts.chartAttemptsDay = new Chart(document.getElementById("chartAttemptsDay"), { type:"line", data:{ labels: days, datasets:[{ label:"Lượt làm bài", data: days.map(d=>byDay.get(d)), borderColor:"#f59e0b", tension:.3, fill:false }] }, options:{ responsive:true, plugins:{ title:{display:true,text:"Lượt làm bài theo ngày"} } } });
+
+    // Score distribution
+    const buckets = [0,0,0,0];
+    filteredAttempts.forEach(a => { const s=Number(a.score||0); if(s<4) buckets[0]++; else if(s<6) buckets[1]++; else if(s<8) buckets[2]++; else buckets[3]++; });
+    destroyChart("chartScoreDist");
+    overviewCharts.chartScoreDist = new Chart(document.getElementById("chartScoreDist"), { type:"doughnut", data:{ labels:["0-4","4-6","6-8","8-10"], datasets:[{ data: buckets, backgroundColor:["#ef4444","#f59e0b","#3b82f6","#10b981"] }] }, options:{ responsive:true, plugins:{ title:{display:true,text:"Phân bố điểm"} } } });
+
+    // By subject
+    const bySubj = new Map();
+    filteredAttempts.forEach(a => { const s=a.subject||"Khác"; if(!bySubj.has(s)) bySubj.set(s,{count:0,sum:0}); const o=bySubj.get(s); o.count++; o.sum+=Number(a.score||0); });
+    const subjLabels = [...bySubj.keys()];
+    destroyChart("chartBySubject");
+    overviewCharts.chartBySubject = new Chart(document.getElementById("chartBySubject"), { type:"bar", data:{ labels: subjLabels, datasets:[{ label:"Số bài", data: subjLabels.map(s=>bySubj.get(s).count), backgroundColor:"#8b5cf6" }] }, options:{ responsive:true, plugins:{ title:{display:true,text:"Số bài theo môn"} } } });
+
+    // Score trend over time
+    const trendMap = new Map();
+    filteredAttempts.forEach(a => {
+      const d = new Date(a.created_at); if(isNaN(d)) return;
+      let key;
+      if (range === "week") key = String(a.created_at).slice(0,10);
+      else key = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+      if(!trendMap.has(key)) trendMap.set(key,{sum:0,n:0});
+      const o=trendMap.get(key); o.sum+=Number(a.score||0); o.n++;
+    });
+    const trendKeys = [...trendMap.keys()].sort();
+    destroyChart("chartScoreTrend");
+    overviewCharts.chartScoreTrend = new Chart(document.getElementById("chartScoreTrend"), { type:"line", data:{ labels: trendKeys, datasets:[{ label:"Điểm TB", data: trendKeys.map(k=>+(trendMap.get(k).sum/trendMap.get(k).n).toFixed(2)), borderColor:"#ec4899", tension:.3, fill:false }] }, options:{ responsive:true, plugins:{ title:{display:true,text:"Xu hướng điểm TB theo thời gian"} }, scales:{ y:{ beginAtZero:true, max:10 } } } });
+
+    // Summary table
+    const summary = [...byUser.entries()].map(([uid,o]) => ({ uid, name: userMap.get(uid)?.name||uid, tests: o.tests, avg: o.sum/o.tests, best: o.best, online: (range==="all"||userMap.get(uid)?.online_week_key===periodKey)?Number(userMap.get(uid)?.online_timer||0):0 })).sort((a,b)=>b.avg-a.avg || b.tests-a.tests);
+    if (tbody) tbody.innerHTML = summary.map(s => `<tr><td>${escapeHtml(s.name)}</td><td>${s.tests}</td><td>${s.avg.toFixed(2)}</td><td>${s.best.toFixed(2)}</td><td>${(s.online/3600).toFixed(1)}h</td></tr>`).join("") || `<tr><td colspan="5"><div class="empty">Chưa có dữ liệu</div></td></tr>`;
+
+    window.__overviewSummary = summary;
+  } catch (e) {
+    console.error("[overview]", e);
+    if (window.logAppError) window.logAppError({ source:"admin", category:"overview", level:"error", code:"OVERVIEW_FAIL", message: String((e&&e.message)||e) });
+    if (tbody) tbody.innerHTML = `<tr><td colspan="5"><div class="empty">Lỗi tải dữ liệu</div></td></tr>`;
+  }
+}
+
+function exportOverviewCsv() {
+  const summary = window.__overviewSummary || [];
+  const rows = [["User","Số bài","Điểm TB","Best","Giờ online"], ...summary.map(s=>[s.name,s.tests,s.avg.toFixed(2),s.best.toFixed(2),(s.online/3600).toFixed(1)])];
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob(["\ufeff"+csv], { type:"text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = "overview.csv"; a.click(); URL.revokeObjectURL(url);
+}
+
+const overviewRangeEl = document.getElementById("overviewRange");
+if (overviewRangeEl) overviewRangeEl.addEventListener("change", loadOverview);
+const overviewRefreshBtn = document.getElementById("overviewRefreshBtn");
+if (overviewRefreshBtn) overviewRefreshBtn.addEventListener("click", loadOverview);
+const overviewExportCsv = document.getElementById("overviewExportCsv");
+if (overviewExportCsv) overviewExportCsv.addEventListener("click", exportOverviewCsv);
+
+// load when users tab shown
+const _origSwitchAdminTab = (typeof switchAdminTab === "function") ? switchAdminTab : null;
+setTimeout(() => { try { loadOverview(); } catch(_) {} }, 1500);
 
