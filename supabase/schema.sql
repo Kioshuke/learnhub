@@ -105,14 +105,6 @@ create table if not exists public.mailbox_messages (
 create index if not exists mailbox_messages_created_at_idx on public.mailbox_messages (created_at desc);
 
 -- Cấu hình dòng chữ chạy trên cùng web chính (nội dung + tốc độ).
-create table if not exists public.ticker_settings (
-  id            boolean primary key default true check (id),
-  text          text not null default '',
-  speed_seconds int not null default 18,
-  updated_at    timestamptz,
-  updated_by    text
-);
-
 create table if not exists public.forum_posts (
   id         uuid primary key default gen_random_uuid(),
   legacy_id  text,
@@ -241,7 +233,6 @@ alter table public.access_list enable row level security;
 alter table public.maintenance_settings enable row level security;
 alter table public.broadcast_current enable row level security;
 alter table public.broadcast_welcome enable row level security;
-alter table public.ticker_settings enable row level security;
 alter table public.forum_posts enable row level security;
 alter table public.forum_events enable row level security;
 alter table public.schedule_settings enable row level security;
@@ -683,18 +674,6 @@ create policy mailbox_update_admin on public.mailbox_messages
 drop policy if exists mailbox_delete_admin on public.mailbox_messages;
 create policy mailbox_delete_admin on public.mailbox_messages
   for delete to authenticated using (public.is_admin());
-
-drop policy if exists ticker_select on public.ticker_settings;
-create policy ticker_select on public.ticker_settings
-  for select to authenticated using (true);
-
-drop policy if exists ticker_select_anon on public.ticker_settings;
-create policy ticker_select_anon on public.ticker_settings
-  for select to anon using (true);
-
-drop policy if exists ticker_write_admin on public.ticker_settings;
-create policy ticker_write_admin on public.ticker_settings
-  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 drop policy if exists forum_posts_select on public.forum_posts;
 create policy forum_posts_select on public.forum_posts
@@ -1151,7 +1130,6 @@ begin
     'public.broadcast_current',
     'public.broadcast_welcome',
     'public.maintenance_settings',
-    'public.ticker_settings',
     'public.schedule_settings',
     'public.subject_notices',
     'public.error_logs',
@@ -1423,46 +1401,38 @@ grant execute on function public.users_cleanup_stale_online(bigint) to authentic
 alter table public.watched_videos add column if not exists watched_at timestamptz not null default now();
 alter table public.test_attempts add column if not exists created_at timestamptz not null default now();
 
+-- Bỏ ticker_settings (đã chuyển sang text cố định ở frontend).
+drop table if exists public.ticker_settings cascade;
+
 drop function if exists public.leaderboard_scores(integer);
 create or replace function public.leaderboard_scores(p_limit integer default 50)
 returns table (
-  user_id      text,
-  name         text,
-  email        text,
-  photo        text,
-  total_score  numeric,
-  total_tests  bigint,
-  total_videos bigint,
-  best_score   numeric
+  user_id     text,
+  name        text,
+  email       text,
+  photo       text,
+  total_score numeric,
+  total_tests bigint,
+  avg_score   numeric,
+  best_score  numeric
 )
 language sql stable security definer
 set search_path = public
 as $$
-  with m as (
-    select (date_trunc('month', (now() at time zone 'Asia/Ho_Chi_Minh'))
-              at time zone 'Asia/Ho_Chi_Minh') as ts
-  ),
-  agg as (
-    select a.user_id,
-           coalesce(sum(a.score), 0)::numeric as total_score,
-           count(*)::bigint                  as total_tests,
-           coalesce(max(a.score), 0)::numeric as best_score
-      from public.test_attempts a, m
-     where a.created_at >= m.ts
-     group by a.user_id
-  )
-  select u.id, u.name, u.email, u.photo,
-         agg.total_score,
-         agg.total_tests,
-         coalesce((select count(*)
-                     from public.watched_videos w, m
-                    where w.user_id = u.id and w.watched_at >= m.ts), 0)::bigint as total_videos,
-         agg.best_score
-    from agg
-    join public.users u on u.id = agg.user_id
+  select u.id,
+         u.name,
+         u.email,
+         u.photo,
+         coalesce(sum(a.score), 0)::numeric as total_score,
+         count(*)::bigint                  as total_tests,
+         coalesce(avg(a.score), 0)::numeric as avg_score,
+         coalesce(max(a.score), 0)::numeric as best_score
+    from public.test_attempts a
+    join public.users u on u.id = a.user_id
    where not coalesce(u.disabled, false)
-     and agg.total_score > 0
-   order by agg.total_score desc, agg.total_tests desc
+   group by u.id, u.name, u.email, u.photo
+  having count(*) > 0
+   order by avg_score desc, total_tests desc
    limit p_limit;
 $$;
 

@@ -194,43 +194,32 @@ alter table public.test_attempts add column if not exists created_at timestamptz
 drop function if exists public.leaderboard_scores(integer);
 create or replace function public.leaderboard_scores(p_limit integer default 50)
 returns table (
-  user_id      text,
-  name         text,
-  email        text,
-  photo        text,
-  total_score  numeric,
-  total_tests  bigint,
-  total_videos bigint,
-  best_score   numeric
+  user_id     text,
+  name        text,
+  email       text,
+  photo       text,
+  total_score numeric,
+  total_tests bigint,
+  avg_score   numeric,
+  best_score  numeric
 )
 language sql stable security definer
 set search_path = public
 as $$
-  with m as (
-    select (date_trunc('month', (now() at time zone 'Asia/Ho_Chi_Minh'))
-              at time zone 'Asia/Ho_Chi_Minh') as ts
-  ),
-  agg as (
-    select a.user_id,
-           coalesce(sum(a.score), 0)::numeric as total_score,
-           count(*)::bigint                  as total_tests,
-           coalesce(max(a.score), 0)::numeric as best_score
-      from public.test_attempts a, m
-     where a.created_at >= m.ts
-     group by a.user_id
-  )
-  select u.id, u.name, u.email, u.photo,
-         agg.total_score,
-         agg.total_tests,
-         coalesce((select count(*)
-                     from public.watched_videos w, m
-                    where w.user_id = u.id and w.watched_at >= m.ts), 0)::bigint as total_videos,
-         agg.best_score
-    from agg
-    join public.users u on u.id = agg.user_id
+  select u.id,
+         u.name,
+         u.email,
+         u.photo,
+         coalesce(sum(a.score), 0)::numeric                          as total_score,
+         count(*)::bigint                                            as total_tests,
+         coalesce(avg(a.score), 0)::numeric                          as avg_score,
+         coalesce(max(a.score), 0)::numeric                          as best_score
+    from public.test_attempts a
+    join public.users u on u.id = a.user_id
    where not coalesce(u.disabled, false)
-     and agg.total_score > 0
-   order by agg.total_score desc, agg.total_tests desc
+   group by u.id, u.name, u.email, u.photo
+  having count(*) > 0
+   order by avg_score desc, total_tests desc
    limit p_limit;
 $$;
 

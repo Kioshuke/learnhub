@@ -198,7 +198,7 @@
         <div class="tab-panel active" id="tab-score">
         <div class="lb-layout">
             <div class="podium-side">
-                <div class="podium-title"><i class="fas fa-trophy"></i> Vinh danh Top 3 Tháng</div>
+                <div class="podium-title"><i class="fas fa-trophy"></i> Vinh danh Top 3</div>
                 <div class="top3" id="podium"></div>
             </div>
 
@@ -210,14 +210,13 @@
                                 <th>Hạng</th>
                                 <th><span class="th-long">Tên người dùng</span><span class="th-short">Tên</span></th>
                                 <th><span class="th-long">Đã làm</span><span class="th-short">Bài</span></th>
-                                <th style="text-align: center;">Video</th>
-                                <th style="text-align: right;">Điểm</th>
+                                <th style="text-align: right;">Điểm TB</th>
                             </tr>
                         </thead>
                         <tbody id="table-body">
-                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:60%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:40px; margin:auto"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
-                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:45%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:40px; margin:auto"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
-                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:50%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:40px; margin:auto"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:60%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:45%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
+                            <tr class="ld-row"><td><div class="sk" style="width:30px"></div></td><td><div class="sk" style="width:50%"></div></td><td><div class="sk" style="width:40px"></div></td><td><div class="sk" style="width:50px; margin-left:auto"></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -313,7 +312,7 @@
             return layout.map(({ idx, ring, bar, avSz, barH, rank, medal }) => {
                 const u = items[idx];
                 if (!u) return '';
-                const val = u.timer != null ? formatTimer(u.timer) : (u.score + 'đ');
+                const val = u.timer != null ? formatTimer(u.timer) : (Number(u.score).toFixed(2) + 'đ');
                 return `<div class="top3-item">
                     <div class="rank-num rank-${rank}">${rank}</div>
                     ${ringAva(u.photo, u.name, avSz, ring)}
@@ -368,9 +367,9 @@
                     uid: r.user_id,
                     name: r.name || r.email || "Ẩn danh",
                     photo: r.photo || "",
-                    score: Number(r.total_score || 0),
-                    tests: Number(r.total_tests || 0),
-                    videos: Number(r.total_videos || 0)
+                    score: Number(r.avg_score || 0),
+                    totalScore: Number(r.total_score || 0),
+                    tests: Number(r.total_tests || 0)
                 }));
                 rows.sort((a, b) => b.score - a.score || b.tests - a.tests);
 
@@ -379,11 +378,11 @@
 
                 if (!rows.length) {
                     podiumEl.innerHTML = '';
-                    tbodyEl.innerHTML = `<tr><td colspan="5">
+                    tbodyEl.innerHTML = `<tr><td colspan="4">
                         <div class="lb-empty">
                             <div class="lb-empty-icon"><i class="fas fa-trophy"></i></div>
                             <div class="lb-empty-title">Bảng xếp hạng còn trống</div>
-                            <div class="lb-empty-sub">Chưa có ai làm bài thi trong tháng này.<br>Hãy là người đầu tiên ghi tên mình lên bảng vinh danh!</div>
+                            <div class="lb-empty-sub">Chưa có ai làm bài thi.<br>Hãy là người đầu tiên ghi tên mình lên bảng vinh danh!</div>
                         </div>
                     </td></tr>`;
                     return;
@@ -404,15 +403,14 @@
                             </div>
                         </td>
                         <td class="count-cell">${u.tests}<span class="cell-unit"> bài</span></td>
-                        <td class="count-cell">${u.videos}<span class="cell-unit"> video</span></td>
-                        <td class="score-cell" style="text-align: right;">${u.score}đ</td>
+                        <td class="score-cell" style="text-align: right;">${u.score.toFixed(2)}đ</td>
                     </tr>`;
                 }).join('');
 
                 scrollToMe(tbodyEl);
             } catch (e) {
                 console.error("[load-score]", e);
-                document.getElementById("table-body").innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu xếp hạng điểm.</td></tr>`;
+                document.getElementById("table-body").innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu xếp hạng điểm.</td></tr>`;
             } finally {
                 scoreLoadBusy = false;
                 if (scoreLoadPending) { scoreLoadPending = false; load(); }
