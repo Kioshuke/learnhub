@@ -2391,9 +2391,12 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
 
     async function tcQuizDelete(id) {
       try {
-        const { error } = await supabase.rpc("teacher_delete_test_set", { p_id: id });
+        const { data, error } = await supabase.rpc("teacher_delete_test_set", { p_id: id });
         if (error) throw error;
-        toast("Đã xoá bài kiểm tra", "success");
+        const removed = Number(data && data.attempts_removed) || 0;
+        toast(removed > 0
+          ? "Đã xoá bài kiểm tra và " + removed + " lượt làm bài liên quan"
+          : "Đã xoá bài kiểm tra", "success");
         tcLoadQuizzes();
       } catch (e) {
         console.error("tcQuizDelete lỗi:", e);

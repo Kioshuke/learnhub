@@ -236,23 +236,48 @@ $$;
 grant execute on function public.teacher_list_test_sets() to authenticated;
 
 -- Xoá 1 bài kiểm tra (chỉ chủ sở hữu hoặc giáo viên).
+-- XOÁ LUÔN toàn bộ dữ liệu liên quan: lịch sử làm bài (test_attempts) của MỌI
+-- người dùng cho đề này — không để lại bản ghi mồ côi trong lịch sử làm bài.
 create or replace function public.teacher_delete_test_set(p_id uuid)
 returns jsonb
 language plpgsql security definer
 set search_path = public
 as $$
+declare
+  v_attempts int := 0;
 begin
   if not public.is_teacher() then
     return jsonb_build_object('ok', false, 'error', 'forbidden');
   end if;
+
   delete from public.test_sets
    where id = p_id
      and (teacher_id = auth.uid()::text or public.is_teacher());
-  return jsonb_build_object('ok', true);
+
+  -- test_id trong test_attempts lưu dạng "<uuid>" hoặc "t:<uuid>" → xoá cả hai.
+  if to_regclass('public.test_attempts') is not null then
+    delete from public.test_attempts
+     where test_id = p_id::text
+        or test_id = 't:' || p_id::text;
+    get diagnostics v_attempts = row_count;
+  end if;
+
+  return jsonb_build_object('ok', true, 'attempts_removed', v_attempts);
 end;
 $$;
 revoke execute on function public.teacher_delete_test_set(uuid) from public;
 grant execute on function public.teacher_delete_test_set(uuid) to authenticated;
+
+-- ============ DỌN DỮ LIỆU MỒ CÔI (đề đã xoá trước khi có tính năng này) ============
+-- Xoá lịch sử làm bài trỏ tới đề KHÔNG còn tồn tại trong test_sets.
+-- Chỉ áp dụng cho test_id dạng "t:<uuid>" (đề trong DB) để không đụng dữ liệu demo.
+-- Chạy 1 lần để dọn các đề đã bị xoá trước đó.
+delete from public.test_attempts a
+ where a.test_id ~* '^t:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+   and not exists (
+     select 1 from public.test_sets s
+      where 't:' || s.id::text = a.test_id
+   );
 
 -- Đổi trạng thái "Chưa hoàn thành"/"Hoàn thành" (không ảnh hưởng hiển thị —
 -- bài nào cũng hiện card trong Phòng Học).
