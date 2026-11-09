@@ -466,29 +466,29 @@ function unlockPageScroll() {
 
 function openQuizByDe(de) {
   var target = String(de || "").trim();
-  if (!target) return false;
+  if (!target) { console.warn("[openQuizByDe] empty de"); return false; }
   var dbHit = (window.__testCardMap || {})[target];
-  if (!dbHit || !dbHit.subjectId) return false;
-  // Chặn khi: giáo viên chưa bật "Hoàn thành" (quyền cao nhất) HOẶC ngoài khoảng thời gian mở đề.
+  if (!dbHit) { console.warn("[openQuizByDe] not in __testCardMap:", target); return false; }
+  if (!dbHit.subjectId) { console.warn("[openQuizByDe] missing subjectId:", target, dbHit); return false; }
+  // Nếu giáo viên đã bật "Hoàn thành" thì luôn cho mở, bỏ qua thời gian (theo yêu cầu).
+  if (dbHit.done && dbHit.canOpen === false) { dbHit.canOpen = true; }
+  // Chặn khi: giáo viên chưa bật "Hoàn thành" HOẶC ngoài khoảng thời gian mở đề.
   if (dbHit.canOpen === false) {
     if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
     blockQuizByDe(target);
     return true;
   }
-  try { if (typeof switchSubject === "function") switchSubject(dbHit.subjectId); } catch (e) {}
+  try { if (typeof switchSubject === "function") switchSubject(dbHit.subjectId); } catch (e) { console.warn("[openQuizByDe] switchSubject error:", e); }
   function __renderQuiz() {
     var quizEl = document.getElementById("quiz");
     if (quizEl) {
       quizEl.innerHTML = "";
-      try { loadQuiz({ closest: function () { return null; } }, dbHit.url); } catch (e) {}
+      try { loadQuiz({ closest: function () { return null; } }, dbHit.url); } catch (e) { console.warn("[openQuizByDe] loadQuiz error:", e); try { window.location.href = dbHit.url; } catch (e2) {} }
     } else {
-      // Fallback: nếu không có container quiz, chuyển thẳng iframe sang bài test.
       try { window.location.href = dbHit.url; } catch (e) {}
     }
   }
-  // Cho switchSubject thời gian cập nhật DOM trước khi render.
   setTimeout(__renderQuiz, 50);
-  // Nếu vẫn chưa render sau 1s, fallback.
   setTimeout(function () {
     if (!document.getElementById("quizFrame")) {
       try { window.location.href = dbHit.url; } catch (e) {}
