@@ -117,7 +117,7 @@ try {
 
     # ---------- 9. Commit + push ONLY nếu có thay đổi ---
     # Kiểm tra có file thay đổi nào không trước khi commit
-    $hasChanges = git status --porcelain | Measure-Object -Line > $null
+    $hasChanges = git status --porcelain | Measure-Object -Line
     if ($hasChanges.Line -gt 0) {
         git add .
         git commit -m "release v$newVersion ($updatedVi)"
