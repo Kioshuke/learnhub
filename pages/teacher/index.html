@@ -2565,6 +2565,8 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       tcReportCurrentStudent = student;
       tcReportAttemptPage = 0;
       document.getElementById("tcReportStudentsPanel").style.display = "none";
+      const ovPanel = document.getElementById("tcReportOverviewPanel");
+      if (ovPanel) ovPanel.style.display = "none";
       document.getElementById("tcReportHistoryPanel").style.display = "";
       document.getElementById("tcReportHistoryName").textContent = student.user_name || "Người dùng";
       document.getElementById("tcReportHistoryMeta").textContent = (student.user_email || "") + " · " + Number(student.attempt_count || 0) + " lượt làm";
@@ -2651,6 +2653,8 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       document.getElementById("tcReportBackStudents").addEventListener("click", function () {
         document.getElementById("tcReportHistoryPanel").style.display = "none";
         document.getElementById("tcReportStudentsPanel").style.display = "";
+        const ovPanelBack = document.getElementById("tcReportOverviewPanel");
+        if (ovPanelBack) ovPanelBack.style.display = "";
       });
       document.getElementById("tcReportAttempts").addEventListener("click", function (event) {
         const attempt = event.target.closest("[data-report-attempt]");
