@@ -92,6 +92,6 @@ grant select, insert on public.test_attempts to authenticated;
 
 -- ============ 5. (GĐ SAU) Cho GIÁO VIÊN đọc bài của học sinh ============
 -- Chưa bật ở giai đoạn này. Khi làm phần giáo viên thì bỏ chú thích 3 dòng dưới:
--- drop policy if exists test_attempts_select_teacher on public.test_attempts;
--- create policy test_attempts_select_teacher on public.test_attempts
---   for select to authenticated using (public.is_teacher());
+drop policy if exists test_attempts_select_teacher on public.test_attempts;
+create policy test_attempts_select_teacher on public.test_attempts
+  for select to authenticated using (public.is_teacher());

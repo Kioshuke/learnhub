@@ -1354,11 +1354,12 @@
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:14px">
               <div class="tc-trend-canvas-wrap"><canvas id="tcOverviewTopScore"></canvas></div>
               <div class="tc-trend-canvas-wrap"><canvas id="tcOverviewScoreDist"></canvas></div>
+              <div class="tc-trend-canvas-wrap"><canvas id="tcOverviewScoreDistAttempt"></canvas></div>
             </div>
             <div class="sheet-wrap">
               <div class="sheet-scroll">
                 <table class="sheet-table">
-                  <thead><tr><th>Tài khoản</th><th>Số bài</th><th>Điểm TB</th><th>Cao nhất</th></tr></thead>
+                  <thead><tr><th>Tài khoản</th><th>Số bài</th><th>Điểm TB</th></tr></thead>
                   <tbody id="tcReportOverviewTable"></tbody>
                 </table>
               </div>
@@ -1607,7 +1608,7 @@
         tcOpenNotices();
       } else if (view === "quiz") {
         tcOpenQuizzes();
-      } else if (view === "report") {
+      } else if (view === "report" || view === "overview") {
         tcOpenReport();
       }
       tcLoadClasses();
@@ -2074,6 +2075,7 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
     };
 
     window.tcOpenReport = function() {
+      tcMarkReturnView("overview");
       setMainView("report");
       if (window.TeacherShell && window.TeacherShell.setActive) window.TeacherShell.setActive("report");
       const studentPanel = document.getElementById("tcReportStudentsPanel");
@@ -2142,25 +2144,38 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       if (label) label.textContent = "Trang " + (tcReportStudentPage + 1) + " / " + pages;
     }
 
-    function tcRenderReportOverview() {
+    async function tcRenderReportOverview() {
       const cache = tcReportStudentsCache || [];
       const kpi = document.getElementById("tcReportOverviewKpi");
       const table = document.getElementById("tcReportOverviewTable");
       const totalStudents = cache.length;
       const totalAttempts = cache.reduce(function (s, x) { return s + Number(x.attempt_count || 0); }, 0);
       const avgAll = totalAttempts ? cache.reduce(function (s, x) { return s + Number(x.average_score || 0) * Number(x.attempt_count || 0); }, 0) / totalAttempts : 0;
-      const topByAvg = cache.filter(function (x) { return Number(x.attempt_count || 0) > 0; }).sort(function (a, b) { return Number(b.average_score || 0) - Number(a.average_score || 0); }).slice(0, 10);
+      const studentsWithData = cache.filter(function (x) { return Number(x.attempt_count || 0) > 0; });
+      const topByAvg = studentsWithData.sort(function (a, b) { return Number(b.average_score || 0) - Number(a.average_score || 0); }).slice(0, 10);
+      // Lấy attempts thực tế để tính phổ điểm theo từng bài
+      let attempts = [];
+      try {
+        const ids = cache.map(function (x) { return x.user_id; }).filter(Boolean);
+        if (ids.length) {
+          const { data } = await supabase.from("test_attempts").select("score").in("user_id", ids).limit(10000);
+          attempts = data || [];
+        }
+      } catch (e) { attempts = []; }
+      const perfectCount = attempts.filter(function (a) { return Number(a.score) === 10; }).length;
+      const highCount = attempts.filter(function (a) { return Number(a.score) >= 8; }).length;
       const buckets = [0, 0, 0, 0];
       cache.forEach(function (x) {
         const s = Number(x.average_score || 0);
         if (s < 4) buckets[0]++; else if (s < 6) buckets[1]++; else if (s < 8) buckets[2]++; else buckets[3]++;
       });
+      const kpiTones = ["is-blue", "is-violet", "is-green", "is-amber"];
       if (kpi) kpi.innerHTML = [
         ["Tài khoản", totalStudents],
         ["Tổng lượt làm", totalAttempts],
         ["Điểm TB chung", avgAll.toFixed(2)],
-        ["Có dữ liệu", topByAvg.length]
-      ].map(function (pair) { return '<div class="tc-trend-kpi is-blue"><div class="label">' + escapeHtml(pair[0]) + '</div><div class="value">' + escapeHtml(String(pair[1])) + '</div></div>'; }).join("");
+        ["Bài đạt 10đ", perfectCount]
+      ].map(function (pair, i) { return '<div class="tc-trend-kpi ' + kpiTones[i % kpiTones.length] + '"><div class="label">' + escapeHtml(pair[0]) + '</div><div class="value">' + escapeHtml(String(pair[1])) + '</div></div>'; }).join("");
       // top score chart
       const c1 = document.getElementById("tcOverviewTopScore");
       if (c1 && window.Chart) {
@@ -2172,15 +2187,30 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
         if (window.__tcOverviewChart2) window.__tcOverviewChart2.destroy();
         window.__tcOverviewChart2 = new Chart(c2, { type: "doughnut", data: { labels: ["0-4", "4-6", "6-8", "8-10"], datasets: [{ data: buckets, backgroundColor: ["#ef4444", "#f59e0b", "#3b82f6", "#10b981"] }] }, options: { responsive: true, plugins: { title: { display: true, text: "Phân bố điểm TB" } } } });
       }
+      // Phổ điểm theo từng bài (tổng hợp từ nhiều bài, không trung bình)
+      const attemptBuckets = [0, 0, 0, 0, 0];
+      attempts.forEach(function (a) {
+        const s = Number(a.score || 0);
+        if (s < 2) attemptBuckets[0]++;
+        else if (s < 4) attemptBuckets[1]++;
+        else if (s < 6) attemptBuckets[2]++;
+        else if (s < 8) attemptBuckets[3]++;
+        else attemptBuckets[4]++;
+      });
+      const c3 = document.getElementById("tcOverviewScoreDistAttempt");
+      if (c3 && window.Chart) {
+        if (window.__tcOverviewChart3) window.__tcOverviewChart3.destroy();
+        window.__tcOverviewChart3 = new Chart(c3, { type: "bar", data: { labels: ["0-2", "2-4", "4-6", "6-8", "8-10"], datasets: [{ label: "Số bài", data: attemptBuckets, backgroundColor: "#f59e0b" }] }, options: { responsive: true, plugins: { title: { display: true, text: "Phổ điểm theo bài làm" }, legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+      }
       if (table) table.innerHTML = topByAvg.map(function (s) {
-        return '<tr><td>' + escapeHtml(String(s.user_name || s.user_email || s.user_id)) + '</td><td>' + Number(s.attempt_count || 0) + '</td><td>' + Number(s.average_score || 0).toFixed(2) + '</td><td>' + Number(s.best_score || 0).toFixed(2) + '</td></tr>';
-      }).join("") || '<tr><td colspan="4"><div class="empty">Chưa có dữ liệu</div></td></tr>';
+        return '<tr><td>' + escapeHtml(String(s.user_name || s.user_email || s.user_id)) + '</td><td>' + Number(s.attempt_count || 0) + '</td><td>' + Number(s.average_score || 0).toFixed(2) + '</td></tr>';
+      }).join("") || '<tr><td colspan="3"><div class="empty">Chưa có dữ liệu</div></td></tr>';
       window.__tcOverviewSummary = topByAvg;
     }
 
     function tcExportOverviewCsv() {
       const summary = window.__tcOverviewSummary || [];
-      const rows = [["Tài khoản", "Số bài", "Điểm TB", "Cao nhất"], ...summary.map(function (s) { return [String(s.user_name || s.user_email || s.user_id), Number(s.attempt_count || 0), Number(s.average_score || 0).toFixed(2), Number(s.best_score || 0).toFixed(2)]; })];
+      const rows = [["Tài khoản", "Số bài", "Điểm TB"], ...summary.map(function (s) { return [String(s.user_name || s.user_email || s.user_id), Number(s.attempt_count || 0), Number(s.average_score || 0).toFixed(2)]; })];
       const csv = rows.map(function (r) { return r.map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(","); }).join("\n");
       const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);

@@ -1638,3 +1638,8 @@ $function$;
 revoke execute on function public.teacher_delete_tailieu_doc(uuid) from public;
 grant execute on function public.teacher_delete_tailieu_doc(uuid) to authenticated;
 -- ============================================================
+
+-- Cho giao vien doc bai lam cua hoc sinh (phuc vu bao cao).
+drop policy if exists test_attempts_select_teacher on public.test_attempts;
+create policy test_attempts_select_teacher on public.test_attempts
+  for select to authenticated using (public.is_teacher());
