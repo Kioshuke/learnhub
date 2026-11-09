@@ -1006,7 +1006,7 @@ function requestOpenQuiz(de){
     if(acked) { if(rv) clearInterval(rv); return; }
     try { if(frame.contentWindow) frame.contentWindow.postMessage({ type: "OPEN_QUIZ", de: de }, "*"); } catch(e){}
   }, 250);
-  setTimeout(function(){ if(!acked) { if(rv) clearInterval(rv); showDeepLinkOverlay(false); } }, 12000);
+  setTimeout(function(){ if(!acked) { if(rv) clearInterval(rv); showDeepLinkOverlay(false); } }, 20000);
   try { if(frame.contentWindow) frame.contentWindow.postMessage({ type: "OPEN_QUIZ", de: de }, "*"); } catch(e){}
 }
 

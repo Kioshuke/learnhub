@@ -436,6 +436,7 @@ window.addEventListener('message', function(event) {
   }
   if (event.data.type === 'OPEN_QUIZ') {
     var found = openQuizByDe(event.data.de);
+    if (found === "pending") return; // chưa sẵn sàng, để parent retry
     var hit = (window.__testCardMap || {})[String(event.data.de || "").trim()];
     var url = (found && hit) ? hit.url : "";
     if (window.parent && window.parent !== window) {
@@ -464,11 +465,18 @@ function unlockPageScroll() {
   document.documentElement.style.overflow = '';
 }
 
-function openQuizByDe(de) {
+function openQuizByDe(de, retryCount) {
+  retryCount = retryCount || 0;
   var target = String(de || "").trim();
   if (!target) { console.warn("[openQuizByDe] empty de"); return false; }
-  var dbHit = (window.__testCardMap || {})[target];
-  if (!dbHit) { console.warn("[openQuizByDe] not in __testCardMap:", target); return false; }
+  var map = window.__testCardMap || {};
+  var dbHit = map[target];
+  // Race condition: dữ liệu RPC chưa nạp xong → thử lại.
+  if (!dbHit && retryCount < 10) {
+    setTimeout(function () { openQuizByDe(target, retryCount + 1); }, 250);
+    return "pending";
+  }
+  if (!dbHit) { console.warn("[openQuizByDe] not in __testCardMap after retry:", target); return false; }
   if (!dbHit.subjectId) { console.warn("[openQuizByDe] missing subjectId:", target, dbHit); return false; }
   // Nếu giáo viên đã bật "Hoàn thành" thì luôn cho mở, bỏ qua thời gian (theo yêu cầu).
   if (dbHit.done && dbHit.canOpen === false) { dbHit.canOpen = true; }
@@ -1901,6 +1909,14 @@ if (typeof supabase.channel === "function") {
     const { data, error } = await supabase.rpc("list_published_test_sets");
     if (error) throw error;
     mergeDbTestCards(data && data.length ? data : []);
+    // Nếu URL có ?de=... thì tự mở bài test sau khi dữ liệu đã nạp (tránh race condition).
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var deParam = params.get("de");
+      if (deParam) {
+        setTimeout(function () { openQuizByDe(deParam, 0); }, 100);
+      }
+    } catch (e) {}
   } catch (err) {
     console.error("[phong-hoc] tải bài test lỗi:", err);
     if (typeof logAppError === "function") {
