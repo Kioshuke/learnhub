@@ -603,6 +603,7 @@ document.addEventListener('click',function(e){
 <script type="module">
 import { supabase, getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, escapeHtml, escapeUrl, imageUrl, beginOnlineSession, finalizeOnlineSession, finalizeOnlineSessionKeepalive, logAppError } from "./scripts/core/supabase-config.js";
 import { insertTestAttempt } from "./scripts/features/learnhub-stats.js";
+import { getPeriodKey } from "./scripts/features/week-math.js";
 import { isPasswordRecovery } from "./scripts/auth/reset-password.js";
 window.logAppError = logAppError;
 window.supabaseClient = supabase;
@@ -1240,6 +1241,13 @@ if(user){
       }
       userData.onlineStartTime = supabaseRow.online_start_time || 0;
       userData.onlineTimer = Number(supabaseRow.online_timer || 0);
+      // Ghi log khi hệ thống tự reset thời gian online sang tháng mới
+      try {
+        const currentPeriod = getPeriodKey();
+        if (supabaseRow.online_week_key && supabaseRow.online_week_key !== currentPeriod) {
+          if (typeof logAppError === "function") logAppError({ source: "online-timer", category: "reset", level: "info", code: "AUTO_RESET_MONTH", message: "Tự reset thời gian online sang kỳ " + currentPeriod + " (kỳ cũ: " + supabaseRow.online_week_key + ")", email: user.email, detail: { uid: user.id } });
+        }
+      } catch (_) {}
     }
   } catch (e) {
     console.log("Không thể lấy dữ liệu Supabase:", e);

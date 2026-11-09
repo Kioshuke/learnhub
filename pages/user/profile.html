@@ -503,14 +503,14 @@
                 <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
                     <span class="lh-tile-icon" style="background:var(--tint-amber);color:#f59e0b"><i class="fas fa-trophy"></i></span> Bảng Xếp Hạng Tháng
                 </h3>
-                <p class="text-xs leading-snug" style="color:var(--text-sub)">Bảng xếp hạng được làm mới vào đầu mỗi tháng (theo giờ Việt Nam).</p>
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" onclick="openLeaderboardModal('score')" class="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-extrabold text-white transition-transform active:scale-[.98]" style="background:linear-gradient(135deg,#4f46e5,#7c3aed)">
-                        <i class="fas fa-star"></i> Xếp hạng điểm
-                    </button>
-                    <button type="button" onclick="openLeaderboardModal('time')" class="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-extrabold text-white transition-transform active:scale-[.98]" style="background:linear-gradient(135deg,#0ea5e9,#10b981)">
-                        <i class="fas fa-clock"></i> Thời gian online
-                    </button>
+                <p class="text-xs leading-snug" style="color:var(--text-sub)">Bảng xếp hạng được làm mới vào đầu mỗi tháng (theo giờ Việt Nam). Điểm số xếp theo điểm trung bình.</p>
+                <div class="space-y-2">
+                    <div class="lh-frame-box" style="height:300px">
+                        <iframe src="../features/leaderboard.html?tab=score&compact=1" class="w-full h-full border-0 no-scrollbar" scrolling="no"></iframe>
+                    </div>
+                    <div class="lh-frame-box" style="height:300px">
+                        <iframe src="../features/leaderboard.html?tab=time&compact=1" class="w-full h-full border-0 no-scrollbar" scrolling="no"></iframe>
+                    </div>
                 </div>
             </section>
 

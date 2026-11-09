@@ -91,7 +91,7 @@ const pageTitles = {
   schedule: ["Lịch học & thi", "Chỉnh lịch học và lịch thi hiển thị trên trang Phòng Học."],
   docs: ["Quản lý Tài liệu", "Thêm, sửa, xóa tài liệu cho Thư viện."],
   blog: ["Quản lý Blog", "Soạn và đăng bài viết cho trang Blog."],
-  errorLogs: ["Lỗi hệ thống", "Xem lỗi từ user và tính năng, đánh dấu đã fix hoặc xóa."]
+  errorLogs: ["Logs hệ thống", "Xem log từ user và tính năng, đánh dấu đã fix hoặc xóa."]
 };
 
 function switchAdminTab(tab) {
