@@ -1012,7 +1012,12 @@ function render() {
             '<span class="setcard">' + (item.correct === i ? "Đáp án ✔" : "bấm → gán đáp án") + "</span>";
           o.addEventListener("click", function () {
             if (graded) return;
-            item.correct = i;                                  // lưu làm đáp án đúng
+             var oldCorrect = item.correct;
+             item.correct = i;                                  // lưu làm đáp án đúng
+             if (oldCorrect !== i && typeof lhToast === "function") {
+               var oldL = (oldCorrect === null || oldCorrect === undefined) ? "—" : letter(oldCorrect);
+               lhToast("Thay đổi đáp án - Câu " + (idx + 1) + ": " + oldL + " → " + letter(i), "info");
+             }
             var scAll = list.querySelectorAll(".opt .setcard");
             for (var k2 = 0; k2 < scAll.length; k2++) scAll[k2].textContent = "bấm → gán đáp án";
             list.querySelectorAll(".opt").forEach(function (x) { x.classList.remove("sel-correct"); });
@@ -1070,6 +1075,8 @@ function render() {
           row.querySelectorAll("input").forEach(function (inp) {
             inp.addEventListener("change", function () {
               if (graded) return;
+              var __oldTf = (sq.correct === 0 || sq.correct === 1) ? (sq.correct === 1 ? "Đúng" : "Sai") : "—";
+              var __newTf = (Number(inp.value) === 1) ? "Đúng" : "Sai";
               sq.correct = Number(inp.value);                  // lưu làm đáp án đúng (0/1)
               var r2 = this.closest(".tf-row");
               if (!r2) return;
@@ -1081,6 +1088,7 @@ function render() {
               var un = r2.querySelector(".ans-bad");
               if (un && /chưa chọn/.test(un.textContent)) un.remove();
               syncJson();                                      // tự cập nhật JSON bên trái
+              if (__oldTf !== __newTf && typeof lhToast === "function") lhToast("Thay đổi đáp án - Câu " + (idx + 1) + " (" + String.fromCharCode(97 + si) + "): " + __oldTf + " → " + __newTf, "info");
             });
           });
           tfl.appendChild(row);
