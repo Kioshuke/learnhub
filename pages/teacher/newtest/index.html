@@ -221,8 +221,19 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
   </section>
 </main>
 
+<div id="editDiffModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;max-width:600px;width:100%;max-height:80vh;overflow:auto;padding:20px">
+    <h3 style="margin:0 0 12px">Chi tiết chỉnh sửa</h3>
+    <div id="editDiffBody" style="font-size:13px;line-height:1.6"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+      <button type="button" class="btn btn-soft" onclick="document.getElementById('editDiffModal').style.display='none'">Hủy</button>
+      <button type="button" class="btn btn-primary" id="editDiffConfirm">Xác nhận & tiếp tục</button>
+    </div>
+  </div>
+</div>
 <script src="../../../scripts/features/subjects-data.js"></script>
 <script src="../../../scripts/features/test-qr.js?v=1"></script>
-<script src="script.js?v=55"></script>
+<script src="../../../scripts/core/toast.js"></script>
+<script src="script.js?v=56"></script>
 </body>
 </html>

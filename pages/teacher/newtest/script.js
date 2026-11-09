@@ -1345,6 +1345,56 @@ function jsonSample() {
 /* Áp dụng thiết lập lên testData: chỉ còn thời gian làm bài.
    Việc xáo trộn câu/đáp án do trang làm bài (filetest.html) tự thực hiện theo cờ shuffle_q/shuffle_a,
    nên nội dung lưu trong DB luôn giữ đúng thứ tự gốc của đề. */
+function showEditDiffModal(onConfirm) {
+  var snap = window.__originalEditSnapshot;
+  var body = $("editDiffBody");
+  if (!snap || !snap.meta || !body) { if (typeof onConfirm === "function") onConfirm(); return; }
+  var oldM = snap.meta;
+  var newM = testMeta;
+  var fields = [
+    ["Tên đề", "name"],
+    ["Môn", "subject"],
+    ["Thời gian (phút)", "minutes"],
+    ["Điểm tối đa", "score"],
+    ["Trộn câu", "shuffleQ"],
+    ["Trộn đáp án", "shuffleA"],
+    ["Hiện điểm", "showScore"],
+    ["Hiện đáp án", "showAnswers"],
+    ["Đề con", "subtestEnabled"],
+    ["Số câu đề con", "subtestCount"],
+    ["Số lần làm tối đa", "maxAttempts"],
+    ["Mật khẩu", "password"],
+    ["Giới hạn thời gian", "timeEnabled"],
+    ["Bắt đầu", "startAt"],
+    ["Kết thúc", "endAt"]
+  ];
+  var html = "";
+  fields.forEach(function (f) {
+    var k = f[1], label = f[0];
+    var ov = oldM[k], nv = newM[k];
+    if (JSON.stringify(ov) !== JSON.stringify(nv)) {
+      html += '<div><b>' + escapeC(label) + ':</b> <span style="text-decoration:line-through;color:#94a3b8">' + escapeC(String(ov === null ? "—" : ov)) + '</span> → <b>' + escapeC(String(nv === null ? "—" : nv)) + '</b></div>';
+    }
+  });
+  // Content change
+  var oldData = snap.data;
+  var newData = JSON.stringify(testData);
+  if (oldData !== newData) {
+    html += '<div><b>Nội dung đề:</b> <span style="text-decoration:line-through;color:#94a3b8">bản cũ</span> → <b>đã chỉnh sửa</b> (số câu: ' + countQ(JSON.parse(oldData || "[]")) + ' → ' + countQ(testData) + ')</div>';
+  }
+  if (!html) html = '<div class="muted">Không có thay đổi nào.</div>';
+  body.innerHTML = html;
+  var modal = $("editDiffModal");
+  if (modal) modal.style.display = "flex";
+  var btn = $("editDiffConfirm");
+  if (btn) {
+    btn.onclick = function () {
+      if (modal) modal.style.display = "none";
+      if (typeof onConfirm === "function") onConfirm();
+    };
+  }
+}
+
 function applyMeta(goNext) {
   if (!testData || !testData.length) { setNote("Chưa có đề để áp dụng thiết lập.", true); return; }
   testData.forEach(function (s) {
@@ -1598,6 +1648,7 @@ async function publishTest() {
       try {
         await navigator.clipboard.writeText(link);
         setCopyLinkStatus("Sao chép link thành công!");
+if (typeof lhToast === "function") lhToast("Đã sao chép link đề thi", "success");
       } catch (_copyError) {}
     }
     if (rn) rn.hidden = true;
@@ -1608,6 +1659,7 @@ async function publishTest() {
     b.title = "Đề đã xuất bản — bấm “← Sửa lại đề” nếu muốn chỉnh sửa rồi cập nhật lại.";
     b.innerHTML = currentEditId ? '<i class="fa-solid fa-floppy-disk"></i> Đã lưu ✓' : '<i class="fa-solid fa-rocket"></i> Đã xuất bản ✓';
     b.style.opacity = ".55";
+    if (typeof lhToast === "function") lhToast(isEdit ? "Cập nhật đề thành công" : "Xuất bản đề thành công", "success");
     if (typeof mod.logAppError === "function") {
       mod.logAppError({ source: "newtest", category: "feature", level: "info", code: isEdit ? "TEST_UPDATED" : "TEST_PUBLISHED", message: (isEdit ? "Cập nhật đề: " : "Xuất bản đề: ") + realId });
     }
@@ -1617,6 +1669,7 @@ async function publishTest() {
   } catch (e) {
     var errMsg = (e && e.message) || "Lỗi không xác định.";
     console.error("[PUBLISH] " + errMsg);
+    if (typeof lhToast === "function") lhToast("Xuất bản thất bại: " + errMsg, "error");
     if (typeof mod !== "undefined" && mod && typeof mod.logAppError === "function") {
       mod.logAppError({ source: "newtest", category: "feature", level: "error", code: "TEST_PUBLISH_FAIL", message: errMsg });
     }
@@ -1680,11 +1733,13 @@ $("p4").addEventListener("click", function (e) {
       : Promise.reject(new Error("Clipboard API không khả dụng."));
     copyPromise.then(function () {
       setCopyLinkStatus("Sao chép link thành công!");
+if (typeof lhToast === "function") lhToast("Đã sao chép link đề thi", "success");
     }).catch(function () {
       input.focus();
       input.select();
       try {
         if (document.execCommand("copy")) setCopyLinkStatus("Sao chép link thành công!");
+if (typeof lhToast === "function") lhToast("Đã sao chép link đề thi", "success");
         else setCopyLinkStatus("Không sao chép được link.", true);
       } catch (_copyError) {
         setCopyLinkStatus("Không sao chép được link.", true);
@@ -1714,10 +1769,12 @@ function generateCustomQRCode(linkDeThi) {
   downloadButton.style.display = "none";
   try {
     window.LearnHubTestQR.render(canvas, linkDeThi);
+if (typeof lhToast === "function") lhToast("Đã tạo mã QR", "success");
     canvas.style.display = "block";
     downloadButton.style.display = "block";
   } catch (error) {
     console.error("[QR] Không thể tạo ảnh QR:", error);
+if (typeof lhToast === "function") lhToast("Không tạo được ảnh QR", "error");
     if (qrStatus) qrStatus.textContent = "Không tạo được ảnh QR.";
   }
 }
@@ -1916,7 +1973,11 @@ $("btnSetupApply").addEventListener("click", function () {
   testMeta.startAt = timeEnabled ? startAtIso : null;
   testMeta.endAt = timeEnabled ? endAtIso : null;
   updateSetupBtn();
-  applyMeta(true);   // applyMeta(true) → nhảy sang bước 4 (rà soát & xuất bản)
+  if (currentEditId && window.__originalEditSnapshot) {
+    showEditDiffModal(function () { applyMeta(true); });
+  } else {
+    applyMeta(true);   // applyMeta(true) → nhảy sang bước 4 (rà soát & xuất bản)
+  }
 });
 
 /* Nạp dropdown môn học (8 môn trong Phòng Học) — đề xuất bản sẽ hiện đúng môn này */
@@ -2045,6 +2106,7 @@ $("fileUpload").addEventListener("change", function () {
         showStage(2);
       } catch (e) {
         setNote("File JSON không hợp lệ: " + escapeC(e.message), true);
+if (typeof lhToast === "function") lhToast("File JSON không hợp lệ", "error");
       }
     };
     frJ.readAsText(f, "utf-8");
@@ -2061,6 +2123,7 @@ $("fileUpload").addEventListener("change", function () {
     if (!isDocx) {
       $("inputText").value = String(fr.result || "");
       setNote("Đã tải <b>" + escapeC(f.name) + "</b>. Bấm <b>Đọc text → JSON</b>.", false);
+if (typeof lhToast === "function") lhToast("Đã tải file " + f.name, "success");
       return;
     }
     if (typeof window.mammoth === "undefined") {
@@ -2078,9 +2141,11 @@ $("fileUpload").addEventListener("change", function () {
           $("inputText").value = String(res.value || "");
           setNote("Đã parse <b>" + escapeC(f.name) + "</b> → dán vào ô text." + extra +
             " Bấm <b>Đọc text → JSON</b>; nhớ rà đáp án đúng nhé.", false);
+           if (typeof lhToast === "function") lhToast("Đã parse file " + f.name, "success");
         }
       }).catch(function (e) {
         setNote("Không đọc được file .docx: " + escapeC(e && e.message ? e.message : e), true);
+        if (typeof lhToast === "function") lhToast("Khong doc duoc file .docx", "error");
       });
     };
     try {
@@ -2088,6 +2153,7 @@ $("fileUpload").addEventListener("change", function () {
       else wrap(mammoth.extractRawText({ arrayBuffer: fr.result }), false);
     } catch (e) {
       setNote("Lỗi đọc file .docx: " + escapeC(e && e.message ? e.message : e), true);
+      if (typeof lhToast === "function") lhToast("Loi doc file .docx", "error");
     }
   };
   if (isDocx) fr.readAsArrayBuffer(f);
@@ -2209,6 +2275,7 @@ showStage(1);
         var row = (listRes.data || []).filter(function (r) { return String(r.set_id) === id; })[0];
         currentEditId = id;
         currentEditComplete = row ? !!row.is_complete : true;
+window.__originalEditSnapshot = { meta: null, data: null };
         testData = Array.isArray(d.content) ? d.content : [];
         testMeta.subject = d.subject || "";
         testMeta.name = d.name || "";
@@ -2229,6 +2296,7 @@ showStage(1);
         testMeta.timeEnabled = !!(testMeta.startAt || testMeta.endAt);
         graded = false;
         userAnswers = {};
+        window.__originalEditSnapshot = { meta: JSON.parse(JSON.stringify(testMeta)), data: JSON.stringify(testData) };
         $("resultBox").hidden = true;
         writeJson(JSON.stringify(testData, null, 2));
         render();
