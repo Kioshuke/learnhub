@@ -1384,18 +1384,32 @@ function showEditDiffModal(onConfirm) {
       html += '<div><b>' + escapeC(label) + ':</b> <span style="text-decoration:line-through;color:#94a3b8">' + escapeC(String(ov === null ? "—" : ov)) + '</span> → <b>' + escapeC(String(nv === null ? "—" : nv)) + '</b></div>';
     }
   });
-  // Content change: so sánh đáp án từng câu
+  // Content change: so sánh chi tiết từng phần (tiêu đề, nội dung, đáp án, ...)
   var oldData = snap.data;
   var newData = JSON.stringify(testData);
   if (oldData !== newData) {
     var oldSections = [];
     try { oldSections = JSON.parse(oldData || "[]"); } catch (e) { oldSections = []; }
     var changes = [];
-    // flatten questions
+    var textFields = ["title", "question", "text", "prompt", "passage", "explanation", "name", "desc", "description", "sectionTitle", "questionText", "answer", "correctAnswer", "shortAnswer", "sampleAnswer"];
+    // So sánh field text của 2 object cùng vị trí
+    function diffTextFields(o, n, label) {
+      textFields.forEach(function (f) {
+        if (o && n && Object.prototype.hasOwnProperty.call(o, f) && Object.prototype.hasOwnProperty.call(n, f)) {
+          var ov = o[f], nv = n[f];
+          if (ov !== nv && String(ov||"").trim() !== String(nv||"").trim()) {
+            var oShort = String(ov == null ? "" : ov).slice(0, 60);
+            var nShort = String(nv == null ? "" : nv).slice(0, 60);
+            changes.push(label + " – " + f + ": " + (oShort || "∅") + " → " + (nShort || "∅"));
+          }
+        }
+      });
+    }
     function flatten(sections) {
       var out = [];
       (sections || []).forEach(function (s) {
-        (s.questions || []).forEach(function (q, qi) { out.push({ q: q, idx: out.length + 1 }); });
+        out.push({ type: "section", node: s });
+        (s.questions || []).forEach(function (q, qi) { out.push({ type: "question", node: q, qi: qi }); });
       });
       return out;
     }
@@ -1403,33 +1417,48 @@ function showEditDiffModal(onConfirm) {
     var newQs = flatten(testData);
     var n = Math.max(oldQs.length, newQs.length);
     for (var i = 0; i < n; i++) {
-      var oq = oldQs[i] ? oldQs[i].q : null;
-      var nq = newQs[i] ? newQs[i].q : null;
+      var oq = oldQs[i] ? oldQs[i].node : null;
+      var nq = newQs[i] ? newQs[i].node : null;
       var num = i + 1;
-      // MCQ: correct index
-      var oldC = oq ? oq.correct : undefined;
-      var newC = nq ? nq.correct : undefined;
+      if (!oq && nq) { changes.push("Câu " + num + ": thêm mới"); continue; }
+      if (oq && !nq) { changes.push("Câu " + num + ": đã xóa"); continue; }
+      if (!oq || !nq) continue;
+      // Tiêu đề câu hỏi
+      diffTextFields(oq, nq, "Câu " + num);
+      // Đáp án trắc nghiệm (correct index)
+      var oldC = oq.correct, newC = nq.correct;
       if (oldC !== newC && (oldC !== null || newC !== null) && (oldC !== undefined || newC !== undefined)) {
         var oldL = (oldC === null || oldC === undefined) ? "—" : letter(oldC);
         var newL = (newC === null || newC === undefined) ? "—" : letter(newC);
-        if (oldL !== newL) changes.push("Câu " + num + ": " + oldL + " → " + newL);
+        if (oldL !== newL) changes.push("Câu " + num + ": đáp án " + oldL + " → " + newL);
       }
-      // TF: subQuestions correct
-      if (oq && nq && Array.isArray(oq.subQuestions) && Array.isArray(nq.subQuestions)) {
+      // TF subQuestions
+      if (Array.isArray(oq.subQuestions) && Array.isArray(nq.subQuestions)) {
         var m = Math.max(oq.subQuestions.length, nq.subQuestions.length);
         for (var si = 0; si < m; si++) {
           var osq = oq.subQuestions[si] || {};
           var nsq = nq.subQuestions[si] || {};
+          diffTextFields(osq, nsq, "Câu " + num + " (" + String.fromCharCode(97 + si) + ")");
           if (osq.correct !== nsq.correct) {
             var ol = (osq.correct === 1) ? "Đ" : (osq.correct === 0) ? "S" : "—";
             var nl = (nsq.correct === 1) ? "Đ" : (nsq.correct === 0) ? "S" : "—";
-            changes.push("Câu " + num + " (" + String.fromCharCode(97 + si) + "): " + ol + " → " + nl);
+            if (ol !== nl) changes.push("Câu " + num + " (" + String.fromCharCode(97 + si) + "): đáp án " + ol + " → " + nl);
+          }
+        }
+      }
+      // Options (mảng)
+      if (Array.isArray(oq.options) && Array.isArray(nq.options)) {
+        var mo = Math.max(oq.options.length, nq.options.length);
+        for (var oi = 0; oi < mo; oi++) {
+          var oo = oq.options[oi], no = nq.options[oi];
+          if (oo !== no) {
+            changes.push("Câu " + num + " - đáp án " + letter(oi) + ": " + String(oo == null ? "—" : oo).slice(0,40) + " → " + String(no == null ? "—" : no).slice(0,40));
           }
         }
       }
     }
     if (changes.length) {
-      html += '<div><b>Thay đổi đáp án:</b><br>' + changes.map(function (c) { return '<div style="margin-left:12px">• ' + escapeC(c) + '</div>'; }).join("") + '</div>';
+      html += '<div><b>Thay đổi nội dung:</b><br>' + changes.map(function (c) { return '<div style="margin-left:12px">• ' + escapeC(c) + '</div>'; }).join("") + '</div>';
     } else if (oldData !== newData) {
       html += '<div><b>Nội dung đề:</b> đã chỉnh sửa (số câu: ' + countQ(oldSections) + ' → ' + countQ(testData) + ')</div>';
     }
