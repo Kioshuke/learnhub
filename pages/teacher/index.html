@@ -2090,8 +2090,10 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       if (window.TeacherShell && window.TeacherShell.setActive) window.TeacherShell.setActive("report");
       const studentPanel = document.getElementById("tcReportStudentsPanel");
       const historyPanel = document.getElementById("tcReportHistoryPanel");
+      const ovPanel = document.getElementById("tcReportOverviewPanel");
       if (studentPanel) studentPanel.style.display = "";
       if (historyPanel) historyPanel.style.display = "none";
+      if (ovPanel) ovPanel.style.display = "";
       if (tcReportStudentsCache === null) tcLoadReportStudents();
       else { tcRenderReportStudents(); tcRenderReportOverview(); }
     };
@@ -2166,12 +2168,19 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       // Lấy attempts thực tế để tính phổ điểm theo từng bài
       let attempts = [];
       try {
-        const ids = cache.map(function (x) { return x.user_id; }).filter(Boolean);
-        if (ids.length) {
-          const { data } = await supabase.from("test_attempts").select("score").in("user_id", ids).limit(10000);
-          attempts = data || [];
+        // Lấy toàn bộ bài làm (phân trang) để phổ điểm khớp với tổng lượt làm.
+        let offset = 0;
+        const pageSize = 1000;
+        while (true) {
+          const { data, error } = await supabase.from("test_attempts").select("score").range(offset, offset + pageSize - 1);
+          if (error) throw error;
+          const batch = data || [];
+          attempts = attempts.concat(batch);
+          if (batch.length < pageSize) break;
+          offset += batch.length;
+          if (attempts.length >= 50000) break;
         }
-      } catch (e) { attempts = []; }
+      } catch (e) { console.warn("[overview] fetch attempts fail:", e); attempts = []; }
       window.__tcOverviewAttempts = attempts;
       const perfectCount = attempts.filter(function (a) { return Number(a.score) === 10; }).length;
       const highCount = attempts.filter(function (a) { return Number(a.score) >= 8; }).length;
