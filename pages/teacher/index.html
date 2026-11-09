@@ -2219,7 +2219,7 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       window.__tcOverviewSummary = topByAvg;
     }
 
-    function tcOpenOverviewChartModal(key) {
+    window.tcOpenOverviewChartModal = function (key) {
       const modal = document.getElementById("tcOverviewChartModal");
       const canvas = document.getElementById("tcOverviewChartModalCanvas");
       const title = document.getElementById("tcOverviewChartModalTitle");
@@ -2272,7 +2272,7 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       }
     }
 
-    function tcCloseOverviewChartModal() {
+    window.tcCloseOverviewChartModal = function () {
       const modal = document.getElementById("tcOverviewChartModal");
       if (modal) { modal.style.display = "none"; modal.setAttribute("aria-hidden", "true"); }
       if (window.__tcOverviewModalChart) { window.__tcOverviewModalChart.destroy(); window.__tcOverviewModalChart = null; }
@@ -2643,11 +2643,11 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       const ovCsv = document.getElementById("tcReportOverviewCsv");
       if (ovCsv) ovCsv.addEventListener("click", tcExportOverviewCsv);
       const c1el = document.getElementById("tcOverviewTopScore");
-      if (c1el) c1el.addEventListener("click", function () { tcOpenOverviewChartModal("topScore"); });
+      if (c1el) c1el.addEventListener("click", function () { window.tcOpenOverviewChartModal("topScore"); });
       const c2el = document.getElementById("tcOverviewScoreDist");
-      if (c2el) c2el.addEventListener("click", function () { tcOpenOverviewChartModal("scoreDist"); });
+      if (c2el) c2el.addEventListener("click", function () { window.tcOpenOverviewChartModal("scoreDist"); });
       const c3el = document.getElementById("tcOverviewScoreDistAttempt");
-      if (c3el) c3el.addEventListener("click", function () { tcOpenOverviewChartModal("scoreDistAttempt"); });
+      if (c3el) c3el.addEventListener("click", function () { window.tcOpenOverviewChartModal("scoreDistAttempt"); });
       document.getElementById("tcReportBackStudents").addEventListener("click", function () {
         document.getElementById("tcReportHistoryPanel").style.display = "none";
         document.getElementById("tcReportStudentsPanel").style.display = "";

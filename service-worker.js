@@ -5,7 +5,7 @@
    - Bỏ qua mọi request cross-origin (Supabase, CDN, YouTube...)
    ============================================================ */
 
-const CACHE_VERSION = "learnhub-v72";
+const CACHE_VERSION = "learnhub-v73";
 
 const CORE_ASSETS = [
   "/",
