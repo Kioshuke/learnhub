@@ -1474,6 +1474,7 @@
   <script src="../../scripts/features/phonghoc-data.js"></script>
   <script src="../../scripts/core/toast.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
   <script type="module">
     import { supabase, getUserRow, escapeHtml, imageUrl } from "../../scripts/core/supabase-config.js";
 
@@ -2195,8 +2196,7 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       if (c2 && window.Chart) {
         if (window.__tcOverviewChart2) window.__tcOverviewChart2.destroy();
         const totalBucket = buckets.reduce(function (s, v) { return s + v; }, 0) || 1;
-        const pctLabels = ["0-4", "4-6", "6-8", "8-10"].map(function (l, i) { return l + " (" + (buckets[i] / totalBucket * 100).toFixed(0) + "%)"; });
-        window.__tcOverviewChart2 = new Chart(c2, { type: "doughnut", data: { labels: pctLabels, datasets: [{ data: buckets, backgroundColor: ["#ef4444", "#f59e0b", "#3b82f6", "#10b981"] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: "Phân bố điểm TB" }, legend: { position: "bottom", display: true }, tooltip: { callbacks: { label: function (ctx) { const v = ctx.raw || 0; return ctx.label.split(" (")[0] + ": " + v + " (" + (v / totalBucket * 100).toFixed(1) + "%)"; } } } } } });
+        window.__tcOverviewChart2 = new Chart(c2, { type: "doughnut", data: { labels: ["0-4", "4-6", "6-8", "8-10"], datasets: [{ data: buckets, backgroundColor: ["#ef4444", "#f59e0b", "#3b82f6", "#10b981"] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: "Phân bố điểm TB" }, legend: { position: "bottom", display: true }, datalabels: { color: "#fff", font: { weight: "bold", size: 12 }, formatter: function (value) { if (!value) return ""; return (value / totalBucket * 100).toFixed(0) + "%"; } }, tooltip: { callbacks: { label: function (ctx) { const v = ctx.raw || 0; return ctx.label + ": " + v + " (" + (v / totalBucket * 100).toFixed(1) + "%)"; } } } } } });
       }
       // Phổ điểm theo từng bài (tổng hợp từ nhiều bài, không trung bình)
       const attemptBuckets = [0, 0, 0, 0, 0];
@@ -2254,7 +2254,6 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
         if (s < 2) attemptBuckets[0]++; else if (s < 4) attemptBuckets[1]++; else if (s < 6) attemptBuckets[2]++; else if (s < 8) attemptBuckets[3]++; else attemptBuckets[4]++;
       });
       const totalBucket = buckets.reduce(function (s, v) { return s + v; }, 0) || 1;
-      const pctLabels = ["0-4", "4-6", "6-8", "8-10"].map(function (l, i) { return l + " (" + (buckets[i] / totalBucket * 100).toFixed(0) + "%)"; });
 
       let cfg = null;
       if (key === "topScore") {
@@ -2262,7 +2261,7 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
         cfg = { type: "bar", data: { labels: topByAvg.map(function (x) { return String(x.user_name || x.user_email || x.user_id); }), datasets: [{ label: "Điểm TB", data: topByAvg.map(function (x) { return Number(x.average_score || 0); }), backgroundColor: "#4f46e5" }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true }, title: { display: true, text: "Top 10 điểm TB" } }, scales: { y: { beginAtZero: true, max: 10 } } } };
       } else if (key === "scoreDist") {
         if (title) title.textContent = "Phân bố điểm TB";
-        cfg = { type: "doughnut", data: { labels: pctLabels, datasets: [{ data: buckets, backgroundColor: ["#ef4444", "#f59e0b", "#3b82f6", "#10b981"] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: "Phân bố điểm TB" }, legend: { position: "bottom", display: true }, tooltip: { callbacks: { label: function (ctx) { const v = ctx.raw || 0; return ctx.label.split(" (")[0] + ": " + v + " (" + (v / totalBucket * 100).toFixed(1) + "%)"; } } } } } };
+        cfg = { type: "doughnut", data: { labels: ["0-4", "4-6", "6-8", "8-10"], datasets: [{ data: buckets, backgroundColor: ["#ef4444", "#f59e0b", "#3b82f6", "#10b981"] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: "Phân bố điểm TB" }, legend: { position: "bottom", display: true }, datalabels: { color: "#fff", font: { weight: "bold", size: 12 }, formatter: function (value) { if (!value) return ""; return (value / totalBucket * 100).toFixed(0) + "%"; } }, tooltip: { callbacks: { label: function (ctx) { const v = ctx.raw || 0; return ctx.label + ": " + v + " (" + (v / totalBucket * 100).toFixed(1) + "%)"; } } } } } };
       } else if (key === "scoreDistAttempt") {
         if (title) title.textContent = "Phổ điểm theo bài làm";
         cfg = { type: "bar", data: { labels: ["0-2", "2-4", "4-6", "6-8", "8-10"], datasets: [{ label: "Số bài", data: attemptBuckets, backgroundColor: "#f59e0b" }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: "Phổ điểm theo bài làm" }, legend: { display: true } }, scales: { y: { beginAtZero: true } } } };
