@@ -436,8 +436,10 @@ window.addEventListener('message', function(event) {
   }
   if (event.data.type === 'OPEN_QUIZ') {
     var found = openQuizByDe(event.data.de);
+    var hit = (window.__testCardMap || {})[String(event.data.de || "").trim()];
+    var url = (found && hit) ? hit.url : "";
     if (window.parent && window.parent !== window) {
-      window.parent.postMessage({ type: 'OPEN_QUIZ_ACK', ok: !!found, de: String(event.data.de || "") }, '*');
+      window.parent.postMessage({ type: 'OPEN_QUIZ_ACK', ok: !!found, de: String(event.data.de || ""), url: url }, '*');
     }
   }
 });
@@ -473,10 +475,25 @@ function openQuizByDe(de) {
     blockQuizByDe(target);
     return true;
   }
-  if (typeof switchSubject === "function") switchSubject(dbHit.subjectId);
-  var quizEl = document.getElementById("quiz");
-  if (quizEl) quizEl.innerHTML = "";
-  loadQuiz({ closest: function () { return null; } }, dbHit.url);
+  try { if (typeof switchSubject === "function") switchSubject(dbHit.subjectId); } catch (e) {}
+  function __renderQuiz() {
+    var quizEl = document.getElementById("quiz");
+    if (quizEl) {
+      quizEl.innerHTML = "";
+      try { loadQuiz({ closest: function () { return null; } }, dbHit.url); } catch (e) {}
+    } else {
+      // Fallback: nếu không có container quiz, chuyển thẳng iframe sang bài test.
+      try { window.location.href = dbHit.url; } catch (e) {}
+    }
+  }
+  // Cho switchSubject thời gian cập nhật DOM trước khi render.
+  setTimeout(__renderQuiz, 50);
+  // Nếu vẫn chưa render sau 1s, fallback.
+  setTimeout(function () {
+    if (!document.getElementById("quizFrame")) {
+      try { window.location.href = dbHit.url; } catch (e) {}
+    }
+  }, 1000);
   return true;
 }
 
