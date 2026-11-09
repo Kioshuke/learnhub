@@ -195,7 +195,7 @@ label.btn{cursor:pointer}
 .result-box{overflow-y:auto;max-height:45%}
 
 /* ===== Màn 2: khóa scroll trang, cuộn trong khung ===== */
-body.stage2{overflow:hidden}
+body.stage2, html.stage2, body.stage3, html.stage3, body.stage4, html.stage4{overflow:hidden;height:100vh}
 .stage2 .wrap{height:calc(100vh - 58px);padding:10px 20px 10px;box-sizing:border-box;overflow:hidden}
 .stage2 #p2{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden;padding:14px 18px 12px}
 .stage2 #p2 .panel-head{flex-shrink:0;margin-bottom:10px}
