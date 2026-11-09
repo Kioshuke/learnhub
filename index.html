@@ -489,17 +489,17 @@ document.addEventListener('click',function(e){
         <p>Trợ lý AI 24/7 giải đáp thắc mắc kiến thức, kèm tính năng tra từ điển Anh - Việt ngay trong popup.</p>
         <span class="feature-link">Trò chuyện ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
-      <a class="feature-card" href="pages/features/leaderboard.html" data-open="leaderboard" style="--feat-color:#d97706;">
-        <div class="feature-icon"><i class="fa-solid fa-trophy"></i></div>
-        <h3>Bảng xếp hạng</h3>
-        <p>Thi đua cùng bạn bè, theo dõi điểm số và vị trí của bạn trên bảng xếp hạng học tập.</p>
-        <span class="feature-link">Theo dõi ngay <i class="fa-solid fa-arrow-right"></i></span>
-      </a>
       <a class="feature-card" href="pages/user/profile.html" style="--feat-color:#ec4899;">
         <div class="feature-icon"><i class="fa-solid fa-user"></i></div>
         <h3>Hồ sơ học viên</h3>
         <p>Xem hồ sơ chi tiết của bản thân &amp; người khác: thông tin cá nhân, thống kê học tập, trạng thái trực tuyến.</p>
         <span class="feature-link">Xem hồ sơ <i class="fa-solid fa-arrow-right"></i></span>
+      </a>
+      <a class="feature-card" href="pages/features/leaderboard.html" onclick="event.preventDefault(); openLeaderboard(); return false;" style="--feat-color:#f59e0b;">
+        <div class="feature-icon"><i class="fa-solid fa-trophy"></i></div>
+        <h3>Bảng Xếp Hạng</h3>
+        <p>Vinh danh học viên có điểm cao và thời gian online nhiều nhất trong tháng, làm mới vào đầu mỗi tháng.</p>
+        <span class="feature-link">Xem ngay <i class="fa-solid fa-arrow-right"></i></span>
       </a>
       <a class="feature-card" href="pages/features/qr-code.html" onclick="event.preventDefault(); openQrModal();" style="--feat-color:#10b981;">
         <div class="feature-icon"><i class="fa-solid fa-qrcode"></i></div>
@@ -602,7 +602,7 @@ document.addEventListener('click',function(e){
 
 <script type="module">
 import { supabase, getMaintenance, subscribeMaintenance, emailAllowed, getUserRow, onAuthChange, escapeHtml, escapeUrl, imageUrl, beginOnlineSession, finalizeOnlineSession, finalizeOnlineSessionKeepalive, logAppError } from "./scripts/core/supabase-config.js";
-import { createUserStats, updateUserStats, insertTestAttempt } from "./scripts/features/learnhub-stats.js";
+import { insertTestAttempt } from "./scripts/features/learnhub-stats.js";
 import { isPasswordRecovery } from "./scripts/auth/reset-password.js";
 window.logAppError = logAppError;
 window.supabaseClient = supabase;
@@ -1273,12 +1273,6 @@ if(user){
     displayName: userData.displayName
   };
 
-  try {
-    await createUserStats(window.currentLearnHubUser);
-  } catch (e) {
-    console.log("Không thể đồng bộ hồ sơ gamification khi đăng nhập:", e);
-  }
-
   // 🆕 [LearnHub Test] Nếu quizFrame đang mở sẵn (trường hợp hiếm), gửi luôn
   if(typeof window.sendUserToQuizFrame === "function"){
     window.sendUserToQuizFrame();
@@ -1554,8 +1548,6 @@ popup.style.display = "none";
 
   if (u && u.uid && Number.isFinite(score)) {
     try {
-      await createUserStats(u);
-      await updateUserStats(u.uid, score);
       // [Lịch sử làm bài] lưu snapshot đề + bài làm (nếu iframe gửi kèm)
       if (event.data.attempt) {
         await insertTestAttempt(u.uid, { ...event.data.attempt, score });
@@ -1611,9 +1603,7 @@ window.addEventListener("message", async (event) => {
         .maybeSingle();
       if (!existing) {
         const { error } = await supabase.from("watched_videos").insert({ user_id: u.uid, video_id: videoId });
-        if (!error) {
-          await updateUserStats(u.uid, 5, { countAsTest: false });
-        }
+        if (error) throw error;
       }
     } catch (e) {
       console.log("Không thể lưu video đã xem:", e);
@@ -1845,6 +1835,13 @@ window.addEventListener("message", async (event) => {
   </div>
 </div>
 
+<div id="lh-lb-overlay" class="lh-qr-overlay" onclick="closeLeaderboardByOverlay(event)" aria-hidden="true">
+  <div class="lh-qr-dialog" role="dialog" aria-modal="true" aria-label="Bảng xếp hạng">
+    <button class="lh-qr-close" type="button" onclick="closeLeaderboard()" aria-label="Đóng">&times;</button>
+    <iframe id="lhLbFrame" src="/pages/features/leaderboard.html" title="Bảng xếp hạng"></iframe>
+  </div>
+</div>
+
 <div id="ccLogoutOverlay" class="cc-logout-overlay">
   <div class="cc-logout-card">
     <div class="cc-logout-icon"><i class="fa-solid fa-right-from-bracket" style="color:#ef4444;"></i></div>
@@ -1911,45 +1908,10 @@ window.addEventListener("message", async (event) => {
 ">
   <img src="assets/images/chatboiavt.png" alt="Hubie" style="width:64px;height:64px;pointer-events:none;border-radius:50%;">
 </div>
-<!-- LEADERBOARD FULL MODAL -->
-<div id="lb-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[2000] flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
-    <div class="bg-white rounded-2xl w-full max-w-6xl mx-4 shadow-2xl transform scale-95 transition-transform duration-300 relative border border-gray-100 flex flex-col" style="height:80vh">
-        <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
-            <h3 class="text-sm font-bold text-gray-900 flex items-center gap-1.5">
-                <i class="fas fa-trophy text-amber-500"></i> Bảng Xếp Hạng
-            </h3>
-            <button onclick="closeLeaderboardModal()" class="text-gray-400 hover:text-gray-600 transition-colors" aria-label="Đóng">
-                <i class="fas fa-times text-base"></i>
-            </button>
-        </div>
-        <div class="flex-1 overflow-hidden">
-            <iframe id="lb-full-frame" src="" class="w-full h-full border-0 no-scrollbar"></iframe>
-        </div>
-    </div>
-</div>
 <style>
     .no-scrollbar::-webkit-scrollbar{width:0;height:0}
     .no-scrollbar{scrollbar-width:none}
 </style>
-<script>
-    function openLeaderboardModal() {
-        const m = document.getElementById('lb-modal');
-        document.getElementById('lb-full-frame').src = 'pages/features/leaderboard.html?t=' + Date.now();
-        m.classList.remove('opacity-0','pointer-events-none');
-        m.classList.add('opacity-100');
-        m.querySelector('div').classList.remove('scale-95');
-        m.querySelector('div').classList.add('scale-100');
-    }
-    function closeLeaderboardModal() {
-        const m = document.getElementById('lb-modal');
-        m.classList.add('opacity-0','pointer-events-none');
-        m.classList.remove('opacity-100');
-        m.querySelector('div').classList.add('scale-95');
-        m.querySelector('div').classList.remove('scale-100');
-        setTimeout(() => { document.getElementById('lb-full-frame').src = ''; }, 300);
-    }
-    document.getElementById('lb-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeLeaderboardModal(); });
-</script>
 <!-- SCHEDULE FULL MODAL -->
 <div id="schedule-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[2000] flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
     <div class="bg-white rounded-2xl w-full max-w-7xl mx-4 shadow-2xl transform scale-95 transition-transform duration-300 relative border border-gray-100 flex flex-col" style="height:60vh">

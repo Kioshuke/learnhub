@@ -411,7 +411,7 @@
                         </div>
                         <div class="flex items-center gap-1.5">
                             <i class="fas fa-clock text-cyan-500 w-4 text-center"></i>
-                            <span>Online tuần: <span id="profile-online-display" class="font-semibold text-cyan-500"><span class="skeleton inline-block rounded" style="width:80px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
+                            <span>Online tháng: <span id="profile-online-display" class="font-semibold text-cyan-500"><span class="skeleton inline-block rounded" style="width:80px;height:0.9em;vertical-align:middle;">&nbsp;</span></span></span>
                         </div>
                     </div>
                 </div>
@@ -427,7 +427,7 @@
             <!-- STATS -->
             <section class="lh-card p-4 sm:p-5 space-y-2.5">
                 <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
-                    <span class="lh-tile-icon" style="background:var(--tint-amber);color:#f59e0b"><i class="fas fa-chart-bar"></i></span> Thống kê hiệu suất tuần này
+                    <span class="lh-tile-icon" style="background:var(--tint-amber);color:#f59e0b"><i class="fas fa-chart-bar"></i></span> Thống kê hiệu suất cá nhân
                 </h3>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
                     <div class="lh-stat p-3 flex flex-col justify-between min-h-[68px]" style="background:var(--tint-blue);border-color:rgba(37,99,235,0.25)">
@@ -500,18 +500,20 @@
 
             <!-- LEADERBOARD -->
             <section class="lh-card p-4 sm:p-5 space-y-2.5">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
-                        <span class="lh-tile-icon" style="background:var(--tint-violet);color:#8b5cf6"><i class="fas fa-trophy"></i></span> Bảng Xếp Hạng Tuần
-                    </h3>
-                    <button onclick="openLeaderboardModal()" class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors" style="color:#8b5cf6" title="Xem đầy đủ">
-                        <i class="fas fa-expand-alt text-xs"></i>
+                <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest flex items-center gap-2" style="color:var(--text-sub)">
+                    <span class="lh-tile-icon" style="background:var(--tint-amber);color:#f59e0b"><i class="fas fa-trophy"></i></span> Bảng Xếp Hạng Tháng
+                </h3>
+                <p class="text-xs leading-snug" style="color:var(--text-sub)">Bảng xếp hạng được làm mới vào đầu mỗi tháng (theo giờ Việt Nam).</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" onclick="openLeaderboardModal('score')" class="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-extrabold text-white transition-transform active:scale-[.98]" style="background:linear-gradient(135deg,#4f46e5,#7c3aed)">
+                        <i class="fas fa-star"></i> Xếp hạng điểm
+                    </button>
+                    <button type="button" onclick="openLeaderboardModal('time')" class="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-extrabold text-white transition-transform active:scale-[.98]" style="background:linear-gradient(135deg,#0ea5e9,#10b981)">
+                        <i class="fas fa-clock"></i> Thời gian online
                     </button>
                 </div>
-                <div class="lh-frame-box h-[230px]">
-                <iframe src="../features/leaderboard.html?compact=1" class="w-full h-full border-0" scrolling="no"></iframe>
-                </div>
             </section>
+
         </div>
     </div>
 
@@ -555,41 +557,6 @@
         .attempt-tag{display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:999px;font-size:9px;font-weight:800;background:rgba(239,68,68,.12);color:#ef4444}
 
     </style>
-    <!-- LEADERBOARD FULL MODAL -->
-    <div id="lb-modal" class="lh-modal-overlay fixed inset-0 z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="lh-modal-box rounded-2xl w-full max-w-6xl mx-4 shadow-2xl transform scale-95 transition-transform duration-300 relative flex flex-col" style="height:80vh">
-            <div class="flex items-center justify-between px-5 py-3 border-b" style="border-color:var(--card-border)">
-                <h3 class="text-sm font-bold flex items-center gap-1.5" style="color:var(--text-main)">
-                    <i class="fas fa-trophy text-amber-500"></i> Bảng Xếp Hạng Tuần
-                </h3>
-                <button onclick="closeLeaderboardModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <i class="fas fa-times text-base"></i>
-                </button>
-            </div>
-            <div class="flex-1 overflow-hidden">
-                <iframe id="lb-full-frame" src="" class="w-full h-full border-0 no-scrollbar"></iframe>
-            </div>
-        </div>
-    </div>
-    <script>
-        function openLeaderboardModal() {
-            const m = document.getElementById('lb-modal');
-            document.getElementById('lb-full-frame').src = '../features/leaderboard.html?t=' + Date.now();
-            m.classList.remove('opacity-0','pointer-events-none');
-            m.classList.add('opacity-100');
-            m.querySelector('div').classList.remove('scale-95');
-            m.querySelector('div').classList.add('scale-100');
-        }
-        function closeLeaderboardModal() {
-            const m = document.getElementById('lb-modal');
-            m.classList.add('opacity-0','pointer-events-none');
-            m.classList.remove('opacity-100');
-            m.querySelector('div').classList.add('scale-95');
-            m.querySelector('div').classList.remove('scale-100');
-            setTimeout(() => { document.getElementById('lb-full-frame').src = ''; }, 300);
-        }
-        document.getElementById('lb-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeLeaderboardModal(); });
-    </script>
 
     <!-- ALL USERS MODAL -->
     <div id="all-users-modal" class="lh-modal-overlay fixed inset-0 z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
@@ -603,6 +570,20 @@
                 </button>
             </div>
             <div id="all-users-list" class="space-y-1 flex-1 overflow-y-auto pr-1"></div>
+        </div>
+    </div>
+
+    <!-- LEADERBOARD MODAL -->
+    <div id="lb-modal" class="lh-modal-overlay fixed inset-0 z-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="lh-modal-box w-full max-w-2xl p-3 shadow-2xl transform scale-95 transition-transform duration-300 relative overflow-hidden flex flex-col" style="height:min(85vh,760px)">
+            <div class="lh-modal-head">
+                <span class="lh-tile-icon" style="background:var(--tint-amber);color:#f59e0b"><i class="fas fa-trophy"></i></span>
+                <h3 class="text-base font-extrabold tracking-tight" style="color:var(--text-main)">Bảng xếp hạng tháng</h3>
+                <button onclick="closeLeaderboardModal()" class="lh-modal-close" title="Đóng">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <iframe id="lb-frame" src="" frameborder="0" class="flex-1 w-full rounded-xl" style="border:0"></iframe>
         </div>
     </div>
 
@@ -793,7 +774,7 @@
     <script type="module">
 import { supabase, onAuthChange, escapeHtml, escapeUrl, imageUrl, beginOnlineSession, finalizeOnlineSessionKeepalive, logAppError } from "../../scripts/core/supabase-config.js";
         window.logAppError = logAppError;
-        import { getWeekKey, getWeekStartMs, formatTimer } from "../../scripts/features/week-math.js";
+        import { getPeriodKey, getPeriodStartMs, formatTimer } from "../../scripts/features/week-math.js";
         import { loadTestAttempts } from "../../scripts/features/learnhub-stats.js";
 
         const settingsModal = document.getElementById('settings-modal');
@@ -1009,6 +990,38 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, imageUrl, beginOnlineSes
             modal.querySelector('div').classList.remove('scale-100');
         };
 
+        // Modal nhúng trang Bảng Xếp Hạng (mở tab điểm hoặc thời gian online)
+        window.openLeaderboardModal = function(tab) {
+            const modal = document.getElementById('lb-modal');
+            if (!modal) return;
+            const frame = document.getElementById('lb-frame');
+            if (frame) {
+                const mode = tab === 'time' ? 'time' : 'score';
+                frame.src = '../features/leaderboard.html?tab=' + mode;
+            }
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100');
+            modal.querySelector('div').classList.remove('scale-95');
+            modal.querySelector('div').classList.add('scale-100');
+        };
+
+        window.closeLeaderboardModal = function() {
+            const modal = document.getElementById('lb-modal');
+            if (!modal) return;
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.classList.remove('opacity-100');
+            modal.querySelector('div').classList.add('scale-95');
+            modal.querySelector('div').classList.remove('scale-100');
+        };
+
+        (function () {
+            const modal = document.getElementById('lb-modal');
+            if (!modal) return;
+            modal.addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeLeaderboardModal();
+            });
+        })();
+
         (function () {
             const modal = document.getElementById('all-users-modal');
             if (!modal) return;
@@ -1090,25 +1103,21 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, imageUrl, beginOnlineSes
             }
         }
 
-        // Load stats theo UID
+        // Load stats theo UID (nguồn chung với báo cáo thống kê cá nhân của giáo viên)
         async function fetchStats(uid) {
-            const { data } = await supabase.from("test_stats")
-                .select("total_tests, total_score, best_score")
-                .eq("user_id", uid)
-                .maybeSingle();
+            const { data } = await supabase.rpc("student_performance_stats", { p_user_id: uid });
+            const row = Array.isArray(data) ? data[0] : data;
 
-            if (data) {
-                animateCountUp(document.getElementById('stat-total-tests'), data.total_tests || 0);
-                animateCountUp(document.getElementById('stat-total-score'), parseFloat(data.total_score || 0), { decimals: 2 });
-                animateCountUp(document.getElementById('stat-best-score'), parseFloat(data.best_score || 0), { decimals: 2 });
-
-                const avg = data.total_tests ? (data.total_score / data.total_tests) : 0;
-                animateCountUp(document.getElementById('stat-avg-score'), avg, { decimals: 2 });
+            if (row) {
+                animateCountUp(document.getElementById('stat-total-tests'), row.total_tests || 0);
+                animateCountUp(document.getElementById('stat-total-score'), parseFloat(row.total_score || 0), { decimals: 2 });
+                animateCountUp(document.getElementById('stat-avg-score'), parseFloat(row.avg_score || 0), { decimals: 2 });
+                animateCountUp(document.getElementById('stat-best-score'), parseFloat(row.best_score || 0), { decimals: 2 });
             } else {
                 document.getElementById('stat-total-tests').innerText = 0;
                 document.getElementById('stat-total-score').innerText = "0.00";
-                document.getElementById('stat-best-score').innerText = "0.00";
                 document.getElementById('stat-avg-score').innerText = "0.00";
+                document.getElementById('stat-best-score').innerText = "0.00";
             }
         }
 
@@ -1119,7 +1128,7 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, imageUrl, beginOnlineSes
             }
             fetchStats(uid);
             statsChannel = supabase.channel("profile-stats-" + uid)
-                .on("postgres_changes", { event: "*", schema: "public", table: "test_stats", filter: "user_id=eq." + uid }, () => fetchStats(uid))
+                .on("postgres_changes", { event: "*", schema: "public", table: "test_attempts", filter: "user_id=eq." + uid }, () => fetchStats(uid))
                 .subscribe();
         }
 
@@ -1424,20 +1433,20 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, imageUrl, beginOnlineSes
                     document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
 
                     const now = Date.now();
-                    const weekKey = getWeekKey();
-                    const weekStart = getWeekStartMs();
-                    const userWeekKey = data.online_week_key || "";
+                    const periodKey = getPeriodKey();
+                    const periodStart = getPeriodStartMs();
+                    const userPeriodKey = data.online_week_key || "";
                     let effectiveTimer = 0;
-                    if (userWeekKey === weekKey) {
+                    if (userPeriodKey === periodKey) {
                         effectiveTimer = Number(data.online_timer || 0);
                     }
                     if (data.online && data.online_start_time > 0 && data.last_active) {
-                        const sessionStart = Math.max(data.online_start_time, weekStart);
+                        const sessionStart = Math.max(data.online_start_time, periodStart);
                         const endMs = (now - data.last_active) < 10000 ? now : data.last_active;
                         const sessionSeconds = Math.max(0, Math.floor((endMs - sessionStart) / 1000));
-                        if (userWeekKey === weekKey) effectiveTimer += sessionSeconds;
+                        if (userPeriodKey === periodKey) effectiveTimer += sessionSeconds;
                         else effectiveTimer = sessionSeconds;
-                    } else if (userWeekKey !== weekKey) {
+                    } else if (userPeriodKey !== periodKey) {
                         effectiveTimer = 0;
                     }
                     setOnlineDisplay(effectiveTimer, 'view-' + userId);
@@ -1511,20 +1520,20 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, imageUrl, beginOnlineSes
                     document.getElementById('profile-school-display').innerText = data.school || "Chưa cập nhật";
 
                     const now = Date.now();
-                    const weekKey = getWeekKey();
-                    const weekStart = getWeekStartMs();
-                    const userWeekKey = data.online_week_key || "";
+                    const periodKey = getPeriodKey();
+                    const periodStart = getPeriodStartMs();
+                    const userPeriodKey = data.online_week_key || "";
                     let effectiveTimer = 0;
-                    if (userWeekKey === weekKey) {
+                    if (userPeriodKey === periodKey) {
                         effectiveTimer = Number(data.online_timer || 0);
                     }
                     if (data.online && data.online_start_time > 0 && data.last_active) {
-                        const sessionStart = Math.max(data.online_start_time, weekStart);
+                        const sessionStart = Math.max(data.online_start_time, periodStart);
                         const endMs = (now - data.last_active) < 10000 ? now : data.last_active;
                         const sessionSeconds = Math.max(0, Math.floor((endMs - sessionStart) / 1000));
-                        if (userWeekKey === weekKey) effectiveTimer += sessionSeconds;
+                        if (userPeriodKey === periodKey) effectiveTimer += sessionSeconds;
                         else effectiveTimer = sessionSeconds;
-                    } else if (userWeekKey !== weekKey) {
+                    } else if (userPeriodKey !== periodKey) {
                         effectiveTimer = 0;
                     }
                     setOnlineDisplay(effectiveTimer, 'own');

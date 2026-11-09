@@ -1,28 +1,29 @@
 // ============================================================================
-// LearngHub shared week/time math (week-math.js)
+// LearnHub shared period/time math (week-math.js)
 // ----------------------------------------------------------------------------
-// Consolidates duplicate week-ISO and timer-format logic previously copied
-// across profile.html / element/leaderboard.html / learnhub-stats.js.
-// Behavior is identical to the originals (Monday-UTC ISO week key + week start).
+// Dùng chung cho profile.html / leaderboard.html.
+// Chu kỳ: THEO THÁNG DƯƠNG LỊCH, mốc reset 00:00 ngày 1 đầu tháng (giờ VN).
+// Khoá kỳ dạng 'YYYY-MM' (ví dụ '2026-11').
 // ============================================================================
+const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // UTC+7
 
-export function getWeekKey() {
-  const now = new Date();
-  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  const y = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  const w = Math.ceil((((d - y) / 864e5) + 1) / 7);
-  return `${d.getUTCFullYear()}-W${String(w).padStart(2, '0')}`;
+// Mốc bắt đầu kỳ (00:00 ngày 1 tháng hiện tại, giờ VN) quy về epoch ms (UTC).
+export function getPeriodStartMs() {
+  const vnNow = new Date(Date.now() + VN_OFFSET_MS);
+  const startUtcMs = Date.UTC(vnNow.getUTCFullYear(), vnNow.getUTCMonth(), 1);
+  return startUtcMs - VN_OFFSET_MS;
 }
 
-export function getWeekStartMs() {
-  const now = new Date();
-  const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() - dayNum + 1);
-  d.setUTCHours(0, 0, 0, 0);
-  return d.getTime();
+// Khoá kỳ hiện tại 'YYYY-MM' theo giờ VN.
+export function getPeriodKey() {
+  const vnNow = new Date(Date.now() + VN_OFFSET_MS);
+  return `${vnNow.getUTCFullYear()}-${String(vnNow.getUTCMonth() + 1).padStart(2, '0')}`;
+}
+
+// Nhãn hiển thị 'Tháng 11/2026' theo giờ VN.
+export function formatPeriodLabel() {
+  const vnNow = new Date(Date.now() + VN_OFFSET_MS);
+  return `Tháng ${vnNow.getUTCMonth() + 1}/${vnNow.getUTCFullYear()}`;
 }
 
 export function formatTimer(totalSeconds) {

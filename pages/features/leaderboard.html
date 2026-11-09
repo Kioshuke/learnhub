@@ -198,7 +198,7 @@
         <div class="tab-panel active" id="tab-score">
         <div class="lb-layout">
             <div class="podium-side">
-                <div class="podium-title"><i class="fas fa-trophy"></i> Vinh danh Top 3 Tuần</div>
+                <div class="podium-title"><i class="fas fa-trophy"></i> Vinh danh Top 3 Tháng</div>
                 <div class="top3" id="podium"></div>
             </div>
 
@@ -258,11 +258,12 @@
     <script type="module">
         import { supabase, createLearnHubClient, logAppError, imageUrl } from "../../scripts/core/supabase-config.js";
         window.logAppError = logAppError;
-        import { getWeekKey, getWeekStartMs, formatTimer } from "../../scripts/features/week-math.js";
+        import { getPeriodKey, getPeriodStartMs, formatPeriodLabel, formatTimer } from "../../scripts/features/week-math.js";
 
         let activeSupabase = supabase;
         let myId = null;
 
+        // Admin nhúng bảng xếp hạng trong web admin → nhận session admin qua postMessage.
         window.addEventListener("message", async (e) => {
             if (e.data && e.data.type === "ADMIN_SESSION" && e.data.accessToken) {
                 try {
@@ -278,13 +279,13 @@
                     } catch (_) { myId = null; }
                     load();
                     loadOnlineTime();
-                } catch(err) {
+                } catch (err) {
                     console.warn("[leaderboard] Failed to set admin session:", err);
                 }
             }
         });
 
-        function esc(t) { return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+        function esc(t) { return String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
         function ringAva(photo, name, size, ringCls) {
             const fs = Math.round(size * .38);
@@ -301,98 +302,100 @@
             return `<div class="row-ava-fb">${esc(name.charAt(0))}</div>`;
         }
 
-        window.switchTab = function(tab) {
+        window.switchTab = function (tab) {
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + tab));
             document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === tab));
         };
 
+        const MEDALS = ['<i class="fas fa-medal" style="color:#f59e0b"></i>', '<i class="fas fa-medal" style="color:#94a3b8"></i>', '<i class="fas fa-medal" style="color:#b45309"></i>'];
+
+        function buildPodium(items, layout) {
+            return layout.map(({ idx, ring, bar, avSz, barH, rank, medal }) => {
+                const u = items[idx];
+                if (!u) return '';
+                const val = u.timer != null ? formatTimer(u.timer) : (u.score + 'đ');
+                return `<div class="top3-item">
+                    <div class="rank-num rank-${rank}">${rank}</div>
+                    ${ringAva(u.photo, u.name, avSz, ring)}
+                    <div class="t3-medal">${medal}</div>
+                    <div class="t3-name" title="${esc(u.name)}">${esc(u.name)}</div>
+                    ${u.uid === myId ? '<div class="t3-me-badge">Bạn</div>' : ''}
+                    <div class="${u.timer != null ? 't3-time' : 't3-score'}">${val}</div>
+                    <div class="t3-meta">${u.timer != null ? 'online' : u.tests + ' bài thi'}</div>
+                    <div class="t3-bar ${bar}" style="height:${barH}px"><span class="bar-rank">#${rank}</span></div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderPodium(podiumEl, items) {
+            const top3 = items.slice(0, 3);
+            const L1 = { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: MEDALS[0] };
+            const L2 = { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: MEDALS[1] };
+            const L3 = { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: MEDALS[2] };
+            if (top3.length === 1) podiumEl.innerHTML = buildPodium(top3, [L1]);
+            else if (top3.length === 2) podiumEl.innerHTML = buildPodium(top3, [L2, L1]);
+            else podiumEl.innerHTML = buildPodium(top3, [L2, L1, L3]);
+        }
+
+        function rankCell(rankNum) {
+            return rankNum <= 3
+                ? `<span class="rank-badge-medal">${MEDALS[rankNum - 1]}</span>`
+                : `<span class="rank-badge">${rankNum}</span>`;
+        }
+
+        // Không cuộn trang cha khi leaderboard được nhúng trong profile compact.
+        function scrollToMe(tbodyEl) {
+            if (!myId || document.body.classList.contains("compact")) return;
+            const meRow = tbodyEl.querySelector('tr.ld-me');
+            if (meRow) setTimeout(() => {
+                const r = meRow.getBoundingClientRect();
+                if (r.top < 80 || r.bottom > window.innerHeight - 40) meRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 400);
+        }
+
         let scoreLoadBusy = false;
-        let scoreLoadPending = false; // [FIX BUG #28] nếu đang bận mà có yêu cầu mới -> chạy lại sau
+        let scoreLoadPending = false;
         async function load() {
             if (scoreLoadBusy) { scoreLoadPending = true; return; }
             scoreLoadBusy = true;
-            document.getElementById("week-label").textContent = getWeekKey();
+            document.getElementById("week-label").textContent = formatPeriodLabel();
 
             try {
-                const [{ data: stats }, { data: users }] = await Promise.all([
-                    activeSupabase.from("test_stats").select("user_id, total_score, total_tests, total_videos").eq("week_key", getWeekKey()),
-                    activeSupabase.from("users").select("id, name, email, photo")
-                ]);
+                const { data, error } = await activeSupabase.rpc("leaderboard_scores", { p_limit: 50 });
+                if (error) throw error;
 
-                const userMap = new Map((users || []).map(u => [u.id, u]));
-                const rows = [];
-                for (const s of (stats || [])) {
-                    const score = Number(s.total_score || 0);
-                    if (score <= 0) continue;
-                    const ud = userMap.get(s.user_id) || {};
-                    rows.push({
-                        uid: s.user_id,
-                        name: ud.name || ud.email || "Ẩn danh",
-                        photo: ud.photo || "",
-                        score,
-                        tests: Number(s.total_tests || 0),
-                        videos: Number(s.total_videos || 0)
-                    });
-                }
-                rows.sort((a, b) => b.score - a.score);
+                const rows = (data || []).map(r => ({
+                    uid: r.user_id,
+                    name: r.name || r.email || "Ẩn danh",
+                    photo: r.photo || "",
+                    score: Number(r.total_score || 0),
+                    tests: Number(r.total_tests || 0),
+                    videos: Number(r.total_videos || 0)
+                }));
+                rows.sort((a, b) => b.score - a.score || b.tests - a.tests);
 
                 const podiumEl = document.getElementById("podium");
                 const tbodyEl = document.getElementById("table-body");
 
                 if (!rows.length) {
+                    podiumEl.innerHTML = '';
                     tbodyEl.innerHTML = `<tr><td colspan="5">
                         <div class="lb-empty">
                             <div class="lb-empty-icon"><i class="fas fa-trophy"></i></div>
                             <div class="lb-empty-title">Bảng xếp hạng còn trống</div>
-                            <div class="lb-empty-sub">Chưa có ai làm bài thi trong tuần này.<br>Hãy là người đầu tiên ghi tên mình lên bảng vinh danh!</div>
-
+                            <div class="lb-empty-sub">Chưa có ai làm bài thi trong tháng này.<br>Hãy là người đầu tiên ghi tên mình lên bảng vinh danh!</div>
                         </div>
                     </td></tr>`;
                     return;
                 }
 
-                const top3 = rows.slice(0, 3);
+                renderPodium(podiumEl, rows);
 
-                function buildPodium(items, layout) {
-                    return layout.map(({ idx, ring, bar, avSz, barH, rank, medal }) => {
-                        const u = items[idx];
-                        if (!u) return '';
-                        return `<div class="top3-item">
-                            <div class="rank-num rank-${rank}">${rank}</div>
-                            ${ringAva(u.photo, u.name, avSz, ring)}
-                            <div class="t3-medal">${medal}</div>
-                            <div class="t3-name" title="${esc(u.name)}">${esc(u.name)}</div>
-                            ${u.uid === myId ? '<div class="t3-me-badge">Bạn</div>' : ''}
-                            <div class="t3-score">${u.score}đ</div>
-                            <div class="t3-meta">${u.tests} bài thi</div>
-                            <div class="t3-bar ${bar}" style="height:${barH}px"><span class="bar-rank">#${rank}</span></div>
-                        </div>`;
-                    }).join('');
-                }
-
-                if (top3.length === 1) {
-                    podiumEl.innerHTML = buildPodium(top3, [{ idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }]);
-                } else if (top3.length === 2) {
-                    podiumEl.innerHTML = buildPodium(top3, [
-                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
-                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }
-                    ]);
-                } else {
-                    podiumEl.innerHTML = buildPodium(top3, [
-                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
-                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' },
-                        { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: '<i class="fas fa-medal" style="color:#b45309"></i>' }
-                    ]);
-                }
-
-                const medals = ['<i class="fas fa-medal" style="color:#f59e0b"></i>', '<i class="fas fa-medal" style="color:#94a3b8"></i>', '<i class="fas fa-medal" style="color:#b45309"></i>'];
                 tbodyEl.innerHTML = rows.map((u, i) => {
                     const rankNum = i + 1;
                     const specialClass = rankNum <= 3 ? `row-rank-${rankNum}` : '';
-                    const rankDisplay = rankNum <= 3 ? `<span class="rank-badge-medal">${medals[rankNum - 1]}</span>` : `<span class="rank-badge">${rankNum}</span>`;
-                    
                     return `<tr class="${specialClass}${u.uid === myId ? ' ld-me' : ''}">
-                        <td style="text-align: center;">${rankDisplay}</td>
+                        <td style="text-align: center;">${rankCell(rankNum)}</td>
                         <td>
                             <div class="name-cell">
                                 ${rowAva(u.photo, u.name)}
@@ -406,27 +409,18 @@
                     </tr>`;
                 }).join('');
 
-                // Không cuộn trang cha khi leaderboard được nhúng trong profile compact.
-                if (myId && !document.body.classList.contains("compact")) {
-                    const meRow = tbodyEl.querySelector('tr.ld-me');
-                    if (meRow) setTimeout(() => {
-                        const r = meRow.getBoundingClientRect();
-                        if (r.top < 80 || r.bottom > window.innerHeight - 40) meRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 400);
-                }
-
+                scrollToMe(tbodyEl);
             } catch (e) {
                 console.error("[load-score]", e);
                 document.getElementById("table-body").innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu xếp hạng điểm.</td></tr>`;
             } finally {
                 scoreLoadBusy = false;
-                // [FIX BUG #28] Có yêu cầu nạp bị bỏ qua trong lúc bận -> chạy lại ngay
                 if (scoreLoadPending) { scoreLoadPending = false; load(); }
             }
         }
 
         let timeLoadBusy = false;
-        let timeLoadPending = false; // [FIX BUG #28]
+        let timeLoadPending = false;
         async function loadOnlineTime() {
             if (timeLoadBusy) { timeLoadPending = true; return; }
             timeLoadBusy = true;
@@ -436,22 +430,22 @@
                 const rows = [];
                 const now = Date.now();
                 const THRESHOLD = 10000;
-                const currentWeekKey = getWeekKey();
-                const weekStart = getWeekStartMs();
+                const currentPeriodKey = getPeriodKey();
+                const periodStart = getPeriodStartMs();
                 for (const ud of (allUsers || [])) {
                     if (ud.disabled) continue;
-                    const userWeekKey = ud.online_week_key || "";
+                    const userPeriodKey = ud.online_week_key || "";
                     let effectiveTimer = 0;
-                    if (userWeekKey === currentWeekKey) {
+                    if (userPeriodKey === currentPeriodKey) {
                         effectiveTimer = Number(ud.online_timer || 0);
                     }
                     if (ud.online && ud.online_start_time > 0 && ud.last_active) {
-                        const sessionStart = Math.max(ud.online_start_time, weekStart);
+                        const sessionStart = Math.max(ud.online_start_time, periodStart);
                         const endMs = (now - ud.last_active) < THRESHOLD ? now : ud.last_active;
                         const sessionSeconds = Math.max(0, Math.floor((endMs - sessionStart) / 1000));
-                        if (userWeekKey === currentWeekKey) effectiveTimer += sessionSeconds;
+                        if (userPeriodKey === currentPeriodKey) effectiveTimer += sessionSeconds;
                         else effectiveTimer = sessionSeconds;
-                    } else if (userWeekKey !== currentWeekKey) {
+                    } else if (userPeriodKey !== currentPeriodKey) {
                         effectiveTimer = 0;
                     }
                     if (effectiveTimer <= 0) continue;
@@ -468,58 +462,24 @@
                 const tbodyEl = document.getElementById("table-body-time");
 
                 if (!rows.length) {
+                    podiumEl.innerHTML = '';
                     tbodyEl.innerHTML = `<tr><td colspan="3">
                         <div class="lb-empty">
                             <div class="lb-empty-icon"><i class="fas fa-clock"></i></div>
                             <div class="lb-empty-title">Chưa có dữ liệu online</div>
-                            <div class="lb-empty-sub">Thời gian học online tuần này của bạn sẽ được ghi nhận<br>khi bạn truy cập và học tập trên LearnHub.</div>
+                            <div class="lb-empty-sub">Thời gian học online tháng này của bạn sẽ được ghi nhận<br>khi bạn truy cập và học tập trên LearnHub.</div>
                         </div>
                     </td></tr>`;
                     return;
                 }
 
-                const top3 = rows.slice(0, 3);
+                renderPodium(podiumEl, rows);
 
-                function buildTimePodium(items, layout) {
-                    return layout.map(({ idx, ring, bar, avSz, barH, rank, medal }) => {
-                        const u = items[idx];
-                        if (!u) return '';
-                        return `<div class="top3-item">
-                            <div class="rank-num rank-${rank}">${rank}</div>
-                            ${ringAva(u.photo, u.name, avSz, ring)}
-                            <div class="t3-medal">${medal}</div>
-                            <div class="t3-name" title="${esc(u.name)}">${esc(u.name)}</div>
-                            ${u.uid === myId ? '<div class="t3-me-badge">Bạn</div>' : ''}
-                            <div class="t3-time">${formatTimer(u.timer)}</div>
-                            <div class="t3-meta">online</div>
-                            <div class="t3-bar ${bar}" style="height:${barH}px"><span class="bar-rank">#${rank}</span></div>
-                        </div>`;
-                    }).join('');
-                }
-
-                if (top3.length === 1) {
-                    podiumEl.innerHTML = buildTimePodium(top3, [{ idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }]);
-                } else if (top3.length === 2) {
-                    podiumEl.innerHTML = buildTimePodium(top3, [
-                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
-                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' }
-                    ]);
-                } else {
-                    podiumEl.innerHTML = buildTimePodium(top3, [
-                        { idx: 1, ring: 'ring-silver', bar: 'bar-silver', avSz: 66, barH: 55, rank: 2, medal: '<i class="fas fa-medal" style="color:#94a3b8"></i>' },
-                        { idx: 0, ring: 'ring-gold', bar: 'bar-gold', avSz: 80, barH: 80, rank: 1, medal: '<i class="fas fa-medal" style="color:#f59e0b"></i>' },
-                        { idx: 2, ring: 'ring-bronze', bar: 'bar-bronze', avSz: 56, barH: 40, rank: 3, medal: '<i class="fas fa-medal" style="color:#b45309"></i>' }
-                    ]);
-                }
-
-                const medals = ['<i class="fas fa-medal" style="color:#f59e0b"></i>', '<i class="fas fa-medal" style="color:#94a3b8"></i>', '<i class="fas fa-medal" style="color:#b45309"></i>'];
                 tbodyEl.innerHTML = rows.map((u, i) => {
                     const rankNum = i + 1;
                     const specialClass = rankNum <= 3 ? `row-rank-${rankNum}` : '';
-                    const rankDisplay = rankNum <= 3 ? `<span class="rank-badge-medal">${medals[rankNum - 1]}</span>` : `<span class="rank-badge">${rankNum}</span>`;
-
                     return `<tr class="${specialClass}${u.uid === myId ? ' ld-me' : ''}">
-                        <td style="text-align: center;">${rankDisplay}</td>
+                        <td style="text-align: center;">${rankCell(rankNum)}</td>
                         <td>
                             <div class="name-cell">
                                 ${rowAva(u.photo, u.name)}
@@ -531,26 +491,19 @@
                     </tr>`;
                 }).join('');
 
-                // Không cuộn trang cha khi leaderboard được nhúng trong profile compact.
-                if (myId && !document.body.classList.contains("compact")) {
-                    const meRow = tbodyEl.querySelector('tr.ld-me');
-                    if (meRow) setTimeout(() => {
-                        const r = meRow.getBoundingClientRect();
-                        if (r.top < 80 || r.bottom > window.innerHeight - 40) meRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 400);
-                }
-
+                scrollToMe(tbodyEl);
             } catch (e) {
                 console.error("[load-online-time]", e);
                 document.getElementById("table-body-time").innerHTML = `<tr><td colspan="3" style="text-align:center; padding:40px; color:#ef4444">Lỗi khi tải dữ liệu xếp hạng thời gian.</td></tr>`;
             } finally {
                 timeLoadBusy = false;
-                // [FIX BUG #28] Có yêu cầu nạp bị bỏ qua trong lúc bận -> chạy lại ngay
                 if (timeLoadPending) { timeLoadPending = false; loadOnlineTime(); }
             }
         }
 
         if (new URLSearchParams(location.search).get("compact") === "1") document.body.classList.add("compact");
+        const initialTab = new URLSearchParams(location.search).get("tab") === "time" ? "time" : "score";
+        switchTab(initialTab);
         (async () => {
             try {
                 const { data: { user } } = await supabase.auth.getUser();

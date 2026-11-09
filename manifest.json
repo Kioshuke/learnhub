@@ -53,13 +53,6 @@
       "icons": [{ "src": "/assets/images/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Bảng Xếp Hạng",
-      "short_name": "BXH",
-      "description": "Xem bảng xếp hạng tuần",
-      "url": "/index.html?open=leaderboard",
-      "icons": [{ "src": "/assets/images/icons/icon-192.png", "sizes": "192x192" }]
-    },
-    {
       "name": "Smart Flashcard",
       "short_name": "Flashcard",
       "description": "Học từ vựng với flashcard",

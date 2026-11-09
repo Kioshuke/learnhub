@@ -829,7 +829,12 @@
     .tc-report-pagination[hidden] { display:none; }
     .tc-report-history-head { display:flex;align-items:center;gap:14px;margin-bottom:14px; }
     .tc-report-history-head>div { min-width:0; }
-    .tc-report-attempt { display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;padding:13px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;text-align:left;font:inherit;cursor:pointer;transition:border-color .15s,background .15s; }
+    .tc-report-attempt { display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"main mid score";align-items:center;gap:12px;width:100%;padding:13px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;text-align:left;font:inherit;cursor:pointer;transition:border-color .15s,background .15s; }
+    .tc-report-attempt-main { grid-area:main;min-width:0; }
+    .tc-report-attempt-mid { grid-area:mid;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:90px; }
+
+    .tc-report-attempt-stats { display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center; }
+    .tc-report-attempt-score { grid-area:score; }
     .tc-report-attempt:hover { border-color:#93c5fd;background:#f8fbff; }
     .tc-report-attempt-title { font-size:13px;font-weight:750;color:#0f172a; }
     .tc-report-attempt-sub { margin-top:3px;font-size:11.5px;color:#64748b; }
@@ -839,6 +844,45 @@
     .tc-report-attempt-tags { display:flex;flex-wrap:wrap;gap:6px;margin-top:7px; }
     .tc-report-tag { padding:3px 8px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:10.5px;font-weight:700; }
     .tc-report-tag.auto { background:#fff7ed;color:#c2410c; }
+    /* ===== Card xu hướng điểm số (Chart.js) ===== */
+    .tc-trend-card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; box-shadow:0 1px 2px rgba(15,23,42,.06); padding:16px; margin-bottom:16px; }
+    .tc-trend-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+    .tc-trend-head h3 { margin:0; font-size:15px; color:#0f172a; display:flex; align-items:center; gap:8px; }
+    .tc-trend-head h3 i { color:#7c3aed; }
+    .tc-trend-head select { border:1px solid #e5e7eb; border-radius:10px; padding:8px 10px; font:inherit; font-size:12.5px; color:#0f172a; background:#fff; cursor:pointer; }
+    .tc-trend-head select:focus { outline:2px solid #c7d2fe; border-color:#93c5fd; }
+    .tc-trend-kpis { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:14px; }
+    .tc-trend-kpi { border:1px solid #eef2f7; border-radius:12px; padding:10px 12px; background:#f8fafc; }
+    .tc-trend-kpi .label { font-size:10.5px; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:.02em; }
+    .tc-trend-kpi .value { margin-top:4px; font-size:18px; font-weight:800; color:#0f172a; }
+    .tc-trend-kpi.is-blue { background:#eff6ff; border-color:#dbeafe; }
+    .tc-trend-kpi.is-blue .label { color:#2563eb; }
+    .tc-trend-kpi.is-blue .value { color:#1d4ed8; }
+    .tc-trend-kpi.is-violet { background:#f5f3ff; border-color:#ede9fe; }
+    .tc-trend-kpi.is-violet .label { color:#7c3aed; }
+    .tc-trend-kpi.is-violet .value { color:#6d28d9; }
+    .tc-trend-kpi.is-green { background:#ecfdf5; border-color:#d1fae5; }
+    .tc-trend-kpi.is-green .label { color:#16a34a; }
+    .tc-trend-kpi.is-green .value { color:#15803d; }
+    .tc-trend-kpi.is-amber { background:#fffbeb; border-color:#fef3c7; }
+    .tc-trend-kpi.is-amber .label { color:#d97706; }
+    .tc-trend-kpi.is-amber .value { color:#b45309; }
+    .tc-trend-canvas-wrap { position:relative; width:100%; height:260px; }
+    .tc-trend-empty { display:grid; place-items:center; height:100%; color:#94a3b8; font-size:13px; text-align:center; gap:6px; }
+    /* Tooltip HTML tùy biến cho chart (dùng icon Font Awesome thay emoji) */
+    .tc-trend-tip { position:absolute; left:0; top:0; z-index:5; pointer-events:none; opacity:0; transform:translateY(4px); transition:opacity .12s ease, transform .12s ease; background:#0f172a; color:#e2e8f0; border-radius:10px; padding:10px 12px; box-shadow:0 10px 26px rgba(15,23,42,.30); font-size:12.5px; max-width:280px; }
+    .tc-trend-tip.is-on { opacity:1; transform:translateY(0); }
+    .tc-trend-tip .tip-title { font-size:13px; font-weight:700; color:#f8fafc; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .tc-trend-tip .tip-row { display:flex; align-items:center; gap:8px; line-height:1.5; white-space:nowrap; }
+    .tc-trend-tip .tip-row + .tip-row { margin-top:3px; }
+    .tc-trend-tip .tip-row i { width:14px; text-align:center; font-size:12px; }
+    .tc-trend-tip .tip-row.is-cal i { color:#60a5fa; }
+    .tc-trend-tip .tip-row.is-score i { color:#34d399; }
+    .tc-trend-tip .tip-row.is-time i { color:#fbbf24; }
+    @media (max-width:720px) {
+      .tc-trend-kpis { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .tc-trend-canvas-wrap { height:210px; }
+    }
     @media(max-width:640px) {
       .tc-report-toolbar { align-items:stretch;flex-direction:column; }
       #tcReportSearch { width:100%; }
@@ -846,7 +890,8 @@
       .tc-report-avatar { width:36px;height:36px; }
       .tc-report-student-summary { grid-column:2;text-align:left;white-space:normal; }
       .tc-report-history-head { align-items:flex-start;flex-direction:column; }
-      .tc-report-attempt { grid-template-columns:minmax(0,1fr) auto;padding:10px; }
+      .tc-report-attempt { grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"main score" "mid mid";padding:10px; }
+      .tc-report-attempt-mid { align-items:flex-start;min-width:0; }
     }
     .tc-quiz-table { width: 100%; border-collapse: collapse; min-width: 720px; }
     .tc-quiz-table th {
@@ -1314,6 +1359,16 @@
               <button type="button" id="tcReportBackStudents" class="btn-sm"><i class="fa-solid fa-arrow-left"></i> Danh sách tài khoản</button>
               <div><h3 id="tcReportHistoryName">Lịch sử làm bài</h3><p id="tcReportHistoryMeta" class="muted"></p></div>
             </div>
+            <div class="tc-trend-card" id="tcTrendCard">
+              <div class="tc-trend-head">
+                <h3><i class="fa-solid fa-chart-line"></i> Xu hướng điểm số &amp; Thống kê tháng</h3>
+                <select id="tcTrendMonth" aria-label="Lọc theo tháng"></select>
+              </div>
+              <div class="tc-trend-kpis" id="tcTrendKpis"></div>
+              <div class="tc-trend-canvas-wrap">
+                <canvas id="scoreTrendChart"></canvas>
+              </div>
+            </div>
             <div id="tcReportAttempts" class="tc-report-attempts"></div>
             <div id="tcReportAttemptPagination" class="tc-report-pagination" hidden>
               <button type="button" id="tcReportAttemptPrev" class="btn-sm">← Trước</button>
@@ -1387,6 +1442,7 @@
   <script src="../../scripts/features/subjects-data.js"></script>
   <script src="../../scripts/features/phonghoc-data.js"></script>
   <script src="../../scripts/core/toast.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script type="module">
     import { supabase, getUserRow, escapeHtml, imageUrl } from "../../scripts/core/supabase-config.js";
 
@@ -1404,6 +1460,9 @@
     let tcReportStudentPage = 0;
     let tcReportAttemptPage = 0;
     const TC_REPORT_PAGE_SIZE = 20;
+    let tcTrendAttempts = [];      // toàn bộ lượt làm của HS đang xem (cho chart)
+    let tcTrendChart = null;       // instance Chart.js hiện tại
+    let tcTrendBound = false;      // đã gắn sự kiện đổi tháng chưa
 
     function show(which) {
       tcApp.style.display = which === "app" ? "" : "none";
@@ -2070,6 +2129,266 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       return Math.floor(seconds / 60) + " phút " + (seconds % 60) + " giây";
     }
 
+    /* ======================================================================
+       Xu hướng điểm số theo tháng (Chart.js) — dùng trong chi tiết HS
+       ====================================================================== */
+    // Ngưỡng màu: <5 đỏ, 5–<8 xanh dương, >=8 xanh lá
+    function tcTrendScoreColor(score) {
+      const value = Number(score) || 0;
+      if (value < 5) return "#dc2626";
+      if (value < 8) return "#2563eb";
+      return "#16a34a";
+    }
+
+    function tcTrendMonthKey(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0");
+    }
+
+    function tcTrendMonthLabel(key) {
+      const parts = String(key || "").split("-");
+      return parts.length === 2 ? "Tháng " + parts[1] + "/" + parts[0] : key;
+    }
+
+    // "22:36 - 28/10/2026"
+    function tcTrendDateTime(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      const pad = function (n) { return String(n).padStart(2, "0"); };
+      return pad(date.getHours()) + ":" + pad(date.getMinutes()) + " - " + pad(date.getDate()) + "/" + pad(date.getMonth() + 1) + "/" + date.getFullYear();
+    }
+
+    // Lấy các lượt làm theo tháng đang chọn, sắp xếp theo thời gian (cũ → mới)
+    function tcTrendFiltered() {
+      const select = document.getElementById("tcTrendMonth");
+      const month = select ? select.value : "";
+      const rows = (tcTrendAttempts || []).filter(function (a) {
+        return !month || tcTrendMonthKey(a.created_at) === month;
+      });
+      return rows.sort(function (a, b) { return new Date(a.created_at) - new Date(b.created_at); });
+    }
+
+    function tcBuildTrendMonthOptions() {
+      const select = document.getElementById("tcTrendMonth");
+      if (!select) return;
+      const keys = Array.from(new Set((tcTrendAttempts || []).map(function (a) {
+        return tcTrendMonthKey(a.created_at);
+      }).filter(Boolean))).sort().reverse();
+      const current = select.value;
+      select.innerHTML = '<option value="">Tất cả các tháng</option>' + keys.map(function (key) {
+        return '<option value="' + escapeHtml(key) + '">' + escapeHtml(tcTrendMonthLabel(key)) + '</option>';
+      }).join("");
+      if (current && keys.indexOf(current) !== -1) select.value = current;
+    }
+
+    function tcRenderTrendKpis(rows) {
+      const box = document.getElementById("tcTrendKpis");
+      if (!box) return;
+      const scores = rows.map(function (a) { return Number(a.score) || 0; });
+      const total = scores.reduce(function (sum, value) { return sum + value; }, 0);
+      const avg = scores.length ? total / scores.length : 0;
+      const best = scores.length ? Math.max.apply(null, scores) : 0;
+      const durations = rows.map(function (a) { return Number(a.duration_ms); })
+        .filter(function (v) { return !Number.isNaN(v); });
+      const avgDuration = durations.length ? durations.reduce(function (sum, v) { return sum + v; }, 0) / durations.length : 0;
+      const cards = [
+        { label: "Điểm trung bình", value: scores.length ? avg.toFixed(2) : "—", tone: "is-blue" },
+        { label: "Lượt bài", value: String(rows.length), tone: "is-violet" },
+        { label: "Cao nhất", value: scores.length ? best.toFixed(2) : "—", tone: "is-green" },
+        { label: "Thời gian trung bình", value: durations.length ? tcReportFormatDuration(avgDuration) : "—", tone: "is-amber" }
+      ];
+      box.innerHTML = cards.map(function (card) {
+        return '<div class="tc-trend-kpi ' + card.tone + '"><div class="label">' + escapeHtml(card.label) + '</div><div class="value">' + escapeHtml(card.value) + '</div></div>';
+      }).join("");
+    }
+
+    function tcRenderTrendChart() {
+      const wrap = document.querySelector(".tc-trend-canvas-wrap");
+      const canvas = document.getElementById("scoreTrendChart");
+      if (!canvas) return;
+      const rows = tcTrendFiltered();
+      tcRenderTrendKpis(rows);
+
+      if (tcTrendChart) { tcTrendChart.destroy(); tcTrendChart = null; }
+      if (wrap) {
+        const stale = wrap.querySelectorAll(".tc-trend-empty, .tc-trend-tip");
+        stale.forEach(function (el) { el.remove(); });
+      }
+
+      if (!rows.length || !window.Chart) {
+        canvas.style.display = "none";
+        if (wrap) {
+          const empty = document.createElement("div");
+          empty.className = "tc-trend-empty";
+          empty.innerHTML = '<div style="font-size:22px"><i class="fa-solid fa-chart-simple"></i></div><div>' +
+            (!rows.length ? "Chưa có lượt làm trong khoảng thời gian này." : "Không tải được thư viện biểu đồ.") + '</div>';
+          wrap.appendChild(empty);
+        }
+        return;
+      }
+      canvas.style.display = "";
+
+      const labels = rows.map(function (a) { return tcTrendDateTime(a.created_at); });
+      const data = rows.map(function (a) { return Number(a.score) || 0; });
+
+      tcTrendChart = new window.Chart(canvas.getContext("2d"), {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Điểm số",
+            data: data,
+            tension: 0.35,
+            borderWidth: 2.5,
+            fill: true,
+            backgroundColor: function (context) {
+              const area = context.chart.chartArea;
+              if (!area) return "rgba(37,99,235,.10)";
+              const gradient = context.chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+              gradient.addColorStop(0, "rgba(37,99,235,.28)");
+              gradient.addColorStop(1, "rgba(37,99,235,.02)");
+              return gradient;
+            },
+            pointRadius: 4,
+            pointHoverRadius: 7,
+            pointBorderWidth: 2,
+            pointBorderColor: "#ffffff",
+            pointBackgroundColor: function (context) { return tcTrendScoreColor(context.parsed.y); },
+            pointHoverBackgroundColor: function (context) { return tcTrendScoreColor(context.parsed.y); },
+            segment: {
+              borderColor: function (context) { return tcTrendScoreColor(context.p1.parsed.y); }
+            },
+            // Cho phép điểm vẽ tràn lên khoảng đệm trên đỉnh (không bị cắt khi đạt 10đ)
+            clip: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          // Chừa khoảng trống trên đỉnh để marker ở mốc 10 không bị che
+          layout: { padding: { top: 12, right: 6 } },
+          interaction: { mode: "index", intersect: false },
+          // Bấm vào 1 điểm trên chart -> mở thẳng chi tiết lượt làm đó (chỉ khi bấm gần chấm)
+          onClick: function (event, elements, chart) {
+            if (!elements || !elements.length) return;
+            const el = elements[0];
+            const meta = chart.getDatasetMeta(el.datasetIndex);
+            const point = meta && meta.data ? meta.data[el.index] : null;
+            if (!point) return;
+            const dx = (event.x || 0) - point.x;
+            const dy = (event.y || 0) - point.y;
+            if (Math.sqrt(dx * dx + dy * dy) > 12) return; // bấm lệch quá xa chấm thì bỏ qua
+            const row = rows[el.index];
+            if (row) tcOpenAttemptDetail(row.id);
+          },
+          // Đổi con trỏ thành pointer khi rê chuột lên điểm để báo có thể bấm
+          onHover: function (event, elements) {
+            if (event && event.native && event.native.target) {
+              event.native.target.style.cursor = (elements && elements.length) ? "pointer" : "default";
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              enabled: false,
+              // Tooltip HTML tự vẽ để dùng được icon Font Awesome (canvas không nhúng được FA)
+              external: function (context) {
+                const chart = context.chart;
+                const model = context.tooltip;
+                const wrap = chart.canvas.parentNode;
+                if (!wrap) return;
+                let tip = wrap.querySelector(".tc-trend-tip");
+                if (!tip) {
+                  tip = document.createElement("div");
+                  tip.className = "tc-trend-tip";
+                  wrap.appendChild(tip);
+                }
+                if (!model.opacity || !model.dataPoints || !model.dataPoints.length) {
+                  tip.classList.remove("is-on");
+                  return;
+                }
+                const row = rows[model.dataPoints[0].dataIndex] || {};
+                const score = Number(row.score) || 0;
+                const maxScore = Number(row.max_score) || 10;
+                const correct = Number(row.correct_count) || 0;
+                const total = Number(row.total_questions) || 0;
+                const duration = row.duration_ms == null ? "—" : tcReportFormatDuration(row.duration_ms);
+                tip.innerHTML =
+                  '<div class="tip-title">' + escapeHtml(row.test_name || "Bài kiểm tra") + '</div>' +
+                  '<div class="tip-row is-cal"><i class="fa-solid fa-calendar-day"></i><span>' + escapeHtml(tcTrendDateTime(row.created_at)) + '</span></div>' +
+                  '<div class="tip-row is-score"><i class="fa-solid fa-bullseye"></i><span>Điểm số: ' + score.toFixed(2) + "/" + maxScore + " (" + correct + "/" + total + ' câu)</span></div>' +
+                  '<div class="tip-row is-time"><i class="fa-solid fa-clock"></i><span>Thời gian làm: ' + escapeHtml(duration) + '</span></div>';
+                tip.classList.add("is-on");
+                const maxLeft = Math.max(wrap.clientWidth - tip.offsetWidth, 0);
+                tip.style.left = Math.min(Math.max(model.caretX - tip.offsetWidth / 2, 0), maxLeft) + "px";
+                const above = model.caretY - tip.offsetHeight - 12;
+                tip.style.top = (above < 0 ? model.caretY + 12 : above) + "px";
+              }
+            }
+          },
+          scales: {
+            y: {
+              min: 0,
+              max: 10,
+              beginAtZero: true,
+              ticks: { stepSize: 2, color: "#64748b" },
+              grid: { color: "rgba(15,23,42,.06)" }
+            },
+            x: {
+              ticks: { color: "#64748b", maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
+    // Tải toàn bộ lượt làm của HS (phân trang RPC tối đa 100/lần) rồi vẽ chart
+    async function tcLoadReportTrend() {
+      if (!tcReportCurrentStudent) return;
+      const rows = [];
+      try {
+        const pageSize = 100;
+        for (let page = 0; page < 10; page++) {
+          const { data, error } = await supabase.rpc("teacher_report_student_attempts", {
+            p_user_id: tcReportCurrentStudent.user_id,
+            p_limit: pageSize,
+            p_offset: page * pageSize
+          });
+          if (error) throw error;
+          const batch = Array.isArray(data) ? data : [];
+          rows.push.apply(rows, batch);
+          if (batch.length < pageSize) break;
+        }
+        tcTrendAttempts = rows;
+      } catch (err) {
+        console.error("tcLoadReportTrend lỗi:", err);
+        tcTrendAttempts = [];
+      }
+      tcBuildTrendMonthOptions();
+      tcRenderTrendChart();
+    }
+
+    function tcBindTrendEvents() {
+      if (tcTrendBound) return;
+      const select = document.getElementById("tcTrendMonth");
+      if (!select) return;
+      tcTrendBound = true;
+      select.addEventListener("change", tcRenderTrendChart);
+    }
+
+    // Mở trang xem chi tiết 1 lượt làm (dùng chung cho danh sách và khi bấm điểm trên chart)
+    function tcOpenAttemptDetail(attemptId) {
+      if (!attemptId || !tcReportCurrentStudent) return;
+      tcMarkReturnView("report");
+      const url = new URL("../user/review-attempt.html", window.location.href);
+      url.searchParams.set("attempt", String(attemptId));
+      url.searchParams.set("student", String(tcReportCurrentStudent.user_id));
+      url.searchParams.set("from", "report");
+      window.location.href = url.href;
+    }
+
     async function tcOpenReportStudent(studentId) {
       const student = (tcReportStudentsCache || []).find(function (item) { return String(item.user_id) === String(studentId); });
       if (!student) return;
@@ -2079,7 +2398,10 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       document.getElementById("tcReportHistoryPanel").style.display = "";
       document.getElementById("tcReportHistoryName").textContent = student.user_name || "Người dùng";
       document.getElementById("tcReportHistoryMeta").textContent = (student.user_email || "") + " · " + Number(student.attempt_count || 0) + " lượt làm";
-      await tcLoadReportAttempts();
+      const monthSelect = document.getElementById("tcTrendMonth");
+      if (monthSelect) monthSelect.value = "";
+      tcBindTrendEvents();
+      await Promise.all([tcLoadReportAttempts(), tcLoadReportTrend()]);
     }
 
     async function tcLoadReportAttempts() {
@@ -2101,13 +2423,15 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
           const questions = attempt.total_questions == null ? "" : Number(attempt.correct_count || 0) + "/" + Number(attempt.total_questions) + " câu đúng";
           const duration = attempt.duration_ms == null ? "" : tcReportFormatDuration(attempt.duration_ms);
           return '<button type="button" class="tc-report-attempt" data-report-attempt="' + escapeHtml(attempt.id) + '" data-report-user="' + escapeHtml(tcReportCurrentStudent.user_id) + '">' +
-            '<div><div class="tc-report-attempt-title">' + escapeHtml(attempt.test_name || "Bài kiểm tra") + '</div>' +
-              '<div class="tc-report-attempt-sub">' + escapeHtml(attempt.subject || "") + (attempt.subject ? ' · ' : '') + escapeHtml(tcReportFormatDate(attempt.created_at)) + '</div>' +
-              '<div class="tc-report-attempt-tags">' +
+            '<div class="tc-report-attempt-main"><div class="tc-report-attempt-title">' + escapeHtml(attempt.test_name || "Bài kiểm tra") + '</div>' +
+              '<div class="tc-report-attempt-sub">' + escapeHtml(attempt.subject || "") + (attempt.subject ? ' · ' : '') + escapeHtml(tcReportFormatDate(attempt.created_at)) + '</div></div>' +
+            '<div class="tc-report-attempt-mid">' +
+              '<div class="tc-report-attempt-stats">' +
                 (questions ? '<span class="tc-report-tag">' + escapeHtml(questions) + '</span>' : '') +
                 (duration ? '<span class="tc-report-tag">' + escapeHtml(duration) + '</span>' : '') +
                 (attempt.auto_submitted ? '<span class="tc-report-tag auto">Tự nộp khi hết giờ</span>' : '') +
-              '</div></div>' +
+              '</div>' +
+            '</div>' +
             '<div class="tc-report-attempt-score' + (scoreHidden ? ' is-hidden' : '') + '">' + escapeHtml(score) + '<span class="tc-report-attempt-open">Xem chi tiết →</span></div>' +
           '</button>';
         }).join("") : '<div class="empty"><div class="big"><i class="fa-solid fa-file-circle-check"></i></div>Tài khoản này chưa có lượt làm bài.</div>';
@@ -2151,12 +2475,7 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       document.getElementById("tcReportAttempts").addEventListener("click", function (event) {
         const attempt = event.target.closest("[data-report-attempt]");
         if (!attempt) return;
-        tcMarkReturnView("report");
-        const url = new URL("../user/review-attempt.html", window.location.href);
-        url.searchParams.set("attempt", attempt.getAttribute("data-report-attempt"));
-        url.searchParams.set("student", attempt.getAttribute("data-report-user"));
-        url.searchParams.set("from", "report");
-        window.location.href = url.href;
+        tcOpenAttemptDetail(attempt.getAttribute("data-report-attempt"));
       });
       document.getElementById("tcReportAttemptPrev").addEventListener("click", function () {
         if (tcReportAttemptPage > 0) { tcReportAttemptPage--; tcLoadReportAttempts(); }

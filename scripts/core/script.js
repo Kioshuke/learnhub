@@ -287,12 +287,8 @@ window.addEventListener("message", function(ev){
     if(!bf || bf.id !== "blogFrame") return;
     if(d.page === "profile"){ window.location.href = "/pages/user/profile.html"; return; }
     const openTab = String(d.tab || "");
-    if(["phong-hoc","flash","forum","blog","tai-lieu","leaderboard"].indexOf(openTab) === -1) return;
+    if(["phong-hoc","flash","forum","blog","tai-lieu"].indexOf(openTab) === -1) return;
     if(window.__lhGuest && openTab !== "blog"){ window.location.href = "/pages/auth/login.html"; return; }
-    if(openTab === "leaderboard"){
-      if(typeof openLeaderboardModal === "function") openLeaderboardModal();
-      return;
-    }
     if(typeof show === "function") show(openTab);
     return;
   }
@@ -754,7 +750,7 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 });
 
-/* === FEATURE CARD INTERCEPTION (chuyển tab / mở chat / mở leaderboard, không nhảy trang) === */
+/* === FEATURE CARD INTERCEPTION (chuyển tab / mở chat, không nhảy trang) === */
 document.addEventListener('DOMContentLoaded', function(){
   document.querySelectorAll('.feature-card[data-open]').forEach(function(card){
     card.addEventListener('click', function(e){
@@ -762,10 +758,6 @@ document.addEventListener('DOMContentLoaded', function(){
       var open = card.getAttribute('data-open');
       if(open === 'chat'){
         if(typeof toggleHubieChat === 'function') toggleHubieChat();
-        return;
-      }
-      if(open === 'leaderboard'){
-        if(typeof openLeaderboardModal === 'function') openLeaderboardModal();
         return;
       }
       if(open === 'phong-hoc' || open === 'flash' || open === 'forum' || open === 'tai-lieu'){
@@ -781,7 +773,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var params = new URLSearchParams(window.location.search);
     var open = params.get("open");
     if(!open) return;
-    var validTabs = ["phong-hoc", "flash", "forum", "blog", "tai-lieu", "leaderboard"];
+    var validTabs = ["phong-hoc", "flash", "forum", "blog", "tai-lieu"];
     if(validTabs.indexOf(open) === -1) return;
     var openQuizDe = params.get("de");
     var openFlashSet = params.get("set") || params.get("id") || "";
@@ -804,10 +796,6 @@ document.addEventListener('DOMContentLoaded', function(){
         if(typeof showDeepLinkOverlay === "function") showDeepLinkOverlay(true);
       }
       setTimeout(function(){
-        if(open === "leaderboard"){
-          if(typeof openLeaderboardModal === "function") openLeaderboardModal();
-          return;
-        }
         if(isFlashDeepLink && typeof openFlashDeepLink === "function"){
           openFlashDeepLink(openFlashSet);
         }
@@ -1394,6 +1382,38 @@ document.addEventListener("DOMContentLoaded", () => {
   window.openQrModal = openQrModal;
   window.closeQrModal = closeQrModal;
   window.closeQrModalByOverlay = closeQrModalByOverlay;
+
+  // ===== Popup Bảng xếp hạng =====
+  const lbOverlay = document.getElementById('lh-lb-overlay');
+  const lbFrame = document.getElementById('lhLbFrame');
+  function openLeaderboard() {
+    if (!lbOverlay) return;
+    lbOverlay.style.display = 'flex';
+    lbOverlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.body.classList.add('lh-page-locked');
+    if (lbFrame && !lbFrame.getAttribute('src')) lbFrame.setAttribute('src', lbFrame.dataset.src || '/pages/features/leaderboard.html');
+  }
+  function closeLeaderboard() {
+    if (!lbOverlay) return;
+    lbOverlay.setAttribute('aria-hidden', 'true');
+    lbOverlay.classList.add('lh-qr-closing');
+    setTimeout(() => {
+      lbOverlay.style.display = 'none';
+      lbOverlay.classList.remove('lh-qr-closing');
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.body.classList.remove('lh-page-locked');
+    }, 240);
+  }
+  function closeLeaderboardByOverlay(event) {
+    if (event.target === lbOverlay) closeLeaderboard();
+  }
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && lbOverlay && lbOverlay.style.display === 'flex') closeLeaderboard(); });
+  window.openLeaderboard = openLeaderboard;
+  window.closeLeaderboard = closeLeaderboard;
+  window.closeLeaderboardByOverlay = closeLeaderboardByOverlay;
 function updateTime(){
 const now = new Date();
 const time = now.toLocaleTimeString("vi-VN");

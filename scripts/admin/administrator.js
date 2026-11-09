@@ -1,6 +1,5 @@
 ﻿
 import { createLearnHubClient, logAppError, escapeHtml, imageUrl } from "../core/supabase-config.js";
-import { getWeekKey } from "../features/week-math.js";
 window.logAppError = logAppError;
 
 // Admin dùng client với storage key riêng để không đánh lộn account với web chính
@@ -57,11 +56,6 @@ const whitelistMeta = document.getElementById("whitelistMeta");
 const renameTabPanel = document.getElementById("renameTabPanel");
 const renameSearchInput = document.getElementById("renameSearchInput");
 const renameListBody = document.getElementById("renameListBody");
-const weeklyResetTabPanel = document.getElementById("weeklyResetTabPanel");
-const weeklyResetCurrentWeek = document.getElementById("weeklyResetCurrentWeek");
-const weeklyResetLastTime = document.getElementById("weeklyResetLastTime");
-const weeklyResetLastBy = document.getElementById("weeklyResetLastBy");
-const weeklyResetStatusBanner = document.getElementById("weeklyResetStatusBanner");
 const pageTitle = document.getElementById("pageTitle");
 const pageSubtitle = document.getElementById("pageSubtitle");
 const scheduleTabPanel = document.getElementById("scheduleTabPanel");
@@ -94,7 +88,6 @@ const pageTitles = {
   maintenance: ["Bảo trì hệ thống", "Bật/tắt chế độ bảo trì toàn hệ thống."],
   registration: ["Đăng ký", "Bật/tắt chức năng đăng ký tài khoản mới."],
   whitelist: ["Bật/Tắt Whitelist", "Bật = cần cấp quyền email; Tắt = đăng nhập Google không cần whitelist."],
-  weeklyReset: ["BXH & Reset tuần", "Bảng xếp hạng học viên và reset điểm theo tuần."],
   schedule: ["Lịch học & thi", "Chỉnh lịch học và lịch thi hiển thị trên trang Phòng Học."],
   docs: ["Quản lý Tài liệu", "Thêm, sửa, xóa tài liệu cho Thư viện."],
   blog: ["Quản lý Blog", "Soạn và đăng bài viết cho trang Blog."],
@@ -110,7 +103,6 @@ function switchAdminTab(tab) {
   maintenanceTabPanel.classList.toggle("hidden", tab !== "maintenance");
   registrationTabPanel.classList.toggle("hidden", tab !== "registration");
   whitelistTabPanel.classList.toggle("hidden", tab !== "whitelist");
-  weeklyResetTabPanel.classList.toggle("hidden", tab !== "weeklyReset");
   scheduleTabPanel.classList.toggle("hidden", tab !== "schedule");
   docsTabPanel.classList.toggle("hidden", tab !== "docs");
   blogTabPanel.classList.toggle("hidden", tab !== "blog");
@@ -124,7 +116,6 @@ function switchAdminTab(tab) {
   if (tab === "registration") loadRegistrationForm();
   if (tab === "whitelist") loadWhitelistForm();
   if (tab === "rename") renderRenameList();
-  if (tab === "weeklyReset") loadWeeklyResetForm();
   if (tab === "schedule") loadScheduleForm();
   if (tab === "docs") loadDocsManage();
   if (tab === "blog") loadBlogManage();
@@ -914,102 +905,7 @@ window.deleteUserData = async (uid, email) => {
   showNotice(has?"Đã xóa hồ sơ user và gỡ whitelist.":"Đã xóa email khỏi whitelist.", "success");
 };
 
-// ================= WEEKLY RESET =================
-async function loadWeeklyResetForm() {
-  const currentWeek = getWeekKey();
-  weeklyResetCurrentWeek.textContent = currentWeek;
-  try {
-    const { data: d } = await supabase.from("weekly_reset").select("*").eq("id", true).maybeSingle();
-    if (d) {
-      weeklyResetLastTime.textContent = d.last_reset_at ? formatDate(d.last_reset_at) : "Chưa từng reset";
-      weeklyResetLastBy.textContent = d.last_reset_by || "—";
-      weeklyResetStatusBanner.textContent = `Tuần ${currentWeek} · Đã reset ${d.reset_count || 0} lần`;
-      weeklyResetStatusBanner.style.background = "#eff6ff";
-      weeklyResetStatusBanner.style.color = "#1e40af";
-      weeklyResetStatusBanner.style.border = "1px solid #bfdbfe";
-    } else {
-      weeklyResetLastTime.textContent = "Chưa từng reset";
-      weeklyResetLastBy.textContent = "—";
-      weeklyResetStatusBanner.textContent = `Tuần ${currentWeek} · Chưa từng reset`;
-      weeklyResetStatusBanner.style.background = "#f8fafc";
-      weeklyResetStatusBanner.style.color = "#64748b";
-      weeklyResetStatusBanner.style.border = "1px solid #e2e8f0";
-    }
-  } catch (e) {
-    console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") });
-    weeklyResetStatusBanner.textContent = "Không tải được thông tin reset.";
-    weeklyResetStatusBanner.style.background = "#fef2f2";
-    weeklyResetStatusBanner.style.color = "#b91c1c";
-    weeklyResetStatusBanner.style.border = "1px solid #fecaca";
-  }
-}
-
-document.getElementById("manualResetBtn").addEventListener("click", async () => {
-  const resetScore = document.getElementById("resetScoreCheck").checked;
-  const resetTime = document.getElementById("resetTimeCheck").checked;
-
-  if(!resetScore && !resetTime){
-    showNotice("Vui lòng chọn ít nhất một mục cần reset.", "warning");
-    return;
-  }
-
-  const modal = document.getElementById("confirmModal");
-  const mI = document.getElementById("confirmModalIcon");
-  const mT = document.getElementById("confirmModalTitle");
-  const mM = document.getElementById("confirmModalMessage");
-  const cB = document.getElementById("confirmModalConfirm");
-
-  const targets = [];
-  if(resetScore) targets.push("điểm số");
-  if(resetTime) targets.push("thời gian online");
-
-  mI.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
-  mT.textContent = `Reset ${targets.join(" & ")}?`;
-  mM.textContent = `Hành động này sẽ reset ${targets.join(" và ")}. Bạn có chắc?`;
-  modal.classList.add("active");
-
-  const onConfirm = async () => {
-    modal.classList.remove("active");
-    cB.removeEventListener("click", onConfirm);
-    document.getElementById("confirmModalCancel").removeEventListener("click", onCancel);
-
-    const btn = document.getElementById("manualResetBtn");
-    btn.disabled = true;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Đang reset...';
-
-    try {
-      const currentWeek = getWeekKey();
-
-      const { data, error } = await supabase.rpc("admin_bulk_reset_weekly", {
-        p_week_key: currentWeek,
-        p_reset_score: resetScore,
-        p_reset_time: resetTime,
-        p_admin_email: adminEmail
-      });
-      if (error) throw error;
-
-      const count = data?.count || 0;
-      showNotice(`Đã reset ${targets.join(" & ")} thành công cho ${count} user.`, "success");
-      await loadWeeklyResetForm();
-    } catch (e) {
-      console.error(e); if (window.logAppError) window.logAppError({ source: "admin", category: "dashboard", level: "error", code: "ADMIN_OP_FAIL", message: String((e && e.message) || e || "") });
-      showNotice("Reset thất bại.", "error");
-    }
-
-    btn.disabled = false;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Reset ngay bây giờ';
-  };
-
-  const onCancel = () => {
-    modal.classList.remove("active");
-    cB.removeEventListener("click", onConfirm);
-    document.getElementById("confirmModalCancel").removeEventListener("click", onCancel);
-  };
-
-  cB.addEventListener("click", onConfirm);
-  document.getElementById("confirmModalCancel").addEventListener("click", onCancel);
-});
-
+// ================= LOGOUT ALL =================
 document.getElementById("logoutAllBtn").addEventListener("click", async () => {
   const onlineCount = userDocs.filter(i => i.online && i.last_active && (Date.now() - i.last_active) < 10000).length;
   if(onlineCount === 0){ showNotice("Không có user nào đang online.", "info"); return; }
@@ -1353,24 +1249,6 @@ supabase.auth.onAuthStateChange(async (event, session) => {
   updateRegistrationBadge(reg && reg.enabled);
   await loadWhitelistForm(); // ← thêm: hiển thị trạng thái whitelist ngay khi load xong
 });
-
-// Relay admin session to leaderboard iframe
-const leaderboardFrame = document.getElementById("leaderboardFrame");
-async function sendAdminSessionToLeaderboard() {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session && leaderboardFrame && leaderboardFrame.contentWindow) {
-      leaderboardFrame.contentWindow.postMessage({
-        type: "ADMIN_SESSION",
-        accessToken: session.access_token,
-        refreshToken: session.refresh_token
-      }, location.origin);
-    }
-  } catch(e) {}
-}
-if (leaderboardFrame) {
-  leaderboardFrame.addEventListener("load", sendAdminSessionToLeaderboard);
-}
 
 // Tự refresh dashboard + quét user online hết hạn (crash) mỗi 30s → chống báo online ảo.
 function startDashboardRefresh() {

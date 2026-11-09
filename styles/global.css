@@ -3840,7 +3840,6 @@ body.cc-glass-off .cc-logout-overlay,
 body.cc-glass-off .lh-popup-overlay,
 body.cc-glass-off .lh-version-popup,
 body.cc-glass-off .lh-qr-overlay,
-body.cc-glass-off #lb-modal,
 body.cc-glass-off #schedule-modal {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;

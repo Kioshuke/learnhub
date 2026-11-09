@@ -49,20 +49,6 @@ create table if not exists public.access_list (
   updated_at timestamptz
 );
 
-create table if not exists public.test_stats (
-  user_id     text primary key,
-  total_tests int not null default 0,
-  total_score double precision not null default 0,
-  best_score  double precision not null default 0,
-  total_videos int not null default 0,
-  week_key    text,
-  created_at  timestamptz,
-  last_played timestamptz,
-  updated_at  timestamptz
-);
-
-alter table public.test_stats add column if not exists total_videos int not null default 0;
-
 -- Registration toggle: admin bật/tắt đăng ký, whitelist vẫn bypass được.
 create table if not exists public.registration_settings (
   id         boolean primary key default true check (id),
@@ -78,16 +64,6 @@ create table if not exists public.maintenance_settings (
   message    text not null default '',
   updated_at timestamptz,
   updated_by text
-);
-
-create table if not exists public.weekly_reset (
-  id            boolean primary key default true check (id),
-  last_reset_at timestamptz,
-  last_reset_by text,
-  week_key      text,
-  reset_count   int not null default 0,
-  users_reset   int,
-  reset_targets text
 );
 
 create table if not exists public.broadcast_current (
@@ -262,9 +238,7 @@ create index if not exists error_logs_level_idx on public.error_logs (level);
 
 alter table public.users enable row level security;
 alter table public.access_list enable row level security;
-alter table public.test_stats enable row level security;
 alter table public.maintenance_settings enable row level security;
-alter table public.weekly_reset enable row level security;
 alter table public.broadcast_current enable row level security;
 alter table public.broadcast_welcome enable row level security;
 alter table public.ticker_settings enable row level security;
@@ -652,22 +626,6 @@ drop policy if exists access_list_write_admin on public.access_list;
 create policy access_list_write_admin on public.access_list
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
-drop policy if exists test_stats_select on public.test_stats;
-create policy test_stats_select on public.test_stats
-  for select to authenticated using (true);
-
-drop policy if exists test_stats_insert_own on public.test_stats;
-create policy test_stats_insert_own on public.test_stats
-  for insert to authenticated with check (user_id = auth.uid()::text);
-
-drop policy if exists test_stats_update_own on public.test_stats;
-create policy test_stats_update_own on public.test_stats
-  for update to authenticated using (user_id = auth.uid()::text) with check (user_id = auth.uid()::text);
-
-drop policy if exists test_stats_write_admin on public.test_stats;
-create policy test_stats_write_admin on public.test_stats
-  for all to authenticated using (public.is_admin()) with check (public.is_admin());
-
 drop policy if exists maintenance_select on public.maintenance_settings;
 create policy maintenance_select on public.maintenance_settings
   for select to authenticated using (true);
@@ -693,56 +651,6 @@ create policy registration_select_anon on public.registration_settings
 drop policy if exists registration_write_admin on public.registration_settings;
 create policy registration_write_admin on public.registration_settings
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
-
-drop policy if exists weekly_reset_select on public.weekly_reset;
-create policy weekly_reset_select on public.weekly_reset
-  for select to authenticated using (true);
-
-drop policy if exists weekly_reset_write_admin on public.weekly_reset;
-create policy weekly_reset_write_admin on public.weekly_reset
-  for all to authenticated using (public.is_admin()) with check (public.is_admin());
-
--- Ghi nhận lần reset tự động của tuần mới (kích hoạt bởi user đầu tiên đăng nhập/làm bài
--- trong tuần mới — điểm cũ tự reset qua week_key). Chỉ ghi 1 lần/tuần: nếu week_key đã
--- khớp tuần hiện tại thì bỏ qua. Security definer để user thường ghi được dù RLS chỉ cho admin.
--- Reset toàn bộ online_timer về 0 và gắn online_week_key tuần mới.
--- online_start_time = 0: users_begin_online thấy start=0 → nhánh fresh-start set start=now.
--- KHÔNG set = weekStart vì gây race condition: begin_online (chạy cùng page load) set
--- start=now rồi reset ghi đè lại weekStart → leaderboard tính (now - weekStart) = sai số giờ.
-create or replace function public.record_auto_weekly_reset(p_week_key text)
-returns void
-language plpgsql security definer
-set search_path = public
-as $$
-declare
-  v_count int;
-begin
-  update public.users
-     set online_timer      = 0,
-         online_start_time = 0,
-         online_week_key   = p_week_key
-   where (online_week_key is distinct from p_week_key);
-
-  select reset_count into v_count from public.weekly_reset where id = true;
-  if v_count is null then
-    insert into public.weekly_reset (id, last_reset_at, last_reset_by, week_key, reset_count, users_reset, reset_targets)
-    values (true, now(), 'Hệ thống', p_week_key, 1, 1, 'Điểm số & Thời gian online (tự động theo tuần)');
-    return;
-  end if;
-  update public.weekly_reset
-     set last_reset_at = now(),
-         last_reset_by = 'Hệ thống',
-         week_key      = p_week_key,
-         reset_count   = v_count + 1,
-         users_reset   = coalesce(users_reset, 0) + 1,
-         reset_targets = 'Điểm số & Thời gian online (tự động theo tuần)'
-   where id = true
-     and (week_key is distinct from p_week_key);
-end;
-$$;
-
-revoke execute on function public.record_auto_weekly_reset(text) from public;
-grant execute on function public.record_auto_weekly_reset(text) to authenticated;
 
 drop policy if exists broadcast_current_select on public.broadcast_current;
 create policy broadcast_current_select on public.broadcast_current
@@ -1325,26 +1233,59 @@ create trigger trg_users_prevent_privilege_insert
 --                         online thật (start -> last_active) nếu phiên cũ bị gián đoạn.
 --   users_finalize_online: kết thúc phiên, cộng dồn đúng (now - start), reset start.
 --   users_cleanup_stale_online: admin quét user online hết hạn (crash) → finalize thay thế.
+create or replace function public.current_period_key()
+returns text
+language sql stable
+as $$
+  select to_char((now() at time zone 'Asia/Ho_Chi_Minh'), 'YYYY-MM');
+$$;
+
+create or replace function public.current_period_start_ms()
+returns bigint
+language sql stable
+as $$
+  select (extract(epoch from (
+           date_trunc('month', (now() at time zone 'Asia/Ho_Chi_Minh'))
+             at time zone 'Asia/Ho_Chi_Minh'
+         )) * 1000)::bigint;
+$$;
+
+revoke execute on function public.current_period_key() from public, anon;
+revoke execute on function public.current_period_start_ms() from public, anon;
+grant execute on function public.current_period_key() to authenticated;
+grant execute on function public.current_period_start_ms() to authenticated;
+
 create or replace function public.users_begin_online(p_uid text)
 returns void
 language plpgsql security definer
 set search_path = public
 as $$
 declare
-  now_ms bigint := (extract(epoch from clock_timestamp()) * 1000)::bigint;
+  now_ms     bigint := (extract(epoch from clock_timestamp()) * 1000)::bigint;
+  v_key      text   := public.current_period_key();
+  v_start_ms bigint := public.current_period_start_ms();
   r record;
 begin
   if auth.uid()::text <> p_uid and not public.is_admin() then
     raise exception 'Forbidden';
   end if;
 
-  select online_start_time, last_active into r
+  select online_start_time, last_active, online_week_key into r
     from public.users where id = p_uid for update;
 
-  if r.online_start_time is null or r.online_start_time = 0 then
+  if r.online_week_key is distinct from v_key then
+    -- Sang tháng mới: reset bộ đếm về 0; phiên mở mới bắt đầu đếm từ bây giờ (tránh cộng giờ ảo).
+    update public.users
+      set online = true,
+          last_active = now_ms,
+          online_start_time = now_ms,
+          online_timer = 0,
+          online_week_key = v_key
+      where id = p_uid and not coalesce(disabled, false);
+  elsif r.online_start_time is null or r.online_start_time = 0 then
     -- Phiên mới: bắt đầu đếm từ bây giờ
     update public.users
-      set online = true, last_active = now_ms, online_start_time = now_ms
+      set online = true, last_active = now_ms, online_start_time = now_ms, online_week_key = v_key
       where id = p_uid and not coalesce(disabled, false);
   elsif r.last_active is not null and (now_ms - r.last_active) < 900000 then
     -- Phiên vẫn liên tục (heartbeat gần đây): giữ start, chỉ refresh last_active/online
@@ -1358,6 +1299,7 @@ begin
       set online = true,
           last_active = now_ms,
           online_start_time = now_ms,
+          online_week_key = v_key,
           online_timer = online_timer + case
             when r.last_active is not null and r.online_start_time > 0
               then greatest(0, (least(r.last_active, now_ms) - r.online_start_time)) / 1000
@@ -1373,23 +1315,29 @@ language plpgsql security definer
 set search_path = public
 as $$
 declare
-  now_ms bigint := (extract(epoch from clock_timestamp()) * 1000)::bigint;
+  now_ms     bigint := (extract(epoch from clock_timestamp()) * 1000)::bigint;
+  v_key      text   := public.current_period_key();
+  v_start_ms bigint := public.current_period_start_ms();
   r record;
 begin
   if auth.uid()::text <> p_uid and not public.is_admin() then
     raise exception 'Forbidden';
   end if;
 
-  select online_start_time into r from public.users where id = p_uid for update;
+  select online_start_time, online_week_key, last_active into r
+    from public.users where id = p_uid for update;
 
   update public.users
     set online = false,
         last_active = now_ms,
         online_start_time = 0,
-        online_timer = online_timer + case
-          when coalesce(r.online_start_time,0) > 0
-            then greatest(0, (now_ms - r.online_start_time)) / 1000
-          else 0 end
+        online_week_key = v_key,
+        online_timer = case
+          when r.online_week_key is distinct from v_key then
+            greatest(0, (least(coalesce(r.last_active, now_ms), now_ms) - v_start_ms)) / 1000
+          when coalesce(r.online_start_time, 0) > 0 then
+            online_timer + greatest(0, (now_ms - r.online_start_time)) / 1000
+          else online_timer end
     where id = p_uid;
 end;
 $$;
@@ -1400,7 +1348,9 @@ language plpgsql security definer
 set search_path = public
 as $$
 declare
-  now_ms bigint := (extract(epoch from clock_timestamp()) * 1000)::bigint;
+  now_ms     bigint := (extract(epoch from clock_timestamp()) * 1000)::bigint;
+  v_key      text   := public.current_period_key();
+  v_start_ms bigint := public.current_period_start_ms();
   n integer;
 begin
   if not public.is_admin() then
@@ -1410,10 +1360,13 @@ begin
   update public.users
     set online = false,
         online_start_time = 0,
-        online_timer = online_timer + case
-          when coalesce(online_start_time,0) > 0 and last_active is not null
-            then greatest(0, (least(last_active, now_ms) - online_start_time)) / 1000
-          else 0 end
+        online_week_key = v_key,
+        online_timer = case
+          when online_week_key is distinct from v_key then
+            greatest(0, (least(coalesce(last_active, now_ms), now_ms) - v_start_ms)) / 1000
+          when coalesce(online_start_time, 0) > 0 and last_active is not null then
+            online_timer + greatest(0, (least(last_active, now_ms) - online_start_time)) / 1000
+          else online_timer end
     where online = true
       and (last_active is null or (now_ms - last_active) > p_stale_ms);
 
@@ -1425,13 +1378,16 @@ $$;
 -- Heartbeat nhẹ: chỉ cập nhật last_active + online, KHÔNG đếm thời gian.
 -- Dùng thay cho update trực tiếp từ client → tất cả writes đi qua server,
 -- dùng clock_timestamp() (server time) chống gian lận chỉnh giờ máy.
+-- Nếu sang tháng mới thì reset bộ đếm online ngay tại đây.
 create or replace function public.users_heartbeat(p_uid text)
 returns void
 language plpgsql security definer
 set search_path = public
 as $$
 declare
-  now_ms bigint := (extract(epoch from clock_timestamp()) * 1000)::bigint;
+  now_ms     bigint := (extract(epoch from clock_timestamp()) * 1000)::bigint;
+  v_key      text   := public.current_period_key();
+  v_start_ms bigint := public.current_period_start_ms();
 begin
   if auth.uid()::text <> p_uid and not public.is_admin() then
     raise exception 'Forbidden';
@@ -1439,7 +1395,10 @@ begin
 
   update public.users
     set last_active = now_ms,
-        online = true
+        online = true,
+        online_week_key = v_key,
+        online_timer = case when online_week_key is distinct from v_key then 0 else online_timer end,
+        online_start_time = case when online_week_key is distinct from v_key then v_start_ms else online_start_time end
     where id = p_uid
       and not coalesce(disabled, false)
       and online = true;
@@ -1456,74 +1415,59 @@ grant execute on function public.users_begin_online(text) to authenticated;
 grant execute on function public.users_finalize_online(text) to authenticated;
 grant execute on function public.users_cleanup_stale_online(bigint) to authenticated;
 
--- Reset tuần: reset điểm số / thời gian online của tất cả user trong 1 RPC call duy nhất.
--- Thay thế loop N+1 requests trên client.
-create or replace function public.admin_bulk_reset_weekly(
-  p_week_key    text,
-  p_reset_score boolean,
-  p_reset_time  boolean,
-  p_admin_email text
-) returns jsonb
-language plpgsql security definer
+-- ============================== LEADERBOARD THEO THÁNG ==============================
+-- Điểm xếp hạng tính trực tiếp từ test_attempts trong tháng hiện tại (giờ VN) →
+-- tự "reset" mỗi tháng, không cần bảng đếm sẵn. Thời gian online đọc từ users
+-- (cột online_week_key nay lưu khoá tháng 'YYYY-MM').
+-- Đảm bảo cột thời gian tồn tại (bảng có thể được tạo từ schema cũ thiếu cột).
+alter table public.watched_videos add column if not exists watched_at timestamptz not null default now();
+alter table public.test_attempts add column if not exists created_at timestamptz not null default now();
+
+drop function if exists public.leaderboard_scores(integer);
+create or replace function public.leaderboard_scores(p_limit integer default 50)
+returns table (
+  user_id      text,
+  name         text,
+  email        text,
+  photo        text,
+  total_score  numeric,
+  total_tests  bigint,
+  total_videos bigint,
+  best_score   numeric
+)
+language sql stable security definer
 set search_path = public
 as $$
-declare
-  v_count integer := 0;
-  v_prev  integer;
-begin
-  if not public.is_admin() then
-    raise exception 'Forbidden';
-  end if;
-
-  if p_reset_score then
-    update public.test_stats
-       set total_tests = 0,
-           total_score = 0,
-           best_score  = 0,
-           week_key    = p_week_key,
-           updated_at  = now();
-    get diagnostics v_count = row_count;
-  end if;
-
-  if p_reset_time then
-    update public.users
-       set online_timer      = 0,
-           online_start_time = 0,
-           online_week_key   = p_week_key;
-    if not p_reset_score then
-      get diagnostics v_count = row_count;
-    end if;
-  end if;
-
-  select coalesce(reset_count, 0) into v_prev
-    from public.weekly_reset where id = true;
-
-  insert into public.weekly_reset (id, last_reset_at, last_reset_by, week_key, reset_count, users_reset, reset_targets)
-  values (
-    true,
-    now(),
-    p_admin_email,
-    p_week_key,
-    coalesce(v_prev, 0) + 1,
-    v_count,
-    case when p_reset_score and p_reset_time then 'điểm số & thời gian online'
-         when p_reset_score then 'điểm số'
-         else 'thời gian online' end
+  with m as (
+    select (date_trunc('month', (now() at time zone 'Asia/Ho_Chi_Minh'))
+              at time zone 'Asia/Ho_Chi_Minh') as ts
+  ),
+  agg as (
+    select a.user_id,
+           coalesce(sum(a.score), 0)::numeric as total_score,
+           count(*)::bigint                  as total_tests,
+           coalesce(max(a.score), 0)::numeric as best_score
+      from public.test_attempts a, m
+     where a.created_at >= m.ts
+     group by a.user_id
   )
-  on conflict (id) do update
-    set last_reset_at  = excluded.last_reset_at,
-        last_reset_by  = excluded.last_reset_by,
-        week_key       = excluded.week_key,
-        reset_count    = public.weekly_reset.reset_count + 1,
-        users_reset    = excluded.users_reset,
-        reset_targets  = excluded.reset_targets;
-
-  return jsonb_build_object('count', v_count);
-end;
+  select u.id, u.name, u.email, u.photo,
+         agg.total_score,
+         agg.total_tests,
+         coalesce((select count(*)
+                     from public.watched_videos w, m
+                    where w.user_id = u.id and w.watched_at >= m.ts), 0)::bigint as total_videos,
+         agg.best_score
+    from agg
+    join public.users u on u.id = agg.user_id
+   where not coalesce(u.disabled, false)
+     and agg.total_score > 0
+   order by agg.total_score desc, agg.total_tests desc
+   limit p_limit;
 $$;
 
-revoke execute on function public.admin_bulk_reset_weekly(text, boolean, boolean, text) from public;
-grant execute on function public.admin_bulk_reset_weekly(text, boolean, boolean, text) to authenticated;
+revoke all on function public.leaderboard_scores(integer) from public, anon;
+grant execute on function public.leaderboard_scores(integer) to authenticated;
 
 -- ============================================================
 -- Migration: Append signature to existing mailbox messages
