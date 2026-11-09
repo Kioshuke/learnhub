@@ -1,4 +1,4 @@
-const SAFE_TEXT_TAGS = ["b", "i", "u", "em", "strong", "br", "span", "code"];
+const SAFE_TEXT_TAGS = ["b", "i", "u", "em", "strong", "br", "span", "code", "sub", "sup"];
 /* Text câu hỏi: bỏ in đậm (khung câu hỏi đã đậm sẵn), giữ in nghiêng/gạch chân/... */
 const QUESTION_TEXT_TAGS = SAFE_TEXT_TAGS.filter((tag) => tag !== "b" && tag !== "strong");
 
