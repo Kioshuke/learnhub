@@ -847,42 +847,6 @@
 
     <!-- USERS TABLE -->
     <section class="panel tab-panel" id="usersTabPanel">
-      <div class="panel" style="margin-bottom:16px" id="overviewPanel">
-        <div class="panel-head">
-          <div>
-            <div class="panel-title">Báo cáo tổng quan</div>
-            <div class="panel-desc" style="margin-bottom:0">Thống kê tổng hợp từ bài làm và người dùng.</div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <select id="overviewRange" class="select" style="width:140px">
-              <option value="week">Tuần này</option>
-              <option value="month" selected>Tháng này</option>
-              <option value="all">Tất cả</option>
-            </select>
-            <button class="btn btn-soft" id="overviewExportCsv" type="button">Xuất CSV</button>
-            <button class="btn btn-soft" id="overviewRefreshBtn" type="button">Làm mới</button>
-          </div>
-        </div>
-        <div id="overviewBody">
-          <div id="overviewKpi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px"></div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:14px">
-            <div class="card" style="padding:12px"><canvas id="chartTopScore" height="220"></canvas></div>
-            <div class="card" style="padding:12px"><canvas id="chartTopOnline" height="220"></canvas></div>
-            <div class="card" style="padding:12px"><canvas id="chartAttemptsDay" height="220"></canvas></div>
-            <div class="card" style="padding:12px"><canvas id="chartScoreDist" height="220"></canvas></div>
-            <div class="card" style="padding:12px"><canvas id="chartBySubject" height="220"></canvas></div>
-            <div class="card" style="padding:12px"><canvas id="chartScoreTrend" height="220"></canvas></div>
-          </div>
-          <div class="sheet-wrap">
-            <div class="sheet-scroll">
-              <table class="sheet-table">
-                <thead><tr><th>User</th><th>Số bài</th><th>Điểm TB</th><th>Best</th><th>Giờ online</th></tr></thead>
-                <tbody id="overviewTableBody"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
       <div class="inline-form">
         <input id="allowEmailInput" class="input" type="email" placeholder="Nhập email cần thêm vào whitelist">
         <button class="btn btn-primary" id="addWhitelistBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Thêm</button>
