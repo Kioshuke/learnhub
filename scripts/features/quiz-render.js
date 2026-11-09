@@ -250,7 +250,7 @@ function renderQuestion(question, questionIndex, { mode, canReveal }) {
   if (mode === "review" && canReveal && result !== null) cardClass += result ? " review-true" : " review-false";
   const canShowExplanation = (mode === "review" || mode === "preview") && !!canReveal && question.explanation;
   const explanationHtml = canShowExplanation ? `<details class="q-explanation"><summary class="exp-label">Hiện giải thích</summary><div class="exp-body">${sanitizeHtml(question.explanation)}</div></details>` : "";
-  const html = `<div class="${cardClass}" id="card-${questionIndex}"><div class="q-header"><span class="q-badge">Câu ${questionIndex + 1}</span><span>${sanitizeQuestionText(heading)}</span></div>${imageHtml}${content}${explanationHtml}</div>`;
+  const html = `<div class="${cardClass}" id="card-${questionIndex}"><button type="button" class="q-flag" onclick="toggleFlag(this)" title="Cần xem lại" aria-label="Đánh dấu cần xem lại"><i class="fas fa-flag"></i><span class="q-flag-text">Cần xem lại</span></button><div class="q-header"><span class="q-badge">Câu ${questionIndex + 1}</span><span>${sanitizeQuestionText(heading)}</span></div>${imageHtml}${content}${explanationHtml}</div>`;
   return { html, result };
 }
 
@@ -280,4 +280,24 @@ export function renderQuizHtml(sections, { mode = "take", canReveal = false, sta
 
   html += `<div class="quiz-end-marker"><span></span><b>Hết</b><span></span></div>`;
   return { html, navHtml, results };
+}
+
+/* Đánh dấu lá cờ "Cần xem lại" */
+if (typeof window !== "undefined") {
+  window.toggleFlag = function (btn) {
+    if (!btn) return;
+    var flagged = btn.classList.toggle("flagged");
+    try {
+      var card = btn.closest ? btn.closest(".question-card") : null;
+      var idx = null;
+      if (card && card.id) {
+        var m = card.id.match(/card-(\d+)/);
+        if (m) idx = m[1];
+      }
+      if (idx !== null) {
+        var nav = document.getElementById("nav-" + idx);
+        if (nav) nav.classList.toggle("nav-flagged", flagged);
+      }
+    } catch (e) {}
+  };
 }

@@ -5894,3 +5894,17 @@ body.sticky-header.header-scrolled .ticker-container{
 }
 
 
+
+/* === La co "Can xem lai" tren question-card === */
+.question-card { position: relative; }
+.q-flag { position: absolute; top: -12px; left: 8px; z-index: 2; display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border: 1.5px dashed #cbd5e1; border-radius: 999px; background: transparent; color: #94a3b8; font-size: 11px; font-weight: 700; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .18s ease, background .18s ease, color .18s ease, border-color .18s ease; }
+.question-card:hover .q-flag { opacity: 1; pointer-events: auto; }
+.q-flag i { font-size: 11px; }
+.q-flag-text { display: none; }
+.q-flag.flagged { opacity: 1; pointer-events: auto; background: #fef9c3; border-color: #eab308; color: #eab308; }
+.q-flag.flagged .q-flag-text { display: inline; }
+.q-flag:hover { color: #64748b; border-color: #94a3b8; }
+.q-flag.flagged:hover { color: #ca8a04; }
+
+/* Muc luc: cau danh dau "Can xem lai" to mau vang */
+.nav-item.nav-flagged { background: #fef9c3 !important; color: #a16207 !important; border-color: #eab308 !important; }
