@@ -167,7 +167,7 @@ function optionsHtml({ answers, chosen, correct, mode, canReveal, questionIndex,
   return { html, result: evaluate ? isCorrect : null };
 }
 
-function renderQuestion(question, questionIndex, { mode, canReveal }) {
+function renderQuestion(question, questionIndex, { mode, canReveal, english = false }) {
   const type = question.type || "multiple";
   const marker = extractImageMarker(question.question);
   const questionText = marker ? marker.text : String(question.question || "");
@@ -250,12 +250,26 @@ function renderQuestion(question, questionIndex, { mode, canReveal }) {
   if (mode === "review" && canReveal && result !== null) cardClass += result ? " review-true" : " review-false";
   const canShowExplanation = (mode === "review" || mode === "preview") && !!canReveal && question.explanation;
   const explanationHtml = canShowExplanation ? `<details class="q-explanation"><summary class="exp-label">Hiện giải thích</summary><div class="exp-body">${sanitizeHtml(question.explanation)}</div></details>` : "";
-  const html = `<div class="${cardClass}" id="card-${questionIndex}"><button type="button" class="q-flag" onclick="toggleFlag(this)" title="Cần xem lại" aria-label="Đánh dấu cần xem lại"><i class="fas fa-flag"></i><span class="q-flag-text">Cần xem lại</span></button><div class="q-header"><span class="q-badge">Câu ${questionIndex + 1}</span><span>${sanitizeQuestionText(heading)}</span></div>${imageHtml}${content}${explanationHtml}</div>`;
+  const html = `<div class="${cardClass}" id="card-${questionIndex}"><button type="button" class="q-flag" onclick="toggleFlag(this)" title="Cần xem lại" aria-label="Đánh dấu cần xem lại"><i class="fas fa-flag"></i><span class="q-flag-text">Cần xem lại</span></button><div class="q-header"><span class="q-badge">${english ? "Question" : "Câu"} ${questionIndex + 1}</span><span>${sanitizeQuestionText(heading)}</span></div>${imageHtml}${content}${explanationHtml}</div>`;
   return { html, result };
 }
 
+export function isEnglishTest(sections) {
+  const list = Array.isArray(sections) ? sections : [];
+  return list.some((section) => {
+    if (!section || typeof section !== "object") return false;
+    if (section.type === "listening") return true;
+    const title = String(section.sectionTitle || section.title || "");
+    if (/^(part|section)\s*\d/i.test(title.trim())) return true;
+    const questions = Array.isArray(section.questions) ? section.questions : [];
+    return questions.some((q) => {
+      const text = String((q && (q.question || q.title)) || "");
+      return /^(question)\s*\d/i.test(text.trim());
+    });
+  });
+}
 export function renderQuizHtml(sections, { mode = "take", canReveal = false, startIndex = 0 } = {}) {
-  const renderMode = mode === "review" ? "review" : (mode === "preview" ? "preview" : "take");
+  const english = isEnglishTest(sections);
   const list = Array.isArray(sections) ? sections : [];
   let questionIndex = Math.max(0, Number(startIndex) || 0);
   const results = [];
@@ -268,7 +282,7 @@ export function renderQuizHtml(sections, { mode = "take", canReveal = false, sta
     html += sectionAudioHtml(section);
     if (section.sectionTitle) navHtml += `<div class="nav-section-label">${sanitizeHtml(section.sectionTitle)}</div>`;
     (Array.isArray(section.questions) ? section.questions : []).forEach((question) => {
-      const rendered = renderQuestion(question || {}, questionIndex, { mode: renderMode, canReveal: !!canReveal });
+      const rendered = renderQuestion(question || {}, questionIndex, { mode: renderMode, canReveal: !!canReveal, english });
       html += rendered.html;
       results.push(rendered.result);
       const navResult = rendered.result;
