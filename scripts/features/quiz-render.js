@@ -71,7 +71,6 @@ export function imageFieldUrl(value) {
   return safeUrl(normalizeImageUrl(marker && !marker.text ? marker.url : source));
 }
 
-/* Nguồn ảnh dự phòng cho Google Drive: endpoint lh3 thường ổn định hơn thumbnail */
 export function driveAltUrl(value) {
   const url = String(value == null ? "" : value);
   const match = url.match(/drive\.google\.com\/thumbnail\?[^#]*?\bid=([^&#]+)/i)
@@ -79,7 +78,6 @@ export function driveAltUrl(value) {
   return match ? `https://lh3.googleusercontent.com/d/${match[1]}` : "";
 }
 
-/* Thuộc tính <img> cho ảnh câu hỏi: tự thử nguồn dự phòng, hết cách thì báo lỗi rõ ràng */
 export function imageErrorAttrs(url) {
   const alt = driveAltUrl(url);
   return ` loading="lazy"${alt ? ` data-fb="${esc(alt)}"` : ""} data-src="${esc(url)}" onerror="lhImageError(this)"`;
@@ -167,7 +165,7 @@ function optionsHtml({ answers, chosen, correct, mode, canReveal, questionIndex,
   return { html, result: evaluate ? isCorrect : null };
 }
 
-function renderQuestion(question, questionIndex, { mode, canReveal, english = false }) {
+function renderQuestion(question, questionIndex, { mode = "take", canReveal = false, english = false }) {
   const type = question.type || "multiple";
   const marker = extractImageMarker(question.question);
   const questionText = marker ? marker.text : String(question.question || "");
@@ -178,7 +176,9 @@ function renderQuestion(question, questionIndex, { mode, canReveal, english = fa
   let result = null;
 
   if (type === "multiple") {
-    if (question.title && questionText && questionText !== question.title) content += `<div class="question-prompt">${sanitizeQuestionText(questionText)}</div>`;
+    if (question.title && questionText && questionText !== question.title) {
+      content += `<div class="question-prompt">${sanitizeQuestionText(questionText)}</div>`;
+    }
     const options = optionsHtml({ answers: question.answers, chosen: question.chosen, correct: question.correct, mode, canReveal, questionIndex });
     content += options.html;
     result = options.result;
@@ -250,7 +250,8 @@ function renderQuestion(question, questionIndex, { mode, canReveal, english = fa
   if (mode === "review" && canReveal && result !== null) cardClass += result ? " review-true" : " review-false";
   const canShowExplanation = (mode === "review" || mode === "preview") && !!canReveal && question.explanation;
   const explanationHtml = canShowExplanation ? `<details class="q-explanation"><summary class="exp-label">Hiện giải thích</summary><div class="exp-body">${sanitizeHtml(question.explanation)}</div></details>` : "";
-  const html = `<div class="${cardClass}" id="card-${questionIndex}"><button type="button" class="q-flag" onclick="toggleFlag(this)" title="Cần xem lại" aria-label="Đánh dấu cần xem lại"><i class="fas fa-flag"></i><span class="q-flag-text">Cần xem lại</span></button><div class="q-header"><span class="q-badge">${english ? "Question" : "Câu"} ${questionIndex + 1}</span><span>${sanitizeQuestionText(heading)}</span></div>${imageHtml}${content}${explanationHtml}</div>`;
+  const badgeLabel = english ? "Question" : "Câu";
+  const html = `<div class="${cardClass}" id="card-${questionIndex}"><button type="button" class="q-flag" onclick="toggleFlag(this)" title="Cần xem lại" aria-label="Đánh dấu cần xem lại"><i class="fas fa-flag"></i><span class="q-flag-text">Cần xem lại</span></button><div class="q-header"><span class="q-badge">${badgeLabel} ${questionIndex + 1}</span><span>${sanitizeQuestionText(heading)}</span></div>${imageHtml}${content}${explanationHtml}</div>`;
   return { html, result };
 }
 
@@ -260,14 +261,15 @@ export function isEnglishTest(sections) {
     if (!section || typeof section !== "object") return false;
     if (section.type === "listening") return true;
     const title = String(section.sectionTitle || section.title || "");
-    if (/^(part|section)\s*\d/i.test(title.trim())) return true;
+    if (/^(part|section|mark the letter|read the passage|read the following)/i.test(title.trim())) return true;
     const questions = Array.isArray(section.questions) ? section.questions : [];
     return questions.some((q) => {
       const text = String((q && (q.question || q.title)) || "");
-      return /^(question)\s*\d/i.test(text.trim());
+      return /^(question)\s*\d/i.test(text.trim()) || /[A-D]\.\s+[a-z0-9]/i.test(text);
     });
   });
 }
+
 export function renderQuizHtml(sections, { mode = "take", canReveal = false, startIndex = 0 } = {}) {
   const english = isEnglishTest(sections);
   const list = Array.isArray(sections) ? sections : [];
@@ -282,11 +284,11 @@ export function renderQuizHtml(sections, { mode = "take", canReveal = false, sta
     html += sectionAudioHtml(section);
     if (section.sectionTitle) navHtml += `<div class="nav-section-label">${sanitizeHtml(section.sectionTitle)}</div>`;
     (Array.isArray(section.questions) ? section.questions : []).forEach((question) => {
-      const rendered = renderQuestion(question || {}, questionIndex, { mode: renderMode, canReveal: !!canReveal, english });
+      const rendered = renderQuestion(question || {}, questionIndex, { mode, canReveal: !!canReveal, english });
       html += rendered.html;
       results.push(rendered.result);
       const navResult = rendered.result;
-      const navClass = renderMode === "review" && canReveal && navResult !== null ? (navResult ? " nav-correct" : " nav-wrong") : "";
+      const navClass = mode === "review" && canReveal && navResult !== null ? (navResult ? " nav-correct" : " nav-wrong") : "";
       navHtml += `<div class="nav-item${navClass}" id="nav-${questionIndex}" onclick="scrollToQuestion(${questionIndex})">${english ? "Q" : ""}${questionIndex + 1}</div>`;
       questionIndex += 1;
     });
