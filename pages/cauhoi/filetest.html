@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <script>
+      (function () {
+        try {
+          var search = (window.location && window.location.search) ? window.location.search : "";
+          if (search && search.indexOf("%") === -1) {
+            window.location.replace("/404.html");
+          }
+        } catch (e) {}
+      })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hệ thống Luyện thi</title>
