@@ -290,7 +290,7 @@ export function renderQuizHtml(sections, { mode = "take", canReveal = false, sta
       results.push(rendered.result);
       const navResult = rendered.result;
       const navClass = mode === "review" && canReveal && navResult !== null ? (navResult ? " nav-correct" : " nav-wrong") : "";
-      navHtml += `<div class="nav-item${navClass}" id="nav-${questionIndex}" onclick="scrollToQuestion(${questionIndex})">${english ? "Q" : ""}${questionIndex + 1}</div>`;
+      navHtml += `<div class="nav-item${navClass}" id="nav-${questionIndex}" onclick="scrollToQuestion(${questionIndex})">${questionIndex + 1}</div>`;
       questionIndex += 1;
     });
   });
