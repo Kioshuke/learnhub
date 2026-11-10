@@ -1687,7 +1687,7 @@ function mergeDbTestCards(list) {
     var de = "t:" + key;
     // URL mở bài làm tuyệt đối theo domain deployment
     var origin = getSiteOrigin();
-    var engine = (s.id === "anh") ? "questionenglish.html" : "filetest.html";
+    var engine = "filetest.html";
     var url = origin + "/pages/cauhoi/" + engine + "?de=" + encodeURIComponent(de);
     // Link chia sẻ copyLink tuyệt đối chuẩn domain
     var copyLink = origin + "/?open=phong-hoc&de=" + encodeURIComponent(de);

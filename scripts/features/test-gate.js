@@ -1,8 +1,7 @@
 /**
  * test-gate.js — Cổng mở đề: GIỚI HẠN SỐ LẦN LÀM + MẬT KHẨU BÀI LÀM.
  * ---------------------------------------------------------------------------
- * Dùng chung cho 2 engine làm bài: pages/cauhoi/filetest.html và
- * pages/cauhoi/questionenglish.html.
+ * Dùng chung cho engine làm bài: pages/cauhoi/filetest.html.
  *
  * Cách dùng (sau khi đã đọc xong cấu hình đề từ get_test_content):
  *

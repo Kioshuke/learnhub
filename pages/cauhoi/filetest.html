@@ -925,9 +925,9 @@ async function loadQuestions() {
             ? pickSubtestSections(data, examConfig.subtestCount)
             : data;
 
-        // Xáo trộn theo cấu hình: trộn câu hỏi (shuffleQ) + trộn đáp án (shuffleA)
+        // Xáo trộn theo cấu hình: phần nghe (listening) giữ nguyên thứ tự audio; các phần khác tuân shuffleQ
         questionsData = sourceData.map(section => {
-            const sourceQuestions = examConfig.shuffleQ ? shuffle(section.questions) : section.questions;
+            const sourceQuestions = (section.type === 'listening' || !examConfig.shuffleQ) ? section.questions : shuffle(section.questions);
             const sectionQuestions = sourceQuestions.map(q => {
                 totalQuestions++;
 
@@ -944,12 +944,33 @@ async function loadQuestions() {
                     const mixedSub = examConfig.shuffleQ ? shuffle([...q.subQuestions]) : q.subQuestions;
                     return { ...q, subQuestions: mixedSub };
                 }
+                if (q.type === 'passage' && q.subQuestions) {
+                    // Shuffle đáp án của từng câu con đọc hiểu
+                    const mixedSub = q.subQuestions.map(sub => {
+                        if (!Array.isArray(sub.answers)) return sub;
+                        const mixed = sub.answers.map((ans, i) => ({ text: ans, isCorrect: i === sub.correct }));
+                        if (examConfig.shuffleA) shuffle(mixed);
+                        return {
+                            ...sub,
+                            answers: mixed.map(a => a.text),
+                            correct: mixed.findIndex(a => a.isCorrect)
+                        };
+                    });
+                    return { ...q, subQuestions: mixedSub };
+                }
+                if (q.type === 'cloze' && q.answers) {
+                    return q;
+                }
                 return q;
             });
 
             return {
                 sectionTitle: section.sectionTitle,
                 sectionDesc: section.sectionDesc,
+                passage: section.passage || "",
+                type: section.type,                 // 'listening' = phần nghe
+                audio: section.audio,              // URL mp3 hoặc mảng track
+                listenTitle: section.listenTitle,  // tiêu đề ngắn phần nghe
                 questions: sectionQuestions
             };
         });
@@ -1006,7 +1027,27 @@ function renderQuiz() {
     if (typeof loadListeningAudios === "function") loadListeningAudios();
     updateProgress();
 }
-    // 4. Các hàm bổ trợ xử lý trạng thái làm bài
+    function loadListeningAudios() {
+    document.querySelectorAll('.listening-player audio[data-src]').forEach(audio => {
+        const rawUrl = audio.getAttribute('data-src');
+        if (!rawUrl) return;
+        const url = encodeURI(decodeURI(rawUrl));
+        fetch(url)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.blob();
+            })
+            .then(blob => {
+                const blobUrl = URL.createObjectURL(blob);
+                audio.src = blobUrl;
+            })
+            .catch(err => {
+                console.warn('Không tải được audio (giữ nguồn gốc):', url, err);
+            });
+    });
+}
+
+// 4. Các hàm bổ trợ xử lý trạng thái làm bài
     // 🔥 [LearnHub Test] Mini toast xác nhận đã lưu đáp án (tái sử dụng lhToast từ ../toast.js)
     let activeAnswerToast = null;
     let lastToastKey = "";
@@ -1284,6 +1325,45 @@ questionsData.forEach((section, secIdx) => {
                     correctCount++;
                 } else isPerfect = false;
             }
+            // 🔥 [Tiếng Anh] Đọc hiểu: chấm từng câu con trắc nghiệm
+            else if (item.type === 'passage') {
+                const subs = item.subQuestions || [];
+                let subCorrect = 0;
+                qSnap.chosen = [];
+                subs.forEach((sub, subIdx) => {
+                    const sel = document.querySelector(`input[name="q-${globalIdx}-${subIdx}"]:checked`);
+                    qSnap.chosen.push(sel ? parseInt(sel.value) : null);
+                    if (sel && parseInt(sel.value) === sub.correct) {
+                        userScore += (basePerQuestion / (subs.length || 1));
+                        subCorrect++;
+                    }
+                });
+                if (subCorrect === subs.length && subs.length > 0) {
+                    correctCount++;
+                } else {
+                    isPerfect = false;
+                }
+            }
+            // 🔥 [Tiếng Anh] Điền lỗ: chấm từng ô trống
+            else if (item.type === 'cloze') {
+                const blanks = item.blanks || [];
+                let blankCorrect = 0;
+                qSnap.chosen = [];
+                blanks.forEach((ans, bIdx) => {
+                    const inputEl = document.querySelector(`input[data-qidx="${globalIdx}"][data-blank="${bIdx}"]`);
+                    const val = inputEl ? inputEl.value.trim().toLowerCase() : "";
+                    qSnap.chosen.push(inputEl ? inputEl.value.trim() : "");
+                    if (val === String(ans).trim().toLowerCase()) {
+                        userScore += (basePerQuestion / (blanks.length || 1));
+                        blankCorrect++;
+                    }
+                });
+                if (blankCorrect === blanks.length && blanks.length > 0) {
+                    correctCount++;
+                } else {
+                    isPerfect = false;
+                }
+            }
 
             qSnap.isCorrect = isPerfect;
             attemptSections[secIdx].questions.push(qSnap);
@@ -1488,6 +1568,45 @@ function reviewMode() {
                 // [FIX BUG #22] Escape nội dung để tránh XSS
                 resultDiv.textContent = `✓ Đáp án chuẩn: ${item.correctAnswer || ""}`;
                 input.parentNode.appendChild(resultDiv);
+            }
+
+            // --- 4. XỬ LÝ ĐỌC HIỂU (PASSAGE) ---
+            else if (item.type === 'passage') {
+                const subs = item.subQuestions || [];
+                let allSubCorrect = true;
+                subs.forEach((sub, subIdx) => {
+                    const sel = document.querySelector(`input[name="q-${globalIdx}-${subIdx}"]:checked`);
+                    const userVal = sel ? parseInt(sel.value) : null;
+                    const correctVal = sub.correct;
+                    const labels = card.querySelectorAll(`.ans-label[data-sub="${subIdx}"]`);
+                    labels.forEach((label, idx) => {
+                        if (idx === correctVal) label.classList.add('true-answer-highlight');
+                        const radio = label.querySelector('input');
+                        if (radio && radio.checked && idx !== correctVal) label.classList.add('review-wrong');
+                    });
+                    if (userVal !== correctVal) allSubCorrect = false;
+                });
+                card.classList.add(allSubCorrect ? 'review-true' : 'review-false');
+            }
+            // --- 5. XỬ LÝ ĐIỀN LỖ (CLOZE) ---
+            else if (item.type === 'cloze') {
+                const blanks = item.blanks || [];
+                let allBlankCorrect = true;
+                blanks.forEach((ans, bIdx) => {
+                    const input = card.querySelector(`input[data-qidx="${globalIdx}"][data-blank="${bIdx}"]`);
+                    if (!input) return;
+                    const userAns = input.value.trim().toLowerCase();
+                    const isCorrect = userAns === String(ans).trim().toLowerCase();
+                    input.style.borderColor = isCorrect ? "var(--success)" : "var(--danger)";
+                    if (!isCorrect) {
+                        allBlankCorrect = false;
+                        const tip = document.createElement('span');
+                        tip.className = 'cloze-answer-tip true-text';
+                        tip.textContent = ` (${ans})`;
+                        input.parentNode.appendChild(tip);
+                    }
+                });
+                card.classList.add(allBlankCorrect ? 'review-true' : 'review-false');
             }
 
             // --- HIỆN GIẢI THÍCH (chỉ sau khi nộp bài, không render trước) ---
