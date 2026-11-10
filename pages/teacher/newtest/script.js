@@ -362,30 +362,87 @@ var TITLE_RE = /^(?:phần\s*)?(\d{1,2}|[ivxlcdm]{1,6})\s*[:.\-–—)\]]\s*(.+)
 /* Nhận diện dòng tiêu đề phần kiểu:
    "Phần 1: Trắc nghiệm" / "I. Trắc Nghiệm" / "Phần I. Trắc nghiệm" / "1. Trắc nghiệm"
    → { title, desc } hoặc null nếu không phải tiêu đề. */
-function detectSectionTitle(line) {
+function detectSectionTitle(line, html) {
   var raw = String(line || "").trim();
-  var m = TITLE_RE.exec(raw);
-  if (!m) return null;
-  var text = m[2].trim();
-  if (!text || /[?!]$/.test(text) || text.length > 60) return null;   // tránh nhầm câu hỏi
-  var kind = null, kindIdx = -1;
-  for (var i = 0; i < SECTION_KINDS.length; i++) {
-    if (SECTION_KINDS[i].re.test(text)) { kind = SECTION_KINDS[i]; kindIdx = i; break; }
+  var h = String(html || "").trim();
+  // 3. Dòng tiêu đề vừa in đậm vừa in nghiêng (<b><i>...</i></b> hoặc ***...***)
+  var boldItalic = /<b>\s*<i>[\s\S]+?<\/i>\s*<\/b>/i.test(h) || /^\*{3}.+\*{3}$/.test(raw);
+  if (boldItalic && raw && !/question|câu/i.test(raw)) {
+    // dùng chính text làm tiêu đề phần
+    var txt = raw.replace(/^\*{3}\s*|\s*\*{3}$/g, "").trim();
+    if (txt && txt.length <= 80) {
+      return { title: txt, desc: "" };
+    }
   }
-  if (!kind) return null;
-  /* "nghe"/"đọc hiểu" dạng số thường ("1. Nghe...") dễ nhầm câu hỏi → chỉ nhận khi có "Phần" hoặc số La Mã */
-  var isBareDigit = /^\d+$/.test(m[1]);
-  if ((kind.key === "NGHE" || kind.key === "DOC") && isBareDigit && !/^(?:phần\s*)/i.test(raw)) return null;
-  var num = isBareDigit ? parseInt(m[1], 10) : romanToNum(m[1]);
-  if (!num) num = kindIdx + 1;
-  return { title: "PHẦN " + numToRoman(num) + ". " + kind.name, desc: SECTION_DESC[kind.key] || "" };
+  // 1. Tiền tố Part X. / Section X.
+  var mPart = /^(part|section)\s*(\d{1,2}|[ivxlcdm]{1,6})\s*[.:)\-–—]\s*(.+)$/i.exec(raw);
+  if (mPart) {
+    var textPart = mPart[3].trim();
+    if (textPart && textPart.length <= 80) {
+      // map kind nếu có
+      var kindPart = null;
+      for (var i = 0; i < SECTION_KINDS.length; i++) {
+        if (SECTION_KINDS[i].re.test(textPart)) { kindPart = SECTION_KINDS[i]; break; }
+      }
+      if (kindPart) {
+        var numPart = /^\d+$/.test(mPart[2]) ? parseInt(mPart[2], 10) : romanToNum(mPart[2]);
+        if (!numPart) numPart = 1;
+        return { title: "PHẦN " + numToRoman(numPart) + ". " + kindPart.name, desc: SECTION_DESC[kindPart.key] || "" };
+      }
+      // Nếu không khớp kind, vẫn coi là section title thô
+      return { title: raw, desc: "" };
+    }
+  }
+  // 2. Dạng "1. (Yêu cầu)..." hoặc "Part/Section 1. (Yêu cầu)..." (không chứa Question/Câu)
+  var mNum = /^(?:(?:part|section)\s*)?(\d{1,2}|[ivxlcdm]{1,6})\s*[.:)\-–—]\s*(.+)$/i.exec(raw);
+  if (mNum) {
+    var rest = mNum[2].trim();
+    if (rest && !/question|câu/i.test(rest) && rest.length <= 80) {
+      // reuse original kind logic
+      var m = TITLE_RE.exec(raw);
+      if (m) {
+        var text = m[2].trim();
+        if (text && !/[?!]$/.test(text) && text.length <= 60) {
+          var kind = null, kindIdx = -1;
+          for (var j = 0; j < SECTION_KINDS.length; j++) {
+            if (SECTION_KINDS[j].re.test(text)) { kind = SECTION_KINDS[j]; kindIdx = j; break; }
+          }
+          if (kind) {
+            var isBareDigit = /^\d+$/.test(m[1]);
+            if (!((kind.key === "NGHE" || kind.key === "DOC") && isBareDigit && !/^(?:phần\s*)/i.test(raw))) {
+              var num = isBareDigit ? parseInt(m[1], 10) : romanToNum(m[1]);
+              if (!num) num = kindIdx + 1;
+              return { title: "PHẦN " + numToRoman(num) + ". " + kind.name, desc: SECTION_DESC[kind.key] || "" };
+            }
+          }
+        }
+      }
+      // fallback: coi là section title thô
+      return { title: raw, desc: "" };
+    }
+  }
+  // original fallback
+  var m0 = TITLE_RE.exec(raw);
+  if (!m0) return null;
+  var text0 = m0[2].trim();
+  if (!text0 || /[?!]$/.test(text0) || text0.length > 60) return null;
+  var kind0 = null, kindIdx0 = -1;
+  for (var k = 0; k < SECTION_KINDS.length; k++) {
+    if (SECTION_KINDS[k].re.test(text0)) { kind0 = SECTION_KINDS[k]; kindIdx0 = k; break; }
+  }
+  if (!kind0) return null;
+  var isBareDigit0 = /^\d+$/.test(m0[1]);
+  if ((kind0.key === "NGHE" || kind0.key === "DOC") && isBareDigit0 && !/^(?:phần\s*)/i.test(raw)) return null;
+  var num0 = isBareDigit0 ? parseInt(m0[1], 10) : romanToNum(m0[1]);
+  if (!num0) num0 = kindIdx0 + 1;
+  return { title: "PHẦN " + numToRoman(num0) + ". " + kind0.name, desc: SECTION_DESC[kind0.key] || "" };
 }
 
 /* Chia dòng theo tiêu đề phần → parse từng phần thành section riêng, mô tả tự động */
 function parseToSections(lines) {
   var groups = [], cur = null;
   (lines || []).forEach(function (L) {
-    var dt = detectSectionTitle(L.t);
+    var dt = detectSectionTitle(L.t, L.h);
     if (dt) {
       if (cur && cur.lines.length) groups.push(cur);
       cur = { section: dt, lines: [] };
