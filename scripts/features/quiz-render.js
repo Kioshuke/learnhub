@@ -14,7 +14,8 @@ export function safeUrl(value) {
 }
 
 export function sanitizeHtml(html, allowedTags = SAFE_TEXT_TAGS) {
-  const body = new DOMParser().parseFromString(String(html || ""), "text/html").body;
+  const source = String(html || "").replace(/\n/g, "<br>");
+  const body = new DOMParser().parseFromString(source, "text/html").body;
   (function clean(parent) {
     Array.from(parent.children).forEach((element) => {
       const tag = element.tagName.toLowerCase();
@@ -265,7 +266,7 @@ export function isEnglishTest(sections) {
     const questions = Array.isArray(section.questions) ? section.questions : [];
     return questions.some((q) => {
       const text = String((q && (q.question || q.title)) || "");
-      return /^(question)\s*\d/i.test(text.trim()) || /[A-D]\.\s+[a-z0-9]/i.test(text);
+      return /^(question)\s*\d/i.test(text.trim());
     });
   });
 }
@@ -298,9 +299,9 @@ export function renderQuizHtml(sections, { mode = "take", canReveal = false, sta
   return { html, navHtml, results };
 }
 
-/* Đánh dấu lá cờ "Cần xem lại" */
+/* Đánh dấu lá cờ "Cần xem lại" + expose inline handlers to global scope (ES Module safe) */
 if (typeof window !== "undefined") {
-  window.toggleFlag = function (btn) {
+  window.toggleFlag = window.toggleFlag || function (btn) {
     if (!btn) return;
     var flagged = btn.classList.toggle("flagged");
     try {
@@ -316,4 +317,22 @@ if (typeof window !== "undefined") {
       }
     } catch (e) {}
   };
+
+  const inlineHandlers = ["selectAnswer", "checkTFDone", "markDone", "shortToast", "scrollToQuestion"];
+  inlineHandlers.forEach((name) => {
+    if (typeof window[name] !== "function") {
+      window[name] = function () { /* safe fallback until page handlers load */ };
+    }
+  });
+  if (typeof window.lhImageError !== "function") {
+    window.lhImageError = function (img) {
+      if (!img) return;
+      const box = img.parentElement;
+      const src = img.getAttribute && (img.getAttribute("data-src") || img.src);
+      if (box) {
+        box.className = "q-image q-image-error";
+        box.innerHTML = 'Không tải được ảnh — <a href="' + esc(src || "") + '" target="_blank" rel="noopener noreferrer">mở link</a>';
+      }
+    };
+  }
 }
