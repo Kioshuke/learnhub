@@ -435,13 +435,15 @@ window.addEventListener('message', function(event) {
     }
   }
   if (event.data.type === 'OPEN_QUIZ') {
-    var found = openQuizByDe(event.data.de);
-    if (found === "pending") return; // chưa sẵn sàng, để parent retry
-    var hit = (window.__testCardMap || {})[String(event.data.de || "").trim()];
-    var url = (found && hit) ? hit.url : "";
-    if (window.parent && window.parent !== window) {
-      window.parent.postMessage({ type: 'OPEN_QUIZ_ACK', ok: !!found, de: String(event.data.de || ""), url: url }, '*');
-    }
+    (async function () {
+      var found = await openQuizByDe(event.data.de);
+      var hit = (window.__testCardMap || {})[String(event.data.de || "").trim()];
+      var url = (found && hit) ? hit.url : "";
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'OPEN_QUIZ_ACK', ok: !!found, de: String(event.data.de || ""), url: url }, '*');
+      }
+    })();
+    return;
   }
 });
 
@@ -465,7 +467,7 @@ function unlockPageScroll() {
   document.documentElement.style.overflow = '';
 }
 
-function openQuizByDe(de, retryCount) {
+async function openQuizByDe(de, retryCount) {
   retryCount = retryCount || 0;
   var target = String(de || "").trim();
   if (!target) { console.warn("[openQuizByDe] empty de"); return false; }
@@ -473,8 +475,8 @@ function openQuizByDe(de, retryCount) {
   var dbHit = map[target];
   // Race condition: dữ liệu RPC chưa nạp xong → thử lại.
   if (!dbHit && retryCount < 10) {
-    setTimeout(function () { openQuizByDe(target, retryCount + 1); }, 250);
-    return "pending";
+    await new Promise(function (r) { setTimeout(r, 250); });
+    return openQuizByDe(target, retryCount + 1);
   }
   if (!dbHit) { console.warn("[openQuizByDe] not in __testCardMap after retry:", target); return false; }
   if (!dbHit.subjectId) { console.warn("[openQuizByDe] missing subjectId:", target, dbHit); return false; }
@@ -487,19 +489,28 @@ function openQuizByDe(de, retryCount) {
     return true;
   }
   try { if (typeof switchSubject === "function") switchSubject(dbHit.subjectId); } catch (e) { console.warn("[openQuizByDe] switchSubject error:", e); }
+  // Đảm bảo URL hợp lệ; nếu thiếu thì không redirect tới undefined
+  var safeUrl = dbHit.url && String(dbHit.url).trim();
+  if (!safeUrl) {
+    console.warn("[openQuizByDe] missing url for", target);
+    return false;
+  }
+  safeUrl = toAbsoluteUrl(safeUrl);
+
   function __renderQuiz() {
     var quizEl = document.getElementById("quiz");
     if (quizEl) {
       quizEl.innerHTML = "";
-      try { loadQuiz({ closest: function () { return null; } }, dbHit.url); } catch (e) { console.warn("[openQuizByDe] loadQuiz error:", e); try { window.location.href = dbHit.url; } catch (e2) {} }
+      try { loadQuiz({ closest: function () { return null; } }, safeUrl); }
+      catch (e) { console.warn("[openQuizByDe] loadQuiz error:", e); try { window.location.href = safeUrl; } catch (e2) {} }
     } else {
-      try { window.location.href = dbHit.url; } catch (e) {}
+      try { window.location.href = safeUrl; } catch (e) {}
     }
   }
   setTimeout(__renderQuiz, 50);
   setTimeout(function () {
     if (!document.getElementById("quizFrame")) {
-      try { window.location.href = dbHit.url; } catch (e) {}
+      try { window.location.href = safeUrl; } catch (e) {}
     }
   }, 1000);
   return true;
@@ -588,18 +599,20 @@ document.addEventListener("keydown", function (event) {
 });
 
 function loadQuiz(btn, link) {
-  document.querySelectorAll(".card").forEach(c => c.classList.remove("active-card"));
+  var safeLink = (link && String(link).trim()) ? toAbsoluteUrl(link) : "";
+  if (!safeLink) { console.warn("[loadQuiz] missing link"); return; }
+  document.querySelectorAll(".card").forEach(function (c) { c.classList.remove("active-card"); });
   var card = btn && btn.closest ? btn.closest(".card") : null;
   if (card) card.classList.add("active-card");
 
   lockPageScroll();
   if (window.parent && window.parent !== window) {
-    window.parent.postMessage({ type: "LOCK_PAGE_SCROLL" }, "*");
+    window.parent.postMessage({ type: "LOCK_PAGE_SCROLL" }, getSiteOrigin());
   }
 
   document.getElementById("quiz").innerHTML =
     '<div class="quiz-box" style="position:relative; width:100%; height:100vh; max-height:100vh; overflow:hidden; margin:0; padding:0; border-left:0; border-right:0; border-radius:0;">' +
-      '<iframe id="quizFrame" src="' + link + '" style="width:100%; height:100%; border:0; outline:0; margin:0; padding:0; overscroll-behavior:contain;"></iframe>' +
+      '<iframe id="quizFrame" src="' + safeLink + '" style="width:100%; height:100%; border:0; outline:0; margin:0; padding:0; overscroll-behavior:contain;"></iframe>' +
       '<div class="quiz-header" style="position:absolute; top:8px; left:8px; right:auto; z-index:9999; pointer-events:auto; padding:0;">' +
         '<button class="quiz-btn close-btn" onclick="closeQuiz();">Đóng bài</button>' +
       '</div>' +
@@ -616,7 +629,7 @@ function loadQuiz(btn, link) {
   iframe.onload = function() {
     window.__quizLoadOk = true;
     if (window.learnHubUser) {
-      iframe.contentWindow.postMessage({ type: "LEARNHUB_USER", user: window.learnHubUser }, "*");
+      iframe.contentWindow.postMessage({ type: "LEARNHUB_USER", user: window.learnHubUser }, getSiteOrigin());
     }
     clearTimeout(window.__quizLoadTimer);
     document.getElementById("quiz").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -634,7 +647,7 @@ function loadQuiz(btn, link) {
           level: "error",
           code: "QUIZ_FRAME_LOAD_TIMEOUT",
           message: "Iframe bài test không tải được trong 20s (trang test không hiển thị).",
-          detail: { link: String(link || "").slice(0, 200) }
+          detail: { link: String(safeLink || "").slice(0, 200) }
         });
       }
     }
@@ -1640,6 +1653,21 @@ function seedGvVideoTab(data, order) {
   if (typeof applyCardDominoEffect === "function") applyCardDominoEffect();
 }
 
+/* Hằng origin chuẩn của hệ thống (khớp domain deploy) */
+var MAIN_SITE_ORIGIN = "https://learnhubpf.pages.dev";
+function getSiteOrigin() {
+  try {
+    var o = window.location && window.location.origin;
+    if (o && o !== "null" && /^https?:\/\//.test(o)) return o;
+  } catch (e) {}
+  return MAIN_SITE_ORIGIN;
+}
+function toAbsoluteUrl(rel) {
+  var base = getSiteOrigin() + "/";
+  try { return new URL(String(rel || ""), base).href; }
+  catch (e) { return getSiteOrigin() + "/" + String(rel || "").replace(/^\/+/, ""); }
+}
+
 /* Đổ card BÀI TEST từ database (test_sets) vào GRID MÔN HỌC — mỗi bài = 1 card.
    Dùng `.status.done` / `.status.up` có sẵn trong CSS. */
 function mergeDbTestCards(list) {
@@ -1652,13 +1680,17 @@ function mergeDbTestCards(list) {
     if (!s) return;
     var grid = document.getElementById(s.id) ? document.getElementById(s.id).querySelector(".grid") : null;
     if (!grid) return;
-    var key = String(t.set_id || t.id || "");
+    var key = String(t.set_id || t.id || "").trim();
     if (!key || grid.querySelector('.card[data-test-card="' + key + '"]')) return;
     var color = s.cardColor || s.tabColor || "#0d9488";
     var icon = s.icon || "fa-book";
     var de = "t:" + key;
-    var url = "../cauhoi/" + ((s.id === "anh") ? "questionenglish.html" : "filetest.html") + "?de=" + de;
-    var copyLink = location.origin + "/?open=phong-hoc&de=" + de;
+    // URL mở bài làm tuyệt đối theo domain deployment
+    var origin = getSiteOrigin();
+    var engine = (s.id === "anh") ? "questionenglish.html" : "filetest.html";
+    var url = origin + "/pages/cauhoi/" + engine + "?de=" + encodeURIComponent(de);
+    // Link chia sẻ copyLink tuyệt đối chuẩn domain
+    var copyLink = origin + "/?open=phong-hoc&de=" + encodeURIComponent(de);
     var done = !!t.is_complete;
     var startAt = t.start_at || null;
     var endAt = t.end_at || null;

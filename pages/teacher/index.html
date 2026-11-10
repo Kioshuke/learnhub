@@ -2875,7 +2875,13 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
     function tcQuizCopyLink(de) {
       // Link mở từ web chính giống cơ chế copy link card trong Phòng Học:
       // ?open=phong-hoc&de=t:<uuid> → mở thẳng bài test trong Phòng Học.
-      const link = location.origin + "/?open=phong-hoc&de=" + de;
+      var MAIN_SITE_ORIGIN = "https://learnhubpf.pages.dev";
+      var origin = MAIN_SITE_ORIGIN;
+      try {
+        var o = window.location && window.location.origin;
+        if (o && o !== "null" && /^https?:\/\//.test(o)) origin = o;
+      } catch (e) {}
+      const link = origin + "/?open=phong-hoc&de=" + encodeURIComponent(String(de || "").trim());
       const done = function () { toast("Đã sao chép liên kết bài test", "success"); };
       const fail = function () { toast("Không sao chép được liên kết", "error"); };
       if (navigator.clipboard && navigator.clipboard.writeText) {

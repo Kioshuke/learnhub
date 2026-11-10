@@ -1680,8 +1680,14 @@ async function publishTest() {
         : "Không xuất bản được bài kiểm tra.";
       throw { message: msg };
     }
+    var MAIN_SITE_ORIGIN = "https://learnhubpf.pages.dev";
+    var origin = MAIN_SITE_ORIGIN;
+    try {
+      var o = window.location && window.location.origin;
+      if (o && o !== "null" && /^https?:\/\//.test(o)) origin = o;
+    } catch (e) {}
     var realId = "t:" + res.data.id;
-    var link = location.origin + "/?open=phong-hoc&de=" + realId;
+    var link = origin + "/?open=phong-hoc&de=" + encodeURIComponent(realId);
     if (left) {
       var resultArea = $("revArea");
       var setupCard = resultArea && resultArea.querySelector(".rev-meta");
