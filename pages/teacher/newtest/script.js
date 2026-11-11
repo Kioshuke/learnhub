@@ -47,6 +47,7 @@ var testMeta = {
 };
 
 var LETTERS = "ABCDEFGH";
+var isEnglishMode = false;
 function letter(i) { return LETTERS[i] || String(i + 1); }
 
 var $ = function (id) { return document.getElementById(id); };
@@ -92,11 +93,8 @@ function setFileLabel(name) {
   el.title = name;
 }
 
-/* Bước cao nhất đã từng đạt — chỉ cho phép quay lại bước đã qua,
-   KHÔNG cho bấm nhảy tới bước chưa tới (vd: chưa nhập đề mà bấm "Rà soát"). */
 var maxStage = 1;
 
-/* Chuyển màn hình: 1 (nhập đề) / 2 (JSON + xem trước) / 3 (thiết lập đề) / 4 (rà soát & xuất bản) */
 function showStage(n) {
   if (n > maxStage) maxStage = n;
   $("p1").hidden = n !== 1;
@@ -113,7 +111,6 @@ function showStage(n) {
   document.documentElement.classList.toggle("stage4", n === 4);
   updateSteps(n);
   if (n !== 1) {
-    /* Cuộn về đầu trang để header dính trên, khung màn 2/3/4 không bị che */
     try { window.scrollTo({ top: 0, behavior: "smooth" }); }
     catch (e) { window.scrollTo(0, 0); }
   }
@@ -121,8 +118,6 @@ function showStage(n) {
   if (n === 4) renderReview();
 }
 
-/* Đánh dấu bước đang làm + bước đã xong trên thanh 1·2·3·4.
-   Bước chưa tới (vượt quá maxStage) bị khoá, không bấm được. */
 function updateSteps(n) {
   var steps = document.querySelectorAll("#steps .step");
   for (var i = 0; i < steps.length; i++) {
@@ -134,8 +129,6 @@ function updateSteps(n) {
   }
 }
 
-/* Bấm vào ô bước trên thanh 1·2·3·4 → mở bước tương ứng.
-   Chỉ cho phép với bước đã đạt (<= maxStage); bước chưa tới bị chặn. */
 (function () {
   var nav = $("steps");
   if (!nav) return;
@@ -155,15 +148,12 @@ function textToLines(text) {
   return String(text || "").split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean).map(function (t) { return { t: t, h: t }; });
 }
 
-/* Chuyển HTML của mammoth (extractHtml) thành từng dòng {t: text thô, h: html giữ định dạng} */
 function htmlBlocksToLines(html) {
   var div = document.createElement("div");
   div.innerHTML = html;
   var arr = [];
   var nodes = div.querySelectorAll("p, li, h1, h2, h3, h4, h5, td");
   nodes.forEach(function (el) {
-    /* GIỮ thẳng hàng t và h (cùng số ký tự text, chỉ khác phần TAG) để việc
-       tách vị trí không bị lệch → không mất ký tự. Không được co \s+. */
     var t = (el.textContent || "").replace(/\u00a0/g, " ");
     var h = (el.innerHTML || "").replace(/\u00a0/g, " ");
     if (!t.trim()) return;
@@ -180,8 +170,6 @@ function htmlBlocksToLines(html) {
   return arr;
 }
 
-/* Cân bằng thẻ HTML cho 1 đoạn cắt ra: bỏ thẻ đóng thừa, tự đóng thẻ mở còn lỏng.
-   VD "<strong>B. Cortana \t\t" → "<strong>B. Cortana \t\t</strong>". */
 function balanceHtml(x) {
   if (!/<[a-zA-Z/]/.test(x)) return x;
   var re = /<(\/?)\s*([a-zA-Z][\w:-]*)((?:\s[^>]*)?)(\/)?>/g;
@@ -213,7 +201,6 @@ function balanceHtml(x) {
   return out;
 }
 
-/* Dọn thẻ inline: cân bằng thẻ; bỏ thẻ rỗng/whitespace; bỏ space trước thẻ đóng */
 function fixInlineHtml(x) {
   var out = balanceHtml(x);
   out = out.replace(/<(b|strong|em|i|u|span)(\s[^>]*)?>[ \t]*<\/\1>/g, "");
@@ -221,7 +208,6 @@ function fixInlineHtml(x) {
   return out.trim();
 }
 
-/* Trim đồng bộ LEFT/RIGHT ký tự TEXT (bỏ qua thẻ) — giữ t và h thẳng hàng */
 function trimHtmlText(h, left, right) {
   if (left <= 0 && right <= 0) return fixInlineHtml(h);
   var nchars = 0, i = 0;
@@ -247,8 +233,6 @@ function trimHtmlText(h, left, right) {
   return fixInlineHtml(out);
 }
 
-/* Tách nhiều phương án nằm trên CÙNG 1 dòng (VD: "A. Siri\t\tB. Cortana\t\tC. Alexa\t\tD. Bixby")
-   → thành nhiều dòng phương án. Chỉ tách khi dòng BẮT ĐẦU bằng phương án và có ≥ 2 phương án. */
 function splitInlineOpts(t, h) {
   var re = /(^|[ \t])(\*)?[A-Da-d][\.\)][ \t]+/g;
   var starts = [];
@@ -281,9 +265,6 @@ function splitInlineOpts(t, h) {
   return segs;
 }
 
-/* Bóc chữ cái A/B/C/D đầu phương án khỏi HTML, kể cả khi bị bọc trong thẻ định dạng.
-   Cắt theo vị trí TÌM ĐƯỢC của nội dung txt trong html (bỏ qua thẻ) — chống lệch index
-   khi nhãn bị trim thiếu space (VD "<strong>B.</strong>Cortana" → "Cortana"). */
 function cleanOptionHtml(line, h, txt) {
   if (!h || h === line) return txt;
   var tcs = [];
@@ -303,7 +284,6 @@ function cleanOptionHtml(line, h, txt) {
     if (s0 < 0) return txt;
     ti = s0;
   }
-  /* Walk giữ nguyên thẻ, chỉ bỏ <ti> ký tự text đứng trước nội dung */
   var out = "", si = 0;
   i = 0;
   while (i < h.length) {
@@ -319,7 +299,7 @@ function cleanOptionHtml(line, h, txt) {
   return fixInlineHtml(out);
 }
 
-/* ============ NHẬN DIỆN TIÊU ĐỀ PHẦN → tự tách section + mô tả cố định ============ */
+/* ============ NHẬN DIỆN TIÊU ĐỀ PHẦN ============ */
 
 var SECTION_KINDS = [
   { re: /(trắc\s*nghiệm|multiple\s*choice|mcq)/i, key: "TN", name: "TRẮC NGHIỆM" },
@@ -329,7 +309,6 @@ var SECTION_KINDS = [
   { re: /(đọc\s*hiểu|passage|reading)/i, key: "DOC", name: "ĐỌC HIỂU" }
 ];
 
-/* Mô tả cố định theo từng loại phần — sửa text tại đây nếu muốn đổi */
 var SECTION_DESC = {
   "TN":   "Mỗi câu hỏi thí sinh chỉ chọn một phương án.",
   "DS":   "Trong mỗi ý a), b), c), d) ở mỗi câu, thí sinh chọn đúng hoặc sai.",
@@ -359,21 +338,38 @@ function numToRoman(n) {
 
 var TITLE_RE = /^(?:phần\s*)?(\d{1,2}|[ivxlcdm]{1,6})\s*[:.\-–—)\]]\s*(.+)$/i;
 
-/* Nhận diện dòng tiêu đề phần kiểu:
-   "Phần 1: Trắc nghiệm" / "I. Trắc Nghiệm" / "Phần I. Trắc nghiệm" / "1. Trắc nghiệm"
-   → { title, desc } hoặc null nếu không phải tiêu đề. */
 function detectSectionTitle(line) {
   var raw = String(line || "").trim();
+  if (isEnglishMode && /^(reading|listening|passage|notice|leaflet|announcement)$/i.test(raw)) {
+    var desc = "";
+    if (/listening/i.test(raw)) desc = "Nghe nội dung và trả lời các câu hỏi.";
+    else if (/passage|reading|notice|leaflet|announcement/i.test(raw)) desc = "Đọc đoạn văn / thông báo và trả lời các câu hỏi.";
+    return { title: raw.toUpperCase(), desc: desc };
+  }
+  // English-mode: "Part 1. Mark the letter..." / "Section II. Read the passage..."
+  if (isEnglishMode) {
+    var mPart = /^(part|section)\s*(\d{1,2}|[ivxlcdm]{1,6})\s*[.:)\-–—]\s*(.+)$/i.exec(raw);
+    if (mPart) {
+      var titlePart = (mPart[1].toUpperCase() + " " + mPart[2].toUpperCase()).trim();
+      var descPart = mPart[3].trim();
+      if (descPart && descPart.length <= 200) {
+        return { title: titlePart, desc: descPart };
+      }
+    }
+    // standalone Part/Section
+    if (/^(part|section)\s*(\d{1,2}|[ivxlcdm]{1,6})$/i.test(raw)) {
+      return { title: raw.toUpperCase(), desc: "" };
+    }
+  }
   var m = TITLE_RE.exec(raw);
   if (!m) return null;
   var text = m[2].trim();
-  if (!text || /[?!]$/.test(text) || text.length > 60) return null;   // tránh nhầm câu hỏi
+  if (!text || /[?!]$/.test(text) || text.length > 60) return null;
   var kind = null, kindIdx = -1;
   for (var i = 0; i < SECTION_KINDS.length; i++) {
     if (SECTION_KINDS[i].re.test(text)) { kind = SECTION_KINDS[i]; kindIdx = i; break; }
   }
   if (!kind) return null;
-  /* "nghe"/"đọc hiểu" dạng số thường ("1. Nghe...") dễ nhầm câu hỏi → chỉ nhận khi có "Phần" hoặc số La Mã */
   var isBareDigit = /^\d+$/.test(m[1]);
   if ((kind.key === "NGHE" || kind.key === "DOC") && isBareDigit && !/^(?:phần\s*)/i.test(raw)) return null;
   var num = isBareDigit ? parseInt(m[1], 10) : romanToNum(m[1]);
@@ -381,11 +377,28 @@ function detectSectionTitle(line) {
   return { title: "PHẦN " + numToRoman(num) + ". " + kind.name, desc: SECTION_DESC[kind.key] || "" };
 }
 
-/* Chia dòng theo tiêu đề phần → parse từng phần thành section riêng, mô tả tự động */
 function parseToSections(lines) {
+  var toggleEl = $("englishModeToggle");
+  if (toggleEl) isEnglishMode = !!toggleEl.checked;
+
+  lines = lines || []; // Thêm dòng này để tránh lỗi nếu lines bị undefined
   var groups = [], cur = null;
-  (lines || []).forEach(function (L) {
+  
+  lines.forEach(function (L) {
+    if (!L || !L.t) return;
     var dt = detectSectionTitle(L.t);
+    // English mode: reading instruction starts a new section
+    if (isEnglishMode && !dt) {
+      var isReadingInstr = /^read\s+the\s+(?:following\s+)?(?:passage|notice|leaflet|announcement|text|article)/i.test(L.t)
+        || /^(?:passage|notice|leaflet|announcement|reading)$/i.test(L.t.trim());
+      if (isReadingInstr) {
+        if (cur && cur.lines.length) groups.push(cur);
+        var secNum = groups.length + 1;
+        var roman = (typeof numToRoman === "function") ? numToRoman(secNum) : secNum;
+        cur = { section: { title: "PHẦN " + roman + ". ĐỌC HIỂU", desc: "Đọc đoạn văn / thông báo và trả lời các câu hỏi." }, lines: [L] };
+        return;
+      }
+    }
     if (dt) {
       if (cur && cur.lines.length) groups.push(cur);
       cur = { section: dt, lines: [] };
@@ -395,14 +408,13 @@ function parseToSections(lines) {
   });
   if (cur && cur.lines.length) groups.push(cur);
 
-  if (!groups.length) return parseLines(lines);   // không có tiêu đề → giữ hành vi cũ (1 section)
+  if (!groups.length) return parseLines(lines);
 
   var sections = [], warnings = [];
   groups.forEach(function (g) {
-    /* Tách dòng passage (`Passage: ...`) và dòng link nghe (http...mp3) ra khỏi
-       luồng câu hỏi → gắn section.passage / section.audio, tránh "Bỏ qua (không nhận dạng)". */
     var extra = { passage: null, audio: null, listenTitle: null };
-    var qlines = g.lines.filter(function (L) {
+    var qlines = (g.lines || []).filter(function (L) {
+      if (!L || !L.t) return false;
       var t = String(L.t || "").trim();
       if (/^passage\s*:\s*/i.test(t)) {
         extra.passage = t.replace(/^passage\s*:\s*/i, "").trim();
@@ -423,6 +435,7 @@ function parseToSections(lines) {
     }
     var s = r.sections[0];
     if (extra.passage) s.passage = extra.passage;
+    else if (r.passage) s.passage = r.passage;
     if (extra.audio) { s.audio = extra.audio; s.listenTitle = extra.listenTitle; }
     s.sectionTitle = g.section.title;
     s.sectionDesc = g.section.desc;
@@ -432,13 +445,11 @@ function parseToSections(lines) {
   if (!sections.length) {
     return { sections: [], warnings: warnings, error: "Không nhận dạng được câu nào trong các phần đã tách." };
   }
-  return { sections: sections, warnings: warnings, error: null };
+  return { sections: sections, warnings: warnings, error: null, passage: (passageLines.length ? passageLines.join("<br>") : (pendingPassage || null)) };
 }
-
 /* ============ NHẬN DIỆN ẢNH ============ */
 var IMG_MARKER_SRC = "(?:ảnh(?:\\s*minh\\s*họa)?|hình(?:\\s*ảnh)?|link\\s*ảnh|image|img)";
 
-/* Chuẩn hoá link Google Drive dạng share thành link xem ảnh trực tiếp */
 function normalizeImageUrl(u) {
   u = String(u == null ? "" : u).trim().replace(/[.,;]+$/, "");
   var m = u.match(/^https?:\/\/(?:drive|docs)\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:[^#]*&)?id=)([^/?#&]+)/i);
@@ -457,7 +468,6 @@ function isImageUrl(u) {
   return false;
 }
 
-/* Nguồn ảnh dự phòng cho Google Drive: endpoint lh3 thường ổn định hơn thumbnail */
 function driveAltUrl(value) {
   var url = String(value == null ? "" : value);
   var m = url.match(/drive\.google\.com\/thumbnail\?[^#]*?\bid=([^&#]+)/i)
@@ -465,7 +475,6 @@ function driveAltUrl(value) {
   return m ? "https://lh3.googleusercontent.com/d/" + m[1] : "";
 }
 
-/* Hàm toàn cục cho onerror: lần lỗi đầu đổi sang nguồn dự phòng, lần sau hiện khung báo lỗi */
 window.lhImageError = window.lhImageError || function (img) {
   if (!img) return;
   var fb = img.getAttribute("data-fb");
@@ -478,20 +487,17 @@ window.lhImageError = window.lhImageError || function (img) {
   }
 };
 
-/* Thuộc tính <img> cho ảnh câu hỏi: tự thử nguồn dự phòng, hết cách thì báo lỗi rõ ràng */
 function imgErrorAttrs(url) {
   var alt = driveAltUrl(url);
   return ' loading="lazy"' + (alt ? ' data-fb="' + escAttr(alt) + '"' : "") +
     ' data-src="' + escAttr(url) + '" onerror="lhImageError(this)"';
 }
 
-/* Trả về URL nếu đáp án CHỈ là một link ảnh (hoặc có tiền tố Ảnh:/Link ảnh:) */
 function answerImageUrl(ans) {
   var s = String(ans == null ? "" : ans).trim();
   if (!s) return "";
-  /* Bỏ thẻ HTML (VD nhãn A. bị bọc <strong>...</strong>) để nhận diện link ảnh */
   s = s.replace(/<[^>]*>/g, " ").replace(/&nbsp;/gi, " ").replace(/\s+/g, " ").trim();
-  s = s.replace(/^([A-Za-z])\s*[.、)]\s+/, "");         // bỏ nhãn A./B) nếu còn sót
+  s = s.replace(/^([A-Za-z])\s*[.、)]\s+/, "");
   var m = s.match(new RegExp("^" + IMG_MARKER_SRC + "\\s*[:：]\\s*(https?:\\/\\/\\S+)\\s*$", "i"));
   if (m) return normalizeImageUrl(m[1]);
   var u = s.replace(/[.,;]+$/, "");
@@ -499,7 +505,6 @@ function answerImageUrl(ans) {
   return "";
 }
 
-/* Tách dòng "Ảnh: <link>" / "Link ảnh: <link>" khỏi câu hỏi (đầu hoặc cuối đều được) */
 function extractImageMarker(text) {
   var s = String(text == null ? "" : text);
   var re = new RegExp("(?:^|[\\s;,(?!])(" + IMG_MARKER_SRC + "\\s*[:：]\\s*(https?:\\/\\/[^\\s<>\"']+))", "i");
@@ -512,13 +517,11 @@ function extractImageMarker(text) {
   return { text: out, url: url };
 }
 
-/* Bỏ marker ảnh khỏi HTML (kể cả khi chữ "Ảnh:" bị bọc trong <b>, <span>...) */
 function stripImageMarkerHtml(html) {
   var re = new RegExp("(?:<[^>]*>\\s*)*" + IMG_MARKER_SRC + "\\s*(?:<[^>]*>\\s*)*[:：]\\s*(?:<[^>]*>\\s*)*https?:\\/\\/[^\\s<>\"']+", "gi");
   return String(html == null ? "" : html).replace(re, "").replace(/\s{2,}/g, " ").trim();
 }
 
-/* URL ảnh của câu hỏi: nhận cả trường "image" thuần link hoặc chuỗi "Ảnh: <link>" */
 function imageFieldUrl(v) {
   var s = String(v == null ? "" : v).trim();
   if (!s) return "";
@@ -527,20 +530,25 @@ function imageFieldUrl(v) {
 }
 
 function parseLines(lines) {
+  lines = lines || [];
+  var toggleEl = $("englishModeToggle");
+  if (toggleEl) isEnglishMode = !!toggleEl.checked;
+
   var warnings = [];
   var questions = [];
   var cur = null;
-  var answerMark = null;        // đáp án từ dòng "Đáp án: A"
-  var pendingShort = null;      // đáp án dạng chữ từ dòng "Đáp án: html"
-  var pendingImage = null;      // link ảnh gặp trước khi câu hỏi được tạo
+  var answerMark = null;
+  var pendingShort = null;
+  var pendingImage = null;
   var explanationMode = false;
+
+  var inPassageBlock = false;
+  var passageLines = [];
+  var pendingPassage = null;
 
   function closeCur() {
     if (!cur) return;
     if (cur.type === "multiple" && cur.opts && cur.opts.length) {
-      /* Quyết định theo CẢ CÂU: câu có format nhãn "A. .... B. .... C. ...." (mọi dòng
-         không-phải-sao đều khớp đúng vị trí A,B,C,D...) thì BÓC nhãn. Ngược lại đáp án
-         chỉ bắt đầu bằng chữ in hoa (VD "B. Franklin", "G. Washington") thì GIỮ NGUYÊN. */
       var pat = 0, pos = 0;
       cur.opts.forEach(function (op, i) {
         if (op.star) return;
@@ -563,7 +571,6 @@ function parseLines(lines) {
         var li = cur.answerLetter.charCodeAt(0) - 65;
         if (li >= 0 && li < cur.answers.length) cur.correctIndex = li;
       }
-      /* Heuristic Word: đáp án đúng tô đậm (hoặc màu đỏ) — chỉ đúng 1 phương án thì auto gán */
       if (cur.correctIndex === null) {
         var fmtIdx = -1, nFmt = 0;
         cur.answers.forEach(function (a, i) {
@@ -608,20 +615,45 @@ function parseLines(lines) {
   }
 
   function handleLine(L, lineIdx) {
-    var line = L.t;             // text thô để nhận dạng
-    var html = L.h || L.t;      // html (giữ đậm/nghiêng/gạch chân nếu có)
+    var line = L.t;
+    var html = L.h || L.t;
 
-    /* Đáp án nằm ngang cùng dòng (tách bằng tab): chia nhỏ rồi xử lý từng cái */
     var inline = splitInlineOpts(line, html);
     if (inline.length > 1) {
       for (var k = 0; k < inline.length; k++) handleLine(inline[k], lineIdx);
       return;
     }
 
-    /* Dòng ảnh câu hỏi (đứng riêng):
-       Ảnh: https://... | Link ảnh: https://... | Hình ảnh: ... | Image: ...
-       Nếu dòng kế tiếp là câu hỏi mới → ảnh thuộc câu hỏi đó (ảnh đặt đầu câu).
-       Ngược lại → ảnh thuộc câu hỏi hiện tại (ảnh đặt cuối câu). */
+    /* Đơn giản hóa bỏ các dòng rác chung của đề thi */
+    if (/^(?:------------------\s*THE\s*END\s*------------------|thí\s*sinh\s*không|giám\s*thị\s*không|THE\s*END)/i.test(line)) {
+      return;
+    }
+    // Junk filter for English exams
+    if (isEnglishMode && /(?:THE\s*END|Thí sinh không được sử dụng tài liệu|Giám thị không giải thích gì thêm)/i.test(line)) {
+      return;
+    }
+
+    /* Nhận diện Hướng dẫn đọc hiểu trong English Mode */
+    if (isEnglishMode && /^(?:read\s+the\s+passage|mark\s+the\s+letter|read\s+the\s+following)/i.test(line)) {
+      inPassageBlock = true;
+      passageLines = [];
+      return;
+    }
+
+    /* Thu thập nội dung bài đọc nếu đang trong Block bài đọc cho đến khi gặp Question X */
+    if (inPassageBlock) {
+      var isQNext = /^(?:câu|question)\s*\d{1,3}\s*[\.\):]/i.test(line) || /^\d{1,3}\s*[\.\)]\s+/.test(line);
+      if (!isQNext) {
+        passageLines.push(html);
+        return;
+      } else {
+        inPassageBlock = false;
+        var fullPassage = passageLines.join("<br>");
+        if (cur) cur.passage = fullPassage;
+        else pendingPassage = fullPassage;
+      }
+    }
+
     var loneImg = extractImageMarker(line);
     if (loneImg && !loneImg.text) {
       var nextIsQuestion = false;
@@ -629,7 +661,7 @@ function parseLines(lines) {
         for (var ni = lineIdx + 1; ni < lines.length; ni++) {
           var nt = String((lines[ni] && lines[ni].t) || "").trim();
           if (!nt) continue;
-          nextIsQuestion = /^(?:câu\s*\d{1,3}\s*[\.\):]|\d{1,3}\s*[\.\)]\s+)/i.test(nt);
+          nextIsQuestion = /^(?:câu|question)\s*\d{1,3}\s*[\.\):]|\d{1,3}\s*[\.\)]\s+/i.test(nt);
           break;
         }
       }
@@ -638,14 +670,12 @@ function parseLines(lines) {
       return;
     }
 
-    /* Ảnh đặt cùng dòng với câu hỏi: "Link ảnh: <url> 1. Câu hỏi..." */
-    if (loneImg && loneImg.text && /^(?:câu\s*\d{1,3}\s*[\.\):]|\d{1,3}\s*[\.\)]\s+)/i.test(loneImg.text)) {
+    if (loneImg && loneImg.text && /^(?:câu|question)\s*\d{1,3}\s*[\.\):]|\d{1,3}\s*[\.\)]\s+/i.test(loneImg.text)) {
       pendingImage = loneImg.url;
       line = loneImg.text;
       html = stripImageMarkerHtml(html);
     }
 
-    /* Phần đáp án kèm giải thích không phải là các phương án/mệnh đề bổ sung. */
     var explanationHead = line.match(/^\s*(giải\s*thích\s*\/\s*đáp\s*án|đáp\s*án\s*\/\s*giải\s*thích|lời\s*giải|giải\s*thích|explanation)\s*[:：]\s*(.*)$/i);
     if (explanationHead && cur) {
       explanationMode = true;
@@ -655,7 +685,7 @@ function parseLines(lines) {
     }
 
     if (explanationMode && cur) {
-      var startsNextQuestion = /^(?:câu\s*\d{1,3}\s*[\.\):]|\d{1,3}\s*[\.\)]\s+)/i.test(line);
+      var startsNextQuestion = /^(?:câu|question)\s*\d{1,3}\s*[\.\):]|\d{1,3}\s*[\.\)]\s+/i.test(line);
       if (!startsNextQuestion) {
         appendExplanationLine(line, html);
         return;
@@ -663,12 +693,10 @@ function parseLines(lines) {
       explanationMode = false;
     }
 
-    /* Dòng đáp án: Đáp án A | Đáp án đúng: B | Đáp án: html */
-    var ansM = line.match(/^đáp\s*án[^:]{0,10}:\s*(.+)$/i);
+    /* Bắt dòng đáp án */
+    var ansM = line.match(/^(?:đáp\s*án|answer|key|correct\s*answer)[^:]{0,15}:\s*(.+)$/i);
     if (ansM) {
       var v = ansM[1].trim();
-      /* Đáp án kèm trích dẫn trong ngoặc: "Đáp án: B (Trích PDF tr. 13: '...')"
-         → đánh dấu B là đáp án đúng và đưa phần trong ngoặc vào lời giải. */
       var letterParenM = v.match(/^([A-Za-z])\s*[\(\[](.+)[\)\]]\s*$/);
       if (letterParenM) {
         answerMark = letterParenM[1].toUpperCase();
@@ -679,16 +707,15 @@ function parseLines(lines) {
         }
         return;
       }
-      var letterM = v.match(/^([A-Da-d])$/);
+      var letterM = v.match(/^([A-Za-z])$/);
       if (letterM) {
         answerMark = letterM[1].toUpperCase();
         if (cur && cur.type === "multiple" && cur.correctIndex === null) cur.answerLetter = answerMark;
       } else {
-        /* Nếu dòng đáp án có chứa ngoặc trích dẫn → tách phần trong ngoặc làm lời giải */
         var parenM = v.match(/\(([^)]+)\)/);
         if (parenM && cur) {
           var stripped = v.replace(/\s*\([^)]*\)\s*$/, "").trim();
-          var lm2 = stripped.match(/^([A-Da-d])$/);
+          var lm2 = stripped.match(/^([A-Za-z])$/);
           if (lm2) {
             answerMark = lm2[1].toUpperCase();
             if (cur.type === "multiple" && cur.correctIndex === null) cur.answerLetter = answerMark;
@@ -706,7 +733,6 @@ function parseLines(lines) {
       return;
     }
 
-    /* Dòng lời giải chi tiết: Lời giải: ... | [Lời giải:] ... | Giải thích: ... | Explanation: ... */
     var expM = line.match(/^\[?\s*(?:lời\s*giải|giải\s*thích|explanation)\s*\]?\s*[:：]\s*\]?\s*(.+)$/i);
     if (expM && cur) {
       var expText = expM[1].trim();
@@ -722,20 +748,23 @@ function parseLines(lines) {
       return;
     }
 
-    /* Dòng phương án: A. / B) / *C. ... — chấp nhận MỌI chữ cái (không bó hẹp A-D) để
-       không vứt bỏ dòng nào. Bóc nhãn hay giữ nguyên cả dòng quyết định ở closeCur()
-       theo format của cả câu (xem chú thích ở đó).
-       QUY ƯỚC ĐÚNG/SAI (bắt buộc): mệnh đề con dùng NHÃN CHỮ THƯỜNG + dấu ")" (a) b) c) d)).
-       Khi gặp dấu ")" → câu đó là Đúng/Sai; đáp án đánh dấu bằng dấu * đầu dòng (*c))
-       hoặc hậu tố (Đ)/(S) (hoặc đúng/sai) cuối câu. */
+    /* Dòng phương án A., B., C., D. */
+    /* English Mode: các nhãn thường a), b), c), d), e) trước các phương án in hoa
+       A., B., C., D. được gom vào thân câu hỏi (không phải phương án trắc nghiệm) */
+    if (isEnglishMode && cur && (!cur.opts || cur.opts.length === 0)) {
+      var lowerOptM = line.match(/^\s*\*?\s*([a-z])\s*[\.\)]\s*(.+)$/);
+      if (lowerOptM) {
+        cur.question = (cur.question ? cur.question + "<br>" : "") + (html || line);
+        return;
+      }
+    }
+
     var optM = line.match(/^(\*)?\s*([A-Za-z])\s*([\.\)\:])\s*(.+)$/);
     if (optM && cur && (cur.type === "multiple" || cur.type === "true_false")) {
       var sep = optM[3];
       var letterChar = optM[2];
 
-      // Chỉ chuyển sang Đúng/Sai khi nhãn là CHỮ IN THƯỜNG dùng ngoặc đơn (vd: a), b), c), d))
-      // Chữ IN HOA (vd: A), B), C), D)) vẫn giữ nguyên là Trắc nghiệm 4 lựa chọn.
-      if (sep === ")" && /^[a-z]$/.test(letterChar) && cur.type === "multiple") {
+      if (sep === ")" && /^[a-z]$/.test(letterChar) && cur.type === "multiple" && !isEnglishMode) {
         cur.type = "true_false";
         cur.subQuestions = [];
       }
@@ -744,16 +773,15 @@ function parseLines(lines) {
       if (cur.type === "true_false") {
         var txt = optM[4].trim();
         var vv = -1;
-        if (optM[1]) vv = 1;                        // * đầu dòng = Đúng
+        if (optM[1]) vv = 1;
         else {
           var tfm = txt.match(/\(?\s*(Đ|đúng)\s*\)?\s*$/i);
-          if (tfm) vv = 1;                          // (Đ)/(đúng) cuối câu = Đúng
+          if (tfm) vv = 1;
           else {
             tfm = txt.match(/\(?\s*(S|sai)\s*\)?\s*$/i);
-            if (tfm) vv = 0;                        // (S)/(sai) cuối câu = Sai
+            if (tfm) vv = 0;
           }
         }
-        /* không đánh dấu → để null (chưa chọn), KHÔNG mặc định Sai; có cảnh báo + chặn xuất bản */
         if (vv < 0) vv = null;
         var cleanTxt = txt.replace(/\(?\s*(Đ|S|đúng|sai)\s*\)?\s*$/i, "").trim();
         var subHtml = cleanOptionHtml(line, html, txt);
@@ -763,9 +791,9 @@ function parseLines(lines) {
       return;
     }
 
-    /* Dòng câu hỏi số: 1. / Câu 2: / 3) ... */
-    var numM = line.match(/^câu\s*(\d{1,3})\s*[\.\):]\s*(.+)$/i)
-            || line.match(/^(\d{1,3})\s*[\.\)]\s+(.+)$/);
+    /* Bắt dòng câu hỏi dạng: Question 1. / Câu 1: / 1. */
+    var numM = line.match(/^(?:câu|question)\s*(\d{1,3})\s*[\.\):]\s*(.*)$/i)
+            || line.match(/^(\d{1,3})\s*[\.\)]\s+(.*)$/);
     if (numM && !/^[A-Da-d]$/.test(numM[1])) {
       closeCur();
       var qtextRaw = numM[2].trim();
@@ -784,6 +812,7 @@ function parseLines(lines) {
         cur = { type: "multiple", question: qhtml.trim(), answers: [], correctIndex: null, opts: [] };
       }
       cur.answerLetter = answerMark || null;
+      if (pendingPassage) { cur.passage = pendingPassage; pendingPassage = null; }
       answerMark = null;
       if (inlineImg) cur.image = inlineImg.url;
       else if (pendingImage) cur.image = pendingImage;
@@ -796,7 +825,12 @@ function parseLines(lines) {
       return;
     }
 
-    /* Dòng lẻ thừa (bỏ dòng trống để tránh warning rác) */
+    /* Gom các dòng text tự do / lời dẫn (Dear Dr Cheetah, a. Critics...) vào thân câu hỏi hiện tại */
+    if (cur && cur.opts.length === 0 && !/^(?:đáp\s*án|answer|key)/i.test(line)) {
+      cur.question += "<br>" + (html || line);
+      return;
+    }
+
     if (String(line || "").trim()) warnings.push("Bỏ qua (không nhận dạng): “" + line + "”");
   }
 
@@ -804,7 +838,7 @@ function parseLines(lines) {
   closeCur();
 
   if (!questions.length) {
-    return { sections: [], warnings: warnings, error: "Không nhận dạng được câu nào. Kiểm tra có đánh số '1.', 'Câu 2:' + dòng đáp án 'A.', 'B.', ..." };
+    return { sections: [], warnings: warnings, error: "Không nhận dạng được câu nào. Kiểm tra có đánh số '1.', 'Câu 2:' hoặc 'Question 1:' + dòng đáp án 'A.', 'B.', ..." };
   }
 
   var multipleNoAns = questions.filter(function (q) { return q.type === "multiple" && q.correctIndex === null; }).length;
@@ -822,7 +856,7 @@ function parseLines(lines) {
 
   return {
     sections: [{
-      sectionTitle: "PHẦN I — ĐỀ ĐÃ NHẬN DẠNG",
+      sectionTitle: isEnglishMode ? "SECTION I — IDENTIFIED QUESTIONS" : "PHẦN I — ĐỀ ĐÃ NHẬN DẠNG",
       sectionDesc: "Tự động từ văn bản: <b>" + questions.length + "</b> câu (" +
         questions.filter(function (q) { return q.type === "multiple"; }).length + " trắc nghiệm, " +
         questions.filter(function (q) { return q.type === "true_false"; }).length + " đúng/sai, " +
@@ -835,23 +869,18 @@ function parseLines(lines) {
   };
 }
 
-/* ============ RENDER (giống engine filetest) ============ */
-
+/* Các hàm Render, Event listeners, Sync, Publish giữ nguyên như cũ */
 function escAttr(s) { return String(s == null ? "" : s).replace(/"/g, "&quot;"); }
 
-/* Bỏ số thứ tự / "Câu N:" đứng đầu câu hỏi khi render (render đã tự đánh số) */
 function stripQuestionNo(s) {
   s = String(s == null ? "" : s);
-  var m = /^(\s*)((?:<[^>]+>\s*)*)((?:câu|câu\s+hỏi)\s+)?(\d{1,3})\s*[.:)]\s*/i.exec(s);
+  var m = /^(\s*)((?:<[^>]+>\s*)*)((?:câu|câu\s+hỏi|question)\s+)?(\d{1,3})\s*[.:)]\s*/i.exec(s);
   if (!m) return s;
   var rest = s.slice(m[0].length);
-  if (/^[\d.]/.test(rest.replace(/\s+/g, "").charAt(0) || "")) return s;   // "2.5..." không phải số thứ tự
+  if (/^[\d.]/.test(rest.replace(/\s+/g, "").charAt(0) || "")) return s;
   return fixInlineHtml(rest);
 }
 
-/* Bấm trực tiếp vào tiêu đề/mô tả phần trong cửa sổ xem trước để sửa nhanh.
-   Enter = lưu, Esc = huỷ, bấm ra ngoài = lưu. Thay đổi ghi thẳng vào testData
-   rồi đồng bộ JSON bên trái (không render lại để giữ vị trí cuộn). */
 function bindSectionEdit(el, section, field, placeholder) {
   if (!el) return;
   var snapshot = "";
@@ -896,8 +925,6 @@ function commitSectionEdit(el, section, field, placeholder, snapshot, save) {
   syncJson();
 }
 
-/* Bỏ thẻ in đậm (<b>/<strong>) khỏi NỘI DUNG CÂU HỎI — khung câu hỏi đã in đậm
-   sẵn nên thẻ strong là thừa; giữ lại in nghiêng/gạch chân/... */
 function stripBoldTags(html) {
   return String(html == null ? "" : html).replace(/<\/?(?:b|strong)(?:\s[^>]*)?>/gi, "");
 }
@@ -910,9 +937,9 @@ function render() {
     return;
   }
 
-  var gi = 0;          // chỉ số toàn cục cho câu trả lời
+  var gi = 0;
   var qCount = 0;
-  var imgCount = 0;    // số câu có ảnh (hiện trên tiêu đề cửa sổ xem trước)
+  var imgCount = 0;
 
   testData.forEach(function (section, si) {
     if (!section || !Array.isArray(section.questions)) return;
@@ -975,14 +1002,10 @@ function render() {
       if (type === "multiple") {
         var list = document.createElement("div");
         var ansArr = item.answers || [];
-        /* Câu có đáp án chữ dài → xếp 1 cột dọc (nếu cứ 2x2 sẽ chật/xấu).
-           Đáp án ảnh vẫn để 2 cột cho gọn. */
         var stacked = ansArr.some(function (aa) {
           return !answerImageUrl(aa) && String(aa == null ? "" : aa).length > 38;
         });
         list.className = "opt-list" + (stacked ? " stacked" : "");
-        /* Chỉ bóc nhãn "A." "B."... khi cả câu theo format nhãn (khớp đúng vị trí);
-           đáp án bắt đầu bằng chữ in hoa như "B. Franklin" thì giữ nguyên. */
         var lblPat = 0, lblPos = 0;
         ansArr.forEach(function (a, i) {
           var m = /^([A-Za-z])\s*[.、)]\s+/.exec(String(a == null ? "" : a));
@@ -1016,7 +1039,7 @@ function render() {
           o.addEventListener("click", function () {
             if (graded) return;
              var oldCorrect = item.correct;
-             item.correct = i;                                  // lưu làm đáp án đúng
+             item.correct = i;
              if (oldCorrect !== i && typeof lhToast === "function") {
                var oldL = (oldCorrect === null || oldCorrect === undefined) ? "—" : letter(oldCorrect);
                lhToast("Thay đổi đáp án - Câu " + (idx + 1) + ": " + oldL + " → " + letter(i), "info");
@@ -1029,7 +1052,7 @@ function render() {
             if (sc2) sc2.textContent = "Đáp án ✔";
             var inp = o.querySelector("input");
             if (inp) { inp.checked = true; userAnswers[idx] = i; }
-            syncJson();                                        // tự cập nhật JSON bên trái
+            syncJson();
           });
           list.appendChild(o);
         });
@@ -1063,7 +1086,7 @@ function render() {
           var row = document.createElement("div");
           row.className = "tf-row";
           var val = userAnswers["tf_" + idx + "_" + si];
-          var kv = (sq.correct === 0 || sq.correct === 1) ? sq.correct : -1;   // 1 = Đúng, 0 = Sai, -1 = chưa chọn
+          var kv = (sq.correct === 0 || sq.correct === 1) ? sq.correct : -1;
           if (graded) row.classList.add(val === kv ? "good" : "bad");
           var answerClass = graded ? (val === kv ? "ans-good" : "ans-bad") : (kv === 1 ? "ans-good" : "ans-bad");
           row.innerHTML = '<span class="tf-lett">' + String.fromCharCode(97 + si) + "</span>" +
@@ -1080,7 +1103,7 @@ function render() {
               if (graded) return;
               var __oldTf = (sq.correct === 0 || sq.correct === 1) ? (sq.correct === 1 ? "Đúng" : "Sai") : "—";
               var __newTf = (Number(inp.value) === 1) ? "Đúng" : "Sai";
-              sq.correct = Number(inp.value);                  // lưu làm đáp án đúng (0/1)
+              sq.correct = Number(inp.value);
               var r2 = this.closest(".tf-row");
               if (!r2) return;
               r2.querySelectorAll(".tf-opts label").forEach(function (l) {
@@ -1090,7 +1113,7 @@ function render() {
               this.parentElement.classList.add("cor");
               var un = r2.querySelector(".ans-bad");
               if (un && /chưa chọn/.test(un.textContent)) un.remove();
-              syncJson();                                      // tự cập nhật JSON bên trái
+              syncJson();
               if (__oldTf !== __newTf && typeof lhToast === "function") lhToast("Thay đổi đáp án - Câu " + (idx + 1) + " (" + String.fromCharCode(97 + si) + "): " + __oldTf + " → " + __newTf, "info");
             });
           });
@@ -1174,7 +1197,6 @@ function norm(v) {
   return String(v == null ? "" : v).trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-/* Cuộn cửa sổ xem trước tới câu N (1..tổng số câu), tô sáng câu đó */
 function jumpToQuestion(n) {
   var area = $("renderArea");
   var input = $("jumpQ");
@@ -1184,26 +1206,17 @@ function jumpToQuestion(n) {
   if (!total) return;
   n = Math.floor(Number(n));
   if (!isFinite(n) || n < 1) n = 1;
-  if (n > total) n = total;          // không vượt quá tổng số câu
+  if (n > total) n = total;
   if (input) input.value = n;
   var card = cards[n - 1];
   var top = card.getBoundingClientRect().top - area.getBoundingClientRect().top + area.scrollTop - 10;
   area.scrollTo({ top: top < 0 ? 0 : top, behavior: "smooth" });
   card.classList.remove("q-jump-flash");
-  void card.offsetWidth;             // khởi động lại animation
+  void card.offsetWidth;
   card.classList.add("q-jump-flash");
   setTimeout(function () { card.classList.remove("q-jump-flash"); }, 1300);
 }
 
-/* ============ ĐỀ MẪU ============ */
-
-/* CÁCH ĐÁNH DẤU ĐÁP ÁN (xem helper bên dưới để note):
-   - Trắc nghiệm: dòng "Đáp án: A" sau phương án  HOẶC dấu * trước phương án (*D. ...)
-   - Đúng/Sai: hậu tố (Đ)/(S) cuối câu  HOẶC dấu * trước chữ (a)/b)/c)/d)) = Đúng
-   - Tự luận: dòng "Đáp án: nội_dung" sau câu hỏi
-   - Ảnh câu hỏi: dòng "Ảnh: https://..." hoặc "Link ảnh: https://..." ngay dưới câu hỏi
-   - Đáp án ảnh: phương án chỉ là link ảnh (hoặc "Ảnh: <link>") → tự render thành ảnh
-   Muốn sửa đáp án → đổi chữ ở dòng "Đáp án:" hoặc chuyển dấu * sang phương án khác. */
 function sampleText() {
   return [
     "PHẦN I. TRẮC NGHIỆM",
@@ -1240,8 +1253,6 @@ function sampleText() {
   ].join("\n");
 }
 
-/* Đề mẫu TIẾNG ANH — ngắn gọn: trắc nghiệm + đọc hiểu (passage) + nghe (listening).
-   Đáp án đánh dấu: dòng "Đáp án: X" hoặc dấu * trước phương án. */
 function sampleTextEN() {
   return [
     "PHẦN I. TRẮC NGHIỆM",
@@ -1351,11 +1362,6 @@ function jsonSample() {
   ], null, 2);
 }
 
-/* ============ THIẾT LẬP ĐỀ (Tiếp tục) ============ */
-
-/* Áp dụng thiết lập lên testData: chỉ còn thời gian làm bài.
-   Việc xáo trộn câu/đáp án do trang làm bài (filetest.html) tự thực hiện theo cờ shuffle_q/shuffle_a,
-   nên nội dung lưu trong DB luôn giữ đúng thứ tự gốc của đề. */
 function showEditDiffModal(onConfirm) {
   var snap = window.__originalEditSnapshot;
   var body = $("editDiffBody");
@@ -1387,7 +1393,6 @@ function showEditDiffModal(onConfirm) {
       html += '<div><b>' + escapeC(label) + ':</b> <span style="text-decoration:line-through;color:#94a3b8">' + escapeC(String(ov === null ? "—" : ov)) + '</span> → <b>' + escapeC(String(nv === null ? "—" : nv)) + '</b></div>';
     }
   });
-  // Content change: so sánh chi tiết từng phần (tiêu đề, nội dung, đáp án, ...)
   var oldData = snap.data;
   var newData = JSON.stringify(testData);
   if (oldData !== newData) {
@@ -1395,7 +1400,6 @@ function showEditDiffModal(onConfirm) {
     try { oldSections = JSON.parse(oldData || "[]"); } catch (e) { oldSections = []; }
     var changes = [];
     var textFields = ["title", "question", "text", "prompt", "passage", "explanation", "name", "desc", "description", "sectionTitle", "questionText", "answer", "correctAnswer", "shortAnswer", "sampleAnswer"];
-    // So sánh field text của 2 object cùng vị trí
     function diffTextFields(o, n, label) {
       textFields.forEach(function (f) {
         if (o && n && Object.prototype.hasOwnProperty.call(o, f) && Object.prototype.hasOwnProperty.call(n, f)) {
@@ -1426,16 +1430,13 @@ function showEditDiffModal(onConfirm) {
       if (!oq && nq) { changes.push("Câu " + num + ": thêm mới"); continue; }
       if (oq && !nq) { changes.push("Câu " + num + ": đã xóa"); continue; }
       if (!oq || !nq) continue;
-      // Tiêu đề câu hỏi
       diffTextFields(oq, nq, "Câu " + num);
-      // Đáp án trắc nghiệm (correct index)
       var oldC = oq.correct, newC = nq.correct;
       if (oldC !== newC && (oldC !== null || newC !== null) && (oldC !== undefined || newC !== undefined)) {
         var oldL = (oldC === null || oldC === undefined) ? "—" : letter(oldC);
         var newL = (newC === null || newC === undefined) ? "—" : letter(newC);
         if (oldL !== newL) changes.push("Câu " + num + ": đáp án " + oldL + " → " + newL);
       }
-      // TF subQuestions
       if (Array.isArray(oq.subQuestions) && Array.isArray(nq.subQuestions)) {
         var m = Math.max(oq.subQuestions.length, nq.subQuestions.length);
         for (var si = 0; si < m; si++) {
@@ -1449,7 +1450,6 @@ function showEditDiffModal(onConfirm) {
           }
         }
       }
-      // Options (mảng)
       if (Array.isArray(oq.options) && Array.isArray(nq.options)) {
         var mo = Math.max(oq.options.length, nq.options.length);
         for (var oi = 0; oi < mo; oi++) {
@@ -1491,10 +1491,9 @@ function applyMeta(goNext) {
   $("resultBox").hidden = true;
   if (!jsonAreaDirty) writeJson(JSON.stringify(testData, null, 2));
   render();
-  if (goNext) showStage(4);   // áp dụng thiết lập → sang bước 4 (rà soát & xuất bản)
+  if (goNext) showStage(4);
 }
 
-/* Lấy text thật (bỏ thẻ) của 1 chuỗi HTML — dùng cho danh sách câu ở màn rà soát */
 function textOf(x) {
   var s = String(x == null ? "" : x);
   if (!/<[a-zA-Z/]/.test(s)) return s.replace(/\s+/g, " ").trim();
@@ -1502,9 +1501,6 @@ function textOf(x) {
   d.innerHTML = s;
   return (d.textContent || "").replace(/\s+/g, " ").trim();
 }
-
-/* ============ MÀN 3: RÀ SOÁT & XUẤT BẢN (demo — xuất bản chỉ mô phỏng) ============ */
-/* Layout: TRÁI = rà soát đề (từng phần + danh sách câu); PHẢI = thông tin thiết lập + Xuất bản. */
 
 function renderReview() {
   var area = $("revArea");
@@ -1527,7 +1523,6 @@ function renderReview() {
     });
   });
 
-  /* ---- Cột trái: rà soát đề ---- */
   var left = "";
   testData.forEach(function (s, si) {
     var cnt = (s && Array.isArray(s.questions)) ? s.questions.length : 0;
@@ -1566,7 +1561,6 @@ function renderReview() {
     (subtestOn ? ' · <b style="color:#7c3aed">đề con ' + subtestN + " câu</b>" : "") +
     " (mỗi câu " + (scoreBase > 0 ? (testMeta.score / scoreBase).toFixed(2) : "0.00") + " điểm)</div>";
 
-  /* ---- Cột phải: thiết lập + xuất bản ---- */
   var right =
     '<div class="rev-meta">' +
       '<div class="rev-meta-hd" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#ffffff"><i class="fa-solid fa-gear" style="color:#ffffff"></i> Thiết lập đề</div>' +
@@ -1605,7 +1599,6 @@ function renderReview() {
     "</div>" +
     '<div class="note" id="revNote" hidden></div>';
 
-  /* Nút "Sửa lại đề" + "Xuất bản/Cập nhật đề" đặt trên hàng tiêu đề (bước 4) */
   if (headActions) {
     headActions.innerHTML =
       '<button type="button" class="btn btn-ghost" id="btnRevBack">← Sửa lại đề</button>' +
@@ -1629,10 +1622,6 @@ function renderReview() {
   if (pub) pub.disabled = !testMeta.name || subtestInvalid || tfUnset > 0;
 }
 
-/* Xuất bản đề — GHI DATABASE THẬT qua RPC teacher_upsert_test_set.
-   Lưu vào bảng test_sets (is_complete = true) → hiện card "Làm bài"
-   đúng môn trong Phòng Học. Người chơi mở bằng ?de=t:<id>, engine
-   cauhoi/filetest.html đọc nội dung + cấu hình (minutes/score/shuffle_*) từ DB. */
 async function publishTest() {
   var b = $("btnPublish");
   if (!b || b.disabled || b.dataset.done === "1" || !testData || !testData.length) return;
@@ -1674,7 +1663,7 @@ async function publishTest() {
         : code === "empty_subject" ? "Chưa chọn môn học."
         : code === "empty_name" ? "Chưa đặt tên đề."
         : code === "empty_content" ? "Đề trống — không thể xuất bản."
-        : code === "structure_locked" ? "Đề đã xuất bản — không thể thay đổi cấu trúc (thêm/bớt câu/section/đáp án). Chỉ được sửa nội dung/đáp án hoặc điểm."
+        : code === "structure_locked" ? "Đề đã xuất bản — không thể thay đổi cấu trúc."
         : code === "invalid_subtest_count" ? "Số câu đề con phải từ 1 đến " + ((res.data && res.data.total) || countQ(testData)) + "."
         : code === "invalid_time_range" ? "Thời gian kết thúc phải sau thời gian bắt đầu."
         : "Không xuất bản được bài kiểm tra.";
@@ -1699,26 +1688,15 @@ async function publishTest() {
           "<h3>" + (isEdit ? "Cập nhật thành công" : "Tạo đề thành công") + "</h3>" +
           "<p>Đề <b>" + escapeC(testMeta.name) + "</b>" +
             (subject ? " - Môn <b>" + escapeC(subject) + "</b>" : "") +
-            (isEdit ? " đã lưu lại bản cập nhật, card trong <b>Phòng Học</b> dùng nội dung mới ngay.</p>" : " đã đưa lên DB, hiện card <b>Làm bài</b> đúng môn trong <b>Phòng Học</b>.</p>") +
+            (isEdit ? " đã lưu lại bản cập nhật.</p>" : " đã đưa lên DB.</p>") +
           '<div class="publish-link-row">' +
             '<input id="publishedTestLink" type="text" readonly aria-label="Link đề thi" style="flex:1;min-width:0;padding:10px 12px;border:1px solid #b9e6d2;border-radius:9px;background:#fff;color:#047857;font-size:13px">' +
             '<div class="publish-copy-wrap"><button type="button" class="btn btn-primary" id="btnCopyTestLink">Copy</button><span id="copy-link-status" class="copy-link-status" aria-live="polite"></span></div>' +
           '</div>' +
           '<p class="pub-id">' + realId + "</p>" +
-          '<p class="muted publish-settings-summary">Điểm tối đa <b>' + payload.p_score + "</b> - Trộn câu: <b>" +
-            (payload.p_shuffle_q ? "Bật" : "Tắt") + "</b> - Trộn đáp án: <b>" +
-            (payload.p_shuffle_a ? "Bật" : "Tắt") + "</b> - Điểm: <b>" +
-            (payload.p_show_score === "none" ? "Ẩn" : "Hiện") + "</b> - Hiện đáp án: <b>" +
-            (payload.p_show_answers === "none" ? "Không" : payload.p_show_answers === "perfect" ? "Khi điểm tối đa" : "Luôn") + "</b> - Đề con: <b>" +
-            (payload.p_subtest_enabled ? payload.p_subtest_count + "/" + countQ(testData) + " câu" : "Tắt") + "</b>" +
-            " - Số lần làm: <b>" + (payload.p_max_attempts > 0 ? payload.p_max_attempts + " lượt" : "Không giới hạn") + "</b>" +
-            " - Mật khẩu: <b>" + (payload.p_password ? "Đã đặt" : "Không") + "</b>" +
-            (testMeta.timeEnabled && testMeta.startAt && testMeta.endAt ? " - Mở đề: <b>" + fmtDateTime(testMeta.startAt) + " → " + fmtDateTime(testMeta.endAt) + "</b>" : "") +
-          "</p>" +
           '</section>' +
           '<aside class="publish-settings-aside">' + setupCardHtml + '</aside>' +
         '</div>';
-      /* Nút "Xuất bản đề mới" đưa lên hàng tiêu đề (ghim cùng 2 nút còn lại) */
       var headActions = $("revHeadActions");
       if (headActions && !$("btnPublishAgain")) {
         headActions.insertAdjacentHTML("beforeend",
@@ -1732,31 +1710,22 @@ async function publishTest() {
       try {
         await navigator.clipboard.writeText(link);
         setCopyLinkStatus("Sao chép link thành công!");
-if (typeof lhToast === "function") lhToast("Đã sao chép link đề thi", "success");
+        if (typeof lhToast === "function") lhToast("Đã sao chép link đề thi", "success");
       } catch (_copyError) {}
     }
     if (rn) rn.hidden = true;
-    /* Đã xuất bản/lưu xong → khoá nút luôn để không bắn thêm request lên DB.
-       Muốn sửa tiếp thì bấm "← Sửa lại đề" (renderReview sẽ tạo lại nút mới). */
     b.disabled = true;
     b.dataset.done = "1";
-    b.title = "Đề đã xuất bản — bấm “← Sửa lại đề” nếu muốn chỉnh sửa rồi cập nhật lại.";
+    b.title = "Đề đã xuất bản — bấm “← Sửa lại đề” nếu muốn chỉnh sửa.";
     b.innerHTML = currentEditId ? '<i class="fa-solid fa-floppy-disk"></i> Đã lưu ✓' : '<i class="fa-solid fa-rocket"></i> Đã xuất bản ✓';
     b.style.opacity = ".55";
     if (typeof lhToast === "function") lhToast(isEdit ? "Cập nhật đề thành công" : "Xuất bản đề thành công", "success");
-    if (typeof mod.logAppError === "function") {
-      mod.logAppError({ source: "newtest", category: "feature", level: "info", code: isEdit ? "TEST_UPDATED" : "TEST_PUBLISHED", message: (isEdit ? "Cập nhật đề: " : "Xuất bản đề: ") + realId });
-    }
-    /* Đã có id thật → các lần bấm tiếp theo là CẬP NHẬT đúng đề này, không tạo bản trùng */
     currentEditId = res.data.id;
     currentEditComplete = true;
   } catch (e) {
     var errMsg = (e && e.message) || "Lỗi không xác định.";
     console.error("[PUBLISH] " + errMsg);
     if (typeof lhToast === "function") lhToast("Xuất bản thất bại: " + errMsg, "error");
-    if (typeof mod !== "undefined" && mod && typeof mod.logAppError === "function") {
-      mod.logAppError({ source: "newtest", category: "feature", level: "error", code: "TEST_PUBLISH_FAIL", message: errMsg });
-    }
     if (left) {
       left.innerHTML =
         '<div style="border:1px solid #fecaca;background:#fef2f2;border-radius:18px;padding:24px;text-align:center">' +
@@ -1773,7 +1742,6 @@ if (typeof lhToast === "function") lhToast("Đã sao chép link đề thi", "suc
   }
 }
 
-/* Xuất bản đề mới: xoá sạch đề cũ + thiết lập + id đang sửa để không ghi đè/trùng đề vừa xuất bản */
 function resetForNewTest() {
   testData = [];
   userAnswers = {};
@@ -1801,7 +1769,6 @@ function resetForNewTest() {
   showStage(1);
 }
 
-/* Delegation cho màn 4 (nút dựng lại mỗi lần render nên không bind trực tiếp) */
 $("p4").addEventListener("click", function (e) {
   var el = e.target && e.target.closest ? e.target.closest("#btnPublish, #btnRevBack, #btnPublishAgain, #btnPublishRetry, #btnCopyTestLink, #download-qr-btn") : null;
   if (!el) return;
@@ -1817,13 +1784,13 @@ $("p4").addEventListener("click", function (e) {
       : Promise.reject(new Error("Clipboard API không khả dụng."));
     copyPromise.then(function () {
       setCopyLinkStatus("Sao chép link thành công!");
-if (typeof lhToast === "function") lhToast("Đã sao chép link đề thi", "success");
+      if (typeof lhToast === "function") lhToast("Đã sao chép link đề thi", "success");
     }).catch(function () {
       input.focus();
       input.select();
       try {
         if (document.execCommand("copy")) setCopyLinkStatus("Sao chép link thành công!");
-if (typeof lhToast === "function") lhToast("Đã sao chép link đề thi", "success");
+        if (typeof lhToast === "function") lhToast("Đã sao chép link đề thi", "success");
         else setCopyLinkStatus("Không sao chép được link.", true);
       } catch (_copyError) {
         setCopyLinkStatus("Không sao chép được link.", true);
@@ -1842,7 +1809,6 @@ if (typeof lhToast === "function") lhToast("Đã sao chép link đề thi", "suc
   }
 });
 
-/* Tạo QR trên canvas với khung đơn giản bằng code để tải thành PNG. */
 function generateCustomQRCode(linkDeThi) {
   var canvas = $("qr-canvas");
   var downloadButton = $("download-qr-btn");
@@ -1853,17 +1819,16 @@ function generateCustomQRCode(linkDeThi) {
   downloadButton.style.display = "none";
   try {
     window.LearnHubTestQR.render(canvas, linkDeThi);
-if (typeof lhToast === "function") lhToast("Đã tạo mã QR", "success");
+    if (typeof lhToast === "function") lhToast("Đã tạo mã QR", "success");
     canvas.style.display = "block";
     downloadButton.style.display = "block";
   } catch (error) {
     console.error("[QR] Không thể tạo ảnh QR:", error);
-if (typeof lhToast === "function") lhToast("Không tạo được ảnh QR", "error");
+    if (typeof lhToast === "function") lhToast("Không tạo được ảnh QR", "error");
     if (qrStatus) qrStatus.textContent = "Không tạo được ảnh QR.";
   }
 }
 
-/* Cập nhật nhãn nút "Tiếp tục" theo tên đề đã đặt */
 function updateSetupBtn() {
   var b = $("btnSetup");
   if (!b) return;
@@ -1871,7 +1836,6 @@ function updateSetupBtn() {
   b.title = "";
 }
 
-/* Đồng bộ khối "đề con": chỉ hiện ô số câu khi bật, kèm tổng số câu hiện có */
 function syncSubtestUI() {
   var chk = $("setSubtestEnabled"), box = $("subtestBox"), inp = $("setSubtestCount"), hint = $("subtestHint");
   if (!chk || !box || !inp) return;
@@ -1882,19 +1846,17 @@ function syncSubtestUI() {
     var cur = parseInt(inp.value, 10);
     hint.innerHTML = total > 0
       ? "Tổng đề có <b>" + total + "</b> câu. Mỗi lần mở đề sẽ bốc ngẫu nhiên <b>" +
-        (cur > 0 ? Math.min(cur, total) : "N") + "</b> câu; điểm và thời gian giữ nguyên."
+        (cur > 0 ? Math.min(cur, total) : "N") + "</b> câu."
       : "Chưa có câu hỏi — hãy đọc/nạp đề trước khi bật đề con.";
   }
 }
 
-/* Định dạng Date → giá trị cho <input type="datetime-local"> (giờ địa phương) */
 function toLocalInput(d) {
   var p = function (n) { return (n < 10 ? "0" : "") + n; };
   return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) +
     "T" + p(d.getHours()) + ":" + p(d.getMinutes());
 }
 
-/* Định dạng dd/mm/yyyy HH:mm để hiển thị */
 function fmtDateTime(v) {
   var d = (v instanceof Date) ? v : new Date(v);
   if (isNaN(d.getTime())) return "";
@@ -1903,7 +1865,6 @@ function fmtDateTime(v) {
     " " + p(d.getHours()) + ":" + p(d.getMinutes());
 }
 
-/* Đồng bộ khối "thời gian mở đề": mặc định bắt đầu = bây giờ, kết thúc = +7 ngày */
 function syncTimeUI() {
   var chk = $("setTimeEnabled"), box = $("timeBox"), st = $("setStartAt"), en = $("setEndAt"), hint = $("timeHint");
   if (!chk || !box || !st || !en) return;
@@ -1914,12 +1875,11 @@ function syncTimeUI() {
   if (hint) {
     var s = st.value ? new Date(st.value) : null, e = en.value ? new Date(en.value) : null;
     hint.textContent = (s && e && !isNaN(s.getTime()) && !isNaN(e.getTime()) && e > s)
-      ? "Học sinh làm được từ " + fmtDateTime(s) + " đến " + fmtDateTime(e) + " — vẫn phải bật công tắc Hoàn thành."
-      : "Mặc định: bắt đầu là bây giờ, kết thúc sau 7 ngày. Kết thúc phải sau bắt đầu.";
+      ? "Học sinh làm được từ " + fmtDateTime(s) + " đến " + fmtDateTime(e) + "."
+      : "Thời gian kết thúc phải sau bắt đầu.";
   }
 }
 
-/* Nạp trạng thái hiện tại vào form thiết lập (bước 3) */
 function syncSetupForm() {
   $("setSubject").value = testMeta.subject || "";
   $("setName").value = testMeta.name;
@@ -1947,10 +1907,7 @@ function syncSetupForm() {
   clearInvalidSetup();
 }
 
-/* Nút "▶ Tiếp tục" ở màn 2 → sang bước 3 (thiết lập đề) */
 $("btnSetup").addEventListener("click", function () { showStage(3); });
-
-/* Nút "← Quay lại" ở bước 3 → về màn 2 */
 $("btnSetupBack").addEventListener("click", function () { showStage(2); });
 
 $("setSubtestEnabled").addEventListener("change", function () {
@@ -1969,7 +1926,6 @@ $("setTimeEnabled").addEventListener("change", function () {
 $("setStartAt").addEventListener("input", syncTimeUI);
 $("setEndAt").addEventListener("input", syncTimeUI);
 
-/* 4 mục bắt buộc: môn học, tên đề, thời gian, điểm tối đa */
 var SETUP_REQUIRED = ["setSubject", "setName", "setMinutes", "setScore"];
 function clearInvalidSetup() {
   SETUP_REQUIRED.forEach(function (id) { var el = $(id); if (el) el.classList.remove("invalid"); });
@@ -2060,11 +2016,10 @@ $("btnSetupApply").addEventListener("click", function () {
   if (currentEditId && window.__originalEditSnapshot) {
     showEditDiffModal(function () { applyMeta(true); });
   } else {
-    applyMeta(true);   // applyMeta(true) → nhảy sang bước 4 (rà soát & xuất bản)
+    applyMeta(true);
   }
 });
 
-/* Nạp dropdown môn học (8 môn trong Phòng Học) — đề xuất bản sẽ hiện đúng môn này */
 (function () {
   var sel = $("setSubject");
   if (!sel) return;
@@ -2090,8 +2045,10 @@ $("btnSampleEN").addEventListener("click", function () {
 });
 
 $("btnParse").addEventListener("click", function () {
+  var toggleEl = $("englishModeToggle");
+  if (toggleEl) isEnglishMode = !!toggleEl.checked;
   var txt = $("inputText").value.trim();
-  /* Dán JSON trực tiếp vào ô text (màn 1) → parse thẳng thay vì đọc như văn bản Word */
+
   if (/^\s*[\[{]/.test(txt)) {
     try {
       var j = JSON.parse(txt);
@@ -2113,8 +2070,6 @@ $("btnParse").addEventListener("click", function () {
   applyParseResult(parseTextToJson($("inputText").value), "");
 });
 
-/* Áp dụng text JSON ở ô jsonArea vào testData + render (đã bỏ nút "Áp dụng & Render")
-   — dùng cho tải file .json và live-render khi sửa tay. */
 function applyJsonString(txt) {
   try {
     var j = JSON.parse(txt);
@@ -2129,13 +2084,10 @@ function applyJsonString(txt) {
   }
 }
 
-/* Ghi testData hiện tại vào ô JSON (dùng khi bấm chọn đáp án bên preview)
-   — writeJson tự đặt jsonAreaDirty=false nên live-render không ghi đè lại */
 function syncJson() {
   writeJson(JSON.stringify(testData, null, 2));
 }
 
-/* Live-render: mỗi lần user gõ JSON sẽ chờ 350ms rồi áp dụng lại preview */
 var jsonRenderTimer = null;
 function scheduleJsonRender() {
   if (jsonRenderTimer) clearTimeout(jsonRenderTimer);
@@ -2146,9 +2098,6 @@ function scheduleJsonRender() {
 }
 
 $("btnBack").addEventListener("click", function () {
-  /* Mở từ khu vực Giáo viên (shell sidebar / cardphonghoc / trang chủ) →
-     quay về tab "Bài kiểm tra" (view=quiz), không về trang chủ.
-     Mở độc lập (demo) → giữ luồng bước 1. */
   var ref = document.referrer || "";
   if (ref && ref.indexOf("/teacher/") >= 0) {
     window.location.href = "../index.html?view=quiz";
@@ -2163,51 +2112,47 @@ $("jsonArea").addEventListener("input", function () {
   scheduleJsonRender();
 });
 
-/* "Đi đến câu": nhập số câu rồi bấm Đi (hoặc Enter) để cuộn cửa sổ xem trước tới câu đó */
 $("jumpBtn").addEventListener("click", function () { jumpToQuestion($("jumpQ").value); });
 $("jumpQ").addEventListener("keydown", function (e) {
   if (e.key === "Enter") { e.preventDefault(); jumpToQuestion(this.value); }
 });
 
-/* Tải tệp lên: một nút chung cho .docx / .txt / .json */
 $("fileUpload").addEventListener("change", function () {
   var f = this.files && this.files[0];
   if (!f) return;
   this.value = "";
   var name = f.name || "";
 
-  /* --- .json: đọc thẳng thành JSON --- */
   if (/\.json$/i.test(name)) {
     var frJ = new FileReader();
     frJ.onload = function () {
       try {
         var j = JSON.parse(String(frJ.result || ""));
         setFileLabel(f.name);
-        testMeta.name = baseName(f.name);        // tên file bỏ đuôi → tên đề
+        testMeta.name = baseName(f.name);
         updateSetupBtn();
         writeJson(JSON.stringify(Array.isArray(j) ? j : (j.sections || []), null, 2));
         applyJsonString($("jsonArea").value);
         showStage(2);
       } catch (e) {
         setNote("File JSON không hợp lệ: " + escapeC(e.message), true);
-if (typeof lhToast === "function") lhToast("File JSON không hợp lệ", "error");
+        if (typeof lhToast === "function") lhToast("File JSON không hợp lệ", "error");
       }
     };
     frJ.readAsText(f, "utf-8");
     return;
   }
 
-  /* --- .docx / .txt: parse text --- */
   var isDocx = /\.docx$/i.test(name);
   var fr = new FileReader();
   fr.onload = function () {
     setFileLabel(f.name);
-    testMeta.name = baseName(f.name);          // tên file bỏ đuôi → tên đề
+    testMeta.name = baseName(f.name);
     updateSetupBtn();
     if (!isDocx) {
       $("inputText").value = String(fr.result || "");
       setNote("Đã tải <b>" + escapeC(f.name) + "</b>. Bấm <b>Đọc text → JSON</b>.", false);
-if (typeof lhToast === "function") lhToast("Đã tải file " + f.name, "success");
+      if (typeof lhToast === "function") lhToast("Đã tải file " + f.name, "success");
       return;
     }
     if (typeof window.mammoth === "undefined") {
@@ -2224,8 +2169,8 @@ if (typeof lhToast === "function") lhToast("Đã tải file " + f.name, "success
         } else {
           $("inputText").value = String(res.value || "");
           setNote("Đã parse <b>" + escapeC(f.name) + "</b> → dán vào ô text." + extra +
-            " Bấm <b>Đọc text → JSON</b>; nhớ rà đáp án đúng nhé.", false);
-           if (typeof lhToast === "function") lhToast("Đã parse file " + f.name, "success");
+            " Bấm <b>Đọc text → JSON</b>.", false);
+          if (typeof lhToast === "function") lhToast("Đã parse file " + f.name, "success");
         }
       }).catch(function (e) {
         setNote("Không đọc được file .docx: " + escapeC(e && e.message ? e.message : e), true);
@@ -2267,7 +2212,6 @@ function applyParseResult(r, okNote, stay) {
   if (!stay) showStage(2);
 }
 
-/* Làm sạch JSON xuất ra: bỏ trường nội bộ, dùng `correct` đúng spec */
 function normalize(sections) {
   (sections || []).forEach(function (s) {
     if (!s || !Array.isArray(s.questions)) return;
@@ -2289,9 +2233,6 @@ function escapeC(s) {
   return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-/* Sanitize HTML do giáo viên nhập: chỉ giữ thẻ định dạng an toàn, gỡ thuộc tính nguy hiểm
-   (on*, href/src javascript:...), loại bỏ hẳn script/iframe/object...
-   Dùng cho sectionDesc / passage / sectionTitle (nội dung cố ý cho phép HTML). */
 function sanitizeC(html) {
   var ALLOW = ["B","STRONG","I","EM","U","S","STRIKE","DEL","INS","BR","P","DIV","SPAN","UL","OL","LI",
     "A","IMG","SMALL","MARK","H1","H2","H3","H4","H5","H6","BLOCKQUOTE","CODE","PRE","SUB","SUP","HR",
@@ -2328,16 +2269,10 @@ function sanitizeC(html) {
   return tpl.innerHTML;
 }
 
-/* Khởi tạo: chỉ hiện bước 1 với placeholder hướng dẫn — không tự nạp đề mẫu.
-   Khi muốn xem demo, bấm "Nạp đề mẫu" hoặc "Nạp đề mẫu Anh".
-   Nếu đang SỬA (?edit=...) thì nhảy thẳng màn 2 (initEditMode() ở dưới). */
 if (testData && testData.length) { applyMeta(); }
 updateSetupBtn();
 showStage(1);
 
-/* ============ SỬA ĐỀ CÓ SẴN (?edit=t:<id>) → vào thẳng màn 2 ============
-   Nạp content + thiết lập từ DB (get_test_content), tô ô JSON + render preview
-   giống như vừa parse xong, rồi nhảy ngay đến màn 2 (JSON & Xem trước). */
 (function initEditMode() {
   var m = (window.location.search || "").match(/[?&]edit=([^&]+)/);
   if (!m) return;
@@ -2353,13 +2288,12 @@ showStage(1);
         if (!d || d.ok !== true) throw new Error(d && d.error === "not_found"
           ? "Không tìm thấy bài kiểm tra trong database."
           : "Không tải được bài kiểm tra để sửa.");
-        /* Lấy trạng thái "hoàn thành" hiện tại (get_test_content không trả cột này) */
         var listRes = await mod.supabase.rpc("teacher_list_test_sets");
         if (listRes.error) throw listRes.error;
         var row = (listRes.data || []).filter(function (r) { return String(r.set_id) === id; })[0];
         currentEditId = id;
         currentEditComplete = row ? !!row.is_complete : true;
-window.__originalEditSnapshot = { meta: null, data: null };
+        window.__originalEditSnapshot = { meta: null, data: null };
         testData = Array.isArray(d.content) ? d.content : [];
         testMeta.subject = d.subject || "";
         testMeta.name = d.name || "";
@@ -2386,9 +2320,9 @@ window.__originalEditSnapshot = { meta: null, data: null };
         render();
         setFileLabel(d.name || "Chưa có tiêu đề");
         var lockNote = currentEditComplete
-          ? '<br><b style="color:#b45309"><i class="fa-solid fa-lock"></i> Đề đã xuất bản</b> — được sửa nội dung/đáp án/điểm/mô tả, nhưng <b>KHÔNG</b> được thêm/bớt câu, section, đáp án hay mệnh đề. Muốn đổi cấu trúc hãy tạo đề mới.'
+          ? '<br><b style="color:#b45309"><i class="fa-solid fa-lock"></i> Đề đã xuất bản</b> — được sửa nội dung/đáp án/điểm/mô tả.'
           : "";
-        setNote("Đã nạp sẵn đề <b>" + escapeC(d.name || "chưa đặt tên") + "</b> để sửa (bước 2). Sửa xong bấm <b>▶ Tiếp tục</b> để sang bước 3 (thiết lập) rồi bước 4 (rà soát & lưu lại)." + lockNote, false);
+        setNote("Đã nạp sẵn đề <b>" + escapeC(d.name || "chưa đặt tên") + "</b> để sửa (bước 2)." + lockNote, false);
         showStage(2);
       } catch (e) {
         console.error("[SỬA ĐỀ]", e);
