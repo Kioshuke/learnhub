@@ -1717,6 +1717,7 @@ async function publishTest() {
   if (!testMeta.name) { renderReview(); return; }
   var isEdit = Boolean(currentEditId);
   var isNewTest = !isEdit;
+  if (englishToggleOn()) { testMeta.shuffleQ = false; if (!testMeta.subject) testMeta.subject = englishSubjectName(); }
   var subject = testMeta.subject || "";
   b.disabled = true;
   b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xuất bản…';
@@ -1969,6 +1970,49 @@ function syncTimeUI() {
   }
 }
 
+/* Đề tiếng Anh (toggle bật): tự chọn môn Anh Văn + tắt xáo trộn câu hỏi + ẩn tuỳ chọn đó */
+function englishToggleOn() {
+  var t = $("englishModeToggle");
+  return !!(t && t.checked);
+}
+
+function englishSubjectName() {
+  for (var i = 0; i < TEST_SUBJECTS.length; i++) {
+    if (TEST_SUBJECTS[i].id === "anh") return TEST_SUBJECTS[i].name;
+  }
+  for (var j = 0; j < TEST_SUBJECTS.length; j++) {
+    if (/anh|english/i.test(TEST_SUBJECTS[j].name)) return TEST_SUBJECTS[j].name;
+  }
+  return "";
+}
+
+function setShuffleQRowHidden(hide) {
+  var qr = document.querySelector('input[name="setShuffleQ"]');
+  var ar = document.querySelector('input[name="setShuffleA"]');
+  if (!qr) return;
+  /* Tìm "hàng" chứa nhãn + nút radio của Trộn câu: tổ tiên cao nhất vẫn chưa chứa Trộn đáp án */
+  var row = qr;
+  while (row.parentElement && !(ar && row.parentElement.contains(ar))) row = row.parentElement;
+  if (row === qr || row === document.body) row = qr.parentElement || qr;
+  row.hidden = !!hide;
+  row.style.display = hide ? "none" : "";
+}
+
+function applyEnglishDefaults() {
+  var on = englishToggleOn();
+  if (on) {
+    var name = englishSubjectName();
+    if (name) testMeta.subject = name;
+    testMeta.shuffleQ = false;
+  }
+  var sel = $("setSubject");
+  if (on && sel && testMeta.subject) sel.value = testMeta.subject;
+  var off = document.querySelector('input[name="setShuffleQ"][value="0"]');
+  if (on && off) off.checked = true;
+  setShuffleQRowHidden(on);
+  if (typeof updateSetupBtn === "function") updateSetupBtn();
+}
+
 function syncSetupForm() {
   $("setSubject").value = testMeta.subject || "";
   $("setName").value = testMeta.name;
@@ -1994,6 +2038,7 @@ function syncSetupForm() {
   syncTimeUI();
   $("setupError").hidden = true;
   clearInvalidSetup();
+  applyEnglishDefaults();
 }
 
 $("btnSetup").addEventListener("click", function () { showStage(3); });
@@ -2089,7 +2134,7 @@ $("btnSetupApply").addEventListener("click", function () {
   testMeta.desc = $("setDesc").value.trim();
   testMeta.minutes = Math.max(0, parseInt(minEl.value, 10) || 0);
   testMeta.score = Math.max(1, parseInt(scoreEl.value, 10) || 10);
-  testMeta.shuffleQ = (document.querySelector('input[name="setShuffleQ"]:checked') || {}).value === "1";
+  testMeta.shuffleQ = englishToggleOn() ? false : (document.querySelector('input[name="setShuffleQ"]:checked') || {}).value === "1";
   testMeta.shuffleA = (document.querySelector('input[name="setShuffleA"]:checked') || {}).value === "1";
   testMeta.showScore = (document.querySelector('input[name="setShowScore"]:checked') || {}).value || "always";
   testMeta.showAnswers = (document.querySelector('input[name="setShowAnswers"]:checked') || {}).value || "always";
@@ -2124,6 +2169,7 @@ $("btnSetupApply").addEventListener("click", function () {
 if ($("englishModeToggle")) {
   $("englishModeToggle").addEventListener("change", function () {
     isEnglishMode = !!this.checked;
+    applyEnglishDefaults();
     if (testData && testData.length && typeof render === "function") render();
   });
 }
