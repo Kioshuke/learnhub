@@ -774,13 +774,14 @@ function showGuestDeepLinkModal(redirectUrl) {
   overlay.id = "guestDeepLinkModal";
   overlay.style.cssText = "position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(2px);";
   var card = document.createElement("div");
-  card.style.cssText = "background:#fff;border-radius:16px;padding:24px;max-width:420px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);";
+  card.style.cssText = "background:#fff;border-radius:16px;padding:28px 24px;max-width:420px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);";
   card.innerHTML =
-    '<h3 style="margin:0 0 8px;font-size:18px;">Bạn cần đăng nhập</h3>' +
-    '<p style="margin:0 0 16px;color:#475569;font-size:14px;">Vui lòng đăng nhập hoặc đăng ký để tiếp tục làm bài.</p>' +
+    '<div style="width:64px;height:64px;margin:0 auto 12px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#1d4ed8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;"><i class="fa-solid fa-lock"></i></div>' +
+    '<h3 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#0f172a;">Bạn cần đăng nhập</h3>' +
+    '<p style="margin:0 0 20px;color:#475569;font-size:14px;line-height:1.5;">Vui lòng <b style="color:#2563eb;">đăng nhập</b> hoặc <b style="color:#2563eb;">đăng ký</b> để tiếp tục làm bài.</p>' +
     '<div style="display:flex;gap:10px;justify-content:center;">' +
-      '<button type="button" id="guestBackBtn" style="padding:10px 16px;border:1px solid #cbd5e1;background:#f1f5f9;border-radius:10px;cursor:pointer;">Quay lại</button>' +
-      '<button type="button" id="guestLoginBtn" style="padding:10px 16px;border:none;background:#2563eb;color:#fff;border-radius:10px;cursor:pointer;">Đăng nhập / Đăng ký</button>' +
+      '<button type="button" id="guestBackBtn" style="padding:10px 18px;border:1px solid #cbd5e1;background:#f1f5f9;border-radius:10px;cursor:pointer;font-weight:600;color:#475569;"><i class="fa-solid fa-arrow-left" style="margin-right:6px;"></i>Quay lại</button>' +
+      '<button type="button" id="guestLoginBtn" style="padding:10px 18px;border:none;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 6px 16px rgba(37,99,235,.28);"><i class="fa-solid fa-right-to-bracket" style="margin-right:6px;"></i>Đăng nhập / Đăng ký</button>' +
     '</div>';
   overlay.appendChild(card);
   document.body.appendChild(overlay);
