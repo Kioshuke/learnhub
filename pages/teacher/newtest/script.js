@@ -1075,7 +1075,7 @@ function render() {
       document.getElementById("delConfirmBtn").addEventListener("click", function () {
         overlay.remove();
         document.body.style.overflow = "";
-        var qs = sec.questions || [];
+        var qs = section.questions || [];
         var targetIdx = si > 0 ? si - 1 : si + 1;
         testData[targetIdx].questions = (testData[targetIdx].questions || []).concat(qs);
         testData.splice(si, 1);
@@ -1135,6 +1135,8 @@ head.style.position = "relative";
         numEl.title = "Bấm để hiện tuỳ chọn";
         numEl.addEventListener("click", function (e) {
           e.stopPropagation();
+          // Ẩn menu của các câu khác
+          document.querySelectorAll(".q-action-menu").forEach(function (m) { if (m !== menu) m.style.display = "none"; });
           // Toggle menu
           var menu = card.querySelector(".q-action-menu");
           if (!menu) {
@@ -1153,50 +1155,66 @@ head.style.position = "relative";
             b2.innerHTML = '<i class="fa-solid fa-trash"></i> Xoá câu';
             b2.addEventListener("click", function (e) {
               e.stopPropagation();
-              if (!confirm("Xoá câu này?")) return;
-              // remove question from its section
-              var gi2 = 0, secI = -1, locI = -1;
-              for (var s2 = 0; s2 < testData.length; s2++) {
-                var qs2 = testData[s2].questions || [];
-                if (idx >= gi2 && idx < gi2 + qs2.length) { secI = s2; locI = idx - gi2; break; }
-                gi2 += qs2.length;
-              }
-              if (secI >= 0) {
-                testData[secI].questions.splice(locI, 1);
-                if (typeof syncJson === "function") syncJson();
-                if (typeof render === "function") render();
-                if (window.lhToast) lhToast("Đã xoá câu.", "success");
-              }
+              var overlay = document.createElement("div");
+              overlay.style.cssText = "position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(2px);";
+              var card = document.createElement("div");
+              card.style.cssText = "background:#fff;border-radius:16px;padding:24px 20px;max-width:360px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);";
+              card.innerHTML = '<div style="width:48px;height:48px;margin:0 auto 10px;border-radius:50%;background:linear-gradient(135deg,#ef4444,#dc2626);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;"><i class="fa-solid fa-trash"></i></div>' +
+                '<h3 style="margin:0 0 6px;font-size:16px;font-weight:800;color:#0f172a;">Xoá câu này?</h3>' +
+                '<p style="margin:0 0 16px;color:#475569;font-size:13px;">Câu sẽ bị xoá khỏi đề.</p>' +
+                '<div style="display:flex;gap:8px;justify-content:center;">' +
+                  '<button type="button" id="delQCancel" style="padding:8px 14px;border:1px solid #cbd5e1;background:#f1f5f9;border-radius:8px;cursor:pointer;font-weight:600;color:#475569;">Huỷ</button>' +
+                  '<button type="button" id="delQConfirm" style="padding:8px 14px;border:none;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border-radius:8px;cursor:pointer;font-weight:700;">Xoá</button>' +
+                '</div>';
+              overlay.appendChild(card);
+              document.body.appendChild(overlay);
+              document.body.style.overflow = "hidden";
+              document.getElementById("delQCancel").addEventListener("click", function () { overlay.remove(); document.body.style.overflow = ""; });
+              document.getElementById("delQConfirm").addEventListener("click", function () {
+                overlay.remove();
+                document.body.style.overflow = "";
+                var gi2 = 0, secI = -1, locI = -1;
+                for (var s2 = 0; s2 < testData.length; s2++) {
+                  var qs2 = testData[s2].questions || [];
+                  if (idx >= gi2 && idx < gi2 + qs2.length) { secI = s2; locI = idx - gi2; break; }
+                  gi2 += qs2.length;
+                }
+                if (secI >= 0) {
+                  testData[secI].questions.splice(locI, 1);
+                  if (typeof syncJson === "function") syncJson();
+                  if (typeof render === "function") render();
+                  if (window.lhToast) lhToast("Đã xoá câu.", "success");
+                }
+              });
             });
             menu.appendChild(b2);
-            // 3. Sửa thứ tự
+            // 3. Đổi vị trí: inline input
             var b3 = document.createElement("button");
             b3.type = "button"; b3.className = "btn btn-ghost"; b3.style.cssText = "font-size:12px;padding:4px 8px;";
             b3.innerHTML = '<i class="fa-solid fa-arrow-up-wide-short"></i> Đổi vị trí';
-            b3.addEventListener("click", function (e) {
+            var posInput = document.createElement("input");
+            posInput.type = "number";
+            posInput.min = "1";
+            posInput.max = String(countQ(testData));
+            posInput.value = String(idx + 1);
+            posInput.style.cssText = "width:52px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:6px;margin-left:6px;";
+            posInput.addEventListener("click", function (e) { e.stopPropagation(); });
+            var applyBtn = document.createElement("button");
+            applyBtn.type = "button"; applyBtn.className = "btn btn-ghost"; applyBtn.style.cssText = "font-size:12px;padding:4px 8px;";
+            applyBtn.textContent = "Áp dụng";
+            applyBtn.addEventListener("click", function (e) {
               e.stopPropagation();
-              var newPos = prompt("Nhập vị trí mới (1-" + countQ(testData) + "):", idx + 1);
-              if (newPos === null) return;
-              var n = parseInt(newPos, 10);
+              var n = parseInt(posInput.value, 10);
               if (!n || n < 1 || n > countQ(testData)) { if (window.lhToast) lhToast("Vị trí không hợp lệ.", "error"); return; }
-              // collect all questions flat
-              var flat = [];
-              testData.forEach(function (sec) { (sec.questions || []).forEach(function (q) { flat.push({ sec: sec, q: q }); }); });
-              var item = flat[idx];
-              if (!item) return;
-              // remove from current
               var gi3 = 0, secI3 = -1, locI3 = -1;
               for (var s3 = 0; s3 < testData.length; s3++) {
                 var qs3 = testData[s3].questions || [];
                 if (idx >= gi3 && idx < gi3 + qs3.length) { secI3 = s3; locI3 = idx - gi3; break; }
                 gi3 += qs3.length;
               }
-              if (secI3 >= 0) testData[secI3].questions.splice(locI3, 1);
-              // insert into new position (flatten again)
-              var flat2 = [];
-              testData.forEach(function (sec) { (sec.questions || []).forEach(function (q) { flat2.push(sec); }); });
-              // rebuild sections by inserting item into target section? Simpler: append to first section at end? 
-              // Instead, insert question into the section that contains position n-1
+              if (secI3 < 0) return;
+              var qObj = testData[secI3].questions[locI3];
+              testData[secI3].questions.splice(locI3, 1);
               var targetPos = n - 1;
               var gi4 = 0, targetSec = -1, targetLoc = 0;
               for (var s4 = 0; s4 < testData.length; s4++) {
@@ -1205,12 +1223,20 @@ head.style.position = "relative";
                 gi4 += qs4.length;
               }
               if (targetSec < 0) targetSec = testData.length - 1;
-              testData[targetSec].questions.splice(targetLoc, 0, item.q);
+              if (!testData[targetSec].questions) testData[targetSec].questions = [];
+              testData[targetSec].questions.splice(targetLoc, 0, qObj);
               if (typeof syncJson === "function") syncJson();
               if (typeof render === "function") render();
               if (window.lhToast) lhToast("Đã đổi vị trí câu hỏi.", "success");
             });
-            menu.appendChild(b3);
+            var wrap = document.createElement("div");
+            wrap.style.cssText = "display:flex;align-items:center;gap:4px;margin:6px 0 0;";
+            wrap.appendChild(b3);
+            wrap.appendChild(posInput);
+            wrap.appendChild(applyBtn);
+            menu.appendChild(wrap);
+            menu.appendChild(b1);
+
             // hide splitBtn, use menu
             splitBtn.style.display = "none";
             card.appendChild(menu);
