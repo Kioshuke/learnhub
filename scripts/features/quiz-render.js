@@ -275,7 +275,9 @@ function renderQuestion(question, questionIndex, { mode = "take", canReveal = fa
   const canShowExplanation = (mode === "review" || mode === "preview") && !!canReveal && question.explanation;
   const explanationHtml = canShowExplanation ? `<details class="q-explanation"><summary class="exp-label">${L.showExp}</summary><div class="exp-body">${sanitizeHtml(question.explanation)}</div></details>` : "";
   const badgeLabel = L.question;
-  const html = `<div class="${cardClass}" id="card-${questionIndex}"><button type="button" class="q-flag" onclick="toggleFlag(this)" title="${L.reviewTitle}" aria-label="${L.reviewTitle}"><i class="fas fa-flag"></i><span class="q-flag-text">${L.review}</span></button><div class="q-header"><span class="q-badge">${badgeLabel} ${questionIndex + 1}</span><span>${sanitizeQuestionText(heading)}</span></div>${imageHtml}${content}${explanationHtml}</div>`;
+  /* Cờ "Cần xem lại" chỉ có khi đang làm bài; xem lại / xem chi tiết đề thì không hiện */
+  const flagButton = mode === "take" ? `<button type="button" class="q-flag" onclick="toggleFlag(this)" title="${L.reviewTitle}" aria-label="${L.reviewTitle}"><i class="fas fa-flag"></i><span class="q-flag-text">${L.review}</span></button>` : "";
+  const html = `<div class="${cardClass}" id="card-${questionIndex}">${flagButton}<div class="q-header"><span class="q-badge">${badgeLabel} ${questionIndex + 1}</span><span>${sanitizeQuestionText(heading)}</span></div>${imageHtml}${content}${explanationHtml}</div>`;
   return { html, result };
 }
 

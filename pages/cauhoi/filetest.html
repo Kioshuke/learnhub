@@ -640,11 +640,12 @@ if (window !== window.parent) {
 
 <div id="confirmModal" class="modal-overlay">
     <div class="modal-content">
-<h3><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Xác nhận nộp bài?</h3>
-        <p>Bạn có chắc chắn muốn kết thúc bài thi này?</p>
+<h3><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> <span id="confirmTitle">Xác nhận nộp bài?</span></h3>
+        <p id="confirmText">Bạn có chắc chắn muốn kết thúc bài thi này?</p>
+        <div id="confirmSummary" style="margin-top:12px; display:none; flex-direction:column; gap:8px; text-align:left;"></div>
         <div style="display: flex; justify-content: center; gap: 10px; margin-top: 25px;">
-<button class="btn" style="flex:1; background: #c81515; color: white;" onclick="closeModal('confirmModal')"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
-            <button class="btn btn-primary" style="flex:1" onclick="handleFinalSubmit()"><i class="fa-solid fa-rocket"></i> Nộp ngay</button>
+<button class="btn" style="flex:1; background: #c81515; color: white;" onclick="closeModal('confirmModal')"><i class="fa-solid fa-arrow-left"></i> <span id="confirmBackText">Quay lại</span></button>
+            <button class="btn btn-primary" style="flex:1" onclick="handleFinalSubmit()"><i class="fa-solid fa-rocket"></i> <span id="confirmSubmitText">Nộp ngay</span></button>
         </div>
     </div>
 </div>
@@ -1153,8 +1154,18 @@ function renderQuiz() {
         }
     }
 
+    /* Chọn / nhập lại đáp án cho câu đã gắn cờ "Cần xem lại" → tự hủy cờ, ô điều hướng về màu xanh dương (đã làm) */
+    function clearFlag(qIdx) {
+        const card = document.getElementById(`card-${qIdx}`);
+        const btn = card ? card.querySelector('.q-flag.flagged') : null;
+        if (btn) btn.classList.remove('flagged');
+        const nav = document.getElementById(`nav-${qIdx}`);
+        if (nav) nav.classList.remove('nav-flagged');
+    }
+
     function markDone(qIdx) {
         document.getElementById(`nav-${qIdx}`).classList.add('done');
+        clearFlag(qIdx);
         updateProgress();
     }
 
@@ -1175,6 +1186,44 @@ function updateProgress(isFinished, score = 0) {
         }
     }
 function submitQuiz() {
+    /* Tổng kết trước khi nộp: số câu chưa chọn + số câu đã gắn cờ xem lại */
+    const en = isEnTest();
+    const navItems = Array.from(document.querySelectorAll('.nav-item'));
+    const unanswered = navItems.filter(n => !n.classList.contains('done')).length;
+    const flagged = navItems.filter(n => n.classList.contains('nav-flagged')).length;
+    const setText = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    setText('confirmTitle', en ? 'Confirm submission?' : 'Xác nhận nộp bài?');
+    setText('confirmText', en ? 'Are you sure you want to finish this test?' : 'Bạn có chắc chắn muốn kết thúc bài thi này?');
+    setText('confirmBackText', en ? 'Go back' : 'Quay lại');
+    setText('confirmSubmitText', en ? 'Submit now' : 'Nộp ngay');
+    const box = document.getElementById('confirmSummary');
+    if (box) {
+        const lines = [];
+        if (unanswered > 0) {
+            lines.push({ cls: 'danger', icon: 'fa-circle-question', text: en
+                ? `${unanswered} question${unanswered > 1 ? 's are' : ' is'} unanswered. Do you want to continue?`
+                : `Còn ${unanswered} câu hỏi chưa chọn, bạn muốn tiếp tục?` });
+        }
+        if (flagged > 0) {
+            lines.push({ cls: 'warn', icon: 'fa-flag', text: en
+                ? `${flagged} question${flagged > 1 ? 's are' : ' is'} flagged for review. Do you want to continue?`
+                : `Còn ${flagged} câu hỏi bạn đã đánh dấu xem lại, bạn muốn tiếp tục?` });
+        }
+        box.innerHTML = '';
+        lines.forEach(l => {
+            const row = document.createElement('div');
+            const warn = l.cls === 'warn';
+            row.style.cssText = 'display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:12px;font-size:13.5px;font-weight:700;' +
+                (warn ? 'background:#fff6e5;border:1px solid #fdeecb;color:#b45309;' : 'background:#fdecec;border:1px solid #f6c8c8;color:#b91c1c;');
+            const ic = document.createElement('i');
+            ic.className = 'fa-solid ' + l.icon;
+            const tx = document.createElement('span');
+            tx.textContent = l.text;
+            row.appendChild(ic); row.appendChild(tx);
+            box.appendChild(row);
+        });
+        box.style.display = lines.length ? 'flex' : 'none';
+    }
     openModal('confirmModal');
 }
     // 5. Hàm Nộp bài và Chấm điểm (Logic 0.25đ mỗi ý đúng-sai)

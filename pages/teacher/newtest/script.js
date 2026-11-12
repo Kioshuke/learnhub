@@ -489,7 +489,9 @@ function parseToSectionsCore(lines) {
       }
       if (/^https?:\/\/\S+\.(?:mp3|m4a|wav|ogg)(?:\?\S*)?$/i.test(t)) {
         extra.audio = t;
-        extra.listenTitle = (/^PHẦN\s+(?:[IVXLCDM1-9]+)\s*\.\s*NGHE/i.test(g.section.title) || /^NGHE/i.test(g.section.title)) ? "Nghe nội dung" : "Đọc / Nghe";
+        extra.listenTitle = isEnglishMode
+        ? (/listen/i.test(g.section.title + " " + (g.section.desc || "")) ? "Listen to the recording" : "Read / Listen")
+        : ((/^PHẦN\s+(?:[IVXLCDM1-9]+)\s*\.\s*NGHE/i.test(g.section.title) || /^NGHE/i.test(g.section.title)) ? "Nghe nội dung" : "Đọc / Nghe");
         return false;
       }
       return true;
@@ -1344,57 +1346,54 @@ function sampleText() {
 
 function sampleTextEN() {
   return [
-    "PHẦN I. TRẮC NGHIỆM",
-    "1. Chọn đáp án đúng dưới dạng hình ảnh:",
-    "A. https://placehold.co/420x280/png?text=Go+A",
-    "B. Ảnh: https://placehold.co/420x280/png?text=Go+B",
-    "*C. Link ảnh: https://placehold.co/420x280/png?text=Go+C",
-    "D. https://placehold.co/420x280/png?text=Go+D",
+    "Part 1. Mark the letter A, B, C or D on your answer sheet to indicate the best arrangement of utterances or sentences to make a cohesive and coherent exchange or text in each of the following questions from 1 to 2.",
+    "Question 1.",
+    "a. Hi Mai, how was your weekend?",
+    "b. It was great! I went hiking with my cousins.",
+    "c. That sounds fun. Which mountain did you climb?",
+    "A. a – b – c        B. b – a – c        C. c – a – b        D. a – c – b",
+    "Answer: A",
+    "Question 2.",
+    "a. However, many schools still lack the equipment needed for online lessons.",
+    "b. Online learning has become increasingly popular among students worldwide.",
+    "c. Therefore, governments should invest more in digital infrastructure.",
+    "A. a – b – c        B. b – a – c        C. b – c – a        D. c – b – a",
+    "Answer: B",
     "",
-    "2. What is the past tense of <b>go</b>?",
-    "A. goed",
-    "B. gone",
-    "C. went",
-    "D. goed",
-    "Đáp án: C",
+    "Part 2. Read the following advertisement and mark the letter A, B, C or D on your answer sheet to indicate the correct option that best fits each of the numbered blanks from 3 to 5.",
+    "GIVE BLOOD, GIVE HOPE",
+    "If it were not for regular donors, blood banks nationwide (3)_____ struggling to meet demand within weeks. This is especially true during holidays when donation (4)_____ typically fall.",
+    "Each blood unit donated can save up to three lives. The sooner patients receive the blood they need, the more chances of (5)_____ they will have.",
+    "Question 3. A.are B.is C.were D.be",
+    "Answer: C",
+    "Question 4. A.charges B.duties C.rates D.price",
+    "Answer: C",
+    "Question 5. A. recover B. recovery C. recovering D. recovered",
+    "Answer: B",
     "",
-    "3. Choose the correct word: She ___ to school every day.",
-    "A. go",
-    "B. goes",
-    "C. going",
-    "D. gone",
-    "Đáp án: B",
-    "",
-    "4. Which of these is a winter month?",
-    "A. June",
-    "B. July",
-    "*C. January",
-    "D. August",
-    "",
-    "PHẦN II. ĐỌC HIỂU",
-    "Passage: <b>My family is small.</b> There are four people in it: my father, my mother, my brother and me. My father is a doctor. My mother is a teacher.",
-    "5. How many people are in the family?",
+    "Part 3. Read the following passage and mark the letter A, B, C or D on your answer sheet to indicate the correct answer to each of the questions from 6 to 7.",
+    "My family is small. There are four people in it: my father, my mother, my brother and me. My father is a doctor. My mother is a teacher.",
+    "Question 6. How many people are in the family?",
     "A. Three",
     "B. Four",
     "C. Five",
     "D. Six",
-    "Đáp án: B",
-    "",
-    "6. What is the mother's job?",
+    "Answer: B",
+    "Question 7. What is the mother's job?",
     "A. A doctor",
     "B. A teacher",
     "C. A nurse",
     "D. A farmer",
-    "Đáp án: B",
+    "Answer: B",
     "",
-    "PHẦN III. NGHE",
+    "Part 4. Listen to the recording and mark the letter A, B, C or D on your answer sheet to indicate the correct answer to each of the questions.",
     "https://static-assets.prepcdn.com/content-management-system/Part_1_Listening_87386e8c4b.mp3",
-    "7. Listen and choose: What time is the meeting?",
+    "Question 8. What time is the meeting?",
     "A. 7:00 AM",
     "B. 8:00 AM",
     "C. 9:00 AM",
     "D. 10:00 AM",
-    "Đáp án: B",
+    "Answer: B",
     ""
   ].join("\n");
 }
@@ -1717,7 +1716,7 @@ async function publishTest() {
   if (!testMeta.name) { renderReview(); return; }
   var isEdit = Boolean(currentEditId);
   var isNewTest = !isEdit;
-  if (englishToggleOn()) { testMeta.shuffleQ = false; if (!testMeta.subject) testMeta.subject = englishSubjectName(); }
+  if (isEnglishContext()) { testMeta.shuffleQ = false; if (!testMeta.subject) testMeta.subject = englishSubjectName(); }
   var subject = testMeta.subject || "";
   b.disabled = true;
   b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xuất bản…';
@@ -1976,6 +1975,16 @@ function englishToggleOn() {
   return !!(t && t.checked);
 }
 
+/* Ngữ cảnh đề tiếng Anh: toggle bật HOẶC môn đang chọn là Anh Văn (vd mở lại đề cũ để sửa) */
+function isEnglishContext() {
+  if (englishToggleOn()) return true;
+  var name = englishSubjectName();
+  if (!name) return false;
+  var sel = $("setSubject");
+  var cur = (sel && sel.value) ? sel.value : testMeta.subject;
+  return cur === name;
+}
+
 function englishSubjectName() {
   for (var i = 0; i < TEST_SUBJECTS.length; i++) {
     if (TEST_SUBJECTS[i].id === "anh") return TEST_SUBJECTS[i].name;
@@ -1987,6 +1996,7 @@ function englishSubjectName() {
 }
 
 function setShuffleQRowHidden(hide) {
+  var grid = null;
   var qr = document.querySelector('input[name="setShuffleQ"]');
   var ar = document.querySelector('input[name="setShuffleA"]');
   if (!qr) return;
@@ -1996,15 +2006,18 @@ function setShuffleQRowHidden(hide) {
   if (row === qr || row === document.body) row = qr.parentElement || qr;
   row.hidden = !!hide;
   row.style.display = hide ? "none" : "";
+  /* Lưới 4 ô → 3 ô: để CSS chia lại cột (tránh "Xem đáp án" bị rớt dòng) */
+  grid = row.parentElement;
+  if (grid) grid.classList.toggle("no-shuffleq", !!hide);
 }
 
 function applyEnglishDefaults() {
-  var on = englishToggleOn();
-  if (on) {
+  var on = isEnglishContext();
+  if (englishToggleOn()) {
     var name = englishSubjectName();
     if (name) testMeta.subject = name;
-    testMeta.shuffleQ = false;
   }
+  if (on) testMeta.shuffleQ = false;
   var sel = $("setSubject");
   if (on && sel && testMeta.subject) sel.value = testMeta.subject;
   var off = document.querySelector('input[name="setShuffleQ"][value="0"]');
@@ -2134,7 +2147,7 @@ $("btnSetupApply").addEventListener("click", function () {
   testMeta.desc = $("setDesc").value.trim();
   testMeta.minutes = Math.max(0, parseInt(minEl.value, 10) || 0);
   testMeta.score = Math.max(1, parseInt(scoreEl.value, 10) || 10);
-  testMeta.shuffleQ = englishToggleOn() ? false : (document.querySelector('input[name="setShuffleQ"]:checked') || {}).value === "1";
+  testMeta.shuffleQ = isEnglishContext() ? false : (document.querySelector('input[name="setShuffleQ"]:checked') || {}).value === "1";
   testMeta.shuffleA = (document.querySelector('input[name="setShuffleA"]:checked') || {}).value === "1";
   testMeta.showScore = (document.querySelector('input[name="setShowScore"]:checked') || {}).value || "always";
   testMeta.showAnswers = (document.querySelector('input[name="setShowAnswers"]:checked') || {}).value || "always";
@@ -2162,6 +2175,10 @@ $("btnSetupApply").addEventListener("click", function () {
       return '<option value="' + escAttr(s.name) + '">' + s.name + " (" + s.id + ")</option>";
     }).join("");
   sel.value = testMeta.subject || "";
+  sel.addEventListener("change", function () {
+    testMeta.subject = sel.value || "";
+    applyEnglishDefaults();
+  });
 })();
 
 /* ============ EVENTS ============ */
@@ -2181,6 +2198,11 @@ $("btnSample").addEventListener("click", function () {
 });
 
 $("btnSampleEN").addEventListener("click", function () {
+  /* Nạp đề mẫu tiếng Anh → tự bật chế độ đề tiếng Anh */
+  var enT = $("englishModeToggle");
+  if (enT) enT.checked = true;
+  isEnglishMode = true;
+  applyEnglishDefaults();
   $("inputText").value = sampleTextEN();
   setFileLabel(null);
   setNote("Đã nạp đề mẫu tiếng Anh → bấm <b>Đọc text → JSON</b>.", false);
@@ -2454,6 +2476,13 @@ showStage(1);
         testMeta.startAt = (row && row.start_at) ? row.start_at : null;
         testMeta.endAt = (row && row.end_at) ? row.end_at : null;
         testMeta.timeEnabled = !!(testMeta.startAt || testMeta.endAt);
+        /* Đề môn Anh Văn: tự bật chế độ đề tiếng Anh + ẩn Trộn câu */
+        if (englishSubjectName() && testMeta.subject === englishSubjectName()) {
+          var enT = $("englishModeToggle");
+          if (enT) enT.checked = true;
+          isEnglishMode = true;
+          applyEnglishDefaults();
+        }
         graded = false;
         userAnswers = {};
         window.__originalEditSnapshot = { meta: JSON.parse(JSON.stringify(testMeta)), data: JSON.stringify(testData) };

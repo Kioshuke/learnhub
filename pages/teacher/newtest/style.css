@@ -68,6 +68,12 @@ code{background:#eef2ff;border:1px solid #dfe7fb;border-radius:6px;padding:1px 6
 .set-grid-4{grid-template-columns:1fr 1fr 1fr 2fr}
 .set-grid>.set-cell{border-left:1px solid var(--line)}
 .set-grid>.set-cell:first-child{border-left:none}
+/* Đề tiếng Anh: ẩn ô "Xáo trộn câu hỏi" → còn 3 ô, chia lại cột để "Xem đáp án" luôn nằm trên 1 hàng */
+.set-grid-4.no-shuffleq{grid-template-columns:1fr 1fr 2.2fr}
+.set-grid.no-shuffleq>.set-cell:not([hidden]):first-of-type,
+.set-grid.no-shuffleq>.set-cell[hidden]+.set-cell{border-left:none}
+.set-grid .set-cell:last-child .set-opts{flex-wrap:nowrap;gap:8px 14px}
+.set-grid .set-cell:last-child .set-opts label{white-space:nowrap}
 
 /* Hàng 2 ô (Tạo đề con | Giới hạn thời gian mở đề) */
 .set-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
@@ -405,6 +411,8 @@ body.stage4{overflow:hidden}
   .opt-list{grid-template-columns:1fr}
 }
 @media (max-width:720px){
+  .set-grid-4.no-shuffleq{grid-template-columns:1fr}
+  .set-grid .set-cell:last-child .set-opts{flex-wrap:wrap}
   .topbar{gap:8px;padding:8px 10px}
   .tb-left{gap:8px}
   .tb-brand{font-size:13px}
@@ -438,4 +446,32 @@ body.stage4{overflow:hidden}
   .rev-right{position:static}
   .publish-result{grid-template-columns:1fr}
   .stage4 .publish-result{height:auto;overflow:visible}
+}
+
+/* ===== TOGGLE "CHẾ ĐỘ ĐỀ TIẾNG ANH": dạng công tắc, bật lên là nổi bật ===== */
+#englishModeToggle{
+  -webkit-appearance:none;appearance:none;position:relative;flex-shrink:0;
+  width:44px;height:25px;margin:0;border-radius:999px;cursor:pointer;
+  background:#cbd5e1;border:1px solid #b6c2d2;transition:background .2s,border-color .2s,box-shadow .2s;
+  vertical-align:middle;
+}
+#englishModeToggle::after{
+  content:"";position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.3);transition:transform .2s;
+}
+#englishModeToggle:checked{background:linear-gradient(135deg,#2f7ff0,#1a73e8);border-color:#1a73e8;box-shadow:0 0 0 4px rgba(26,115,232,.18)}
+#englishModeToggle:checked::after{transform:translateX(19px)}
+#englishModeToggle:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+/* Nhãn bao quanh công tắc: viên thuốc xanh khi đang ở chế độ tiếng Anh */
+label:has(#englishModeToggle),.toggle:has(#englishModeToggle){
+  display:inline-flex;align-items:center;gap:9px;padding:6px 13px 6px 8px;border-radius:999px;
+  background:#fff;border:1.5px solid var(--line);font-size:13px;font-weight:800;color:#475569;cursor:pointer;
+  box-shadow:var(--shadow-sm);transition:all .2s;
+}
+label:has(#englishModeToggle:checked),.toggle:has(#englishModeToggle:checked){
+  background:linear-gradient(135deg,#eaf1fe,#dbe8fd);border-color:#1a73e8;color:#1a56c4;
+  box-shadow:0 5px 14px rgba(26,115,232,.22);
+}
+label:has(#englishModeToggle:checked)::after,.toggle:has(#englishModeToggle:checked)::after{
+  content:"EN";font-size:10px;font-weight:900;letter-spacing:.06em;color:#fff;background:#1a73e8;border-radius:999px;padding:2px 8px;
 }
