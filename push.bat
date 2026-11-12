@@ -7,7 +7,7 @@ git diff --staged --quiet
 if %errorlevel% equ 0 (
   echo * Khong co thay doi nao de commit.
 ) else (
-  git commit -m "feat: update - %date%"
+  git commit -m "feat: update - %date% %time%"
   git push origin main
 )
 echo Da push thay doi.

@@ -34,7 +34,7 @@ try {
     # ---------- 1. Ngày giờ hiện tại ----------
     $now       = Get-Date
     $dateIso   = $now.ToString("yyyy-MM-dd")
-    $updatedVi = $now.ToString("dd/MM/yyyy")
+    $updatedVi = $now.ToString("dd/MM/yyyy HH:mm")
 
     # ---------- 2. Đọc version.json hiện tại ----------
     $vjPath = Join-Path $scriptDir "version.json"
@@ -115,23 +115,14 @@ try {
     })
     [System.IO.File]::WriteAllText($swPath, $sw, $utf8NoBom)
 
-    # ---------- 9. Commit + push ONLY nếu có thay đổi ---
-    # Kiểm tra có file thay đổi nào không trước khi commit
-    $hasChanges = git status --porcelain | Measure-Object -Line
-    if ($hasChanges.Line -gt 0) {
-        git add .
-        git commit -m "release v$newVersion ($updatedVi)"
-        git push origin main
+    # ---------- 9. Luôn commit + push (kể cả khi không có thay đổi code) ----------
+    # Thêm timestamp vào commit để luôn có thay đổi (version.json/service-worker luôn khác)
+    git add .
+    git commit -m "release v$newVersion ($updatedVi $now.ToString('HH:mm'))" --allow-empty
+    git push origin main
 
-        Write-Host ""
-        Write-Host "Da phat hanh v$newVersion - nguoi dung online se thay thong bao trong toi da 2 phut." -ForegroundColor Green
-    } else {
-        Write-Host ""
-        Write-Host "Khong co thay doi nao de commit (git status rong). Version.json van da duoc cap nhat." -ForegroundColor Yellow
-        Write-Host "   Run 'git reset HEAD version.json' neu muon hoan tac file version." -ForegroundColor Cyan
-        # Vẫn in thông báo thành công nhưng không push
-        Write-Host "Version.json da duoc cap nhat ve v$newVersion." -ForegroundColor Green
-    }
+    Write-Host ""
+    Write-Host "Da phat hanh v$newVersion - nguoi dung online se thay thong bao trong toi da 2 phut." -ForegroundColor Green
 }
 catch {
     Write-Host ""
