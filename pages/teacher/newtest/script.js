@@ -48,6 +48,11 @@ var testMeta = {
 
 var LETTERS = "ABCDEFGH";
 var isEnglishMode = false;
+/* Nhãn "Câu" ↔ "Question" theo toggle Tiếng Anh */
+function qWord() {
+  var t = document.getElementById("englishModeToggle");
+  return (t ? !!t.checked : isEnglishMode) ? "Question" : "Câu";
+}
 function letter(i) { return LETTERS[i] || String(i + 1); }
 
 var $ = function (id) { return document.getElementById(id); };
@@ -152,8 +157,11 @@ function htmlBlocksToLines(html) {
   var div = document.createElement("div");
   div.innerHTML = html;
   var arr = [];
-  var nodes = div.querySelectorAll("p, li, h1, h2, h3, h4, h5, td");
+  var BLOCK = "p, li, h1, h2, h3, h4, h5, h6, td, th";
+  var nodes = div.querySelectorAll(BLOCK);
   nodes.forEach(function (el) {
+    /* Chỉ lấy khối "lá": bỏ td/li/p đang chứa khối con (tránh lặp dòng với file Word có bảng) */
+    if (el.querySelector(BLOCK)) return;
     var t = (el.textContent || "").replace(/\u00a0/g, " ");
     var h = (el.innerHTML || "").replace(/\u00a0/g, " ");
     if (!t.trim()) return;
@@ -234,11 +242,16 @@ function trimHtmlText(h, left, right) {
 }
 
 function splitInlineOpts(t, h) {
-  var re = /(^|[ \t])(\*)?[A-Da-d][\.\)][ \t]+/g;
+  /* Cho phép tiền tố "Question 24." / "Câu 24:" đứng trước dãy phương án cùng dòng */
+  var pm = /^\s*(?:câu|question)\s*\d{1,3}\s*[\.\):]\s*/i.exec(t);
+  var pl = pm ? pm[0].length : 0;
+  /* A-D hoa: cho phép dính liền chữ ("A.charges"); a-d thường phải có khoảng trắng */
+  var re = /(^|[ \t])(\*)?(?:[A-D][\.\)](?=[A-Za-z0-9])|[A-Da-d][\.\)][ \t]+)/g;
+  re.lastIndex = pl > 0 ? pl - 1 : 0;
   var starts = [];
   var m;
   while ((m = re.exec(t)) !== null) starts.push(m.index);
-  if (starts.length < 2 || starts[0] > 1) return [];
+  if (starts.length < 2 || starts[0] > pl + 1) return [];
   function htmlSlice(a, b) {
     if (h === t) return t.slice(a, b);
     if (b === undefined) b = t.length;
@@ -254,6 +267,10 @@ function splitInlineOpts(t, h) {
     return h.slice(ai, bi);
   }
   var segs = [];
+  if (pl > 0) {
+    var head = t.slice(0, starts[0]);
+    if (head.trim()) segs.push({ t: head.trim(), h: (h === t) ? head.trim() : fixInlineHtml(htmlSlice(0, starts[0])) });
+  }
   for (var k = 0; k < starts.length; k++) {
     var a = starts[k], b = (k + 1 < starts.length) ? starts[k + 1] : undefined;
     var st = t.slice(a, b);
@@ -352,7 +369,7 @@ function detectSectionTitle(line) {
     if (mPart) {
       var titlePart = (mPart[1].toUpperCase() + " " + mPart[2].toUpperCase()).trim();
       var descPart = mPart[3].trim();
-      if (descPart && descPart.length <= 200) {
+      if (descPart && descPart.length <= 800) {
         return { title: titlePart, desc: descPart };
       }
     }
@@ -377,7 +394,57 @@ function detectSectionTitle(line) {
   return { title: "PHẦN " + numToRoman(num) + ". " + kind.name, desc: SECTION_DESC[kind.key] || "" };
 }
 
+/* Câu hỏi hợp lệ = có đủ dữ liệu để làm bài (tránh nhận nhầm đề mục / gạch đầu dòng thành câu hỏi) */
+function hasValidQuestions(res) {
+  if (!res || res.error || !res.sections) return false;
+  return res.sections.some(function (sec) {
+    return (sec.questions || []).some(function (q) {
+      /* câu hỏi thật thường ngắn; đoạn văn dài nhiều dòng bị nuốt vào "câu hỏi" là nhận nhầm */
+      var qt = String(q.question || "");
+      if (qt.replace(/<[^>]*>/g, "").length > 500 || (qt.match(/<br\s*\/?>/gi) || []).length > 5) return false;
+      if (q.type === "multiple") return (q.answers || []).length >= 2;
+      if (q.type === "true_false") return (q.subQuestions || []).length >= 1;
+      if (q.type === "short_answer") return !!String(q.correctAnswer || "").trim();
+      return false;
+    });
+  });
+}
+
+/* English mode: file Word dạng tài liệu/bài đọc (không có "Question 1 / A. B. C. D.") → nạp thành 1 phần đọc hiểu
+   để vẫn đọc được nội dung, người dùng thêm câu hỏi sau trong phần xem trước. */
+function docToReadingSection(lines) {
+  var parts = [];
+  (lines || []).forEach(function (L) {
+    if (!L || !L.t || !String(L.t).trim()) return;
+    var h = (L.h && L.h !== L.t) ? L.h : escapeC(L.t);
+    if (/^(?:chương|chapter|part|section|[ivxlcdm]{1,6}[.)])\s*/i.test(String(L.t).trim()) && !/<(?:b|strong)\b/i.test(h)) {
+      h = "<b>" + h + "</b>";
+    }
+    parts.push(h);
+  });
+  if (!parts.length) return { sections: [], warnings: [], error: "File không có nội dung để đọc." };
+  return {
+    sections: [{
+      sectionTitle: "READING MATERIAL",
+      sectionDesc: "Nội dung đọc từ file Word. Chưa nhận dạng được câu hỏi — hãy thêm / sửa câu hỏi bên dưới.",
+      timeLimit: 0,
+      passage: parts.join("<br>"),
+      questions: [{ type: "short_answer", question: "(Nhập câu hỏi cho nội dung trên)", correctAnswer: "" }]
+    }],
+    warnings: ["Không thấy cấu trúc câu hỏi trong file → đã nạp toàn bộ file thành bài đọc (" + parts.length + " dòng)."],
+    error: null
+  };
+}
+
 function parseToSections(lines) {
+  var toggleEl = $("englishModeToggle");
+  if (toggleEl) isEnglishMode = !!toggleEl.checked;
+  var res = parseToSectionsCore(lines);
+  if (isEnglishMode && !hasValidQuestions(res)) return docToReadingSection(lines);
+  return res;
+}
+
+function parseToSectionsCore(lines) {
   var toggleEl = $("englishModeToggle");
   if (toggleEl) isEnglishMode = !!toggleEl.checked;
 
@@ -427,6 +494,24 @@ function parseToSections(lines) {
       }
       return true;
     });
+    /* English mode: đoạn văn nằm giữa tiêu đề Part/Section và câu hỏi đầu tiên → gom thành bài đọc của phần */
+    if (isEnglishMode && !extra.passage) {
+      var QSTART = /^(?:câu|question)\s*\d{1,3}\s*[\.\):]|^\d{1,3}\s*[\.\)]\s+\S/i;
+      var INSTR = /^(?:read\s+the|mark\s+the|choose\s+the|circle\s+the|answer\s+the|listen\s+to|(?:part|section)\s*\w+\s*[.:)])/i;
+      var qi = -1;
+      for (var pi = 0; pi < qlines.length; pi++) {
+        if (QSTART.test(String(qlines[pi].t || "").trim())) { qi = pi; break; }
+      }
+      if (qi > 0) {
+        var pre = qlines.slice(0, qi).filter(function (L) { return !INSTR.test(String(L.t || "").trim()); });
+        var preLen = pre.reduce(function (n, L) { return n + String(L.t || "").length; }, 0);
+        var looksReading = /read|passage|text|notice|leaflet|announcement|article|đọc/i.test(g.section.title + " " + (g.section.desc || ""));
+        if (pre.length && (looksReading || preLen > 200)) {
+          extra.passage = pre.map(function (L) { return (L.h && L.h !== L.t) ? L.h : escapeC(L.t); }).join("<br>");
+          qlines = qlines.slice(qi);
+        }
+      }
+    }
     var r = parseLines(qlines);
     (r.warnings || []).forEach(function (w) { warnings.push(w); });
     if (r.error || !r.sections || !r.sections.length) {
@@ -436,6 +521,10 @@ function parseToSections(lines) {
     var s = r.sections[0];
     if (extra.passage) s.passage = extra.passage;
     else if (r.passage) s.passage = r.passage;
+    if (!s.passage && s.questions && s.questions[0] && s.questions[0].passage) {
+      s.passage = s.questions[0].passage;
+      s.questions.forEach(function (q) { if (q.passage === s.passage) delete q.passage; });
+    }
     if (extra.audio) { s.audio = extra.audio; s.listenTitle = extra.listenTitle; }
     s.sectionTitle = g.section.title;
     s.sectionDesc = g.section.desc;
@@ -445,7 +534,7 @@ function parseToSections(lines) {
   if (!sections.length) {
     return { sections: [], warnings: warnings, error: "Không nhận dạng được câu nào trong các phần đã tách." };
   }
-  return { sections: sections, warnings: warnings, error: null, passage: (passageLines.length ? passageLines.join("<br>") : (pendingPassage || null)) };
+  return { sections: sections, warnings: warnings, error: null };
 }
 /* ============ NHẬN DIỆN ẢNH ============ */
 var IMG_MARKER_SRC = "(?:ảnh(?:\\s*minh\\s*họa)?|hình(?:\\s*ảnh)?|link\\s*ảnh|image|img)";
@@ -985,7 +1074,7 @@ function render() {
 
       var headQ = document.createElement("div");
       headQ.className = "q-head";
-      headQ.innerHTML = '<span class="num">Câu ' + (idx + 1) + "</span>" +
+      headQ.innerHTML = '<span class="num">' + qWord() + ' ' + (idx + 1) + "</span>" +
         '<div class="q-q">' + stripBoldTags(stripQuestionNo(qText)) +
         '<span class="tag tag-' + type + '">' + tagTxt + "</span></div>";
       card.appendChild(headQ);
@@ -1042,7 +1131,7 @@ function render() {
              item.correct = i;
              if (oldCorrect !== i && typeof lhToast === "function") {
                var oldL = (oldCorrect === null || oldCorrect === undefined) ? "—" : letter(oldCorrect);
-               lhToast("Thay đổi đáp án - Câu " + (idx + 1) + ": " + oldL + " → " + letter(i), "info");
+               lhToast("Thay đổi đáp án - " + qWord() + " " + (idx + 1) + ": " + oldL + " → " + letter(i), "info");
              }
             var scAll = list.querySelectorAll(".opt .setcard");
             for (var k2 = 0; k2 < scAll.length; k2++) scAll[k2].textContent = "bấm → gán đáp án";
@@ -1114,7 +1203,7 @@ function render() {
               var un = r2.querySelector(".ans-bad");
               if (un && /chưa chọn/.test(un.textContent)) un.remove();
               syncJson();
-              if (__oldTf !== __newTf && typeof lhToast === "function") lhToast("Thay đổi đáp án - Câu " + (idx + 1) + " (" + String.fromCharCode(97 + si) + "): " + __oldTf + " → " + __newTf, "info");
+              if (__oldTf !== __newTf && typeof lhToast === "function") lhToast("Thay đổi đáp án - " + qWord() + " " + (idx + 1) + " (" + String.fromCharCode(97 + si) + "): " + __oldTf + " → " + __newTf, "info");
             });
           });
           tfl.appendChild(row);
@@ -1427,26 +1516,26 @@ function showEditDiffModal(onConfirm) {
       var oq = oldQs[i] ? oldQs[i].node : null;
       var nq = newQs[i] ? newQs[i].node : null;
       var num = i + 1;
-      if (!oq && nq) { changes.push("Câu " + num + ": thêm mới"); continue; }
-      if (oq && !nq) { changes.push("Câu " + num + ": đã xóa"); continue; }
+      if (!oq && nq) { changes.push(qWord() + " " + num + ": thêm mới"); continue; }
+      if (oq && !nq) { changes.push(qWord() + " " + num + ": đã xóa"); continue; }
       if (!oq || !nq) continue;
-      diffTextFields(oq, nq, "Câu " + num);
+      diffTextFields(oq, nq, qWord() + " " + num);
       var oldC = oq.correct, newC = nq.correct;
       if (oldC !== newC && (oldC !== null || newC !== null) && (oldC !== undefined || newC !== undefined)) {
         var oldL = (oldC === null || oldC === undefined) ? "—" : letter(oldC);
         var newL = (newC === null || newC === undefined) ? "—" : letter(newC);
-        if (oldL !== newL) changes.push("Câu " + num + ": đáp án " + oldL + " → " + newL);
+        if (oldL !== newL) changes.push(qWord() + " " + num + ": đáp án " + oldL + " → " + newL);
       }
       if (Array.isArray(oq.subQuestions) && Array.isArray(nq.subQuestions)) {
         var m = Math.max(oq.subQuestions.length, nq.subQuestions.length);
         for (var si = 0; si < m; si++) {
           var osq = oq.subQuestions[si] || {};
           var nsq = nq.subQuestions[si] || {};
-          diffTextFields(osq, nsq, "Câu " + num + " (" + String.fromCharCode(97 + si) + ")");
+          diffTextFields(osq, nsq, qWord() + " " + num + " (" + String.fromCharCode(97 + si) + ")");
           if (osq.correct !== nsq.correct) {
             var ol = (osq.correct === 1) ? "Đ" : (osq.correct === 0) ? "S" : "—";
             var nl = (nsq.correct === 1) ? "Đ" : (nsq.correct === 0) ? "S" : "—";
-            if (ol !== nl) changes.push("Câu " + num + " (" + String.fromCharCode(97 + si) + "): đáp án " + ol + " → " + nl);
+            if (ol !== nl) changes.push(qWord() + " " + num + " (" + String.fromCharCode(97 + si) + "): đáp án " + ol + " → " + nl);
           }
         }
       }
@@ -1455,7 +1544,7 @@ function showEditDiffModal(onConfirm) {
         for (var oi = 0; oi < mo; oi++) {
           var oo = oq.options[oi], no = nq.options[oi];
           if (oo !== no) {
-            changes.push("Câu " + num + " - đáp án " + letter(oi) + ": " + String(oo == null ? "—" : oo).slice(0,40) + " → " + String(no == null ? "—" : no).slice(0,40));
+            changes.push(qWord() + " " + num + " - đáp án " + letter(oi) + ": " + String(oo == null ? "—" : oo).slice(0,40) + " → " + String(no == null ? "—" : no).slice(0,40));
           }
         }
       }
@@ -2031,6 +2120,13 @@ $("btnSetupApply").addEventListener("click", function () {
 })();
 
 /* ============ EVENTS ============ */
+
+if ($("englishModeToggle")) {
+  $("englishModeToggle").addEventListener("change", function () {
+    isEnglishMode = !!this.checked;
+    if (testData && testData.length && typeof render === "function") render();
+  });
+}
 
 $("btnSample").addEventListener("click", function () {
   $("inputText").value = sampleText();

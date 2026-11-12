@@ -750,7 +750,7 @@ function showSaveStatus(success){
 </script>
 
 <script type="module">
-import { renderQuizHtml } from "../../scripts/features/quiz-render.js";
+import { renderQuizHtml, isEnglishTest, quizLabels } from "../../scripts/features/quiz-render.js";
 import { logAppError } from "../../scripts/core/supabase-config.js";
 window.logAppError = logAppError;
 // Lắng nghe tín hiệu từ trang chính gửi tới
@@ -1017,6 +1017,10 @@ async function loadQuestions() {
     }
 }
 
+/* Nhãn theo ngôn ngữ đề (đồng bộ với quiz-render.js) */
+function isEnTest() { try { return isEnglishTest(questionsData); } catch (e) { return false; } }
+function qLbl() { return quizLabels(isEnTest()); }
+
 function renderQuiz() {
     const rendered = renderQuizHtml(questionsData, { mode: "take", startIndex: 0 });
     const quizContainer = document.getElementById("quiz-container");
@@ -1067,9 +1071,9 @@ function renderQuiz() {
             activeAnswerToast = null;
         }
         try {
-            const handle = window.lhToast(`Đã lưu đáp án ${answerText}`, {
+            const handle = window.lhToast(`${isEnTest() ? 'Answer saved' : 'Đã lưu đáp án'} ${answerText}`, {
                 type: "success",
-                title: `Câu ${qIdx + 1}`,
+                title: `${qLbl().question} ${qIdx + 1}`,
                 durationMs: 1500,
                 sound: false
             });
@@ -1077,7 +1081,7 @@ function renderQuiz() {
             if (handle && handle.el) {
                 handle.el.classList.add("lh-toast-mini");
                 const msgEl = handle.el.querySelector(".lh-toast-message");
-                if (msgEl) msgEl.innerHTML = `Đã lưu đáp án <b>${String(answerText ?? "").replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" })[c])}</b>`;
+                if (msgEl) msgEl.innerHTML = `${isEnTest() ? 'Answer saved' : 'Đã lưu đáp án'} <b>${String(answerText ?? "").replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" })[c])}</b>`;
             }
         } catch (e) {}
     }
@@ -1116,7 +1120,7 @@ function renderQuiz() {
             activeAnswerToast = null;
         }
         try {
-            const handle = window.lhToast(isSuccess ? "Đã lưu đáp án" : "Thông báo", {
+            const handle = window.lhToast(isSuccess ? (isEnTest() ? "Answer saved" : "Đã lưu đáp án") : (isEnTest() ? "Notice" : "Thông báo"), {
                 type: isSuccess ? "success" : "info",
                 title: title,
                 durationMs: 1500,
@@ -1134,9 +1138,9 @@ function renderQuiz() {
     // 🔥 [Đúng/Sai] chọn 1 ý -> toast thông báo ý nào đã chọn Đúng/Sai
     function tfSelect(globalIdx, subIdx, val) {
         if (document.getElementById("quiz-container").classList.contains("quiz-locked")) return;
-        const label = val === 1 ? "Đúng" : "Sai";
+        const label = val === 1 ? qLbl().yesFull : qLbl().noFull;
         const letter = String.fromCharCode(97 + subIdx);
-        pushToast(`Câu ${globalIdx + 1}`, `Ý <b>${letter}</b> đã chọn <b>${label}</b>`, true);
+        pushToast(`${qLbl().question} ${globalIdx + 1}`, isEnTest() ? `Statement <b>${letter}</b>: <b>${label}</b> selected` : `Ý <b>${letter}</b> đã chọn <b>${label}</b>`, true);
         checkTFDone(globalIdx);
     }
 
@@ -1145,7 +1149,7 @@ function renderQuiz() {
         if (document.getElementById("quiz-container").classList.contains("quiz-locked")) return;
         const input = document.querySelector(`[data-qidx="${qIdx}"]`);
         if (input && input.value && input.value.trim() !== "") {
-            pushToast(`Câu ${qIdx + 1}`, `Đã lưu <b>đáp án tự luận</b>`, true);
+            pushToast(`${qLbl().question} ${qIdx + 1}`, isEnTest() ? `<b>Written answer</b> saved` : `Đã lưu <b>đáp án tự luận</b>`, true);
         }
     }
 
@@ -1545,7 +1549,7 @@ function reviewMode() {
                     if (!textEl.querySelector('.tf-answer-tip')) {
                         const tip = document.createElement('span');
                         tip.className = `tf-answer-tip ${userVal === correctVal ? 'true-text' : 'false-text'}`;
-                        tip.innerHTML = ` (Đáp án: ${correctVal === 1 ? 'Đúng' : 'Sai'})`;
+                        tip.innerHTML = ` (${qLbl().answer}: ${correctVal === 1 ? qLbl().yesFull : qLbl().noFull})`;
                         textEl.appendChild(tip);
                     }
                 });
@@ -1566,7 +1570,7 @@ function reviewMode() {
                 resultDiv.className = 'true-text';
                 resultDiv.style.marginTop = "10px";
                 // [FIX BUG #22] Escape nội dung để tránh XSS
-                resultDiv.textContent = `✓ Đáp án chuẩn: ${item.correctAnswer || ""}`;
+                resultDiv.textContent = `✓ ${qLbl().correctAnswer}: ${item.correctAnswer || ""}`;
                 input.parentNode.appendChild(resultDiv);
             }
 
@@ -1615,7 +1619,7 @@ function reviewMode() {
                 det.className = 'q-explanation';
                 const sum = document.createElement('summary');
                 sum.className = 'exp-label';
-                sum.textContent = 'Hiện giải thích';
+                sum.textContent = qLbl().showExp;
                 const body = document.createElement('div');
                 body.className = 'exp-body';
                 body.innerHTML = item.explanation;
