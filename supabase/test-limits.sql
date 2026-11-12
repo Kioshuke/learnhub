@@ -109,7 +109,7 @@ begin
   -- [Mật khẩu] '' = không đặt mật khẩu. Truyền NULL = giữ nguyên mật khẩu cũ.
   v_password := btrim(coalesce(p_password, ''));
 
-  -- [Chặn cấu trúc] Khi đề đã xuất bản (is_complete=true), không cho phép thay đổi cấu trúc.
+  -- [Chặn cấu trúc] Khi đề đã xuất bản (is_complete=true), không cho phép thay đổi cấu trúc câu hỏi.
   if p_id is not null then
     perform 1 from public.test_sets
      where id = p_id
@@ -119,6 +119,7 @@ begin
       return jsonb_build_object('ok', false, 'error', 'structure_locked');
     end if;
   end if;
+
 
   if p_id is null then
     insert into public.test_sets (teacher_id, subject, name, description, content, minutes, score, shuffle_q, shuffle_a, is_complete, show_score, show_answers, subtest_enabled, subtest_count, start_at, end_at, max_attempts, password)

@@ -147,7 +147,7 @@ begin
     return jsonb_build_object('ok', false, 'error', 'invalid_time_range');
   end if;
 
-  -- [Chặn cấu trúc] Khi đề đã xuất bản (is_complete=true), không cho phép thay đổi cấu trúc.
+  -- [Chặn cấu trúc] Khi đề đã xuất bản (is_complete=true), không cho phép thay đổi cấu trúc câu hỏi.
   if p_id is not null then
     perform 1 from public.test_sets
      where id = p_id
@@ -157,6 +157,7 @@ begin
       return jsonb_build_object('ok', false, 'error', 'structure_locked');
     end if;
   end if;
+
 
   if p_id is null then
     insert into public.test_sets (teacher_id, subject, name, description, content, minutes, score, shuffle_q, shuffle_a, is_complete, show_score, show_answers, subtest_enabled, subtest_count, start_at, end_at)
@@ -312,26 +313,19 @@ returns text
 language sql stable security definer
 set search_path = public
 as $$
-  select coalesce(string_agg(sec_sig, e'\n' order by sec_sig), '[]')
+  select coalesce(string_agg(q_sig, ',' order by q_sig), '[]')
   from (
     select
-      ('q=' || coalesce(jsonb_array_length(s.sec->'questions'), 0) || ';') ||
-      coalesce((
-        select string_agg(q_sig, ',' order by q_sig)
-        from (
-          select
-            case coalesce(q->>'type', '?')
-              when 'multiple'   then 'multiple:' || coalesce(jsonb_array_length(q->'answers'), 0)
-              when 'true_false' then 'true_false:' || coalesce(jsonb_array_length(q->'subQuestions'), 0)
-              when 'passage'    then 'passage:' || coalesce(jsonb_array_length(q->'subQuestions'), 0)
-              when 'cloze'      then 'cloze:' || coalesce(jsonb_array_length(q->'blanks'), 0)
-              else coalesce(q->>'type', '?') || ':0'
-            end as q_sig
-          from jsonb_array_elements(s.sec->'questions') q
-        ) t
-      ), '') as sec_sig
-    from jsonb_array_elements(p_content) s(sec)
-  ) x;
+      case coalesce(q->>'type', '?')
+        when 'multiple'   then 'multiple:' || coalesce(jsonb_array_length(q->'answers'), 0)
+        when 'true_false' then 'true_false:' || coalesce(jsonb_array_length(q->'subQuestions'), 0)
+        when 'passage'    then 'passage:' || coalesce(jsonb_array_length(q->'subQuestions'), 0)
+        when 'cloze'      then 'cloze:' || coalesce(jsonb_array_length(q->'blanks'), 0)
+        else coalesce(q->>'type', '?') || ':0'
+      end as q_sig
+    from jsonb_array_elements(p_content) s(sec),
+         jsonb_array_elements(s.sec->'questions') q
+  ) t;
 $$;
 grant execute on function public.test_structure_signature(jsonb) to authenticated;
 

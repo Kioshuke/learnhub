@@ -1047,6 +1047,25 @@ function render() {
     bindSectionEdit(head.querySelector("h3"), section, "sectionTitle", "PHẦN " + (si + 1));
     bindSectionEdit(head.querySelector(".desc"), section, "sectionDesc", "Thêm mô tả phần…");
 
+    /* Nút xoá phần */
+    var delSecBtn = document.createElement("button");
+    delSecBtn.type = "button";
+    delSecBtn.className = "btn btn-ghost";
+    delSecBtn.style.cssText = "margin-left:auto;font-size:12px;padding:4px 8px;color:#dc2626;";
+    delSecBtn.innerHTML = '<i class="fa-solid fa-trash"></i> Xoá phần';
+    delSecBtn.addEventListener("click", function () {
+      if (testData.length <= 1) { alert("Không thể xoá phần cuối cùng."); return; }
+      if (!confirm("Xoá phần này? Các câu sẽ gộp vào phần phía trên.")) return;
+      var qs = sec.questions || [];
+      // gộp vào phần phía trên (hoặc phía dưới nếu là phần đầu)
+      var targetIdx = si > 0 ? si - 1 : si + 1;
+      testData[targetIdx].questions = (testData[targetIdx].questions || []).concat(qs);
+      testData.splice(si, 1);
+      if (typeof syncJson === "function") syncJson();
+      if (typeof render === "function") render();
+    });
+    head.appendChild(delSecBtn);
+
     if (section.audio) {
       head.insertAdjacentHTML("beforeend",
         '<div class="rd-listen"><span class="muted"><i class="fa-solid fa-headphones"></i> ' + escapeC(section.listenTitle || "Nghe") + ': </span>' +
@@ -1076,12 +1095,12 @@ function render() {
 
       var headQ = document.createElement("div");
       headQ.className = "q-head";
-      headQ.innerHTML = '<span class="num">' + qWord() + ' ' + (idx + 1) + "</span>" +
+      headQ.innerHTML = '<span class="num" style="cursor:pointer;" title="Bấm để hiện tuỳ chọn tách phần">' + qWord() + ' ' + (idx + 1) + "</span>" +
         '<div class="q-q">' + stripBoldTags(stripQuestionNo(qText)) +
         '<span class="tag tag-' + type + '">' + tagTxt + "</span></div>";
       card.appendChild(headQ);
 
-      /* Nút tách phần từ câu này trở xuống (ẩn, hiện khi hover) */
+      /* Nút tách phần từ câu này trở xuống (ẩn, hiện khi bấm vào số câu) */
       var splitBtn = document.createElement("button");
       splitBtn.type = "button";
       splitBtn.className = "btn btn-ghost";
@@ -1089,8 +1108,13 @@ function render() {
       splitBtn.innerHTML = '<i class="fa-solid fa-scissors"></i> Tách từ đây';
       splitBtn.addEventListener("click", function () { splitSectionFromQuestion(idx); });
       card.appendChild(splitBtn);
-      card.addEventListener("mouseenter", function () { splitBtn.style.display = "inline-block"; });
-      card.addEventListener("mouseleave", function () { splitBtn.style.display = "none"; });
+      var numEl = headQ.querySelector(".num");
+      if (numEl) {
+        numEl.addEventListener("click", function (e) {
+          e.stopPropagation();
+          splitBtn.style.display = (splitBtn.style.display === "none") ? "inline-block" : "none";
+        });
+      }
 
       var qImgUrl = imageFieldUrl(item.image) || (qMarker ? qMarker.url : "");
       if (qImgUrl && /^https?:\/\//i.test(qImgUrl)) {
@@ -1300,6 +1324,19 @@ function render() {
 
     area.appendChild(sec);
   });
+
+  /* Nút thêm phần mới */
+  var addSecBtn = document.createElement("button");
+  addSecBtn.type = "button";
+  addSecBtn.className = "btn btn-primary";
+  addSecBtn.style.cssText = "margin:12px 0;display:block;";
+  addSecBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Thêm phần mới';
+  addSecBtn.addEventListener("click", function () {
+    testData.push({ sectionTitle: "PHẦN " + (testData.length + 1) + ". (Mới)", sectionDesc: "", questions: [] });
+    if (typeof syncJson === "function") syncJson();
+    if (typeof render === "function") render();
+  });
+  area.appendChild(addSecBtn);
 
   var rcEl = $("renderCount");
   if (rcEl) rcEl.textContent = testData.length + " phần - " + imgCount + " ảnh - " + qCount + " câu";
