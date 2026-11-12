@@ -68,6 +68,7 @@ body::before {
     left: 14px;
     top: 50%;
     transform: translateY(-50%);
+    z-index: 2;
     font-size: 18px;
     font-weight: 800;
     color: #1d4ed8;
@@ -3370,6 +3371,14 @@ body.dark-mode .app-topbar {
   background: rgba(15, 23, 42, 0.88);
   border-bottom-color: rgba(255, 255, 255, 0.08);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+/* Dãy nền đục của #menu (global.css tô khi dark) chạy ngang cả vùng tiêu đề
+   -> che chữ "LearnHub Flashcard". Nút tab đã tự có nền tối riêng nên
+   ở flash.html để menu trong suốt, không mất title. */
+body.dark-mode #menu {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 body.dark-mode .topbar-title {
   color: #60a5fa;

@@ -673,6 +673,11 @@ if (window !== window.parent) {
             <p id="feedbackText" style="font-weight:700; font-size:1.1rem; margin-top:8px;"></p>
             <!-- 🆕 [LearnHub Test - Giai đoạn 2] Trạng thái lưu kết quả lên Supabase -->
             <p id="saveStatsStatus" style="display:none; font-size:0.85rem; font-weight:600; margin-top:4px;"></p>
+            <p id="attemptHistoryHint" style="display:none; text-align:center; font-size:0.9rem; font-weight:600; color:var(--text-sub, #475569); margin-top:18px;">
+                <i class="fa-solid fa-clock-rotate-left"></i> Lịch sử bài làm đã được lưu để xem lại —
+                <a href="../user/profile.html" target="_top" style="color:var(--primary); font-weight:800; text-decoration:underline;">bấm vào đây</a>
+                hoặc mở trang hồ sơ người dùng trong menu Avatar.
+            </p>
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 25px;">
 <button class="btn btn-primary" id="reviewBtn" style="justify-content: center;" onclick="reviewMode()"><i class="fa-solid fa-eye"></i> Xem bài làm</button>
                 <button class="btn lb-mobile-only" style="justify-content: center; background: #7c3aed;" onclick="openLeaderboard()"><i class="fa-solid fa-trophy"></i> Bảng xếp hạng</button>
@@ -753,6 +758,9 @@ function showSaveStatus(success){
     el.style.display = "block";
     el.innerText = success ? "Đã gửi kết quả về LearnHub." : "Không thể lưu kết quả. Vui lòng kiểm tra kết nối hoặc mở lại trang.";
     el.style.color = success ? "var(--success, #16a34a)" : "var(--danger, #c81515)";
+    // Gợi ý xem lại lịch sử bài làm trong hồ sơ — chỉ hiện khi đã lưu thành công
+    const hint = document.getElementById("attemptHistoryHint");
+    if (hint) hint.style.display = success ? "block" : "none";
 }
 
 
@@ -1465,7 +1473,7 @@ resultFlags.push(isPerfect);
         feedbackEl.classList.remove("feedback-show");
     } else {
         scoreCircle.innerText = userScore.toFixed(1);
-        statsEl.innerText = `🎯 Đúng ${correctCount}/${totalQuestions} câu · Điểm tối đa: ${maxScore}đ`;
+        statsEl.innerText = `🎯 Đúng ${correctCount}/${totalQuestions} câu - Điểm tối đa: ${maxScore}đ`;
 
         const feedback = getFeedback(score);
         if (score >= 10) {
