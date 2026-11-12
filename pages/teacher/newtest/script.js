@@ -1081,6 +1081,15 @@ function render() {
         '<span class="tag tag-' + type + '">' + tagTxt + "</span></div>";
       card.appendChild(headQ);
 
+      /* Nút tách phần từ câu này trở xuống */
+      var splitBtn = document.createElement("button");
+      splitBtn.type = "button";
+      splitBtn.className = "btn btn-ghost";
+      splitBtn.style.cssText = "margin:6px 0 0;font-size:12px;padding:4px 8px;";
+      splitBtn.innerHTML = '<i class="fa-solid fa-scissors"></i> Tách từ đây';
+      splitBtn.addEventListener("click", function () { splitSectionFromQuestion(idx); });
+      card.appendChild(splitBtn);
+
       var qImgUrl = imageFieldUrl(item.image) || (qMarker ? qMarker.url : "");
       if (qImgUrl && /^https?:\/\//i.test(qImgUrl)) {
         imgCount++;
@@ -1298,6 +1307,32 @@ function render() {
 
 function norm(v) {
   return String(v == null ? "" : v).trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function splitSectionFromQuestion(globalIdx) {
+  var gi = 0, secIdx = -1, localIdx = -1;
+  for (var s = 0; s < testData.length; s++) {
+    var qs = testData[s].questions || [];
+    if (globalIdx >= gi && globalIdx < gi + qs.length) { secIdx = s; localIdx = globalIdx - gi; break; }
+    gi += qs.length;
+  }
+  if (secIdx < 0) return;
+  var sec = testData[secIdx];
+  var qs = sec.questions || [];
+  if (localIdx >= qs.length) return;
+  if (qs.length - localIdx < 1) return;
+  var moved = qs.slice(localIdx);
+  var kept = qs.slice(0, localIdx);
+  sec.questions = kept;
+  var newSec = {
+    sectionTitle: "PHẦN " + (testData.length + 1) + ". (Mới tách)",
+    sectionDesc: sec.sectionDesc || "",
+    questions: moved
+  };
+  testData.splice(secIdx + 1, 0, newSec);
+  if (!kept.length) testData.splice(secIdx, 1);
+  if (typeof syncJson === "function") syncJson();
+  if (typeof render === "function") render();
 }
 
 function jumpToQuestion(n) {
