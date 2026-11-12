@@ -5572,8 +5572,8 @@ body.dark-mode .streak-badge { color: var(--text-main); }
         body.dark-mode .quiz-section > div[style*="background: #eff6ff"] {
     background: rgba(255,255,255,0.06) !important;
     color: var(--accent-soft) !important;
-    border-left: 5px solid #3b82f6 !important;
     border: 1px solid rgba(96,165,250,0.18) !important;
+    border-left: 5px solid #3b82f6 !important;
     backdrop-filter: blur(12px);
 }
 
@@ -5642,6 +5642,25 @@ body.dark-mode .share-box input {
   color: var(--text);
   border-color: var(--border, #334155);
 }
+/* Nút đóng + dòng lỗi trong popup QR phòng học (trước đây vẫn nền trắng) */
+body.dark-mode .ph-qr-close {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text-sub);
+}
+body.dark-mode .ph-qr-close:hover {
+  background: var(--border-strong);
+  color: var(--text-main);
+}
+body.dark-mode .ph-qr-error { color: #f87171; }
+/* Chữ phụ trong popup chia sẻ flashcard: tiêu đề/mô tả/gợi ý hardcode màu sáng */
+body.dark-mode .share-box .share-header h3 { color: var(--accent-soft); }
+body.dark-mode .share-box .share-sub { color: var(--text-sub); }
+body.dark-mode .share-box .share-qr-hint { color: var(--text-faint); }
+/* Khung dialog chứa iframe Tạo mã QR / Bảng xếp hạng trên web chính */
+body.dark-mode .lh-qr-dialog { background: #0f172a; }
+body.dark-mode .lh-qr-close { background: var(--surface); color: var(--text-sub); }
+body.dark-mode .lh-qr-close:hover { background: var(--border-strong); color: var(--text-main); }
         body.dark-mode {
                 background:
         radial-gradient(circle at top left, rgba(59,130,246,0.08), transparent 35%),
@@ -5714,8 +5733,8 @@ body.dark-mode .share-box input {
         body.dark-mode .quiz-section > div[style*="background: #eff6ff"] {
     background: rgba(255,255,255,0.06) !important;
     color: var(--accent-soft) !important;
-    border-left: 5px solid #3b82f6 !important;
     border: 1px solid rgba(96,165,250,0.18) !important;
+    border-left: 5px solid #3b82f6 !important;
     backdrop-filter: blur(12px);
 }
 
@@ -5762,6 +5781,23 @@ body.dark-mode .ans-label:hover {
         body.dark-mode .cloze-input {
             border-color: rgba(255,255,255,0.14) !important;
         }
+
+/* Tiêu đề phần dùng class (.quiz-section-title trong quiz-review.css), màu nằm
+   trong CSS chứ không phải inline style -> selector [style*=...] ở trên không
+   bắt được. Cần rule riêng cho class để dark mode áp dụng đúng. */
+body.dark-mode .quiz-section-title {
+    background: rgba(255,255,255,0.06) !important;
+    color: var(--accent-soft) !important;
+    border: 1px solid rgba(96,165,250,0.18) !important;
+    border-left: 5px solid #3b82f6 !important;
+}
+
+/* Vòng điểm trong modal kết quả bài thi */
+body.dark-mode .score-circle {
+    background: rgba(59,130,246,0.12) !important;
+    border-color: rgba(59,130,246,0.32) !important;
+    color: var(--accent-soft) !important;
+}
 
 body.dark-mode .lh-toast-mini {
     background: var(--surface) !important;
@@ -5932,3 +5968,15 @@ body.sticky-header.header-scrolled .ticker-container{
 
 /* Muc luc: cau danh dau "Can xem lai" to mau vang */
 .nav-item.nav-flagged { background: #fef9c3 !important; color: #a16207 !important; border-color: #eab308 !important; }
+
+/* === Dark mode: la co "Can xem lai" + o muc luc tuong ung === */
+body.dark-mode .q-flag { border-color: rgba(148,163,184,.4); color: var(--text-sub); }
+body.dark-mode .q-flag:hover { color: var(--text-sub); border-color: var(--border-weak); }
+body.dark-mode .q-flag.flagged { background: rgba(234,179,8,.16); border-color: #eab308; color: #facc15; }
+body.dark-mode .q-flag.flagged .q-flag-text { color: #facc15; }
+body.dark-mode .q-flag.flagged:hover { color: #fde047; }
+body.dark-mode .nav-item.nav-flagged {
+  background: rgba(234,179,8,.18) !important;
+  color: #facc15 !important;
+  border-color: rgba(234,179,8,.55) !important;
+}

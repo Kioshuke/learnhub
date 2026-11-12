@@ -174,6 +174,41 @@
 
         .tab-panel{display:none}
         .tab-panel.active{display:block}
+
+        /* ===== DARK MODE (đồng bộ từ web chính qua postMessage) ===== */
+        body.dark-mode{
+            background:radial-gradient(circle at top left,rgba(59,130,246,.08),transparent 35%),radial-gradient(circle at top right,rgba(14,165,233,.06),transparent 30%),#071120;
+            color:#e2e8f0
+        }
+        body.dark-mode .week-tag{background:rgba(30,41,59,.8);border-color:rgba(99,102,241,.25);color:#cbd5e1;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+        body.dark-mode .mode-switch{background:rgba(30,41,59,.8);border-color:rgba(99,102,241,.25);box-shadow:0 2px 12px rgba(0,0,0,.3)}
+        body.dark-mode .mode-btn{color:#94a3b8}
+        body.dark-mode .mode-btn:hover{color:#a5b4fc}
+        body.dark-mode .hdr-title p{color:#94a3b8}
+        body.dark-mode .podium-side,body.dark-mode .list-side{background:rgba(30,41,59,.78);border-color:rgba(99,102,241,.18);box-shadow:0 10px 40px rgba(0,0,0,.35)}
+        body.dark-mode th{background:linear-gradient(135deg,rgba(59,130,246,.14),rgba(124,58,237,.14));color:#a5b4fc;border-bottom:2px solid rgba(99,102,241,.25)}
+        body.dark-mode tr{border-bottom:1px solid rgba(255,255,255,.06)}
+        body.dark-mode tr:hover{background:rgba(255,255,255,.03)}
+        body.dark-mode tr.row-rank-1{background:linear-gradient(90deg,rgba(251,191,36,.14),rgba(251,191,36,.03))}
+        body.dark-mode tr.row-rank-2{background-color:rgba(148,163,184,.1)}
+        body.dark-mode tr.row-rank-3{background-color:rgba(245,158,11,.1)}
+        body.dark-mode .rank-badge{background:#334155;color:#94a3b8}
+        body.dark-mode tr.row-rank-1 .rank-badge{background:rgba(251,191,36,.2);color:#fbbf24}
+        body.dark-mode tr.row-rank-2 .rank-badge{background:rgba(148,163,184,.2);color:#cbd5e1}
+        body.dark-mode tr.row-rank-3 .rank-badge{background:rgba(245,158,11,.2);color:#fdba74}
+        body.dark-mode .name-cell{color:#f1f5f9}
+        body.dark-mode .row-ava{background:#334155}
+        body.dark-mode .row-ava-fb{background:linear-gradient(135deg,rgba(99,102,241,.25),rgba(139,92,246,.25));color:#a5b4fc}
+        body.dark-mode .count-cell{color:#94a3b8}
+        body.dark-mode .time-cell{color:#60a5fa}
+        body.dark-mode .ava-inner{background:#334155}
+        body.dark-mode .ava-initial{color:#94a3b8}
+        body.dark-mode .t3-name{color:#f1f5f9}
+        body.dark-mode .t3-meta{color:#64748b}
+        body.dark-mode .t3-time{color:#34d399}
+        body.dark-mode .sk{background:linear-gradient(90deg,rgba(255,255,255,.06) 25%,rgba(255,255,255,.12) 37%,rgba(255,255,255,.06) 63%);background-size:400% 100%}
+        body.dark-mode .lb-empty-title{color:#cbd5e1}
+        body.dark-mode .lb-empty-sub{color:#64748b}
     </style>
 <script src="../../version/version-check.js" defer></script>
 </head>
@@ -255,6 +290,16 @@
     </div>
 
     <script type="module">
+        // Dark mode: nhận tín hiệu từ web chính (iframe popup / nhúng) + khôi phục khi mở trang riêng
+        try {
+            if (localStorage.getItem("darkMode") === "on") document.body.classList.add("dark-mode");
+            window.addEventListener("message", (e) => {
+                if (e.data && e.data.type === "DARK_MODE") {
+                    document.body.classList.toggle("dark-mode", !!e.data.value);
+                }
+            });
+        } catch (err) { console.warn("[leaderboard] dark mode sync failed:", err); }
+
         import { supabase, createLearnHubClient, logAppError, imageUrl } from "../../scripts/core/supabase-config.js";
         window.logAppError = logAppError;
         import { getPeriodKey, getPeriodStartMs, formatPeriodLabel, formatTimer } from "../../scripts/features/week-math.js";

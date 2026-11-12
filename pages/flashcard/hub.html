@@ -954,6 +954,23 @@
     }
 
     /* ===== DARK MODE ===== */
+    /* Phần lớn đã có trong global.css (body.dark-mode) — bổ sung riêng cho popup chia sẻ */
+    body.dark-mode .share-box {
+      background: var(--card, #1e293b);
+      border-color: var(--border-strong, #334155);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+    }
+    body.dark-mode .share-header h3 { color: var(--accent-soft, #60a5fa); }
+    body.dark-mode .share-sub { color: var(--text-sub, #94a3b8); }
+    body.dark-mode .share-link-row input {
+      background: var(--input-bg, #0f172a);
+      color: var(--text, #f1f5f9);
+      border-color: var(--border-strong, #334155);
+    }
+    body.dark-mode .share-link-row input:focus { background: var(--input-bg, #0f172a); }
+    /* Khung QR giữ nền trắng để quét được, chỉ đổi viền */
+    body.dark-mode .share-qr { border-color: rgba(148, 163, 184, 0.35); }
+    body.dark-mode .share-qr-hint { color: var(--text-faint, #64748b); }
 
   </style>
 <script src="../../version/version-check.js" defer></script>

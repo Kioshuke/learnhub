@@ -139,6 +139,28 @@
       .qr-col-right { flex:none; width:100%; }
       .qr-preview-frame { max-width:180px; margin:0 auto; }
     }
+
+    /* ===== DARK MODE (đồng bộ từ web chính qua postMessage) ===== */
+    body.dark-mode {
+      background:#0f172a; color:#e2e8f0;
+      --lh-primary:#3b82f6;
+      --lh-primary-soft:rgba(59,130,246,.16);
+      --lh-text:#f1f5f9;
+      --lh-text-sub:#94a3b8;
+      --lh-bg-soft:#1e293b;
+      --lh-bg-softer:#26334a;
+      --lh-border:#334155;
+      --lh-red:#f87171;
+      --lh-red-soft:rgba(239,68,68,.14);
+    }
+    body.dark-mode .qr-modal { background:#0f172a; }
+    body.dark-mode .qr-input { background:#1e293b; }
+    body.dark-mode .qr-input:focus { box-shadow:0 0 0 3px rgba(59,130,246,.25); }
+    body.dark-mode .size-custom { background:#1e293b; }
+    body.dark-mode .qr-btn { background:#1e293b; }
+    body.dark-mode .qr-btn.outline { color:#60a5fa; }
+    body.dark-mode .qr-hist-item { background:#1e293b; }
+    body.dark-mode .color-swatch { background:#1e293b; }
   </style>
 </head>
 <body>
@@ -245,6 +267,16 @@
   </div>
 
   <script>
+    // Dark mode: nhận tín hiệu từ web chính (iframe popup) + khôi phục khi mở trang riêng
+    (function(){
+      try {
+        if (localStorage.getItem('darkMode') === 'on') document.body.classList.add('dark-mode');
+        window.addEventListener('message', function(e){
+          if (e.data && e.data.type === 'DARK_MODE') document.body.classList.toggle('dark-mode', !!e.data.value);
+        });
+      } catch (err) {}
+    })();
+
     (function(){
       const textEl = document.getElementById('qrText');
       const sizeEl = document.getElementById('qrSize');

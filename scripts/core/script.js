@@ -1391,6 +1391,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
     document.body.classList.add('lh-page-locked');
+    // Gửi trạng thái dark mode hiện tại sang iframe (lỡ iframe load xong trước khi có listener sync)
+    try { qrFrame && qrFrame.contentWindow && qrFrame.contentWindow.postMessage({ type: 'DARK_MODE', value: document.body.classList.contains('dark-mode') }, '*'); } catch (e) {}
   }
   function closeQrModal() {
     if (!qrOverlay) return;
@@ -1427,6 +1429,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.documentElement.style.overflow = 'hidden';
     document.body.classList.add('lh-page-locked');
     if (lbFrame && !lbFrame.getAttribute('src')) lbFrame.setAttribute('src', lbFrame.dataset.src || '/pages/features/leaderboard.html');
+    // Gửi trạng thái dark mode hiện tại sang iframe (lỡ iframe load xong trước khi có listener sync)
+    try { lbFrame && lbFrame.contentWindow && lbFrame.contentWindow.postMessage({ type: 'DARK_MODE', value: document.body.classList.contains('dark-mode') }, '*'); } catch (e) {}
   }
   function closeLeaderboard() {
     if (!lbOverlay) return;
@@ -1500,7 +1504,9 @@ const darkModeFrames = [
     document.getElementById("blogFrame"),
     document.getElementById("taiLieuFrame"),
     document.getElementById("phongHocFrame"),
-    document.getElementById("chatbotFrame")
+    document.getElementById("chatbotFrame"),
+    document.getElementById("lhQrFrame"),   // popup Tạo mã QR
+    document.getElementById("lhLbFrame")    // popup Bảng xếp hạng
 ].filter(Boolean);
 
 // Hàm gửi tín hiệu sang các iframe cần đồng bộ dark mode

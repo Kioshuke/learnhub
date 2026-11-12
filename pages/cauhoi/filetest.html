@@ -503,6 +503,16 @@
         body.dark-mode #quiz-container .skel-bar,
         body.dark-mode #navGrid .skel-bar     { background: linear-gradient(90deg, #1e293b 25%, #2d3a4e 37%, #1e293b 63%); }
         body.dark-mode .skel-qcard            { background: #1e293b; border-color: rgba(255,255,255,0.08); }
+
+        /* Dòng cảnh báo trong modal xác nhận nộp bài (câu chưa chọn / đã gắn cờ xem lại) */
+        .confirm-line {
+            display: flex; align-items: center; gap: 9px; padding: 9px 12px;
+            border-radius: 12px; font-size: 13.5px; font-weight: 700;
+        }
+        .confirm-line-warn   { background: #fff6e5; border: 1px solid #fdeecb; color: #b45309; }
+        .confirm-line-danger { background: #fdecec; border: 1px solid #f6c8c8; color: #b91c1c; }
+        body.dark-mode .confirm-line-warn   { background: rgba(234,179,8,.12); border-color: rgba(234,179,8,.3); color: #facc15; }
+        body.dark-mode .confirm-line-danger { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.3); color: #f87171; }
     </style>
 </head>
 <body>
@@ -764,6 +774,10 @@ window.addEventListener('message', (event) => {
         } else {
             document.body.classList.remove('dark-mode');
         }
+        // Chuyển tiếp tín hiệu cho bảng xếp hạng nhúng trong trang (modal kết quả + popup mobile)
+        document.querySelectorAll('iframe[src*="leaderboard"]').forEach((f) => {
+            try { f.contentWindow.postMessage({ type: 'DARK_MODE', value: !!isDark }, '*'); } catch (e) {}
+        });
     }
 
     // 🆕 [LearnHub Test - Giai đoạn 1] Nhận thông tin user từ web chính (LearnHub)
@@ -1212,9 +1226,7 @@ function submitQuiz() {
         box.innerHTML = '';
         lines.forEach(l => {
             const row = document.createElement('div');
-            const warn = l.cls === 'warn';
-            row.style.cssText = 'display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:12px;font-size:13.5px;font-weight:700;' +
-                (warn ? 'background:#fff6e5;border:1px solid #fdeecb;color:#b45309;' : 'background:#fdecec;border:1px solid #f6c8c8;color:#b91c1c;');
+            row.className = 'confirm-line' + (l.cls === 'warn' ? ' confirm-line-warn' : ' confirm-line-danger');
             const ic = document.createElement('i');
             ic.className = 'fa-solid ' + l.icon;
             const tx = document.createElement('span');
