@@ -767,6 +767,35 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 });
 
+/* === Popup yêu cầu đăng nhập cho khách mở deep link bài test/flashcard === */
+function showGuestDeepLinkModal(redirectUrl) {
+  if (document.getElementById("guestDeepLinkModal")) return;
+  var overlay = document.createElement("div");
+  overlay.id = "guestDeepLinkModal";
+  overlay.style.cssText = "position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(2px);";
+  var card = document.createElement("div");
+  card.style.cssText = "background:#fff;border-radius:16px;padding:24px;max-width:420px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);";
+  card.innerHTML =
+    '<h3 style="margin:0 0 8px;font-size:18px;">Bạn cần đăng nhập</h3>' +
+    '<p style="margin:0 0 16px;color:#475569;font-size:14px;">Vui lòng đăng nhập hoặc đăng ký để tiếp tục làm bài.</p>' +
+    '<div style="display:flex;gap:10px;justify-content:center;">' +
+      '<button type="button" id="guestBackBtn" style="padding:10px 16px;border:1px solid #cbd5e1;background:#f1f5f9;border-radius:10px;cursor:pointer;">Quay lại</button>' +
+      '<button type="button" id="guestLoginBtn" style="padding:10px 16px;border:none;background:#2563eb;color:#fff;border-radius:10px;cursor:pointer;">Đăng nhập / Đăng ký</button>' +
+    '</div>';
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+  document.body.style.overflow = "hidden";
+  document.getElementById("guestBackBtn").addEventListener("click", function () {
+    overlay.remove();
+    document.body.style.overflow = "";
+    window.location.href = "/index.html";
+  });
+  document.getElementById("guestLoginBtn").addEventListener("click", function () {
+    var loginUrl = "/pages/auth/login.html?redirect=" + encodeURIComponent(redirectUrl || window.location.href);
+    window.location.href = loginUrl;
+  });
+}
+
 /* === PWA SHORTCUT DEEP LINK (?open=...) — mở tab nội bộ như bấm card tính năng === */
 document.addEventListener('DOMContentLoaded', function(){
   try {
@@ -783,10 +812,13 @@ document.addEventListener('DOMContentLoaded', function(){
     var tries = 0;
     var iv = setInterval(function(){
       tries++;
-      // Khách chưa đăng nhập: không vào tab tính năng, đẩy qua login (Blog cho đọc tự do)
+      // Khách chưa đăng nhập: không vào tab tính năng, hiện popup yêu cầu đăng nhập/đăng ký
       if(window.__lhGuest && open !== "blog"){
         clearInterval(iv);
-        window.location.href = "/pages/auth/login.html";
+        var redirectUrl = window.location.origin + window.location.pathname + "?open=" + encodeURIComponent(open);
+        if (openQuizDe) redirectUrl += "&de=" + encodeURIComponent(openQuizDe);
+        if (openFlashSet) redirectUrl += "&set=" + encodeURIComponent(openFlashSet);
+        showGuestDeepLinkModal(redirectUrl);
         return;
       }
       if(!window.__lhGuest && !window.currentLearnHubUser && tries < 32) return;

@@ -1578,7 +1578,9 @@ function showLoginSuccess(message, redirectMs = 3000) {
     if (remaining <= 0) {
       clearInterval(countdownInterval);
       countdownInterval = null;
-      window.location.replace('/index.html');
+      var redirect = null;
+      try { redirect = new URLSearchParams(window.location.search).get("redirect"); } catch (e) {}
+      window.location.replace(redirect ? redirect : '/index.html');
     } else if (toast) {
       toast.update(`${message} Chuyển hướng sau ${remaining}s...`);
     }
@@ -2160,7 +2162,9 @@ onAuthChange(async (event, session) => {
       }
       // Cập nhật hồ sơ (user mới nằm thẳng trên Supabase) rồi vào trang chủ
       await finalizeSession(user);
-      window.location.replace("/index.html");
+      var redirect2 = null;
+      try { redirect2 = new URLSearchParams(window.location.search).get("redirect"); } catch (e) {}
+      window.location.replace(redirect2 ? redirect2 : "/index.html");
     } catch(e) {
       console.error("Finalize login lỗi:", e);
       processingLogin = false;
