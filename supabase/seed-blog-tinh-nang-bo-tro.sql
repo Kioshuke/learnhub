@@ -160,7 +160,7 @@ select
 
 <p>Nếu bạn phát hiện lỗi hoặc có ý tưởng cho một tính năng mới, đừng ngần ngại gửi qua trang <strong>Góp ý</strong>. Ban Quản Trị luôn đọc và ghi nhận mọi phản hồi.</p>
 $body$,
-  'https://lh3.googleusercontent.com/d/1XZPTLHhFprawMWYCqRKeMbX_8uRcnffd',
+  'https://lh3.googleusercontent.com/d/1p3S5RZxOpH4MKnjqfZ_5yy1S_AULVYwr',
   'Học tập',
   array['Hubie AI','Forum','Thư viện tài liệu','Hồ sơ học viên','Bảng xếp hạng','tính năng'],
   'Ban Quản Trị LearnHub',

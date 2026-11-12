@@ -130,7 +130,7 @@ select
 
 <p>Nếu gặp lỗi khi xem video, làm bài hoặc thấy lịch chưa đúng, bạn hãy gửi phản hồi cho Ban Quản Trị qua trang <strong>Góp ý</strong> để được hỗ trợ sớm nhất.</p>
 $body$,
-  'https://lh3.googleusercontent.com/d/1f3rEeg-z1nOk7uo8q4L_iT58Lj7u_LgK',
+  'https://lh3.googleusercontent.com/d/1KXu3PtUSBqDufWnGy-m94xfpSAUkhCTB',
   'Học tập',
   array['Phòng học','LearnHub Test','bài kiểm tra','video bài giảng','lịch học'],
   'Ban Quản Trị LearnHub',

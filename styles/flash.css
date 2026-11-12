@@ -3359,3 +3359,45 @@ body::after {
     max-width: 100%;
   }
 }
+
+/* ===== DARK MODE — TOPBAR & MENU (flash.html) ===== */
+/* flash.css light mode hardcode màu sáng; global.css đổi --panel sang nền tối
+   khi dark mode nhưng không có rule nào cho chữ/nút ở đây -> chữ tab mất. */
+body.dark-mode {
+  background: #0f172a; /* đè nền xanh nhạt #eff6ff của html + rule transparent của global */
+}
+body.dark-mode .app-topbar {
+  background: rgba(15, 23, 42, 0.88);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+body.dark-mode .topbar-title {
+  color: #60a5fa;
+  text-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+}
+body.dark-mode #menu button {
+  color: #cbd5e1;
+}
+body.dark-mode #menu button:hover:not(.active-nav) {
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.14);
+}
+body.dark-mode #settingsBtn,
+body.dark-mode #shareBtn {
+  background: rgba(30, 41, 59, 0.92);
+  border-color: rgba(96, 165, 250, 0.28);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+body.dark-mode #settingsBtn { color: #60a5fa; }
+body.dark-mode #shareBtn { color: #c084fc; }
+body.dark-mode #backToHubBtn {
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+@media (max-width: 768px) {
+  /* Mobile: pill tab có nền trắng riêng -> đổi sang nền tối */
+  body.dark-mode #menu button {
+    background: rgba(30, 41, 59, 0.92);
+    border-color: rgba(96, 165, 250, 0.22);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+}

@@ -69,7 +69,11 @@
     }
 
     /* ===== Bài viết (cột trái) ===== */
-    .bv-cover { width: 100%; height: 380px; border-radius: 14px; background-size: cover; background-position: center; margin-bottom: 1.5rem; }
+    .bv-cover { width: 100%; border-radius: 14px; overflow: hidden; background-size: cover; background-position: center; margin-bottom: 1.5rem; }
+    /* Ảnh bìa dạng <img>: hiện FULL ảnh (chiều cao tự theo ảnh, không cắt) */
+    .bv-cover img { display: block; width: 100%; height: auto; }
+    /* Không có ảnh bìa thì giữ khung gradient cứng như cũ */
+    .bv-cover:not(:has(img)) { height: 380px; }
     .bv-cat {
       --cat-color: var(--bv-accent); --cat-soft: var(--bv-soft);
       display: inline-block; font-size: 0.75rem; padding: 0.3rem 0.7rem; border-radius: 5px;
@@ -151,7 +155,7 @@
       .bv-layout { grid-template-columns: 1fr; gap: 24px; }
       .bv-rail { position: static; }
       .bv-title { font-size: 1.6rem; }
-      .bv-cover { height: 240px; }
+      .bv-cover:not(:has(img)) { height: 240px; }
     }
     body.cc-reduced *, body.cc-reduced *::before, body.cc-reduced *::after { animation-duration: .01s !important; transition-duration: .08s !important; }
   </style>
@@ -288,6 +292,14 @@ function coverStyle(p) {
     ? "background-image:url('" + escapeHtml(cover) + "')," + gradFor(p)
     : "background-image:" + gradFor(p);
 }
+/* Ảnh bìa dạng <img> cho trang đọc: chiều cao tự theo ảnh (hiện full, không cắt).
+   Khung .bv-cover vẫn có nền gradient phía sau làm fallback khi chưa tải/ảnh lỗi. */
+function coverMediaHtml(p) {
+  const cover = imageUrl(p.cover_url);
+  return cover
+    ? '<img src="' + escapeHtml(cover) + '" alt="' + escapeHtml(p.title || "") + '">'
+    : '';
+}
 function articleUrl(id) { return "bai-viet.html?id=" + encodeURIComponent(String(id)); }
 
 const root = document.getElementById("bvRoot");
@@ -330,7 +342,7 @@ function render(p, photo) {
     '<div class="bv-layout">' +
       /* ===== Cột trái: bài viết ===== */
       '<article class="bv-main">' +
-        '<div class="bv-cover" style="' + coverStyle(p) + '"></div>' +
+        '<div class="bv-cover" style="background-image:' + gradFor(p) + '">' + coverMediaHtml(p) + '</div>' +
         '<span class="bv-cat' + categoryClass(p.category) + '">' + escapeHtml(p.category || "Tin tức") + '</span>' +
         '<h1 class="bv-title">' + escapeHtml(p.title || "(không tiêu đề)") + '</h1>' +
         '<div class="bv-meta">' +
