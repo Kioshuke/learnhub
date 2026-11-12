@@ -1145,13 +1145,13 @@ head.style.position = "relative";
             menu.style.cssText = "display:flex;gap:6px;margin:6px 0 0;flex-wrap:wrap;";
             // 1. Tách từ đây
             var b1 = document.createElement("button");
-            b1.type = "button"; b1.className = "btn btn-ghost"; b1.style.cssText = "font-size:12px;padding:4px 8px;";
+            b1.type = "button"; b1.className = "btn btn-ghost"; b1.style.cssText = "font-size:11px;padding:3px 6px;";
             b1.innerHTML = '<i class="fa-solid fa-scissors"></i> Tách từ đây';
             b1.addEventListener("click", function (e) { e.stopPropagation(); splitSectionFromQuestion(idx); });
             menu.appendChild(b1);
             // 2. Xoá câu
             var b2 = document.createElement("button");
-            b2.type = "button"; b2.className = "btn btn-ghost"; b2.style.cssText = "font-size:12px;padding:4px 8px;color:#dc2626;";
+            b2.type = "button"; b2.className = "btn btn-ghost"; b2.style.cssText = "font-size:11px;padding:3px 6px;color:#dc2626;";
             b2.innerHTML = '<i class="fa-solid fa-trash"></i> Xoá câu';
             b2.addEventListener("click", function (e) {
               e.stopPropagation();
