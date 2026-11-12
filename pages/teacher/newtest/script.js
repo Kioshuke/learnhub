@@ -57,17 +57,17 @@ function letter(i) { return LETTERS[i] || String(i + 1); }
 
 var $ = function (id) { return document.getElementById(id); };
 
-function setCopyLinkStatus(message, isError) {
-  var status = $("copy-link-status");
-  if (!status) return;
-  status.textContent = message || "";
-  status.classList.toggle("is-error", !!isError);
+function notifyToast(html, type) {
+  var msg = textOf(html);
+  if (!msg) return;
+  if (typeof lhToast === "function") {
+    lhToast(msg, type || "info");
+  }
 }
 
-function setNote(html, isError) {
-  var n = $("p2") && !$("p2").hidden ? $("outNote") : $("inputNote");
-  n.innerHTML = html;
-  n.className = "note" + (isError ? " error" : "");
+function setNote(html, isError, toastType) {
+  var type = toastType || (isError ? "error" : "info");
+  notifyToast(html, type);
 }
 
 /* Ghi giá trị vào ô JSON (đánh dấu chưa bị người dùng sửa tay) */
@@ -448,9 +448,9 @@ function parseToSectionsCore(lines) {
   var toggleEl = $("englishModeToggle");
   if (toggleEl) isEnglishMode = !!toggleEl.checked;
 
-  lines = lines || []; // Thêm dòng này để tránh lỗi nếu lines bị undefined
+  lines = lines || [];
   var groups = [], cur = null;
-  
+
   lines.forEach(function (L) {
     if (!L || !L.t) return;
     var dt = detectSectionTitle(L.t);
@@ -538,6 +538,7 @@ function parseToSectionsCore(lines) {
   }
   return { sections: sections, warnings: warnings, error: null };
 }
+
 /* ============ NHẬN DIỆN ẢNH ============ */
 var IMG_MARKER_SRC = "(?:ảnh(?:\\s*minh\\s*họa)?|hình(?:\\s*ảnh)?|link\\s*ảnh|image|img)";
 
@@ -960,7 +961,6 @@ function parseLines(lines) {
   };
 }
 
-/* Các hàm Render, Event listeners, Sync, Publish giữ nguyên như cũ */
 function escAttr(s) { return String(s == null ? "" : s).replace(/"/g, "&quot;"); }
 
 function stripQuestionNo(s) {
@@ -1129,12 +1129,12 @@ function render() {
             '<span class="setcard">' + (item.correct === i ? "Đáp án ✔" : "bấm → gán đáp án") + "</span>";
           o.addEventListener("click", function () {
             if (graded) return;
-             var oldCorrect = item.correct;
-             item.correct = i;
-             if (oldCorrect !== i && typeof lhToast === "function") {
-               var oldL = (oldCorrect === null || oldCorrect === undefined) ? "—" : letter(oldCorrect);
-               lhToast("Thay đổi đáp án - " + qWord() + " " + (idx + 1) + ": " + oldL + " → " + letter(i), "info");
-             }
+            var oldCorrect = item.correct;
+            item.correct = i;
+            if (oldCorrect !== i) {
+              var oldL = (oldCorrect === null || oldCorrect === undefined || oldCorrect === "") ? "—" : letter(oldCorrect);
+              notifyToast("Thay đổi đáp án - " + qWord() + " " + (idx + 1) + ": " + oldL + " → " + letter(i), "info");
+            }
             var scAll = list.querySelectorAll(".opt .setcard");
             for (var k2 = 0; k2 < scAll.length; k2++) scAll[k2].textContent = "bấm → gán đáp án";
             list.querySelectorAll(".opt").forEach(function (x) { x.classList.remove("sel-correct"); });
@@ -1143,14 +1143,16 @@ function render() {
             if (sc2) sc2.textContent = "Đáp án ✔";
             var inp = o.querySelector("input");
             if (inp) { inp.checked = true; userAnswers[idx] = i; }
+            var noAnsHint = card.querySelector(".no-ans-hint");
+            if (noAnsHint) noAnsHint.remove();
             syncJson();
           });
           list.appendChild(o);
         });
         card.appendChild(list);
-        if (!graded && (item.correct === null || item.correct === undefined)) {
+        if (!graded && (item.correct === null || item.correct === undefined || item.correct === "")) {
           var hint = document.createElement("div");
-          hint.className = "note";
+          hint.className = "note no-ans-hint";
           hint.style.marginTop = "8px";
           hint.textContent = "Chưa có đáp án đúng — bấm vào một phương án bên trên để gán.";
           card.appendChild(hint);
@@ -1205,7 +1207,7 @@ function render() {
               var un = r2.querySelector(".ans-bad");
               if (un && /chưa chọn/.test(un.textContent)) un.remove();
               syncJson();
-              if (__oldTf !== __newTf && typeof lhToast === "function") lhToast("Thay đổi đáp án - " + qWord() + " " + (idx + 1) + " (" + String.fromCharCode(97 + si) + "): " + __oldTf + " → " + __newTf, "info");
+              if (__oldTf !== __newTf) notifyToast("Thay đổi đáp án - " + qWord() + " " + (idx + 1) + " (" + String.fromCharCode(97 + si) + "): " + __oldTf + " → " + __newTf, "info");
             });
           });
           tfl.appendChild(row);
@@ -1228,10 +1230,20 @@ function render() {
           sv.addEventListener("click", function () {
             var v = ta.value.trim();
             item.correctAnswer = v;
-            var anOld = card.querySelector(".short-ans");
-            if (anOld) anOld.innerHTML = v ? "Đáp án: \u201C" + escapeC(v) + "\u201D" : "Chưa có đáp án mẫu — thêm correctAnswer trong JSON.";
+            var anOld = card.querySelector(".short-ans, .no-ans-hint");
+            if (anOld) {
+              if (v) {
+                anOld.className = "short-ans";
+                anOld.style.margin = "";
+                anOld.innerHTML = "Đáp án: \u201C" + escapeC(v) + "\u201D";
+              } else {
+                anOld.className = "note error no-ans-hint";
+                anOld.style.margin = "8px 0 0";
+                anOld.textContent = "Chưa có đáp án mẫu — thêm correctAnswer trong JSON.";
+              }
+            }
             syncJson();
-            setNote(v ? ("Đã lưu \u201C" + escapeC(v) + "\u201D làm đáp án mẫu.") : "Đã xóa đáp án mẫu.", false);
+            setNote(v ? ("Đã lưu \u201C" + escapeC(v) + "\u201D làm đáp án mẫu.") : "Đã xóa đáp án mẫu.", false, "success");
           });
           card.appendChild(sv);
         }
@@ -1241,7 +1253,7 @@ function render() {
             an.className = "short-ans";
             an.innerHTML = "Đáp án: \u201C" + escapeC(item.correctAnswer) + "\u201D";
           } else {
-            an.className = "note error";
+            an.className = "note error no-ans-hint";
             an.style.margin = "8px 0 0";
             an.textContent = "Chưa có đáp án mẫu — thêm correctAnswer trong JSON.";
           }
@@ -1684,8 +1696,7 @@ function renderReview() {
         (String(testMeta.password || "").trim() ? "Đã đặt" : "Không đặt") +
       "</b></span></div>" +
       '<div class="rev-meta-row"><span class="rev-k"><i class="fa-solid fa-folder-open" style="color:#065f46"></i> Thống kê</span><span class="rev-v">' + qn + " câu - " + nSec + " phần</span></div>" +
-    "</div>" +
-    '<div class="note" id="revNote" hidden></div>';
+    "</div>";
 
   if (headActions) {
     headActions.innerHTML =
@@ -1698,14 +1709,12 @@ function renderReview() {
 
   var pub = $("btnPublish");
   var warns = [];
-  if (!testMeta.name) warns.push("Chưa đặt <b>tên đề</b> — mở <b>bước 3 Thiết lập đề</b> để điền trước khi xuất bản.");
-  if (!testMeta.subject) warns.push("Chưa chọn <b>môn học</b> — đề sẽ xuất hiện ở Phòng Học theo môn.");
-  if (subtestInvalid) warns.push("Số câu <b>đề con</b> không hợp lệ — mở <b>Thiết lập đề</b> và nhập lại trong khoảng 1–" + qn + ".");
-  if (tfUnset) warns.push("Còn <b>" + tfUnset + "</b> mệnh đề Đúng/Sai chưa chọn đáp án — quay lại bước 2 bấm <b>Đ</b> hoặc <b>S</b> cho từng mệnh đề.");
-  var ne = $("revNote");
-  if (ne) {
-    ne.innerHTML = warns.join("<br>");
-    ne.hidden = warns.length === 0;
+  if (!testMeta.name) warns.push("Chưa đặt tên đề — mở bước 3 Thiết lập đề để điền trước khi xuất bản.");
+  if (!testMeta.subject) warns.push("Chưa chọn môn học — đề sẽ xuất hiện ở Phòng Học theo môn.");
+  if (subtestInvalid) warns.push("Số câu đề con không hợp lệ — mở Thiết lập đề và nhập lại trong khoảng 1–" + qn + ".");
+  if (tfUnset) warns.push("Còn " + tfUnset + " mệnh đề Đúng/Sai chưa chọn đáp án — quay lại bước 2 bấm Đ hoặc S cho từng mệnh đề.");
+  if (warns.length) {
+    notifyToast(warns.join(" • "), (!testMeta.name || subtestInvalid || tfUnset > 0) ? "error" : "warning");
   }
   if (pub) pub.disabled = !testMeta.name || subtestInvalid || tfUnset > 0;
 }
@@ -1741,7 +1750,6 @@ async function publishTest() {
     p_end_at: testMeta.timeEnabled ? (testMeta.endAt || null) : null
   };
   var left = $("revLeft");
-  var rn = $("revNote");
   try {
     var mod = await import("../../../scripts/core/supabase-config.js");
     var res = await mod.supabase.rpc("teacher_upsert_test_set", payload);
@@ -1769,20 +1777,19 @@ async function publishTest() {
           '<section class="publish-qr-panel" aria-label="Mã QR đề thi">' +
             '<h3>QR Test</h3>' +
             '<canvas id="qr-canvas" aria-label="Mã QR đề thi" style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);display:none"></canvas>' +
-            '<button type="button" class="btn btn-primary" id="download-qr-btn" style="display:none;margin:8px auto">Tải ảnh QR</button>' +
-            '<p id="qr-status" class="qr-status" role="status"></p>' +
+            '<button type="button" class="btn btn-primary" id="download-qr-btn" style="display:none"><i class="fa-solid fa-download"></i> Tải ảnh QR</button>' +
           '</section>' +
           '<section class="publish-details">' +
-          '<div class="publish-success-check" aria-hidden="true"><i class="fa-solid fa-check"></i></div>' +
-          "<h3>" + (isEdit ? "Cập nhật thành công" : "Tạo đề thành công") + "</h3>" +
-          "<p>Đề <b>" + escapeC(testMeta.name) + "</b>" +
-            (subject ? " - Môn <b>" + escapeC(subject) + "</b>" : "") +
-            (isEdit ? " đã lưu lại bản cập nhật.</p>" : " đã đưa lên DB.</p>") +
-          '<div class="publish-link-row">' +
-            '<input id="publishedTestLink" type="text" readonly aria-label="Link đề thi" style="flex:1;min-width:0;padding:10px 12px;border:1px solid #b9e6d2;border-radius:9px;background:#fff;color:#047857;font-size:13px">' +
-            '<div class="publish-copy-wrap"><button type="button" class="btn btn-primary" id="btnCopyTestLink">Copy</button><span id="copy-link-status" class="copy-link-status" aria-live="polite"></span></div>' +
-          '</div>' +
-          '<p class="pub-id">' + realId + "</p>" +
+            '<div class="publish-success-check" aria-hidden="true"><i class="fa-solid fa-check"></i></div>' +
+            "<h3>" + (isEdit ? "Cập nhật thành công" : "Tạo đề thành công") + "</h3>" +
+            "<p>Đề <b>" + escapeC(testMeta.name) + "</b>" +
+              (subject ? " - Môn <b>" + escapeC(subject) + "</b>" : "") +
+              (isEdit ? " đã lưu lại bản cập nhật.</p>" : " đã đưa lên DB.</p>") +
+            '<div class="publish-link-row">' +
+              '<input id="publishedTestLink" type="text" readonly aria-label="Link đề thi">' +
+              '<button type="button" class="btn btn-primary" id="btnCopyTestLink"><i class="fa-regular fa-copy"></i> Copy</button>' +
+            '</div>' +
+            '<p class="pub-id">' + realId + "</p>" +
           '</section>' +
           '<aside class="publish-settings-aside">' + setupCardHtml + '</aside>' +
         '</div>';
@@ -1798,23 +1805,24 @@ async function publishTest() {
     if (isNewTest) {
       try {
         await navigator.clipboard.writeText(link);
-        setCopyLinkStatus("Sao chép link thành công!");
-        if (typeof lhToast === "function") lhToast("Đã sao chép link đề thi", "success");
-      } catch (_copyError) {}
+        notifyToast("Đã xuất bản và sao chép link đề thi", "success");
+      } catch (_copyError) {
+        notifyToast("Xuất bản đề thành công", "success");
+      }
+    } else {
+      notifyToast("Cập nhật đề thành công", "success");
     }
-    if (rn) rn.hidden = true;
     b.disabled = true;
     b.dataset.done = "1";
     b.title = "Đề đã xuất bản — bấm “← Sửa lại đề” nếu muốn chỉnh sửa.";
     b.innerHTML = currentEditId ? '<i class="fa-solid fa-floppy-disk"></i> Đã lưu ✓' : '<i class="fa-solid fa-rocket"></i> Đã xuất bản ✓';
     b.style.opacity = ".55";
-    if (typeof lhToast === "function") lhToast(isEdit ? "Cập nhật đề thành công" : "Xuất bản đề thành công", "success");
     currentEditId = res.data.id;
     currentEditComplete = true;
   } catch (e) {
     var errMsg = (e && e.message) || "Lỗi không xác định.";
     console.error("[PUBLISH] " + errMsg);
-    if (typeof lhToast === "function") lhToast("Xuất bản thất bại: " + errMsg, "error");
+    notifyToast("Xuất bản thất bại: " + errMsg, "error");
     if (left) {
       left.innerHTML =
         '<div style="border:1px solid #fecaca;background:#fef2f2;border-radius:18px;padding:24px;text-align:center">' +
@@ -1824,7 +1832,6 @@ async function publishTest() {
           '<button type="button" class="btn btn-primary" id="btnPublishRetry">Thử lại</button>' +
         "</div>";
     }
-    if (rn) rn.hidden = true;
     b.disabled = false;
     b.innerHTML = currentEditId ? '<i class="fa-solid fa-floppy-disk"></i> Lưu lại' : '<i class="fa-solid fa-rocket"></i> Xuất bản';
     b.style.opacity = "1";
@@ -1847,9 +1854,6 @@ function resetForNewTest() {
   };
   $("inputText").value = "";
   $("jsonArea").value = "";
-  $("inputNote").innerHTML = "";
-  $("inputNote").className = "note";
-  $("outNote").innerHTML = "";
   $("resultBox").hidden = true;
   setFileLabel(null);
   updateSetupBtn();
@@ -1872,17 +1876,18 @@ $("p4").addEventListener("click", function (e) {
       ? navigator.clipboard.writeText(input.value)
       : Promise.reject(new Error("Clipboard API không khả dụng."));
     copyPromise.then(function () {
-      setCopyLinkStatus("Sao chép link thành công!");
-      if (typeof lhToast === "function") lhToast("Đã sao chép link đề thi", "success");
+      notifyToast("Đã sao chép link đề thi", "success");
     }).catch(function () {
       input.focus();
       input.select();
       try {
-        if (document.execCommand("copy")) setCopyLinkStatus("Sao chép link thành công!");
-        if (typeof lhToast === "function") lhToast("Đã sao chép link đề thi", "success");
-        else setCopyLinkStatus("Không sao chép được link.", true);
+        if (document.execCommand("copy")) {
+          notifyToast("Đã sao chép link đề thi", "success");
+        } else {
+          notifyToast("Không sao chép được link.", "error");
+        }
       } catch (_copyError) {
-        setCopyLinkStatus("Không sao chép được link.", true);
+        notifyToast("Không sao chép được link.", "error");
       }
     });
   } else if (el.id === "download-qr-btn") {
@@ -1895,26 +1900,24 @@ $("p4").addEventListener("click", function (e) {
       .trim();
     downloadLink.download = (qrFileName || "Bai_kiem_tra") + ".png";
     downloadLink.click();
+    notifyToast("Đã tải ảnh QR", "success");
   }
 });
 
 function generateCustomQRCode(linkDeThi) {
   var canvas = $("qr-canvas");
   var downloadButton = $("download-qr-btn");
-  var qrStatus = $("qr-status");
   if (!canvas || !downloadButton || !window.LearnHubTestQR) return;
 
   canvas.style.display = "none";
   downloadButton.style.display = "none";
   try {
     window.LearnHubTestQR.render(canvas, linkDeThi);
-    if (typeof lhToast === "function") lhToast("Đã tạo mã QR", "success");
     canvas.style.display = "block";
-    downloadButton.style.display = "block";
+    downloadButton.style.display = "inline-flex";
   } catch (error) {
     console.error("[QR] Không thể tạo ảnh QR:", error);
-    if (typeof lhToast === "function") lhToast("Không tạo được ảnh QR", "error");
-    if (qrStatus) qrStatus.textContent = "Không tạo được ảnh QR.";
+    notifyToast("Không tạo được ảnh QR", "error");
   }
 }
 
@@ -2049,7 +2052,6 @@ function syncSetupForm() {
   $("setStartAt").value = testMeta.startAt ? toLocalInput(new Date(testMeta.startAt)) : "";
   $("setEndAt").value = testMeta.endAt ? toLocalInput(new Date(testMeta.endAt)) : "";
   syncTimeUI();
-  $("setupError").hidden = true;
   clearInvalidSetup();
   applyEnglishDefaults();
 }
@@ -2090,10 +2092,10 @@ $("btnSetupApply").addEventListener("click", function () {
   var subtestChk = $("setSubtestEnabled"), subtestEl = $("setSubtestCount");
   var errs = [], bad = [];
 
-  if (!subjEl.value) { errs.push("chọn <b>môn học</b>"); bad.push(subjEl); }
-  if (!nameEl.value.trim()) { errs.push("nhập <b>tên đề</b>"); bad.push(nameEl); }
-  if (String(minEl.value).trim() === "" || Number(minEl.value) < 0) { errs.push("nhập <b>thời gian làm bài</b> (0 = không giới hạn)"); bad.push(minEl); }
-  if (String(scoreEl.value).trim() === "" || Number(scoreEl.value) < 1) { errs.push("nhập <b>điểm tối đa</b> (≥ 1)"); bad.push(scoreEl); }
+  if (!subjEl.value) { errs.push("chọn môn học"); bad.push(subjEl); }
+  if (!nameEl.value.trim()) { errs.push("nhập tên đề"); bad.push(nameEl); }
+  if (String(minEl.value).trim() === "" || Number(minEl.value) < 0) { errs.push("nhập thời gian làm bài (0 = không giới hạn)"); bad.push(minEl); }
+  if (String(scoreEl.value).trim() === "" || Number(scoreEl.value) < 1) { errs.push("nhập điểm tối đa (≥ 1)"); bad.push(scoreEl); }
 
   var subtestEnabled = !!(subtestChk && subtestChk.checked);
   var subtestCount = null;
@@ -2102,10 +2104,10 @@ $("btnSetupApply").addEventListener("click", function () {
     var raw = String(subtestEl.value).trim();
     var n = Number(raw);
     if (!total) {
-      errs.push("nạp đề có câu hỏi trước khi bật <b>đề con</b>");
+      errs.push("nạp đề có câu hỏi trước khi bật đề con");
       bad.push(subtestEl);
     } else if (raw === "" || !isFinite(n) || n < 1 || n > total || Math.floor(n) !== n) {
-      errs.push("nhập <b>số câu đề con</b> từ 1 đến " + total);
+      errs.push("nhập số câu đề con từ 1 đến " + total);
       bad.push(subtestEl);
     } else {
       subtestCount = n;
@@ -2117,14 +2119,14 @@ $("btnSetupApply").addEventListener("click", function () {
   if (timeEnabled) {
     var stEl = $("setStartAt"), enEl = $("setEndAt");
     var sv = stEl.value, ev = enEl.value;
-    if (!sv) { errs.push("chọn <b>thời gian bắt đầu</b>"); bad.push(stEl); }
-    if (!ev) { errs.push("chọn <b>thời gian kết thúc</b>"); bad.push(enEl); }
+    if (!sv) { errs.push("chọn thời gian bắt đầu"); bad.push(stEl); }
+    if (!ev) { errs.push("chọn thời gian kết thúc"); bad.push(enEl); }
     if (sv && ev) {
       var sd = new Date(sv), ed = new Date(ev);
       if (isNaN(sd.getTime()) || isNaN(ed.getTime())) {
-        errs.push("<b>thời gian mở đề</b> không hợp lệ"); bad.push(stEl);
+        errs.push("thời gian mở đề không hợp lệ"); bad.push(stEl);
       } else if (ed <= sd) {
-        errs.push("<b>thời gian kết thúc</b> phải sau thời gian bắt đầu"); bad.push(enEl);
+        errs.push("thời gian kết thúc phải sau thời gian bắt đầu"); bad.push(enEl);
       } else {
         startAtIso = sd.toISOString();
         endAtIso = ed.toISOString();
@@ -2133,14 +2135,11 @@ $("btnSetupApply").addEventListener("click", function () {
   }
 
   clearInvalidSetup();
-  var se = $("setupError");
   if (errs.length) {
     bad.forEach(function (el) { el.classList.add("invalid"); });
-    se.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#d97706"></i> Vui lòng ' + errs.join(", ") + " để tiếp tục.";
-    se.hidden = false;
+    notifyToast("Vui lòng " + errs.join(", ") + " để tiếp tục.", "error");
     return;
   }
-  se.hidden = true;
 
   testMeta.subject = subjEl.value || "";
   testMeta.name = nameEl.value.trim();
@@ -2194,7 +2193,7 @@ if ($("englishModeToggle")) {
 $("btnSample").addEventListener("click", function () {
   $("inputText").value = sampleText();
   setFileLabel(null);
-  setNote("Đã nạp đề mẫu → bấm <b>Đọc text → JSON</b>.", false);
+  setNote("Đã nạp đề mẫu → bấm Đọc text → JSON.", false, "info");
 });
 
 $("btnSampleEN").addEventListener("click", function () {
@@ -2205,7 +2204,7 @@ $("btnSampleEN").addEventListener("click", function () {
   applyEnglishDefaults();
   $("inputText").value = sampleTextEN();
   setFileLabel(null);
-  setNote("Đã nạp đề mẫu tiếng Anh → bấm <b>Đọc text → JSON</b>.", false);
+  setNote("Đã nạp đề mẫu tiếng Anh → bấm Đọc text → JSON.", false, "info");
 });
 
 $("btnParse").addEventListener("click", function () {
@@ -2224,17 +2223,17 @@ $("btnParse").addEventListener("click", function () {
       userAnswers = {};
       $("resultBox").hidden = true;
       render();
-      setNote("Đã nhận dạng <b>JSON dán trực tiếp</b>: " + countQ(testData) + " câu.", false);
+      setNote("Đã nhận dạng JSON dán trực tiếp: " + countQ(testData) + " câu.", false, "success");
       showStage(2);
     } catch (e) {
-      setNote("Bắt đầu giống JSON nhưng parse lỗi: " + escapeC(e.message), true);
+      setNote("Bắt đầu giống JSON nhưng parse lỗi: " + e.message, true);
     }
     return;
   }
   applyParseResult(parseTextToJson($("inputText").value), "");
 });
 
-function applyJsonString(txt) {
+function applyJsonString(txt, silent) {
   try {
     var j = JSON.parse(txt);
     testData = Array.isArray(j) ? j : (j && Array.isArray(j.sections) ? j.sections : []);
@@ -2242,9 +2241,9 @@ function applyJsonString(txt) {
     userAnswers = {};
     $("resultBox").hidden = true;
     render();
-    setNote("Đã áp dụng JSON: " + countQ(testData) + " câu.", false);
+    if (!silent) setNote("Đã áp dụng JSON: " + countQ(testData) + " câu.", false, "success");
   } catch (e) {
-    setNote("JSON không hợp lệ: " + escapeC(e.message), true);
+    setNote("JSON không hợp lệ: " + e.message, true);
   }
 }
 
@@ -2257,8 +2256,8 @@ function scheduleJsonRender() {
   if (jsonRenderTimer) clearTimeout(jsonRenderTimer);
   jsonRenderTimer = setTimeout(function () {
     jsonRenderTimer = null;
-    applyJsonString($("jsonArea").value);
-  }, 350);
+    applyJsonString($("jsonArea").value, true);
+  }, 450);
 }
 
 $("btnBack").addEventListener("click", function () {
@@ -2299,8 +2298,7 @@ $("fileUpload").addEventListener("change", function () {
         applyJsonString($("jsonArea").value);
         showStage(2);
       } catch (e) {
-        setNote("File JSON không hợp lệ: " + escapeC(e.message), true);
-        if (typeof lhToast === "function") lhToast("File JSON không hợp lệ", "error");
+        setNote("File JSON không hợp lệ: " + e.message, true);
       }
     };
     frJ.readAsText(f, "utf-8");
@@ -2315,8 +2313,7 @@ $("fileUpload").addEventListener("change", function () {
     updateSetupBtn();
     if (!isDocx) {
       $("inputText").value = String(fr.result || "");
-      setNote("Đã tải <b>" + escapeC(f.name) + "</b>. Bấm <b>Đọc text → JSON</b>.", false);
-      if (typeof lhToast === "function") lhToast("Đã tải file " + f.name, "success");
+      setNote("Đã tải " + f.name + ". Bấm Đọc text → JSON.", false, "success");
       return;
     }
     if (typeof window.mammoth === "undefined") {
@@ -2326,27 +2323,23 @@ $("fileUpload").addEventListener("change", function () {
     var keep = $("keepFmt") ? Boolean($("keepFmt").checked) : false;
     var wrap = function (promise, useHtml) {
       promise.then(function (res) {
-        var extra = res.messages && res.messages.length ? " Lưu ý: " + escapeC(res.messages.map(function (m) { return m.message; }).slice(0, 3).join(" • ")) : "";
+        var extra = res.messages && res.messages.length ? " Lưu ý: " + res.messages.map(function (m) { return m.message; }).slice(0, 3).join(" • ") : "";
         if (useHtml) {
           var r = parseToSections(htmlBlocksToLines(res.value));
-          applyParseResult(r, "Giữ định dạng chữ (đậm/nghiêng/gạch chân) từ .docx.<br>" + extra + "<br>");
+          applyParseResult(r, "Giữ định dạng chữ từ .docx." + extra + " ");
         } else {
           $("inputText").value = String(res.value || "");
-          setNote("Đã parse <b>" + escapeC(f.name) + "</b> → dán vào ô text." + extra +
-            " Bấm <b>Đọc text → JSON</b>.", false);
-          if (typeof lhToast === "function") lhToast("Đã parse file " + f.name, "success");
+          setNote("Đã parse " + f.name + "." + extra + " Bấm Đọc text → JSON.", false, "success");
         }
       }).catch(function (e) {
-        setNote("Không đọc được file .docx: " + escapeC(e && e.message ? e.message : e), true);
-        if (typeof lhToast === "function") lhToast("Khong doc duoc file .docx", "error");
+        setNote("Không đọc được file .docx: " + (e && e.message ? e.message : e), true);
       });
     };
     try {
       if (keep) wrap(mammoth.convertToHtml({ arrayBuffer: fr.result }), true);
       else wrap(mammoth.extractRawText({ arrayBuffer: fr.result }), false);
     } catch (e) {
-      setNote("Lỗi đọc file .docx: " + escapeC(e && e.message ? e.message : e), true);
-      if (typeof lhToast === "function") lhToast("Loi doc file .docx", "error");
+      setNote("Lỗi đọc file .docx: " + (e && e.message ? e.message : e), true);
     }
   };
   if (isDocx) fr.readAsArrayBuffer(f);
@@ -2363,16 +2356,16 @@ function countQ(sections) {
 
 function applyParseResult(r, okNote, stay) {
   var note = [];
-  if (r.warnings && r.warnings.length) note.push("<b>" + r.warnings.length + " dòng ghi chú:</b> " + escapeC(r.warnings.slice(0, 5).join(" • ")));
-  if (r.error) { setNote(escapeC(r.error), true); return; }
+  if (r.warnings && r.warnings.length) note.push(r.warnings.length + " dòng ghi chú: " + r.warnings.slice(0, 3).join(" • "));
+  if (r.error) { setNote(r.error, true); return; }
   testData = normalize(r.sections);
   writeJson(JSON.stringify(testData, null, 2));
   graded = false;
   userAnswers = {};
   $("resultBox").hidden = true;
   render();
-  var msg = note.length ? note.join("<br>") + "<br>" : "";
-  setNote(msg + (okNote || "") + " Đã đọc <b>" + countQ(testData) + "</b> câu.", false);
+  var msg = note.length ? note.join(" | ") + " — " : "";
+  setNote(msg + (okNote || "") + "Đã đọc " + countQ(testData) + " câu.", false, note.length ? "warning" : "success");
   if (!stay) showStage(2);
 }
 
@@ -2491,14 +2484,14 @@ showStage(1);
         render();
         setFileLabel(d.name || "Chưa có tiêu đề");
         var lockNote = currentEditComplete
-          ? '<br><b style="color:#b45309"><i class="fa-solid fa-lock"></i> Đề đã xuất bản</b> — được sửa nội dung/đáp án/điểm/mô tả.'
+          ? " (Đề đã xuất bản — được sửa nội dung/đáp án/điểm/mô tả)"
           : "";
-        setNote("Đã nạp sẵn đề <b>" + escapeC(d.name || "chưa đặt tên") + "</b> để sửa (bước 2)." + lockNote, false);
+        setNote("Đã nạp sẵn đề “" + (d.name || "chưa đặt tên") + "” để sửa" + lockNote + ".", false, "info");
         showStage(2);
       } catch (e) {
         console.error("[SỬA ĐỀ]", e);
         var msg = (e && e.message) || "Lỗi không xác định.";
-        setNote("Không tải được đề để sửa: " + escapeC(msg), true);
+        setNote("Không tải được đề để sửa: " + msg, true);
         showStage(1);
       }
     })();

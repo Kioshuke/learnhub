@@ -7,7 +7,7 @@
 <link rel="icon" href="../../../assets/images/favicon.png" sizes="any">
 <link rel="icon" type="image/png" sizes="48x48" href="../../../assets/images/favicon.png">
 <link rel="stylesheet" href="../../../styles/global.css">
-<link rel="stylesheet" href="style.css?v=64">
+<link rel="stylesheet" href="style.css?v=66">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -81,8 +81,6 @@ Dành cho đề Tiếng Anh:
 – Phần NGHE/ĐỌC HIỂU luôn giữ nguyên thứ tự (không bị xáo trộn khi làm bài)
 
 Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đề mẫu Anh' ở trên."></textarea>
-
-    <div class="note" id="inputNote"></div>
   </section>
 
   <!-- ===== BƯỚC 2: JSON (TRÁI) + XEM TRƯỚC & CHẤM ĐIỂM (PHẢI) ===== -->
@@ -100,7 +98,6 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
       <div class="col">
         <div class="col-hd"><span class="col-hd-ic"><i class="fa-solid fa-code" style="color:#2563eb"></i></span> Cửa sổ dữ liệu JSON <span class="col-sub">sửa tay → bên phải tự render</span></div>
         <textarea id="jsonArea" rows="14" spellcheck="false" placeholder='Dán JSON ở đây (array các section). Mỗi câu có thể thêm "image": "https://.../anh.png" để chèn ảnh câu hỏi.'></textarea>
-        <div class="note" id="outNote"></div>
       </div>
 
       <div class="col">
@@ -181,7 +178,7 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
                   <label>Số câu trong đề con <span class="req">*</span>
                     <input type="number" id="setSubtestCount" min="1" placeholder="VD: 40">
                   </label>
-                  <div class="note" id="subtestHint" style="margin:6px 0 0;padding:0;background:none;border:none;font-size:12px"></div>
+                  <div class="muted" id="subtestHint" style="margin-top:6px;font-size:12px"></div>
                 </div>
               </div>
               <div class="set-cell">
@@ -189,7 +186,7 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
                 <div id="timeBox" class="set-box" hidden>
                   <label>Bắt đầu <input type="datetime-local" id="setStartAt"></label>
                   <label>Kết thúc <input type="datetime-local" id="setEndAt"></label>
-                  <div class="note" id="timeHint" style="margin:6px 0 0;padding:0;background:none;border:none;font-size:12px"></div>
+                  <div class="muted" id="timeHint" style="margin-top:6px;font-size:12px"></div>
                 </div>
               </div>
             </div>
@@ -210,7 +207,6 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
           </div>
         </div>
 
-        <div class="note error" id="setupError" hidden style="margin-top:8px"></div>
         <div class="modal-actions">
           <button type="button" class="btn btn-ghost" id="btnSetupBack">← Quay lại</button>
           <button type="button" class="btn btn-primary" id="btnSetupApply"><i class="fa-solid fa-check"></i> Áp dụng &amp; tiếp tục</button>
@@ -243,6 +239,6 @@ Muốn xem demo → bấm 'Nạp đề mẫu' (Tiếng Việt) hoặc 'Nạp đ�
 <script src="../../../scripts/features/subjects-data.js"></script>
 <script src="../../../scripts/features/test-qr.js?v=1"></script>
 <script src="../../../scripts/core/toast.js"></script>
-<script src="script.js?v=59"></script>
+<script src="script.js?v=60"></script>
 </body>
 </html>
