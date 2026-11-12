@@ -1051,19 +1051,40 @@ function render() {
     var delSecBtn = document.createElement("button");
     delSecBtn.type = "button";
     delSecBtn.className = "btn btn-ghost";
-    delSecBtn.style.cssText = "margin-left:auto;font-size:12px;padding:4px 8px;color:#dc2626;";
-    delSecBtn.innerHTML = '<i class="fa-solid fa-trash"></i> Xoá phần';
-    delSecBtn.addEventListener("click", function () {
-      if (testData.length <= 1) { alert("Không thể xoá phần cuối cùng."); return; }
-      if (!confirm("Xoá phần này? Các câu sẽ gộp vào phần phía trên.")) return;
-      var qs = sec.questions || [];
-      // gộp vào phần phía trên (hoặc phía dưới nếu là phần đầu)
-      var targetIdx = si > 0 ? si - 1 : si + 1;
-      testData[targetIdx].questions = (testData[targetIdx].questions || []).concat(qs);
-      testData.splice(si, 1);
-      if (typeof syncJson === "function") syncJson();
-      if (typeof render === "function") render();
+    delSecBtn.style.cssText = "position:absolute;top:8px;right:8px;font-size:11px;padding:2px 6px;color:#dc2626;";
+    delSecBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+    delSecBtn.title = "Xoá phần (gộp câu vào phần trên)";
+    delSecBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (testData.length <= 1) { if (window.lhToast) lhToast("Không thể xoá phần cuối cùng.", "warning"); else alert("Không thể xoá phần cuối cùng."); return; }
+      var overlay = document.createElement("div");
+      overlay.style.cssText = "position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(2px);";
+      var card = document.createElement("div");
+      card.style.cssText = "background:#fff;border-radius:16px;padding:28px 24px;max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);";
+      card.innerHTML = '<div style="width:56px;height:56px;margin:0 auto 12px;border-radius:50%;background:linear-gradient(135deg,#ef4444,#dc2626);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;"><i class="fa-solid fa-trash"></i></div>' +
+        '<h3 style="margin:0 0 8px;font-size:18px;font-weight:800;color:#0f172a;">Xoá phần này?</h3>' +
+        '<p style="margin:0 0 20px;color:#475569;font-size:14px;">Các câu sẽ được gộp vào phần phía trên.</p>' +
+        '<div style="display:flex;gap:10px;justify-content:center;">' +
+          '<button type="button" id="delCancelBtn" style="padding:10px 18px;border:1px solid #cbd5e1;background:#f1f5f9;border-radius:10px;cursor:pointer;font-weight:600;color:#475569;">Huỷ</button>' +
+          '<button type="button" id="delConfirmBtn" style="padding:10px 18px;border:none;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 6px 16px rgba(239,68,68,.28);">Xoá</button>' +
+        '</div>';
+      overlay.appendChild(card);
+      document.body.appendChild(overlay);
+      document.body.style.overflow = "hidden";
+      document.getElementById("delCancelBtn").addEventListener("click", function () { overlay.remove(); document.body.style.overflow = ""; });
+      document.getElementById("delConfirmBtn").addEventListener("click", function () {
+        overlay.remove();
+        document.body.style.overflow = "";
+        var qs = sec.questions || [];
+        var targetIdx = si > 0 ? si - 1 : si + 1;
+        testData[targetIdx].questions = (testData[targetIdx].questions || []).concat(qs);
+        testData.splice(si, 1);
+        if (typeof syncJson === "function") syncJson();
+        if (typeof render === "function") render();
+        if (window.lhToast) lhToast("Đã xoá phần, các câu được gộp vào phần trên.", "success");
+      });
     });
+head.style.position = "relative";
     head.appendChild(delSecBtn);
 
     if (section.audio) {
