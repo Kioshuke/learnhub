@@ -1140,33 +1140,31 @@ head.style.position = "relative";
           // Toggle menu
           var menu = card.querySelector(".q-action-menu");
           if (!menu) {
+            var btnCss = "font-size:12px;padding:4px 10px;height:28px;";
             menu = document.createElement("div");
             menu.className = "q-action-menu";
-            menu.style.cssText = "display:flex;gap:6px;margin:6px 0 0;flex-wrap:wrap;";
-            // 1. Tách từ đây
-            var b1 = document.createElement("button");
-            b1.type = "button"; b1.className = "btn btn-ghost"; b1.style.cssText = "font-size:11px;padding:3px 6px;";
-            b1.innerHTML = '<i class="fa-solid fa-scissors"></i> Tách từ đây';
-            b1.addEventListener("click", function (e) { e.stopPropagation(); splitSectionFromQuestion(idx); });
-            menu.appendChild(b1);
-            // 2. Xoá câu
+            menu.style.cssText = "display:flex;align-items:center;gap:6px;margin:8px 0 0;flex-wrap:wrap;";
+
+            // 1. Xoá câu
             var b2 = document.createElement("button");
-            b2.type = "button"; b2.className = "btn btn-ghost"; b2.style.cssText = "font-size:11px;padding:3px 6px;color:#dc2626;";
+            b2.type = "button";
+            b2.className = "btn btn-ghost";
+            b2.style.cssText = btnCss + "color:#dc2626;";
             b2.innerHTML = '<i class="fa-solid fa-trash"></i> Xoá câu';
             b2.addEventListener("click", function (e) {
               e.stopPropagation();
               var overlay = document.createElement("div");
               overlay.style.cssText = "position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(2px);";
-              var card = document.createElement("div");
-              card.style.cssText = "background:#fff;border-radius:16px;padding:24px 20px;max-width:360px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);";
-              card.innerHTML = '<div style="width:48px;height:48px;margin:0 auto 10px;border-radius:50%;background:linear-gradient(135deg,#ef4444,#dc2626);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;"><i class="fa-solid fa-trash"></i></div>' +
+              var modalCard = document.createElement("div");
+              modalCard.style.cssText = "background:#fff;border-radius:16px;padding:24px 20px;max-width:360px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);";
+              modalCard.innerHTML = '<div style="width:48px;height:48px;margin:0 auto 10px;border-radius:50%;background:linear-gradient(135deg,#ef4444,#dc2626);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;"><i class="fa-solid fa-trash"></i></div>' +
                 '<h3 style="margin:0 0 6px;font-size:16px;font-weight:800;color:#0f172a;">Xoá câu này?</h3>' +
                 '<p style="margin:0 0 16px;color:#475569;font-size:13px;">Câu sẽ bị xoá khỏi đề.</p>' +
                 '<div style="display:flex;gap:8px;justify-content:center;">' +
                   '<button type="button" id="delQCancel" style="padding:8px 14px;border:1px solid #cbd5e1;background:#f1f5f9;border-radius:8px;cursor:pointer;font-weight:600;color:#475569;">Huỷ</button>' +
                   '<button type="button" id="delQConfirm" style="padding:8px 14px;border:none;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border-radius:8px;cursor:pointer;font-weight:700;">Xoá</button>' +
                 '</div>';
-              overlay.appendChild(card);
+              overlay.appendChild(modalCard);
               document.body.appendChild(overlay);
               document.body.style.overflow = "hidden";
               document.getElementById("delQCancel").addEventListener("click", function () { overlay.remove(); document.body.style.overflow = ""; });
@@ -1188,26 +1186,33 @@ head.style.position = "relative";
               });
             });
             menu.appendChild(b2);
-            // 3. Đổi vị trí: inline input
+
+            // 2. Đổi vị trí + ô nhập + nút Áp dụng (ẩn mặc định)
             var b3 = document.createElement("button");
-            b3.type = "button"; b3.className = "btn btn-ghost"; b3.style.cssText = "font-size:12px;padding:4px 8px;";
+            b3.type = "button";
+            b3.className = "btn btn-ghost";
+            b3.style.cssText = btnCss;
             b3.innerHTML = '<i class="fa-solid fa-arrow-up-wide-short"></i> Đổi vị trí';
             b3.addEventListener("click", function (e) {
               e.stopPropagation();
               var show = posInput.style.display === "none";
               posInput.style.display = show ? "inline-block" : "none";
-              applyBtn.style.display = show ? "inline-block" : "none";
+              applyBtn.style.display = show ? "inline-flex" : "none";
               if (show) { try { posInput.focus(); posInput.select(); } catch (e2) {} }
             });
+
             var posInput = document.createElement("input");
             posInput.type = "number";
             posInput.min = "1";
             posInput.max = String(countQ(testData));
             posInput.value = String(idx + 1);
-            posInput.style.cssText = "display:none;width:52px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:6px;margin-left:6px;";
+            posInput.style.cssText = "display:none;width:54px;height:28px;padding:0 6px;font-size:12px;border:1px solid #cbd5e1;border-radius:8px;";
             posInput.addEventListener("click", function (e) { e.stopPropagation(); });
+
             var applyBtn = document.createElement("button");
-            applyBtn.type = "button"; applyBtn.className = "btn btn-ghost"; applyBtn.style.cssText = "font-size:12px;padding:4px 8px;";
+            applyBtn.type = "button";
+            applyBtn.className = "btn btn-ghost";
+            applyBtn.style.cssText = "display:none;" + btnCss;
             applyBtn.textContent = "Áp dụng";
             applyBtn.addEventListener("click", function (e) {
               e.stopPropagation();
@@ -1236,15 +1241,23 @@ head.style.position = "relative";
               if (typeof render === "function") render();
               if (window.lhToast) lhToast("Đã đổi vị trí câu hỏi.", "success");
             });
+
             var wrap = document.createElement("div");
-            wrap.style.cssText = "display:flex;align-items:center;gap:4px;margin:6px 0 0;";
+            wrap.style.cssText = "display:inline-flex;align-items:center;gap:6px;";
             wrap.appendChild(b3);
             wrap.appendChild(posInput);
             wrap.appendChild(applyBtn);
             menu.appendChild(wrap);
+
+            // 3. Tách từ đây
+            var b1 = document.createElement("button");
+            b1.type = "button";
+            b1.className = "btn btn-ghost";
+            b1.style.cssText = btnCss;
+            b1.innerHTML = '<i class="fa-solid fa-scissors"></i> Tách từ đây';
+            b1.addEventListener("click", function (e) { e.stopPropagation(); splitSectionFromQuestion(idx); });
             menu.appendChild(b1);
 
-            // hide splitBtn, use menu
             splitBtn.style.display = "none";
             card.appendChild(menu);
           } else {
