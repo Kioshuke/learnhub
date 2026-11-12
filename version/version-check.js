@@ -151,8 +151,16 @@ window.LH_VERSION = "1.26.11.12.3"; // ← release.bat tự thay giá trị này
     var reloadBtn = document.createElement("button");
     reloadBtn.type = "button";
     reloadBtn.className = "lh-vcheck-reload";
-    reloadBtn.textContent = "Tải lại ngay";
+    var remaining = Math.ceil(AUTO_HIDE_MS / 1000);
+    reloadBtn.textContent = "Tải lại ngay (" + remaining + "s)";
+    var countdownInterval = setInterval(function () {
+      remaining--;
+      if (remaining <= 0) { clearInterval(countdownInterval); return; }
+      reloadBtn.textContent = "Tải lại ngay (" + remaining + "s)";
+    }, 1000);
     reloadBtn.addEventListener("click", function () {
+      clearInterval(countdownInterval);
+      // ... existing reload logic ...
       // Xoá sạch Cache Storage + unregister SW trước khi reload
       var reloaded = false;
       var go = function () {
@@ -215,10 +223,12 @@ window.LH_VERSION = "1.26.11.12.3"; // ← release.bat tự thay giá trị này
       try {
         if (sessionStorage.getItem("lh_force_reload")) {
           sessionStorage.removeItem("lh_force_reload");
+          clearInterval(countdownInterval);
           hideBanner(RESHOW_IDLE_MS);
           return;
         }
       } catch (e) {}
+      clearInterval(countdownInterval);
       // auto reload
       try {
         if (window.caches && caches.keys) {
