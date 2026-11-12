@@ -1081,14 +1081,16 @@ function render() {
         '<span class="tag tag-' + type + '">' + tagTxt + "</span></div>";
       card.appendChild(headQ);
 
-      /* Nút tách phần từ câu này trở xuống */
+      /* Nút tách phần từ câu này trở xuống (ẩn, hiện khi hover) */
       var splitBtn = document.createElement("button");
       splitBtn.type = "button";
       splitBtn.className = "btn btn-ghost";
-      splitBtn.style.cssText = "margin:6px 0 0;font-size:12px;padding:4px 8px;";
+      splitBtn.style.cssText = "display:none;margin:6px 0 0;font-size:12px;padding:4px 8px;";
       splitBtn.innerHTML = '<i class="fa-solid fa-scissors"></i> Tách từ đây';
       splitBtn.addEventListener("click", function () { splitSectionFromQuestion(idx); });
       card.appendChild(splitBtn);
+      card.addEventListener("mouseenter", function () { splitBtn.style.display = "inline-block"; });
+      card.addEventListener("mouseleave", function () { splitBtn.style.display = "none"; });
 
       var qImgUrl = imageFieldUrl(item.image) || (qMarker ? qMarker.url : "");
       if (qImgUrl && /^https?:\/\//i.test(qImgUrl)) {
