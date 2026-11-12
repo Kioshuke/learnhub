@@ -1192,12 +1192,19 @@ head.style.position = "relative";
             var b3 = document.createElement("button");
             b3.type = "button"; b3.className = "btn btn-ghost"; b3.style.cssText = "font-size:12px;padding:4px 8px;";
             b3.innerHTML = '<i class="fa-solid fa-arrow-up-wide-short"></i> Đổi vị trí';
+            b3.addEventListener("click", function (e) {
+              e.stopPropagation();
+              var show = posInput.style.display === "none";
+              posInput.style.display = show ? "inline-block" : "none";
+              applyBtn.style.display = show ? "inline-block" : "none";
+              if (show) { try { posInput.focus(); posInput.select(); } catch (e2) {} }
+            });
             var posInput = document.createElement("input");
             posInput.type = "number";
             posInput.min = "1";
             posInput.max = String(countQ(testData));
             posInput.value = String(idx + 1);
-            posInput.style.cssText = "width:52px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:6px;margin-left:6px;";
+            posInput.style.cssText = "display:none;width:52px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:6px;margin-left:6px;";
             posInput.addEventListener("click", function (e) { e.stopPropagation(); });
             var applyBtn = document.createElement("button");
             applyBtn.type = "button"; applyBtn.className = "btn btn-ghost"; applyBtn.style.cssText = "font-size:12px;padding:4px 8px;";
