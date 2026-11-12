@@ -5617,7 +5617,31 @@ body.dark-mode .ans-label:hover {
             background-size: 400% 100%;
         }
 
-/* --- 5.9 cauhoi/filetest.html --- */
+body.dark-mode .modal-content {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-color: var(--border, rgba(148,163,184,.2)) !important;
+}
+body.dark-mode .lh-modal-box,
+body.dark-mode .ph-qr-dialog,
+body.dark-mode .share-box,
+body.dark-mode .lh-gate-card,
+body.dark-mode .lh-vcheck {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-color: var(--border, rgba(148,163,184,.2)) !important;
+}
+body.dark-mode .lh-modal-box *,
+body.dark-mode .ph-qr-dialog *,
+body.dark-mode .share-box * {
+  color: inherit;
+}
+body.dark-mode .ph-qr-dialog input,
+body.dark-mode .share-box input {
+  background: var(--bg-deep, #1e293b);
+  color: var(--text);
+  border-color: var(--border, #334155);
+}
         body.dark-mode {
                 background:
         radial-gradient(circle at top left, rgba(59,130,246,0.08), transparent 35%),
