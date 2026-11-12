@@ -153,12 +153,12 @@ window.LH_VERSION = "1.26.11.9.2"; // ← release.bat tự thay giá trị này,
     reloadBtn.className = "lh-vcheck-reload";
     reloadBtn.textContent = "Tải lại ngay";
     reloadBtn.addEventListener("click", function () {
-      // Xoá sạch Cache Storage (service worker) trước khi reload để lần load
-      // sau chắc chắn nhận bản mới, tránh hiện banner "Tải lại" lặp 2 lần.
+      // Xoá sạch Cache Storage + unregister SW trước khi reload
       var reloaded = false;
       var go = function () {
         if (reloaded) return;
         reloaded = true;
+        try { sessionStorage.setItem("lh_force_reload", "1"); } catch (e) {}
         location.reload();
       };
       setTimeout(go, 2000);
@@ -166,7 +166,16 @@ window.LH_VERSION = "1.26.11.9.2"; // ← release.bat tự thay giá trị này,
         if (window.caches && caches.keys) {
           caches.keys().then(function (keys) {
             return Promise.all(keys.map(function (k) { return caches.delete(k); }));
-          }).catch(function () {}).then(go, go);
+          }).catch(function () {}).then(function () {
+            // unregister service workers
+            if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+              navigator.serviceWorker.getRegistrations().then(function (regs) {
+                return Promise.all(regs.map(function (r) { return r.unregister(); }));
+              }).catch(function () {}).then(go, go);
+            } else {
+              go();
+            }
+          }, go);
           return;
         }
       } catch (e) {}
@@ -201,8 +210,34 @@ window.LH_VERSION = "1.26.11.9.2"; // ← release.bat tự thay giá trị này,
     bannerEl = wrap;
     shownVersion = version;
 
-    // Hết 30s → tự co, hẹn nhắc lại sau 1 phút
-    hideTimer = setTimeout(function () { hideBanner(RESHOW_IDLE_MS); }, AUTO_HIDE_MS);
+    // Hết 30s → tự động tải lại để đảm bảo người dùng nhận bản mới
+    hideTimer = setTimeout(function () {
+      try {
+        if (sessionStorage.getItem("lh_force_reload")) {
+          sessionStorage.removeItem("lh_force_reload");
+          hideBanner(RESHOW_IDLE_MS);
+          return;
+        }
+      } catch (e) {}
+      // auto reload
+      try {
+        if (window.caches && caches.keys) {
+          caches.keys().then(function (keys) {
+            return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+          }).catch(function () {}).finally(function () {
+            if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+              navigator.serviceWorker.getRegistrations().then(function (regs) {
+                return Promise.all(regs.map(function (r) { return r.unregister(); }));
+              }).catch(function () {}).finally(function () { location.reload(); });
+            } else {
+              location.reload();
+            }
+          });
+          return;
+        }
+      } catch (e) {}
+      location.reload();
+    }, AUTO_HIDE_MS);
   }
 
   // ---------- VÒNG LẶP KIỂM TRA ----------
