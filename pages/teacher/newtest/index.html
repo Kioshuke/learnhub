@@ -7,7 +7,7 @@
 <link rel="icon" href="../../../assets/images/favicon.png" sizes="any">
 <link rel="icon" type="image/png" sizes="48x48" href="../../../assets/images/favicon.png">
 <link rel="stylesheet" href="../../../styles/global.css">
-<link rel="stylesheet" href="style.css?v=62">
+<link rel="stylesheet" href="style.css?v=63">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -42,11 +42,11 @@
 
     <div class="row tools">
       <button type="button" class="btn btn-primary" id="btnParse"><i class="fa-solid fa-book-open"></i> Đọc text → JSON</button>
-      <label style="margin-left:12px; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid #d1d5db; border-radius:8px; background:#f9fafb;">
-        <input type="checkbox" id="englishModeToggle" style="margin:0;"> Chế độ đề Tiếng Anh
+      <label class="toggle-pill" for="englishModeToggle">
+        <input type="checkbox" id="englishModeToggle"> <span>Chế độ đề Tiếng Anh</span> <span class="toggle-tag">EN</span>
       </label>
       <button type="button" class="btn" id="btnSample">Nạp đề mẫu</button>
-      <button type="button" class="btn" id="btnSampleEN" style="background:#dbeafe;color:#1e40af">Nạp đề mẫu Anh</button>
+      <button type="button" class="btn btn-info" id="btnSampleEN">Nạp đề mẫu Anh</button>
       <span class="tool-spacer"></span>
       <label class="btn btn-ghost" style="gap:6px"><input type="checkbox" id="keepFmt" checked style="accent-color:#1a73e8;width:auto"> Giữ định dạng chữ (.docx)</label>
       <label class="btn btn-primary"><i class="fa-solid fa-upload"></i> Tải tệp lên<input type="file" id="fileUpload" accept=".docx,.txt,.json,application/json" hidden></label>
