@@ -158,21 +158,26 @@ function htmlBlocksToLines(html) {
   div.innerHTML = html;
   var arr = [];
   var BLOCK = "p, li, h1, h2, h3, h4, h5, h6, td, th";
+  var tmp = document.createElement("div");
+  function pushSegments(rawHtml) {
+    /* Word thường dùng Shift+Enter (<br>) giữa câu hỏi và các đáp án A, B, C, D */
+    String(rawHtml || "").split(/<br\s*\/?>/i).forEach(function (seg) {
+      var h = fixInlineHtml(seg).replace(/\u00a0/g, " ");
+      tmp.innerHTML = h;
+      var t = (tmp.textContent || "").replace(/\u00a0/g, " ");
+      if (!t.trim()) return;
+      arr.push({ t: t, h: h });
+    });
+  }
   var nodes = div.querySelectorAll(BLOCK);
   nodes.forEach(function (el) {
     /* Chỉ lấy khối "lá": bỏ td/li/p đang chứa khối con (tránh lặp dòng với file Word có bảng) */
     if (el.querySelector(BLOCK)) return;
-    var t = (el.textContent || "").replace(/\u00a0/g, " ");
-    var h = (el.innerHTML || "").replace(/\u00a0/g, " ");
-    if (!t.trim()) return;
-    arr.push({ t: t, h: h });
+    pushSegments(el.innerHTML || "");
   });
   if (!arr.length) {
     Array.prototype.forEach.call(div.childNodes, function (n) {
-      var t = (n.textContent || "").replace(/\u00a0/g, " ");
-      var h = (n.outerHTML || t).replace(/\u00a0/g, " ");
-      if (!t.trim()) return;
-      arr.push({ t: t, h: h });
+      pushSegments(n.outerHTML || n.textContent || "");
     });
   }
   return arr;
@@ -469,7 +474,15 @@ function parseToSectionsCore(lines) {
     if (dt) {
       if (cur && cur.lines.length) groups.push(cur);
       cur = { section: dt, lines: [] };
-    } else if (cur) {
+    } else {
+      /* Tiêu đề phần đầu không khớp detectSectionTitle: tự tạo phần ẩn để không mất câu */
+      if (!cur) {
+        cur = {
+          section: { title: isEnglishMode ? "SECTION I" : "PHẦN I. TRẮC NGHIỆM", desc: "" },
+          lines: [],
+          _implicit: true
+        };
+      }
       cur.lines.push(L);
     }
   });
@@ -515,8 +528,10 @@ function parseToSectionsCore(lines) {
       }
     }
     var r = parseLines(qlines);
+    var noQuestions = r.error || !r.sections || !r.sections.length;
+    if (noQuestions && g._implicit) return;   // phần tự tạo: bỏ qua âm thầm
     (r.warnings || []).forEach(function (w) { warnings.push(w); });
-    if (r.error || !r.sections || !r.sections.length) {
+    if (noQuestions) {
       warnings.push("Bỏ phần “" + g.section.title + "” (không nhận dạng được câu hỏi nào).");
       return;
     }
@@ -621,6 +636,12 @@ function imageFieldUrl(v) {
   return (m && !m.text) ? m.url : normalizeImageUrl(s);
 }
 
+/* Nhận diện đầu câu hỏi dùng chung: Câu hỏi 3:, Bài 3., Question 3 -, Câu 3, 3. ... */
+function matchQuestionStart(line) {
+  return line.match(/^(?:câu(?:\s*hỏi)?|bài|question)\s*(\d{1,3})\s*(?:[\.\):\-–—]\s*(.*)|$)/i)
+      || line.match(/^(\d{1,3})\s*[\.\)]\s+(.*)$/);
+}
+
 function parseLines(lines) {
   lines = lines || [];
   var toggleEl = $("englishModeToggle");
@@ -677,6 +698,8 @@ function parseLines(lines) {
       questions.push(cur);
     } else if (cur.type === "short_answer") {
       questions.push(cur);
+    } else {
+      warnings.push("Bỏ qua câu thiếu phương án A/B/C/D: “" + textOf(cur.question).slice(0, 60) + "”");
     }
     cur = null;
     explanationMode = false;
@@ -777,7 +800,7 @@ function parseLines(lines) {
     }
 
     if (explanationMode && cur) {
-      var startsNextQuestion = /^(?:câu|question)\s*\d{1,3}\s*[\.\):]|\d{1,3}\s*[\.\)]\s+/i.test(line);
+      var startsNextQuestion = Boolean(matchQuestionStart(line));
       if (!startsNextQuestion) {
         appendExplanationLine(line, html);
         return;
@@ -851,7 +874,7 @@ function parseLines(lines) {
       }
     }
 
-    var optM = line.match(/^(\*)?\s*([A-Za-z])\s*([\.\)\:])\s*(.+)$/);
+    var optM = line.match(/^(\*)?\s*\(?([A-Za-z])\s*([\.\)\:])\s*(.+)$/);
     if (optM && cur && (cur.type === "multiple" || cur.type === "true_false")) {
       var sep = optM[3];
       var letterChar = optM[2];
@@ -883,12 +906,11 @@ function parseLines(lines) {
       return;
     }
 
-    /* Bắt dòng câu hỏi dạng: Question 1. / Câu 1: / 1. */
-    var numM = line.match(/^(?:câu|question)\s*(\d{1,3})\s*[\.\):]\s*(.*)$/i)
-            || line.match(/^(\d{1,3})\s*[\.\)]\s+(.*)$/);
+    /* Bắt dòng câu hỏi dạng: Question 1. / Câu hỏi 1: / Bài 1 - / Câu 1 / 1. */
+    var numM = matchQuestionStart(line);
     if (numM && !/^[A-Da-d]$/.test(numM[1])) {
       closeCur();
-      var qtextRaw = numM[2].trim();
+      var qtextRaw = (numM[2] || "").trim();
       var inlineImg = extractImageMarker(qtextRaw);
       var qtext = inlineImg ? inlineImg.text : qtextRaw;
       var qhtml = cleanOptionHtml(line, html, qtextRaw);
