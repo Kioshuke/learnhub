@@ -2241,6 +2241,11 @@ box-shadow:0 6px 15px rgba(0,0,0,0.25);
 }
 
 
+/* Vùng chữ chạy bắt đầu sau badge — mọi thứ bên trái bị cắt, không đè lên ô "ĐỀ MỚI" */
+.ticker-viewport{
+margin-left:130px;
+overflow:hidden;
+}
 .ticker-text{
 display:inline-block;
 white-space:nowrap;
@@ -2261,6 +2266,73 @@ transform:translateX(0);
 to{
 transform:translateX(-100%);
 }
+}
+
+/* Huy hiệu "ĐỀ MỚI" dạng kính mờ */
+.ticker-container { position: relative; }
+.lh-new-badge {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.lh-new-badge i {
+  font-size: 13px;
+  color: #ffffff;
+  animation: lh-megaphone-ring 2.2s ease-in-out infinite;
+}
+
+@keyframes lh-megaphone-ring {
+  0%, 100% { transform: rotate(0deg); }
+  12% { transform: rotate(-14deg); }
+  24% { transform: rotate(12deg); }
+  36% { transform: rotate(-8deg); }
+  48% { transform: rotate(6deg); }
+  60% { transform: rotate(0deg); }
+}
+
+/* Màu chữ thông báo trên nền xanh */
+.lh-ticker-text {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+}
+
+/* Tên đề in đậm màu vàng sáng */
+.lh-ticker-text .test-name {
+  color: #fde047;
+  font-weight: 800;
+}
+
+/* Dấu ngăn cách <--> */
+.lh-ticker-text .sep,
+.ticker-text > .sep {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 10px;
+}
+
+@media (max-width: 768px) {
+  .ticker-viewport { margin-left: 112px; }
 }
 
 /* Mobile: tốc độ lấy từ cấu hình admin (set inline qua JS), không override nữa */
@@ -3182,68 +3254,6 @@ body.dark-mode .quiz-btn {
   .hubie-feature-card {
     flex: 1 1 auto;
   }
-}
-
-/* ==================== THÔNG BÁO ĐỀ THI MỚI (TRANG CHỦ) ==================== */
-.test-update-banner {
-  width: 80%;
-  margin: 14px auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-sizing: border-box;
-  height: 40px;
-  padding: 0 8px 0 16px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 999px;
-  overflow: hidden;
-  color: #1e3a8a;
-  font-size: 13px;
-  line-height: 1.4;
-}
-.test-update-banner[hidden] { display: none; }
-.test-update-icon { flex: 0 0 auto; color: #2563eb; font-size: 17px; }
-.test-update-viewport {
-  flex: 1 1 auto;
-  min-width: 0;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  white-space: nowrap;
-}
-.test-update-track {
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-  animation: test-update-marquee var(--test-update-duration, 40s) linear infinite;
-  will-change: transform;
-}
-.test-update-banner:hover .test-update-track,
-.test-update-banner:focus-within .test-update-track { animation-play-state: paused; }
-.test-update-segment { flex: 0 0 auto; padding-right: 60px; }
-.test-update-action {
-  flex: 0 0 auto;
-  border: 0;
-  border-radius: 999px;
-  padding: 7px 14px;
-  background: #2563eb;
-  color: #fff;
-  font-weight: 700;
-  font-size: 12px;
-  line-height: 1.2;
-  white-space: nowrap;
-  cursor: pointer;
-}
-.test-update-action:hover { background: #1d4ed8; }
-@keyframes test-update-marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-@media (max-width: 768px) {
-  .test-update-banner { width: 94%; padding-left: 12px; gap: 8px; font-size: 12px; }
-  .test-update-segment { padding-right: 36px; }
 }
 
 /* ==================== TÍNH NĂNG NỔI BẬT (FEATURED FEATURES) ==================== */

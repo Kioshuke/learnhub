@@ -132,9 +132,8 @@ window.addEventListener("beforeinstallprompt", function (e) {
 </div>
 </div>
 <div class="ticker-container">
-<div class="ticker-text">
-Chào mừng bạn đã đến với LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.
-</div>
+<span class="lh-new-badge"><i class="fa-solid fa-bullhorn"></i> ĐỀ MỚI</span>
+<div class="ticker-viewport"><div class="ticker-text"></div></div>
 </div>
 <div class="notif-detail-overlay" id="notifDetailOverlay">
   <div class="notif-detail-box">
@@ -441,15 +440,6 @@ document.addEventListener('click',function(e){
 </div>
 
 <div id="home">
-  <!-- Thông báo 5 đề thi mới nhất (cập nhật động từ Supabase) -->
-  <div class="test-update-banner" id="testUpdateBanner" hidden>
-    <i class="fa-solid fa-bullhorn test-update-icon" aria-hidden="true"></i>
-    <div class="test-update-viewport" aria-live="polite">
-      <div class="test-update-track" id="testUpdateTrack"></div>
-    </div>
-    <button type="button" class="test-update-action" id="testUpdateAction">Làm ngay →</button>
-  </div>
-
   <section class="featured-section reveal-item" id="featuredFeatures">
     <div class="featured-header">
       <h2><i class="fa-solid fa-rocket"></i> Tính Năng Nổi Bật</h2>
@@ -614,13 +604,13 @@ import { supabase, getMaintenance, subscribeMaintenance, emailAllowed, getUserRo
 import { insertTestAttempt } from "./scripts/features/learnhub-stats.js";
 import { getPeriodKey } from "./scripts/features/week-math.js";
 import { isPasswordRecovery } from "./scripts/auth/reset-password.js";
-import { initTestUpdateBanner } from "./scripts/features/test-update-banner.js";
+import { initTestUpdateTicker } from "./scripts/features/test-update-ticker.js";
 window.logAppError = logAppError;
 window.supabaseClient = supabase;
 window.escapeHtml = escapeHtml;
 
-/* Thanh thông báo đề thi mới nhất trên trang chủ */
-initTestUpdateBanner(supabase);
+/* Ticker trang chủ: chạy 5 đề thi mới nhất thay cho chữ chào mừng tĩnh */
+initTestUpdateTicker(supabase);
 
 const TRUSTED_ORIGIN = location.origin;
 
@@ -730,8 +720,7 @@ let tickerLastSpeed = null;
 let tickerResizeTimer = null;
 
 // Nội dung cố định (đã bỏ setting admin, không query DB nữa).
-const TICKER_DEFAULT_TEXT = "Chào mừng bạn đã đến với LearnHub - Hệ sinh thái học tập trực tuyến dành cho học sinh và sinh viên. Cung cấp tài liệu, bài kiểm tra, công cụ ôn tập và nhiều tiện ích hỗ trợ học tập hiện đại trên một nền tảng duy nhất.";
-const TICKER_DEFAULT_SPEED = 18;
+const TICKER_DEFAULT_SPEED = 12;
 
 // Mobile màn hẹp => quãng đường 1 vòng ngắn hơn desktop nên cùng số giây sẽ
 // thấy chữ chạy chậm hẳn. Co thời lượng theo quãng đường thực tế để tốc độ
@@ -780,7 +769,7 @@ function initTicker() {
       if (tries++ < 40) setTimeout(attempt, 300);
       return;
     }
-    applyTicker(TICKER_DEFAULT_TEXT, TICKER_DEFAULT_SPEED);
+    applyTicker(null, TICKER_DEFAULT_SPEED);
   };
   attempt();
 }
