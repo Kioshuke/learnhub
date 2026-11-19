@@ -549,8 +549,8 @@ $$;
 revoke execute on function public.log_app_error(text, text, text, text, text, text, text, jsonb) from public;
 grant execute on function public.log_app_error(text, text, text, text, text, text, text, jsonb) to anon, authenticated;
 
--- Dọn log cũ (mặc định >7 ngày). Chỉ admin mới chạy được (tự kiểm tra bên trong).
-create or replace function public.cleanup_error_logs(p_days int default 7)
+-- Dọn log cũ (mặc định >30 ngày / 1 tháng). Chỉ admin mới chạy được (tự kiểm tra bên trong).
+create or replace function public.cleanup_error_logs(p_days int default 30)
 returns void
 language plpgsql security definer
 set search_path = public
@@ -560,7 +560,7 @@ begin
     return;
   end if;
   delete from public.error_logs
-   where created_at < now() - make_interval(days => coalesce(p_days, 7));
+   where created_at < now() - make_interval(days => coalesce(p_days, 30));
 end;
 $$;
 

@@ -968,7 +968,7 @@ let errorLogsLoaded = false;
 async function loadErrorLogs() {
   if (!errorLogsLoaded) {
     errorLogsLoaded = true;
-    try { await supabase.rpc("cleanup_error_logs", { p_days: 7 }); }
+    try { await supabase.rpc("cleanup_error_logs", { p_days: 30 }); }
     catch (e) { console.error("cleanup_error_logs:", e); }
     subscribeErrorLogsRealtime();
   }

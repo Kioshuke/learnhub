@@ -3184,6 +3184,68 @@ body.dark-mode .quiz-btn {
   }
 }
 
+/* ==================== THÔNG BÁO ĐỀ THI MỚI (TRANG CHỦ) ==================== */
+.test-update-banner {
+  width: 80%;
+  margin: 14px auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0 8px 0 16px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  overflow: hidden;
+  color: #1e3a8a;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.test-update-banner[hidden] { display: none; }
+.test-update-icon { flex: 0 0 auto; color: #2563eb; font-size: 17px; }
+.test-update-viewport {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.test-update-track {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  animation: test-update-marquee var(--test-update-duration, 40s) linear infinite;
+  will-change: transform;
+}
+.test-update-banner:hover .test-update-track,
+.test-update-banner:focus-within .test-update-track { animation-play-state: paused; }
+.test-update-segment { flex: 0 0 auto; padding-right: 60px; }
+.test-update-action {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 999px;
+  padding: 7px 14px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.test-update-action:hover { background: #1d4ed8; }
+@keyframes test-update-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@media (max-width: 768px) {
+  .test-update-banner { width: 94%; padding-left: 12px; gap: 8px; font-size: 12px; }
+  .test-update-segment { padding-right: 36px; }
+}
+
 /* ==================== TÍNH NĂNG NỔI BẬT (FEATURED FEATURES) ==================== */
 .featured-section {
   margin-bottom: 18px;

@@ -441,6 +441,15 @@ document.addEventListener('click',function(e){
 </div>
 
 <div id="home">
+  <!-- Thông báo 5 đề thi mới nhất (cập nhật động từ Supabase) -->
+  <div class="test-update-banner" id="testUpdateBanner" hidden>
+    <i class="fa-solid fa-bullhorn test-update-icon" aria-hidden="true"></i>
+    <div class="test-update-viewport" aria-live="polite">
+      <div class="test-update-track" id="testUpdateTrack"></div>
+    </div>
+    <button type="button" class="test-update-action" id="testUpdateAction">Làm ngay →</button>
+  </div>
+
   <section class="featured-section reveal-item" id="featuredFeatures">
     <div class="featured-header">
       <h2><i class="fa-solid fa-rocket"></i> Tính Năng Nổi Bật</h2>
@@ -605,9 +614,13 @@ import { supabase, getMaintenance, subscribeMaintenance, emailAllowed, getUserRo
 import { insertTestAttempt } from "./scripts/features/learnhub-stats.js";
 import { getPeriodKey } from "./scripts/features/week-math.js";
 import { isPasswordRecovery } from "./scripts/auth/reset-password.js";
+import { initTestUpdateBanner } from "./scripts/features/test-update-banner.js";
 window.logAppError = logAppError;
 window.supabaseClient = supabase;
 window.escapeHtml = escapeHtml;
+
+/* Thanh thông báo đề thi mới nhất trên trang chủ */
+initTestUpdateBanner(supabase);
 
 const TRUSTED_ORIGIN = location.origin;
 
