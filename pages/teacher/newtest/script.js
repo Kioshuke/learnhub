@@ -383,7 +383,13 @@ function detectSectionTitle(line) {
       return { title: raw.toUpperCase(), desc: "" };
     }
   }
-  var m = TITLE_RE.exec(raw);
+  /* Tiếng Việt: tách riêng dòng có tiền tố "Phần" và dòng chỉ đánh số La Mã/thường.
+     Không dùng [ivxlcdm] tự do ở dòng không có "Phần", nếu không C./D./L./M. của đáp án
+     (vd "D. Phù hợp với dữ liệu logic đúng/sai") sẽ bị romanToNum() thành 100/500/50/1000. */
+  var hasPrefix = /^phần\s+/i.test(raw);
+  var m = hasPrefix
+    ? /^phần\s+(\d{1,2}|[IVXLCDM]{1,6})\s*[:.\-–—)\]]\s*(.+)$/i.exec(raw)
+    : /^(\d{1,2}|X{1,2}(?:IX|IV|V?I{0,3})|IX|IV|V?I{1,3})\s*[:.\-–—)\]]\s*(.+)$/.exec(raw);
   if (!m) return null;
   var text = m[2].trim();
   if (!text || /[?!]$/.test(text) || text.length > 60) return null;
@@ -393,9 +399,10 @@ function detectSectionTitle(line) {
   }
   if (!kind) return null;
   var isBareDigit = /^\d+$/.test(m[1]);
-  if ((kind.key === "NGHE" || kind.key === "DOC") && isBareDigit && !/^(?:phần\s*)/i.test(raw)) return null;
+  if ((kind.key === "NGHE" || kind.key === "DOC") && isBareDigit && !hasPrefix) return null;
   var num = isBareDigit ? parseInt(m[1], 10) : romanToNum(m[1]);
   if (!num) num = kindIdx + 1;
+  if (!num || num > 20) return null;
   return { title: "PHẦN " + numToRoman(num) + ". " + kind.name, desc: SECTION_DESC[kind.key] || "" };
 }
 
