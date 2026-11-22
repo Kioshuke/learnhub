@@ -199,16 +199,18 @@
       var card = document.createElement("div");
       card.className = "lh-confirm-card";
 
+      var opts = (message && typeof message === "object") ? message : null;
+
       var title = document.createElement("p");
       title.className = "lh-confirm-title";
-      title.textContent = "Xác nhận";
+      title.textContent = (opts && typeof opts.title === "string") ? opts.title : "Xác nhận";
 
       var msg = document.createElement("p");
       msg.className = "lh-confirm-message";
-      /* Cho phép truyền { html: "..." } khi cần in đậm/xuống dòng có chủ đích.
+      /* Cho phép truyền { title, html } khi cần đổi tiêu đề / in đậm / xuống dòng.
          Mặc định vẫn dùng textContent như cũ nên các caller khác không đổi. */
-      if (message && typeof message === "object" && typeof message.html === "string") {
-        msg.innerHTML = message.html;
+      if (opts && typeof opts.html === "string") {
+        msg.innerHTML = opts.html;
       } else {
         msg.textContent = String(message == null ? "" : message);
       }
