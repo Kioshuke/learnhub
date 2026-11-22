@@ -3654,8 +3654,14 @@ body.cc-reduced .hubie-avatar,
 body.cc-reduced .hubie-feat-icon,
 body.cc-reduced .skel-bar,
 body.cc-reduced [class*="skel-"],
-body.cc-reduced .notif-bell.has-unread i {
+/* Huy hiệu "ĐỀ MỚI": bật giảm chuyển động thì loa đứng im, không lắc */
+body.cc-reduced .notif-bell.has-unread i,
+body.cc-reduced .lh-new-badge i {
   animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lh-new-badge i { animation: none !important; }
 }
 
 /* Header gradient vẫn chạy bình thường cho dù bật giảm chuyển động */

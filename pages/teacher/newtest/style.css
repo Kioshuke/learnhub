@@ -454,7 +454,7 @@ body.stage2, html.stage2, body.stage3, html.stage3, body.stage4, html.stage4{ove
   .publish-result{grid-template-columns:1fr 1fr}
   .publish-settings-aside{grid-column:1/-1}
 }
-@media (max-width:720px){
+@media (max-width:900px){
   .set-grid-4.no-shuffleq{grid-template-columns:1fr}
   .topbar{display:flex;justify-content:space-between;gap:8px;padding:6px 10px}
   .tb-left{gap:8px}
@@ -468,6 +468,8 @@ body.stage2, html.stage2, body.stage3, html.stage3, body.stage4, html.stage4{ove
   .set-grid>.set-cell{border-left:none;border-top:1px solid var(--line)}
   .set-grid>.set-cell:first-child{border-top:none}
   .set-grid-2{grid-template-columns:1fr}
+  /* Mở khoá cả html lẫn body — html là thẻ quy định thanh cuộn trang */
+  html.stage2, html.stage3, html.stage4,
   body.stage2, body.stage3, body.stage4{overflow:auto;height:auto}
   .stage2 .wrap, .stage3 .wrap, .stage4 .wrap{height:auto;padding:14px 10px;overflow:visible}
   .stage2 #p2, .stage3 #p3{display:block;overflow:visible}

@@ -772,6 +772,39 @@
       margin: 0;
     }
     .tc-quiz-head .muted { margin-left: auto; }
+    /* Bộ lọc môn + tìm kiếm + nút tạo đề nằm chung một hàng */
+    .tc-quiz-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      flex-wrap: wrap;
+    }
+    .tc-quiz-tools select,
+    .tc-quiz-tools input[type="search"] {
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid #dbe2ea;
+      border-radius: 10px;
+      background: #fff;
+      font: inherit;
+      font-size: 13px;
+      color: #0f172a;
+      outline: none;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, .05);
+    }
+    .tc-quiz-tools select { min-width: 150px; cursor: pointer; }
+    .tc-quiz-tools input[type="search"] { width: 210px; }
+    .tc-quiz-tools select:focus,
+    .tc-quiz-tools input[type="search"]:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+    }
+    .tc-quiz-tools .btn { height: 38px; padding: 0 14px; border-radius: 10px; font-size: 13px; }
+    @media (max-width: 720px) {
+      .tc-quiz-tools { width: 100%; margin-left: 0; }
+      .tc-quiz-tools input[type="search"] { flex: 1 1 160px; width: auto; }
+    }
     .tc-quiz-stats {
       display: flex;
       gap: 10px;
@@ -1324,7 +1357,13 @@
                 <span class="tc-quiz-stat-label">Chưa hoàn thành</span>
               </div>
             </div>
-            <a class="btn btn-primary" style="margin-left:auto" href="./newtest/index.html"><i class="fa-solid fa-plus"></i> Tạo đề mới</a>
+            <div class="tc-quiz-tools">
+              <select id="tcQuizSubjectFilter" aria-label="Lọc theo môn">
+                <option value="">Tất cả môn</option>
+              </select>
+              <input id="tcQuizSearch" type="search" placeholder="Tìm tên đề, mô tả..." aria-label="Tìm bài kiểm tra">
+              <a class="btn btn-primary" href="./newtest/index.html"><i class="fa-solid fa-plus"></i> Tạo đề mới</a>
+            </div>
           </div>
 
           <div id="tcQuizList" class="tc-quiz-list">
@@ -1493,6 +1532,8 @@
     let tcReportStudentPage = 0;
     let tcReportAttemptPage = 0;
     const TC_REPORT_PAGE_SIZE = 20;
+    let tcQuizzesCache = [];        // toàn bộ đề lấy từ RPC, để lọc lại không phải gọi DB lại
+    let tcQuizFilterBound = false;
     let tcTrendAttempts = [];      // toàn bộ lượt làm của HS đang xem (cho chart)
     let tcTrendChart = null;       // instance Chart.js hiện tại
     let tcTrendBound = false;      // đã gắn sự kiện đổi tháng chưa
@@ -2694,50 +2735,109 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
         const { data, error } = await supabase.rpc("teacher_list_test_sets");
         if (error) throw error;
         const rows = Array.isArray(data) ? data : [];
+        tcQuizzesCache = rows;
+        tcPopulateQuizSubjects(rows);
+        tcBindQuizFilters();
         const done = rows.filter(r => r.is_complete).length;
         const pending = rows.length - done;
         tcRenderQuizStats(rows.length, done, pending);
-        if (!rows.length) {
-          listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-file-circle-check"></i></div>' +
-            'Chưa có bài kiểm tra nào trong Phòng Học.<br>' +
-            '<span style="font-size:12.5px">Bấm <b>Tạo đề mới</b> để soạn đề đầu tiên (trắc nghiệm / đúng-sai / tự luận / nghe).</span></div>';
-          return;
-        }
-        listEl.innerHTML = '<table class="tc-quiz-table"><thead><tr>' +
-          '<th style="width:42%">Tên đề</th><th class="tc-qz-nowrap">Môn</th><th class="tc-qz-nowrap" style="width:58px">Số câu</th><th class="tc-qz-nowrap" style="width:112px">Thời gian</th><th class="tc-qz-nowrap" style="width:52px">Điểm</th><th style="width:96px">Trạng thái</th><th class="tc-qz-nowrap" style="width:116px">Tạo lúc</th><th style="width:42px"></th>' +
-          '</tr></thead><tbody>' + rows.map(function (r) {
-          const de = "t:" + r.set_id;
-          const badges =
-            (r.show_score === 'none' ? '<span class="tc-qz-badge danger"><i class="fa-solid fa-lock"></i> Ẩn điểm</span>' : '') +
-            (r.show_answers === 'none' ? '<span class="tc-qz-badge danger"><i class="fa-solid fa-eye-slash"></i> Chặn xem đáp án</span>' : (r.show_answers === 'perfect' ? '<span class="tc-qz-badge info"><i class="fa-solid fa-eye"></i> Xem đáp án khi điểm tối đa</span>' : '')) +
-            (r.subtest_enabled ? '<span class="tc-qz-badge info"><i class="fa-solid fa-dice"></i> Đề con ' + (r.subtest_count || 0) + '/' + (r.question_count || 0) + '</span>' : '');
-          return '<tr>' +
-            '<td><div class="tc-t">' + escapeHtml(r.name) + '</div>' +
-              (r.description ? '<div class="tc-sub">' + escapeHtml(r.description) + '</div>' : '') +
-              (badges ? '<div class="tc-qz-badges">' + badges + '</div>' : '') + '</td>' +
-            '<td class="tc-qz-nowrap">' + escapeHtml(r.subject) + '</td>' +
-            '<td class="tc-qz-nowrap">' + (r.subtest_enabled && r.subtest_count ? (r.subtest_count + '/' + (r.question_count || 0)) : (r.question_count || 0)) + '</td>' +
-            '<td class="tc-qz-nowrap">' + (r.minutes > 0 ? '<i class="fa-solid fa-stopwatch"></i> ' + r.minutes + ' phút' : "Không giới hạn") + '</td>' +
-            '<td class="tc-qz-nowrap">' + (r.score || 10) + '</td>' +
-            '<td>' +
-              '<button type="button" role="switch" aria-checked="' + (r.is_complete ? 'true' : 'false') + '" class="tc-qz-switch' + (r.is_complete ? ' on' : '') + '" data-action="toggle" data-id="' + r.set_id + '" data-complete="' + (r.is_complete ? 1 : 0) + '" title="Đổi trạng thái hoàn thành / chưa hoàn thành"><span class="tc-qz-switch-knob"></span></button>' +
-            '</td>' +
-            '<td class="tc-qz-created">' + scFormatDate(r.created_at) + '</td>' +
-            '<td><div class="tc-qz-menu-wrap">' +
-              '<button type="button" class="tc-qz-menu-btn" data-action="menu" data-de="' + de + '" data-id="' + r.set_id + '" title="Thao tác" aria-label="Thao tác"><i class="fa-solid fa-ellipsis-vertical"></i></button>' +
-            '</div></td>' +
-          '</tr>';
-        }).join('') + '</tbody></table>';
-        if (!listEl.__tcBound) {
-          listEl.__tcBound = true;
-          listEl.addEventListener("click", tcQuizListClick);
-        }
+        tcRenderQuizList();
       } catch (e) {
         console.error("tcLoadQuizzes lỗi:", e);
         tcRenderQuizStats(0, 0, 0);
         listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-triangle-exclamation"></i></div>' +
           'Không tải được danh sách bài kiểm tra.<br>' +
           '<span style="font-size:12.5px">' + escapeHtml(String((e && e.message) || e)) + '</span></div>';
+      }
+    }
+
+    /* Gắn sự kiện cho bộ lọc môn + thanh tìm kiếm (chỉ gắn 1 lần) */
+    function tcBindQuizFilters() {
+      if (tcQuizFilterBound) return;
+      tcQuizFilterBound = true;
+      const subject = document.getElementById("tcQuizSubjectFilter");
+      const search = document.getElementById("tcQuizSearch");
+      if (subject) subject.addEventListener("change", tcRenderQuizList);
+      if (search) search.addEventListener("input", tcRenderQuizList);
+    }
+
+    /* Tạo options môn từ chính dữ liệu đề đang có, giữ lựa chọn cũ nếu còn */
+    function tcPopulateQuizSubjects(rows) {
+      const select = document.getElementById("tcQuizSubjectFilter");
+      if (!select) return;
+      const previous = select.value;
+      const subjects = Array.from(new Set((rows || []).map(function (r) {
+        return String((r && r.subject) || "").trim();
+      }).filter(Boolean))).sort(function (a, b) { return a.localeCompare(b, "vi"); });
+      select.innerHTML = '<option value="">Tất cả môn</option>' + subjects.map(function (s) {
+        return '<option value="' + escapeHtml(s) + '">' + escapeHtml(s) + "</option>";
+      }).join("");
+      select.value = subjects.indexOf(previous) >= 0 ? previous : "";
+    }
+
+    /* Bỏ dấu để tìm không cần gõ chính xác dấu tiếng Việt */
+    function tcSearchKey(value) {
+      return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("vi").trim();
+    }
+
+    /* Render danh sách theo bộ lọc môn + từ khoá tìm kiếm */
+    function tcRenderQuizList() {
+      const listEl = document.getElementById("tcQuizList");
+      if (!listEl) return;
+      const rows = tcQuizzesCache;
+      if (!rows.length) {
+        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-file-circle-check"></i></div>' +
+          'Chưa có bài kiểm tra nào trong Phòng Học.<br>' +
+          '<span style="font-size:12.5px">Bấm <b>Tạo đề mới</b> để soạn đề đầu tiên (trắc nghiệm / đúng-sai / tự luận / nghe).</span></div>';
+        return;
+      }
+
+      const subjectSel = document.getElementById("tcQuizSubjectFilter");
+      const subject = subjectSel ? subjectSel.value : "";
+      const searchEl = document.getElementById("tcQuizSearch");
+      const key = tcSearchKey(searchEl ? searchEl.value : "");
+      const filtered = rows.filter(function (r) {
+        if (subject && String(r.subject || "").trim() !== subject) return false;
+        if (!key) return true;
+        return tcSearchKey([r.name, r.description, r.subject].join(" ")).indexOf(key) >= 0;
+      });
+
+      if (!filtered.length) {
+        listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-magnifying-glass"></i></div>' +
+          'Không có bài kiểm tra nào khớp bộ lọc.<br>' +
+          '<span style="font-size:12.5px">Thử đổi môn hoặc xoá từ khoá tìm kiếm.</span></div>';
+        return;
+      }
+
+      listEl.innerHTML = '<table class="tc-quiz-table"><thead><tr>' +
+        '<th style="width:42%">Tên đề</th><th class="tc-qz-nowrap">Môn</th><th class="tc-qz-nowrap" style="width:58px">Số câu</th><th class="tc-qz-nowrap" style="width:112px">Thời gian</th><th class="tc-qz-nowrap" style="width:52px">Điểm</th><th style="width:96px">Trạng thái</th><th class="tc-qz-nowrap" style="width:116px">Tạo lúc</th><th style="width:42px"></th>' +
+        '</tr></thead><tbody>' + filtered.map(function (r) {
+        const de = "t:" + r.set_id;
+        const badges =
+          (r.show_score === 'none' ? '<span class="tc-qz-badge danger"><i class="fa-solid fa-lock"></i> Ẩn điểm</span>' : '') +
+          (r.show_answers === 'none' ? '<span class="tc-qz-badge danger"><i class="fa-solid fa-eye-slash"></i> Chặn xem đáp án</span>' : (r.show_answers === 'perfect' ? '<span class="tc-qz-badge info"><i class="fa-solid fa-eye"></i> Xem đáp án khi điểm tối đa</span>' : '')) +
+          (r.subtest_enabled ? '<span class="tc-qz-badge info"><i class="fa-solid fa-dice"></i> Đề con ' + (r.subtest_count || 0) + '/' + (r.question_count || 0) + '</span>' : '');
+        return '<tr>' +
+          '<td><div class="tc-t">' + escapeHtml(r.name) + '</div>' +
+            (r.description ? '<div class="tc-sub">' + escapeHtml(r.description) + '</div>' : '') +
+            (badges ? '<div class="tc-qz-badges">' + badges + '</div>' : '') + '</td>' +
+          '<td class="tc-qz-nowrap">' + escapeHtml(r.subject) + '</td>' +
+          '<td class="tc-qz-nowrap">' + (r.subtest_enabled && r.subtest_count ? (r.subtest_count + '/' + (r.question_count || 0)) : (r.question_count || 0)) + '</td>' +
+          '<td class="tc-qz-nowrap">' + (r.minutes > 0 ? '<i class="fa-solid fa-stopwatch"></i> ' + r.minutes + ' phút' : "Không giới hạn") + '</td>' +
+          '<td class="tc-qz-nowrap">' + (r.score || 10) + '</td>' +
+          '<td>' +
+            '<button type="button" role="switch" aria-checked="' + (r.is_complete ? 'true' : 'false') + '" class="tc-qz-switch' + (r.is_complete ? ' on' : '') + '" data-action="toggle" data-id="' + r.set_id + '" data-complete="' + (r.is_complete ? 1 : 0) + '" title="Đổi trạng thái hoàn thành / chưa hoàn thành"><span class="tc-qz-switch-knob"></span></button>' +
+          '</td>' +
+          '<td class="tc-qz-created">' + scFormatDate(r.created_at) + '</td>' +
+          '<td><div class="tc-qz-menu-wrap">' +
+            '<button type="button" class="tc-qz-menu-btn" data-action="menu" data-de="' + de + '" data-id="' + r.set_id + '" title="Thao tác" aria-label="Thao tác"><i class="fa-solid fa-ellipsis-vertical"></i></button>' +
+          '</div></td>' +
+        '</tr>';
+      }).join('') + '</tbody></table>';
+
+      if (!listEl.__tcBound) {
+        listEl.__tcBound = true;
+        listEl.addEventListener("click", tcQuizListClick);
       }
     }
 
