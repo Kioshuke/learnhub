@@ -713,25 +713,30 @@ function parseLines(lines) {
   }
 
   function appendExplanationLine(text, html) {
-    var detail = String(text || "").match(/^\s*([a-z])\s*[\)\.]\s*\[(đúng|sai)\]\s*(?:[-–—:]\s*)?(.*)$/i);
-    if (detail) {
-      var subIndex = detail[1].toLowerCase().charCodeAt(0) - 97;
-      var isCorrect = /^đúng$/i.test(detail[2]);
-      var label = detail[1].toLowerCase();
-      if (cur.type === "true_false" && cur.subQuestions[subIndex]) {
+    /* Word thường gộp cả 4 ý trên 1 dòng: "a) ĐÚNG - ... .b) SAI - ...".
+       Nhận cả dạng có ngoặc vuông [ĐÚNG] lẫn dạng thường ĐÚNG/SAI. */
+    var raw = String(text || "");
+    var re = /([a-d])\s*[\)\.]\s*(?:\[)?(đúng|sai)(?:\])?\s*(?:[-–—:]\s*)?([\s\S]*?)(?=(?:[a-d]\s*[\)\.]\s*(?:\[)?(?:đúng|sai)(?:\])?)|$)/gi;
+    var m, hit = 0;
+    while ((m = re.exec(raw)) !== null) {
+      var label = m[1].toLowerCase();
+      var isCorrect = /^đúng$/i.test(m[2]);
+      var subIndex = label.charCodeAt(0) - 97;
+      if (cur.type === "true_false" && cur.subQuestions && cur.subQuestions[subIndex]) {
         cur.subQuestions[subIndex].correct = isCorrect ? 1 : 0;
       } else if (cur.type === "multiple" && isCorrect) {
         cur.correctIndex = subIndex;
         cur.answerLetter = String.fromCharCode(65 + subIndex);
       }
       var tone = isCorrect ? "is-correct" : "is-wrong";
-      var rationale = String(detail[3] || "").trim();
+      var rationale = String(m[3] || "").trim().replace(/^[\.\s]+/, "");
       var lineHtml = '<div class="answer-rationale"><b class="answer-rationale-status ' + tone + '">' +
         label + ') [' + (isCorrect ? "ĐÚNG" : "SAI") + ']</b>' +
         (rationale ? ' - <i>' + escapeC(rationale) + '</i>' : '') + '</div>';
       cur.explanation = (cur.explanation || "") + lineHtml;
-      return;
+      hit++;
     }
+    if (hit) return;
     var safeHtml = sanitizeC(html || escapeC(text || ""));
     if (safeHtml) cur.explanation = (cur.explanation ? cur.explanation + "<br>" : "") + safeHtml;
   }
@@ -833,6 +838,11 @@ function parseLines(lines) {
       if (letterM) {
         answerMark = letterM[1].toUpperCase();
         if (cur && cur.type === "multiple" && cur.correctIndex === null) cur.answerLetter = answerMark;
+      } else if (cur && cur.type === "true_false") {
+        /* "Đáp án: Xác định Đúng/Sai chi tiết từng ý:" chỉ là lời dẫn,
+           không phải đáp án tự luận — nếu để pendingShort sẽ biến câu kế tiếp
+           thành short_answer (không có opts) và crash ở dòng a) b) c) d). */
+        return;
       } else {
         var parenM = v.match(/\(([^)]+)\)/);
         if (parenM && cur) {
@@ -947,7 +957,7 @@ function parseLines(lines) {
     }
 
     /* Gom các dòng text tự do / lời dẫn (Dear Dr Cheetah, a. Critics...) vào thân câu hỏi hiện tại */
-    if (cur && cur.opts.length === 0 && !/^(?:đáp\s*án|answer|key)/i.test(line)) {
+    if (cur && (cur.opts || []).length === 0 && !/^(?:đáp\s*án|answer|key)/i.test(line)) {
       cur.question += "<br>" + (html || line);
       return;
     }
