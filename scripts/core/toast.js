@@ -205,7 +205,13 @@
 
       var msg = document.createElement("p");
       msg.className = "lh-confirm-message";
-      msg.textContent = String(message == null ? "" : message);
+      /* Cho phép truyền { html: "..." } khi cần in đậm/xuống dòng có chủ đích.
+         Mặc định vẫn dùng textContent như cũ nên các caller khác không đổi. */
+      if (message && typeof message === "object" && typeof message.html === "string") {
+        msg.innerHTML = message.html;
+      } else {
+        msg.textContent = String(message == null ? "" : message);
+      }
 
       var actions = document.createElement("div");
       actions.className = "lh-confirm-actions";

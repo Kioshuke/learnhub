@@ -2897,9 +2897,12 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
     }
 
     async function tcQuizDeleteWithConfirm(id) {
-      const ok = window.lhConfirm
-        ? await lhConfirm("Xoá bài kiểm tra này? Card trong Phòng Học sẽ bị gỡ bỏ vĩnh viễn.")
-        : confirm("Xoá bài kiểm tra này? Card trong Phòng Học sẽ bị gỡ bỏ vĩnh viễn.");
+      const row = tcQuizzesCache.find(function (r) { return String(r.set_id) === String(id); });
+      const name = row ? String(row.name || "") : "";
+      const plain = "Xác nhận xoá đề?\n" + name + "\nXoá bài kiểm tra này? Card trong Phòng Học sẽ bị gỡ bỏ vĩnh viễn.";
+      const html = "Xác nhận xoá đề?<br><strong>" + escapeHtml(name) + "</strong><br>" +
+        "Xoá bài kiểm tra này? Card trong Phòng Học sẽ bị gỡ bỏ vĩnh viễn.";
+      const ok = window.lhConfirm ? await lhConfirm({ html: html }) : confirm(plain);
       if (!ok) return;
       tcQuizDelete(id);
     }
