@@ -236,6 +236,16 @@ label.btn{cursor:pointer}
 .render-area > *{flex-shrink:0}
 .result-box{overflow-y:auto;max-height:45%}
 
+/* Log parse — liệt kê toàn bộ dòng bị bỏ qua, kèm số dòng / vị trí câu */
+.parse-log[hidden]{display:none}
+.parse-log{flex:0 0 auto;max-height:34%;overflow:auto;border-top:1px solid #fde68a;background:#fffbeb}
+.parse-log-hd{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:7px;padding:8px 12px;background:#fef3c7;color:#92400e;font-size:12px;font-weight:800;border-bottom:1px solid #fde68a}
+.parse-log-hd i{color:#d97706}
+.parse-log-total{margin-left:auto;font-size:11px;font-weight:700;color:#b45309;background:#fff;border:1px solid #fcd34d;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.parse-log-list{margin:0;padding:8px 12px 10px 30px;font-size:12px;line-height:1.55;color:#78350f}
+.parse-log-list li{padding:3px 0;border-bottom:1px dashed #fde68a;word-break:break-word}
+.parse-log-list li:last-child{border-bottom:none}
+
 /* ===== KHÓA SCROLL TRANG Ở BƯỚC 2, 3, 4 — BUNG FULL WIDTH ===== */
 body.stage2, html.stage2, body.stage3, html.stage3, body.stage4, html.stage4{overflow:hidden;height:100vh}
 .stage2 .wrap, .stage3 .wrap, .stage4 .wrap{height:calc(100vh - 48px);padding:10px 14px 12px;box-sizing:border-box;overflow:hidden}
@@ -480,6 +490,7 @@ body.stage2, html.stage2, body.stage3, html.stage3, body.stage4, html.stage4{ove
   .split{grid-template-columns:1fr;height:auto}
   .col{height:auto;max-height:none}
   .col textarea{flex:none;min-height:220px;resize:vertical}
+  .parse-log{max-height:260px}
   .render-area{max-height:60vh}
   .rev-split{grid-template-columns:1fr}
   .rev-head-actions{margin-left:0;width:100%}

@@ -706,7 +706,8 @@ function parseLines(lines) {
     } else if (cur.type === "short_answer") {
       questions.push(cur);
     } else {
-      warnings.push("Bỏ qua câu thiếu phương án A/B/C/D: “" + textOf(cur.question).slice(0, 60) + "”");
+      warnings.push("Bỏ qua câu " + (questions.length + 1) + " (dòng " + (cur._line || "?") +
+        ") thiếu phương án A/B/C/D: “" + textOf(cur.question).slice(0, 60) + "”");
     }
     cur = null;
     explanationMode = false;
@@ -739,6 +740,16 @@ function parseLines(lines) {
     if (hit) return;
     var safeHtml = sanitizeC(html || escapeC(text || ""));
     if (safeHtml) cur.explanation = (cur.explanation ? cur.explanation + "<br>" : "") + safeHtml;
+  }
+
+  /* Tìm câu kế tiếp để ghi rõ "rơi giữa câu X và câu X+1" vào log */
+  function nextQuestionLabel(fromIdx) {
+    for (var j = fromIdx + 1; j < (lines || []).length; j++) {
+      var t = String((lines[j] && lines[j].t) || "").trim();
+      var m = matchQuestionStart(t);
+      if (m) return "trước câu " + m[1] + ": “" + t.slice(0, 40) + "”";
+    }
+    return "";
   }
 
   function handleLine(L, lineIdx) {
@@ -942,6 +953,7 @@ function parseLines(lines) {
       } else {
         cur = { type: "multiple", question: qhtml.trim(), answers: [], correctIndex: null, opts: [] };
       }
+      cur._line = (typeof lineIdx === "number" ? lineIdx : -1) + 1;
       cur.answerLetter = answerMark || null;
       if (pendingPassage) { cur.passage = pendingPassage; pendingPassage = null; }
       answerMark = null;
@@ -962,7 +974,17 @@ function parseLines(lines) {
       return;
     }
 
-    if (String(line || "").trim()) warnings.push("Bỏ qua (không nhận dạng): “" + line + "”");
+    if (String(line || "").trim()) {
+      var pos = "dòng " + ((typeof lineIdx === "number" ? lineIdx : -1) + 1);
+      if (cur) {
+        pos += ", trong câu " + (questions.length + 1) + " (“" + textOf(cur.question).slice(0, 35) + "”)";
+      } else {
+        var nxt = nextQuestionLabel(lineIdx || 0);
+        if (nxt) pos += ", " + nxt;
+        else if (questions.length) pos += ", sau câu " + questions.length;
+      }
+      warnings.push("Bỏ qua " + pos + ": “" + line + "”");
+    }
   }
 
   (lines || []).forEach(function (L, i) { handleLine(L, i); });
@@ -2617,18 +2639,37 @@ function countQ(sections) {
   return n;
 }
 
+/* Hiện toàn bộ log parse thành danh sách có số thứ tự, mỗi dòng kèm vị trí
+   (số dòng / trước-sau câu nào) — toast thì chỉ tóm tắt để khỏi tràn màn hình. */
+function renderParseLog(warnings, total) {
+  var box = $("parseLogBox");
+  if (!box) return;
+  var list = warnings || [];
+  if (!list.length) { box.hidden = true; box.innerHTML = ""; return; }
+  box.hidden = false;
+  box.innerHTML = '<div class="parse-log-hd"><i class="fa-solid fa-triangle-exclamation"></i> ' +
+    'Log parse — ' + list.length + ' dòng cần kiểm tra' +
+    '<span class="parse-log-total">Đã đọc ' + (total || 0) + ' câu</span></div>' +
+    '<ol class="parse-log-list">' + list.map(function (w) {
+      return '<li>' + escapeC(String(w)) + '</li>';
+    }).join('') + '</ol>';
+}
+
 function applyParseResult(r, okNote, stay) {
+  var warns = r.warnings || [];
   var note = [];
-  if (r.warnings && r.warnings.length) note.push(r.warnings.length + " dòng ghi chú: " + r.warnings.slice(0, 3).join(" • "));
-  if (r.error) { setNote(r.error, true); return; }
+  if (warns.length) note.push(warns.length + " dòng cần kiểm tra — xem chi tiết trong ô Log parse bên dưới.");
+  if (r.error) { renderParseLog(warns, 0); setNote(r.error, true); return; }
   testData = normalize(r.sections);
   writeJson(JSON.stringify(testData, null, 2));
   graded = false;
   userAnswers = {};
   $("resultBox").hidden = true;
   render();
+  var total = countQ(testData);
+  renderParseLog(warns, total);
   var msg = note.length ? note.join(" | ") + " — " : "";
-  setNote(msg + (okNote || "") + "Đã đọc " + countQ(testData) + " câu.", false, note.length ? "warning" : "success");
+  setNote(msg + (okNote || "") + "Đã đọc " + total + " câu.", false, note.length ? "warning" : "success");
   if (!stay) showStage(2);
 }
 
