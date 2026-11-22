@@ -1842,10 +1842,18 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, imageUrl, beginOnlineSes
                     return window.showToast(msgs[data?.error] || "Không tham gia được lớp!", "error");
                 }
                 input.value = "";
+                if (window.lhLogEvent) window.lhLogEvent({
+                    source: "profile", category: "feature", level: "info", code: "CLASS_JOIN_OK",
+                    message: "Tham gia lớp bằng mã: " + code
+                });
                 window.showToast("Đã vào lớp thành công!", "success");
                 classLoadClasses();
             } catch (e) {
                 console.error("join_class_by_code lỗi:", e);
+                if (window.lhLogEvent) window.lhLogEvent({
+                    source: "profile", category: "feature", level: "error", code: "CLASS_JOIN_FAIL",
+                    message: "Tham gia lớp bằng mã (" + code + ") thất bại: " + ((e && e.message) || e)
+                });
                 window.showToast("Lỗi: " + (e.message || e), "error");
             } finally {
                 btn.disabled = false;
@@ -1950,10 +1958,18 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, imageUrl, beginOnlineSes
             supabase.from("users").update(updatedProfile).eq("id", currentUserId)
                 .then(() => {
                     document.getElementById('profile-birth-display').innerText = formatDate(inputBirthVal);
+                    if (window.lhLogEvent) window.lhLogEvent({
+                        source: "profile", category: "auth", level: "info", code: "PROFILE_SAVE_OK",
+                        message: "Cập nhật hồ sơ: " + (updatedProfile.name || currentUserId)
+                    });
                     window.showToast("Đã lưu thông tin hồ sơ thành công!", "success");
                     closeSettingsModal();
                 })
                 .catch((error) => {
+                    if (window.lhLogEvent) window.lhLogEvent({
+                        source: "profile", category: "auth", level: "error", code: "PROFILE_SAVE_FAIL",
+                        message: "Lưu hồ sơ thất bại: " + error.message
+                    });
                     window.showToast("Lỗi lưu dữ liệu: " + error.message, "error");
                 });
         }
@@ -2012,12 +2028,22 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, imageUrl, beginOnlineSes
                         if (error) return window.showToast("Mật khẩu cũ không chính xác!", "error");
                         supabase.auth.updateUser({ password: textNewPassword })
                             .then(() => {
+                                if (window.lhLogEvent) window.lhLogEvent({
+                                    source: "profile", category: "auth", level: "info", code: "PASSWORD_CHANGE_OK",
+                                    message: "Đổi mật khẩu thành công"
+                                });
                                 window.showToast("Đổi mật khẩu tài khoản thành công!", "success");
                                 document.getElementById('input-old-password').value = "";
                                 document.getElementById('input-new-password').value = "";
                                 document.getElementById('input-confirm-password').value = "";
                             })
-                            .catch(err => window.showToast("Lỗi đổi mật khẩu: " + err.message, "error"));
+                            .catch(err => {
+                                if (window.lhLogEvent) window.lhLogEvent({
+                                    source: "profile", category: "auth", level: "error", code: "PASSWORD_CHANGE_FAIL",
+                                    message: "Đổi mật khẩu thất bại: " + err.message
+                                });
+                                window.showToast("Lỗi đổi mật khẩu: " + err.message, "error");
+                            });
                     });
             });
         }
@@ -2062,9 +2088,17 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, imageUrl, beginOnlineSes
                     await supabase.auth.signOut();
                 }
 
+                if (window.lhLogEvent) window.lhLogEvent({
+                    source: "profile", category: "auth", level: "info", code: "ACCOUNT_DELETE_OK",
+                    message: "Xoá tài khoản: " + userEmail
+                });
                 window.showToast("Tài khoản đã được xóa. Bạn sẽ thoát trong giây lát...", "success");
                 setTimeout(() => { window.location.href = "../auth/login.html"; }, 2500);
             } catch (err) {
+                if (window.lhLogEvent) window.lhLogEvent({
+                    source: "profile", category: "auth", level: "error", code: "ACCOUNT_DELETE_FAIL",
+                    message: "Xoá tài khoản thất bại: " + (err.message || err)
+                });
                 window.showToast(err.message || "Không thể xóa tài khoản!", "error");
                 deleteBtn.disabled = false;
                 deleteBtn.innerHTML = '<i class="fas fa-trash-can mr-1"></i> Xóa tài khoản';
@@ -2073,5 +2107,6 @@ import { supabase, onAuthChange, escapeHtml, escapeUrl, imageUrl, beginOnlineSes
     </script>
 
 </div>
+<script src="/scripts/core/auto-log.js"></script>
 </body>
 </html>

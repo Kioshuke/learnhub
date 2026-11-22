@@ -87,6 +87,11 @@ export async function fetchTestAttemptStatus(supabase, testDe) {
     return data;
   } catch (e) {
     console.warn("[test-gate] test_attempt_status lỗi:", e);
+    if (typeof window !== "undefined" && window.lhLogEvent) window.lhLogEvent({
+      source: "test-gate", category: "test", level: "error", code: "GATE_STATUS_FAIL",
+      message: "Không kiểm tra được lượt làm bài (" + testDe + "): " + String((e && e.message) || e),
+      detail: { de: testDe }
+    });
     return null;
   }
 }
@@ -249,6 +254,11 @@ export async function openTestGate(options = {}) {
           }
         } catch (e) {
           console.warn("[test-gate] verify_test_password lỗi:", e);
+          if (window.lhLogEvent) window.lhLogEvent({
+            source: "test-gate", category: "test", level: "error", code: "GATE_PASSWORD_CHECK_FAIL",
+            message: "Không kiểm tra được mật khẩu bài làm (" + testDe + "): " + String((e && e.message) || e),
+            detail: { de: testDe }
+          });
           showErr("Không kiểm tra được mật khẩu. Vui lòng thử lại.");
           busy = false;
           resetBtn();

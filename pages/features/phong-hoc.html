@@ -1697,7 +1697,10 @@ function mergeDbTestCards(list) {
     // Quyền cao nhất: giáo viên bật "Hoàn thành" VÀ thời điểm hiện tại nằm trong khoảng mở đề.
     var canOpen = done && isTestInTimeWindow(startAt, endAt);
     window.__testCardMap[de] = { url: url, subjectId: s.id, done: done, start_at: startAt, end_at: endAt, canOpen: canOpen };
-    grid.insertAdjacentHTML("beforeend",
+    /* Card test luôn đứng trước card video GV: nếu video đã render thì chèn
+       ngay trước card video đầu tiên, nếu chưa có video thì append như cũ. */
+    var videoAnchor = grid.querySelector('.card[data-gv-card]');
+    var testCardHtml =
       '<div class="card" data-test-card="' + escHtml(key) + '">' +
         '<div class="card-color-bar"></div>' +
         '<div class="card-body">' +
@@ -1717,8 +1720,10 @@ function mergeDbTestCards(list) {
             '</span>' +
           '</div>' +
         '</div>' +
-      '</div>');
-  });
+      '</div>';
+      if (videoAnchor) videoAnchor.insertAdjacentHTML("beforebegin", testCardHtml);
+      else grid.insertAdjacentHTML("beforeend", testCardHtml);
+    });
   if (typeof applyCardDominoEffect === "function") applyCardDominoEffect();
 }
 
@@ -1967,5 +1972,6 @@ window.addEventListener('message', function(event) {
   }
 });
 </script>
+<script src="/scripts/core/auto-log.js"></script>
 </body>
 </html>

@@ -1507,6 +1507,10 @@ onlineUsersMap.clear();
 
 // logout (tự nguyện) -> về trang chủ ở trạng thái khách
 supabase.auth.signOut().then(()=>{
+logAppError({ source: "index", category: "auth", level: "info", code: "LOGOUT_OK", message: "Đăng xuất thành công", email: (user && user.email) || "" });
+window.location.href = 'index.html?loggedout=1';
+}).catch((e)=>{
+logAppError({ source: "index", category: "auth", level: "error", code: "LOGOUT_FAIL", message: "Đăng xuất thất bại: " + String((e && e.message) || e) });
 window.location.href = 'index.html?loggedout=1';
 });
 }
@@ -1561,9 +1565,14 @@ popup.style.display = "none";
       // [Lịch sử làm bài] lưu snapshot đề + bài làm (nếu iframe gửi kèm)
       if (event.data.attempt) {
         await insertTestAttempt(u.uid, { ...event.data.attempt, score });
+        logAppError({ source: "index", category: "test", level: "info", code: "TEST_ATTEMPT_SAVE_OK",
+          message: "Lưu lịch sử làm bài: " + (event.data.attempt.name || event.data.attempt.testId || "") + " — " + score,
+          detail: { de: event.data.attempt.testId || "", score: score } });
       }
     } catch (e) {
       console.log("Không thể lưu kết quả từ iframe:", e);
+      logAppError({ source: "index", category: "test", level: "error", code: "TEST_ATTEMPT_SAVE_FAIL",
+        message: "Lưu lịch sử làm bài thất bại: " + String((e && e.message) || e) });
     }
   }
 
@@ -2092,5 +2101,6 @@ if ("serviceWorker" in navigator) {
     }
   });
 </script>
+<script src="/scripts/core/auto-log.js"></script>
 </body>
 </html>

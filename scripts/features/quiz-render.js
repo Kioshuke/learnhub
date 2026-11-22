@@ -8,14 +8,14 @@ const LABELS = {
     question: "Câu", listening: "Phần Nghe", listenDefault: "Bấm play, nghe và trả lời các câu hỏi bên dưới",
     track: "Bài nghe", passageHead: "Đọc đoạn văn và trả lời các câu hỏi bên dưới", clozeHead: "Điền từ thích hợp vào chỗ trống",
     shortHead: "Tự luận", yes: "Đ", no: "S", yesFull: "Đúng", noFull: "Sai", answer: "Đáp án", answerAlt: "Đáp án",
-    typeHere: "Nhập câu trả lời của bạn...", correctAnswer: "Đáp án chuẩn", showExp: "Hiện giải thích",
+    typeHere: "Nhập câu trả lời của bạn...", correctAnswer: "Đáp án chuẩn", showExp: "Hiện giải thích", hideExp: "Ẩn giải thích",
     review: "Cần xem lại", reviewTitle: "Cần xem lại", end: "Hết"
   },
   en: {
     question: "Question", listening: "Listening", listenDefault: "Press play, listen and answer the questions below",
     track: "Track", passageHead: "Read the passage and answer the questions below", clozeHead: "Fill in each blank with a suitable word",
     shortHead: "Written answer", yes: "T", no: "F", yesFull: "True", noFull: "False", answer: "Answer", answerAlt: "Option",
-    typeHere: "Type your answer...", correctAnswer: "Correct answer", showExp: "Show explanation",
+    typeHere: "Type your answer...", correctAnswer: "Correct answer", showExp: "Show explanation", hideExp: "Hide explanation",
     review: "Review later", reviewTitle: "Flag for review", end: "End"
   }
 };
@@ -55,6 +55,21 @@ export function sanitizeHtml(html, allowedTags = SAFE_TEXT_TAGS) {
 /* Nội dung câu hỏi: làm sạch HTML nhưng loại luôn thẻ in đậm (<strong>/<b>) */
 export function sanitizeQuestionText(html) {
   return sanitizeHtml(html, QUESTION_TEXT_TAGS);
+}
+
+/* Giải thích do trình tạo đề lưu thành nhiều khối <div class="answer-rationale">.
+   Nếu dùng sanitizeHtml thường, các <div> bị bóc sạch → các dòng "a)...b)..."
+   dính vào nhau khi xem lại. Đổi ranh giới block sang <br> rồi mới làm sạch. */
+export function sanitizeExplanation(html) {
+  const source = String(html || "")
+    .replace(/<div\b[^>]*>/gi, "")
+    .replace(/<\/div>/gi, "<br>")
+    .replace(/<\/p>/gi, "<br>")
+    .replace(/<p\b[^>]*>/gi, "")
+    .replace(/(?:<br\s*\/?>\s*){2,}/gi, "<br>")
+    .replace(/^<br\s*\/?>/i, "")
+    .replace(/<br\s*\/?>$/i, "");
+  return sanitizeHtml(source);
 }
 
 export function normalizeImageUrl(value) {
@@ -273,7 +288,10 @@ function renderQuestion(question, questionIndex, { mode = "take", canReveal = fa
   let cardClass = "question-card";
   if (mode === "review" && canReveal && result !== null) cardClass += result ? " review-true" : " review-false";
   const canShowExplanation = (mode === "review" || mode === "preview") && !!canReveal && question.explanation;
-  const explanationHtml = canShowExplanation ? `<details class="q-explanation"><summary class="exp-label">${L.showExp}</summary><div class="exp-body">${sanitizeHtml(question.explanation)}</div></details>` : "";
+  const expToggle = `<span class="exp-label-show">${L.showExp}</span><span class="exp-label-hide">${L.hideExp}</span>`;
+  const explanationHtml = canShowExplanation
+    ? `<details class="q-explanation"><summary class="exp-label">${expToggle}</summary><div class="exp-body">${sanitizeExplanation(question.explanation)}</div></details>`
+    : "";
   const badgeLabel = L.question;
   /* Cờ "Cần xem lại" chỉ có khi đang làm bài; xem lại / xem chi tiết đề thì không hiện */
   const flagButton = mode === "take" ? `<button type="button" class="q-flag" onclick="toggleFlag(this)" title="${L.reviewTitle}" aria-label="${L.reviewTitle}"><i class="fas fa-flag"></i><span class="q-flag-text">${L.review}</span></button>` : "";

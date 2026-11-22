@@ -735,11 +735,21 @@ window.saveTestResult = async function(score, attempt){
         if (!event.data || event.data.type !== "LEARNHUB_TEST_RESULT_ACK" || event.data.requestId !== requestId) return;
         window.removeEventListener("message", onAck);
         clearTimeout(ackTimer);
+        if (window.lhLogEvent) window.lhLogEvent({
+            source: "filetest", category: "test", level: "info", code: "TEST_RESULT_SAVE_OK",
+            message: "Lưu kết quả bài làm thành công: " + (attempt && attempt.name ? attempt.name : (attempt && attempt.testId) || ""),
+            detail: { de: attempt && attempt.testId, score: score }
+        });
         showSaveStatus(true);
     };
     window.addEventListener("message", onAck);
     const ackTimer = setTimeout(() => {
         window.removeEventListener("message", onAck);
+        if (window.lhLogEvent) window.lhLogEvent({
+            source: "filetest", category: "test", level: "error", code: "TEST_RESULT_SAVE_FAIL",
+            message: "Không nhận được xác nhận lưu kết quả bài làm: " + ((attempt && attempt.testId) || ""),
+            detail: { de: attempt && attempt.testId }
+        });
         showSaveStatus(false);
     }, 8000);
 
@@ -1014,6 +1024,11 @@ async function loadQuestions() {
 
         renderQuiz();
         startExamTimer();
+        if (window.lhLogEvent) window.lhLogEvent({
+            source: "filetest", category: "test", level: "info", code: "TEST_LOAD_OK",
+            message: "Tải đề làm bài thành công: " + (examMeta.name || TEST_DE),
+            detail: { de: TEST_DE, name: examMeta.name || "", subject: examMeta.subject || "" }
+        });
 
     } catch (e) {
         console.error(e);
@@ -1451,6 +1466,11 @@ resultFlags.push(isPerfect);
     //  - show_answers='perfect' → chỉ khi đạt ĐIỂM TỐI ĐA (full mark, chuẩn hoá 10/10)
     //  - show_answers='none'    → không cho phép
     const score = Number(((userScore / maxScore) * 10).toFixed(1));
+    if (window.lhLogEvent) window.lhLogEvent({
+        source: "filetest", category: "test", level: "info", code: "TEST_SUBMIT_OK",
+        message: "Nộp bài: " + (examMeta.name || TEST_DE) + " — " + score + "/10" + (autoSubmitted ? " (hết giờ tự nộp)" : ""),
+        detail: { de: TEST_DE, score: score, correct: correctCount, total: totalQuestions, auto: !!autoSubmitted }
+    });
     const fullMark = score >= 10;
     // [FIX BUG #10] Bỏ điều kiện `showAnswers !== 'none'` — nó luôn đúng nên phá vỡ
     // ràng buộc 'perfect' (chỉ cho xem khi đạt điểm tối đa).
@@ -1688,7 +1708,8 @@ function reviewMode() {
                 det.className = 'q-explanation';
                 const sum = document.createElement('summary');
                 sum.className = 'exp-label';
-                sum.textContent = qLbl().showExp;
+                sum.innerHTML = '<span class="exp-label-show">' + qLbl().showExp + '</span>' +
+                    '<span class="exp-label-hide">' + (qLbl().hideExp || 'Ẩn giải thích') + '</span>';
                 const body = document.createElement('div');
                 body.className = 'exp-body';
                 body.innerHTML = item.explanation;
@@ -1878,5 +1899,6 @@ window.checkTFDone = function (questionIndex, input) {
 await loadQuestions();
 </script>
 <div id="confetti-container"></div>
+<script src="/scripts/core/auto-log.js"></script>
 </body>
 </html>

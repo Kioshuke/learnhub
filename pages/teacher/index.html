@@ -2744,6 +2744,10 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
         tcRenderQuizList();
       } catch (e) {
         console.error("tcLoadQuizzes lỗi:", e);
+        if (window.lhLogEvent) window.lhLogEvent({
+          source: "teacher", category: "test", level: "error", code: "TEST_LIST_FAIL",
+          message: "Không tải được danh sách bài test: " + ((e && e.message) || e)
+        });
         tcRenderQuizStats(0, 0, 0);
         listEl.innerHTML = '<div class="empty"><div class="big"><i class="fa-solid fa-triangle-exclamation"></i></div>' +
           'Không tải được danh sách bài kiểm tra.<br>' +
@@ -3011,10 +3015,22 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
       try {
         const { error } = await supabase.rpc("teacher_set_test_complete", { p_id: id, p_is_complete: complete });
         if (error) throw error;
+        const row = tcQuizzesCache.find(function (r) { return String(r.set_id) === String(id); });
+        const name = row ? String(row.name || "") : "";
+        if (window.lhLogEvent) window.lhLogEvent({
+          source: "teacher", category: "test", level: "info", code: "TEST_TOGGLE_OK",
+          message: (complete ? "Hiện card bài test: " : "Ẩn card bài test: ") + name + " (" + id + ")",
+          detail: { id: id, name: name, complete: !!complete }
+        });
         toast(complete ? "Đã đánh dấu hoàn thành — hiện card cho học sinh" : "Chuyển sang chưa hoàn thành — học sinh không thể Làm bài", "success");
         tcLoadQuizzes();
       } catch (e) {
         console.error("tcQuizSetComplete lỗi:", e);
+        if (window.lhLogEvent) window.lhLogEvent({
+          source: "teacher", category: "test", level: "error", code: "TEST_TOGGLE_FAIL",
+          message: "Đổi trạng thái bài test thất bại (" + id + "): " + ((e && e.message) || e),
+          detail: { id: id, complete: !!complete }
+        });
         toast("Không đổi được trạng thái: " + ((e && e.message) || e), "error");
       }
     }
@@ -3024,12 +3040,24 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
         const { data, error } = await supabase.rpc("teacher_delete_test_set", { p_id: id });
         if (error) throw error;
         const removed = Number(data && data.attempts_removed) || 0;
+        const row = tcQuizzesCache.find(function (r) { return String(r.set_id) === String(id); });
+        const name = row ? String(row.name || "") : "";
+        if (window.lhLogEvent) window.lhLogEvent({
+          source: "teacher", category: "test", level: "info", code: "TEST_DELETE_OK",
+          message: "Xoá bài test: " + name + " (" + id + ") — " + removed + " lượt làm bị gỡ",
+          detail: { id: id, name: name, attempts_removed: removed }
+        });
         toast(removed > 0
           ? "Đã xoá bài kiểm tra và " + removed + " lượt làm bài liên quan"
           : "Đã xoá bài kiểm tra", "success");
         tcLoadQuizzes();
       } catch (e) {
         console.error("tcQuizDelete lỗi:", e);
+        if (window.lhLogEvent) window.lhLogEvent({
+          source: "teacher", category: "test", level: "error", code: "TEST_DELETE_FAIL",
+          message: "Xoá bài test thất bại (" + id + "): " + ((e && e.message) || e),
+          detail: { id: id }
+        });
         toast("Không xoá được bài kiểm tra: " + ((e && e.message) || e), "error");
       }
     }
@@ -3169,5 +3197,6 @@ const NOTICE_SUBJECTS = (window.LH_SUBJECTS || []).map(s => ({
 
     guard();
   </script>
+<script src="/scripts/core/auto-log.js"></script>
 </body>
 </html>

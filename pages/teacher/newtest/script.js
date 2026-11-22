@@ -2097,6 +2097,12 @@ async function publishTest() {
     } else {
       notifyToast("Cập nhật đề thành công", "success");
     }
+    if (window.lhLogEvent) window.lhLogEvent({
+      source: "newtest", category: "test", level: "info",
+      code: isEdit ? "TEST_UPDATE_OK" : "TEST_CREATE_OK",
+      message: (isEdit ? "Cập nhật đề: " : "Tạo đề mới: ") + testMeta.name + " (" + realId + ")",
+      detail: { id: realId, edit: !!isEdit, subject: subject, name: testMeta.name }
+    });
     b.disabled = true;
     b.dataset.done = "1";
     b.title = "Đề đã xuất bản — bấm “← Sửa lại đề” nếu muốn chỉnh sửa.";
@@ -2108,6 +2114,11 @@ async function publishTest() {
     var errMsg = (e && e.message) || "Lỗi không xác định.";
     console.error("[PUBLISH] " + errMsg);
     notifyToast("Xuất bản thất bại: " + errMsg, "error");
+    if (window.lhLogEvent) window.lhLogEvent({
+      source: "newtest", category: "test", level: "error", code: "TEST_PUBLISH_FAIL",
+      message: errMsg + " | đề: " + testMeta.name,
+      detail: { id: currentEditId || "", edit: !!isEdit, name: testMeta.name }
+    });
     if (left) {
       left.innerHTML =
         '<div style="border:1px solid #fecaca;background:#fef2f2;border-radius:18px;padding:24px;text-align:center">' +
@@ -2795,6 +2806,10 @@ showStage(1);
       } catch (e) {
         console.error("[SỬA ĐỀ]", e);
         var msg = (e && e.message) || "Lỗi không xác định.";
+        if (window.lhLogEvent) window.lhLogEvent({
+          source: "newtest", category: "test", level: "error", code: "TEST_EDIT_LOAD_FAIL",
+          message: msg + " | id: " + id, detail: { id: id }
+        });
         setNote("Không tải được đề để sửa: " + msg, true);
         showStage(1);
       }

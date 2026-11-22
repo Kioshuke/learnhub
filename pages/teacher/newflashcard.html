@@ -1167,6 +1167,9 @@
           const msgs = { forbidden: "Bạn không có quyền làm việc này", empty_name: "Tên bộ từ trống", empty_cards: "Bộ từ chưa có thẻ" };
           return toast(msgs[result.data.error] || "Không lưu được", "error");
         }
+        logAppError({ source: "teacher-flashcard", category: "feature", level: "info",
+          code: tcFcEditId ? "FC_SET_UPDATE_OK" : "FC_SET_CREATE_OK",
+          message: (tcFcEditId ? "Cập nhật bộ từ: " : "Tạo bộ từ mới: ") + name + " (" + cards.length + " thẻ)" });
         toast(tcFcEditId ? "Đã lưu thay đổi bộ từ" : "Đã tạo bộ từ mới", "success");
         // Tải lại từ server: thứ tự giờ được DB giữ (sort_order) nên chắc chắn đúng theo thứ tự đã kéo thả.
         tcFcShowEditor(false);
@@ -1176,6 +1179,8 @@
         await tcFcLoadList();
       } catch (e) {
         console.error("Lưu flashcard lỗi:", e);
+        logAppError({ source: "teacher-flashcard", category: "feature", level: "error", code: "FC_SET_SAVE_FAIL",
+          message: "Lưu bộ từ thất bại (" + name + "): " + (e.message || e) });
         toast("Lỗi lưu bộ từ: " + (e.message || e), "error");
       } finally {
         btn.disabled = false;
@@ -1188,8 +1193,16 @@
         : confirm("Chắc chắn xoá bộ từ này? Học sinh sẽ không vào học được nữa!");
       if (!ok) return;
       const { data, error } = await supabase.rpc("delete_flashcard_set", { p_set_id: setId });
-      if (error) { console.error("delete_flashcard_set lỗi:", error); return toast("Lỗi xoá bộ từ", "error"); }
-      if (data && data.ok !== true) return toast("Không xoá được bộ từ", "error");
+      if (error) {
+        console.error("delete_flashcard_set lỗi:", error);
+        logAppError({ source: "teacher-flashcard", category: "feature", level: "error", code: "FC_SET_DELETE_FAIL", message: "Xoá bộ từ thất bại (" + setId + "): " + error.message });
+        return toast("Lỗi xoá bộ từ", "error");
+      }
+      if (data && data.ok !== true) {
+        logAppError({ source: "teacher-flashcard", category: "feature", level: "error", code: "FC_SET_DELETE_FAIL", message: "Không xoá được bộ từ (" + setId + "): " + (data.error || "") });
+        return toast("Không xoá được bộ từ", "error");
+      }
+      logAppError({ source: "teacher-flashcard", category: "feature", level: "info", code: "FC_SET_DELETE_OK", message: "Xoá bộ từ: " + setId });
       toast("Đã xoá bộ từ", "success");
       tcFcListCache = (tcFcListCache || []).filter(s => s.set_id !== setId);
       tcFcRenderList(tcFcListCache);
@@ -1200,10 +1213,12 @@
       const { data, error } = await supabase.rpc("set_flashcard_group_complete", { p_name: name, p_is_complete: checked });
       if (error || (data && data.ok !== true)) {
         console.error("set_flashcard_group_complete lỗi:", error);
+        logAppError({ source: "teacher-flashcard", category: "feature", level: "error", code: "FC_GROUP_TOGGLE_FAIL", message: "Đổi trạng thái nhóm thất bại (" + name + "): " + ((error && error.message) || (data && data.error) || "") });
         toast("Không đổi được trạng thái nhóm", "error");
         cb.checked = !checked;
         return;
       }
+      logAppError({ source: "teacher-flashcard", category: "feature", level: "info", code: "FC_GROUP_TOGGLE_OK", message: (checked ? "Đánh dấu hoàn thành nhóm: " : "Chuyển nhóm về đang cập nhật: ") + name });
       tcFcGroupsCache[name] = checked;
       toast(checked ? "Nhóm đã đánh dấu hoàn thành" : "Nhóm chuyển sang đang cập nhật", "success");
       tcFcRenderList(tcFcListCache);
@@ -1278,5 +1293,6 @@
 
     guard();
   </script>
+<script src="/scripts/core/auto-log.js"></script>
 </body>
 </html>

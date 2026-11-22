@@ -996,6 +996,9 @@
             }
             saved++;
           }
+          if (typeof logAppError === "function") logAppError({ source: "teacher-video", category: "feature", level: saved === items.length ? "info" : "warning",
+            code: saved === items.length ? "VC_BULK_SAVE_OK" : "VC_BULK_SAVE_PARTIAL",
+            message: "Lưu hàng loạt video: " + saved + "/" + items.length + " — " + subject + " / " + cardTitle });
           toast("Đã lưu " + saved + "/" + items.length + " video", "success");
           vdMemWrite();
           await vdLoadList();
@@ -1037,6 +1040,8 @@
         if (data && data.ok === true) {
           const wasEdit = !!vdEditId;
           const keepGroup = (document.getElementById("vdGroup").value || "").trim();
+          if (typeof logAppError === "function") logAppError({ source: "teacher-video", category: "feature", level: "info",
+            code: wasEdit ? "VC_UPDATE_OK" : "VC_CREATE_OK", message: (wasEdit ? "Cập nhật video: " : "Thêm video: ") + (document.getElementById("vdTitle").value || "") });
           toast(wasEdit ? "Đã cập nhật card video" : "Đã thêm video — tiếp tục nhập video tiếp theo", "success");
           vdMemWrite();
           await vdLoadList();
@@ -1086,10 +1091,12 @@
       try {
         const { data, error } = await supabase.rpc("teacher_delete_video_card", { p_id: id });
         if (error) throw error;
+        if (typeof logAppError === "function") logAppError({ source: "teacher-video", category: "feature", level: "info", code: "VC_DELETE_OK", message: "Xoá video: " + id });
         toast("Đã xoá card video", "success");
         await vdLoadList();
       } catch (err) {
         console.error("delete video card lỗi:", err);
+        if (typeof logAppError === "function") logAppError({ source: "teacher-video", category: "feature", level: "error", code: "VC_DELETE_FAIL", message: String(err && (err.message || err.error_description)) });
         toast("Không xoá được card: " + ((err && (err.message || err.error_description)) || err), "error");
       }
     };
@@ -1109,10 +1116,12 @@
           const { data, error } = await supabase.rpc("teacher_delete_video_card", { p_id: c.card_id });
           if (error) throw error;
         }
+        if (typeof logAppError === "function") logAppError({ source: "teacher-video", category: "feature", level: "info", code: "VC_DELETE_OK", message: "Xoá cả card video: " + subject + " / " + cardTitle + " (" + targets.length + " video)" });
         toast("Đã xoá cả card", "success");
         await vdLoadList();
       } catch (err) {
         console.error("delete video card group lỗi:", err);
+        if (typeof logAppError === "function") logAppError({ source: "teacher-video", category: "feature", level: "error", code: "VC_DELETE_FAIL", message: "Xoá card video thất bại (" + subject + "/" + cardTitle + "): " + String(err && (err.message || err.error_description)) });
         toast("Không xoá được card: " + ((err && (err.message || err.error_description)) || err), "error");
       }
     };
@@ -1276,5 +1285,6 @@
 
     guard();
   </script>
+<script src="/scripts/core/auto-log.js"></script>
 </body>
 </html>
