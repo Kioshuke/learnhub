@@ -1584,13 +1584,6 @@ if(toggle){
         
         // Gửi tín hiệu ngay lập tức sang iframe
         sendDarkModeToIframe(isDark);
-        try {
-          lhToast(isDark ? "Đã bật chế độ tối." : "Đã tắt chế độ tối — quay lại giao diện sáng.", {
-            type: "info",
-            title: isDark ? "Chế độ tối" : "Chế độ sáng",
-            durationMs: 2500
-          });
-        } catch (e) {}
     });
 }
 // Gán sự kiện click cho tất cả các nút trong Menu

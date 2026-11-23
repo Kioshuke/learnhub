@@ -1,0 +1,285 @@
+/* ==========================================================================
+   DARK MODE cho 5 trang chưa có toggle riêng:
+     - pages/auth/login.html
+     - pages/legal_info/faq.html
+     - pages/legal_info/chinh-sach-bao-mat.html
+     - pages/legal_info/dieu-khoan.html
+     - pages/features/AI.html
+   Dùng chung body.dark-mode + bảng biến chuẩn của styles/global.css (khối cuối file).
+   File này được nạp SAU các block <style> riêng của từng trang nên thắng cascade.
+   Không sửa global.css, không đụng script.js.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   0. DÙNG CHUNG
+   -------------------------------------------------------------------------- */
+body.dark-mode { color-scheme: dark; background: var(--bg-deep); color: var(--text-main); }
+body.dark-mode ::placeholder { color: var(--text-faint); opacity: 1; }
+body.dark-mode ::selection { background: rgba(59, 130, 246, .35); }
+
+body.dark-mode .read-progress { background: var(--accent, #3b82f6); }
+
+/* Popup góp ý (faq / chính sách / điều khoản) */
+body.dark-mode .lh-popup-content { background: var(--card); color: var(--text-main); }
+body.dark-mode .lh-popup-close { background: rgba(148, 163, 184, .14); color: var(--text-sub); }
+body.dark-mode .lh-popup-close:hover { background: rgba(148, 163, 184, .26); color: var(--text-main); }
+
+/* ==========================================================================
+   1. LOGIN — #loginBox
+   ========================================================================== */
+body.dark-mode #loginBox { background: var(--bg-deep); color: var(--text-main); }
+
+body.dark-mode #loginBox .auth-left,
+body.dark-mode #loginBox .auth-right-form {
+  background: linear-gradient(180deg, #0f172a 0%, #162032 100%);
+}
+body.dark-mode #loginBox .auth-brand span { color: var(--accent-soft); }
+
+body.dark-mode #loginBox .auth-tab { background: var(--surface-2); color: var(--text-sub); }
+body.dark-mode #loginBox .auth-tab.active {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+}
+body.dark-mode #loginBox .auth-title {
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+body.dark-mode #loginBox .auth-login-btn {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text-main);
+  box-shadow: none;
+}
+body.dark-mode #loginBox .auth-divider,
+body.dark-mode #loginBox .auth-footer { color: var(--text-faint); }
+
+/* Ô nhập + nhãn nổi */
+body.dark-mode #loginBox .auth-input-group input,
+body.dark-mode .auth-otp-row input,
+body.dark-mode .auth-modal .auth-static-group input {
+  background: var(--input-bg);
+  border-color: var(--border-strong);
+  color: var(--text-main);
+}
+body.dark-mode #loginBox .auth-input-group label { color: var(--text-faint); }
+body.dark-mode #loginBox .auth-input-group input:focus + label,
+body.dark-mode #loginBox .auth-input-group input:valid + label,
+body.dark-mode #loginBox .lhreg .auth-input-group input:not(:placeholder-shown) + label,
+body.dark-mode #loginBox .auth-input-group #registerPhoto:not(:placeholder-shown) + label,
+body.dark-mode #loginBox .auth-input-group #registerPhoto:focus + label {
+  background: var(--bg-deep);
+  color: var(--accent-soft);
+}
+body.dark-mode #loginBox .auth-input-group input:focus,
+body.dark-mode .auth-otp-row input:focus,
+body.dark-mode .auth-modal .auth-static-group input:focus {
+  border-color: var(--accent, #3b82f6);
+  color: var(--text-main);
+}
+body.dark-mode .auth-static-group label { color: var(--text-sub) !important; }
+
+/* OTP / nút phụ */
+body.dark-mode .auth-otp-btn {
+  background: rgba(59, 130, 246, .14);
+  border-color: var(--accent, #3b82f6);
+  color: var(--accent-soft);
+}
+body.dark-mode .auth-otp-btn:hover { background: rgba(59, 130, 246, .24); }
+body.dark-mode .auth-otp-btn:disabled { background: var(--surface-2); color: var(--text-faint); }
+body.dark-mode .otp-timer-label { color: var(--text-faint); }
+body.dark-mode .otp-timer-label b { color: var(--text-sub); }
+body.dark-mode .auth-otp-resend { color: var(--accent-soft); }
+body.dark-mode .auth-otp-resend:hover:not(:disabled) { background: rgba(59, 130, 246, .14); }
+body.dark-mode .auth-eye-btn { color: var(--text-faint); }
+body.dark-mode .auth-eye-btn:hover { color: var(--accent-soft); }
+body.dark-mode #sendOtpBtn.is-verified { background: rgba(16, 185, 129, .16); border-color: #10b981; color: #6ee7b7; }
+
+body.dark-mode .auth-terms,
+body.dark-mode .auth-modal .auth-modal-sub { color: var(--text-sub); }
+body.dark-mode .auth-terms a,
+body.dark-mode .auth-forgot-link { color: var(--accent-soft); }
+body.dark-mode .auth-soon-tag { background: var(--surface-2); color: var(--text-sub); }
+body.dark-mode .req-star { color: #f87171; }
+body.dark-mode .auth-field-error { color: #f87171; }
+body.dark-mode .auth-caps-hint { color: #fbbf24; }
+
+/* Modal quên mật khẩu */
+body.dark-mode .auth-modal { background: var(--card); }
+body.dark-mode .auth-modal h3 { color: var(--text-main); }
+body.dark-mode .auth-modal-close { color: var(--text-faint); }
+body.dark-mode .auth-modal-close:hover { color: var(--text-main); }
+
+/* Phần giới thiệu bên dưới form */
+body.dark-mode .auth-below { background: linear-gradient(180deg, #0f172a 0%, #131e30 40%, #0f172a 100%); }
+body.dark-mode .auth-below::before { background: linear-gradient(90deg, transparent, rgba(59, 130, 246, .45), transparent); }
+body.dark-mode .auth-below-gridbg { background-image: linear-gradient(to right, rgba(96, 165, 250, .08) 1px, transparent 1px), linear-gradient(to bottom, rgba(96, 165, 250, .08) 1px, transparent 1px); }
+body.dark-mode .auth-below-blob--tl { background: radial-gradient(circle at 32% 30%, #1e3a8a 0%, rgba(30, 58, 138, 0) 65%); }
+body.dark-mode .auth-below-blob--br { background: radial-gradient(circle at 68% 70%, #3730a3 0%, rgba(55, 48, 163, 0) 65%); }
+body.dark-mode .auth-below-head-badge {
+  background: rgba(59, 130, 246, .14);
+  border-color: rgba(59, 130, 246, .3);
+  color: var(--accent-soft);
+}
+body.dark-mode .auth-below-head h2 { color: var(--text-main); }
+body.dark-mode .auth-below-head h2 span {
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 30%, #f472b6 60%, #60a5fa 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+body.dark-mode .auth-below-head p { color: var(--text-sub); }
+
+body.dark-mode .auth-below-stat,
+body.dark-mode .auth-below-point,
+body.dark-mode .auth-below-card {
+  background: var(--card);
+  border-color: var(--border-strong);
+}
+body.dark-mode .auth-below-stat-num,
+body.dark-mode .auth-below-name,
+body.dark-mode .auth-below-point { color: var(--text-main); }
+body.dark-mode .auth-below-stat-label,
+body.dark-mode .auth-below-desc { color: var(--text-sub); }
+body.dark-mode .auth-below-point i { color: var(--accent-soft); background: rgba(59, 130, 246, .16); }
+body.dark-mode .auth-below-icon { color: var(--accent-soft); background: rgba(59, 130, 246, .12); border-color: rgba(59, 130, 246, .28); }
+body.dark-mode .auth-below-card--auto-active { border-color: var(--accent, #3b82f6) !important; }
+body.dark-mode .auth-below-grid:has(.auth-below-card:hover) .auth-below-card:not(:hover) { border-color: var(--border-strong); }
+
+body.dark-mode .auth-below-up {
+  background: linear-gradient(135deg, var(--surface), var(--surface-2));
+  border-color: var(--border-strong);
+  color: var(--text-main);
+}
+body.dark-mode .auth-below-up-icon { background: var(--surface-2); color: var(--text-main); }
+body.dark-mode .auth-scroll-down { background: var(--card); border-color: var(--accent, #3b82f6); color: var(--accent-soft); }
+body.dark-mode .auth-scroll-down-arrow { background: var(--accent, #3b82f6); color: #fff; }
+
+/* ==========================================================================
+   2. FAQ — faq.html
+   ========================================================================== */
+body.dark-mode .doc-nav { background: linear-gradient(135deg, #1e3a8a, #0c1e4a); border-bottom-color: rgba(148, 163, 184, .2); }
+body.dark-mode .doc-nav-brand img { background: #fff; }
+
+body.dark-mode .faq-header-icon { background: linear-gradient(135deg, rgba(2, 132, 199, .3), rgba(2, 132, 199, .12)); color: #7dd3fc; }
+body.dark-mode .faq-header h1,
+body.dark-mode .faq-no-results h3 { color: var(--text-main); }
+body.dark-mode .faq-header p,
+body.dark-mode .faq-no-results p { color: var(--text-sub); }
+body.dark-mode .faq-header .badge { background: var(--surface-2); color: var(--text-sub); }
+body.dark-mode .faq-header .badge i { color: var(--text-sub); }
+
+body.dark-mode .faq-category,
+body.dark-mode .faq-item,
+body.dark-mode .faq-question { background: var(--card); border-color: var(--border-strong); }
+body.dark-mode .faq-category-title,
+body.dark-mode .faq-question,
+body.dark-mode .quick-help-card .qh-text h4 { color: var(--text-main); }
+body.dark-mode .faq-category-title { border-bottom-color: var(--border); }
+body.dark-mode .faq-item:hover { border-color: var(--accent, #3b82f6); }
+body.dark-mode .faq-question:hover { background: var(--surface-2); }
+body.dark-mode .faq-answer { background: var(--surface-soft); color: var(--text-sub); }
+
+body.dark-mode .faq-search input { background: var(--input-bg); border-color: var(--border-strong); color: var(--text-main); }
+body.dark-mode .faq-search-icon { color: var(--text-faint); }
+body.dark-mode .faq-search-clear { background: var(--surface-2); color: var(--text-sub); }
+body.dark-mode .faq-search-clear:hover { background: var(--border-strong); }
+body.dark-mode .quick-help-card { background: var(--card); border-color: var(--border-strong); }
+body.dark-mode .quick-help-card .qh-text p { color: var(--text-sub); }
+
+/* ==========================================================================
+   3. CHÍNH SÁCH BẢO MẬT + ĐIỀU KHOẢN — .doc-*
+   ========================================================================== */
+body.dark-mode .doc-hero-icon,
+body.dark-mode .doc-section-num { background: linear-gradient(135deg, rgba(2, 132, 199, .3), rgba(2, 132, 199, .12)); color: #7dd3fc; }
+body.dark-mode .doc-hero h1,
+body.dark-mode .doc-section h2,
+body.dark-mode .doc-section strong { color: var(--text-main); }
+body.dark-mode .doc-hero p,
+body.dark-mode .doc-section p,
+body.dark-mode .doc-section li { color: var(--text-sub); }
+body.dark-mode .doc-hero .badge { background: var(--surface-2); color: var(--text-sub); }
+body.dark-mode .doc-hero .badge i { color: var(--text-sub); }
+
+body.dark-mode .doc-section { background: var(--card); border-color: var(--border-strong); }
+body.dark-mode .doc-section-head { border-bottom-color: var(--border); }
+body.dark-mode .doc-section code { background: var(--surface-2); color: #f0abfc; }
+body.dark-mode .doc-section a { color: var(--accent-soft); border-bottom-color: var(--accent-soft); }
+body.dark-mode .doc-section a:hover { color: #bfdbfe; }
+
+body.dark-mode .highlight-box { background: rgba(59, 130, 246, .13); border-color: rgba(59, 130, 246, .32); color: #bfdbfe; }
+body.dark-mode .warn-box { background: rgba(245, 158, 11, .11); border-color: rgba(245, 158, 11, .32); color: #fcd34d; }
+
+/* Sidebar mục lục (dùng chung cả 3 trang legal) */
+body.dark-mode .toc-sidebar { background: var(--card); border-color: var(--border-strong); }
+body.dark-mode .toc-title { color: var(--text-sub); }
+body.dark-mode .toc-link { color: var(--text-sub); }
+body.dark-mode .toc-link:hover { color: var(--text-main); background: var(--surface-2); }
+body.dark-mode .toc-list .toc-link.active { background: linear-gradient(90deg, rgba(59, 130, 246, .2), transparent); }
+body.dark-mode .toc-hamburger { background: var(--card); border-color: var(--border-strong); color: var(--text-main); }
+body.dark-mode .toc-overlay { background: rgba(0, 0, 0, .6); }
+
+/* Footer riêng của faq.html */
+body.dark-mode .lh-footer { background: var(--footer-bg); border-color: var(--footer-border); }
+body.dark-mode .lh-footer-brand-logo h3,
+body.dark-mode .lh-footer-col h4 { color: var(--footer-heading-color); }
+body.dark-mode .lh-footer-brand p,
+body.dark-mode .lh-footer-links a,
+body.dark-mode .lh-contact-info li,
+body.dark-mode .lh-footer-bottom,
+body.dark-mode .lh-footer-bottom-links a { color: var(--footer-text); }
+body.dark-mode .lh-contact-info strong { color: var(--footer-text-strong); }
+body.dark-mode .lh-social-icons a { background: var(--footer-social-bg); color: var(--footer-social-text); }
+body.dark-mode .lh-footer-bottom-links a:hover { color: var(--footer-link-hover); }
+body.dark-mode .lh-footer-bottom { border-top-color: var(--footer-divider); }
+
+/* ==========================================================================
+   4. AI.html — chat Hubie
+   ========================================================================== */
+body.dark-mode .app { background: var(--bg-deep); }
+body.dark-mode .chat-header { background: #0b1220; color: #e2e8f0; border-bottom: 1px solid var(--border-strong); }
+body.dark-mode .mode-bar { background: #111c30; }
+body.dark-mode .mode-tab { background: rgba(148, 163, 184, .14); color: var(--text-sub); }
+body.dark-mode .mode-tab.active { background: var(--accent, #3b82f6); color: #fff; }
+body.dark-mode .mode-tab:hover:not(.active) { background: rgba(148, 163, 184, .26); }
+
+body.dark-mode .chat-box,
+body.dark-mode .dict-body { background: var(--bg-deep); color: var(--text-main); }
+body.dark-mode .msg-avatar { background: var(--surface-2); }
+body.dark-mode .ai-msg,
+body.dark-mode .typing-bubble { background: var(--card); color: var(--text-main); border-color: var(--border-strong); }
+body.dark-mode .user-msg { background: var(--accent, #3b82f6); color: #fff; }
+body.dark-mode .error-msg { background: rgba(248, 113, 113, .14); border-color: rgba(248, 113, 113, .35); color: #fca5a5; }
+body.dark-mode .msg-time { color: var(--text-faint); }
+body.dark-mode .ai-tools { background: rgba(30, 41, 59, .88); border-color: var(--border-strong); }
+body.dark-mode .tool-btn { color: var(--text-sub); }
+body.dark-mode .tool-btn:hover { color: var(--accent-soft); }
+body.dark-mode .typing-dot { background: var(--text-sub); }
+
+body.dark-mode .status { background: var(--surface-soft); border-bottom-color: var(--border-strong); color: var(--text-faint); }
+body.dark-mode .input-container { background: var(--card); border-top-color: var(--border-strong); }
+body.dark-mode .preview-container { background: var(--surface-soft); border-bottom-color: var(--border-strong); }
+body.dark-mode .preview-image { border-color: var(--border-strong); }
+body.dark-mode .attach-btn { background: var(--surface-2); color: var(--text-sub); }
+body.dark-mode .attach-btn:hover { background: var(--border-strong); color: var(--accent-soft); }
+body.dark-mode .input-area textarea { background: var(--input-bg); border-color: var(--border-strong); color: var(--text-main); }
+body.dark-mode .input-area textarea:focus { background: var(--card); border-color: var(--accent, #3b82f6); color: var(--text-main); }
+
+body.dark-mode .search-row input { background: var(--input-bg); border-color: var(--border-strong); color: var(--text-main); }
+body.dark-mode .search-row button:disabled { background: var(--surface-2); color: var(--text-faint); }
+body.dark-mode .state-msg { color: var(--text-faint); }
+body.dark-mode .state-msg.error { color: #f87171; }
+body.dark-mode .word-line .word { color: var(--text-main); }
+body.dark-mode .word-line .phonetic { color: var(--text-sub); }
+body.dark-mode .audio-btn { background: var(--surface-2); border-color: var(--border-strong); color: var(--accent-soft); }
+body.dark-mode .audio-btn:hover { background: rgba(59, 130, 246, .18); }
+body.dark-mode .pos-tag { background: rgba(59, 130, 246, .18); color: #93c5fd; }
+body.dark-mode .pos-gloss { color: #fbbf24; }
+body.dark-mode .meaning-label { color: var(--text-faint); }
+body.dark-mode .meaning-text { color: var(--text-sub); }
+body.dark-mode .meaning-text.vi { color: var(--text-main); background: rgba(245, 158, 11, .12); border-left-color: #f59e0b; }
+body.dark-mode .example,
+body.dark-mode .disclaimer { color: var(--text-faint); }
+
+body.dark-mode .modal-content { background: var(--card); color: var(--text-main); }
+body.dark-mode .modal-title { color: var(--accent-soft); }
+body.dark-mode .modal-body { color: var(--text-sub); }
