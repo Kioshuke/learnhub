@@ -962,7 +962,7 @@ document.getElementById("logoutAllBtn").addEventListener("click", async () => {
 // ============================== ERROR LOGS ==============================
 const ERROR_LOG_PAGE_SIZE = 15;
 const ERROR_LOG_LEVELS = { error: ["Nghiêm trọng", "var(--red)"], warning: ["Cảnh báo", "var(--amber)"], info: ["Bình thường", "var(--blue)"] };
-const ERROR_LOG_CATS = { ai: "AI", whitelist: "Whitelist", disabled: "Khóa user", auth: "Xác thực", feature: "Tính năng", test: "Bài test", ui: "Giao diện", load: "Tải dữ liệu", action: "Thao tác", reset: "Đặt lại", score: "Điểm số", "online-time": "Thời gian online", dashboard: "Bảng điều khiển" };
+const ERROR_LOG_CATS = { ai: "AI", whitelist: "Whitelist", disabled: "Khóa user", auth: "Xác thực", feature: "Tính năng", test: "Bài test", ui: "Giao diện", load: "Tải dữ liệu", action: "Thao tác", reset: "Đặt lại", score: "Điểm số", "online-time": "Thời gian online", dashboard: "Bảng điều khiển", location: "Vị trí" };
 let errorLogsLoaded = false;
 
 async function loadErrorLogs() {

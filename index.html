@@ -104,7 +104,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
   <a href="pages/features/phong-hoc.html" class="nav-link" style="--accent:#ff6b35">Phòng học</a>
 </div>
 <div class="header-user">
-  <span class="header-location"><i class="fa-solid fa-location-dot"></i> Tân Hồng - Đồng Tháp</span>
+  <span class="header-location" id="lhHeaderLocation"><i class="fa-solid fa-location-dot"></i> Tân Hồng - Đồng Tháp</span>
   <span class="header-time" id="currentTime"></span>
   <div class="notif-bell-wrap" id="notifBellWrap">
     <button class="notif-bell" id="notifBell" title="Hộp Thư">
@@ -2102,5 +2102,6 @@ if ("serviceWorker" in navigator) {
   });
 </script>
 <script src="/scripts/core/auto-log.js"></script>
+<script src="/scripts/core/header-location.js"></script>
 </body>
 </html>

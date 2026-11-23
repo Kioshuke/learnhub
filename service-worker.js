@@ -47,6 +47,7 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return; // Supabase / CDN / font... để trình duyệt tự lo
+  if (url.pathname.indexOf("/api/") === 0) return; // API động (/api/location) không được cache
 
   const isNavigation = req.mode === "navigate"
     || (req.headers.get("accept") || "").includes("text/html")

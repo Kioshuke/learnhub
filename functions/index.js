@@ -85,8 +85,34 @@ async function fetchMeta(rpcName, body) {
   }
 }
 
+const LOCATION_ENDPOINT = "/api/location";
+
+function toCoordinate(value) {
+  if (value === undefined || value === null || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+// Vị trí theo IP do Cloudflare cung cấp; client sẽ reverse-geocode sang tiếng Việt.
+function locationResponse(request) {
+  const cf = request.cf || {};
+  return new Response(JSON.stringify({
+    latitude: toCoordinate(cf.latitude),
+    longitude: toCoordinate(cf.longitude),
+    city: cf.city || null,
+    region: cf.region || null,
+    country: cf.country || null
+  }), {
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store"
+    }
+  });
+}
+
 export async function onRequestGet(context) {
   const requestUrl = new URL(context.request.url);
+  if (requestUrl.pathname === LOCATION_ENDPOINT) return locationResponse(context.request);
   const open = requestUrl.searchParams.get("open") || "";
   const de = requestUrl.searchParams.get("de") || "";
   const set = requestUrl.searchParams.get("set") || "";
