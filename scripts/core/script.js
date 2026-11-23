@@ -1008,19 +1008,10 @@ function requestOpenQuiz(de){
   if(!frame || !frame.contentWindow){ showDeepLinkOverlay(false); return; }
   var acked = false;
   var rv = null;
-  window.addEventListener("message", function handler(ev){
-    if(!ev.data || ev.data.type !== "OPEN_QUIZ_ACK") return;
-    acked = true;
-    if(rv) clearInterval(rv);
-    window.removeEventListener("message", handler);
-    window.removeEventListener("message", handlerBlocked);
-    showDeepLinkOverlay(false);
-    if(ev.data.ok === false){
-      var missingDe = ev.data.de || de;
-      window.location.href = "/404.html?open=phong-hoc&de=" + encodeURIComponent(missingDe);
-    }
-  });
-  window.addEventListener("message", function handlerBlocked(ev){
+  /* Khai báo ra biến trước: named function expression chỉ có tên ở bên trong
+     thân nó, nên nếu dùng `function handlerBlocked(){}` thì dòng removeEventListener
+     trong handler bên dưới sẽ ném ReferenceError và kẹt màn che "Đang mở bài test". */
+  var handlerBlocked = function(ev){
     if(!ev.data || ev.data.type !== "OPEN_QUIZ_BLOCKED") return;
     if(acked) return;
     acked = true;
@@ -1034,7 +1025,26 @@ function requestOpenQuiz(de){
     }else if(typeof alert === "function"){
       alert(msg);
     }
-  });
+  };
+  var handler = function(ev){
+    if(!ev.data || ev.data.type !== "OPEN_QUIZ_ACK") return;
+    acked = true;
+    if(rv) clearInterval(rv);
+    window.removeEventListener("message", handler);
+    window.removeEventListener("message", handlerBlocked);
+    showDeepLinkOverlay(false);
+    if(ev.data.ok === false){
+      var missingDe = ev.data.de || de;
+      if (window.lhLogEvent) window.lhLogEvent({
+        source: "router", category: "feature", level: "warning", code: "TEST_LINK_NOT_FOUND",
+        message: "Link bài test không tồn tại hoặc đã bị xoá: " + missingDe,
+        detail: { de: missingDe, from: location.href }
+      });
+      window.location.href = "/404.html?open=phong-hoc&de=" + encodeURIComponent(missingDe);
+    }
+  };
+  window.addEventListener("message", handler);
+  window.addEventListener("message", handlerBlocked);
   rv = setInterval(function(){
     if(acked) { if(rv) clearInterval(rv); return; }
     try { if(frame.contentWindow) frame.contentWindow.postMessage({ type: "OPEN_QUIZ", de: de }, "*"); } catch(e){}
