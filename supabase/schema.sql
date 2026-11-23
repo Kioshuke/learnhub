@@ -226,6 +226,14 @@ create index if not exists error_logs_created_at_idx on public.error_logs (creat
 create index if not exists error_logs_status_idx on public.error_logs (status);
 create index if not exists error_logs_level_idx on public.error_logs (level);
 
+-- Location logs là error-only: nếu client cũ còn gửi level info thì xoá và chặn hẳn ở DB.
+-- Chỉ giữ lại Cảnh báo (warning) + Nghiêm trọng (error) cho category = 'location'.
+delete from public.error_logs where category = 'location' and lower(level) = 'info';
+
+alter table public.error_logs drop constraint if exists error_logs_location_no_info;
+alter table public.error_logs add constraint error_logs_location_no_info
+  check (not (category = 'location' and lower(level) = 'info'));
+
 -- ============================== RLS ==============================
 
 alter table public.users enable row level security;

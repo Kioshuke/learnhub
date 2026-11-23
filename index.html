@@ -638,6 +638,17 @@ async function sendHeartbeat(uid) {
 // ================= MAINTENANCE MODE (realtime, đọc từ Supabase maintenance_settings) =================
 let maintenanceState = { enabled: false, message: "", initialized: false };
 let previousMaintenanceEnabled = false;
+let maintenanceRedirecting = false;
+let maintenanceRealtimeSeen = false;
+
+// Chỉ redirect một lần, bất kể sự kiện đến từ getMaintenance / realtime / auth.
+function redirectToMaintenance(){
+  if (maintenanceRedirecting) return;
+  if (/maintenance\.html$/.test(location.pathname)) return;
+  maintenanceRedirecting = true;
+  try { window.location.replace('/maintenance.html'); }
+  catch (e) { window.location.href = '/maintenance.html'; }
+}
 
 function handleMaintenanceTransition(newEnabled){
   // Only sign out when maintenance is newly enabled (transition false -> true)
@@ -680,10 +691,12 @@ applyMaintenanceUI();
 // (signOut) tất cả user đang đăng nhập ngay khi admin bật bảo trì lên.
 try {
   getMaintenance().then((_m) => {
+    // Realtime đã nhận thì không cho response REST cũ đè lại trạng thái.
+    if (maintenanceRealtimeSeen) return;
     maintenanceState = { enabled: _m.enabled, message: _m.message, initialized: true };
     handleMaintenanceTransition(maintenanceState.enabled);
     applyMaintenanceUI();
-    if (maintenanceState.enabled) window.location.replace('/maintenance.html');
+    if (maintenanceState.enabled) redirectToMaintenance();
   }).catch(() => {});
 } catch (e) {
   maintenanceState = { enabled: true, message: "", initialized: true };
@@ -693,20 +706,14 @@ try {
 
 try {
   subscribeMaintenance((data) => {
+    maintenanceRealtimeSeen = true;
     const newEnabled = data.enabled;
     maintenanceState = { enabled: newEnabled, message: data.message, initialized: true };
     // handle transition-based sign out (only when it turns on)
     handleMaintenanceTransition(newEnabled);
     applyMaintenanceUI();
-    // If maintenance just turned on, redirect to standalone maintenance page
-    try{
-      if(newEnabled){
-        // avoid redirecting if already on maintenance page
-        if(!location.pathname.endsWith('/maintenance.html') && !location.pathname.endsWith('maintenance.html')){
-          try { window.location.replace('/maintenance.html'); } catch(e){ window.location.href = '/maintenance.html'; }
-        }
-      }
-    } catch(e){}
+    // redirect gated ở redirectToMaintenance(): một lần, không trùng auth/REST.
+    if (newEnabled) redirectToMaintenance();
   });
 } catch (e) {
   maintenanceState = { enabled: true, message: "", initialized: true };
@@ -1331,7 +1338,7 @@ if(user){
 
 } else {
   if (maintenanceState.initialized && maintenanceState.enabled) {
-    window.location.replace('/maintenance.html');
+    redirectToMaintenance();
   } else {
     enterGuestMode();
   }
@@ -2078,8 +2085,21 @@ window.addEventListener("message", async (event) => {
 <script src="scripts/core/script.js" defer></script>
 <script>
 /* PWA: đăng ký service worker (bỏ qua im lặng nếu môi trường không hỗ trợ) */
+/* Localhost: không dùng SW + dọn cache cũ để tránh nhảy trang lúc test bảo trì */
 if ("serviceWorker" in navigator) {
+  var isLocalHost = /^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname);
   window.addEventListener("load", function () {
+    if (isLocalHost) {
+      navigator.serviceWorker.getRegistrations()
+        .then(function (regs) { return Promise.all(regs.map(function (r) { return r.unregister(); })); })
+        .catch(function () {});
+      if (window.caches && caches.keys) {
+        caches.keys().then(function (keys) {
+          return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+        }).catch(function () {});
+      }
+      return;
+    }
     navigator.serviceWorker.register("service-worker.js")
       .then(function (reg) { reg.update(); })
       .catch(function () {});

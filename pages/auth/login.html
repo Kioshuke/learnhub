@@ -1460,20 +1460,30 @@ supabase.auth.onAuthStateChange((event) => {
 });
 
 let maintenanceState = { enabled: false, message: "", initialized: false };
+let maintenanceRedirecting = false;
+let maintenanceRealtimeSeen = false;
+
+function redirectToMaintenance(){
+  if (maintenanceRedirecting) return;
+  if (/maintenance\.html$/.test(location.pathname)) return;
+  maintenanceRedirecting = true;
+  window.location.replace('/maintenance.html');
+}
 
 // Check ngay khi load trang (await — nếu bật thì redirect ngay, không chạy tiếp)
 try {
   console.log("[MAINTENANCE] Checking maintenance status on load...");
   const _m = await getMaintenance();
+  if (maintenanceRealtimeSeen) throw new Error("realtime already applied");
   maintenanceState = { enabled: _m.enabled, message: _m.message, initialized: true };
   console.log("[MAINTENANCE] Initial check result:", maintenanceState);
   if (maintenanceState.enabled) {
     console.log("[MAINTENANCE] Maintenance is enabled, redirecting to maintenance.html");
-    window.location.replace('/maintenance.html');
+    redirectToMaintenance();
   } else {
     console.log("[MAINTENANCE] Maintenance is disabled, staying on login.html");
   }
-} catch(e) { console.error("Maintenance check error:", e); }
+} catch(e) { if (!maintenanceRealtimeSeen) console.error("Maintenance check error:", e); }
 
 let registrationOpen = true;
 let registrationMessage = "";
@@ -1484,12 +1494,13 @@ isRegistrationOpen().then(ok => {
 // Lắng nghe realtime: bật → redirect maintenance.html, tắt → redirect login.html
 try {
   subscribeMaintenance((data) => {
+    maintenanceRealtimeSeen = true;
     const wasEnabled = maintenanceState.enabled;
     maintenanceState = { enabled: data.enabled, message: data.message, initialized: true };
     console.log("[MAINTENANCE] Realtime update - wasEnabled:", wasEnabled, "enabled:", maintenanceState.enabled, "pathname:", location.pathname);
     if (maintenanceState.enabled && !wasEnabled) {
       console.log("[MAINTENANCE] Maintenance just turned ON, redirecting to maintenance.html");
-      window.location.replace('/maintenance.html');
+      redirectToMaintenance();
     } else if (!maintenanceState.enabled && wasEnabled) {
       console.log("[MAINTENANCE] Maintenance just turned OFF");
     }
@@ -2201,7 +2212,7 @@ onAuthChange(async (event, session) => {
 });
 
 window.googleLogin = async function() {
-  if (maintenanceState.enabled) { window.location.replace('/maintenance.html'); return; }
+  if (maintenanceState.enabled) { redirectToMaintenance(); return; }
   processingLogin = true;
   try {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -2218,7 +2229,7 @@ window.googleLogin = async function() {
 };
 
 window.facebookLogin = async function() {
-  if (maintenanceState.enabled) { window.location.replace('/maintenance.html'); return; }
+  if (maintenanceState.enabled) { redirectToMaintenance(); return; }
   processingLogin = true;
   try {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -2235,7 +2246,7 @@ window.facebookLogin = async function() {
 };
 
 window.microsoftLogin = async function() {
-  if (maintenanceState.enabled) { window.location.replace('/maintenance.html'); return; }
+  if (maintenanceState.enabled) { redirectToMaintenance(); return; }
   processingLogin = true;
   try {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -2252,7 +2263,7 @@ window.microsoftLogin = async function() {
 };
 
 window.emailLogin = async function() {
-  if (maintenanceState.enabled) { window.location.replace('/maintenance.html'); return; }
+  if (maintenanceState.enabled) { redirectToMaintenance(); return; }
   clearFieldErrors();
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
@@ -2655,8 +2666,21 @@ window.emailRegister = async function() {
 </script>
 <script>
 /* PWA: đăng ký service worker */
+/* Localhost: không dùng SW + dọn cache cũ để tránh nhảy trang lúc test bảo trì */
 if ("serviceWorker" in navigator) {
+  var isLocalHost = /^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname);
   window.addEventListener("load", function () {
+    if (isLocalHost) {
+      navigator.serviceWorker.getRegistrations()
+        .then(function (regs) { return Promise.all(regs.map(function (r) { return r.unregister(); })); })
+        .catch(function () {});
+      if (window.caches && caches.keys) {
+        caches.keys().then(function (keys) {
+          return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+        }).catch(function () {});
+      }
+      return;
+    }
     navigator.serviceWorker.register("/service-worker.js")
       .then(function (reg) { reg.update(); })
       .catch(function () {});

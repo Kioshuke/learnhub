@@ -159,8 +159,19 @@
   </div>
 
   <script type="module">
-  import { subscribeMaintenance, logAppError } from "./scripts/core/supabase-config.js";
+  import { getMaintenance, subscribeMaintenance, logAppError } from "./scripts/core/supabase-config.js";
   window.logAppError = logAppError;
+
+  let maintenanceLeaving = false;
+  function leaveMaintenancePage(){
+    if (maintenanceLeaving) return;
+    maintenanceLeaving = true;
+    try { window.location.replace('/pages/auth/login.html'); } catch(e){ window.location.href = '/pages/auth/login.html'; }
+  }
+  async function verifyMaintenanceOff(){
+    const m = await getMaintenance();
+    if (m.ok && !m.enabled) leaveMaintenancePage();
+  }
 
   try{
     console.log("[MAINTENANCE PAGE] Starting maintenance listener...");
@@ -171,17 +182,27 @@
       console.log("[MAINTENANCE PAGE] Realtime update - enabled:", enabled, "message:", message);
       if(statusEl) statusEl.textContent = message ? message : 'Đang cập nhật...';
       if(!enabled){
-        console.log("[MAINTENANCE PAGE] Maintenance disabled, redirecting to login.html");
-        try { window.location.replace('/pages/auth/login.html'); } catch(e){ window.location.href = '/pages/auth/login.html'; }
+        console.log("[MAINTENANCE PAGE] Maintenance disabled, verifying before leaving...");
+        verifyMaintenanceOff().catch(() => {});
       } else {
         console.log("[MAINTENANCE PAGE] Maintenance still enabled, staying on maintenance page");
       }
     });
+    // Vào thẳng trang bảo trì lúc bảo trì đã tắt → về login, không đứng giữa chừng.
+    verifyMaintenanceOff().catch(() => {});
   } catch(e){
     console.warn('Không thể lắng nghe trạng thái bảo trì:', e);
   }
   </script>
 <script src="/scripts/core/auto-log.js"></script>
 <script src="/scripts/core/header-location.js"></script>
+<script>
+/* Localhost: gỡ SW cũ nếu còn sót từ lần test trước */
+if ("serviceWorker" in navigator && /^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname)) {
+  navigator.serviceWorker.getRegistrations()
+    .then(function (regs) { return Promise.all(regs.map(function (r) { return r.unregister(); })); })
+    .catch(function () {});
+}
+</script>
 </body>
 </html>
