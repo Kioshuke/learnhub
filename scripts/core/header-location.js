@@ -5,7 +5,8 @@
    - Nếu từ chối/lỗi -> lấy lat/lon từ /api/location (Cloudflare) rồi
      reverse geocode tiếp -> vẫn ra tên xã/quận + tỉnh tiếng Việt.
    - Nếu vẫn lỗi -> giữ nguyên text tĩnh có sẵn trong HTML.
-   - Cache localStorage 7 ngày: có cache thì không hỏi quyền lại.
+   - Cache localStorage chỉ để hiện ngay (khỏi giật); mỗi lần tải trang
+     vẫn thử lấy vị trí mới để cập nhật (đổi GPS/DevTools thì reload là đổi).
    - Header được fetch bất đồng bộ nên dùng MutationObserver để ghi lại
      sau khi span xuất hiện (index.html thì có sẵn header inline).
    ============================================================ */
@@ -230,8 +231,9 @@
 
   function start() {
     var cached = readCache();
+    // Hiện vị trí cũ ngay để header không bị nhảy, sau đó luôn thử lấy vị trí mới.
     if (cached) settle(cached, true);
-    else resolveFresh();
+    resolveFresh();
   }
 
   watchHeader();
