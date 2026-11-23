@@ -1,14 +1,19 @@
 /* ============================================================
    LearnHub HEADER LOCATION — vị trí hiện tại trên header
    ------------------------------------------------------------
-   - Ưu tiên GPS (navigator.geolocation) -> reverse geocode BigDataCloud.
-   - Nếu từ chối/lỗi -> lấy lat/lon từ /api/location (Cloudflare) rồi
-     reverse geocode tiếp -> vẫn ra tên xã/quận + tỉnh tiếng Việt.
-   - Nếu vẫn lỗi -> giữ nguyên text tĩnh có sẵn trong HTML.
-   - Cache localStorage chỉ để hiện ngay (khỏi giật); mỗi lần tải trang
-     vẫn thử lấy vị trí mới để cập nhật (đổi GPS/DevTools thì reload là đổi).
-   - Header được fetch bất đồng bộ nên dùng MutationObserver để ghi lại
-     sau khi span xuất hiện (index.html thì có sẵn header inline).
+   Thứ tự lấy vị trí: GPS -> IP -> cache -> text mặc định trong HTML.
+
+   - Chỉ GHI LOG KHI THẤT BẠI Ở CẢ 2 NGUỒN ĐẦU (GPS + IP):
+       + còn cache  -> warning LOCATION_USING_CACHE
+       + hết cache  -> error   LOCATION_DEFAULT
+     Không log thành công, không log từng lần GPS denied.
+   - Cache vẫn được sơn ngay lúc load để header khỏi giật, nhưng chỉ là
+     "hiện tạm"; GPS/IP thành công sẽ ghi đè.
+   - Nếu span vị trí đang bị ẩn (CSS <=700px) thì KHÔNG gọi GPS, không hỏi
+     quyền, không tốn request IP. Khi nào span hiện ra (xoay ngang, kéo rộng
+     cửa sổ, hoặc header fetch xong mới chèn vào) thì mới resolve 1 lần.
+   - Header được fetch bất đồng bộ ở 28 trang nên dùng MutationObserver:
+     "chưa có span" khác với "có span nhưng đang ẩn".
    ============================================================ */
 (function () {
   "use strict";
@@ -25,6 +30,8 @@
 
   var currentText = "";
   var fallbackText = "";
+  var resolved = false;   // mỗi lần load trang chỉ resolve một lần
+  var resizeTimer = null;
 
   function log(level, code, message, detail) {
     try {
@@ -77,15 +84,26 @@
     } catch (e) {}
   }
 
-  function settle(text, fromCache) {
+  /* persist = true chỉ khi text đến từ mạng (GPS/IP). Cache thì không ghi lại. */
+  function settle(text, persist) {
     if (!text) return;
     currentText = text;
     paint(text);
-    if (fromCache) {
-      log("info", "LOCATION_CACHE_HIT", "Dùng vị trí đã lưu: " + text);
+    if (persist) writeCache(text);
+  }
+
+  /* Đây là ĐIỂM DUY NHẤT ghi log location — chỉ chạy khi GPS + IP đều hỏng. */
+  function finishWithFallback(reason) {
+    var cached = readCache() || currentText;
+    if (cached) {
+      settle(cached, false);
+      log("warning", "LOCATION_USING_CACHE",
+        "Không có vị trí hiện tại, đang lấy vị trí từ cache: " + cached,
+        { reason: reason || "" });
     } else {
-      writeCache(text);
-      log("info", "LOCATION_RESOLVED", "Vị trí hiện tại: " + text);
+      log("error", "LOCATION_DEFAULT",
+        "Không lấy được vị trí, đang hiện vị trí mặc định.",
+        { reason: reason || "" });
     }
   }
 
@@ -154,6 +172,7 @@
     return fetchJson(url, 8000).then(normalizePlace);
   }
 
+  /* Nguồn 2: IP. Hỏng thì mới nhường cho cache/text mặc định. */
   function ipFallback(reason) {
     return fetchJson(IP_ENDPOINT + "?t=" + Date.now(), 6000)
       .then(function (geo) {
@@ -166,16 +185,14 @@
       })
       .then(function (text) {
         if (!text) throw new Error("không xác định được tên địa phương");
-        settle(text, false);
+        settle(text, true);
       })
       .catch(function (err) {
-        // Không đụng vào text tĩnh: người dùng vẫn thấy "Tân Hồng - Đồng Tháp".
-        log("error", "LOCATION_FALLBACK_FAIL",
-          "Không lấy được vị trí dự phòng: " + String((err && err.message) || err),
-          { reason: reason || "" });
+        finishWithFallback(reason + " -> ip: " + String((err && err.message) || err));
       });
   }
 
+  /* Nguồn 1: GPS. Không log deny ở đây, chỉ đẩy sang IP rồi log 1 lần ở cuối. */
   function resolveFresh() {
     if (!navigator.geolocation || window.isSecureContext === false) {
       ipFallback("geolocation-unavailable");
@@ -191,7 +208,7 @@
         }
         reverseGeocode(lat, lon)
           .then(function (text) {
-            if (text) settle(text, false);
+            if (text) settle(text, true);
             else ipFallback("empty-place");
           })
           .catch(function () {
@@ -199,7 +216,6 @@
           });
       }, function (err) {
         var code = err && err.code === 1 ? "GEO_DENIED" : "GEO_UNAVAILABLE";
-        log("error", code, "Không lấy được vị trí GPS: " + String((err && err.message) || "unknown"));
         ipFallback(code);
       }, {
         enableHighAccuracy: false,
@@ -211,11 +227,42 @@
     }
   }
 
+  /* null = span chưa tồn tại (header đang fetch) -> chưa quyết định gì. */
+  function checkVisibility() {
+    var span = findSpan();
+    if (!span) return null;
+    try {
+      var st = window.getComputedStyle(span);
+      if (st.display === "none" || st.visibility === "hidden" || st.opacity === "0") return false;
+      return span.getClientRects().length > 0;
+    } catch (e) {
+      return true;
+    }
+  }
+
+  function maybeResolve() {
+    if (resolved) return;
+    var visible = checkVisibility();
+    if (visible === null) return;  // đợi MutationObserver thấy span xuất hiện
+    if (!visible) return;          // đang ẩn -> đợi resize/xoay ngang
+    resolved = true;
+    resolveFresh();
+  }
+
+  function onViewportChange() {
+    if (resolved) return;
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(maybeResolve, 200);
+  }
+
   function watchHeader() {
     var span = findSpan();
     if (span) fallbackText = String(span.textContent || "").replace(/\s+/g, " ").trim();
 
-    if (!("MutationObserver" in window)) return;
+    if (!("MutationObserver" in window)) {
+      window.addEventListener("resize", onViewportChange, { passive: true });
+      return;
+    }
     var observer = new MutationObserver(function () {
       var el = findSpan();
       if (!el) return;
@@ -225,17 +272,20 @@
         var text = String(el.textContent || "").replace(/\s+/g, " ").trim();
         if (text) fallbackText = text;
       }
+      maybeResolve();
     });
     observer.observe(document.documentElement, { childList: true, subtree: true });
+    window.addEventListener("resize", onViewportChange, { passive: true });
+    window.addEventListener("orientationchange", onViewportChange, { passive: true });
   }
 
   function start() {
+    watchHeader();
+    // Sơn cache trước cho header khỏi nhảy (không log), rồi mới resolve thật.
     var cached = readCache();
-    // Hiện vị trí cũ ngay để header không bị nhảy, sau đó luôn thử lấy vị trí mới.
-    if (cached) settle(cached, true);
-    resolveFresh();
+    if (cached) settle(cached, false);
+    maybeResolve();
   }
 
-  watchHeader();
   start();
 })();
