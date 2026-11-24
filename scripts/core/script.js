@@ -717,7 +717,8 @@ if(id === "home"){
     if(!frame) return;
     try { frame.focus({ preventScroll: true }); } catch(e){ try { frame.focus(); } catch(_e){} }
   }, 50);
-} else {
+} else if (id !== "phong-hoc") {
+  // Phòng Học tự co giãn theo nội dung nên KHÔNG tự cuộn/focus khi bấm chữ "Phòng học".
   setTimeout(function(){
     var el = document.getElementById(id);
     if(el) el.scrollIntoView({ behavior:"smooth", block:"start" });

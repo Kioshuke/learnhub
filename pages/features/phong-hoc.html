@@ -56,7 +56,7 @@ iframe{width:100%;border:none !important;outline:none !important;display:block;}
 .subject-title i{color:var(--text-sub);font-size:13px;}
 
 /* ===== SUBJECT BLOCK (khối liền mạch: tiêu đề + tabs + nội dung) ===== */
-.subject-block{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:14px 14px 18px;overflow:hidden;}
+.subject-block{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:14px 14px 18px;overflow:hidden;scroll-margin-top:8px;}
 .subject-block .subject-title{margin:0 2px 12px;padding-bottom:12px;border-bottom:1px solid var(--card-border);}
 .subject-block .subject-title i{font-size:14px;}
 .subject-block .subject-tabs{padding-bottom:12px;}
@@ -362,6 +362,27 @@ body.dark-mode .subject-tab.active:hover{color:#fff;border-color:var(--tab);}
    (YouTube API, Google Drive, PDF) + nhúng bài test (loadQuiz).
    ============================================================ */
 
+/* Báo chiều cao thật cho web chính để iframe #phongHocFrame co giãn theo nội dung,
+   không còn cảnh hàng cuối bị nhảy khi môn có 4 hàng card.
+   Khi đang mở bài test/video thì KHÔNG đo: web chính đang ép khung về đúng 1 màn hình,
+   nếu tiếp tục báo chiều cao sẽ tạo vòng lặp co giãn làm bài test mất scroll. */
+var __phScrollLocked = false;
+var __phHeightRaf = null;
+function notifyParentHeight() {
+  if (window.parent === window || __phScrollLocked) return;
+  if (__phHeightRaf) cancelAnimationFrame(__phHeightRaf);
+  __phHeightRaf = requestAnimationFrame(function () {
+    __phHeightRaf = null;
+    var h = Math.max(
+      document.documentElement.scrollHeight || 0,
+      document.body ? document.body.scrollHeight : 0
+    );
+    if (h > 0) {
+      window.parent.postMessage({ type: "PHONGHOC_HEIGHT", height: Math.ceil(h) + "px" }, "*");
+    }
+  });
+}
+
 function applyCardDominoEffect() {
   document.querySelectorAll('.grid').forEach(function(grid) {
     var cards = grid.querySelectorAll('.card');
@@ -375,6 +396,7 @@ function applyCardDominoEffect() {
       card.style.setProperty('--card-index', index);
     });
   });
+  notifyParentHeight();
 }
 
 function switchSubject(id) {
@@ -390,19 +412,49 @@ function switchSubject(id) {
   document.querySelectorAll('.subject-tab').forEach(t => t.classList.remove('active'));
   // [FIX BUG #19] Guard null: tránh crash khi không tìm thấy tab/panel tương ứng
   var tabEl = document.querySelector('.subject-tab[data-subject="' + id + '"]');
-  if (tabEl) tabEl.classList.add('active');
+  if (tabEl) {
+    tabEl.classList.add('active');
+    // Nhiều môn thì giữ tab đang chọn nằm trong vùng nhìn ngang.
+    try {
+      tabEl.scrollIntoView({ behavior: "auto", block: "nearest", inline: "center" });
+    } catch (e) {}
+  }
   document.querySelectorAll('.subject-panel').forEach(p => p.classList.remove('active'));
   var panelEl = document.getElementById(id);
   if (panelEl) panelEl.classList.add('active');
   applyCardDominoEffect();
+
+  // Lịch thi vừa co lại (transition .3s) -> đợi xong mới cuộn xuống môn đang chọn.
+  var reducedMotion = (document.body && document.body.classList.contains("cc-reduced")) ||
+    (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  var scrollBehavior = reducedMotion ? "auto" : "smooth";
+  setTimeout(function () {
+    // Chỉ cuộn tới khối "Danh sách môn học" để vẫn thấy tiêu đề + tabs, không lố xuống panel.
+    var blockEl = document.querySelector(".subject-block");
+    if (blockEl && typeof blockEl.scrollIntoView === "function") {
+      try { blockEl.scrollIntoView({ behavior: scrollBehavior, block: "start" }); } catch (e) {}
+    }
+    notifyParentHeight();
+  }, 320);
 }
 
 window.learnHubUser = null;
 
 window.addEventListener('DOMContentLoaded', applyCardDominoEffect);
 window.addEventListener('load', applyCardDominoEffect);
+window.addEventListener('load', notifyParentHeight);
+window.addEventListener('resize', notifyParentHeight);
+try {
+  if (typeof ResizeObserver === "function") {
+    new ResizeObserver(notifyParentHeight).observe(document.body);
+  }
+} catch (e) {}
 window.addEventListener('message', function(event) {
   if (!event.data) return;
+  if (event.data.type === 'PHONGHOC_REMEASURE') {
+    notifyParentHeight();
+    return;
+  }
   if (event.data.type === 'SCHEDULE_HEIGHT') {
     var sf = document.getElementById("scheduleFrame");
     if (sf && event.data.height) sf.style.height = event.data.height;
@@ -448,6 +500,7 @@ window.addEventListener('message', function(event) {
 });
 
 function lockPageScroll() {
+  __phScrollLocked = true;
   document.body.style.overflow = 'hidden';
   document.documentElement.style.overflow = 'hidden';
 }
@@ -463,8 +516,12 @@ function phongToast(message, options) {
 }
 
 function unlockPageScroll() {
+  __phScrollLocked = false;
   document.body.style.overflow = '';
   document.documentElement.style.overflow = '';
+  // Đóng bài/video: đo lại để web chính trả khung về đúng chiều cao danh sách môn.
+  setTimeout(notifyParentHeight, 0);
+  setTimeout(notifyParentHeight, 120);
 }
 
 async function openQuizByDe(de, retryCount) {

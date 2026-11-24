@@ -1588,7 +1588,17 @@ popup.style.display = "none";
   }
 });
 window.addEventListener("message", (event) => {
+  var phFrame = document.getElementById("phongHocFrame");
+  var fromPhongHoc = !!(phFrame && event.source === phFrame.contentWindow);
+
   if (event.data && event.data.type === "LOCK_PAGE_SCROLL") {
+    // Phòng Học: ép khung về đúng 1 màn hình rồi tạm ngưng auto-height.
+    // Nếu vẫn để khung cao bằng nội dung thì .quiz-box {height:100vh} bên trong bị phình
+    // theo khung -> bài test không còn vùng để cuộn (scroll "mất" hết).
+    if (fromPhongHoc) {
+      window.__phScrollLocked = true;
+      phFrame.style.height = window.innerHeight + "px";
+    }
     // keepSticky: các tab có header GHIM (tài liệu/forum/blog) chỉ khoá ở <html>. Nếu đặt
     // overflow:hidden lên <body> thì <body> thành scroll container -> header sticky bật khỏi
     // vị trí (giật). Phòng học không có header ghim nên vẫn khoá cả hai như cũ.
@@ -1601,6 +1611,16 @@ window.addEventListener("message", (event) => {
   } else if (event.data && event.data.type === "UNLOCK_PAGE_SCROLL") {
     document.body.style.overflow = '';
     document.documentElement.style.overflow = '';
+    if (fromPhongHoc) {
+      // Mở lại auto-height và bắt Phòng Học đo lại chiều cao danh sách môn.
+      window.__phScrollLocked = false;
+      phFrame.style.height = window.innerHeight + "px";
+      var askHeight = function () {
+        try { phFrame.contentWindow.postMessage({ type: "PHONGHOC_REMEASURE" }, "*"); } catch (e) {}
+      };
+      askHeight();
+      setTimeout(askHeight, 150);
+    }
   }
   if (event.data && event.data.type === "CLOSE_QUIZ_SCROLL_TOP") {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -2107,8 +2127,19 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 <script>
-  // Nhận tin nhắn từ iframe để cập nhật title trang chính
+  // Nhận tin nhắn từ iframe để cập nhật title trang chính + tự co giãn khung Phòng Học
   window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'PHONGHOC_HEIGHT') {
+      // Đang mở bài test/video thì bỏ qua: khung đã bị ép về 1 màn hình để giữ scroll bên trong.
+      if (window.__phScrollLocked) return;
+      var phFrame = document.getElementById('phongHocFrame');
+      if (!phFrame || (event.source && phFrame.contentWindow && event.source !== phFrame.contentWindow)) return;
+      var phHeight = parseInt(event.data.height, 10);
+      if (isFinite(phHeight) && phHeight > 0) {
+        phFrame.style.height = Math.max(phHeight, window.innerHeight) + 'px';
+      }
+      return;
+    }
     if (event.data && event.data.type === 'legal-title') {
       document.title = event.data.title || "LearnHub Platform";
       return;
